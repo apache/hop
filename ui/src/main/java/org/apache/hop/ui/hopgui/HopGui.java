@@ -1572,6 +1572,8 @@ public class HopGui
   }
 
   /**
+   * Activates the given perspective.
+   *
    * @param perspective The perspective to active
    */
   public void setActivePerspective(IHopPerspective perspective) {

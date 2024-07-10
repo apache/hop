@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,8 +24,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.Selectors;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImageSvg;
@@ -36,6 +39,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.plugins.IPlugin;
@@ -52,6 +56,7 @@ import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
@@ -84,6 +89,14 @@ import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.TreeEditor;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -91,12 +104,14 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.Widget;
 
 @HopPerspectivePlugin(
     id = "300-HopExplorerPerspective",
@@ -110,10 +125,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
   public static final String GUI_TOOLBAR_CREATED_CALLBACK_ID =
       "ExplorerPerspective-Toolbar-Created";
+  public static final String GUI_CONTEXT_MENU_CREATED_CALLBACK_ID =
+      "ExplorerPerspective-ContextMenu-Created";
 
   private static final String FILE_EXPLORER_TREE = "File explorer tree";
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "ExplorerPerspective-Toolbar";
+  public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID = "ExplorerPerspective-ContextMenu";
 
   public static final String TOOLBAR_ITEM_OPEN = "ExplorerPerspective-Toolbar-10000-Open";
   public static final String TOOLBAR_ITEM_CREATE_FOLDER =
@@ -121,10 +139,20 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public static final String TOOLBAR_ITEM_DELETE = "ExplorerPerspective-Toolbar-10100-Delete";
   public static final String TOOLBAR_ITEM_RENAME = "ExplorerPerspective-Toolbar-10200-Rename";
   public static final String TOOLBAR_ITEM_REFRESH = "ExplorerPerspective-Toolbar-10300-Refresh";
+  public static final String TOOLBAR_ITEM_SHOW_HIDDEN =
+      "ExplorerPerspective-Toolbar-10400-Show-hidden";
+
+  public static final String CONTEXT_MENU_CREATE_FOLDER =
+      "ExplorerPerspective-ContextMenu-10050-CreateFolder";
+  public static final String CONTEXT_MENU_OPEN = "ExplorerPerspective-ContextMenu-10100-Open";
+  public static final String CONTEXT_MENU_RENAME = "ExplorerPerspective-ContextMenu-10300-Rename";
+  public static final String CONTEXT_MENU_COPY_NAME =
+      "ExplorerPerspective-ContextMenu-10400-CopyName";
+  public static final String CONTEXT_MENU_COPY_PATH =
+      "ExplorerPerspective-ContextMenu-10401-CopyPath";
+  public static final String CONTEXT_MENU_DELETE = "ExplorerPerspective-ContextMenu-90000-Delete";
 
   private static ExplorerPerspective instance;
-
-  private boolean treeIsFresh;
 
   public static ExplorerPerspective getInstance() {
     // There can be only one
@@ -141,14 +169,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   private CTabFolder tabFolder;
   private ToolBar toolBar;
   private GuiToolbarWidgets toolBarWidgets;
-
+  private GuiMenuWidgets menuWidgets;
+  private boolean treeIsFresh;
   private List<ExplorerFile> files = new ArrayList<>();
-
-  private final EmptyFileType emptyFileType;
   private final ExplorerFileType explorerFileType;
+  private boolean showingHiddenFiles;
 
   private String rootFolder;
   private String rootName;
+  private String dragFile;
+  private int dropOperation;
 
   private class TreeItemFolder {
     public TreeItem treeItem;
@@ -191,7 +221,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public ExplorerPerspective() {
     instance = this;
 
-    this.emptyFileType = new EmptyFileType();
     this.explorerFileType = new ExplorerFileType();
 
     this.filePaintListeners = new ArrayList<>();
@@ -199,7 +228,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     this.refreshListeners = new ArrayList<>();
     this.selectionListeners = new ArrayList<>();
     this.typeImageMap = new HashMap<>();
-
+    this.showingHiddenFiles = false;
     this.treeIsFresh = false;
   }
 
@@ -422,14 +451,237 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     //
     tree.addListener(SWT.Expand, this::lazyLoadFolderOnExpand);
 
+    // Create context menu...
+    //
+    Menu menu = new Menu(tree);
+    menuWidgets = new GuiMenuWidgets();
+    menuWidgets.registerGuiPluginObject(this);
+    menuWidgets.createMenuWidgets(GUI_PLUGIN_CONTEXT_MENU_PARENT_ID, getShell(), menu);
+    tree.setMenu(menu);
+    tree.addListener(
+        SWT.MenuDetect,
+        event -> {
+          if (tree.getSelectionCount() < 1) {
+            return;
+          }
+
+          TreeItem[] selection = tree.getSelection();
+          menuWidgets.findMenuItem(CONTEXT_MENU_OPEN).setEnabled(selection.length == 1);
+          menuWidgets.findMenuItem(CONTEXT_MENU_RENAME).setEnabled(selection.length == 1);
+
+          // Show the menu
+          //
+          menu.setVisible(true);
+        });
+
+    // Create drag and drop on the tree
+    //
+    createTreeDragSource(tree);
+    createTreeDropTarget(tree);
+
     // Remember tree node expanded/Collapsed
     //
     TreeMemory.addTreeListener(tree, FILE_EXPLORER_TREE);
 
-    // Inform other plugins that this toolbar is created
+    // Inform other plugins that toolbar and context menu are created
     // They can then add listeners to this class and so on.
     //
     GuiRegistry.getInstance().executeCallbackMethods(GUI_TOOLBAR_CREATED_CALLBACK_ID);
+    GuiRegistry.getInstance().executeCallbackMethods(GUI_CONTEXT_MENU_CREATED_CALLBACK_ID);
+  }
+
+  /**
+   * Creates the Drag & Drop DragSource for items being dragged from the tree.
+   *
+   * @return the DragSource for the tree
+   */
+  private DragSource createTreeDragSource(final Tree tree) {
+
+    final FileTransfer fileTransfer = FileTransfer.getInstance();
+
+    final DragSource dragSource = new DragSource(tree, DND.DROP_COPY | DND.DROP_MOVE);
+    dragSource.setTransfer(fileTransfer);
+    dragSource.addDragListener(
+        new DragSourceAdapter() {
+          @Override
+          public void dragStart(DragSourceEvent event) {
+            ExplorerFile file = getSelectedFile();
+            // Avoid moving root folder, metadata folder or hidden file (like .git)
+            if (file == null
+                || file.getFilename().equals(rootFolder)
+                || file.getFilename().equals("metadata")
+                || file.getName().startsWith(".")) {
+              event.doit = false;
+              return;
+            }
+
+            // Used by dragOver
+            dragFile = file.getFilename();
+          }
+
+          @Override
+          public void dragSetData(DragSourceEvent event) {
+            if (fileTransfer.isSupportedType(event.dataType)) {
+              event.doit = true;
+              event.data = new String[] {getSelectedFile().getFilename()};
+            }
+          }
+
+          @Override
+          public void dragFinished(DragSourceEvent event) {
+            dragFile = null;
+          }
+        });
+
+    return dragSource;
+  }
+
+  /**
+   * Creates the Drag & Drop DropTarget for items being dropped onto the tree.
+   *
+   * @return the DropTarget for the tree
+   */
+  private DropTarget createTreeDropTarget(final Tree tree) {
+
+    final FileTransfer fileTransfer = FileTransfer.getInstance();
+
+    // Allow files to be copied or moved to the drop target
+    DropTarget target = new DropTarget(tree, DND.DROP_COPY | DND.DROP_MOVE);
+    target.setTransfer(fileTransfer);
+    target.addDropListener(
+        new DropTargetAdapter() {
+
+          @Override
+          public void dragEnter(final DropTargetEvent event) {
+            // By default try to perform a move operation
+            if (event.detail == DND.DROP_DEFAULT) {
+              // Check if the drag source support the move action
+              if ((event.operations & DND.DROP_MOVE) == 0) {
+                event.detail = DND.DROP_COPY;
+              } else {
+                event.detail = DND.DROP_MOVE;
+              }
+            }
+            dropOperation = event.detail;
+
+            // Will accept only files dropped
+            for (int i = 0; i < event.dataTypes.length; i++) {
+              if (fileTransfer.isSupportedType(event.dataTypes[i])) {
+                event.currentDataType = event.dataTypes[i];
+                break;
+              }
+            }
+          }
+
+          @Override
+          public void dragOperationChanged(DropTargetEvent event) {
+            // By default try to perform a move operation
+            if (event.detail == DND.DROP_DEFAULT) {
+              // Check if the drag source support the move action
+              if ((event.operations & DND.DROP_MOVE) == 0) {
+                event.detail = DND.DROP_COPY;
+              } else {
+                event.detail = DND.DROP_MOVE;
+              }
+            }
+
+            dropOperation = event.detail;
+          }
+
+          @Override
+          public void dragLeave(DropTargetEvent event) {}
+
+          @Override
+          public void dropAccept(final DropTargetEvent event) {
+            // Will accept only files dropped
+            if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
+              event.detail = DND.DROP_NONE;
+            }
+          }
+
+          @Override
+          public void dragOver(final DropTargetEvent event) {
+            if (event.item == null) {
+              return;
+            }
+
+            Object data = event.item.getData();
+            if (data instanceof TreeItemFolder targetItem) {
+              // Only drop to folder
+              if (targetItem.folder) {
+                event.detail = dropOperation;
+                event.feedback = DND.FEEDBACK_SELECT | DND.FEEDBACK_SCROLL | DND.FEEDBACK_EXPAND;
+
+                try {
+                  FileObject targetFile = HopVfs.getFileObject(targetItem.path);
+
+                  // For internal drag check hierarchies
+                  if (dragFile != null) {
+                    FileObject sourceFile = HopVfs.getFileObject(dragFile);
+
+                    // Avoid copy or move to itself, it's parent or for folder it's descendant
+                    if (sourceFile.equals(targetFile)
+                        || sourceFile.getParent().equals(targetFile)
+                        || sourceFile.getName().isDescendent(targetFile.getName())) {
+                      event.detail = DND.DROP_NONE;
+                    }
+                  }
+                } catch (FileSystemException | HopFileException e) {
+                  // Ignore
+                }
+              } else {
+                event.detail = DND.DROP_NONE;
+                event.feedback = DND.FEEDBACK_NONE;
+              }
+            }
+          }
+
+          @Override
+          public void drop(final DropTargetEvent event) {
+            if (FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
+              Widget item = event.item;
+              if (item.getData() instanceof TreeItemFolder targetItem) {
+                List<String> errors = new ArrayList<>();
+
+                for (String path : (String[]) event.data) {
+                  try {
+                    FileObject sourceFile = HopVfs.getFileObject(path);
+                    FileObject targetFile =
+                        HopVfs.getFileObject(
+                            targetItem.path
+                                + Const.FILE_SEPARATOR
+                                + sourceFile.getName().getBaseName());
+
+                    if (event.detail == DND.DROP_COPY) {
+                      // Copy file/folder and all its descendants.
+                      targetFile.copyFrom(sourceFile, Selectors.SELECT_ALL);
+                    } else if (event.detail == DND.DROP_MOVE) {
+                      sourceFile.moveTo(targetFile);
+                    }
+                  } catch (Exception e) {
+                    errors.add(path);
+                  }
+                }
+
+                // Report errors
+                if (!errors.isEmpty()) {
+
+                  String paths = errors.stream().collect(Collectors.joining("\n"));
+
+                  MessageBox messageBox =
+                      new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_ERROR | SWT.OK);
+                  messageBox.setText("Drag and drop");
+                  messageBox.setMessage("Unable to copy/move file(s):\n\n" + paths);
+                  messageBox.open();
+                }
+
+                refresh();
+              }
+            }
+          }
+        });
+
+    return target;
   }
 
   /**
@@ -500,7 +752,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
-  private void deleteFile(TreeItem item) {
+  private void deleteFile(final TreeItem item) {
     try {
       TreeItemFolder tif = (TreeItemFolder) item.getData();
       if (tif != null && tif.fileType != null) {
@@ -525,7 +777,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
         if ((answer & SWT.YES) != 0) {
           int deleted = fileObject.deleteAll();
           if (deleted > 0) {
-            refresh();
+            item.dispose();
           }
         }
       }
@@ -538,7 +790,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
-  private void renameFile(TreeItem item) {
+  private void renameFile(final TreeItem item) {
     TreeItemFolder tif = (TreeItemFolder) item.getData();
     if (tif != null && tif.fileType != null) {
 
@@ -559,6 +811,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
                         HopVfs.getFileObject(
                             HopVfs.getFilename(fileObject.getParent()) + "/" + text.getText());
                     fileObject.moveTo(newObject);
+                    item.setText(text.getText());
                   } catch (Exception e) {
                     new ErrorDialog(
                         hopGui.getShell(),
@@ -567,7 +820,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
                         e);
                   } finally {
                     text.dispose();
-                    refresh();
                   }
                 }
                 break;
@@ -850,11 +1102,19 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     closeTab(event, tabItem);
   }
 
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_OPEN,
+      label = "i18n::ExplorerPerspective.Menu.Open",
+      image = "ui/images/open.svg")
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_OPEN,
       toolTip = "i18n::ExplorerPerspective.ToolbarElement.Open.Tooltip",
       image = "ui/images/arrow-right.svg")
+  @GuiKeyboardShortcut(key = SWT.F3)
+  @GuiOsxKeyboardShortcut(key = SWT.F3)
   public void openFile() {
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length == 0) {
@@ -863,6 +1123,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     openFile(selection[0]);
   }
 
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_CREATE_FOLDER,
+      label = "i18n::ExplorerPerspective.Menu.CreateFolder",
+      image = "ui/images/folder-add.svg")
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_CREATE_FOLDER,
@@ -907,6 +1173,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_DELETE,
+      label = "i18n::ExplorerPerspective.Menu.Delete",
+      image = "ui/images/delete.svg",
+      separator = true)
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DELETE,
@@ -920,9 +1193,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     if (selection == null || selection.length == 0) {
       return;
     }
+
     deleteFile(selection[0]);
   }
 
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_RENAME,
+      label = "i18n::ExplorerPerspective.Menu.Rename",
+      image = "ui/images/rename.svg")
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_RENAME,
@@ -939,7 +1219,35 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     renameFile(selection[0]);
   }
 
-  public void onNewFile() {}
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_COPY_NAME,
+      label = "i18n::ExplorerPerspective.Menu.CopyName",
+      separator = true)
+  public void copyFileName() {
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length == 0) {
+      return;
+    }
+    TreeItemFolder folder = (TreeItemFolder) selection[0].getData();
+    GuiResource.getInstance().toClipboard(folder.name);
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_COPY_PATH,
+      label = "i18n::ExplorerPerspective.Menu.CopyPath")
+  public void copyFilePath() {
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length == 0) {
+      return;
+    }
+
+    TreeItemFolder folder = (TreeItemFolder) selection[0].getData();
+    GuiResource.getInstance().toClipboard(folder.path);
+  }
 
   boolean first = true;
 
@@ -986,6 +1294,26 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
     updateSelection();
     treeIsFresh = true;
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_SHOW_HIDDEN,
+      toolTip = "i18n::HopVfsFileDialog.ShowHiddenFiles.Tooltip.Message",
+      image = "ui/images/hide.svg")
+  public void showHideHidden() {
+    showingHiddenFiles = !showingHiddenFiles;
+
+    ToolItem toolItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_HIDDEN);
+    if (toolItem != null) {
+      if (showingHiddenFiles) {
+        toolItem.setImage(GuiResource.getInstance().getImageShow());
+      } else {
+        toolItem.setImage(GuiResource.getInstance().getImageHide());
+      }
+    }
+
+    refresh();
   }
 
   private void setTreeItemData(
@@ -1042,15 +1370,20 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
       for (boolean folder : new boolean[] {true, false}) {
         for (FileObject child : children) {
-          if (child.isHidden()) {
-            continue; // skip hidden files for now
+
+          String childName = child.getName().getBaseName();
+
+          // Skip hidden files or folders
+          if (!showingHiddenFiles
+              && (child.isHidden() || childName.startsWith(".") || childName.equals("metadata"))) {
+            continue;
           }
+
           if (child.isFolder() != folder) {
             continue;
           }
 
           String childPath = child.toString();
-          String childName = child.getName().getBaseName();
           IHopFileType fileType = getFileType(childPath);
           TreeItem childItem = new TreeItem(item, SWT.NONE);
           childItem.setText(childName);
@@ -1132,11 +1465,19 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       }
     }
 
+    boolean isFolderSelected = tif != null && tif.fileType instanceof FolderFileType;
+
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_FOLDER, isFolderSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_OPEN, tif != null);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, tif != null);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, tif != null);
-    toolBarWidgets.enableToolbarItem(
-        TOOLBAR_ITEM_CREATE_FOLDER, tif != null && tif.fileType instanceof FolderFileType);
+
+    menuWidgets.enableMenuItem(CONTEXT_MENU_CREATE_FOLDER, isFolderSelected);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_OPEN, tif != null);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_DELETE, tif != null);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_RENAME, tif != null);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_COPY_NAME, tif != null);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_COPY_PATH, tif != null);
 
     for (IExplorerSelectionListener listener : selectionListeners) {
       listener.fileSelected();
@@ -1254,6 +1595,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
    */
   public GuiToolbarWidgets getToolBarWidgets() {
     return toolBarWidgets;
+  }
+
+  /**
+   * Gets context menu widgets
+   *
+   * @return
+   */
+  public GuiMenuWidgets getMenuWidgets() {
+    return menuWidgets;
   }
 
   /**
