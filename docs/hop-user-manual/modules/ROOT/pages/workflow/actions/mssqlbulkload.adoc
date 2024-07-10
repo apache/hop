@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The MS SQL Server Bulk Loader action bulk loads data from a file into MSSQL.
+:description: The Bulk load into MSSQL action bulk loads data from a file into MSSQL.
 
-= MS SQL Server Bulk Loader
+= Bulk load into MSSQL
 
 == Description
 
-The `MS SQL Server Bulk Loader` action bulk loads data from a file into MSSQL.
+The `Bulk load into MSSQL` action bulk loads data from a file into MSSQL.
 
 Contrary to the transform bulk loaders, this action requires a pre-existing file that is bulk loaded to MS SQL.
 

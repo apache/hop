@@ -22,11 +22,13 @@ under the License.
 
 == Description
 
-The Check Neo4j Connections action lines up a list of Neo4j connections that you want to check for availability.
+The `Check Neo4j Connections` action lines up a list of Neo4j connections that you want to check for availability.
 
 A small static value will be retrieved from the server to see if it's properly up-and-running.
 
 == Configuration
 
 Enter the names of the connections you want to check in the dialog.
+
+NOTE: This action does not (yet) retrieve the list of connections. You really need to enter them manually.
 

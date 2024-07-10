@@ -22,18 +22,19 @@ under the License.
 
 == Description
 
-The Verify File Signature With PGP action can be used to verify a file link:https://www.gnupg.org/gph/en/manual/x135.html[signature to ensure its authenticity].
+The `Verify file signature with PGP` action can be used to verify a file link:https://www.gnupg.org/gph/en/manual/x135.html[signature to ensure its authenticity].
+
+GnuPG package must be installed in the runtime environment and encryption keys added to the runtime user keystore for this to function.
+
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
-|GPG location|The signature file path.
+|Action name|The name of the workflow action.
+|GPG location|The file path of the GnuPG executable (e.g. `/usr/bin/gpg`).
 |Filename|The signed file path.
 |Use detached signature|Whether or not to use a detached signature.
-|Detached signature|
+|Detached signature|Path to the detached signature file (only available when the `Use detached signature` above is checked)
 |===

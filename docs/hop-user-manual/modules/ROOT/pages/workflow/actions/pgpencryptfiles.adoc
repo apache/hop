@@ -22,21 +22,19 @@ under the License.
 
 == Description
 
-The Encrypt Files With PGP action can be used to encrypt and sign files using the GnuPG package.
+The `Encrypt files with PGP` action can be used to encrypt and sign files using the GnuPG package.
 
 GnuPG package must be installed in the runtime environment and encryption keys added to the runtime user keystore for this to function.
 
 == Options
 
-=== General Tab
+=== General tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
-|GPG location|The file path of the GnuPG executable (e.g. /usr/bin/gpg).
+|Action name|The name of the workflow action.
+|GPG location|The file path of the GnuPG executable (e.g. `/usr/bin/gpg`).
 |Use ASCII mode|Whether or not to use ASCII mode when encrypting.
 |Include subfolders|Whether or not to include subfolders.
 |Copy previous results to args|
@@ -44,18 +42,19 @@ A workflow action can be placed several times on the canvas, however it will be 
 |File/Folder source|The file to encrypt, can be added to the Files/Folders list using Add.
 |File/Folder destination|The destination of the encrypted files.
 |Wildcard|A regex wildcard.
-|User ID|User ID of the key in the runtime user keystore
+// |User ID|User ID of the key in the runtime user keystore
 |Files/Folders|The files to encrypt.
 |===
 
-=== Destination File Tab
+=== Destination file tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
+2+|Destination file
 |Create destination folder|Whether or not to create the destination folder.
 |Destination is a file|Whether or not the destination is a file.
-|Do not keep folder structure|Whether or not to keep the folder structure.
+|Do not keep folder structure|Whether or not to keep the folder structure. If unchecked, the folder structure is flattened.
 |Add date to filename|Adds the date to the file name.
 |Add time to filename|Adds the time to the file name.
 |Specify Date time format|Whether or not to specify the date time format.
@@ -70,6 +69,7 @@ A workflow action can be placed several times on the canvas, however it will be 
 * Move source file to folder
 * Fail
 
+2+|Move to folder
 |Destination folder|The destination folder.
 |Create folder|Whether or not to create the folder.
 |Add date|Adds the date.
@@ -86,16 +86,18 @@ A workflow action can be placed several times on the canvas, however it will be 
 * Fail
 |===
 
-=== Destination File Tab
+=== Advanced Tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
+2+|Success On
 |Success condition a|Which condition to validate for a successful run
 
 * Success when all works
 * Success when at least x files decrypted
 * Success when number of errors lesser than
 |Nr error lesser than|Success if errors lesser than.
+2+|Result files name
 |Add files to result files name|
 |===

@@ -22,7 +22,9 @@ under the License.
 
 == Description
 
-The Neo4j Index action can be used to create or drop indexes on node or relationship properties in a Neo4j Graph
+The `Neo4j Index` action can be used to create or drop indexes on node or relationship properties in a Neo4j Graph
+
+For similar operations on Neo4j constraints, check the xref:workflow/actions/neo4j-constraint.adoc[Ne4oj constraint] action.
 
 == Options
 

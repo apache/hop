@@ -16,28 +16,30 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Ping action can be used to ping a host using the ICMP protocol.
+:description: The Ping a host action can be used to ping a host using the ICMP protocol.
 
-= Ping
+= Ping a host
 
 == Description
 
-The Ping action can be used to ping a host using the ICMP protocol.
+The `Ping a host` action can be used to ping a host using the ICMP protocol.
 
 The result it true when the host is reachable, otherwise false.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
 |Host name/IP|The name or the IP address of the host to ping
-|Ping type|Classic ping: This calls the ping as a command line of the operating system.
+|Ping type a| The type of ping to send to the specified hostname or IP address
+
+* Classic ping: This calls the ping as a command line of the operating system.
 The result is true when no packets (defined in the "Nr. packets to send" option) are lost.
-System ping: This option uses the Java implemented methods.
+* System ping: This option uses the Java implemented methods.
 The result is true when the host name can be resolved and the host is reachable within the given timeout period.
-System ping then classic ping: try both options (first the system ping and when that fails, try the classic ping)
+* System ping then classic ping: try both options (first the system ping and when that fails, try the classic ping)
 |Timeout (ms)|The timeout in ms when the system ping option is used.
 |Nr. packets to send|The number of packets to send (by default 2, only used by the Classic ping option).
 |===

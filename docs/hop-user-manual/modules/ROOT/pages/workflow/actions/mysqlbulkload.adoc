@@ -16,26 +16,32 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The MySQL Bulk Loader action loads data from a text file into a MySQL table.
+:description: The Bulk load into MySQL action loads data from a text file into a MySQL table.
 
-= MySQL Bulk Loader
+= Bulk load into MySQL
 
 == Description
 
-The MySQL Bulk Loader action loads data from a text file into a MySQL table.
+The `Bulk load into MySQL` action loads data from a text file into a MySQL table.
+
+This action uses the MySQL https://dev.mysql.com/doc/refman/8.0/en/load-data.html[`LOAD DATA`] command.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Connection|The connection to the MySQL database to use.
 |Target schema|The schema of the table to load.
 |Target table name|The name of the table to load into.
 |Source file name|The name of the file to load.
 |Local|Check this if the file is local.
-|Priority|The priority to load the file with.
+|Priority a|The priority to load the file with. The available options are:
+
+* NORMAL (default): no priority is set on the `LOAD DATA` command
+* LOW PRIORITY: With the LOW_PRIORITY modifier, execution of the LOAD DATA statement is delayed until no other clients are reading from the table. This affects only storage engines that use only table-level locking (such as MyISAM, MEMORY, and MERGE).
+* CONCURRENT: With the CONCURRENT modifier and a MyISAM table that satisfies the condition for concurrent inserts (that is, it contains no free blocks in the middle), other threads can retrieve data from the table while LOAD DATA is executing. This modifier affects the performance of LOAD DATA a bit, even if no other thread is using the table at the same time.
 |Fields terminated by|The field terminator to use.
 |Fields enclosed by|The field enclosure to use.
 |Fields escaped by|The escape character to use.

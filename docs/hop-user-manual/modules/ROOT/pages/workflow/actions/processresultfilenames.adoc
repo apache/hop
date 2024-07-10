@@ -16,21 +16,25 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Copy Or Move Files From Result action allows you to copy, move or delete a number of files and/or folders to alternate locations on your file system.
+:description: The Process result filenames action allows you to copy, move or delete a number of files and/or folders to alternate locations on your file system.
 
-= Copy Or Move Files from result
+= Process result filenames
 
 == Description
 
-The Copy Or Move Files From Result action allows you to copy, move or delete a number of files and/or folders to alternate locations on your file system.
+The `Process result filenames` action allows you to copy, move or delete a number of files and/or folders to alternate locations on your file system.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
-|Action|Choose Copy, Move or Delete
+|Action a|Choose one of
+
+* Copy (default)
+* Move
+* Delete
 |Destination folder|Define the target folder
 |Create destination folder|use this option to create the destination folder when it does not exist
 |Replace existing file|use this option to overwrite existing files
@@ -40,11 +44,15 @@ The Copy Or Move Files From Result action allows you to copy, move or delete a n
 |Add time to filename|add the time to the target filename, e.g. HHmmss
 |Specify date time format|allows you to specify your own date-time format, e.g. yyyyMMdd_HHmmss
 |Add date before extension|when this option is not checked, the date/time is appended after the file extension
+2+|Limit to
 |Limit action to|Define include and exclude wildcards
+|Wildcard (RegExp)|The regular expression wildcard to use to include files
+|Exclude Wildcard (RegExp|The regular expression wildcard to use to exclude files
+2+|Success On
 |Success on a|Success condition : select one of these option:
 
 * Success when all works fine
 * Success when at least x files moved (specify x in the limit field below)
 * Success when number of errors lesser than (specify the max number of errors in the limit field below)
-
+|Nr errors lesser than|The number of errors or number of files specified in the `Success on` option above.
 |===
