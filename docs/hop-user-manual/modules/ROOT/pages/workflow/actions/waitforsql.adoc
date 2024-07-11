@@ -22,25 +22,35 @@ under the License.
 
 == Description
 
-The Wait For SQL action scans a database and checks if the database meets user-defined conditions.
+The `Wait for SQL` action scans a database and checks if the database meets user-defined conditions.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Connection|Identifies the database connection to use.
 |Target schema|Name of the table schema to evaluate.
 |Target table name|Name of the table to evaluate.
-|Success when rows count|Defines the evaluation method used to compare the number of rows with the given value.
+2+|Success condition
+|Success when rows count a|Defines the evaluation method used to compare the number of rows with the given value. The options are:
+
+* Equal to
+* Different from
+* Smaller than
+* Smaller or equal to
+* Greater than (default)
+* Greater or equal to
 |Row count value|Defines the row count value used for the evaluation
 |Maximum timeout|After this timeout period, the workflow action continues with a fail, by default, or success, if the Success on timeout option is checked. Expressed in seconds, 0 is infinite.
 |Check cycle time|Sets the amount of time between evaluations, expressed in seconds.
 |Success on timeout|Defines workflow action success behavior when timeout is reached---when checked, reaching the maximum timeout limit causes the workflow action to succeed.
 When left unchecked, reaching the maximum timeout limit causes the workflow action to fail.
+2+|Custom SQL
 |Custom SQL|Enables the use of custom SQL queries.
 |Use variable substitution|Replaces environment variables in the SQL script with their actual value.
 |Clear list of result rows before execution|Clears the list of result rows before running this workflow action.
 |Add rows to result|Includes returned rows to the result set.
+|SQL Script|The custom SQL script to use when the `Custom SQL` option is enabled.
 |===

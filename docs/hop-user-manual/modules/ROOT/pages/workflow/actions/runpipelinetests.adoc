@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Run Pipeline Tests action runs a series of pipeline unit tests.
+:description: The Run Pipeline Unit Tests action runs a series of pipeline unit tests.
 
-= Run Pipeline Tests
+= Run Pipeline Unit Tests
 
 == Description
 
-The Run Pipeline Tests action runs a series of pipeline unit tests.
+The `Run Pipeline Unit Tests` action runs a series of selected xref:pipeline/pipeline-unit-testing.adoc[pipeline unit tests].
 
 The action is successful if all tests run without error.
 
@@ -30,11 +30,13 @@ Errors are logged.
 
 == Options
 
-[width="75%",options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Action Name|The name of the action.
 |Test names|The names of the unit tests to execute
 |===
+
+Use the `Get test names` to get the list of available unit tests in the current project.
 
 

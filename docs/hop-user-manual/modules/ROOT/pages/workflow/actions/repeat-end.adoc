@@ -22,10 +22,10 @@ under the License.
 
 == Description
 
-The End Repeat action ends a repeating workflow which is executed by the xref:workflow/actions/repeat.adoc[Repeat] action.
+The `End Repeat` action ends a repeating workflow which is executed by the xref:workflow/actions/repeat.adoc[Repeat] action.
 
 It leaves a flag in the parent workflow to signal it can stop repeating at the next opportunity.
 
 TIP: The End Repeat action only works against its parent workflow when it's being executed by the Repeat action.
 
-This action has no options. It works as a "Success" action and clears possible previous errors.
+This action has no options. It works as a xref:workflow/actions/success.adoc[Success] action and clears possible previous errors.

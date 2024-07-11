@@ -50,7 +50,7 @@ See also:
 |Pipeline|Specify your pipeline by entering in its path or clicking Browse.
 
 The selected pipelines will automatically converted to a path relative to your `{openvar}PROJECT_HOME{closevar}`. +
-For example, if your `{openvar}PROJECT_HOME{closevar}` is `/home/admin/hop/project/` and you select a pipeline `/home/admin/hop/project/subfolder/sub.hpl` than the path will automatically be converted to {openvar}PROJECT_HOME{closevar}/subfolder/sub.hpl.
+For example, if your `{openvar}PROJECT_HOME{closevar}` is `/home/admin/hop/project/` and you select a pipeline `/home/admin/hop/project/subfolder/sub.hpl` than the path will automatically be converted to `{openvar}PROJECT_HOME{closevar}/subfolder/sub.hpl`.
 
 |Run Configuration|The pipeline can run in different types of xref:metadata-types/pipeline-run-config.adoc[pipeline configurations].
 Select the desired run configuration to control where and how the pipeline is executed.

@@ -16,42 +16,62 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Unzip action unzips one or more files to a specified target location.
+:description: The Unzip file action unzips one or more files to a specified target location.
 
-= Unzip
+= Unzip file
 
 == Description
 
-The Unzip action unzips one or more files to a specified target location.
+The `Unzip file` action unzips one or more files to a specified target location.
 
 == Options
 
-[options="header"]
+=== General tab
+
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-|Source files a|You can specify the list of source (zip) files in this section
+|Action name|The name of the workflow action.
+2+|Source files
+|Get args from previous|check this option if you want to use the list of result files (from a previous workflow action) as the list of files to unzip.
+|Zip file name|the name of the zip file or a folder if you want to use a wildcard.
+|Source wildcard a|If the previous option is a folder, you can enter a regular expression. wildcard here.
 
-* Get args from previous : check this option if you want to use the list of result files (from a previous workflow action) as the list of files to unzip.
-* Zip file name : the name of the zip file or a folder if you want to use a wildcard.
-* Source wildcard : if the previous option is a folder, you can enter a regular expression. wildcard here.
-** For example to match "/folder/test.zip" a regex of "te.\.zip" will come up empty.
-Use ".*te.\.zip" instead to account for the folders ahead of it.** For Windows file paths, the direction of the slashes will be reversed in the match, so use "\/" instead of "\\".
-|Unzipped files a|This section allows us to specify what to do with the unzipped files
+For example: to match `/folder/test.zip` a regex of `te.\.zip` will come up empty.
 
-* Use zipfile name as root directory : check this if you want to create a separate directory for each zip filename (same name as file)
-* Target directory : the target directory to unzip in
-* Create folder : check this if you want to create the target folder
-* Include wildcard : use this regular expression to select the files in the zip archives to extract
-* Exclude wildcard : use this regular expression to select the files in the zip archives to extract
-* Include date in filename : Include the current date in the unzipped filenames (format yyyyMMdd)
-* Include time in filename : Include the time (format HHmmss)
-* Specify the date time format yourself: allows you to specify the date time format yourself (default is: yyyyMMdd'_'HHmmss)
-* If files exists : select the action to take if the target (unzipped) file exists: skip, overwrite, etc.
-* After extraction : select the action to take after zip file extraction: Do nothing, Delete files, Move files
-* Move files to : if the previous option is "Move files", you can select the target directory here.
+Use `.*te.\.zip` instead to account for the folders ahead of it.
 
-|Advanced a|
-* Add extracted file to result: add the extracted file names to the list of result files of this workflow action for use in the next workflow actions.
-* Success condition: allows you to specify the success factor of this workflow action: when everything went well or if there were only X errors or if there were at least Y files extracted.
+For Windows file paths, the direction of the slashes will be reversed in the match, so use `\/` instead of `\\`.
+2+|Unzipped files
+|Use zipfile name as root directory|check this if you want to create a separate directory for each zip filename (same name as file)
+|Target directory|The target directory to unzip in
+|Create folder|Check this if you want to create the target folder
+|Include wildcard|Use this regular expression to select the files in the zip archives to extract
+|Exclude wildcard|Use this regular expression to select the files in the zip archives to extract
+|Include date in filename|Include the current date in the unzipped filenames (format yyyyMMdd)
+|Include time in filename|Include the time (format HHmmss)
+|Specify the date time format yourself|Allows you to specify the date time format yourself (default is: yyyyMMdd'_'HHmmss)
+|If files exists|Select the action to take if the target (unzipped) file exists: skip, overwrite, etc.
+|After extraction a|select the action to take after zip file extraction:
+
+* Do nothing,
+* Delete files
+* Move files
+|Move files to|If the previous option is "Move files", you can select the target directory here.
+|===
+
+=== Advanced tab
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Option|Description
+2+|Result file name
+|Add extracted file to result|Add the extracted file names to the list of result files of this workflow action for use in the next workflow actions.
+2+|Success condition
+|Success on a|Allows you to specify the success factor of this workflow action:
+
+* All works fine (default)
+* At least we successfully unzipped x files
+* Nr errors less than
+|Limit files|The number of files unzipped or number of errors, depending on the option chosen for `Success on` above.
 |===

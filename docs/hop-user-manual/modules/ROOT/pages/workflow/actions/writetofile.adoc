@@ -16,24 +16,26 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description:
+:description: The Write To File action writes custom text from a field to a file.
 
 = Write to File
 
 == Description
 
-The Write To File action writes text to a file.
+The `Write to file` action writes custom text from a field to a file.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+2+|File
+|Action name|The name of the workflow action.
 |File name|The file directory and name.
 |Browse...|Browse the filesystem for a file location.
 |Create parent folder|Whether to create the parent folder.
 |Append file|Will overwrite the previous file if unchecked, if checked it will append new text to the previous file.
+2+|Content
 |Encoding|The encoding to use while writing the file.
 |Text|The text to write to the file.
 |===

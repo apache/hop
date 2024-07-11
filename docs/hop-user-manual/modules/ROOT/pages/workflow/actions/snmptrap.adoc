@@ -16,30 +16,33 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The SNMP Trap action sends alert messages to a remote SNMP-enabled device.
+:description: The Send SNMP Trap action sends alert messages to a remote SNMP-enabled device.
 
-= Snmp Trap
+= Send Snmp Trap
 
 == Description
 
-The SNMP Trap action sends alert messages to a remote SNMP-enabled device.
+The `Send SNMP trap` action sends alert messages to a remote SNMP-enabled device.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
+2+|Server
 |Server name / IP address|The server host.
 |Server port|The server port.
 |OID|The object identifier.
 |Test connection|Can be used to test the connection.
+2+|Advanced
 |Target type|Type of target: Community or User.
 |Community string|A user id or password that allows access to a router's or other device's statistics.
-|User|
-|Passphrase|
+|User|The username to connect to the server
+|Passphrase|The password to connect to the server
 |Engine ID|
 |Retry|Number of retries.
-|Timeout|
+|Timeout|Timeout in milliseconds
+2+|Message
 |Message|The message to send.
 |===

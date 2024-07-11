@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The XSD Validator action performs an XSD validation against data in a file or in an input field.
+:description: The XSD validator action performs an XSD validation against data in a file or in an input field.
 
-= XSD Validator
+= XSD validator
 
 == Description
 
-The XSD Validator action performs an XSD validation against data in a file or in an input field.
+The `XSD validator` validates an XML files against an internal (defined in the XML file) or external (defined in a separate xsd file) XML schema.
 
 XSD is short for link:http://en.wikipedia.org/wiki/XML_Schema_(W3C)[XML Schema] Definition.
 
@@ -35,12 +35,16 @@ See also the xref:pipeline/transforms/xsdvalidator.adoc[XSD Validator pipeline t
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Action name|The name of the workflow action.
+|Enable external entity for XSD validation|
+|XSD Source a|The options are
+
+* none (default)
+* is a file, let me specify filename
+* is defined inside XML
 |XML File name|The name of the XML file
 |XSD File name|The name of the XSD file
 |===

@@ -22,11 +22,13 @@ under the License.
 
 == Description
 
-The Success action clears any error state encountered in a workflow and forces it to a success state.
+The `Success` action clears any error state encountered in a workflow and forces it to a success state.
+
+TIP: The success action is mainly intended to turn an error or failed state into a success state. It is not a required endpoint for successful execution at the end of a workflow.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

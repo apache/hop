@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Send Nagios check action sends passive checks to Nagios.
+:description: The Send Nagios passive check action sends passive checks to Nagios.
 
-= Send Nagios check
+= Send Nagios passive check
 
 == Description
 
-The Send Nagios check action sends passive checks to Nagios.
+The `Send Nagios passive check` action sends passive checks to Nagios.
 
 You can send monitoring information e.g. about start and end processes within your workflow.
 
@@ -34,19 +34,30 @@ More details and setup instructions for the Nagios NSCA addon can be found at th
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+2+|Server
+|Action name|The name of the workflow action.
 |Host Name/IP Address|Nagios server name / IP Address
 |Server port|Nagios server port (often 5667).
 |Password|The password to connect to the Nagios server NSCA (shared between the Nagios server and the client).
 This field can be set empty when connections without password are allowed.
-|Connection Timeout|Fail after the specified connection timeout.
-|Response Timeout|Fail after the specified response timeout.
+|Connection Timeout|Fail after the specified connection timeout in milliseconds (default 5000).
+|Response Timeout|Fail after the specified response timeout in milliseconds (default 10000).
+2+|Sender
 |Host Name/IP Address|Define your sender host name / IP Address.
 |Service Name|Define the service name used to log the events.
-|Encryption mode|Encryption mode for the connection.
-|Level|Log level: Unknown, OK, Warning, Critical.
+|Encryption mode a|Encryption mode for the connection. The available options are
+
+* None (default)
+* Triple DES
+* XOR
+|Level a|Log level. The available options are
+
+* Unknown (default)
+* OK
+* Warning
+* Critical
 |Message|The message to get logged.
 |===

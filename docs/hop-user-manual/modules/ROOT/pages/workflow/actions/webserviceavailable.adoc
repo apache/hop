@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Check If Webservice is available action checks if a given URL (e.g. a Webservice URL) is valid, can be connected and data can be read from.
+:description: The Check webservice availability is available action checks if a given URL (e.g. a Webservice URL) is valid, can be connected and data can be read from.
 
-= Check if Webservice is available
+= Check Webservice Availability
 
 == Description
 
-The Check If Webservice is available action checks if a given URL (e.g. a Webservice URL) is valid, can be connected and data can be read from.
+The `Check webservice availability` action checks if a given URL (e.g. a Webservice URL) is valid, can be connected and data can be read from.
 
 If it connects within the given timeout and data can be read, it returns 'true', otherwise 'false'.
 
@@ -30,10 +30,10 @@ Further information of the failing reason can be found in the log as an error lo
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |URL|Specifies the URL to validate.
 |Connect timeout (ms)|The connect timeout in ms.
 The value is depending on the quality of service of this URL and experiences.

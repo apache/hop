@@ -24,17 +24,23 @@ under the License.
 
 == Description
 
-The Shell action executes a shell script on the host where the workflow is running.
+The `Shell` action executes a shell script on the host where the workflow is running.
 
 For example, suppose you have a program that reads five data tables and creates a file in a specified format.
 
-You know the program works.
+=== Scripts or executables
 
-Shell allows you to do portions of your work in Hop but reuse the program that reads the data tables as needed.
+Shell allows you to do portions of your work in Apache Hop but reuse the program that reads the data tables as needed.
 
 The Shell workflow action is platform agnostic; you can use a batch file, UNIX, and so on.
 
 When you use a Shell workflow action, Hop makes a Java call to execute a program in a specified location.
+
+=== Embedded scripts
+
+As an alternative to calling scripts on the host machine, you can enter scripts (e.g. batch on Windows, shell script on Linux) directly in the `Shell` action.
+
+=== Return status
 
 The return status is provided by the operating system call.
 
@@ -44,18 +50,22 @@ You can pass command line arguments and set up logging for the Shell workflow ac
 
 == Options
 
-[options="header"]
+=== General tab
+
+[options="header", width="90%". cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-|Insert script|Check this option when you want to execute the script in the Script tab instead of executing the Script file name.
+|Action name|The name of the workflow action.
+|Insert script a|Check this option when you want to execute the script in the Script tab instead of executing the Script file name.
 This is also useful, when you want to execute operating system commands like dir, ls or ipconfig without giving a specific path.
 This option creates a temporary script in the working directory and executes it.
-Note: Variables are resolved within the script when given.
+
+NOTE: Variables are resolved within the script when given.
 |Script file name|The filename of the shell script to start, should include full path else {openvar}user.dir{closevar} is used as path.
 |Working directory|The directory that will be used as working directory for the shell script.
 The working directory only becomes active when the shell script starts so "Filename" should still include the full path to the script.
 When the field is left empty or the working directory is invalid {openvar}user.dir{closevar} will be used as working directory.
+2+|Logging settings
 |Specify log file|Enable to specify a separate logging file for the execution of this workflow.
 |Append logfile|Enable to append to the logfile as opposed to creating a new one
 |Name of log file|The directory and base name of the log file (for example C:\logs)
@@ -71,3 +81,7 @@ One row is passed to this script at every execution in combination with the copy
 The values of the corresponding result row can then be found on command line argument $1, $2, ... (%1, %2, %3, ... on Windows)
 |Arguments table|Specify the strings to use as arguments for the shell script.
 |===
+
+=== Script tab
+
+This tab contains your batch or shell script if the `Insert script` option is checked.

@@ -16,35 +16,38 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Simple Evaluation action evaluates contents of a variable or a field in the result stream.
+:description: The Simple evaluation action evaluates contents of a variable or a field in the result stream.
 
 :openvar: ${
 :closevar: }
 
-= Simple Evaluation
+= Simple evaluation
 
 == Description
 
-The Simple Evaluation action evaluates contents or value of a variable or a field in the result stream.
+The `Simple evaluation` action evaluates contents or value of a variable or a field in the result stream.
 
 Connect two actions with the output of the Simple Evaluation.
 
 The green (success) hop will be called if the condition was evaluated successfully, the red (failure) one will be called if the condition wasn't evaluated successfully.
 
 == Usage
+
 * A Null value is the same as an empty string. For example, to detect a null for any data type, set the Type to String, and the Success condition to "If value is equal to", and have the Value textbox empty.
 
 * The Simple evaluation Action is limited. For more complex conditions see: https://hop.apache.org/manual/latest/workflow/actions/eval.html
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
+2+|Source
 |Evaluate|Evaluation type: field or variable.
 |Field name|The field to evaluate
 |Type|Data type.
+2+|Success On
 |Success condition a|
 * If value equal to
 * If value different from

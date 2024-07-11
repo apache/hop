@@ -24,7 +24,7 @@ under the License.
 
 == Description
 
-The Write To Log action writes a specific string to the Hop logging system.
+The `Write to log` action writes a specific string to the Hop logging system.
 
 This action is similar to the xref:pipeline/transforms/writetolog.adoc[Write To Log] transform.
 
@@ -45,11 +45,11 @@ TIP: If an error stops anything from being written to the log, then disable the 
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-|Log level|The logging level to use
+|Action name|The name of the workflow action.
+|Log level|The logging level to use.  See xref:logging/logging-basics.adoc[Logging] for more details.
 |Log subject|The subject to use in the logging line(s)
 |Log message|The log message to write to the log
 |===

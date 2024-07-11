@@ -16,21 +16,21 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Telnet action tests a connection on a certain port over the Telnet protocol.
+:description: The Telnet a host action tests a connection on a certain port over the Telnet protocol.
 
 = Telnet a host
 
 == Description
 
-The Telnet action tests a connection on a certain port over the https://en.wikipedia.org/wiki/Telnet[Telnet^] protocol.
+The `Telnet a host` action tests a connection on a certain port over the https://en.wikipedia.org/wiki/Telnet[Telnet^] protocol.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Host name/IP|The host.
-|Port|The port.
-|TimeOut (ms)|The timeout period.
+|Port|The port (default: 23)
+|TimeOut (ms)|The timeout period in milliseconds (default 3000).
 |===
