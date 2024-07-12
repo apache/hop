@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Delete Files action deletes a set of files.
+:description: The Delete files action deletes a set of files.
 
-= Delete Files
+= Delete files
 
 == Description
 
-The `Delete Files` action deletes a set of specified files, optionally with subfolders.
+The `Delete files` action deletes a set of specified files, optionally with subfolders.
 
 == Options
 

@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Evaluate Row Numbers In A Table action you can define the success condition that can be evaluated and branch the workflow process by the result.
+:description: The Evaluate rows numbers in a table action you can define the success condition that can be evaluated and branch the workflow process by the result.
 
-= Evaluate row numbers in a table
+= Evaluate rows numbers in a table
 
 == Description
 
-The `Evaluate row numbers in a table` action evaluates the number of rows in a table and lets you define the success condition that can be used to branch the workflow into success/error streams.
+The `Evaluate rows numbers in a table` action evaluates the number of rows in a table and lets you define the success condition that can be used to branch the workflow into success/error streams.
 
 You can either just test the number of rows in a target table, or write a custom SQL statement.
 

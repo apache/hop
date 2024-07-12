@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Evaluate File Metrics action can be used to evaluate the size or count of files.
+:description: The Evaluate files metrics action can be used to evaluate the size or count of files.
 
-= Evaluate File Metrics
+= Evaluate files metrics
 
 == Description
 
-The `Evaluate Files Metrics` action can be used to evaluate the size or count of files.
+The `Evaluate files metrics` action can be used to evaluate the size or count of files.
 
 == Options
 

@@ -18,7 +18,7 @@ under the License.
 :language: en_US
 :description: The Check if a folder is empty action verifies if a folder is empty, that there are no regular files or sub-folders in the folder.
 
-= Folder is Empty
+= Check if a folder is empty
 
 == Description
 

@@ -16,9 +16,9 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The HTTP Get action retrieves a file from a Web server using the HTTP protocol.
+:description: The HTTP action retrieves a file from a Web server using the HTTP protocol.
 
-= Http Get
+= HTTP
 
 == Description
 

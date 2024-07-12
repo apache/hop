@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Abort action immediately stops (aborts) a running workflow.
+:description: The Abort workflow action immediately stops (aborts) a running workflow.
 
-= Abort
+= Abort workflow
 
 == Description
 
-The `Abort` action immediately stops (aborts) a running workflow.
+The `Abort workflow` action immediately stops (aborts) a running workflow.
 
 Use the abort action if you want to explicitly terminate a workflow and mark it as failed with an (optional) error message.
 

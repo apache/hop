@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Get Mails (POP3/IMAP) action retrieves mails from a POP3 or IMAP server and stores them into one or more files.
+:description: The Get mails (POP3/IMAP) action retrieves mails from a POP3 or IMAP server and stores them into one or more files.
 
-= Get Mails (POP3/IMAP)
+= Get mails (POP3/IMAP)
 
 == Description
 
-The `Get Mails (POP3/IMAP)` action retrieves mails from a POP3 or IMAP server and stores them into one or more files.
+The `Get mails (POP3/IMAP)` action retrieves mails from a POP3 or IMAP server and stores them into one or more files.
 
 == Options
 

@@ -18,9 +18,9 @@ under the License.
 :openvar: ${
 :closevar: }
 :language: en_US
-:description:
+:description: The Shell action executes a shell script on the host where the workflow is running.
 
-= Shell Action
+= Shell
 
 == Description
 

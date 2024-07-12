@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Neo4j Cypher Script action executes Cypher statements in a workflow.
+:description: The Neo4j Cypher script action executes Cypher statements in a workflow.
 
 :openvar: ${
 :closevar: }
 
-= Neo4j Cypher Script
+= Neo4j Cypher script
 
 == Description
 
-The `Neo4j Cypher Script` action executes Cypher statements in a workflow.
+The `Neo4j Cypher script` action executes Cypher statements in a workflow.
 
 As with all actions, the goal is not to retrieve data but to execute various statements like creating or dropping indexes, calling APOC procedures, add or delete some static data and so on. +
 The result of this action is a `true` or `false` exit code that determines if a success or failure hop to the next action in the workflow is chosen.

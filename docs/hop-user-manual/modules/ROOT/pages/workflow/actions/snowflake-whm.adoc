@@ -16,11 +16,11 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Snowflake Warehouse Manager action provides functionality to create, drop, resume, suspend, and alter warehouses.
+:description: The Snowflake warehouse manager action provides functionality to create, drop, resume, suspend, and alter warehouses.
 
-= Snowflake Warehouse Manager
+= Snowflake warehouse manager
 
-The `Snowflake Warehouse Manager` action provides functionality to create, drop, resume, suspend, and alter Snowflak warehouses.
+The `Snowflake warehouse manager` action provides functionality to create, drop, resume, suspend, and alter Snowflak warehouses.
 
 This allows Apache Hop workflows to resume a warehouse before loading, and then suspend the warehouse as soon as it is done, along with resizing warehouses for portions of the load that may require more processing power.
 

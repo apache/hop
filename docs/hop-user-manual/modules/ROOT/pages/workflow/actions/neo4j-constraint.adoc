@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Neo4j Constraint action can be used to create or drop constraints on node or relationship properties in a Neo4j Graph
+:description: The Neo4j constraint action can be used to create or drop constraints on node or relationship properties in a Neo4j Graph
 
-= Neo4j Constraint
+= Neo4j constraint
 
 == Description
 
-The `Neo4j Constraint` action can be used to create or drop constraints on node or relationship properties in a Neo4j Graph
+The `Neo4j constraint` action can be used to create or drop constraints on node or relationship properties in a Neo4j Graph
 
 For similar operations on Neo4j indexes, check the xref:workflow/actions/neo4j-index.adoc[Neo4j index] action.
 
