@@ -82,6 +82,6 @@ public class BasePluginTypeExposer {
   }
 
   public boolean extractincludeJdbcDrivers(Annotation annotation) {
-    return pluginType.extractincludeJdbcDrivers(annotation);
+    return pluginType.extractIncludeJdbcDrivers(annotation);
   }
 }
