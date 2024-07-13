@@ -39,8 +39,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -97,7 +95,7 @@ public class ActionTableExistsDialog extends ActionDialog {
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();
 
-    // Filename line
+    // Action name
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionTableExists.Name.Label"));
     PropsUi.setLook(wlName);
@@ -116,7 +114,8 @@ public class ActionTableExistsDialog extends ActionDialog {
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getConnection(), lsMod);
+    DatabaseMeta databaseMeta = workflowMeta.findDatabase(action.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wName, databaseMeta, lsMod);
 
     // Schema name line
     Label wlSchemaName = new Label(shell, SWT.RIGHT);
@@ -135,13 +134,7 @@ public class ActionTableExistsDialog extends ActionDialog {
     fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
-    wbSchema.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getSchemaNames();
-          }
-        });
+    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
 
     wSchemaname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchemaname);
@@ -169,13 +162,7 @@ public class ActionTableExistsDialog extends ActionDialog {
     fdbTable.right = new FormAttachment(100, 0);
     fdbTable.top = new FormAttachment(wbSchema, margin);
     wbTable.setLayoutData(fdbTable);
-    wbTable.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getTableName();
-          }
-        });
+    wbTable.addListener(SWT.Selection, e -> getTableName());
 
     wTablename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTablename);
