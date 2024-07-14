@@ -20,7 +20,7 @@ When you have a question you can use our mailing list (http://hop.apache.org/com
 
 
 Installation Instruction:
-    - Have a recent Java 8 Runtime
+    - Have a recent Java 17 Runtime
     
 Windows:
     - To start the GUI run hop-gui.bat
