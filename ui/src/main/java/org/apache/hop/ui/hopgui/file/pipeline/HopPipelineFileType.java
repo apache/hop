@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
@@ -35,8 +36,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.context.GuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -112,13 +115,20 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
   }
 
   @Override
-  public IHopFileTypeHandler openFile(
-      HopGui hopGui, String filename, IVariables parentVariableSpace) throws HopException {
+  public IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables variables)
+      throws HopException {
     try {
       // This file is opened in the data orchestration perspective
       //
       HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
       perspective.activate();
+
+      // Normalize the filename into a relative path...
+      //
+      HopGuiFileOpenedExtension ext = new HopGuiFileOpenedExtension(null, variables, filename);
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.UI, variables, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, ext);
+      filename = variables.resolve(ext.filename);
 
       // See if the same pipeline isn't already open.
       // Other file types we might allow to open more than once but not pipelines for now.
@@ -136,7 +146,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       // Load the pipeline
       //
       PipelineMeta pipelineMeta =
-          new PipelineMeta(filename, hopGui.getMetadataProvider(), parentVariableSpace);
+          new PipelineMeta(filename, hopGui.getMetadataProvider(), variables);
 
       // Pass the MetaStore for reference lookups
       //
@@ -153,10 +163,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       // Inform those that want to know about it that we loaded a pipeline
       //
       ExtensionPointHandler.callExtensionPoint(
-          hopGui.getLog(),
-          parentVariableSpace,
-          HopExtensionPoint.PipelineAfterOpen.id,
-          pipelineMeta);
+          hopGui.getLog(), variables, HopExtensionPoint.PipelineAfterOpen.id, pipelineMeta);
 
       return typeHandler;
     } catch (Exception e) {

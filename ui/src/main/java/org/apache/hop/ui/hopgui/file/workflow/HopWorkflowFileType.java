@@ -26,6 +26,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
@@ -33,8 +34,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.context.GuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -114,13 +117,20 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
   }
 
   @Override
-  public IHopFileTypeHandler openFile(
-      HopGui hopGui, String filename, IVariables parentVariableSpace) throws HopException {
+  public IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables variables)
+      throws HopException {
     try {
       // This file is opened in the data orchestration perspective
       //
       HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
       perspective.activate();
+
+      // Normalize the filename into a relative path...
+      //
+      HopGuiFileOpenedExtension ext = new HopGuiFileOpenedExtension(null, variables, filename);
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.UI, variables, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, ext);
+      filename = variables.resolve(ext.filename);
 
       // See if the same workflow isn't already open.
       // Other file types we might allow to open more than once but not workflows for now.
@@ -138,7 +148,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       // Load the workflow from file
       //
       WorkflowMeta workflowMeta =
-          new WorkflowMeta(parentVariableSpace, filename, hopGui.getMetadataProvider());
+          new WorkflowMeta(variables, filename, hopGui.getMetadataProvider());
 
       // Pass the MetaStore for reference lookups
       //
@@ -151,7 +161,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       // Inform those that want to know about it that we loaded a pipeline
       //
       ExtensionPointHandler.callExtensionPoint(
-          hopGui.getLog(), parentVariableSpace, "WorkflowAfterOpen", workflowMeta);
+          hopGui.getLog(), variables, "WorkflowAfterOpen", workflowMeta);
 
       // Show it in the perspective
       //
