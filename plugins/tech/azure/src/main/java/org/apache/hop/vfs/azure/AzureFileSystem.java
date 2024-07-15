@@ -18,11 +18,8 @@
 
 package org.apache.hop.vfs.azure;
 
-import com.azure.storage.file.datalake.DataLakeFileSystemClient;
-
-import java.util.Collection;
-
 import com.azure.storage.file.datalake.DataLakeServiceClient;
+import java.util.Collection;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;

@@ -18,23 +18,18 @@
 
 package org.apache.hop.vfs.azure;
 
-import com.azure.storage.file.datalake.DataLakeDirectoryClient;
 import com.azure.storage.file.datalake.DataLakeFileClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClient;
 import com.azure.storage.file.datalake.DataLakeServiceClient;
 import com.azure.storage.file.datalake.models.ListPathsOptions;
 import com.azure.storage.file.datalake.models.PathItem;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlob;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.ListBlobItem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -137,7 +132,8 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         currentFilePath = ((AzureFileName) getName()).getPathAfterContainer();
         lpo.setPath(currentFilePath);
         // TODO SR Evaluate using lpo.setRecursive
-        dataLakeFileClient = fileSystemClient.getFileClient(((AzureFileName) getName()).getContainer());
+        dataLakeFileClient =
+            fileSystemClient.getFileClient(((AzureFileName) getName()).getContainer());
         if (dataLakeFileClient.exists()) {
           children = new ArrayList<>();
           if (currentFilePath.equals("")) {
@@ -195,15 +191,18 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
               DataLakeFileClient dataLakeFileClient =
                   fileSystemClient.getFileClient(pathItem.getName());
               size = dataLakeFileClient.getProperties().getFileSize();
-              if (pathItem.getMetadata().containsKey("ActualLength")) {
-                size = Long.parseLong(pathItem.getMetadata().get("ActualLength"));
-              }
+              // TODO SR Temporarily commented waiting to understand how to get metadata
+              //              if (pathItem.getMetadata().containsKey("ActualLength")) {
+              //                size = Long.parseLong(pathItem.getMetadata().get("ActualLength"));
+              //              }
               String disp = dataLakeFileClient.getProperties().getContentDisposition();
               if (disp != null && disp.startsWith("vfs ; length=\"")) {
                 size = Long.parseLong(disp.substring(14, disp.length() - 1));
               }
-              Date lastModified2 = dataLakeFileClient.getProperties().getLastModified();
-              lastModified = lastModified2 == null ? 0 : lastModified2.getTime();
+              OffsetDateTime lastModified2 = dataLakeFileClient.getProperties().getLastModified();
+              // TODO SR Temporarily commented. OffsetDateTime do not have an equivalent getTime()
+              // method. How cna we get rid of that?
+              //              lastModified = lastModified2 == null ? 0 : lastModified2.getTime();
             } else if (dirPathItem != null) {
               type = FileType.FOLDER;
               size = children.size();
@@ -287,13 +286,17 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
             lpo.setPath(((AzureFileName) getName()).getPathAfterContainer());
             // TODO SR Evaluate usage of lpo.setRecursive(true)
 
-            fileSystemClient.listPaths(lpo, null).forEach( pi -> {
-              if (!pi.isDirectory() && getFilePath(pi.getName()).startsWith(getName().getPath())) {
-                DataLakeFileClient dataLakeFileClient =
-                        fileSystemClient.getFileClient(pathItem.getName());
-                dataLakeFileClient.delete();
-              }
-            });
+            fileSystemClient
+                .listPaths(lpo, null)
+                .forEach(
+                    pi -> {
+                      if (!pi.isDirectory()
+                          && getFilePath(pi.getName()).startsWith(getName().getPath())) {
+                        DataLakeFileClient dataLakeFileClient =
+                            fileSystemClient.getFileClient(pathItem.getName());
+                        dataLakeFileClient.delete();
+                      }
+                    });
           } else {
             throw new UnsupportedOperationException();
           }
