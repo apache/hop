@@ -85,7 +85,7 @@ limitations under the License.
         <group/>
         <length>-1</length>
         <name>filename</name>
-        <nullif>azfs://devstoreaccount1/mycontainer/azfs-scheme.parquet</nullif>
+        <nullif>azfs://knowbistorage/mycontainer/azfs-scheme.parquet</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>

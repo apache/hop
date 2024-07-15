@@ -18,7 +18,7 @@
 
 package org.apache.hop.vfs.azure;
 
-import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.azure.storage.file.datalake.DataLakeServiceClient;
 import java.util.Collection;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileObject;
@@ -29,18 +29,20 @@ import org.apache.commons.vfs2.provider.AbstractFileSystem;
 
 public class AzureFileSystem extends AbstractFileSystem {
 
-  private final CloudBlobClient client;
-
+  private final DataLakeServiceClient serviceClient;
+  private final String fsName;
   private final String account;
 
   public AzureFileSystem(
       AzureFileName fileName,
-      CloudBlobClient service,
+      DataLakeServiceClient serviceClient,
+      String fsName,
       FileSystemOptions fileSystemOptions,
       String account)
       throws FileSystemException {
     super(fileName, null, fileSystemOptions);
-    this.client = service;
+    this.serviceClient = serviceClient;
+    this.fsName = fsName;
     this.account = account;
   }
 
@@ -51,7 +53,11 @@ public class AzureFileSystem extends AbstractFileSystem {
 
   @Override
   protected FileObject createFile(AbstractFileName name) throws Exception {
-    return new AzureFileObject(name, this, client);
+    return new AzureFileObject(name, this, serviceClient);
+  }
+
+  public String getFilesystemName() {
+    return fsName;
   }
 
   public String getAccount() {

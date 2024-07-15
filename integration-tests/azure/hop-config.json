@@ -288,8 +288,7 @@
     "projectLifecycles": []
   },
   "azure" : {
-    "account" : "devstoreaccount1",
-    "key" : "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==",
-    "emulatorUrl" : "http://azurite-blob:10000"
+    "account" : "<<<REPLACE_AZURE_ACCOUNT>>>",
+    "key" : "<<<REPLACE_AZURE_KEY>>>"
   }
 }

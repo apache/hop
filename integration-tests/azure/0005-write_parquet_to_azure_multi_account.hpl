@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0001-write_parquet_to_azure_azfs_scheme</name>
+    <name>0005-write_parquet_to_azure_multi_account</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -41,7 +41,7 @@ limitations under the License.
   <order>
     <hop>
       <from>Read employees data from dataset</from>
-      <to>Write to Azurite a Parquet file (azfs)</to>
+      <to>Write to Azure a Parquet file</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -184,12 +184,12 @@ limitations under the License.
     <sizeFieldName/>
     <attributes/>
     <GUI>
-      <xloc>448</xloc>
-      <yloc>160</yloc>
+      <xloc>240</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Write to Azurite a Parquet file (azfs)</name>
+    <name>Write to Azure a Parquet file</name>
     <type>ParquetFileOutput</type>
     <description/>
     <distribute>Y</distribute>
@@ -220,7 +220,7 @@ limitations under the License.
         <target_field>industry</target_field>
       </field>
     </fields>
-    <filename_base>azfs://${AZURE_ACCOUNT}/mycontainer/azfs-scheme</filename_base>
+    <filename_base>azit://mycontainer/azit-scheme</filename_base>
     <filename_create_parent_folders>Y</filename_create_parent_folders>
     <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
     <filename_ext>parquet</filename_ext>
@@ -234,8 +234,8 @@ limitations under the License.
     <version>2.0</version>
     <attributes/>
     <GUI>
-      <xloc>736</xloc>
-      <yloc>160</yloc>
+      <xloc>528</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

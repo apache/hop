@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-get-file-names.csv",
+  "name": "Get File Names",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "short_filename",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

@@ -18,18 +18,18 @@
 
 package org.apache.hop.vfs.azure;
 
+import com.azure.storage.file.datalake.models.DataLakeFileOpenInputStreamResult;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class BlobInputStream extends InputStream {
 
-  private com.microsoft.azure.storage.blob.BlobInputStream inputStream;
+  private InputStream inputStream;
   private long fileSize;
   private long totalRead = 0;
 
-  public BlobInputStream(
-      com.microsoft.azure.storage.blob.BlobInputStream inputStream, long fileSize) {
-    this.inputStream = inputStream;
+  public BlobInputStream(DataLakeFileOpenInputStreamResult inputStream, long fileSize) {
+    this.inputStream = inputStream.getInputStream();
     this.fileSize = fileSize;
   }
 
