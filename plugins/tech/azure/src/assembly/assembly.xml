@@ -50,6 +50,17 @@
             <scope>runtime</scope>
             <includes>
                 <include>com.microsoft.azure:azure-storage</include>
+                <include>com.azure:azure-storage-common</include>
+                <include>com.azure:azure-storage-blob</include>
+                <include>com.azure:azure-storage-file-datalake</include>
+                <include>com.azure:azure-core</include>
+                <include>com.azure:azure-core-http-netty</include>
+                <include>org.reactivestreams:reactive-streams</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
+                <include>io.projectreactor.netty:reactor-netty-core</include>
+                <include>io.projectreactor:reactor-core</include>
+                <include>io.projectreactor.netty:reactor-netty-http</include>
+                <include>com.azure:azure-json</include>
                 <include>com.microsoft.azure:azure-keyvault-core</include>
                 <include>com.microsoft.azure:azure-eventhubs:jar</include>
                 <include>org.apache.qpid:proton-j:jar</include>
