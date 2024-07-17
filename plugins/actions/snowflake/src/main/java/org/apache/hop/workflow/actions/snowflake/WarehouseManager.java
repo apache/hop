@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
     name = "Action.Name",
     description = "Action.Description",
     categoryDescription = "Category.Description",
-    documentationUrl = "")
+    documentationUrl = "/workflow/actions/snowflake-whm.html")
 public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   public static final String MANAGEMENT_ACTION = "managementAction";
   public static final String REPLACE = "replace";
