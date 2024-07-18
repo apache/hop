@@ -18,16 +18,15 @@
 
 package org.apache.hop.vfs.azure;
 
+import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.file.datalake.DataLakeFileClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClient;
 import com.azure.storage.file.datalake.DataLakeServiceClient;
 import com.azure.storage.file.datalake.models.ListPathsOptions;
 import com.azure.storage.file.datalake.models.PathItem;
-import com.microsoft.azure.storage.StorageException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,13 +103,14 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   @Override
-  protected void doAttach() throws URISyntaxException, StorageException {
+  protected void doAttach() {
     if (!attached) {
-      DataLakeFileSystemClient fileSystemClient =
-          service.getFileSystemClient(getAbstractFileSystem().getFilesystemName());
+      String containerName = ((AzureFileName) getName()).getContainer();
+      String fullPath = ((AzureFileName) getName()).getPath();
+      DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
       ListPathsOptions lpo = new ListPathsOptions();
 
-      if (getName().getPath().equals("/")) {
+      if ("/".equals(fullPath)) { // ROOT of the filesystem
         children = new ArrayList<>();
         lpo.setPath(getName().getPath());
         // TODO SR Evaluate using lpo.setRecursive
@@ -127,29 +127,35 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         type = FileType.FOLDER;
         dataLakeFileClient = null;
         currentFilePath = "";
-      } else {
+      } else { // this is a subdirectory or file or a container
 
         currentFilePath = ((AzureFileName) getName()).getPathAfterContainer();
         lpo.setPath(currentFilePath);
         // TODO SR Evaluate using lpo.setRecursive
-        dataLakeFileClient =
-            fileSystemClient.getFileClient(((AzureFileName) getName()).getContainer());
-        if (dataLakeFileClient.exists()) {
+        // dataLakeFileClient =
+        //   fileSystemClient.getFileClient(((AzureFileName) getName()).getContainer());
+
+        if (fileSystemClient.exists()) {
+
           children = new ArrayList<>();
+          PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
+          pathItems.forEach(
+              item -> {
+                if (item.isDirectory()) {
+                  children.add(item.getName());
+                }
+              });
           if (currentFilePath.equals("")) {
-            if (dataLakeFileClient.exists()) {
-              fileSystemClient
-                  .listPaths(lpo, null)
-                  .forEach(
-                      item -> {
-                        StringBuilder path = new StringBuilder(getFilePath(item.getName()));
-                        UriParser.extractFirstElement(path);
-                        children.add(path.substring(1));
-                      });
-              type = FileType.FOLDER;
-            } else {
-              type = FileType.IMAGINARY;
-            }
+            fileSystemClient
+                .listPaths(lpo, null)
+                .forEach(
+                    item -> {
+                      StringBuilder path = new StringBuilder(getFilePath(item.getName()));
+                      UriParser.extractFirstElement(path);
+                      children.add(path.substring(1));
+                    });
+            type = FileType.FOLDER;
+
             lastModified = 0;
             size = children.size();
           } else {

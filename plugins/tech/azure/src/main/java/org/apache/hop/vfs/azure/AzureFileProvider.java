@@ -152,7 +152,7 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
         endpoint =
             (!Utils.isEmpty(config.getEmulatorUrl()))
                 ? newVariables.resolve(config.getEmulatorUrl())
-                : String.format(Locale.ROOT, "https://%s.blob.core.windows.net", account);
+                : String.format(Locale.ROOT, "https://%s.dfs.core.windows.net", account);
       }
 
       StorageSharedKeyCredential storageCreds = new StorageSharedKeyCredential(account, key);
