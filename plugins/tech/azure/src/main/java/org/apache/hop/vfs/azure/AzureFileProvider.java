@@ -133,7 +133,7 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
         endpoint =
             (!Utils.isEmpty(azureMetadataType.getStorageAccountEndpoint()))
                 ? variables.resolve(azureMetadataType.getStorageAccountEndpoint())
-                : String.format(Locale.ROOT, "https://%s.blob.core.windows.net/%s", account);
+                : String.format(Locale.ROOT, "https://%s.dfs.core.windows.net", account);
       } else {
         AzureConfig config = AzureConfigSingleton.getConfig();
 
@@ -161,6 +161,7 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
           new DataLakeServiceClientBuilder()
               .endpoint(endpoint)
               .credential(storageCreds)
+              // .httpClient((HttpClient) client)
               .buildClient();
 
       azureFileSystem =

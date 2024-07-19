@@ -27,7 +27,6 @@ import com.azure.storage.file.datalake.models.PathItem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
@@ -35,7 +34,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
-import org.apache.commons.vfs2.provider.UriParser;
 
 public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
@@ -110,14 +108,15 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
       ListPathsOptions lpo = new ListPathsOptions();
 
-      if ("/".equals(fullPath)) { // ROOT of the filesystem
+      if (isFileSystemRoot(fullPath)) { // ROOT of the filesystem
         children = new ArrayList<>();
-        lpo.setPath(getName().getPath());
+        lpo.setPath(fullPath);
         // TODO SR Evaluate using lpo.setRecursive
 
-        fileSystemClient
-            .listPaths(lpo, null)
-            .forEach(
+        service
+            .listFileSystems()
+            .iterator()
+            .forEachRemaining(
                 item -> {
                   children.add(item.getName());
                 });
@@ -134,9 +133,15 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         // TODO SR Evaluate using lpo.setRecursive
         // dataLakeFileClient =
         //   fileSystemClient.getFileClient(((AzureFileName) getName()).getContainer());
+        //        DataLakeDirectoryClient directoryClient =
+        //            fileSystemClient.getDirectoryClient(currentFilePath);
+        // DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath);
+        // final Boolean exists = directoryClient.exists();
+        final Boolean isDirectory =
+            fileSystemClient.getDirectoryClient(currentFilePath).getProperties().isDirectory();
 
-        if (fileSystemClient.exists()) {
-
+        if (isDirectory) {
+          type = FileType.FOLDER;
           children = new ArrayList<>();
           PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
           pathItems.forEach(
@@ -145,80 +150,11 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
                   children.add(item.getName());
                 }
               });
-          if (currentFilePath.equals("")) {
-            fileSystemClient
-                .listPaths(lpo, null)
-                .forEach(
-                    item -> {
-                      StringBuilder path = new StringBuilder(getFilePath(item.getName()));
-                      UriParser.extractFirstElement(path);
-                      children.add(path.substring(1));
-                    });
-            type = FileType.FOLDER;
-
-            lastModified = 0;
-            size = children.size();
-          } else {
-            /*
-             * Look in the parent path for this filename AND and
-             * direct descendents
-             */
-            pathItem = null;
-            dirPathItem = null;
-            String relpath =
-                removeLeadingSlash(
-                    ((AzureFileName) (getName().getParent())).getPathAfterContainer());
-            lpo.setPath(relpath);
-            // TODO SR Evaluate using lpo.setRecursive
-
-            for (PathItem item : fileSystemClient.listPaths(lpo, null)) {
-              String itemPath = removeTrailingSlash(getFilePath(item.getName()));
-              if (pathsMatch(itemPath, currentFilePath)) {
-                if (!item.isDirectory()) {
-                  pathItem = item;
-                } else {
-                  dirPathItem = item;
-                  fileSystemClient
-                      .listPaths((new ListPathsOptions()).setPath(item.getName()), null)
-                      .forEach(
-                          pi -> {
-                            String path = getFilePath(pi.getName());
-                            while (path.endsWith("/")) path = path.substring(0, path.length() - 1);
-                            int idx = path.lastIndexOf('/');
-                            if (idx != -1) path = path.substring(idx + 1);
-                            children.add(path);
-                          });
-                }
-                break;
-              }
-            }
-            if (pathItem != null) {
-              type = FileType.FILE;
-              DataLakeFileClient dataLakeFileClient =
-                  fileSystemClient.getFileClient(pathItem.getName());
-              size = dataLakeFileClient.getProperties().getFileSize();
-              // TODO SR Temporarily commented waiting to understand how to get metadata
-              //              if (pathItem.getMetadata().containsKey("ActualLength")) {
-              //                size = Long.parseLong(pathItem.getMetadata().get("ActualLength"));
-              //              }
-              String disp = dataLakeFileClient.getProperties().getContentDisposition();
-              if (disp != null && disp.startsWith("vfs ; length=\"")) {
-                size = Long.parseLong(disp.substring(14, disp.length() - 1));
-              }
-              OffsetDateTime lastModified2 = dataLakeFileClient.getProperties().getLastModified();
-              // TODO SR Temporarily commented. OffsetDateTime do not have an equivalent getTime()
-              // method. How cna we get rid of that?
-              //              lastModified = lastModified2 == null ? 0 : lastModified2.getTime();
-            } else if (dirPathItem != null) {
-              type = FileType.FOLDER;
-              size = children.size();
-              lastModified = 0;
-            } else {
-              lastModified = 0;
-              type = FileType.IMAGINARY;
-              size = 0;
-            }
-          }
+        }
+        if (!isDirectory) {
+          DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath);
+          size = fileClient.getProperties().getFileSize();
+          type = FileType.FILE;
         } else {
           lastModified = 0;
           type = FileType.IMAGINARY;
@@ -228,6 +164,10 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         }
       }
     }
+  }
+
+  private static boolean isFileSystemRoot(String fullPath) {
+    return "/".equals(fullPath);
   }
 
   private String getFilePath(String filename) {
