@@ -19,6 +19,7 @@
 package org.apache.hop.vfs.azure;
 
 import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.file.datalake.DataLakeDirectoryClient;
 import com.azure.storage.file.datalake.DataLakeFileClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClient;
 import com.azure.storage.file.datalake.DataLakeServiceClient;
@@ -29,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
@@ -92,6 +94,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   private PathItem dirPathItem;
   private final String markerFileName = ".cvfs.temp";
   private OutputStream blobOutputStream;
+  private String containerName;
 
   public AzureFileObject(
       AbstractFileName fileName, AzureFileSystem fileSystem, DataLakeServiceClient service)
@@ -103,7 +106,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   @Override
   protected void doAttach() {
     if (!attached) {
-      String containerName = ((AzureFileName) getName()).getContainer();
+      containerName = ((AzureFileName) getName()).getContainer();
       String fullPath = ((AzureFileName) getName()).getPath();
       DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
       ListPathsOptions lpo = new ListPathsOptions();
@@ -118,7 +121,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
             .iterator()
             .forEachRemaining(
                 item -> {
-                  children.add(item.getName());
+                  children.add(StringUtils.substringAfterLast(item.getName(), "/"));
                 });
 
         size = children.size();
@@ -133,28 +136,28 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         // TODO SR Evaluate using lpo.setRecursive
         // dataLakeFileClient =
         //   fileSystemClient.getFileClient(((AzureFileName) getName()).getContainer());
-        //        DataLakeDirectoryClient directoryClient =
-        //            fileSystemClient.getDirectoryClient(currentFilePath);
-        // DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath);
-        // final Boolean exists = directoryClient.exists();
+        DataLakeDirectoryClient directoryClient =
+            fileSystemClient.getDirectoryClient(currentFilePath);
+        final Boolean exists = directoryClient.exists();
         final Boolean isDirectory =
             fileSystemClient.getDirectoryClient(currentFilePath).getProperties().isDirectory();
+        final Boolean isFile = !isDirectory;
+        if (exists && isDirectory) {
 
-        if (isDirectory) {
-          type = FileType.FOLDER;
           children = new ArrayList<>();
           PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
           pathItems.forEach(
               item -> {
-                if (item.isDirectory()) {
-                  children.add(item.getName());
-                }
+                children.add(item.getName().replace("small/", ""));
               });
-        }
-        if (!isDirectory) {
+          size = children.size();
+          type = FileType.FOLDER;
+          lastModified = directoryClient.getProperties().getLastModified().toEpochSecond();
+        } else if (exists && isFile) {
           DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath);
           size = fileClient.getProperties().getFileSize();
           type = FileType.FILE;
+          lastModified = fileClient.getProperties().getLastModified().toEpochSecond();
         } else {
           lastModified = 0;
           type = FileType.IMAGINARY;
@@ -173,11 +176,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   private String getFilePath(String filename) {
     String filePath = filename.substring(filename.indexOf('/'), filename.length());
     return filePath;
-  }
-
-  private boolean pathsMatch(String path, String currentPath) {
-    return path.replace("/" + ((AzureFileSystem) getFileSystem()).getAccount(), "")
-        .equals(currentPath);
   }
 
   @Override
