@@ -16,20 +16,26 @@
  */
 package org.apache.pipeline.transforms.writetolog;
 
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.writetolog.LogField;
 import org.apache.hop.pipeline.transforms.writetolog.WriteToLogMeta;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -37,51 +43,53 @@ import org.junit.Test;
 
 public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  LoadSaveTester loadSaveTester;
-  Class<WriteToLogMetaSymmetric> testMetaClass = WriteToLogMetaSymmetric.class;
+  LoadSaveTester<WriteToLogMeta> loadSaveTester;
 
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
-        Arrays.asList(
-            "displayHeader", "limitRows", "limitRowsNumber", "logmessage", "loglevel", "fieldName");
+        List.of(
+            "DisplayHeader", "LimitRows", "LimitRowsNumber", "LogMessage", "LogLevel", "LogFields");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
-            put("displayHeader", "isDisplayHeader");
-            put("limitRows", "isLimitRows");
-            put("limitRowsNumber", "getLimitRowsNumber");
-            put("logmessage", "getLogMessage");
-            put("loglevel", "getLogLevelString");
-            put("fieldName", "getFieldName");
+            put("DisplayHeader", "isDisplayHeader");
+            put("LimitRows", "isLimitRows");
+            put("LimitRowsNumber", "getLimitRowsNumber");
+            put("LogMessage", "getLogMessage");
+            put("LogLevel", "getLogLevel");
+            put("LogFields", "getLogFields");
           }
         };
+
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
-            put("displayHeader", "setDisplayHeader");
-            put("limitRows", "setLimitRows");
-            put("limitRowsNumber", "setLimitRowsNumber");
-            put("logmessage", "setLogMessage");
-            put("loglevel", "setLogLevelString");
-            put("fieldName", "setFieldName");
+            put("DisplayHeader", "setDisplayHeader");
+            put("LimitRows", "setLimitRows");
+            put("LimitRowsNumber", "setLimitRowsNumber");
+            put("LogMessage", "setLogMessage");
+            put("LogLevel", "setLogLevel");
+            put("LogFields", "setLogFields");
           }
         };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("fieldName", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("loglevel", new LogLevelLoadSaveValidator());
+    attrValidatorMap.put("DisplayHeader", new BooleanLoadSaveValidator());
+    attrValidatorMap.put("LimitRows", new BooleanLoadSaveValidator());
+    attrValidatorMap.put("LimitRowsNumber", new IntLoadSaveValidator());
+    attrValidatorMap.put("LogMessage", new StringLoadSaveValidator());
+    attrValidatorMap.put("LogLevel", createLogLevelValidators());
+    attrValidatorMap.put("LogFields", new ListLoadSaveValidator<>(new LogFieldLoadSaveValidator()));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass,
+        new LoadSaveTester<WriteToLogMeta>(
+            WriteToLogMeta.class,
             attributes,
             getterMap,
             setterMap,
@@ -90,35 +98,36 @@ public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
             this);
   }
 
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(WriteToLogMeta someMeta) {
-    if (someMeta instanceof WriteToLogMeta) {
-      ((WriteToLogMeta) someMeta).allocate(5);
-    }
-  }
-
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 
-  public class LogLevelLoadSaveValidator implements IFieldLoadSaveValidator<String> {
-    final Random rand = new Random();
+  protected EnumLoadSaveValidator<LogLevel> createLogLevelValidators() {
+    EnumSet<LogLevel> logLevels = EnumSet.allOf(LogLevel.class);
+    LogLevel random = (LogLevel) logLevels.toArray()[new Random().nextInt(logLevels.size())];
+    return new EnumLoadSaveValidator<>(random);
+  }
 
+  private final class LogFieldLoadSaveValidator implements IFieldLoadSaveValidator<LogField> {
     @Override
-    public String getTestObject() {
-      int idx = rand.nextInt((WriteToLogMeta.logLevelCodes.length));
-      return WriteToLogMeta.logLevelCodes[idx];
-    }
-
-    @Override
-    public boolean validateTestObject(String testObject, Object actual) {
-      if (!(actual instanceof String)) {
+    public boolean validateTestObject(LogField testObject, Object actual) {
+      if (!(actual instanceof LogField)) {
         return false;
       }
-      String actualInput = (String) actual;
+      LogField actualInput = (LogField) actual;
       return (testObject.equals(actualInput));
     }
+
+    @Override
+    public LogField getTestObject() {
+      return new LogField(UUID.randomUUID().toString());
+    }
+  }
+
+  @Override
+  public void modify(WriteToLogMeta object) {
+    // TODO Auto-generated method stub
+
   }
 }

@@ -17,19 +17,42 @@
 
 package org.apache.hop.pipeline.transforms.writetolog;
 
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
+import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
-@SuppressWarnings("java:S1104")
-public class WriteToLogData extends BaseTransformData implements ITransformData {
+public class LogField {
 
-  public int[] fieldnrs;
-  public int fieldnr;
-  public LogLevel logLevel;
-  public String logMessage;
+  public LogField() {}
 
-  public WriteToLogData() {
-    super();
+  public LogField(String name) {
+    this.name = name;
+  }
+
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "NAME",
+      injectionKeyDescription = "WriteToLogMeta.Injection.field.Name")
+  private String name;
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    LogField other = (LogField) obj;
+    return Objects.equals(name, other.name);
   }
 }

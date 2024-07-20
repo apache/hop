@@ -295,7 +295,7 @@ The goal is to add Metadata Injection support to all transforms, The current sta
 |Web services lookup|N
 |Workflow executor|N
 |Workflow Logging|Y
-|Write to log|N
+|Write to log|Y
 |XML input stream (StAX)|N
 |XML join|Y
 |XML output|Y
