@@ -104,7 +104,7 @@ import org.w3c.dom.Node;
     description = "Defines a Hop Hop Server",
     image = "ui/images/server.svg",
     documentationUrl = "/metadata-types/hop-server.html")
-public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
+public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
   private static final Class<?> PKG = HopServer.class;
   public static final String STRING_HOP_SERVER = "Hop Server";
   private static final Random RANDOM = new Random();
@@ -167,12 +167,12 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   @HopMetadataProperty private SslConfiguration sslConfig;
 
-  public HopServer() {
+  public HopServerMeta() {
     this.log = new LogChannel(STRING_HOP_SERVER);
     this.changedDate = new Date();
   }
 
-  public HopServer(
+  public HopServerMeta(
       String name,
       String hostname,
       String port,
@@ -182,7 +182,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     this(name, hostname, port, shutdownPort, username, password, null, null, null, false);
   }
 
-  public HopServer(
+  public HopServerMeta(
       String name,
       String hostname,
       String port,
@@ -205,7 +205,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         false);
   }
 
-  public HopServer(
+  public HopServerMeta(
       String name,
       String hostname,
       String port,
@@ -231,7 +231,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     this.log = new LogChannel(this);
   }
 
-  public HopServer(Node node) {
+  public HopServerMeta(Node node) {
     this();
     this.name = XmlHandler.getTagValue(node, "name");
     this.hostname = XmlHandler.getTagValue(node, "hostname");
@@ -290,16 +290,16 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   }
 
   @Override
-  public HopServer clone() {
-    return new HopServer(this);
+  public HopServerMeta clone() {
+    return new HopServerMeta(this);
   }
 
-  public HopServer(HopServer server) {
+  public HopServerMeta(HopServerMeta server) {
     this();
     replaceMeta(server);
   }
 
-  public void replaceMeta(HopServer hopServer) {
+  public void replaceMeta(HopServerMeta hopServer) {
     this.name = hopServer.name;
     this.hostname = hopServer.hostname;
     this.port = hopServer.port;
@@ -329,7 +329,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof HopServer server)) {
+    if (!(obj instanceof HopServerMeta server)) {
       return false;
     }
     return name.equalsIgnoreCase(server.getName());
@@ -1033,8 +1033,8 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     return WebResult.fromXmlString(xml);
   }
 
-  public static HopServer findHopServer(List<HopServer> hopServers, String name) {
-    for (HopServer hopServer : hopServers) {
+  public static HopServerMeta findHopServer(List<HopServerMeta> hopServers, String name) {
+    for (HopServerMeta hopServer : hopServers) {
       if (hopServer.getName() != null && hopServer.getName().equalsIgnoreCase(name)) {
         return hopServer;
       }
@@ -1044,7 +1044,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   public static String[] getHopServerNames(IHopMetadataProvider metadataProvider)
       throws HopException {
-    List<String> names = metadataProvider.getSerializer(HopServer.class).listObjectNames();
+    List<String> names = metadataProvider.getSerializer(HopServerMeta.class).listObjectNames();
     return names.toArray(new String[0]);
   }
 
@@ -1065,14 +1065,14 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
    * @param oldname the old name of the hop server
    * @return the new hop server name
    */
-  public String verifyAndModifyHopServerName(List<HopServer> hopServers, String oldname) {
+  public String verifyAndModifyHopServerName(List<HopServerMeta> hopServers, String oldname) {
     String name = getName();
     if (name.equalsIgnoreCase(oldname)) {
       return name; // nothing to see here: move along!
     }
 
     int nr = 2;
-    while (HopServer.findHopServer(hopServers, getName()) != null) {
+    while (HopServerMeta.findHopServer(hopServers, getName()) != null) {
       setName(name + " " + nr);
       nr++;
     }
@@ -1118,13 +1118,13 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             + CONST_XML);
   }
 
-  public HopServer getClient() {
+  public HopServerMeta getClient() {
     String pHostName = getHostname();
     String pPort = getPort();
     String shutdownPort = getShutdownPort();
     String name = MessageFormat.format("Dynamic server [{0}:{1}]", pHostName, pPort);
-    HopServer client =
-        new HopServer(name, pHostName, pPort, shutdownPort, getUsername(), getPassword());
+    HopServerMeta client =
+        new HopServerMeta(name, pHostName, pPort, shutdownPort, getUsername(), getPassword());
     client.setSslMode(isSslMode());
     return client;
   }

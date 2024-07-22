@@ -31,7 +31,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.w3c.dom.Node;
 
 public class HopServerConfig implements IXml {
@@ -43,7 +43,7 @@ public class HopServerConfig implements IXml {
   public static final String XML_TAG_LOW_RES_MAX_IDLE_TIME = "lowResourcesMaxIdleTime";
   public static final String XML_METADATA_FOLDER = "metadata_folder";
 
-  private HopServer hopServer;
+  private HopServerMeta hopServer;
 
   private boolean joining;
 
@@ -75,7 +75,7 @@ public class HopServerConfig implements IXml {
         new MultiMetadataProvider(Encr.getEncoder(), Collections.emptyList(), variables);
   }
 
-  public HopServerConfig(HopServer hopServer) {
+  public HopServerConfig(HopServerMeta hopServer) {
     this();
     this.hopServer = hopServer;
   }
@@ -104,9 +104,9 @@ public class HopServerConfig implements IXml {
 
   public HopServerConfig(ILogChannel log, Node node) {
     this();
-    Node hopServerNode = XmlHandler.getSubNode(node, HopServer.XML_TAG);
+    Node hopServerNode = XmlHandler.getSubNode(node, HopServerMeta.XML_TAG);
     if (hopServerNode != null) {
-      hopServer = new HopServer(hopServerNode);
+      hopServer = new HopServerMeta(hopServerNode);
       checkNetworkInterfaceSetting(log, hopServerNode, hopServer);
     }
 
@@ -169,7 +169,8 @@ public class HopServerConfig implements IXml {
     return jettyOptions;
   }
 
-  private void checkNetworkInterfaceSetting(ILogChannel log, Node serverNode, HopServer hopServer) {
+  private void checkNetworkInterfaceSetting(
+      ILogChannel log, Node serverNode, HopServerMeta hopServer) {
     // See if we need to grab the network interface to use and then override the host name
     //
     String networkInterfaceName = XmlHandler.getTagValue(serverNode, "network_interface");
@@ -207,14 +208,15 @@ public class HopServerConfig implements IXml {
     this();
     this.joining = joining;
     this.hopServer =
-        new HopServer(hostname + ":" + port, hostname, "" + port, "" + shutdownPort, null, null);
+        new HopServerMeta(
+            hostname + ":" + port, hostname, "" + port, "" + shutdownPort, null, null);
   }
 
   /**
    * @return the hop server.<br>
    *     The user name and password defined in here are used to contact this server by the masters.
    */
-  public HopServer getHopServer() {
+  public HopServerMeta getHopServer() {
     return hopServer;
   }
 
@@ -222,7 +224,7 @@ public class HopServerConfig implements IXml {
    * @param hopServer the hop server details to set.<br>
    *     The user name and password defined in here are used to contact this server by the masters.
    */
-  public void setHopServer(HopServer hopServer) {
+  public void setHopServer(HopServerMeta hopServer) {
     this.hopServer = hopServer;
   }
 

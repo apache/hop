@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -69,7 +69,7 @@ public class WebServerTest {
   private WebServer webServerNg;
   private PipelineMap trMapMock = mock(PipelineMap.class);
   private HopServerConfig sServerConfMock = mock(HopServerConfig.class);
-  private HopServer sServer = mock(HopServer.class);
+  private HopServerMeta sServer = mock(HopServerMeta.class);
   private WorkflowMap jbMapMock = mock(WorkflowMap.class);
   private ILogChannel logMock = mock(ILogChannel.class);
   //  private static final SocketConnector defSocketConnector = new SocketConnector();

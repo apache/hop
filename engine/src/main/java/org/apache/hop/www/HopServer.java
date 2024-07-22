@@ -60,6 +60,7 @@ import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformStatus;
+import org.apache.hop.server.HopServerMeta;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.w3c.dom.Document;
@@ -146,9 +147,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     this.config = new HopServerConfig();
     this.joinOverride = null;
 
-    org.apache.hop.server.HopServer defaultServer =
-        new org.apache.hop.server.HopServer(
-            "local8080", "localhost", "8080", "8079", "cluster", "cluster");
+    HopServerMeta defaultServer =
+        new HopServerMeta("local8080", "localhost", "8080", "8079", "cluster", "cluster");
     this.config.setHopServer(defaultServer);
     this.config.setJoining(true);
   }
@@ -164,7 +164,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     final WorkflowMap workflowMap = HopServerSingleton.getInstance().getWorkflowMap();
     workflowMap.setHopServerConfig(config);
 
-    org.apache.hop.server.HopServer hopServer = config.getHopServer();
+    HopServerMeta hopServer = config.getHopServer();
 
     String hostname = hopServer.getHostname();
     int port = WebServer.PORT;
@@ -199,7 +199,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
         log, variables, HopExtensionPoint.HopServerShutdown.id, this);
   }
 
-  private int parsePort(org.apache.hop.server.HopServer hopServer) {
+  private int parsePort(HopServerMeta hopServer) {
     try {
       return Integer.parseInt(hopServer.getPort());
     } catch (Exception e) {
@@ -212,7 +212,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return -1;
   }
 
-  private int parseShutdownPort(org.apache.hop.server.HopServer hopServer) {
+  private int parseShutdownPort(HopServerMeta hopServer) {
     try {
       return Integer.parseInt(hopServer.getShutdownPort());
     } catch (Exception e) {
@@ -313,9 +313,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   }
 
   private void setupByHostNameAndPort(String hostname, String port, String shutdownPort) {
-    org.apache.hop.server.HopServer hopServer =
-        new org.apache.hop.server.HopServer(
-            hostname + ":" + port, hostname, port, shutdownPort, null, null);
+    HopServerMeta hopServer =
+        new HopServerMeta(hostname + ":" + port, hostname, port, shutdownPort, null, null);
 
     config = new HopServerConfig();
     config.setHopServer(hopServer);
@@ -334,10 +333,10 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   }
 
   private void setupByServerName() throws HopException {
-    IHopMetadataSerializer<org.apache.hop.server.HopServer> serializer =
-        metadataProvider.getSerializer(org.apache.hop.server.HopServer.class);
+    IHopMetadataSerializer<HopServerMeta> serializer =
+        metadataProvider.getSerializer(HopServerMeta.class);
     String name = variables.resolve(serverName);
-    org.apache.hop.server.HopServer hopServer = serializer.load(name);
+    HopServerMeta hopServer = serializer.load(name);
     if (hopServer == null) {
       throw new HopException(
           "Unable to find Hop Server '" + name + "' couldn't be found in the server metadata");

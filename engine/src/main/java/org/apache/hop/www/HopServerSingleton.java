@@ -36,7 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -65,7 +65,7 @@ public class HopServerSingleton {
 
     installPurgeTimer(config, log, pipelineMap, workflowMap);
 
-    org.apache.hop.server.HopServer hopServer = config.getHopServer();
+    HopServerMeta hopServer = config.getHopServer();
     if (hopServer != null) {
       int port = WebServer.PORT;
       if (!Utils.isEmpty(hopServer.getPort())) {
@@ -215,7 +215,7 @@ public class HopServerSingleton {
       if (hopServerSingleton == null) {
         if (hopServerConfig == null) {
           hopServerConfig = new HopServerConfig();
-          org.apache.hop.server.HopServer hopServer = new HopServer();
+          HopServerMeta hopServer = new HopServerMeta();
           hopServerConfig.setHopServer(hopServer);
         }
 

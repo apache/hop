@@ -29,7 +29,7 @@ import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -118,7 +118,7 @@ public class HopGuiWorkflowRunDelegate {
   private void monitorRemoteJob(
       final WorkflowMeta workflowMeta,
       final String serverObjectId,
-      final HopServer remoteHopServer) {
+      final HopServerMeta remoteHopServer) {
     // There is a workflow running in the background. When it finishes log the result on the
     // console.
     // Launch in a separate thread to prevent GUI blocking...

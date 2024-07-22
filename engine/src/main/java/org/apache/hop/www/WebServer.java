@@ -41,7 +41,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -203,7 +203,7 @@ public class WebServer {
     } else {
       roles.add("default");
       HashLoginService hashLoginService;
-      HopServer hopServer = pipelineMap.getHopServerConfig().getHopServer();
+      HopServerMeta hopServer = pipelineMap.getHopServerConfig().getHopServer();
       if (!Utils.isEmpty(hopServer.getPassword())) {
         hashLoginService = new HashLoginService("Hop");
         UserStore userStore = new UserStore();
