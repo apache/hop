@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The SQL Script Executor action executes one or more SQL scripts from this action's configuration or from a file.
+:description: The SQL action executes one or more SQL scripts from this action's configuration or from a file.
 
-= SQL Script Executor
+= SQL
 
 == Description
 
-The SQL Script Executor action executes one or more SQL scripts from this action's configuration or from a file.
+The `SQL` action executes one or more SQL scripts from this action's configuration or from a file.
 
 You can execute more than one SQL statement, as long as they are separated by semi-colons.
 
@@ -32,10 +32,10 @@ Common uses associated with the SQL workflow action include truncating tables, d
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Database Connection|The database connection to use.
 |SQL from file|Enable this option to load the SQL statement from a file given by the SQL filename
 |SQL filename|The filename for the file with SQL statements.

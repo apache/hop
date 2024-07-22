@@ -22,15 +22,16 @@ under the License.
 
 == Description
 
-The Create File action creates an empty file. This is useful for creating trigger files from within workflows.
+The `Create File` action creates an empty file. This is useful for creating trigger files from within workflows.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |File name|The name and path of the file to create an empty file.
-|Fail if file exists|The workflow action will follow the failure outgoing hop when the file to be created already exists (empty or not) and this option is switched on.
+|Fail if file exists|The workflow action will follow the failure outgoing hop when the file to be created already exists (empty or not) and this option is switched on. +
 The default is on.
+|Add filename to result|Add the filename for the file that was created in this action to the results.
 |===

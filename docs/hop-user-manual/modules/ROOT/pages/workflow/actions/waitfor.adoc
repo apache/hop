@@ -16,20 +16,20 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Delay (Wait For) action creates a delay between workflows.
+:description: The Wait For action creates a delay between workflows.
 
-= Delay (Wait For)
+= Wait For
 
 == Description
 
-The Delay (Wait For) action creates a delay between workflows.
+The `Wait for` action creates a delay between workflow actions. The action allows to set a number of seconds, minutes or hours to wait before proceeding to the next action in the workflow.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|action name|The name of the workflow action.
 |Wait for|The delay to wait
 |Unit time|Specify the unit time (second, minute and hour)
 |===

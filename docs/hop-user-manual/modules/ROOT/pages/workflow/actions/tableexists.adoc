@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The Table Exists action verifies that a specified table exists on a database.
+The `Table exists` action verifies that a specified table exists on a database.
 
 You must provide a connection and the table name.
 
@@ -36,10 +36,10 @@ There is no point in processing the workflow until the data is available, so you
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Connection|The connection to use
 |Schema name|The schema name if applicable to your database
 |Table name|The name of the database table to check

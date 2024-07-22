@@ -16,20 +16,20 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Create Folder action creates a folder at the specified location.
+:description: The Create a folder action creates a folder at the specified location.
 
-= Create Folder
+= Create a folder
 
 == Description
 
-The Create Folder action creates a folder at the specified location.
+The `Create a folder` action creates a folder at the specified location.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Folder name|The name of the folder to create (can be a full path)
 |Fail if folder exists|If you enable this option, this workflow action will fail if the specified folder already exists.
 |===

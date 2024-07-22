@@ -22,21 +22,14 @@ under the License.
 
 == Description
 
-The Checks If Files Exist action verifies that the specified files exist. The action returns true if the files exist, false if they don't.
+The `Checks if files exist` action verifies that the specified files exist. The action returns true if the files exist, false if they don't.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-This name has to be unique in a single workflow.
-|File/folder name|The file or folder.
-|Add|Adds the file or folder to the Files/Folders table.
-|File...|Browse the filesystem for a file.
-|Folder...|Browse the filesystem for a folder.
-|Files/Folders|The table containing the files or folders to check.
-|Delete|Deletes the selected file or folder from the table.
-|Edit|Moves the file or folder from the table to the File/folder to the File/folder name edit field.
+|Action name|The name of the workflow action.
 |===
 
+After specifying a file/folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.

@@ -22,9 +22,9 @@ under the License.
 
 == Description
 
-The Move Files action moves a number of files and/or folders to alternate locations on your file system.
+The `Move files` action moves a number of files and/or folders to alternate locations on your file system.
 
-This works also on remote file systems (via VFS, e.g. with FTP.
+This also works on remote file systems via xref:vfs.adoc[VFS], e.g. with FTP.
 
 Example for a move (rename) of a file on a FTP server (username/password must be given for source and destination).
 
@@ -38,71 +38,71 @@ Example for a move (rename) of a file on a FTP server (username/password must be
 
 In this tab you can specify the files and/or folders to move.
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-|Settings a|
-* Include Subfolders: also move the content of sub-folders
-* Move empty folders : also move empty folders
-* Simulate : don't actually move anything, just see if it's possible at all.
-* Copy previous results to args : use the result files from the previous workflow action (actions) as files and/or folders to move.
+|Action name|The name of the workflow action.
+2+|Settings
+|Include Subfolders|Also move the content of sub-folders
+|Move empty folders|Also move empty folders
+|Simulate|Don't actually move anything, just see if it's possible at all.
+|Copy previous results to args|Use the result files from the previous workflow action (actions) as files and/or folders to move.
 |Files / Folders |You can specify the list of files or folders with destinations and wildcards in this grid.
-You can add a different source/destination on each line.
-**NOTE**: You can use the "Add" button to add a line to the Files/Folders list
 |===
+
+After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.
 
 === Destination File Tab
 
 In this tab you can specify the destination of the files and/or folders and their new filenames.
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Destination file a|
-
-
-* Create destination folder : use this option to create the destination folder
-* Destination is a file
-* Do not keep folder structure : flatten the sub-folder structure if any sub-folders are used
-* Add date to destination filename (yyyyMMdd or 20091231)
-* Add time to destination filename (HHmmss or 235959)
-* Specify date time format : allows you to specify your own date-time format.
+2+|Desitnation file
+|Create destination folder|Use this option to create the destination folder
+|Destination is a file|Check this option if you want to move files
+|Do not keep folder structure|flatten the sub-folder structure if any sub-folders are used
+|Add date to destination filename|Add a date to the destination filename (yyyyMMdd or 20091231)
+|Add time to destination filename|Add a time to the destination filename (HHmmss or 235959)
+|Specify date time format a|Allows you to specify your own date-time format.
 The default is yyyyMMdd'_'HHmmss
-* Add date before extension
-* If destination file exists: select one of these options:
-** Do nothing
-** Overwrite destination file
-** Create file with unique name
-** Delete source file
-** Move source file to folder : use the lower part of the dialog (next option in this grid)
-** Fail
+|Add date before extension|Add the data part before the file extension.
+|If destination file exists a|Select one of these options:
 
-|Move to folder a|
-* Destination folder : the target folder to move to
-* Create folder
-* Add date
-* Add time
-* Specify format : allows you to specify your own date-time format.
+* Do nothing
+* Overwrite destination file
+* Create file with unique name
+* Delete source file
+* Move source file to folder : use the lower part of the dialog (next option in this grid)
+* Fail
+
+2+|Move to folder
+|Destination folder|The target folder to move to
+|Create folder|
+|Add date|
+|Add time|
+|Specify format a|Allows you to specify your own date-time format.
 The default is yyyyMMdd'_'HHmmss
-* If file exists in destination folder: select one of these options:
-** Do nothing
-** Overwrite file
-** Unique name
-** Fail
+|If file exists in destination folder a|Select one of these options:
+
+* Do nothing
+* Overwrite file
+* Unique name
+* Fail
 |===
 
 === Advanced Tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Success on a|
+2+|Success on
+|Success condition a|Select one of these option:
 
-
-* Success condition : select one of these option:
-** Success when all works fine
-** Success when at least x files moved (specify x in the limit field below)
-** Success when number of errors lesser than (specify the max number of errors in the limit field below)
-|Result files name|Add files to result files name : add the target file names to the list of result files of this workflow action for use in the next workflow actions.
+* Success when all works fine (default)
+* Success when at least x files moved (specify x in the limit field below)
+* Success when number of errors lesser than (specify the max number of errors in the limit field below)
+|Nr errors lesser than|The number of files moved or the number of errors, depending on the success option above
+|Result files name|Add files to result files name|Add the target file names to the list of result files of this workflow action for use in the next workflow actions.
 |===

@@ -25,7 +25,7 @@ under the License.
 
 == Description
 
-The Pipeline action runs a previously-defined pipeline within a workflow.
+The `Pipeline` action runs a previously-defined pipeline within a workflow.
 
 This action is the access point from your workflow to your actual data processing activity (pipeline).
 
@@ -43,22 +43,22 @@ See also:
 
 === General
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Action name|Name of the action.
 |Pipeline|Specify your pipeline by entering in its path or clicking Browse.
-If you select a pipeline that has the same root path as the current pipeline, the variable {openvar}Internal.Action.Current.Directory{closevar} will automatically be inserted in place of the common root path.
-For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl than the path will automatically be converted to {openvar}Internal.Action.Current.Directory{closevar}/path/sub.hpl.
 
-Pipelines previously specified by reference are automatically converted to be specified by name.
-|Run Configuration|The pipeline can run in different types of environment configurations.  
-Specify a run configuration to control how the pipeline is executed.
+The selected pipelines will automatically converted to a path relative to your `{openvar}PROJECT_HOME{closevar}`. +
+For example, if your `{openvar}PROJECT_HOME{closevar}` is `/home/admin/hop/project/` and you select a pipeline `/home/admin/hop/project/subfolder/sub.hpl` than the path will automatically be converted to `{openvar}PROJECT_HOME{closevar}/subfolder/sub.hpl`.
+
+|Run Configuration|The pipeline can run in different types of xref:metadata-types/pipeline-run-config.adoc[pipeline configurations].
+Select the desired run configuration to control where and how the pipeline is executed.
 |===
 
-=== Options Tab
+=== Options tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Execute for every result row|Runs the pipeline once for every result row from a previous pipeline (or workflow) in the current workflow.
@@ -68,9 +68,9 @@ Specify a run configuration to control how the pipeline is executed.
 |Follow local abort to remote pipeline|If you selected Server as your environment type, choose this option to send the local abort signal remotely.
 |===
 
-=== Logging Tab
+=== Logging tab
 
-By default, if you do not set logging, Hop will take generated log entries and create a log record inside the workflow.
+By default, if you do not set logging, Apache Hop will take generated log entries and create a log record inside the workflow.
 For example, suppose a workflow has three pipelines to run and you have not set logging.
 The pipelines will not log information to other files, locations, or special configurations.
 In this instance, the workflow runs and logs information into its master workflow log.
@@ -80,23 +80,23 @@ For example, if you have load dimensions, you want logs for your load dimension 
 If there are errors in the pipelines, they will be displayed in the workflow logs.
 However, you want all your log information kept in one place, you must then set up logging.
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Specify logfile|Specifies a separate logging file for running this pipeline.
 |Name|Specifies the directory and base name of the log file (C:\logs for example).
 |Extension|Specifies the file name extension (.log or .txt for example).
 |Log level|Specifies the logging level for running the pipeline.
-See Logging for more details.
+See xref:logging/logging-basics.adoc[Logging] for more details.
 |Append logfile|Appends the logfile as opposed to creating a new one.
 |Create parent folder|Creates a parent folder for the log file if it does not exist.
 |Include date in filename|Adds the system date to the filename with format YYYYMMDD (_20051231).
 |Include time in filename|Adds the system time to the filename with format HHMMSS (_235959).
 |===
 
-=== Parameters Tab
+=== Parameters tab
 
-*Pass params downstream*: On the Parameters tab, select the pipeline transform checkbox to “Pass parameter values to sub pipeline”. The parameter must already exist in the pipeline (in pipeline properties for example) or alternatively, on the Parameters tab, you can specify new parameters. 
+*Pass params downstream*: On the Parameters tab, select the pipeline transform checkbox to `Pass parameter values to sub pipeline`. The parameter must already exist in the pipeline (in pipeline properties for example) or alternatively, on the Parameters tab, you can specify new parameters.
 The Parameters tab allows you to override existing parameter values or NULL them by leaving the value empty.
 
 *Pass field values upstream*: The sub pipeline requires a Copy rows to result transform to send a row upstream. This requires a row to exist in the sub pipeline. Note that that rows do not exist in a workflow, but you can use a Get variables in a subsequent sub pipeline to use the first sub pipeline’s field values.
@@ -104,7 +104,7 @@ The Parameters tab allows you to override existing parameter values or NULL them
 Use Set variables if you want to pass a single value upstream from a pipeline to the workflow and act upon that variable. In this case, you can choose a scope of “valid in the parent workflow”.
 
 
-[options="header"]
+[options="header", width="90%", cols-"1,3]
 |===
 |Option|Description
 |Copy results to parameters|Copies the results from a previous pipeline as parameters of the pipeline using the Copy rows to result transform.

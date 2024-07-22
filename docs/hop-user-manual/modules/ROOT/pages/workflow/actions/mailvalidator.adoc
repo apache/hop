@@ -22,22 +22,24 @@ under the License.
 
 == Description
 
-The Mail Validator action checks if an email address is valid or not.
+The `Mail validator` action checks if an email address is valid.
 
-When the check passes the success hop will be followed otherwise it will go to the fail hop
+When the check passes the success hop will be followed, otherwise it will go to the fail hop
 
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-|email|The email address, or list (separated by spaces) that have to be checked.
-|SMTP check?|By default, Hop will only check email address structure (using regular expression).
+|Action name|The name of the workflow action.
+|Email address|The email address, or list (separated by spaces) that have to be checked.
+2+|Settings
+|SMTP check? a|By default, Apache Hop will only check email address structure (using regular expression).
+
 If you want to perform a SMTP check, please select this option and fill Email sender (see after).
-Hop will extract domain name from the supplied email address (to check) and will try to get all exchangers from the domain name.
-Each exchanger will be queryed.
+
+Hop will extract domain name from the supplied email address (to check) and will try to get all exchangers from the domain name. Each exchanger will be queried.
 |Time out|In order to perform a SMTP check, Hop will open a socket on the target SMTP host.
 Specify here the socket time out (by default 0).
 |Email sender|If you select "SMTP check?" option, this field is mandatory.

@@ -16,46 +16,59 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The DOS To Unix action converts files from Windows (DOS) Format (lines end with CR/LF) to Linux/Unix Format (lines end with LF) and vice versa.
+:description: The Convert file between Windows and Unix action converts files from Windows (DOS) Format (lines end with CR/LF) to Linux/Unix Format (lines end with LF) and vice versa.
 
-= Dos To Unix
+= Convert file between Windows and Unix
 
 == Description
 
-The DOS To Unix action converts files from Windows (DOS) Format (lines end with CR/LF) to Linux/Unix Format (lines end with LF) and vice versa.
+The `Convert file between Windows and Unix` action converts files from Windows (DOS) Format (lines end with CR/LF) to Linux/Unix Format (lines end with LF) and vice versa.
 
 When the format is unknown, this action also has a guess function and converts to the other format.
 
 == Options
 
-=== General
+=== General tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Settings a|
 * Include Subfolders: also process sub-folders
 * Copy previous results to args : use the list of result files from the previous workflow action (actions) in stead of the static file list below.
 |Files / Folders a|
 You can specify the list of files or folders with wildcards in this grid.
 You can add a different source/destination on each line.
-|Conversion a|
-This can be:
-
-* Windows to Unix: Convert files from Windows (DOS) Format (lines end with CR/LF) to Linux/Unix Format (lines end with LF)
-* Unix to Windows: Convert files from Linux/Unix Format (lines end with LF) to Windows (DOS) Format (lines end with CR/LF)
-* Guess: When the format is unknown, it converts to the other format.
 |===
+
+After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.
+
+// |Conversion a|
+// This can be:
+//
+// * Windows to Unix: Convert files from Windows (DOS) Format (lines end with CR/LF) to Linux/Unix Format (lines end with LF)
+// * Unix to Windows: Convert files from Linux/Unix Format (lines end with LF) to Windows (DOS) Format (lines end with CR/LF)
+// * Guess: When the format is unknown, it converts to the other format.
+// |===
 
 === Advanced
 
 [options="header"]
 |===
 |Option|Description
-|Success Condition|This action will follow the success path if the selected condition is true.
-Current options are: "Success if all files are processed", "Success if at least x files are processed", "Success when number of error files lesser than".
+|Success Condition a|This action will follow the success path if the selected condition is true.
+Current options are:
+
+* Success if all files are processed
+* Success if at least x files are processed
+* Success when number of error files lesser than
 |Nr Files|specifies the number of files that have to meet the selected condition from above
-|Add Filenames|Adds the filenames that meet the selected condition to the workflow output stream.
-Conditions are: "Do not add filenames", "Add all filenames", "Add only processed filenames" or "Add only error filenames"
+|Add Filenames a|Adds the filenames that meet the selected condition to the workflow output stream.
+Conditions are:
+
+* Do not add filenames
+* Add all filenames
+* Add only processed filenames
+* Add only error filenames
 |===

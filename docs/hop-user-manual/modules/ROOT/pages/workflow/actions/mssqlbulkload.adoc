@@ -16,39 +16,39 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The MS SQL Server Bulk Loader action bulk loads data from a file into MSSQL.
+:description: The Bulk load into MSSQL action bulk loads data from a file into MSSQL.
 
-= MS SQL Server Bulk Loader
+= Bulk load into MSSQL
 
 == Description
 
-The MS SQL Server Bulk Loader action bulk loads data from a file into MSSQL.
+The `Bulk load into MSSQL` action bulk loads data from a file into MSSQL.
+
+Contrary to the transform bulk loaders, this action requires a pre-existing file that is bulk loaded to MS SQL.
 
 == Options
 
-=== General Tab
+=== General tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
+2+|Target Table
 |Connection|The database connection.
-|Edit...|Edit the database connection.
-|New...|Create a new database connection using the standard dialog.
-|Wizard...|Create a new database connection using the wizard dialog.
 |Target schema|The target schema.
 |Target table name|The target table.
 |Truncate table|Whether or not to truncate the table before starting the bulk load.
+2+|Data file
 |Source File name|The file to bulk load into MSSQL.
-|Browse...|Browse the filesystem to choose the source file.
 |Data file type|char, native, widechar, widenative
 |Fields terminated by|The field separation character.
 |Rows terminated by|The row termination character.
 |===
 
-=== Advanced Tab
+=== Advanced tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Codepage|OEM, ACP, RAW, specific
@@ -65,7 +65,6 @@ The MS SQL Server Bulk Loader action bulk loads data from a file into MSSQL.
 |Order by|Which field to order with.
 |Direction|Ordering ascending (asc) or descending (desc).
 |Error file|Path to the error file.
-|Browse...|Browse the filesystem to a error file location.
 |Add date time|Whether or not to add the date and time.
 |Max errors|
 |Batch size|

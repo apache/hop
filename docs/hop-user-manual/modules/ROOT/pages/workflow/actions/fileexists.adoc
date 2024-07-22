@@ -22,13 +22,13 @@ under the License.
 
 == Description
 
-The File Exists action verifies that a specified file exists on the server on which Hop is running.
+The `File exists` action verifies that a specified file exists and can be reached from the machine on which Apache Hop is running.
 
 You must provide the file name.
 
 Hop returns a True or False value depending on whether the file exists.
 
-The File Exists workflow action can be an easy integration point with other systems.
+The File Exists action can be an easy integration point with other systems.
 
 For example, suppose you have a three-part data warehouse load process.
 
@@ -42,16 +42,15 @@ As soon as the task is complete, the file is placed in a well-known location so 
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-This name has to be unique in a single workflow.
+|Action name|The name of the workflow action.
 |Filename field|Specify the filename and path of the file to verify.
 Click Browse to navigate to the source file or folder through the VFS browser.
-|Result fieldname|The field containing the result.
-|Add filename to result|Adds the filename to the result.
-|Include file type|Adds the type of file.
-|File type field|The field containing the type of file.
+// |Result fieldname|The field containing the result.
+// |Add filename to result|Adds the filename to the result.
+// |Include file type|Adds the type of file.
+// |File type field|The field containing the type of file.
 |===
 

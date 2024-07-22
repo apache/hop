@@ -24,26 +24,26 @@ under the License.
 
 == Description
 
-The Repeat action repeats the pipeline or workflow of your choice until a certain condition is met.
+The `Repeat` action repeats the pipeline or workflow of your choice until a certain condition is met.
 The condition is either:
 
 * A variable in the workflow is set or set to a certain value
 * The End Repeat action is executed in the specified repeating workflow
 
-In addition to the workflow and pipeline executor transforms, the Repeat and End Repeat actions let you build loops from a workflow. It requires a workflow or pipeline and a run configuration to use. The action will continue to execute the specified workflow or pipeline until a condition is met: either a variable is set or a variable set to an specific optional value, or an End repeat action is triggered in a child workflow.
+In addition to the workflow and pipeline executor transforms, the Repeat and xref:workflow/actions/repeat-end.adoc[End Repeat] actions let you build loops from a workflow. It requires a workflow or pipeline and a run configuration to use. The action will continue to execute the specified workflow or pipeline until a condition is met: either a variable is set or a variable set to an specific optional value, or an End repeat action is triggered in a child workflow.
 
 TIP: If you use a variable name for the file to repeat, ensure a default parameter is set with a file extension so Hop knows if it is a pipeline or a workflow file.
 
 TIP: A variable set with a scope of 'valid in the JVM' in a pipeline will not be accessible upstream of a repeating pipeline.
 
 == Example
-The samples project example: ``/loops/repeat-action.hwf`` and ``child-check-set-counter-value.hpl`` runs a pipeline that increments a `{openvar}COUNTER{closevar}` variable with each run. If the variable values exceeds 10, a variable `{openvar}END_LOOP{closevar}` is set. 
+The samples project example: `/loops/repeat-action.hwf` and `child-check-set-counter-value.hpl` runs a pipeline that increments a `{openvar}COUNTER{closevar}` variable with each run. If the variable values exceeds 10, a variable `{openvar}END_LOOP{closevar}` is set.
 This variable is detected by the Repeat action, and the loop stops. Because the Variable scope of `COUNTER` in the workflow is set to “Valid in the current workflow”, when you set `COUNTER` in the child the new value goes upstream.
 
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 
@@ -51,19 +51,27 @@ This variable is detected by the Repeat action, and the loop stops. Because the 
 
 |File to repeat|The filename of the pipeline or workflow to execute repeatedly.
 
-|Run configuration|The pipeline or workflow run configuration to use.
+|Run configuration a|The pipeline or workflow run configuration to use.
 
-*Please note* that if you set a variable on a remote server the value is currently not reported back so only local workflow engines are currently supported.
+NOTE: if you set a variable on a remote server the value is currently not reported back so only local workflow engines are currently supported.
 
 |Stop repeating when this variable is set|Specify the variable you want to be checked before stopping the repeat loop
 
 |Optional variable value| Only stop repeating when the above variable is set and contains this exact value. If you stop the Repeat downstream with a variable value that was set via scope: valid in the Java Virtual Machine, you will have to reset the variable manually in the same way because resetting the stop variable in the Repeat's Parameters/Variables tab will not work.
 
-|Delay variable in seconds| Allow file execution to repeat using specified value in seconds
+|Delay in seconds|Add a delay of x seconds between repeated executions of the selected workflow or pipeline.
 
 |Keep variable values after execution| This option keeps the variable values after a (repeating) pipeline or workflow execution to inject into the next iteration.
 
-|Logging file|In this group you can specify if you want to log to a file and how that should be done
+2+|Logging file
+|Log the execution to a file?|Check if you want to log the repeated executions of the selected workflow or pipeline to a log file
+|Base log file name|The base log filename to use to which the options below can optionally be appended.
+|Log file extension|The extension to use for the log file
+|Add date to filename?|Add the current date to the log filename
+|Add time to filename?|Add the current time to the log filename
+|Add repetition number to filename|Add the repetition number to the log file name
+|Append to any existing log file|Append instead of creating a new file when the current log file already exist.
+|Log file update interval?|The update interval (in milliseconds) to update the log file
 
 |Parameters/Variables to set|You can specify the values of any parameters or variables in this dialog.
 The values can contain variables themselves which will be resolved before every iteration.

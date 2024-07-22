@@ -62,7 +62,7 @@ import org.w3c.dom.Node;
     image = "FoldersCompare.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionFoldersCompare.keyword",
-    documentationUrl = "/workflow/actions/folderscompare.html")
+    documentationUrl = "/workflow/actions/comparefolders.html")
 public class ActionFoldersCompare extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFoldersCompare.class; // For Translator
   private static final String CONST_SPACE_SHORT = "      ";

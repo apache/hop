@@ -23,13 +23,14 @@ under the License.
 
 == Description
 
-The Start action is the starting point for workflow execution.
+The `Start` action is a special action, as it is the starting point for all workflow executions.
 
 NOTE: Every workflow needs to have one and only one start action.
 
-The start action has additional options to repeat a workflow, this works both in the local and remote workflow engine.
 
 image::actions/action-start-dialog.png[The alt text of the image]
+
+WARNING: The start action has additional options to repeat a workflow. This works in both the local and remote workflow engine, but is mainly available for historical reasons and shouldn't be considered as an alternative to `cron`, Apache Airflow or any other type of scheduling.
 
 When you activate the repeat option the workflow will continue to run and restart based on the interval you specify. This can be on a fixed day with a specific timestamp. Or every x seconds/minutes
 

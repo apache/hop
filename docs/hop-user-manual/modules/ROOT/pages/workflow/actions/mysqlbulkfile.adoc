@@ -16,24 +16,21 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The MySQL Bulk File action bulk loads data from MySQL into a file.
+:description: The Bulk load from MySQL into file action bulk loads data from MySQL into a file.
 
-= MySQL Bulk File
+= Bulk load from MySQL into file
 
 == Description
 
-The MySQL Bulk File action bulk loads data from MySQL into a file.
+The `Bulk load from MySQL into file` action bulk loads data from a MySQL table into a file.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Connection|The database connection.
-|Edit...|Edit the database connection.
-|New...|Create a new database connection using the standard dialog.
-|Wizard...|Create a new database connection using the wizard dialog.
 |Target schema|The target schema.
 |Target File name|The target file.
 |High Priority|The priority to load the file with.
@@ -42,8 +39,12 @@ The MySQL Bulk File action bulk loads data from MySQL into a file.
 |Fields enclosed by|The field enclosure to use.
 |Optionally enclosed|
 |Lines terminated by|The line termination string to use.
-|Names of columns|
-|Limit to the...first lines|
-|If file exists|Create new with unique name, Do Nothing, Fail
-|Add file to result filenames|
+|Names of columns|A comma separated list of columns to export
+|Limit to the...first lines|Only export the first x number of rows
+|If file exists a|The action to take when the target file already exists:
+
+* Create new with unique name
+* Do Nothing
+* Fail (default)
+|Add file to result filenames|Add the target file to the result filenames
 |===

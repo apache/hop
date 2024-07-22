@@ -22,18 +22,20 @@ under the License.
 
 == Description
 
-The Columns Exist In A Table action verifies that one or more columns exist in a database table.
+The `Columns exist in a table` action verifies that one or more columns exist in a database table.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
-|Connection|The database connection to use
+|Action name|The name of the workflow action.
+|Connection|The xref:metadata-types/rdbms-connection.adoc[Relational Database Connection] to use
 |Schema name|The schema of the table to use
 |Table name|The name of the table to use
 |Columns|The list of column names to verify (one or more)
 |===
+
+Use the `Browse` buttons to select a database schema or table from the selected connection.
+
+Use the `Get columns` button to retrieve the columns from the selected table.

@@ -22,14 +22,14 @@ under the License.
 
 == Description
 
-The Delete File action deletes a file (empty or not).
+The `Delete File` action deletes a file (empty or not).
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |File name|The name and path of the file to delete.
 |Fail if file doesn't exist|The workflow action will follow the failure outgoing hop when the file to be deleted does not exist anymore and this option is switched on.
 The default is off.

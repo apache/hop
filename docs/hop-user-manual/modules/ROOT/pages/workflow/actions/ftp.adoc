@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The Get A File With FTP action retrieves one or more files from an FTP server.
+The `Get a file with FTP` action retrieves one or more files from an FTP server.
 
 This workflow action does not "crawl" systems.
 
@@ -32,14 +32,13 @@ This workflow retrieves files from one directory exclusively.
 
 == Options
 
-=== General
+=== General tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Action name|The name of the workflow action.
+2+|Server
 |FTP server name/IP address|The name of the server or the IP address.
 |Server Port|Port number of the FTP server.
 |Username|The user name associated with FTP server account.
@@ -48,6 +47,7 @@ A workflow action can be placed several times on the canvas, however it will be 
 |Proxy port|Proxy server port number.
 |Proxy username|Proxy server account user name.
 |Proxy password|Proxy server account password.
+2+|Advanced
 |Binary mode|Enable if files must be transferred in binary mode.
 |Timeout|The FTP server timeout in seconds.
 |Use Active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open.
@@ -57,17 +57,20 @@ For Western Europe and the USA, ISO-8859-1 usually suffices.
 Select encoding that is valid for your server.
 |===
 
-=== Files
+=== Files tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
+2+|Remote
 |Remote directory|The remote directory on FTP server from which files are taken.
 |Wildcard (regular expression)|Regular expression when you want to select multiple files.
 For example: .txt$ : get all text files A.ENG:0-9.txt : files starting with A, ending with a number and .txt
 |Remove files after retrieval|Remove the files on the FTP server, but only after all selected files have been successfully transferred.
-|Move to Folder|Moves files to specified folder.
+|Move files after retrieval|Move the files on the FTP server to the folder specified below, but only after all selected files have been successfully transferred.
+|Move to Folder|Moves files to specified folder on the server.
 |Create Folder|Creates folder that will contain files.
+2+|Local
 |Target Directory|The directory where you want to place the retrieved files.
 |Include date in filename|Adds the system date to the filename (_20101231).
 |Include time in filename|Adds the system time to the filename (_235959).
@@ -79,18 +82,23 @@ For example: .txt$ : get all text files A.ENG:0-9.txt : files starting with A, e
 |Add filenames to result|Enable to add the file name(s) read to the result of this workflow.
 |===
 
-=== Advanced
+=== Advanced tab
 
 [options="header"]
 |===
 |Option|Description
-|Success on|Sets conditions of success.
+|Success on a|Sets conditions of success. The available options are:
+
+* All works fine (default)
+* At least we got x files
+* Nr errors less than
+
 |Limit files|Sets number of files associated with a condition of success.
 |===
 
 === Socks Proxy
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Host|Socks Proxy host name.

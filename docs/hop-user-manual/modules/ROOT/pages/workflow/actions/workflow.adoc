@@ -25,7 +25,7 @@ under the License.
 
 == Description
 
-The Workflow action executes a previously defined workflow as a **sub-worflow** of the current one.
+The `Workflow` action executes a previously defined workflow as a child workflow of the current one.
 
 For ease of use, it is also possible to create a new workflow within the dialog, pressing the New Workflow button.
 
@@ -47,11 +47,16 @@ See also:
 
 === Main workflow options
 
-[options="header", width="90%"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Action name|Name of the action.
-|Workflow Filename|Specify the XML file name of the workflow to execute. Click to browse through your local files.
+|Workflow Filename a|Specify the XML file name of the workflow to execute. Click to browse through your local files.
+
+The selected workflow will automatically converted to a path relative to your `{openvar}PROJECT_HOME{closevar}`.
+
+For example, if your `{openvar}PROJECT_HOME{closevar}` is `/home/admin/hop/project/` and you select a workflow `/home/admin/hop/project/subfolder/sub.hwf` than the path will automatically be converted to `{openvar}PROJECT_HOME{closevar}/subfolder/sub.hwf`.
+
 |Run configuration a|The xref:metadata-types/workflow-run-config.adoc[workflow run configuration] to use for this workflow action.  
 |===
 
@@ -80,38 +85,38 @@ For example, if you have load dimensions, you want logs for your load dimension 
 If there are errors in the pipelines, they will be displayed in the workflow logs.
 If, however, you want all your log information kept in one place, you must set up logging.
 
-[options="header",cols="1,3,1", width="90%"]
+[options="header",cols="1,3", width="90%"]
 |===
-|Option|Description|Default
-|Specify logfile?|Enable to specify a separate logging file for the execution of this workflow|false
-|Name of logfile|The directory and base name of the log file; for example C:\logs|none
-|Extension of logfile|The file name extension; for example, log or txt|none
-|Loglevel|Specifies the logging level for the execution of the workflow.|none
-|Append logfile?|Enable to append to the logfile as opposed to creating a new one|false
-|Create parent folder|Create the parent folder for the log file if it does not exist|false
-|Include date in logfile?|Adds the system date to the filename with format YYYYMMDD (eg 20051231).|false
+|Option|Description
+|Specify logfile?|Enable to specify a separate logging file for the execution of this workflow
+|Name of logfile|The directory and base name of the log file; for example `C:\logs`
+|Extension of logfile|The file name extension; for example, log or txt
+|Loglevel|Specifies the logging level for the execution of the workflow. See xref:logging/logging-basics.adoc[Logging] for more details.
+|Append logfile?|Enable to append to the logfile as opposed to creating a new one
+|Create parent folder|Create the parent folder for the log file if it does not exist
+|Include date in logfile?|Adds the system date to the filename with format YYYYMMDD (eg 20051231).
 |Include time in logfile?|Adds the system time to the filename with format HHMMSS (eg 235959).
-See also the logging window in Logging|false
+See also the logging window in Logging.
 |===
 
 === Parameters Tab
 
 Specify which parameters will be passed to the sub-workflow:
 
-[options="header",cols="1,3,1", width="90%"]
+[options="header",cols="1,3", width="90%"]
 |===
-|Option|Description|Default
-|Copy results to parameter|results from previous workflows or pipelines are passed down to this workflows action's parameters|false
-|Pass parameter values down to the sub-workflow|Enable this option to pass all parameters of the workflow down to the sub-workflow.|true
-|Parameters|Specify the parameter names that will be passed to the workflow.|-
-|Stream column name|Allows you to capture fields of incoming records of a result set as a parameter.|-
+|Option|Description
+|Copy results to parameter|results from previous workflows or pipelines are passed down to this workflows action's parameters
+|Pass parameter values down to the sub-workflow|Enable this option to pass all parameters of the workflow down to the sub-workflow.
+|Parameters|Specify the parameter names that will be passed to the workflow.
+|Stream column name|Allows you to capture fields of incoming records of a result set as a parameter.
 |Value
 a|Allows you to specify the values for the sub-workflow's parameters.
 You can do this by:
 
 * Manually typing some text (Ex: ETL workflow)
 * Using a parameter to set the value (Ex: `{openvar}Internal.workflow.Name{closevar}`)
-* Using a combination of manually specified text and parameter values (Ex: `{openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt`)|-
+* Using a combination of manually specified text and parameter values (Ex: `{openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt`)
 
 |===
 

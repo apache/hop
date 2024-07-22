@@ -22,16 +22,17 @@ under the License.
 
 == Description
 
-The Zip File action creates a standard ZIP archive using the options you specify in the dialog.
+The `Zip file` action creates a standard ZIP archive using the options you specify in the dialog.
 
 == Options
 
-=== General Tab
+=== General tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
+2+|Source files
 |Get arguments from previous a|This checkbox takes the filename specification from the result rows of a previous workflow action.
 This is what will be taken from the rows.
 
@@ -40,10 +41,11 @@ This is what will be taken from the rows.
 * The third field should contain the exclusion wildcard.
 * The fourth field should contain the target zip file (this can be different for each file).
 
-|Source directory|The source directory of the files to be zipped
-|Include wildcard|The wildcard (regular expression) of the files to include in the zip archive
-|Exclude wildcard|The wildcard (regular expression) of the files to exclude from the zip archive
+|Source directory/file|The source directory of the files to be zipped
+|Include wildcard (RegExp)|The wildcard (regular expression) of the files to include in the zip archive
+|Exclude wildcard (RegExp)|The wildcard (regular expression) of the files to exclude from the zip archive
 |Include sub-folders|Enable this option to search files in sub-folders
+2+|Zip file
 |Zip file name|The full name of the destination archive
 |Create parent folder|Create the parent folder if it doesn't exist
 |Include date in filename|Add the date to the file name
@@ -53,16 +55,29 @@ This is what will be taken from the rows.
 |Show filename|Shows an example filename based on the options you specified
 |===
 
-=== Advanced Tab
+=== Advanced tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Compression|The compression level to be used (Default, Best Compression, Best speed)
-|If zip file exists|The action to take when there already is a file at the target destination.
-|After zipping|The action to take after zipping
+2+|Advanced
+|Compression a|The compression level to be used. The options are
+* Default
+* Best Compression
+* Best speed
+|If zip file exists a|The action to take when there already is a file at the target destination. The options
+
+* Create new with unique name
+* Append to existing
+* Do nothing (default)
+|After zipping a|The action to take after zipping. The options are
+
+* Do nothing (default)
+* Delete files
+* Move files
 |Move files to|The target directory to move the source files to after zipping
 |Create folder|Create the folder to move to
 |Stored source path depth a|This is the part of the source file path which is taken over in the ZIP file archive structure.
+2+|Result file name
 |Add Zip file to result|Enable this option to add the target zip file(s) to the result
 |===

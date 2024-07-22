@@ -40,7 +40,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     image = "Delay.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     keywords = "i18n::ActionDelay.keyword",
-    documentationUrl = "/workflow/actions/delay.html")
+    documentationUrl = "/workflow/actions/waitfor.html")
 public class ActionDelay extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDelay.class; // For Translator
 

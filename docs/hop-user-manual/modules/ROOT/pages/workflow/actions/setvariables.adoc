@@ -16,21 +16,22 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Set Variables action sets variables at various scopes.
+:description: The Set variables action sets variables at various scopes.
 :openvar: ${
 :closevar: }
 
-= Set Variables
+= Set variables
 
 == Description
 
-The Set Variables action sets variables at various scopes.
+The `Set variables` action sets variables at various scopes.
 
 == Options
 
-[options="header"]
+[options="header", width="90%". cols="1,3"]
 |===
 |Option|Description
+2+|Properties file
 |Workflow action name|The name of the workflow action.
 |Name of properties file|The name of the properties file.
 |Variable scope a|
@@ -38,6 +39,7 @@ The Set Variables action sets variables at various scopes.
 * Valid in the current workflow
 * Valid in the parent workflow
 * Valid in the root workflow
+2+|Settings
 |Variable substitution|Whether or not to substitute variables. Leave unchecked only if you actually want to set a literal value like `{openvar}MyVariable{closevar}` in the Value column.
 |Variables|A list of variables to set to a certain value at a certain scope.
 |===

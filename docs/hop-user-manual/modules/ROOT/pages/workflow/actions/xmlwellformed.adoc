@@ -22,32 +22,40 @@ under the License.
 
 == Description
 
-The Check If XML File Is Well-Formed action verifies if one or more files contain well-formed (allowed) XML content.
+The `Check if XML file is well-formed action` verifies if one or more files contain well-formed (allowed) XML content.
 
 == Options
 
-=== General Tab
+=== General tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Action name|The name of the workflow action.
 |Include Subfolders|Option to move the content of sub-folders.
 |Copy previous results to args|Check this to pass the results of the previous action into the arguments of this action.
-|Files/Folders|Specify the list of files or folders with wildcards (regular expressions) in this grid.
+|File/Folder source|Enter or select (Browse button) a file or folder
+|Wildcard (RegExp)|A regular expression wildcard for the filename pattern
+|Files/Folders a|Specify the list of files or folders with wildcards (regular expressions) in this grid.
 You can add a different source/destination on each line.
-Note: You can use the Add button to add a line to the Files/Folders list.
+
+NOTE: You can use the Add button to add a line to the Files/Folders list.
 |===
 
-=== Advanced Tab
+=== Advanced tab
 
 In this tab you can specify the files and/or folders to move.
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
+2+|Success On
 |Success on|Allows you to set specific success conditions: Success if all files are well formed, Success if at least x files are well formed, or Success when number of bad formed files less than.
 |Result files name|Specify which kind of filenames to add to the internal result file names: all filenames, only well formed filenames, or only bad filenames.
+2+|Result file names
+|Add filename a|Add the checked XML filenames to the workflow action result. The available options are:
+
+* Add all filenames
+* Add only well-formed filenames
+* Add only bad-formed filenames
 |===

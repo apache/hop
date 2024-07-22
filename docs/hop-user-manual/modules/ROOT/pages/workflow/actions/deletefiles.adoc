@@ -16,20 +16,20 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Delete Files action deletes a set of files.
+:description: The Delete files action deletes a set of files.
 
-= Delete Files
+= Delete files
 
 == Description
 
-The Delete Files action deletes a set of files.
+The `Delete files` action deletes a set of specified files, optionally with subfolders.
 
 == Options
 
 [options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Include Subfolders|Also delete the subfolders in the folder selection
 |Copy previous results to args?|Enable this if the set of files comes from a previous workflow action (as part of the result files)
 |File/Folder|The file or folder to delete
@@ -37,3 +37,5 @@ The Delete Files action deletes a set of files.
 For example to delete all files ending in .dat, the regular expression would be ".*\.dat$".
 |Files/Folders|The complete list of files/folders to delete
 |===
+
+After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.
