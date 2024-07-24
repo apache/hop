@@ -967,12 +967,24 @@ public class PipelineMeta extends AbstractMeta
    * @return an array of succeeding transforms.
    */
   public List<TransformMeta> findNextTransforms(TransformMeta transformMeta) {
+    return findNextTransforms(transformMeta, false);
+  }
+
+  /**
+   * Retrieve a list of succeeding transforms for a certain originating transform.
+   *
+   * @param transformMeta The originating transform
+   * @param includeDisabled if true, include the following transforms even if hops are disabled
+   * @return an array of succeeding transforms.
+   */
+  public List<TransformMeta> findNextTransforms(
+      TransformMeta transformMeta, boolean includeDisabled) {
     List<TransformMeta> nextTransforms = new ArrayList<>();
     for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
 
-      PipelineHopMeta hi = getPipelineHop(i);
-      if (hi.isEnabled() && hi.getFromTransform().equals(transformMeta)) {
-        nextTransforms.add(hi.getToTransform());
+      PipelineHopMeta hop = getPipelineHop(i);
+      if ((hop.isEnabled() || includeDisabled) && hop.getFromTransform().equals(transformMeta)) {
+        nextTransforms.add(hop.getToTransform());
       }
     }
 
