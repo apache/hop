@@ -458,7 +458,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   }
 
   private LogLevel determineLogLevel() {
-    return LogLevel.getLogLevelForCode(variables.resolve(level));
+    return LogLevel.lookupCode(variables.resolve(level));
   }
 
   private void configureHopServer(IExecutionConfiguration configuration, String name)

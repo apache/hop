@@ -266,7 +266,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
     pipelineOptions
         .as(HopPipelineExecutionOptions.class)
         .setLogLevel(
-            LogLevel.getLogLevelForCode(
+            LogLevel.lookupCode(
                 Const.NVL(
                     pipelineRunConfiguration.getVariable(
                         BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL),

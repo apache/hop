@@ -175,7 +175,7 @@ public class HopGuiWorkflowActionDelegate {
 
     WorkflowHopMeta newHop1 = new WorkflowHopMeta(hop.getFromAction(), actionMeta);
     newHop1.setEnabled(hop.isEnabled());
-    newHop1.setEvaluation(hop.getEvaluation());
+    newHop1.setEvaluation(hop.isEvaluation());
     newHop1.setUnconditional(hop.isUnconditional());
     newHop1.setErrorHop(hop.isErrorHop());
     workflowMeta.addWorkflowHop(newHop1);

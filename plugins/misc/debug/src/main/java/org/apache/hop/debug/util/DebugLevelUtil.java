@@ -73,7 +73,7 @@ public class DebugLevelUtil {
     }
 
     TransformDebugLevel debugLevel = new TransformDebugLevel();
-    debugLevel.setLogLevel(LogLevel.getLogLevelForCode(logLevelCode));
+    debugLevel.setLogLevel(LogLevel.lookupCode(logLevelCode));
     debugLevel.setStartRow(Const.toInt(startRowString, -1));
     debugLevel.setEndRow(Const.toInt(endRowString, -1));
 
@@ -150,7 +150,7 @@ public class DebugLevelUtil {
     }
 
     ActionDebugLevel debugLevel = new ActionDebugLevel();
-    debugLevel.setLogLevel(LogLevel.getLogLevelForCode(logLevelCode));
+    debugLevel.setLogLevel(LogLevel.lookupCode(logLevelCode));
     debugLevel.setLoggingResult(loggingResult);
     debugLevel.setLoggingVariables(loggingVariables);
     debugLevel.setLoggingResultRows(loggingResultRows);

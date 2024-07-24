@@ -302,7 +302,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
 
     // IMPORTANT: remote preview and remote debugging is NOT yet supported.
     //
-    logLevel = LogLevel.getLogLevelForCode(XmlHandler.getTagValue(trecNode, "log_level"));
+    logLevel = LogLevel.lookupCode(XmlHandler.getTagValue(trecNode, "log_level"));
     setLogfile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(trecNode, "log_file"));
     logFileName = XmlHandler.getTagValue(trecNode, "log_filename");
     setAppendLogfile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(trecNode, "log_file_append"));
