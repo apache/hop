@@ -834,16 +834,15 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    DatabaseMeta databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
-
-    SqlStatement statement =
-        new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
-
     // Verify the absolute basic settings like having a database, table, input fields, technical
     // key, ...
     //
-    validateBasicSettings(variables, previousRowMeta);
+    validateBasicSettings(variables, pipelineMeta, previousRowMeta);
+
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
+
+    SqlStatement statement =
+        new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (!update) {
       // Only bother in case of update, not lookup!
@@ -925,17 +924,12 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     return statement;
   }
 
-  private void validateBasicSettings(IVariables variables, IRowMeta previousRowMeta)
+  private void validateBasicSettings(
+      IVariables variables, PipelineMeta pipelineMeta, IRowMeta previousRowMeta)
       throws HopTransformException {
 
-    DatabaseMeta databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
-
-    if (databaseMeta == null) {
-      throw new HopTransformException(
-          BaseMessages.getString(
-              PKG, "DimensionLookupMeta.ReturnValue.NoConnectionDefinedInTransform"));
-    }
+    // Raise an exception in case connection is missing
+    pipelineMeta.findDatabase(connection, variables, true);
 
     if (fields.keys.isEmpty()) {
       throw new HopTransformException(
