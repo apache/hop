@@ -481,6 +481,7 @@ public abstract class ActionBase
    *
    * @return an empty (non-null) array
    */
+  @Deprecated(since = "2.10")
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] {};
   }

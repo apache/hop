@@ -431,13 +431,6 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     return result;
   }
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] {
-      connection,
-    };
-  }
-
   public boolean isReplacedata() {
     return replacedata;
   }
