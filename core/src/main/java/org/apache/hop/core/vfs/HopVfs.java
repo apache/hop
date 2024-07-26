@@ -136,8 +136,8 @@ public class HopVfs {
       fsm.addProvider("zip", new org.apache.commons.vfs2.provider.zip.ZipFileProvider());
       fsm.addProvider("gz", new org.apache.commons.vfs2.provider.gzip.GzipFileProvider());
       fsm.addProvider("jar", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
-      fsm.addProvider("http", new org.apache.commons.vfs2.provider.http.HttpFileProvider());
-      fsm.addProvider("https", new org.apache.commons.vfs2.provider.https.HttpsFileProvider());
+      fsm.addProvider("http", new org.apache.commons.vfs2.provider.http5.Http5FileProvider());
+      fsm.addProvider("https", new org.apache.commons.vfs2.provider.http5s.Http5sFileProvider());
       fsm.addProvider("ftp", new org.apache.commons.vfs2.provider.ftp.FtpFileProvider());
       fsm.addProvider("ftps", new org.apache.commons.vfs2.provider.ftps.FtpsFileProvider());
       fsm.addProvider("sftp", new org.apache.commons.vfs2.provider.sftp.SftpFileProvider());

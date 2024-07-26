@@ -78,6 +78,7 @@
         <hive.version>2.3.9</hive.version>
         <httpccore.version>4.4.15</httpccore.version>
         <httpclient.version>4.5.13</httpclient.version>
+        <httpclient5.version>5.3.1</httpclient5.version>
         <jackcess.version>4.0.4</jackcess.version>
         <jackson.version>2.15.0</jackson.version>
         <jakarta-mail.version>2.0.1</jakarta-mail.version>
@@ -414,6 +415,17 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>${httpccore.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
