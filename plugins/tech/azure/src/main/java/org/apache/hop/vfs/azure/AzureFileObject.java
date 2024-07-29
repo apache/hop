@@ -110,9 +110,9 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       String fullPath = ((AzureFileName) getName()).getPath();
       DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
       ListPathsOptions lpo = new ListPathsOptions();
-
+      children = new ArrayList<>();
       if (isFileSystemRoot(fullPath)) { // ROOT of the filesystem
-        children = new ArrayList<>();
+
         lpo.setPath(fullPath);
         // TODO SR Evaluate using lpo.setRecursive
 
@@ -132,38 +132,48 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       } else { // this is a subdirectory or file or a container
 
         currentFilePath = ((AzureFileName) getName()).getPathAfterContainer();
-        lpo.setPath(currentFilePath);
-        // TODO SR Evaluate using lpo.setRecursive
-        // dataLakeFileClient =
-        //   fileSystemClient.getFileClient(((AzureFileName) getName()).getContainer());
-        DataLakeDirectoryClient directoryClient =
-            fileSystemClient.getDirectoryClient(currentFilePath);
-        final Boolean exists = directoryClient.exists();
-        final Boolean isDirectory =
-            fileSystemClient.getDirectoryClient(currentFilePath).getProperties().isDirectory();
-        final Boolean isFile = !isDirectory;
-        if (exists && isDirectory) {
-
-          children = new ArrayList<>();
-          PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
-          pathItems.forEach(
-              item -> {
-                children.add(item.getName().replace("small/", ""));
-              });
-          size = children.size();
+        if (StringUtils.isEmpty(currentFilePath)) {
           type = FileType.FOLDER;
-          lastModified = directoryClient.getProperties().getLastModified().toEpochSecond();
-        } else if (exists && isFile) {
-          DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath);
-          size = fileClient.getProperties().getFileSize();
-          type = FileType.FILE;
-          lastModified = fileClient.getProperties().getLastModified().toEpochSecond();
+          fileSystemClient.listPaths().forEach(pi -> children.add(pi.getName()));
         } else {
-          lastModified = 0;
-          type = FileType.IMAGINARY;
-          size = 0;
-          pathItem = null;
-          dirPathItem = null;
+          lpo.setPath(currentFilePath);
+          DataLakeDirectoryClient directoryClient =
+              fileSystemClient.getDirectoryClient(currentFilePath);
+          final Boolean exists = directoryClient.exists();
+
+          // TODO SR Evaluate using lpo.setRecursive
+          // dataLakeFileClient =
+          //   fileSystemClient.getFileClient(((AzureFileName) getName()).getContainer());
+
+          final Boolean isDirectory =
+              exists
+                  && fileSystemClient
+                      .getDirectoryClient(currentFilePath)
+                      .getProperties()
+                      .isDirectory();
+          final Boolean isFile = !isDirectory;
+          if (exists && isDirectory) {
+            children = new ArrayList<>();
+            PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
+            pathItems.forEach(
+                item -> {
+                  children.add(item.getName().replace("small/", "")); // TODO replace with path
+                });
+            size = children.size();
+            type = FileType.FOLDER;
+            lastModified = directoryClient.getProperties().getLastModified().toEpochSecond();
+          } else if (exists && isFile) {
+            DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath);
+            size = fileClient.getProperties().getFileSize();
+            type = FileType.FILE;
+            lastModified = fileClient.getProperties().getLastModified().toEpochSecond();
+          } else {
+            lastModified = 0;
+            type = FileType.IMAGINARY;
+            size = 0;
+            pathItem = null;
+            dirPathItem = null;
+          }
         }
       }
     }
