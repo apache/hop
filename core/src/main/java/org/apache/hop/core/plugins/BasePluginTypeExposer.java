@@ -81,7 +81,7 @@ public class BasePluginTypeExposer {
     return pluginType.extractForumUrl(annotation);
   }
 
-  public boolean extractincludeJdbcDrivers(Annotation annotation) {
-    return pluginType.extractincludeJdbcDrivers(annotation);
+  public boolean extractIncludeJdbcDrivers(Annotation annotation) {
+    return pluginType.extractIncludeJdbcDrivers(annotation);
   }
 }

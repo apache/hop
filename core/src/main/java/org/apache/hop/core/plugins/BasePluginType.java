@@ -546,7 +546,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     return false;
   }
 
-  protected boolean extractincludeJdbcDrivers(T annotation) {
+  protected boolean extractIncludeJdbcDrivers(T annotation) {
     return false;
   }
 
@@ -641,7 +641,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     String suggestion = getTranslation(extractSuggestion(annotation), packageName, clazz);
     String classLoaderGroup = extractClassLoaderGroup(annotation);
     String[] keywords = getTranslations(extractKeywords(annotation), packageName, clazz);
-    boolean includeJdbcDrivers = extractincludeJdbcDrivers(annotation);
+    boolean includeJdbcDrivers = extractIncludeJdbcDrivers(annotation);
 
     Map<Class<?>, String> classMap = new HashMap<>();
 
