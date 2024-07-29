@@ -82,7 +82,7 @@ ${ENVIRONMENT_HOME}/input/source-file.txt
 // CTRL-space snippet
 include::snippets/variables/control-space.adoc[]
 
-
+[[hex-values]]
 == Hexadecimal values
 
 In rare cases you might have a need to enter non-character values as separators in 'binary' text files with for example a zero byte as a separator.
@@ -95,6 +95,12 @@ A few examples:
 
 |===
 |Value |Meaning
+
+|`$[0D]`
+|A Newline character (CR)
+
+|`$[0A]`
+|A Newline character (LF)
 
 |`$[00]`
 |A single byte with decimal value 0
