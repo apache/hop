@@ -28,6 +28,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -50,13 +51,19 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTableExists.class; // For Translator
 
-  @HopMetadataProperty(key = "tablename")
+  @HopMetadataProperty(
+      key = "tablename",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
-  @HopMetadataProperty(key = "schemaname")
+  @HopMetadataProperty(
+      key = "schemaname",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   public ActionTableExists(String n) {
@@ -118,8 +125,7 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     if (!Utils.isEmpty(connection)) {
       DatabaseMeta dbMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
       if (dbMeta != null) {
-        Database db = new Database(this, this, dbMeta);
-        try {
+        try (Database db = new Database(this, this, dbMeta)) {
           db.connect();
           String realTableName = resolve(tableName);
           String realSchemaName = resolve(schemaName);
@@ -140,14 +146,6 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
           result.setNrErrors(1);
           logError(
               BaseMessages.getString(PKG, "TableExists.Error.RunningAction", dbe.getMessage()));
-        } finally {
-          if (db != null) {
-            try {
-              db.disconnect();
-            } catch (Exception e) {
-              /* Ignore */
-            }
-          }
         }
       }
     } else {
