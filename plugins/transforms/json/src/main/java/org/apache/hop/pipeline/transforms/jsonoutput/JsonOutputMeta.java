@@ -108,6 +108,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   private boolean fileAppended;
 
   /** Flag to indicate whether or not to create JSON structures compatible with pre v4.3.0 */
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.COMPATIBILITY_MODE")
   private boolean compatibilityMode;
 
   /** Flag: create parent folder if needed */
