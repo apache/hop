@@ -19,8 +19,8 @@ under the License.
 
 = Hop Web
 
-Hop Web is a web based Hop Gui version.
-Hop Gui was designed from the ground up to be web-ready. You'll barely notice any difference between working in the Hop Gui _fat client_ or Hop Web.
+Hop Web is a web-based Hop Gui version. It uses code conversion to translate the default Hop Gui desktop application to a web-based version. Even though not perfect, Hop Web provides the default Hop Gui user experience in a browser.
+
 
 == Getting Hop Web
 

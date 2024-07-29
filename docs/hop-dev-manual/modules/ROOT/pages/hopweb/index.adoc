@@ -22,8 +22,11 @@ under the License.
 
 == Building or customizing Hop Web
 
-Hop Web is available as a Docker container image from Docker Hub. Check the xref:manual::hop-gui/hop-web.adoc[user manual for Hop Web] for more information.
+Hop Web is available as a basic Docker container image from Docker Hub. Check the xref:manual::hop-gui/hop-web.adoc[user manual for Hop Web] for more information.
 
+Follow the steps in this guid to learn how you can build your own Hop Web installation or docker image.
+
+WARNING: Hop Web is built with https://eclipse.dev/rap/demos/[Eclipse RAP], and translates the default Hop Gui desktop application into a web version. It is functional, but there are limitations. Feel free to https://hop.apache.org/community/contributing/[contribute] if you'd like to improve Hop Web.
 
 == Build Hop
 
