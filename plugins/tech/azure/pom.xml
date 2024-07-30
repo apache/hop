@@ -46,15 +46,56 @@
     -->
     <properties>
         <azure-eventhubs.version>3.3.0</azure-eventhubs.version>
-        <azure-storage.version>8.6.6</azure-storage.version>
+        <!--        <azure.storage-file-datalake.version>12.19.1</azure.storage-file-datalake.version>-->
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.azure</groupId>
+                <artifactId>azure-sdk-bom</artifactId>
+                <version>1.2.25</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <!-- Add the OkHTTP client to use with Storage Blob -->
+        <!--   <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-core-http-okhttp</artifactId>
+        </dependency>-->
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-storage-blob</artifactId>
+            <!--            <exclusions>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>com.azure</groupId>-->
+            <!--                    <artifactId>azure-core-http-netty</artifactId>-->
+            <!--                </exclusion>-->
+            <!--            </exclusions>-->
+        </dependency>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-storage-file-datalake</artifactId>
+            <!--            <exclusions>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>com.azure</groupId>-->
+            <!--                    <artifactId>azure-core-http-netty</artifactId>-->
+            <!--                </exclusion>-->
+            <!--            </exclusions>-->
+        </dependency>
         <dependency>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>azure-eventhubs</artifactId>
             <version>${azure-eventhubs.version}</version>
             <exclusions>
+                <!--                <exclusion>-->
+                <!--                    <groupId>com.microsoft.azure</groupId>-->
+                <!--                    <artifactId>azure-storage</artifactId>-->
+                <!--                </exclusion>-->
                 <exclusion>
                     <groupId>net.minidev</groupId>
                     <artifactId>json-smart</artifactId>
@@ -65,12 +106,14 @@
             <groupId>com.microsoft.azure</groupId>
             <artifactId>azure-eventhubs-eph</artifactId>
             <version>${azure-eventhubs.version}</version>
+            <!--            <exclusions>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>com.microsoft.azure</groupId>-->
+            <!--                    <artifactId>azure-storage</artifactId>-->
+            <!--                </exclusion>-->
+            <!--            </exclusions>-->
         </dependency>
-        <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>azure-storage</artifactId>
-            <version>${azure-storage.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>

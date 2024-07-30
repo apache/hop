@@ -18,13 +18,13 @@
 
 package org.apache.hop.vfs.azure;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
+import com.azure.storage.common.StorageSharedKeyCredential;
+import com.azure.storage.file.datalake.DataLakeServiceClient;
+import com.azure.storage.file.datalake.DataLakeServiceClientBuilder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +38,7 @@ import org.apache.commons.vfs2.UserAuthenticationData;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 import org.apache.commons.vfs2.util.UserAuthenticatorUtils;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.azure.config.AzureConfig;
@@ -97,18 +98,19 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
 
     FileSystemOptions fsOptions =
         fileSystemOptions != null ? fileSystemOptions : getDefaultFileSystemOptions();
-    UserAuthenticationData authData = null;
-    CloudBlobClient service;
 
+    UserAuthenticationData authData = null;
+    AzureFileSystem azureFileSystem;
     String account;
     String key;
-    String url;
+    String endpoint;
 
     try {
       authData = UserAuthenticatorUtils.authenticate(fsOptions, AUTHENTICATOR_TYPES);
 
       logger.info("Initialize Azure client");
 
+      AzureFileName azureRootName = (AzureFileName) fileName;
       if (azureMetadataType != null) {
 
         if (StringUtils.isEmpty(azureMetadataType.getStorageAccountName())) {
@@ -128,8 +130,10 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
         key =
             Encr.decryptPasswordOptionallyEncrypted(
                 variables.resolve(azureMetadataType.getStorageAccountKey()));
-        url = variables.resolve(azureMetadataType.getStorageAccountEndpoint());
-
+        endpoint =
+            (!Utils.isEmpty(azureMetadataType.getStorageAccountEndpoint()))
+                ? variables.resolve(azureMetadataType.getStorageAccountEndpoint())
+                : String.format(Locale.ROOT, "https://%s.dfs.core.windows.net", account);
       } else {
         AzureConfig config = AzureConfigSingleton.getConfig();
 
@@ -145,29 +149,34 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
         IVariables newVariables = Variables.getADefaultVariableSpace();
         account = newVariables.resolve(config.getAccount());
         key = Encr.decryptPasswordOptionallyEncrypted(newVariables.resolve(config.getKey()));
-        url = newVariables.resolve(config.getEmulatorUrl());
+        endpoint =
+            (!Utils.isEmpty(config.getEmulatorUrl()))
+                ? newVariables.resolve(config.getEmulatorUrl())
+                : String.format(Locale.ROOT, "https://%s.dfs.core.windows.net", account);
       }
 
-      String storageConnectionString =
-          StringUtils.isBlank(url)
-              ? String.format(
-                  "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=%s",
-                  account, key, AZURE_ENDPOINT_SUFFIX)
-              : String.format(
-                  "AccountName=%s;AccountKey=%s;DefaultEndpointsProtocol=http;BlobEndpoint=%s/%s",
-                  account, key, url, account);
-      CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
-      service = storageAccount.createCloudBlobClient();
+      StorageSharedKeyCredential storageCreds = new StorageSharedKeyCredential(account, key);
 
-    } catch (InvalidKeyException e) {
-      throw new FileSystemException(e.getMessage(), e);
-    } catch (URISyntaxException e) {
-      throw new FileSystemException(e.getMessage(), e);
+      DataLakeServiceClient serviceClient =
+          new DataLakeServiceClientBuilder()
+              .endpoint(endpoint)
+              .credential(storageCreds)
+              // .httpClient((HttpClient) client)
+              .buildClient();
+
+      azureFileSystem =
+          new AzureFileSystem(
+              azureRootName,
+              serviceClient,
+              ((AzureFileName) fileName).getContainer(),
+              fileSystemOptions,
+              account);
+
     } finally {
       UserAuthenticatorUtils.cleanup(authData);
     }
 
-    return new AzureFileSystem((AzureFileName) fileName, service, fsOptions, account);
+    return azureFileSystem;
   }
 
   @Override
