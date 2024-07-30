@@ -212,15 +212,22 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     return getName().getBaseName().equals(markerFileName);
   }
 
+  /**
+   * Check if the file can be renamed to the new file This is not a feature supported by Azure SDK,
+   * but we can implement renaming by copying the file to the new location and deleting the old one.
+   * So renaming a file is possible
+   *
+   * @param newfile the new file
+   * @return
+   */
   public boolean canRenameTo(FileObject newfile) {
-    throw new UnsupportedOperationException();
+    return true;
   }
 
   @Override
   protected void doDelete() throws Exception {
 
-    DataLakeFileSystemClient fileSystemClient =
-        service.getFileSystemClient(getAbstractFileSystem().getFilesystemName());
+    DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
 
     if (dataLakeFileClient == null) {
       throw new UnsupportedOperationException();
@@ -231,9 +238,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         if (currentFilePath.equals("")) {
           dataLakeFileClient.delete();
         } else {
-          if (pathItem != null) {
-            DataLakeFileClient dataLakeFileClient =
-                fileSystemClient.getFileClient(pathItem.getName());
+          if (StringUtils.isNotEmpty(currentFilePath) && dataLakeFileClient.exists()) {
             dataLakeFileClient.delete();
           } else if (dirPathItem != null) {
             ListPathsOptions lpo = new ListPathsOptions();
@@ -277,9 +282,9 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected void doRename(FileObject newfile) throws Exception {
-    if (pathItem != null) {
-      DataLakeFileSystemClient fileSystemClient =
-          service.getFileSystemClient(getAbstractFileSystem().getFilesystemName());
+    if (!StringUtils.isEmpty(currentFilePath)) {
+      DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+      DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath.substring(1));
 
       // Get the new blob reference
       //      CloudBlobContainer newContainer =
@@ -287,14 +292,12 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       //      CloudBlob newBlob =
       //          newContainer.getBlobReferenceFromServer(
       //              ((AzureFileName) newfile.getName()).getPathAfterContainer().substring(1));
-      DataLakeFileClient fileClient = fileSystemClient.getFileClient(pathItem.getName());
       // Start the copy operation
       fileClient.rename(
-          getAbstractFileSystem().getFilesystemName(),
-          ((AzureFileName) newfile.getName()).getPathAfterContainer().substring(1));
+          containerName, ((AzureFileName) newfile.getName()).getPathAfterContainer().substring(1));
       //      newBlob.startCopy(cloudBlob.getUri());
       // Delete the original blob
-      doDelete();
+      // doDelete();
     } else {
       throw new FileSystemException("Renaming of directories not supported on this file.");
     }
@@ -344,7 +347,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected String[] doListChildren() throws Exception {
-    return children == null ? null : children.toArray(new String[0]);
+    return children == null ? new String[0] : children.toArray(new String[0]);
   }
 
   @Override
@@ -355,6 +358,19 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   @Override
   protected long doGetContentSize() throws Exception {
     return size;
+  }
+
+  @Override
+  public boolean delete() throws FileSystemException {
+    if (dataLakeFileClient.exists()) {
+      try {
+        doDelete();
+      } catch (Exception e) {
+        return false;
+        // TODO log an error
+      }
+    }
+    return false;
   }
 
   private static String removeTrailingSlash(String itemPath) {
