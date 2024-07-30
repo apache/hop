@@ -65,12 +65,11 @@ public enum LogLevel implements IEnumHasCodeAndDescription {
   }
 
   /**
-   * Return the log level for a certain log level code
-   *
+   * @deprecated Return the log level for a certain log level code
    * @param code the code to look for
    * @return the log level or BASIC if nothing matches.
    */
-  @Deprecated
+  @Deprecated(since = "2.10")
   public static LogLevel getLogLevelForCode(String code) {
     return IEnumHasCode.lookupCode(LogLevel.class, code, LogLevel.BASIC);
   }
