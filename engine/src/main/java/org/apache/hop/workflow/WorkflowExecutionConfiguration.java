@@ -276,7 +276,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
       }
     }
 
-    logLevel = LogLevel.getLogLevelForCode(XmlHandler.getTagValue(configNode, "log_level"));
+    logLevel = LogLevel.lookupCode(XmlHandler.getTagValue(configNode, "log_level"));
     clearingLog = "Y".equalsIgnoreCase(XmlHandler.getTagValue(configNode, "clear_log"));
 
     startActionName = XmlHandler.getTagValue(configNode, "start_copy_name");

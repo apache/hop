@@ -569,7 +569,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         .withExecutorXml(getString(record, EP_EXECUTOR_XML))
         .withMetadataJson(getString(record, EP_METADATA_JSON))
         .withRunConfigurationName(getString(record, EP_RUN_CONFIG_NAME))
-        .withLogLevel(LogLevel.getLogLevelForCode(getString(record, EP_LOG_LEVEL)))
+        .withLogLevel(LogLevel.lookupCode(getString(record, EP_LOG_LEVEL)))
         .withRegistrationDate(getDate(record, EP_REGISTRATION_DATE))
         .withExecutionStartDate(getDate(record, EP_EXECUTION_START_DATE))
         .build();

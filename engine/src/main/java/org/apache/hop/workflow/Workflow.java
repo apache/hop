@@ -835,7 +835,7 @@ public abstract class Workflow extends Variables
       // green or red, execute the next action...
       //
       if (hi.isUnconditional()
-          || (actionMeta.isEvaluation() && (hi.getEvaluation() == newResult.getResult()))) {
+          || (actionMeta.isEvaluation() && (hi.isEvaluation() == newResult.getResult()))) {
         // Start this next transform!
         if (log.isBasic()) {
           log.logBasic(

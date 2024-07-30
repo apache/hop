@@ -486,7 +486,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   }
 
   private LogLevel determineLogLevel() {
-    return LogLevel.getLogLevelForCode(variables.resolve(level));
+    return LogLevel.lookupCode(variables.resolve(level));
   }
 
   public void applySystemProperties() {

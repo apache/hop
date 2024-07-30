@@ -106,7 +106,7 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
   }
 
   private LogLevel determineLogLevel() {
-    return LogLevel.getLogLevelForCode(variables.resolve(level));
+    return LogLevel.lookupCode(variables.resolve(level));
   }
 
   private void buildMetadataProvider() throws HopException {

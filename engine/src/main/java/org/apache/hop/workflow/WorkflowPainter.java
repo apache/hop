@@ -467,7 +467,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         color = EColor.HOP_DEFAULT;
         arrow = EImage.ARROW_DEFAULT;
       } else {
-        if (workflowHop.getEvaluation()) {
+        if (workflowHop.isEvaluation()) {
           color = EColor.HOP_TRUE;
           arrow = EImage.ARROW_TRUE;
         } else {
@@ -588,7 +588,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         if (workflowHop.isUnconditional()) {
           image = (workflowHop.isEnabled()) ? EImage.UNCONDITIONAL : EImage.UNCONDITIONAL_DISABLED;
         } else {
-          if (workflowHop.getEvaluation()) {
+          if (workflowHop.isEvaluation()) {
             image = (workflowHop.isEnabled()) ? EImage.TRUE : EImage.TRUE_DISABLED;
           } else {
             image = (workflowHop.isEnabled()) ? EImage.FALSE : EImage.FALSE_DISABLED;

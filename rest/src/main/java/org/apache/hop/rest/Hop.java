@@ -111,8 +111,7 @@ public class Hop implements IHasHopMetadataProvider, IRestServicesProvider {
       // Set a logging level for the application
       //
       log.setLogLevel(
-          LogLevel.getLogLevelForCode(
-              Const.NVL(properties.getProperty(OPTION_LOG_LEVEL), "BASIC")));
+          LogLevel.lookupCode(Const.NVL(properties.getProperty(OPTION_LOG_LEVEL), "BASIC")));
       log.logBasic("Starting the Apache Hop REST services application.");
 
       variables = new Variables();

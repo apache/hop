@@ -616,7 +616,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 hop.setUnconditional(false);
                 hop.setEvaluation(true);
               } else {
-                if (hop.getEvaluation()) {
+                if (hop.isEvaluation()) {
                   hop.setEvaluation(false);
                 } else {
                   hop.setUnconditional(true);
@@ -1368,7 +1368,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           ActionMeta jge = workflowMeta.findNextAction(hopCandidate.getFromAction(), 0);
           WorkflowHopMeta other = workflowMeta.findWorkflowHop(hopCandidate.getFromAction(), jge);
           if (other != null) {
-            hopCandidate.setEvaluation(!other.getEvaluation());
+            hopCandidate.setEvaluation(!other.isEvaluation());
           }
         }
       }
@@ -2576,7 +2576,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                     hi.getFromAction().getName(),
                     Const.CR));
           } else {
-            if (hi.getEvaluation()) {
+            if (hi.isEvaluation()) {
               tip.append(
                   BaseMessages.getString(
                       PKG,
@@ -2758,7 +2758,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if (hi.isUnconditional()) {
         tipImage = GuiResource.getInstance().getImageUnconditionalHop();
       } else {
-        if (hi.getEvaluation()) {
+        if (hi.isEvaluation()) {
           tipImage = GuiResource.getInstance().getImageTrue();
         } else {
           tipImage = GuiResource.getInstance().getImageFalse();
