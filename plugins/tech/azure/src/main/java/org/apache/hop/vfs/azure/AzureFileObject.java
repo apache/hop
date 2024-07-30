@@ -325,11 +325,13 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected InputStream doGetInputStream() throws Exception {
-    if (dataLakeFileClient != null && !currentFilePath.equals("") && type == FileType.FILE) {
-      DataLakeFileSystemClient fileSystemClient =
-          service.getFileSystemClient(getAbstractFileSystem().getFilesystemName());
-      DataLakeFileClient dataLakeFileClient = fileSystemClient.getFileClient(pathItem.getName());
-      return new BlobInputStream(dataLakeFileClient.openInputStream(), size);
+    if (!currentFilePath.equals("") && type == FileType.FILE) {
+      DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+      DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath);
+      if (!fileSystemClient.exists() || !fileClient.exists()) {
+        throw new FileSystemException("File not found: " + currentFilePath);
+      }
+      return new BlobInputStream(fileClient.openInputStream(), size);
     } else {
       throw new UnsupportedOperationException();
     }
