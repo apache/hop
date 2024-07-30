@@ -51,8 +51,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 
 /** This dialog allows you to edit the Copy Files action settings. */
 public class ActionCopyFilesDialog extends ActionDialog {
@@ -82,8 +80,6 @@ public class ActionCopyFilesDialog extends ActionDialog {
   private Label wlFields;
 
   protected TableView wFields;
-
-  private ToolItem deleteToolItem; // Delete
 
   public ActionCopyFilesDialog(
       Shell parent, ActionCopyFiles action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -284,34 +280,12 @@ public class ActionCopyFilesDialog extends ActionDialog {
     // / END OF SETTINGS TAB
     // ///////////////////////////////////////////////////////////
 
-    ToolBar tb = new ToolBar(wFilesComp, SWT.HORIZONTAL | SWT.FLAT);
-    PropsUi.setLook(tb);
-    FormData fdTb = new FormData();
-    fdTb.right = new FormAttachment(100, 0);
-    fdTb.top = new FormAttachment(wFilesComp, margin);
-    tb.setLayoutData(fdTb);
-
-    deleteToolItem = new ToolItem(tb, SWT.PUSH);
-    deleteToolItem.setImage(GuiResource.getInstance().getImageDelete());
-    deleteToolItem.setToolTipText(
-        BaseMessages.getString(PKG, "ActionCopyFiles.FilenameDelete.Tooltip"));
-    deleteToolItem.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int[] idx = wFields.getSelectionIndices();
-            wFields.remove(idx);
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          }
-        });
-
     wlFields = new Label(wFilesComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, margin);
-    fdlFields.top = new FormAttachment(tb, 0, SWT.CENTER);
+    fdlFields.top = new FormAttachment(wFilesComp, 0, SWT.CENTER);
     wlFields.setLayoutData(fdlFields);
 
     int rows =
@@ -382,7 +356,7 @@ public class ActionCopyFilesDialog extends ActionDialog {
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, margin);
-    fdFields.top = new FormAttachment(tb, margin);
+    fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, -margin);
     fdFields.bottom = new FormAttachment(100, -margin);
     wFields.setLayoutData(fdFields);
@@ -436,7 +410,6 @@ public class ActionCopyFilesDialog extends ActionDialog {
   private void refreshArgFromPrevious() {
     wlFields.setEnabled(!wPrevious.getSelection());
     wFields.setEnabled(!wPrevious.getSelection());
-    deleteToolItem.setEnabled(!wPrevious.getSelection());
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
