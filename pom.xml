@@ -902,7 +902,14 @@
                             <fromDir>${project.basedir}/local-snapshots-dir</fromDir>
                             <includes>**</includes>
                             <excludes>**/hop-assemblies*/**</excludes>
-                            <excludes>**/**.zip</excludes>
+                            <excludes>hop-plugins/**.zip</excludes>
+                            <excludes>hop-core/**.zip</excludes>
+                            <excludes>hop-engine/**.zip</excludes>
+                            <excludes>hop-engine-beam/**.zip</excludes>
+                            <excludes>hop-ui-rap/**.zip</excludes>
+                            <excludes>hop-ui-rcp/**.zip</excludes>
+                            <excludes>hop-rest/**.zip</excludes>
+                            <excludes>hop-ui/**.zip</excludes>
                             <serverId>apache.snapshots.https</serverId>
                             <url>${distMgmtSnapshotsUrl}</url>
                         </configuration>
