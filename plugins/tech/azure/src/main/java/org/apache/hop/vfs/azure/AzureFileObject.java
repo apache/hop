@@ -163,10 +163,10 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
             type = FileType.FOLDER;
             lastModified = directoryClient.getProperties().getLastModified().toEpochSecond();
           } else if (exists && isFile) {
-            DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath);
-            size = fileClient.getProperties().getFileSize();
+            dataLakeFileClient = fileSystemClient.getFileClient(currentFilePath);
+            size = dataLakeFileClient.getProperties().getFileSize();
             type = FileType.FILE;
-            lastModified = fileClient.getProperties().getLastModified().toEpochSecond();
+            lastModified = dataLakeFileClient.getProperties().getLastModified().toEpochSecond();
           } else {
             lastModified = 0;
             type = FileType.IMAGINARY;
@@ -307,8 +307,15 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected OutputStream doGetOutputStream(boolean bAppend) throws Exception {
-    if (dataLakeFileClient != null && !currentFilePath.equals("")) {
-      if (bAppend) throw new UnsupportedOperationException();
+    if (StringUtils.isEmpty(currentFilePath)) {
+      throw new UnsupportedOperationException();
+    }
+    DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+    DataLakeFileClient dataLakeFileClient = fileSystemClient.getFileClient(currentFilePath);
+    if (dataLakeFileClient != null) {
+      if (bAppend) {
+        throw new UnsupportedOperationException();
+      }
       type = FileType.FILE;
       return new BlockBlobOutputStream(dataLakeFileClient.getOutputStream());
     } else {
