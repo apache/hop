@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Create Folder action settings. */
 public class ActionDeleteResultFilenamesDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionDeleteResultFilenames.class; // For Translator
+  private static final Class<?> PKG = ActionDeleteResultFilenames.class;
 
   private Text wName;
 

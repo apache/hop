@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareData> {
-  private static final Class<?> PKG = TableCompare.class; // For Translator
+  private static final Class<?> PKG = TableCompare.class;
 
   public TableCompare(
       TransformMeta transformMeta,

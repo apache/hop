@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = Neo4jIndexDialog.class; // For Translator
+  private static final Class<?> PKG = Neo4jIndexDialog.class;
 
   private Neo4jIndex meta;
 

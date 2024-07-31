@@ -89,7 +89,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class ExcelInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
+  private static final Class<?> PKG = ExcelInputMeta.class;
 
   /** Marker put on tab to indicate attention required */
   private static final String TAB_FLAG = "!";

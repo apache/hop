@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Execute a process * */
 public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData> {
 
-  private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
+  private static final Class<?> PKG = ExecProcessMeta.class;
   private boolean killing;
   private CountDownLatch waitForLatch;
 

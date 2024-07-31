@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Search and replace in string. */
 public class ReplaceStringDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
+  private static final Class<?> PKG = ReplaceStringMeta.class;
 
   private TableView wFields;
 

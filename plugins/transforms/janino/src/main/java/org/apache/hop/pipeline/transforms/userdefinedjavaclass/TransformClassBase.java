@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
 
 public abstract class TransformClassBase {
-  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class;
 
   protected boolean first = true;
   protected boolean updateRowMeta = true;

@@ -45,7 +45,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/abort.html")
 public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
 
-  private static final Class<?> PKG = AbortMeta.class; // For Translator
+  private static final Class<?> PKG = AbortMeta.class;
 
   public enum AbortOption {
     ABORT,

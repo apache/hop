@@ -40,7 +40,7 @@ import org.json.simple.JSONObject;
 
 /** Converts input rows to one or more Xml files. */
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
-  private static final Class<?> PKG = JsonOutput.class; // For Translator
+  private static final Class<?> PKG = JsonOutput.class;
 
   public JsonOutput(
       TransformMeta transformMeta,

@@ -53,7 +53,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::SystemDataMeta.keyword",
     documentationUrl = "/pipeline/transforms/getsystemdata.html")
 public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData> {
-  private static final Class<?> PKG = SystemDataMeta.class; // For Translator
+  private static final Class<?> PKG = SystemDataMeta.class;
 
   @Injection(name = "FIELD_NAME")
   private String[] fieldName;

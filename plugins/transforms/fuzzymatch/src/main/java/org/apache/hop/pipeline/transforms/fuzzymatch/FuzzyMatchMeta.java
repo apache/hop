@@ -61,7 +61,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     keywords = "i18n::FuzzyMatchMeta.keyword",
     documentationUrl = "/pipeline/transforms/fuzzymatch.html")
 public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData> {
-  private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
+  private static final Class<?> PKG = FuzzyMatchMeta.class;
 
   public static final String DEFAULT_SEPARATOR = ",";
 

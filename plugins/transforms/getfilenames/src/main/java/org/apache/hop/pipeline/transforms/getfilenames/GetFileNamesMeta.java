@@ -57,7 +57,7 @@ import org.apache.hop.resource.ResourceReference;
     keywords = "i18n::GetFileNamesMeta.keyword",
     documentationUrl = "/pipeline/transforms/getfilenames.html")
 public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNamesData> {
-  private static final Class<?> PKG = GetFileNamesMeta.class; // For Translator
+  private static final Class<?> PKG = GetFileNamesMeta.class;
 
   private static final String YES = "Y";
 

@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 
 /** Describes an XML field and the position in an XML field. */
 public class GetXmlDataField implements Cloneable {
-  private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
+  private static final Class<?> PKG = GetXmlDataMeta.class;
 
   public static final int RESULT_TYPE_VALUE_OF = 0;
   public static final int RESULT_TYPE_TYPE_SINGLE_NODE = 1;

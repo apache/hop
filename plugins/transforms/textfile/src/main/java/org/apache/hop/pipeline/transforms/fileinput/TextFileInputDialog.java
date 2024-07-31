@@ -96,7 +96,7 @@ import org.eclipse.swt.widgets.Text;
  */
 @Deprecated(since = "2.0")
 public class TextFileInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileInputMeta.class;
 
   private static final String[] YES_NO_COMBO =
       new String[] {

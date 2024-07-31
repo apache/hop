@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 /** Read all rows from a hop until the end, and then read the rows from another hop. */
 public class Append extends BaseTransform<AppendMeta, AppendData> {
 
-  private static final Class<?> PKG = Append.class; // For Translator
+  private static final Class<?> PKG = Append.class;
 
   public Append(
       TransformMeta transformMeta,

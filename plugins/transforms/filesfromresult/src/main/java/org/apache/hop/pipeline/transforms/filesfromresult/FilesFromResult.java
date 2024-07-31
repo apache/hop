@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Reads results from a previous pipeline in a Workflow */
 public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFromResultData> {
 
-  private static final Class<?> PKG = FilesFromResult.class; // For Translator
+  private static final Class<?> PKG = FilesFromResult.class;
 
   public FilesFromResult(
       TransformMeta transformMeta,

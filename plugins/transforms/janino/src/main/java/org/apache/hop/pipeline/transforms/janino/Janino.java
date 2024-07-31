@@ -37,7 +37,7 @@ import org.codehaus.janino.ExpressionEvaluator;
 /** Calculate new field values using pre-defined functions. */
 public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
 
-  private static final Class<?> PKG = JaninoMeta.class; // For Translator
+  private static final Class<?> PKG = JaninoMeta.class;
 
   public Janino(
       TransformMeta transformMeta,

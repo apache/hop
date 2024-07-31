@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class JsonOutputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = JsonOutputMeta.class; // For Translator
+  private static final Class<?> PKG = JsonOutputMeta.class;
 
   private Label wlEncoding;
   private ComboVar wEncoding;

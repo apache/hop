@@ -93,7 +93,7 @@ public class TestingGuiPlugin {
       "pipeline-graph-transform-20820-enable-tweak-bypass-transform";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_BYPASS_TRANSFORM =
       "pipeline-graph-transform-20830-disable-tweak-bypass-transform";
-  protected static final Class<?> PKG = TestingGuiPlugin.class; // For Translator
+  protected static final Class<?> PKG = TestingGuiPlugin.class;
 
   public static final String ID_TOOLBAR_ITEM_UNIT_TEST_EDIT =
       "HopGuiPipelineGraph-ToolBar-20015-unit-test-edit";

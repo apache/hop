@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class BeamKinesisProduceDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = BeamKinesisProduce.class; // For Translator
+  private static final Class<?> PKG = BeamKinesisProduce.class;
   private final BeamKinesisProduceMeta input;
 
   private TextVar wSecretKey;

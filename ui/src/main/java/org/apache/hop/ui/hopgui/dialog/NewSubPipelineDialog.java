@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Shows a pop-up message dialog after the sub- pipeline creation. */
 public class NewSubPipelineDialog extends Dialog {
-  private static final Class<?> PKG = NewSubPipelineDialog.class; // For Translator
+  private static final Class<?> PKG = NewSubPipelineDialog.class;
 
   private Button wShow;
 

@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** This dialog allows you to edit the FTP Delete action settings. */
 public class ActionFtpDeleteDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionFtpDelete.class; // For Translator
+  private static final Class<?> PKG = ActionFtpDelete.class;
 
   private LabelText wName;
 

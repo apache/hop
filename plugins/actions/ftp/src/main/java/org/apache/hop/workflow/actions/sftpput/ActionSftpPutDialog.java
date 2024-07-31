@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the FTP Put action settings. */
 public class ActionSftpPutDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionSftpPut.class; // For Translator
+  private static final Class<?> PKG = ActionSftpPut.class;
   private static final String[] FILETYPES =
       new String[] {
         BaseMessages.getString(PKG, "ActionSftpPut.Filetype.Pem"),

@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class XsdValidatorDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
+  private static final Class<?> PKG = XsdValidatorMeta.class;
 
   private LabelTextVar wResultField;
   private LabelTextVar wValidationMsg;

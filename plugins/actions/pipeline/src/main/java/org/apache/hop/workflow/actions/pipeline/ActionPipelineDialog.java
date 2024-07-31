@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** This dialog allows you to edit the pipeline action (ActionPipeline) */
 public class ActionPipelineDialog extends ActionBaseDialog {
-  private static final Class<?> PKG = ActionPipeline.class; // For Translator
+  private static final Class<?> PKG = ActionPipeline.class;
 
   private ActionPipeline action;
   private MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;

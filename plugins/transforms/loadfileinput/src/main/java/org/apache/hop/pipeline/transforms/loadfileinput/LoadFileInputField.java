@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 
 /** Describes a field */
 public class LoadFileInputField implements Cloneable {
-  private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = LoadFileInputMeta.class;
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;

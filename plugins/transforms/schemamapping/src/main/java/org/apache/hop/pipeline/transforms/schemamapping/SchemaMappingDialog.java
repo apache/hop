@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SchemaMappingDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SchemaMappingDialog.class; // For Translator
+  private static final Class<?> PKG = SchemaMappingDialog.class;
 
   private final SchemaMappingMeta input;
 

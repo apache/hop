@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit a JobEntryEval object. */
 public class ActionMsgBoxInfoDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionMsgBoxInfo.class; // For Translator
+  private static final Class<?> PKG = ActionMsgBoxInfo.class;
 
   private Text wName;
 

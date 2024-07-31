@@ -66,7 +66,7 @@ import org.apache.hop.i18n.BaseMessages;
  * also contains a number of static final methods to make your life easier.
  */
 public class Const {
-  private static final Class<?> PKG = Const.class; // For Translator
+  private static final Class<?> PKG = Const.class;
 
   /** Release Type */
   public enum ReleaseType {

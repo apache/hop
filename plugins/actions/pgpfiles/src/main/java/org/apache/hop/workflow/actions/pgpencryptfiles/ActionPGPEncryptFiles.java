@@ -61,7 +61,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionPGPEncryptFiles.keyword",
     documentationUrl = "/workflow/actions/pgpencryptfiles.html")
 public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
+  private static final Class<?> PKG = ActionPGPEncryptFiles.class;
 
   public static final String[] actionTypeDesc =
       new String[] {

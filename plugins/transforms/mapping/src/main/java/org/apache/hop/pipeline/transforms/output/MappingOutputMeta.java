@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/mapping-output.html")
 public class MappingOutputMeta extends BaseTransformMeta<MappingOutput, MappingOutputData> {
 
-  private static final Class<?> PKG = MappingOutputMeta.class; // For Translator
+  private static final Class<?> PKG = MappingOutputMeta.class;
 
   public MappingOutputMeta() {
     super();

@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog for the append transform. */
 public class AppendDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = AppendDialog.class; // For Translator
+  private static final Class<?> PKG = AppendDialog.class;
 
   private CCombo wHeadHop;
 

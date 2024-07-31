@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ExecCqlDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ExecCqlDialog.class; // For Translator
+  private static final Class<?> PKG = ExecCqlDialog.class;
 
   private Shell shell;
 

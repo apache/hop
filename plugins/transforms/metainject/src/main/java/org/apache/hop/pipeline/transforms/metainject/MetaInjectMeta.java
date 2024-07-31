@@ -67,7 +67,7 @@ import org.w3c.dom.Node;
 public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData>
     implements ITransformMetaChangeListener, ISubPipelineAwareMeta {
 
-  private static final Class<?> PKG = MetaInjectMeta.class; // For Translator
+  private static final Class<?> PKG = MetaInjectMeta.class;
 
   private static final String MAPPINGS = "mappings";
   private static final String MAPPING = "mapping";

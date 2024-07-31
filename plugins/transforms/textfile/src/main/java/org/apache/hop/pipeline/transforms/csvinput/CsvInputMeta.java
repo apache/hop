@@ -71,7 +71,7 @@ import org.w3c.dom.Node;
 public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     implements IInputFileMeta, ICsvInputAwareMeta {
 
-  private static final Class<?> PKG = CsvInput.class; // For Translator
+  private static final Class<?> PKG = CsvInput.class;
 
   @Injection(name = "FILENAME")
   private String filename;

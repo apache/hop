@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Apply certain operations too string. */
 public class StringOperations extends BaseTransform<StringOperationsMeta, StringOperationsData> {
-  private static final Class<?> PKG = StringOperationsMeta.class; // For Translator
+  private static final Class<?> PKG = StringOperationsMeta.class;
 
   public StringOperations(
       TransformMeta transformMeta,

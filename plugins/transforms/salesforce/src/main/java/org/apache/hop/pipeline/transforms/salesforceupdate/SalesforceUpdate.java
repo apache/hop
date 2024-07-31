@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transforms.salesforceutils.SalesforceUtils;
  */
 public class SalesforceUpdate
     extends SalesforceTransform<SalesforceUpdateMeta, SalesforceUpdateData> {
-  private static final Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpdateMeta.class;
 
   public SalesforceUpdate(
       TransformMeta transformMeta,

@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XML valid job entry settings. */
 public class XmlWellFormedDialog extends ActionDialog {
-  private static final Class<?> PKG = XmlWellFormedDialog.class; // For Translator
+  private static final Class<?> PKG = XmlWellFormedDialog.class;
 
   private static final String[] FILETYPES =
       new String[] {

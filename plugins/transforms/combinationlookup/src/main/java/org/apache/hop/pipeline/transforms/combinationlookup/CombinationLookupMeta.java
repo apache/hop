@@ -55,7 +55,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class CombinationLookupMeta
     extends BaseTransformMeta<CombinationLookup, CombinationLookupData> {
 
-  private static final Class<?> PKG = CombinationLookupMeta.class; // For Translator
+  private static final Class<?> PKG = CombinationLookupMeta.class;
 
   /** Default cache size: 0 will cache everything */
   public static final int DEFAULT_CACHE_SIZE = 9999;

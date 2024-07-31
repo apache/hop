@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
     description = "Allow for some basic data profiling to be performed on transform output rows")
 public class BasicDataProfilingDataSampler
     implements IExecutionDataSampler<BasicDataProfilingDataSamplerStore> {
-  private static final Class<?> PKG = BasicDataProfilingDataSampler.class; // For Translator
+  private static final Class<?> PKG = BasicDataProfilingDataSampler.class;
 
   @SuppressWarnings("java:S115")
   public enum ProfilingType {

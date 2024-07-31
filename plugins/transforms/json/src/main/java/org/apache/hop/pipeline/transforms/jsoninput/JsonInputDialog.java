@@ -78,7 +78,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class JsonInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = JsonInputMeta.class; // For Translator
+  private static final Class<?> PKG = JsonInputMeta.class;
 
   private CTabFolder wTabFolder;
 

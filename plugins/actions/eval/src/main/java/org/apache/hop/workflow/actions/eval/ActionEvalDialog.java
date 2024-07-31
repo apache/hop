@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit a ActionEval object. */
 public class ActionEvalDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionEval.class; // For Translator
+  private static final Class<?> PKG = ActionEval.class;
 
   private Text wName;
 

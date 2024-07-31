@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBulkLoaderData> {
-  private static final Class<?> PKG = DorisBulkLoaderMeta.class; // For Translator
+  private static final Class<?> PKG = DorisBulkLoaderMeta.class;
 
   public DorisBulkLoader(
       TransformMeta transformMeta,

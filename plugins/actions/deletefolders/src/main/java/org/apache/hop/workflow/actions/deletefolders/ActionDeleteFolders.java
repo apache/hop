@@ -58,7 +58,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionDeleteFolders.keyword",
     documentationUrl = "/workflow/actions/deletefolders.html")
 public class ActionDeleteFolders extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDeleteFolders.class; // For Translator
+  private static final Class<?> PKG = ActionDeleteFolders.class;
   private static final String CONST_SPACE_SHORT = "      ";
 
   public boolean argFromPrevious;

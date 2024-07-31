@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Zip file * */
 public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
-  private static final Class<?> PKG = ZipFileMeta.class; // For Translator
+  private static final Class<?> PKG = ZipFileMeta.class;
   private static final String ZIP_COULD_NOT_FIND_FIELD = "ZipFile.Exception.CouldnotFindField";
 
   public ZipFile(

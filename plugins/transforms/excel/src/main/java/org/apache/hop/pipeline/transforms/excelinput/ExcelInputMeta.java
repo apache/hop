@@ -62,7 +62,7 @@ import org.apache.hop.resource.ResourceDefinition;
     keywords = "i18n::ExcelInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelinput.html")
 public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData> {
-  private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
+  private static final Class<?> PKG = ExcelInputMeta.class;
 
   public static final String[] RequiredFilesDesc =
       new String[] {

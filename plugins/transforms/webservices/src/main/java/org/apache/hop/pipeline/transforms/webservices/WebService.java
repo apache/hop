@@ -93,7 +93,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
-  private static final Class<?> PKG = WebServiceMeta.class; // For Translator
+  private static final Class<?> PKG = WebServiceMeta.class;
 
   public static final String NS_PREFIX = "ns";
 

@@ -60,7 +60,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/xmloutput.html")
 @InjectionSupported(localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS")
 public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
-  private static final Class<?> PKG = XmlOutputMeta.class; // For Translator
+  private static final Class<?> PKG = XmlOutputMeta.class;
 
   /** The base name of the output file */
   @Injection(name = "FILENAME")

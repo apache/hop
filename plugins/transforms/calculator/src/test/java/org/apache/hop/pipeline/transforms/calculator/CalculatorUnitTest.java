@@ -64,7 +64,7 @@ import org.junit.Test;
  * @see Calculator
  */
 public class CalculatorUnitTest {
-  private static final Class<?> PKG = CalculatorUnitTest.class; // For Translator
+  private static final Class<?> PKG = CalculatorUnitTest.class;
   private TransformMockHelper<CalculatorMeta, CalculatorData> smh;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

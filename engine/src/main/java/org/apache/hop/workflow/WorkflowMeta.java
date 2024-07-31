@@ -78,7 +78,7 @@ import org.w3c.dom.Node;
  */
 public class WorkflowMeta extends AbstractMeta
     implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
-  private static final Class<?> PKG = WorkflowMeta.class; // For Translator
+  private static final Class<?> PKG = WorkflowMeta.class;
   public static final String WORKFLOW_EXTENSION = ".hwf";
   public static final String XML_TAG = "workflow";
   public static final int BORDER_INDENT = 20;

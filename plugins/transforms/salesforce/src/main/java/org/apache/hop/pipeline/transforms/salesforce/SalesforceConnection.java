@@ -65,7 +65,7 @@ public class SalesforceConnection {
   private static final FieldType ID_FIELD_TYPE = FieldType.id;
   private static final FieldType REFERENCE_FIELD_TYPE = FieldType.reference;
 
-  private static final Class<?> PKG = SalesforceConnection.class; // For Translator
+  private static final Class<?> PKG = SalesforceConnection.class;
 
   private String url;
   private String username;

@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class MemoryGroupByDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
+  private static final Class<?> PKG = MemoryGroupByMeta.class;
 
   private TableView wGroup;
 

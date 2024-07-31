@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the check database connection action settings. */
 public class ActionCheckDbConnectionsDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // For Translator
+  private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class;
 
   private Text wName;
 

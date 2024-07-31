@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::ValueMapperMeta.keyword",
     documentationUrl = "/pipeline/transforms/valuemapper.html")
 public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperData> {
-  private static final Class<?> PKG = ValueMapperMeta.class; // For Translator
+  private static final Class<?> PKG = ValueMapperMeta.class;
 
   @HopMetadataProperty(
       key = "field_to_use",

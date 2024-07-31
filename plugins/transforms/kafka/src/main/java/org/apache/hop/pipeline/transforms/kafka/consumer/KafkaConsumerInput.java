@@ -52,7 +52,7 @@ import org.apache.kafka.common.errors.WakeupException;
 public class KafkaConsumerInput
     extends BaseTransform<KafkaConsumerInputMeta, KafkaConsumerInputData> {
 
-  private static final Class<?> PKG = KafkaConsumerInputMeta.class; // For Translator
+  private static final Class<?> PKG = KafkaConsumerInputMeta.class;
 
   public KafkaConsumerInput(
       TransformMeta transformMeta,

@@ -59,7 +59,7 @@ import org.apache.hop.resource.ResourceDefinition;
     keywords = "i18n::PropertyInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/propertyinput.html")
 public class PropertyInputMeta extends BaseTransformMeta<PropertyInput, PropertyInputData> {
-  private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
+  private static final Class<?> PKG = PropertyInputMeta.class;
 
   public static final String[] RequiredFilesDesc =
       new String[] {

@@ -51,7 +51,7 @@ import org.apache.hop.resource.ResourceDefinition;
 public abstract class TransformWithMappingMeta<Main extends ITransform, Data extends ITransformData>
     extends BaseTransformMeta<Main, Data> {
 
-  private static final Class<?> PKG = TransformWithMappingMeta.class; // For Translator
+  private static final Class<?> PKG = TransformWithMappingMeta.class;
 
   @HopMetadataProperty protected String filename;
 

@@ -22,7 +22,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class QueryField {
-  private static final Class<?> PKG = AnalyticQuery.class; // For Translator
+  private static final Class<?> PKG = AnalyticQuery.class;
 
   public enum AggregateType {
     NONE(""),

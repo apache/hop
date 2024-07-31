@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Detect last row in a stream */
 public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData> {
 
-  private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator
+  private static final Class<?> PKG = DetectLastRowMeta.class;
 
   private Object[] previousRow;
 

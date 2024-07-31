@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ExecInfoDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ExecInfoMeta.class; // For Translator
+  private static final Class<?> PKG = ExecInfoMeta.class;
 
   private MetaSelectionLine<ExecutionInfoLocation> wLocation;
   private CCombo wOperationType;

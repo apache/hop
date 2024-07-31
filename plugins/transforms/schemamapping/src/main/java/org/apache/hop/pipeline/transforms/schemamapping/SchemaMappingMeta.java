@@ -43,7 +43,6 @@ import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
     keywords = "i18n::SchemaMappingMeta.keyword",
     documentationUrl = "/pipeline/transforms/schemamapping.html")
 public class SchemaMappingMeta extends BaseTransformMeta<SchemaMapping, SchemaMappingData> {
-  // For Translator
 
   @HopMetadataProperty private String schemaName;
 

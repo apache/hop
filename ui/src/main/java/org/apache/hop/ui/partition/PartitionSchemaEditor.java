@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Text;
  * @see PartitionSchema
  */
 public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
-  private static final Class<?> PKG = PartitionSchemaEditor.class; // For Translator
+  private static final Class<?> PKG = PartitionSchemaEditor.class;
 
   // Name
   private Text wName;

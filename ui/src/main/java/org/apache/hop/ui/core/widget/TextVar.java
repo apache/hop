@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Text;
  * variables.
  */
 public class TextVar extends Composite {
-  protected static Class<?> PKG = TextVar.class; // For Translator
+  protected static Class<?> PKG = TextVar.class;
 
   protected String toolTipText;
 

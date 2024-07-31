@@ -39,7 +39,7 @@ import org.owasp.encoder.Encode;
 
 @HopServerServlet(id = "prepareExec", name = "Prepare the execution of a pipeline")
 public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = PrepareExecutionPipelineServlet.class; // For Translator
+  private static final Class<?> PKG = PrepareExecutionPipelineServlet.class;
   private static final String CONST_NAME = "?name=";
   private static final String CONST_HEADER_CLOSE = "</H1>";
   private static final String CONST_HEADER_OPEN = "<H1>";

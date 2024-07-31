@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::UniqueRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/uniquerows.html")
 public class UniqueRowsMeta extends BaseTransformMeta<UniqueRows, UniqueRowsData> {
-  private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
+  private static final Class<?> PKG = UniqueRowsMeta.class;
 
   /** Indicate that we want to count the number of doubles */
   @HopMetadataProperty(

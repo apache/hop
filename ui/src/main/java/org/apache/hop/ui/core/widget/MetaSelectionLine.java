@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.ToolBar;
  */
 @GuiPlugin
 public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
-  private static final Class<?> PKG = MetaSelectionLine.class; // For Translator
+  private static final Class<?> PKG = MetaSelectionLine.class;
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetaSelectionLine-Toolbar";
   public static final String TOOLBAR_ITEM_EDIT = "10010-metadata-edit";

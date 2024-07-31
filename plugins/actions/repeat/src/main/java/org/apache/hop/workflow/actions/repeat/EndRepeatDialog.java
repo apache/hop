@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class EndRepeatDialog extends ActionDialog {
 
-  private static final Class<?> PKG = EndRepeatDialog.class; // For Translator
+  private static final Class<?> PKG = EndRepeatDialog.class;
 
   private EndRepeat action;
 

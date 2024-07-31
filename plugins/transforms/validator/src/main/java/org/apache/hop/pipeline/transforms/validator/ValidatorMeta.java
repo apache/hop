@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/validator.html")
 public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
-  private static final Class<?> PKG = ValidatorMeta.class; // For Translator
+  private static final Class<?> PKG = ValidatorMeta.class;
 
   @HopMetadataProperty(
       key = "validator_field",

@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class GroupByDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = GroupByMeta.class; // For Translator
+  private static final Class<?> PKG = GroupByMeta.class;
 
   public static final String STRING_SORT_WARNING_PARAMETER = "GroupSortWarning";
   private static final int AGGREGATION_TABLE_TYPE_INDEX = 3;

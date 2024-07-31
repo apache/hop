@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.Text;
 
 @GuiPlugin
 public class ConfigGuiOptionsTab {
-  private static final Class<?> PKG = BaseDialog.class; // For Translator
+  private static final Class<?> PKG = BaseDialog.class;
 
   private FontData defaultFontData;
   private Font defaultFont;

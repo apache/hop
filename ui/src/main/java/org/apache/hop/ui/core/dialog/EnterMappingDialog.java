@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
  * Shows a user 2 lists of strings and allows the linkage of values between values in the 2 lists
  */
 public class EnterMappingDialog extends Dialog {
-  private static final Class<?> PKG = EnterMappingDialog.class; // For Translator
+  private static final Class<?> PKG = EnterMappingDialog.class;
 
   public class GuessPair {
     private int _srcIndex = -1;

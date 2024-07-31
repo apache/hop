@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesData> {
 
-  private static final Class<?> PKG = GetFileNamesMeta.class; // For Translator
+  private static final Class<?> PKG = GetFileNamesMeta.class;
   private static final String CONST_LOG_NO_FILE = "GetFileNames.Log.NoFile";
   private static final String CONST_ERROR_FINDING_FIELD = "GetFileNames.Log.ErrorFindingField";
   private static final String CONST_COULD_NOT_FIND_FIELD =

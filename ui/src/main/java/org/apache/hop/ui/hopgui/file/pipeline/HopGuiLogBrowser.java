@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
 public class HopGuiLogBrowser {
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private Text text;
   private ILogParentProvided logProvider;

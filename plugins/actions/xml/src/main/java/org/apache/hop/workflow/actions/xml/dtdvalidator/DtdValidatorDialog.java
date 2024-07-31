@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the DTD Validator job entry settings. */
 public class DtdValidatorDialog extends ActionDialog {
-  private static final Class<?> PKG = DtdValidator.class; // For Translator
+  private static final Class<?> PKG = DtdValidator.class;
 
   private static final String[] FILETYPES_XML =
       new String[] {

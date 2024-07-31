@@ -61,7 +61,7 @@ public class TransformMeta
         IResourceHolder,
         IAttributes,
         IBaseMeta {
-  private static final Class<?> PKG = TransformMeta.class; // For Translator
+  private static final Class<?> PKG = TransformMeta.class;
 
   public static final String XML_TAG = "transform";
   public static final String STRING_ID_MAPPING = "Mapping";

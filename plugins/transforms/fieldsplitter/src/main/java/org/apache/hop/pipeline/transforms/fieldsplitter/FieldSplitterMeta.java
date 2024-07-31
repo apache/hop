@@ -89,7 +89,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::FieldSplitterMeta.keyword",
     documentationUrl = "/pipeline/transforms/splitfields.html")
 public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSplitterData> {
-  private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
+  private static final Class<?> PKG = FieldSplitterMeta.class;
 
   /** Field to split */
   @HopMetadataProperty(

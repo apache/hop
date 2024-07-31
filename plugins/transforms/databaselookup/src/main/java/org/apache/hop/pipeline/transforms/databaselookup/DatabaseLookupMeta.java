@@ -53,7 +53,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     actionTransformTypes = {ActionTransformType.LOOKUP, ActionTransformType.RDBMS})
 public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, DatabaseLookupData> {
 
-  private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
+  private static final Class<?> PKG = DatabaseLookupMeta.class;
 
   public static final String[] conditionStrings =
       new String[] {

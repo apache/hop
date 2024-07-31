@@ -36,7 +36,7 @@ import org.owasp.encoder.Encode;
 
 @HopServerServlet(id = "stopPipeline", name = "Stop a pipeline")
 public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = StopPipelineServlet.class; // For Translator
+  private static final Class<?> PKG = StopPipelineServlet.class;
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/stopPipeline";

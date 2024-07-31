@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * otherwise it performs an update of the changed values. If nothing changed, do nothing.
  */
 public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateData> {
-  private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
+  private static final Class<?> PKG = InsertUpdateMeta.class;
 
   public InsertUpdate(
       TransformMeta transformMeta,

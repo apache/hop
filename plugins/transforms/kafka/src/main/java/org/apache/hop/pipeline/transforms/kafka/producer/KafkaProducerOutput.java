@@ -31,7 +31,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public class KafkaProducerOutput
     extends BaseTransform<KafkaProducerOutputMeta, KafkaProducerOutputData> {
 
-  private static final Class<?> PKG = KafkaProducerOutputMeta.class; // For Translator
+  private static final Class<?> PKG = KafkaProducerOutputMeta.class;
 
   private KafkaFactory kafkaFactory;
 

@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.Shell;
  * views etc we can reach in the database.
  */
 public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProgressDialog {
-  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileInputMeta.class;
 
   private Shell shell;
 

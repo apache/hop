@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::ExecProcessMeta.keyword",
     documentationUrl = "/pipeline/transforms/execprocess.html")
 public class ExecProcessMeta extends BaseTransformMeta<ExecProcess, ExecProcessData> {
-  private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
+  private static final Class<?> PKG = ExecProcessMeta.class;
 
   /** dynamic process field name */
   @HopMetadataProperty(key = "processfield")

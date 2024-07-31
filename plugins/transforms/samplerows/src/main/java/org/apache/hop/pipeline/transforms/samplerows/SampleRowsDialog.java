@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SampleRowsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
+  private static final Class<?> PKG = SampleRowsMeta.class;
 
   private LabelTextVar wLinesRange;
   private LabelTextVar wLineNumberField;

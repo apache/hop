@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class FilterRowsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
+  private static final Class<?> PKG = FilterRowsMeta.class;
 
   private CCombo wTrueTo;
 

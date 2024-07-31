@@ -64,7 +64,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class DorisBulkLoaderDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DorisBulkLoaderMeta.class; // For Translator
+  private static final Class<?> PKG = DorisBulkLoaderMeta.class;
 
   private TextVar wFeHost;
   private TextVar wFeHttpPort;

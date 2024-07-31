@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/addconstant.html")
 public class ConstantMeta extends BaseTransformMeta<Constant, ConstantData> {
 
-  private static final Class<?> PKG = ConstantMeta.class; // For Translator
+  private static final Class<?> PKG = ConstantMeta.class;
 
   /** The output fields */
   @HopMetadataProperty(

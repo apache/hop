@@ -52,7 +52,7 @@ import org.apache.hop.resource.ResourceDefinition;
     keywords = "i18n::CubeInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/serialize-de-from-file.html")
 public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
-  private static final Class<?> PKG = CubeInputMeta.class; // For Translator
+  private static final Class<?> PKG = CubeInputMeta.class;
 
   @HopMetadataProperty(key = "file")
   private CubeFile file;

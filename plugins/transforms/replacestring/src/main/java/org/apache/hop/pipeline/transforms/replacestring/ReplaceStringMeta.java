@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::ReplaceStringMeta.keyword",
     documentationUrl = "/pipeline/transforms/replacestring.html")
 public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceStringData> {
-  private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
+  private static final Class<?> PKG = ReplaceStringMeta.class;
 
   @HopMetadataProperty(
       groupKey = "fields",

@@ -24,7 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 /** Describes an LDAP Input */
 public class LdapInputField implements Cloneable {
-  private static final Class<?> PKG = LdapInputMeta.class; // For Translator
+  private static final Class<?> PKG = LdapInputMeta.class;
 
   public static final String ATTRIBUTE_OBJECT_SID = "objectSid";
 

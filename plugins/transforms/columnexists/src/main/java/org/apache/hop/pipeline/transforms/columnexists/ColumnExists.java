@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Check if a column exists in table on a specified connection * */
 public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsData> {
 
-  private static final Class<?> PKG = ColumnExistsMeta.class; // For Translator
+  private static final Class<?> PKG = ColumnExistsMeta.class;
 
   private static final String PKG_COULD_NOT_FIND_FIELD = "ColumnExists.Exception.CouldnotFindField";
 

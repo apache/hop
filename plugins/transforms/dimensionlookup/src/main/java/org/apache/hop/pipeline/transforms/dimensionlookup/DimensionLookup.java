@@ -62,7 +62,7 @@ import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.Te
 /** Manages a slowly changing dimension (lookup or update) */
 public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData> {
 
-  private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
+  private static final Class<?> PKG = DimensionLookupMeta.class;
 
   int[] columnLookupArray = null;
 

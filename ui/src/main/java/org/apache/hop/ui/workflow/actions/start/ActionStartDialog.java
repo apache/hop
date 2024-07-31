@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 public class ActionStartDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionStart.class; // For Translator
+  private static final Class<?> PKG = ActionStart.class;
 
   private static final String NO_SCHEDULING =
       BaseMessages.getString(PKG, "ActionStart.Type.NoScheduling");

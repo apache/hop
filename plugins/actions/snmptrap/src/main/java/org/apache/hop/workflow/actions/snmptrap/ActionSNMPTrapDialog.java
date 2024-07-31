@@ -55,7 +55,7 @@ import org.snmp4j.smi.UdpAddress;
 
 /** This dialog allows you to edit the SNMPTrap action settings. */
 public class ActionSNMPTrapDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionSNMPTrap.class; // For Translator
+  private static final Class<?> PKG = ActionSNMPTrap.class;
 
   private LabelText wName;
 

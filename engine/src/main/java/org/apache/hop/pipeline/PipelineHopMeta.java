@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 /** Defines a link between 2 transforms in a pipeline */
 public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
     implements Comparable<PipelineHopMeta>, Cloneable {
-  private static final Class<?> PKG = Pipeline.class; // For Translator
+  private static final Class<?> PKG = Pipeline.class;
 
   public PipelineHopMeta(TransformMeta from, TransformMeta to, boolean en) {
     this.from = from;

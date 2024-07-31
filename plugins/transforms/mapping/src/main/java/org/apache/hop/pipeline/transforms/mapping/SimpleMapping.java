@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transforms.output.MappingOutput;
 /** Execute a mapping: a reusable pipeline */
 public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData> {
 
-  private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
+  private static final Class<?> PKG = SimpleMappingMeta.class;
 
   public SimpleMapping(
       TransformMeta transformMeta,

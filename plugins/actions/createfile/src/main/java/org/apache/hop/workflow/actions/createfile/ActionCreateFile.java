@@ -54,7 +54,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionCreateFile.keyword",
     documentationUrl = "/workflow/actions/createfile.html")
 public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionCreateFile.class; // For Translator
+  private static final Class<?> PKG = ActionCreateFile.class;
   private String filename;
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_FILE = "File [";

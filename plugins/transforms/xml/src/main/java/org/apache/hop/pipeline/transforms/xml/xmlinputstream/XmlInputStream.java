@@ -49,7 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Use a StAX parser to read XML in a flexible and fast way. */
 // TODO black box testing
 public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputStreamData> {
-  private static final Class<?> PKG = XmlInputStream.class; // For Translator
+  private static final Class<?> PKG = XmlInputStream.class;
 
   private static final int PARENT_ID_ALLOCATE_SIZE =
       1000; // max. number of nested elements, we may let the user configure

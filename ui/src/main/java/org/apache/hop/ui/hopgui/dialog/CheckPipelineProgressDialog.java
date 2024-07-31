@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Takes care of displaying a dialog that will handle the wait while checking a pipeline... */
 public class CheckPipelineProgressDialog {
-  private static final Class<?> PKG = CheckPipelineProgressDialog.class; // For Translator
+  private static final Class<?> PKG = CheckPipelineProgressDialog.class;
 
   private Shell shell;
   private PipelineMeta pipelineMeta;

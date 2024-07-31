@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsData> {
 
-  private static final Class<?> PKG = ConcatFields.class; // For Translator
+  private static final Class<?> PKG = ConcatFields.class;
 
   public ConcatFields(
       TransformMeta transformMeta,

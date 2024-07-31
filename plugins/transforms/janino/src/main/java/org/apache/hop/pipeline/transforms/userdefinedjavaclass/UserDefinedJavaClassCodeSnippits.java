@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class UserDefinedJavaClassCodeSnippits {
-  private static final Class<?> PKG = UserDefinedJavaClass.class; // For Translator
+  private static final Class<?> PKG = UserDefinedJavaClass.class;
   private static UserDefinedJavaClassCodeSnippits snippitsHelper = null;
 
   private final List<Snippit> snippits = new ArrayList<>();

@@ -21,7 +21,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 
 public class HopGuiServerDelegate {
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private HopGui hopGui;
   private IHopFileTypeHandler handler;

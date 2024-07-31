@@ -32,7 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.i18n.BaseMessages;
 
 public class FieldHelper {
-  private static final Class<?> PKG = FieldHelper.class; // For Translator
+  private static final Class<?> PKG = FieldHelper.class;
 
   private int index = -1;
   private IValueMeta meta;

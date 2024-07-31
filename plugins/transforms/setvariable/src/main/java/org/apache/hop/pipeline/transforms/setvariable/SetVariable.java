@@ -35,7 +35,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 /** Convert Values in a certain fields to other values */
 public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData> {
 
-  private static final Class<?> PKG = SetVariableMeta.class; // For Translator
+  private static final Class<?> PKG = SetVariableMeta.class;
 
   public SetVariable(
       TransformMeta transformMeta,

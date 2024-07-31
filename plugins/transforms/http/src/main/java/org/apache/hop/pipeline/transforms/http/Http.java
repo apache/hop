@@ -57,7 +57,7 @@ import org.json.simple.JSONObject;
 /** Retrieves data from an Http endpoint */
 public class Http extends BaseTransform<HttpMeta, HttpData> {
 
-  private static final Class<?> PKG = HttpMeta.class; // For Translator
+  private static final Class<?> PKG = HttpMeta.class;
 
   public Http(
       TransformMeta transformMeta,

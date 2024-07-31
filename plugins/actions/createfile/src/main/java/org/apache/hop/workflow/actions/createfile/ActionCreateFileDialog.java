@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Create File action settings. */
 public class ActionCreateFileDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionCreateFile.class; // For Translator
+  private static final Class<?> PKG = ActionCreateFile.class;
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionCreateFile.Filetype.All")};

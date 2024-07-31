@@ -54,7 +54,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionEvalTableContent.keyword",
     documentationUrl = "/workflow/actions/evaluatetablecontent.html")
 public class ActionEvalTableContent extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionEvalTableContent.class; // For Translator
+  private static final Class<?> PKG = ActionEvalTableContent.class;
 
   private boolean addRowsResult;
   private boolean clearResultList;

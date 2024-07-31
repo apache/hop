@@ -68,7 +68,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class PGBulkLoaderDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
+  private static final Class<?> PKG = PGBulkLoaderMeta.class;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

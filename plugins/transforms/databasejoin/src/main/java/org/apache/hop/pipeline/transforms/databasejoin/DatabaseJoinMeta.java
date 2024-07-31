@@ -60,7 +60,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     })
 public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJoinData> {
 
-  private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
+  private static final Class<?> PKG = DatabaseJoinMeta.class;
 
   @HopMetadataProperty(
       key = "connection",

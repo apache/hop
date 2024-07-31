@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class ExecProcessDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
+  private static final Class<?> PKG = ExecProcessMeta.class;
 
   private CCombo wProcess;
 

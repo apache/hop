@@ -56,7 +56,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/delete.html",
     actionTransformTypes = {ActionTransformType.DELETE, ActionTransformType.RDBMS})
 public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
-  private static final Class<?> PKG = DeleteMeta.class; // For Translator
+  private static final Class<?> PKG = DeleteMeta.class;
 
   /** database connection */
   @HopMetadataProperty(key = "lookup")

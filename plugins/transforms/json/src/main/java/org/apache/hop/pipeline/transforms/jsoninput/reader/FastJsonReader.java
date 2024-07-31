@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transforms.jsoninput.JsonInputMeta;
 import org.apache.hop.pipeline.transforms.jsoninput.exception.JsonInputException;
 
 public class FastJsonReader implements IJsonReader {
-  private static final Class<?> PKG = JsonInputMeta.class; // For Translator
+  private static final Class<?> PKG = JsonInputMeta.class;
 
   // as per RFC 7159, the default JSON encoding shall be UTF-8
   // see https://tools.ietf.org/html/rfc7159#section-8.1

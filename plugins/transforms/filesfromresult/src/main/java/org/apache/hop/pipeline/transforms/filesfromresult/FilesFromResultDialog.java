@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class FilesFromResultDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = FilesFromResultMeta.class; // For Translator
+  private static final Class<?> PKG = FilesFromResultMeta.class;
 
   private final FilesFromResultMeta input;
 

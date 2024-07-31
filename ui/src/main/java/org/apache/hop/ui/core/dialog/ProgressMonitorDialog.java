@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** A modal dialog that displays progress during a long running operation. */
 public class ProgressMonitorDialog {
-  private static final Class<?> PKG = ProgressMonitorDialog.class; // For Translator
+  private static final Class<?> PKG = ProgressMonitorDialog.class;
 
   protected Shell parent;
   protected Shell shell;

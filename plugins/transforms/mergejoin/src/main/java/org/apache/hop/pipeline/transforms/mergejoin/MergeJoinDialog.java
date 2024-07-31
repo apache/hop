@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class MergeJoinDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
+  private static final Class<?> PKG = MergeJoinMeta.class;
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeJoinSortWarning";
 

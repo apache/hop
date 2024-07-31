@@ -55,7 +55,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/execsql.html",
     actionTransformTypes = {ActionTransformType.RDBMS})
 public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
-  private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
+  private static final Class<?> PKG = ExecSqlMeta.class;
 
   @HopMetadataProperty(
       key = "connection",

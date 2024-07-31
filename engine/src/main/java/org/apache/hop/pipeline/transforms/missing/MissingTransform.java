@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 public class MissingTransform extends Dummy {
-  private static final Class<?> PKG = MissingTransform.class; // For Translator
+  private static final Class<?> PKG = MissingTransform.class;
 
   public MissingTransform(
       TransformMeta transformMeta,

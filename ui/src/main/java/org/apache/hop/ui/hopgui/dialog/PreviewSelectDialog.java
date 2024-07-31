@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 public class PreviewSelectDialog extends Dialog {
-  private static final Class<?> PKG = PreviewSelectDialog.class; // For Translator
+  private static final Class<?> PKG = PreviewSelectDialog.class;
 
   private TableView wFields;
 

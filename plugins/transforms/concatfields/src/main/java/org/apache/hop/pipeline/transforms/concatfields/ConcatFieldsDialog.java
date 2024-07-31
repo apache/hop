@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
  *
  */
 public class ConcatFieldsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ConcatFieldsMeta.class; // For Translator
+  private static final Class<?> PKG = ConcatFieldsMeta.class;
 
   private TextVar wTargetFieldName;
 

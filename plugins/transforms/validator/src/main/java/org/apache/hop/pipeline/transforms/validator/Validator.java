@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
 public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> implements ITransform {
-  private static final Class<?> PKG = ValidatorMeta.class; // For Translator
+  private static final Class<?> PKG = ValidatorMeta.class;
 
   public Validator(
       TransformMeta transformMeta,

@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class BeamKinesisConsumeDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = BeamKinesisConsume.class; // For Translator
+  private static final Class<?> PKG = BeamKinesisConsume.class;
   private final BeamKinesisConsumeMeta input;
 
   private TextVar wAccessKey;

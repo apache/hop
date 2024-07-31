@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class WebServiceDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = WebServiceMeta.class; // For Translator
+  private static final Class<?> PKG = WebServiceMeta.class;
 
   private WebServiceMeta meta;
 

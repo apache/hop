@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 
 public class FileErrorHandlerMissingFiles extends AbstractFileErrorHandler {
 
-  private static final Class<?> PKG = FileErrorHandlerMissingFiles.class; // For Translator
+  private static final Class<?> PKG = FileErrorHandlerMissingFiles.class;
 
   public static final String THIS_FILE_DOES_NOT_EXIST =
       BaseMessages.getString(PKG, "FileErrorHandlerMissingFiles.FILE_DOES_NOT_EXIST");

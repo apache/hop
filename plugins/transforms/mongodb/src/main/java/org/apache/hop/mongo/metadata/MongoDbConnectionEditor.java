@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Text;
 public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
     implements IMetadataEditor<MongoDbConnection> {
 
-  private static final Class<?> PKG = MongoDbConnectionEditor.class; // For Translator
+  private static final Class<?> PKG = MongoDbConnectionEditor.class;
 
   public static final String PARENT_WIDGET_ID = "MongoDbConnectionEditor.Widgets.ParentId";
 

@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog to test a regular expression */
 public class RegexEvalHelperDialog extends Dialog {
-  private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
+  private static final Class<?> PKG = RegexEvalMeta.class;
 
   private final IVariables variables;
   private Shell shell;

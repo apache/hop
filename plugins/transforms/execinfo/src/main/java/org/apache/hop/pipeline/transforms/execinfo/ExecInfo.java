@@ -45,7 +45,7 @@ import org.json.simple.JSONObject;
 /** Execute a process * */
 public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
 
-  private static final Class<?> PKG = ExecInfoMeta.class; // For Translator
+  private static final Class<?> PKG = ExecInfoMeta.class;
   private boolean killing;
   private CountDownLatch waitForLatch;
 

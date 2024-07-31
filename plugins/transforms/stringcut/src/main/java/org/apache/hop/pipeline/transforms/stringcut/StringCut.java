@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Cut strings. */
 public class StringCut extends BaseTransform<StringCutMeta, StringCutData> {
-  private static final Class<?> PKG = StringCutMeta.class; // For Translator
+  private static final Class<?> PKG = StringCutMeta.class;
 
   public StringCut(
       TransformMeta transformMeta,

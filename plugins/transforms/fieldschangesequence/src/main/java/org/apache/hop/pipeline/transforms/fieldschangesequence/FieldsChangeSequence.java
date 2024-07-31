@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class FieldsChangeSequence
     extends BaseTransform<FieldsChangeSequenceMeta, FieldsChangeSequenceData> {
 
-  private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
+  private static final Class<?> PKG = FieldsChangeSequenceMeta.class;
 
   public FieldsChangeSequence(
       TransformMeta transformMeta,

@@ -48,7 +48,7 @@ import org.apache.hop.core.vfs.plugin.VfsPluginType;
  * Hop functionality.
  */
 public class HopClientEnvironment {
-  private static final Class<?> PKG = Const.class; // For Translator
+  private static final Class<?> PKG = Const.class;
 
   private static HopClientEnvironment instance = null;
 

@@ -39,7 +39,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     documentationUrl = "/database/databases/apache-hive.html")
 @GuiPlugin(id = "GUI-HiveDatabaseMeta")
 public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
-  private static final Class<?> PKG = HiveDatabaseMeta.class; // For Translator
+  private static final Class<?> PKG = HiveDatabaseMeta.class;
 
   @GuiWidgetElement(
       id = "tablePartitions",

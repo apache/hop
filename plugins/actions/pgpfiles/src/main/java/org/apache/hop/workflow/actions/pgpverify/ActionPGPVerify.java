@@ -54,7 +54,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionPGPVerify.keyword",
     documentationUrl = "/workflow/actions/pgpverify.html")
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPGPVerify.class; // For Translator
+  private static final Class<?> PKG = ActionPGPVerify.class;
 
   private String gpgLocation;
   private String filename;

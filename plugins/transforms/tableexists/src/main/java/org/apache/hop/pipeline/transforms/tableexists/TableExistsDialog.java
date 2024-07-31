@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class TableExistsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = TableExistsMeta.class; // For Translator
+  private static final Class<?> PKG = TableExistsMeta.class;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

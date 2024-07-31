@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 @GuiPlugin
 public class ConfigVariablesTab {
-  private static final Class<?> PKG = BaseDialog.class; // For Translator
+  private static final Class<?> PKG = BaseDialog.class;
 
   private TableView wFields;
 

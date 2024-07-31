@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SortRowsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SortRowsMeta.class; // For Translator
+  private static final Class<?> PKG = SortRowsMeta.class;
 
   private TextVar wSortDir;
 

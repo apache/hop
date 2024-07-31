@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class UniqueRowsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
+  private static final Class<?> PKG = UniqueRowsMeta.class;
 
   public static final String STRING_SORT_WARNING_PARAMETER = "UniqueSortWarning";
 

@@ -49,7 +49,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
 public class LdapConnection {
-  private static Class<?> classFromResourcesPackage = LdapInputMeta.class; // For Translator
+  private static Class<?> classFromResourcesPackage = LdapInputMeta.class;
 
   public static final int SEARCH_SCOPE_OBJECT_SCOPE = 0;
 

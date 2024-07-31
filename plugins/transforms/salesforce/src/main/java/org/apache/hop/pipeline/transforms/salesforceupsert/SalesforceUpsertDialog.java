@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
-  private static final Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpsertMeta.class;
 
   private Map<String, Integer> inputFields;
 

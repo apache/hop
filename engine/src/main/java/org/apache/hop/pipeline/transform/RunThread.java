@@ -29,7 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class RunThread implements Runnable {
 
-  private static final Class<?> PKG = BaseTransform.class; // For Translator
+  private static final Class<?> PKG = BaseTransform.class;
 
   private final ITransform transform;
   private final ILogChannel log;

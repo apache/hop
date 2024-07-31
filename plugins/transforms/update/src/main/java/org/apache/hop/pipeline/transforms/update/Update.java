@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Update data in a database table, does NOT ever perform an insert. */
 public class Update extends BaseTransform<UpdateMeta, UpdateData> {
-  private static final Class<?> PKG = UpdateMeta.class; // For Translator
+  private static final Class<?> PKG = UpdateMeta.class;
 
   public Update(
       TransformMeta transformMeta,

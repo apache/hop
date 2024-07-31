@@ -67,7 +67,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ExcelWriterTransform
     extends BaseTransform<ExcelWriterTransformMeta, ExcelWriterTransformData> {
 
-  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
+  private static final Class<?> PKG = ExcelWriterTransformMeta.class;
 
   public static final String STREAMER_FORCE_RECALC_PROP_NAME =
       "HOP_EXCEL_WRITER_STREAMER_FORCE_RECALCULATE";

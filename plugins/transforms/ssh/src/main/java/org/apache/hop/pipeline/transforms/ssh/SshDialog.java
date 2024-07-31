@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SshDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SshMeta.class; // For Translator
+  private static final Class<?> PKG = SshMeta.class;
 
   private Label wlCommandField;
   private CCombo wCommandField;

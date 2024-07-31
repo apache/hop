@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SetVariableDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SetVariableMeta.class; // For Translator
+  private static final Class<?> PKG = SetVariableMeta.class;
 
   public static final String STRING_USAGE_WARNING_PARAMETER = "SetVariableUsageWarning";
 

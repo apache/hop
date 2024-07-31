@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Write data to log. */
 public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
 
-  private static final Class<?> PKG = WriteToLogMeta.class; // For Translator
+  private static final Class<?> PKG = WriteToLogMeta.class;
 
   private int rowCounter = 0;
   private boolean rowCounterLimitHit = false;

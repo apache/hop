@@ -39,7 +39,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     documentationUrl = "/metadata-types/staticschema.html")
 public class SchemaDefinition extends HopMetadataBase implements Serializable, IHopMetadata {
 
-  private static final Class<?> PKG = SchemaDefinition.class; // For Translator
+  private static final Class<?> PKG = SchemaDefinition.class;
   @HopMetadataProperty private String description;
 
   @HopMetadataProperty private List<SchemaFieldDefinition> fieldDefinitions;

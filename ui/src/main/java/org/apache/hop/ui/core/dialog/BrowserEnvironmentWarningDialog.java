@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog that shows a warning when the Browser Environment is not supported. */
 public class BrowserEnvironmentWarningDialog extends Dialog {
-  private static final Class<?> PKG = BrowserEnvironmentWarningDialog.class; // For Translator
+  private static final Class<?> PKG = BrowserEnvironmentWarningDialog.class;
 
   private Shell shell;
   private PropsUi props;

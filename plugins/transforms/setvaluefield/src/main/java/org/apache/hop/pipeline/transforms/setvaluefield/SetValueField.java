@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Set value field with another value field. */
 public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFieldData> {
-  private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
+  private static final Class<?> PKG = SetValueFieldMeta.class;
 
   public SetValueField(
       TransformMeta transformMeta,

@@ -37,7 +37,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class DtdValidatorUtil {
-  private static final Class<?> PKG = DtdValidator.class; // For Translator
+  private static final Class<?> PKG = DtdValidator.class;
 
   private String xmlfilename;
   private String xsdfilename;

@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class FieldsChangeSequenceDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
+  private static final Class<?> PKG = FieldsChangeSequenceMeta.class;
 
   private final FieldsChangeSequenceMeta input;
 

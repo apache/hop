@@ -59,7 +59,7 @@ import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
  */
 public class HopEnvironment {
 
-  private static final Class<?> PKG = Const.class; // For Translator
+  private static final Class<?> PKG = Const.class;
 
   /** Indicates whether the Hop environment has been initialized. */
   private static AtomicReference<SettableFuture<Boolean>> initialized = new AtomicReference<>(null);

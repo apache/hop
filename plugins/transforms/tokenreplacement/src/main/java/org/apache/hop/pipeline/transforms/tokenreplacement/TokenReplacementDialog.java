@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class TokenReplacementDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
+  private static final Class<?> PKG = TokenReplacementMeta.class;
 
   private Group gInputText;
   private Group gInputFile;

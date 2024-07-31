@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class BeamBigtableInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = BeamBigtableInputDialog.class; // For Translator
+  private static final Class<?> PKG = BeamBigtableInputDialog.class;
   private final BeamBigtableInputMeta input;
 
   private TextVar wProjectId;

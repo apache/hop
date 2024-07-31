@@ -45,7 +45,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionFilesExist.keyword",
     documentationUrl = "/workflow/actions/filesexist.html")
 public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFilesExist.class; // For Translator
+  private static final Class<?> PKG = ActionFilesExist.class;
 
   private String filename; // TODO: looks like it is not used: consider deleting
 

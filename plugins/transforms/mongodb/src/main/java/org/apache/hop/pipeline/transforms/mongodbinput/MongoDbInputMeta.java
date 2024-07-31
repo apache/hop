@@ -50,7 +50,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
 public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData> {
-  protected static final Class<?> PKG = MongoDbInputMeta.class; // For Translator
+  protected static final Class<?> PKG = MongoDbInputMeta.class;
 
   @Injection(name = "JSON_OUTPUT_FIELD")
   private String jsonFieldName;

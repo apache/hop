@@ -68,7 +68,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
  */
 @Deprecated(since = "2.0")
 public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInputData> {
-  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileInputMeta.class;
 
   private static final int BUFFER_SIZE_INPUT_STREAM = 500;
 

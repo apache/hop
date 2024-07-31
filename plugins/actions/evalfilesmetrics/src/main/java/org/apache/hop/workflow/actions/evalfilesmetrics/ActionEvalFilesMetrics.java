@@ -61,7 +61,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionEvalFilesMetrics.keyword",
     documentationUrl = "/workflow/actions/evalfilesmetrics.html")
 public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionEvalFilesMetrics.class; // For Translator
+  private static final Class<?> PKG = ActionEvalFilesMetrics.class;
 
   public static final int SUCCESS_NUMBER_CONDITION_EQUAL = 0;
   public static final int SUCCESS_NUMBER_CONDITION_DIFFERENT = 1;

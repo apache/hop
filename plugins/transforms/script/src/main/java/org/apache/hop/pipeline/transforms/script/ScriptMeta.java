@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "script,scripting,groovy,python,javascript,ecmascript,ruby",
     documentationUrl = "/pipeline/transforms/script.html")
 public class ScriptMeta extends BaseTransformMeta<Script, ScriptData> implements ITransformMeta {
-  private static final Class<?> PKG = ScriptMeta.class; // For Translator.
+  private static final Class<?> PKG = ScriptMeta.class;
 
   @HopMetadataProperty(key = "scriptLanguage")
   private String languageName;

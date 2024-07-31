@@ -45,7 +45,7 @@ import org.owasp.encoder.Encode;
 
 @HopServerServlet(id = "workflowStatus", name = "Get the status of a workflow")
 public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = GetWorkflowStatusServlet.class; // For Translator
+  private static final Class<?> PKG = GetWorkflowStatusServlet.class;
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/workflowStatus";

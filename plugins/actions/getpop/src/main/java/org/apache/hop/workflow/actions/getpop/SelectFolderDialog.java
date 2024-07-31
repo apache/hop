@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.TreeItem;
  * folders defined
  */
 public class SelectFolderDialog extends Dialog {
-  private static final Class<?> PKG = ActionGetPOP.class; // For Translator
+  private static final Class<?> PKG = ActionGetPOP.class;
 
   private final PropsUi props;
   private Shell shell;

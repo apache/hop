@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Move Files action settings. */
 public class ActionPGPEncryptFilesDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
+  private static final Class<?> PKG = ActionPGPEncryptFiles.class;
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Filetype.All")};

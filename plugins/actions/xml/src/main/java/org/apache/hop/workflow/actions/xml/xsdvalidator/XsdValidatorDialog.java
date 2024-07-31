@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XSD Validator job entry settings. */
 public class XsdValidatorDialog extends ActionDialog {
-  private static final Class<?> PKG = XsdValidator.class; // For Translator
+  private static final Class<?> PKG = XsdValidator.class;
 
   private static final String[] FILETYPES_XML =
       new String[] {

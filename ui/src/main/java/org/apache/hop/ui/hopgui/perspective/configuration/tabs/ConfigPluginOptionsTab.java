@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Shell;
 
 @GuiPlugin
 public class ConfigPluginOptionsTab {
-  private static final Class<?> PKG = BaseDialog.class; // For Translator
+  private static final Class<?> PKG = BaseDialog.class;
 
   public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 

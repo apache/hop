@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Text;
  * @see WorkflowLog
  */
 public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
-  private static final Class<?> PKG = WorkflowLogEditor.class; // For Translator
+  private static final Class<?> PKG = WorkflowLogEditor.class;
 
   private Text wName;
   private Button wEnabled;

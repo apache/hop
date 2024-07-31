@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class JavaFilterDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = JavaFilterMeta.class; // For Translator
+  private static final Class<?> PKG = JavaFilterMeta.class;
 
   private Text wTransformName;
   private CCombo wTrueTo;

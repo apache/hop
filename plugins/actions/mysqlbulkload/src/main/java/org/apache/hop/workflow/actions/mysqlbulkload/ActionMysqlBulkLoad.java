@@ -60,7 +60,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionMysqlBulkLoad.keyword",
     documentationUrl = "/workflow/actions/mysqlbulkload.html")
 public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMysqlBulkLoad.class; // For Translator
+  private static final Class<?> PKG = ActionMysqlBulkLoad.class;
 
   private String schemaname;
   private String tableName;

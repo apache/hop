@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt Burgess
  */
 public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITransform {
-  private static final Class<?> PKG = Script.class; // For Translator
+  private static final Class<?> PKG = Script.class;
 
   public static final int ABORT_PIPELINE = -1;
   public static final int ERROR_PIPELINE = -2;

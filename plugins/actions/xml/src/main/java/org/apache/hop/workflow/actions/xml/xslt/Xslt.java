@@ -70,7 +70,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::Xslt.keyword",
     documentationUrl = "/workflow/actions/xslt.html")
 public class Xslt extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = Xslt.class; // For Translator
+  private static final Class<?> PKG = Xslt.class;
 
   public static String FACTORY_JAXP = "JAXP";
   public static String FACTORY_SAXON = "SAXON";

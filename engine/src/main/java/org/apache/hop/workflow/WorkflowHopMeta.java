@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 
 /** This class defines a hop from one action copy to another. */
 public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneable {
-  private static final Class<?> PKG = WorkflowHopMeta.class; // For Translator
+  private static final Class<?> PKG = WorkflowHopMeta.class;
 
   public static final String XML_EVALUATION_TAG = "evaluation";
   public static final String XML_UNCONDITIONAL_TAG = "unconditional";

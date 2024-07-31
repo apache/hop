@@ -26,7 +26,7 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 @PluginMainClassType(IWorkflowDialogPlugin.class)
 @PluginAnnotationType(WorkflowDialogPlugin.class)
 public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugin> {
-  private static final Class<?> PKG = WorkflowDialogPluginType.class; // For Translator
+  private static final Class<?> PKG = WorkflowDialogPluginType.class;
 
   private static WorkflowDialogPluginType pluginType;
 

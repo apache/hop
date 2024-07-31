@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog that allows you to edit the transform error handling meta-data */
 public class TransformErrorMetaDialog extends Dialog {
-  private static final Class<?> PKG = ITransform.class; // For Translator
+  private static final Class<?> PKG = ITransform.class;
 
   private final IVariables variables;
   private TransformErrorMeta transformErrorMeta;

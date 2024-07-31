@@ -77,7 +77,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionMail.keyword",
     documentationUrl = "/workflow/actions/mail.html")
 public class ActionMail extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMail.class; // For Translator
+  private static final Class<?> PKG = ActionMail.class;
 
   private String server;
 

@@ -24,7 +24,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCode;
 
 public class CalculatorMetaFunction implements Cloneable {
-  private static final Class<?> PKG = CalculatorMeta.class; // For Translator
+  private static final Class<?> PKG = CalculatorMeta.class;
 
   public enum CalculationType implements IEnumHasCode {
     NONE("-", "-", IValueMeta.TYPE_NONE),

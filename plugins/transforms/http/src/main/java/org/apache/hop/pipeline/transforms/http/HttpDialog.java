@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class HttpDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = HttpMeta.class; // For Translator
+  private static final Class<?> PKG = HttpMeta.class;
 
   private Label wlUrl;
   private TextVar wUrl;

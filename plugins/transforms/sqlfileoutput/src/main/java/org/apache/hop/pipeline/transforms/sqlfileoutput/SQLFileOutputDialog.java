@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SQLFileOutputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
+  private static final Class<?> PKG = SQLFileOutputMeta.class;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

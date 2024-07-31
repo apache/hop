@@ -133,7 +133,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformData>
     implements ITransform, IVariables, ILoggingObject, IExtensionData, IEngineComponent {
 
-  private static final Class<?> PKG = BaseTransform.class; // For Translator
+  private static final Class<?> PKG = BaseTransform.class;
   private static final String CONST_NUMBER_FORMAT_EXCEPTION =
       "BaseTransform.Log.NumberFormatException";
 

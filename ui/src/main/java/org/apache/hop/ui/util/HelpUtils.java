@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
 public class HelpUtils {
-  private static final Class<?> PKG = HelpUtils.class; // For Translator
+  private static final Class<?> PKG = HelpUtils.class;
 
   public static Button createHelpButton(final Composite parent, final IPlugin plugin) {
     Button button = newButton(parent);

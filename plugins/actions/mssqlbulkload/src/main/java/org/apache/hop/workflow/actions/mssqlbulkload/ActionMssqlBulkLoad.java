@@ -62,7 +62,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionMssqlBulkLoad.keyword",
     documentationUrl = "/workflow/actions/mssqlbulkload.html")
 public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // For Translator
+  private static final Class<?> PKG = ActionMssqlBulkLoad.class;
 
   private String schemaname;
   private String tableName;

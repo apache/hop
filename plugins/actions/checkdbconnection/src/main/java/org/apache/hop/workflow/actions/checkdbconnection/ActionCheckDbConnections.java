@@ -53,7 +53,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     documentationUrl = "/workflow/actions/checkdbconnection.html",
     actionTransformTypes = {ActionTransformType.ENV_CHECK, ActionTransformType.RDBMS})
 public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionCheckDbConnections.class; // For Translator
+  private static final Class<?> PKG = ActionCheckDbConnections.class;
 
   @HopMetadataProperty(
       groupKey = "connections",

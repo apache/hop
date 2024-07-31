@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
 public class StyledTextComp extends Composite {
-  private static final Class<?> PKG = StyledTextComp.class; // For Translator
+  private static final Class<?> PKG = StyledTextComp.class;
 
   // Modification for Undo/Redo on Styled Text
   private final Text textWidget;

@@ -66,7 +66,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/deletefiles.html")
 public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction {
 
-  private static final Class<?> PKG = ActionDeleteFiles.class; // For Translator
+  private static final Class<?> PKG = ActionDeleteFiles.class;
 
   private boolean argFromPrevious;
 

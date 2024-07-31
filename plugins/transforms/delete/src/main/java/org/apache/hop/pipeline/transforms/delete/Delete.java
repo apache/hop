@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Delete data in a database table. */
 public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
 
-  private static final Class<?> PKG = DeleteMeta.class; // For Translator
+  private static final Class<?> PKG = DeleteMeta.class;
 
   public Delete(
       TransformMeta transformMeta,

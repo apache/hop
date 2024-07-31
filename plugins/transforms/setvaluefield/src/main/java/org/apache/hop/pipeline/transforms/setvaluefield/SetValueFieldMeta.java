@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::SetValueFieldMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvaluefield.html")
 public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValueFieldData> {
-  private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
+  private static final Class<?> PKG = SetValueFieldMeta.class;
 
   @HopMetadataProperty(
       key = "field",

@@ -54,7 +54,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionFileExists.keyword",
     documentationUrl = "/workflow/actions/fileexists.html")
 public class ActionFileExists extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFileExists.class; // For Translator
+  private static final Class<?> PKG = ActionFileExists.class;
 
   @HopMetadataProperty(key = "filename")
   private String filename;

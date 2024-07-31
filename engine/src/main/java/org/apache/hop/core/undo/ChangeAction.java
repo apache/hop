@@ -51,7 +51,7 @@ import org.apache.hop.workflow.action.ActionMeta;
  * <p>
  */
 public class ChangeAction {
-  private static final Class<?> PKG = ChangeAction.class; // For Translator
+  private static final Class<?> PKG = ChangeAction.class;
 
   @SuppressWarnings("java:S115")
   public enum ActionType {

@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** This dialog allows you to edit the SendNagiosPassiveCheck action settings. */
 public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // For Translator
+  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class;
 
   private LabelText wName;
 

@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class IfNullDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = IfNullMeta.class; // For Translator
+  private static final Class<?> PKG = IfNullMeta.class;
 
   private final IfNullMeta input;
 

@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Delete Files action settings. */
 public class ActionAddResultFilenamesDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionAddResultFilenamesDialog.class; // For Translator
+  private static final Class<?> PKG = ActionAddResultFilenamesDialog.class;
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionAddResultFilenames.Filetype.All")};

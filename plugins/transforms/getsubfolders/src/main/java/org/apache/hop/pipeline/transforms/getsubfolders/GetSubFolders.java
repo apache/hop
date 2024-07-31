@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * more output streams.
  */
 public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFoldersData> {
-  private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
+  private static final Class<?> PKG = GetSubFoldersMeta.class;
 
   public GetSubFolders(
       TransformMeta transformMeta,

@@ -44,7 +44,7 @@ import org.apache.hop.workflow.action.IAction;
     keywords = "i18n::ActionTruncateTables.keyword",
     documentationUrl = "/workflow/actions/truncatetables.html")
 public class ActionTruncateTables extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionTruncateTables.class; // For Translator
+  private static final Class<?> PKG = ActionTruncateTables.class;
 
   @HopMetadataProperty(key = "arg_from_previous")
   private boolean argFromPrevious;

@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 public class ActionDebugLevelDialog extends Dialog {
-  private static final Class<?> PKG = ActionDebugLevelDialog.class; // For Translator
+  private static final Class<?> PKG = ActionDebugLevelDialog.class;
 
   private ActionDebugLevel input;
   private ActionDebugLevel debugLevel;

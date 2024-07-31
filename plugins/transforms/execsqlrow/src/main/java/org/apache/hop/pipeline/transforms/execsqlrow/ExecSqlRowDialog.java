@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ExecSqlRowDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ExecSqlRowMeta.class; // For Translator
+  private static final Class<?> PKG = ExecSqlRowMeta.class;
 
   private boolean gotPreviousFields = false;
   private MetaSelectionLine<DatabaseMeta> wConnection;

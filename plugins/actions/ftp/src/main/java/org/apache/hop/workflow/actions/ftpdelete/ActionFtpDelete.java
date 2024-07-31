@@ -59,7 +59,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionFtpDelete.keyword",
     documentationUrl = "/workflow/actions/ftpdelete.html")
 public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, IFtpConnection {
-  private static final Class<?> PKG = ActionFtpDelete.class; // For Translator
+  private static final Class<?> PKG = ActionFtpDelete.class;
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_PASSWORD = "password";
 

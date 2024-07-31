@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Text;
  * @see PipelineLog
  */
 public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
-  private static final Class<?> PKG = PipelineLogEditor.class; // For Translator
+  private static final Class<?> PKG = PipelineLogEditor.class;
 
   private Text wName;
   private Button wEnabled;

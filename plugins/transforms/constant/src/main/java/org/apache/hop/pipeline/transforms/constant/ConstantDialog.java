@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class ConstantDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ConstantMeta.class; // For Translator
+  private static final Class<?> PKG = ConstantMeta.class;
 
   private static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
 

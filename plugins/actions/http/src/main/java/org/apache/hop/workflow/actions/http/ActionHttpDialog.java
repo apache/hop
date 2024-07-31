@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
  * to be executed)
  */
 public class ActionHttpDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionHttp.class; // For Translator
+  private static final Class<?> PKG = ActionHttp.class;
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionHTTP.Filetype.All")};

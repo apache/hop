@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to enter a (single line) String. */
 public class EnterStringDialog extends Dialog {
-  private static final Class<?> PKG = EnterStringDialog.class; // For Translator
+  private static final Class<?> PKG = EnterStringDialog.class;
 
   private Text wString;
 

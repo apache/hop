@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class StandardizePhoneNumber
     extends BaseTransform<StandardizePhoneNumberMeta, StandardizePhoneNumberData> {
-  private static final Class<?> PKG = StandardizePhoneNumber.class; // For Translator
+  private static final Class<?> PKG = StandardizePhoneNumber.class;
 
   private PhoneNumberUtil phoneNumberService;
   private Set<String> supportedRegions;

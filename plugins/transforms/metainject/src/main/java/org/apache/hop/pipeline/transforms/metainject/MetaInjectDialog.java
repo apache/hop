@@ -93,7 +93,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class MetaInjectDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = MetaInjectMeta.class; // For Translator
+  private static final Class<?> PKG = MetaInjectMeta.class;
 
   public static final String CONST_VALUE = "<const>";
 

@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Spinner;
 
 /** Dialog to enter a text. (descriptions etc.) */
 public class NotePadDialog extends Dialog {
-  private static final Class<?> PKG = NotePadDialog.class; // For Translator
+  private static final Class<?> PKG = NotePadDialog.class;
 
   private NotePadMeta notePadMeta;
 

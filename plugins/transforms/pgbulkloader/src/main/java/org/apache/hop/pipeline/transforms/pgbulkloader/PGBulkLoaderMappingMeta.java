@@ -21,7 +21,7 @@ import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class PGBulkLoaderMappingMeta {
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
+  private static final Class<?> PKG = PGBulkLoaderMeta.class;
 
   /** Field value to dateMask after lookup */
   @HopMetadataProperty(

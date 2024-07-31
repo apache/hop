@@ -61,7 +61,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionMoveFiles.keyword",
     documentationUrl = "/workflow/actions/movefiles.html")
 public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMoveFiles.class; // For Translator
+  private static final Class<?> PKG = ActionMoveFiles.class;
 
   public boolean moveEmptyFolders;
   public boolean argFromPrevious;

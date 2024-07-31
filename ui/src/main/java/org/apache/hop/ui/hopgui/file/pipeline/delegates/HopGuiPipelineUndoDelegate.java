@@ -28,7 +28,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 public class HopGuiPipelineUndoDelegate {
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private HopGuiPipelineGraph pipelineGraph;
   private HopGui hopGui;

@@ -41,7 +41,7 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 @HopServerServlet(id = "getExecInfo", name = "Get execution information")
 public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = GetExecutionInfoServlet.class; // For Translator
+  private static final Class<?> PKG = GetExecutionInfoServlet.class;
 
   private static final long serialVersionUID = -1624876141322415729L;
 

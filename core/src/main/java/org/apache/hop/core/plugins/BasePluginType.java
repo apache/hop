@@ -54,7 +54,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public abstract class BasePluginType<T extends Annotation> implements IPluginType<T> {
-  protected static Class<?> classFromResourcesPackage = BasePluginType.class; // For Translator
+  protected static Class<?> classFromResourcesPackage = BasePluginType.class;
 
   protected final PluginRegistry registry;
 

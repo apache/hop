@@ -75,7 +75,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class PipelineExecutorDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = PipelineExecutorDialog.class; // For Translator
+  private static final Class<?> PKG = PipelineExecutorDialog.class;
 
   private static final int FIELD_DESCRIPTION = 1;
   private static final int FIELD_NAME = 2;

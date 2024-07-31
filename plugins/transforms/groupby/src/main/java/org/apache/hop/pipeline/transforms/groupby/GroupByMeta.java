@@ -49,7 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::GroupByMeta.keyword")
 public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
 
-  private static final Class<?> PKG = GroupByMeta.class; // For Translator
+  private static final Class<?> PKG = GroupByMeta.class;
 
   /** All rows need to pass, adding an extra row at the end of each group/block. */
   @HopMetadataProperty(

@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Select, re-order, remove or change the meta-data of the fields in the inputstreams. */
 public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData> {
 
-  private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
+  private static final Class<?> PKG = SelectValuesMeta.class;
 
   public SelectValues(
       TransformMeta transformMeta,

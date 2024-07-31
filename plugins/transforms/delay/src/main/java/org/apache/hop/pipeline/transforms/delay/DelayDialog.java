@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class DelayDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DelayMeta.class; // For Translator
+  private static final Class<?> PKG = DelayMeta.class;
 
   private final DelayMeta input;
   private CCombo wScaleTime;

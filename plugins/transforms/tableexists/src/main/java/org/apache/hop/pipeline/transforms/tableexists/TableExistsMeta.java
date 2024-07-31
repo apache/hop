@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::TableExistsMeta.keyword",
     documentationUrl = "/pipeline/transforms/tableexists.html")
 public class TableExistsMeta extends BaseTransformMeta<TableExists, TableExistsData> {
-  private static final Class<?> PKG = TableExistsMeta.class; // For Translator
+  private static final Class<?> PKG = TableExistsMeta.class;
 
   /** database connection */
   @HopMetadataProperty(injectionKeyDescription = "TableExistsMeta.Injection.Connection")

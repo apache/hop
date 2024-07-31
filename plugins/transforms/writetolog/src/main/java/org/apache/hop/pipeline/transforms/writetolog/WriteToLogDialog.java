@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class WriteToLogDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = WriteToLogDialog.class; // For Translator
+  private static final Class<?> PKG = WriteToLogDialog.class;
 
   private final WriteToLogMeta input;
 

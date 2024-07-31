@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::ProcessFilesMeta.keyword",
     documentationUrl = "/pipeline/transforms/processfiles.html")
 public class ProcessFilesMeta extends BaseTransformMeta<ProcessFiles, ProcessFilesData> {
-  private static final Class<?> PKG = ProcessFilesMeta.class; // For Translator
+  private static final Class<?> PKG = ProcessFilesMeta.class;
 
   @HopMetadataProperty(
       key = "addresultfilenames",

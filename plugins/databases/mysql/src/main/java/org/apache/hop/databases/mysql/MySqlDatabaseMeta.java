@@ -46,7 +46,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     documentationUrl = "/database/databases/mysql.html")
 @GuiPlugin(id = "GUI-MySQLDatabaseMeta")
 public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
-  private static final Class<?> PKG = MySqlDatabaseMeta.class; // For Translator
+  private static final Class<?> PKG = MySqlDatabaseMeta.class;
 
   @GuiWidgetElement(
       id = "resultStreaming",

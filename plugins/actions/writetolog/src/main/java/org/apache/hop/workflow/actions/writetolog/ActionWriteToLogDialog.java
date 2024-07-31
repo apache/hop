@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit a ActionWriteToLog object. */
 public class ActionWriteToLogDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionWriteToLog.class; // For Translator
+  private static final Class<?> PKG = ActionWriteToLog.class;
 
   private Text wName;
 

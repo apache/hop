@@ -60,7 +60,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DimensionLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/dimensionlookup.html")
 public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData> {
-  private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
+  private static final Class<?> PKG = DimensionLookupMeta.class;
 
   /** The lookup schema name */
   @HopMetadataProperty(

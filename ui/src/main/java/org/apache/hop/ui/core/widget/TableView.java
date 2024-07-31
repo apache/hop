@@ -103,7 +103,7 @@ import org.eclipse.swt.widgets.ToolBar;
 @GuiPlugin
 public class TableView extends Composite {
 
-  private static final Class<?> PKG = TableView.class; // For Translator
+  private static final Class<?> PKG = TableView.class;
 
   public static final String ID_TOOLBAR = "TableView-Toolbar";
   public static final String ID_TOOLBAR_INSERT_ROW_BEFORE =

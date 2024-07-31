@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Zip File action settings. */
 public class ActionZipFileDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionZipFile.class; // For Translator
+  private static final Class<?> PKG = ActionZipFile.class;
 
   private static final String[] FILETYPES =
       new String[] {

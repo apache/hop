@@ -26,7 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class DefaultAuthenticationConsumerFactory
     implements IAuthenticationConsumerFactory<Object, Object, Object> {
-  private static final Class<?> PKG = DefaultAuthenticationConsumerFactory.class; // For Translator
+  private static final Class<?> PKG = DefaultAuthenticationConsumerFactory.class;
   private final Constructor<?> constructor;
   private final Class<Object> consumedType;
   private final Class<Object> returnType;

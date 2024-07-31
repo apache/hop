@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SetValueFieldDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
+  private static final Class<?> PKG = SetValueFieldMeta.class;
 
   private Text wTransformName;
 

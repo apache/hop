@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class SynchronizeAfterMerge
     extends BaseTransform<SynchronizeAfterMergeMeta, SynchronizeAfterMergeData> {
 
-  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
+  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class;
 
   public SynchronizeAfterMerge(
       TransformMeta transformMeta,

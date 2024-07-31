@@ -74,7 +74,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
-  private static final Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpdateMeta.class;
 
   private final List<String> inputFields = new ArrayList<>();
 

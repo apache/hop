@@ -28,7 +28,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 
 public class GlobalMessages extends AbstractMessageHandler {
-  protected static Class<?> PKG = GlobalMessages.class; // For Translator
+  protected static Class<?> PKG = GlobalMessages.class;
 
   protected static final String SYSTEM_BUNDLE_PACKAGE = PKG.getPackage().getName();
 

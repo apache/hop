@@ -58,7 +58,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/synchronizeaftermerge.html")
 public class SynchronizeAfterMergeMeta
     extends BaseTransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
-  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
+  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class;
 
   /** what's the lookup schema? */
   @Injection(name = "SHEMA_NAME")

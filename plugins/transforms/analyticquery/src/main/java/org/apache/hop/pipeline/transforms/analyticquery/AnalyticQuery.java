@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Performs analytic queries (LEAD/LAG, etc) based on a group */
 public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData> {
 
-  private static final Class<?> PKG = AnalyticQuery.class; // For Translator
+  private static final Class<?> PKG = AnalyticQuery.class;
 
   public AnalyticQuery(
       TransformMeta transformMeta,

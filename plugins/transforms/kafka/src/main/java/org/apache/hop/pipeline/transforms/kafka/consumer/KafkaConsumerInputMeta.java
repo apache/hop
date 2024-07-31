@@ -69,7 +69,7 @@ public class KafkaConsumerInputMeta
     extends TransformWithMappingMeta<KafkaConsumerInput, KafkaConsumerInputData>
     implements Cloneable {
 
-  private static final Class<?> PKG = KafkaConsumerInputMeta.class; // For Translator
+  private static final Class<?> PKG = KafkaConsumerInputMeta.class;
 
   public static final String NUM_MESSAGES = "numMessages";
   public static final String DURATION = "duration";

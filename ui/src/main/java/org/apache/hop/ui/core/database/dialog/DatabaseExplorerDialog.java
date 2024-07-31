@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 @GuiPlugin
 public class DatabaseExplorerDialog extends Dialog {
-  private static final Class<?> PKG = DatabaseExplorerDialog.class; // For Translator
+  private static final Class<?> PKG = DatabaseExplorerDialog.class;
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "DatabaseExplorerDialog-Toolbar";
   public static final String TOOLBAR_ITEM_EXPAND_ALL = "DatabaseExplorer-ToolBar-10100-ExpandAll";

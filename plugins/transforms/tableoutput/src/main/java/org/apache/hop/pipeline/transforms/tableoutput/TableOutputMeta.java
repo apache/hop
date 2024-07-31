@@ -54,7 +54,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/tableoutput.html",
     actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.RDBMS})
 public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputData> {
-  private static final Class<?> PKG = TableOutputMeta.class; // For Translator
+  private static final Class<?> PKG = TableOutputMeta.class;
 
   private static final String PARTION_PER_DAY = "DAY";
   private static final String PARTION_PER_MONTH = "MONTH";

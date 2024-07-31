@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class ProjectDialog extends Dialog {
-  private static final Class<?> PKG = ProjectDialog.class; // For Translator
+  private static final Class<?> PKG = ProjectDialog.class;
 
   private final Project project;
   private final ProjectConfig projectConfig;

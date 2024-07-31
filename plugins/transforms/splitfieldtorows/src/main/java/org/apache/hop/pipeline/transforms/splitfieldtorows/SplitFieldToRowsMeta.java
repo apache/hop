@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/splitfieldtorows.html")
 public class SplitFieldToRowsMeta
     extends BaseTransformMeta<SplitFieldToRows, SplitFieldToRowsData> {
-  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
+  private static final Class<?> PKG = SplitFieldToRowsMeta.class;
 
   /** Field to split */
   @HopMetadataProperty(

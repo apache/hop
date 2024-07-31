@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** This dialog allows you to edit the workflow action (ActionWorkflow) */
 public class ActionWorkflowDialog extends ActionBaseDialog {
-  private static final Class<?> PKG = ActionWorkflow.class; // For Translator
+  private static final Class<?> PKG = ActionWorkflow.class;
 
   private ActionWorkflow action;
   private MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;

@@ -31,7 +31,7 @@ import org.apache.hop.resource.ResourceReference;
 
 /** Input files settings. */
 public class BaseFileInputFiles implements Cloneable {
-  private static final Class<?> PKG = BaseFileInputFiles.class; // For Translator
+  private static final Class<?> PKG = BaseFileInputFiles.class;
 
   public static final String NO = "N";
 

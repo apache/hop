@@ -56,7 +56,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::YamlInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/yamlinput.html")
 public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
-  private static final Class<?> PKG = YamlInputMeta.class; // For Translator
+  private static final Class<?> PKG = YamlInputMeta.class;
 
   private static final String YES = "Y";
 

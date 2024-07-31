@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ZipFileDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ZipFileMeta.class; // For Translator
+  private static final Class<?> PKG = ZipFileMeta.class;
 
   private CCombo wSourceFileNameField;
 

@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class RandomValueDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = RandomValueMeta.class; // For Translator
+  private static final Class<?> PKG = RandomValueMeta.class;
 
   private TextVar wSeed;
   private TableView wFields;

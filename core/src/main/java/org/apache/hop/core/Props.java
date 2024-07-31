@@ -30,7 +30,7 @@ import org.apache.hop.core.logging.LogChannel;
  * fonts, positions of windows, etc.
  */
 public class Props implements Cloneable {
-  private static final Class<?> PKG = Const.class; // For Translator
+  private static final Class<?> PKG = Const.class;
 
   protected static final String NO = "N";
 

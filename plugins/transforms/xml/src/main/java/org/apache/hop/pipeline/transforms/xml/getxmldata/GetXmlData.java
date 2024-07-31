@@ -62,7 +62,7 @@ import org.dom4j.tree.AbstractNode;
  * streams.
  */
 public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
-  private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
+  private static final Class<?> PKG = GetXmlDataMeta.class;
 
   private Object[] prevRow = null; // A pre-allocated spot for the previous row
 

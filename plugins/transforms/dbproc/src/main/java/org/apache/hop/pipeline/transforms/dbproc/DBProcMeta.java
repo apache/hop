@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DBProcMeta.keyword",
     documentationUrl = "/pipeline/transforms/calldbproc.html")
 public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
-  private static final Class<?> PKG = DBProcMeta.class; // For Translator
+  private static final Class<?> PKG = DBProcMeta.class;
 
   /** database connection */
   @HopMetadataProperty(key = "connection")

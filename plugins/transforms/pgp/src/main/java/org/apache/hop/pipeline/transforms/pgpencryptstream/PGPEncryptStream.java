@@ -30,7 +30,7 @@ import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 /** Encrypt a stream with GPG * */
 public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEncryptStreamData> {
 
-  private static final Class<?> PKG = PGPEncryptStreamMeta.class; // For Translator
+  private static final Class<?> PKG = PGPEncryptStreamMeta.class;
 
   public PGPEncryptStream(
       TransformMeta transformMeta,

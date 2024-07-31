@@ -51,7 +51,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/setvalueconstant.html")
 public class SetValueConstantMeta
     extends BaseTransformMeta<SetValueConstant, SetValueConstantData> {
-  private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
+  private static final Class<?> PKG = SetValueConstantMeta.class;
 
   @InjectionDeep private List<Field> fields = new ArrayList<>();
 

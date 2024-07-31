@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class BlockUntilTransformsFinishDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // For Translator
+  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class;
 
   private String[] previousTransforms;
   private final BlockUntilTransformsFinishMeta input;

@@ -55,7 +55,7 @@ import org.w3c.dom.Node;
     groups = {"FIELDS", "INDEXES"})
 public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputData> {
 
-  private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
+  private static final Class<?> PKG = MongoDbOutputMeta.class;
 
   /** Class encapsulating paths to document fields */
   public static class MongoField {

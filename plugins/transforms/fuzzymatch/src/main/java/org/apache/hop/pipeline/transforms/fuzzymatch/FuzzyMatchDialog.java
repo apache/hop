@@ -69,7 +69,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class FuzzyMatchDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
+  private static final Class<?> PKG = FuzzyMatchMeta.class;
 
   private CCombo wTransform;
 

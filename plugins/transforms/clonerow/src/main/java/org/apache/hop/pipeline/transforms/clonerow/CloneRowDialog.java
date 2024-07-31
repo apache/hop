@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class CloneRowDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = CloneRowDialog.class; // For Translator
+  private static final Class<?> PKG = CloneRowDialog.class;
 
   private final CloneRowMeta input;
 

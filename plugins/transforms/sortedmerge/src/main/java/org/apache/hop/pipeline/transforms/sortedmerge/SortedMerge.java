@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Do nothing. Pass all input data to the next transforms. */
 public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData> {
-  private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
+  private static final Class<?> PKG = SortedMergeMeta.class;
 
   public SortedMerge(
       TransformMeta transformMeta,

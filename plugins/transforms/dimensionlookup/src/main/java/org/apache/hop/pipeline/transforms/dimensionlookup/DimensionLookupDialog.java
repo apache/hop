@@ -78,7 +78,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class DimensionLookupDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
+  private static final Class<?> PKG = DimensionLookupMeta.class;
 
   private CTabFolder wTabFolder;
 

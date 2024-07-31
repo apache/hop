@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class StreamSchemaDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = StreamSchemaMeta.class; // For Translator
+  private static final Class<?> PKG = StreamSchemaMeta.class;
 
   // this is the object the stores the transform's settings
   // the dialog reads the settings from it when opening

@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Simple Eval action settings. */
 public class ActionSimpleEvalDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionSimpleEval.class; // For Translator
+  private static final Class<?> PKG = ActionSimpleEval.class;
 
   private Text wName;
 

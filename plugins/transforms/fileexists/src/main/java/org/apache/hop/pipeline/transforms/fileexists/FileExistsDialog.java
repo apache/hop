@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class FileExistsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = FileExistsMeta.class; // For Translator
+  private static final Class<?> PKG = FileExistsMeta.class;
 
   private boolean gotPreviousFields = false;
   private CCombo wFileName;

@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Executes a XSL Transform on the values in the input stream. */
 public class Xslt extends BaseTransform<XsltMeta, XsltData> {
 
-  private static final Class<?> PKG = XsltMeta.class; // For Translator
+  private static final Class<?> PKG = XsltMeta.class;
 
   static final String JAXP_SCHEMA_LANGUAGE =
       "http://java.sun.com/xml/jaxp/properties/schemaLanguage";

@@ -49,7 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::ConcatFieldsMeta.keyword",
     documentationUrl = "/pipeline/transforms/concatfields.html")
 public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFieldsData> {
-  private static final Class<?> PKG = ConcatFieldsMeta.class; // For Translator
+  private static final Class<?> PKG = ConcatFieldsMeta.class;
 
   /** The separator to choose for the CSV file */
   @HopMetadataProperty(key = "separator", injectionKey = "SEPARATOR")

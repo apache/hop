@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = Neo4jConstraintDialog.class; // For Translator
+  private static final Class<?> PKG = Neo4jConstraintDialog.class;
 
   private Neo4jConstraint meta;
 

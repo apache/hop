@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog to enter a Hop Value */
 public class EnterValueDialog extends Dialog {
-  private static final Class<?> PKG = EnterValueDialog.class; // For Translator
+  private static final Class<?> PKG = EnterValueDialog.class;
 
   private CCombo wValueType;
 

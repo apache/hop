@@ -53,7 +53,7 @@ import org.apache.hop.resource.ResourceDefinition;
     keywords = "i18n::GetSubFoldersMeta.keyword",
     documentationUrl = "/pipeline/transforms/getsubfolders.html")
 public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFoldersData> {
-  private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
+  private static final Class<?> PKG = GetSubFoldersMeta.class;
 
   /** The files/folders to get subfolders for */
   @HopMetadataProperty(key = "file")

@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
 
-  private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
+  private static final Class<?> PKG = CubeOutputMeta.class;
 
   public CubeOutput(
       TransformMeta transformMeta,

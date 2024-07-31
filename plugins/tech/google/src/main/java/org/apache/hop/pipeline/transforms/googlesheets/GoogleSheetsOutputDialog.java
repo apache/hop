@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class GoogleSheetsOutputDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = GoogleSheetsOutputMeta.class; // for Translator
+  private static final Class<?> PKG = GoogleSheetsOutputMeta.class;
 
   private final GoogleSheetsOutputMeta meta;
   private Label wlTestServiceAccountInfo;

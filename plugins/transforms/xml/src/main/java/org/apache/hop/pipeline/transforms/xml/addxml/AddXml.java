@@ -47,7 +47,7 @@ import org.w3c.dom.NodeList;
 
 /** Converts input rows to one or more XML files. */
 public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
-  private static final Class<?> PKG = AddXml.class; // For Translator
+  private static final Class<?> PKG = AddXml.class;
 
   private DOMImplementation domImplentation;
   private Transformer serializer;

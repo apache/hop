@@ -55,7 +55,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::StreamLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/streamlookup.html")
 public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLookupData> {
-  private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
+  private static final Class<?> PKG = StreamLookupMeta.class;
 
   /** fields in input streams with which we look up values */
   @Injection(name = "KEY_STREAM")

@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class ValueMapperDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ValueMapperMeta.class; // For Translator
+  private static final Class<?> PKG = ValueMapperMeta.class;
 
   private Text wTransformName;
 

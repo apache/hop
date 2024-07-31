@@ -102,7 +102,7 @@ import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.tools.ToolErrorReporter;
 
 public class ScriptValuesDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
+  private static final Class<?> PKG = ScriptValuesMeta.class;
 
   private static final String[] YES_NO_COMBO =
       new String[] {

@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class MailInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = MailInputMeta.class; // For Translator
+  private static final Class<?> PKG = MailInputMeta.class;
   private static final String CONST_BUTTON_OK = "System.Button.OK";
 
   private final MailInputMeta input;

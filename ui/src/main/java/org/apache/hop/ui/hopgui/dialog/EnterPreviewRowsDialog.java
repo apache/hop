@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
  * of rows.
  */
 public class EnterPreviewRowsDialog extends Dialog {
-  private static final Class<?> PKG = EnterPreviewRowsDialog.class; // For Translator
+  private static final Class<?> PKG = EnterPreviewRowsDialog.class;
 
   private String transformName;
 

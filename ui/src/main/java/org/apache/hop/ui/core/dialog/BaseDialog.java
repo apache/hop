@@ -69,7 +69,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** A base dialog class containing a body and a configurable button panel. */
 public abstract class BaseDialog extends Dialog {
-  private static final Class<?> PKG = BaseDialog.class; // For Translator
+  private static final Class<?> PKG = BaseDialog.class;
 
   public static final String NO_DEFAULT_HANDLER = "NoDefaultHandler";
 

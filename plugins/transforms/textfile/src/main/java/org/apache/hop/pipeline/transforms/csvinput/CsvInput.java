@@ -54,7 +54,7 @@ import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 /** Read a simple CSV file Just output Strings found in the file... */
 public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
 
-  private static final Class<?> PKG = CsvInput.class; // For Translator
+  private static final Class<?> PKG = CsvInput.class;
 
   public CsvInput(
       TransformMeta transformMeta,

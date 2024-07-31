@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class MailDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = MailMeta.class; // For Translator
+  private static final Class<?> PKG = MailMeta.class;
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "MailDialog.Filetype.All")};

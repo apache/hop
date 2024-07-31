@@ -30,7 +30,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 public abstract class SalesforceTransformDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SalesforceTransformMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceTransformMeta.class;
 
   protected static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'.000'Z";
   protected static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";

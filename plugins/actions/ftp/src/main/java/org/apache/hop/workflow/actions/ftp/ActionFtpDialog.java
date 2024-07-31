@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** This dialog allows you to edit the FTP Get action settings. */
 public class ActionFtpDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionFtp.class; // For Translator
+  private static final Class<?> PKG = ActionFtp.class;
 
   private LabelText wName;
 

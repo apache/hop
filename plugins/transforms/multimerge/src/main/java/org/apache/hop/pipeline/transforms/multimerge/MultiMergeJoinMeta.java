@@ -51,7 +51,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::MultiMergeJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/multimerge.html")
 public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiMergeJoinData> {
-  private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
+  private static final Class<?> PKG = MultiMergeJoinMeta.class;
 
   public static final String[] joinTypes = {"INNER", "FULL OUTER"};
   public static final boolean[] optionals = {false, true};

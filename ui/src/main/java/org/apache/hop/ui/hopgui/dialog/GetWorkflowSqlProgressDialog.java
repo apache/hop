@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
  * workflow...
  */
 public class GetWorkflowSqlProgressDialog {
-  private static final Class<?> PKG = GetWorkflowSqlProgressDialog.class; // For Translator
+  private static final Class<?> PKG = GetWorkflowSqlProgressDialog.class;
 
   private Shell shell;
   private final IVariables variables;

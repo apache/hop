@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::SampleRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/samplerows.html")
 public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData> {
-  private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
+  private static final Class<?> PKG = SampleRowsMeta.class;
 
   @HopMetadataProperty(key = "linesrange")
   private String linesRange;

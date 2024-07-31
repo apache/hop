@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::FileLockedMeta.keyword",
     documentationUrl = "/pipeline/transforms/checkfilelocked.html")
 public class FileLockedMeta extends BaseTransformMeta<FileLocked, FileLockedData> {
-  private static final Class<?> PKG = FileLockedMeta.class; // For Translator
+  private static final Class<?> PKG = FileLockedMeta.class;
 
   @HopMetadataProperty(
       key = "addresultfilenames",

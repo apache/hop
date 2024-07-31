@@ -105,7 +105,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class TextFileInputDialog extends BaseTransformDialog
     implements IGetFieldsCapableTransformDialog<TextFileInputMeta>, ICsvInputAwareTransformDialog {
-  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileInputMeta.class;
 
   private static final String[] YES_NO_COMBO =
       new String[] {

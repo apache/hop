@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SimpleMappingDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
+  private static final Class<?> PKG = SimpleMappingMeta.class;
 
   private final SimpleMappingMeta mappingMeta;
 

@@ -84,7 +84,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
   private static final String FILE = "file";
   private static final String FIELDS = "fields";
 
-  private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = LoadFileInputMeta.class;
 
   public static final String[] RequiredFilesDesc =
       new String[] {

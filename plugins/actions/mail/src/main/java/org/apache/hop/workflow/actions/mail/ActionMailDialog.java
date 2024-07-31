@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** Dialog that allows you to edit a ActionMail object. */
 public class ActionMailDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionMail.class; // For Translator
+  private static final Class<?> PKG = ActionMail.class;
 
   private static final String[] IMAGES_FILE_TYPES =
       new String[] {

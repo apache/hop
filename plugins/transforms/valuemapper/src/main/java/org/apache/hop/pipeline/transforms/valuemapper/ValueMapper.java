@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Convert Values in a certain fields to other values */
 public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData> {
-  private static final Class<?> PKG = ValueMapperMeta.class; // For Translator
+  private static final Class<?> PKG = ValueMapperMeta.class;
 
   private boolean nonMatchActivated = false;
 

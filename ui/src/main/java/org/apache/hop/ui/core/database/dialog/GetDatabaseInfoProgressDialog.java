@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Shell;
  * views etc we can reach in the database.
  */
 public class GetDatabaseInfoProgressDialog {
-  private static final Class<?> PKG = GetDatabaseInfoProgressDialog.class; // For Translator
+  private static final Class<?> PKG = GetDatabaseInfoProgressDialog.class;
 
   private Shell shell;
   private final IVariables variables;

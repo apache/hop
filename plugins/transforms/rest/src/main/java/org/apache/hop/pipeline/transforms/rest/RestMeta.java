@@ -48,7 +48,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::RestMeta.keyword",
     documentationUrl = "/pipeline/transforms/rest.html")
 public class RestMeta extends BaseTransformMeta<Rest, RestData> {
-  private static final Class<?> PKG = RestMeta.class; // For Translator
+  private static final Class<?> PKG = RestMeta.class;
 
   public static final String[] APPLICATION_TYPES =
       new String[] {

@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
-  private static final Class<?> PKG = PipelineExecutionConfigurationDialog.class; // For Translator
+  private static final Class<?> PKG = PipelineExecutionConfigurationDialog.class;
 
   public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS =
       "last-pipeline-run-configurations";

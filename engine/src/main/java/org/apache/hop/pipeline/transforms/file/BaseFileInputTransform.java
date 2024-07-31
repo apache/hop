@@ -50,7 +50,7 @@ public abstract class BaseFileInputTransform<
         Meta extends BaseFileInputMeta, Data extends BaseFileInputTransformData>
     extends BaseTransform<Meta, Data> implements IBaseFileInputTransformControl {
 
-  private static final Class<?> PKG = BaseFileInputTransform.class; // For Translator
+  private static final Class<?> PKG = BaseFileInputTransform.class;
 
   /** Create reader for specific file. */
   protected abstract IBaseFileInputReader createReader(Meta meta, Data data, FileObject file)

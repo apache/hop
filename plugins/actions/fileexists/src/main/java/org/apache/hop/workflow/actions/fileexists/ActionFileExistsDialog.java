@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Text;
  * to be executed)
  */
 public class ActionFileExistsDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionFileExists.class; // For Translator
+  private static final Class<?> PKG = ActionFileExists.class;
 
   private static final String[] EXTENSIONS = new String[] {"*.txt", "*.csv", "*"};
 

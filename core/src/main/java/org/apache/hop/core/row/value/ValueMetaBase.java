@@ -143,7 +143,7 @@ public class ValueMetaBase implements IValueMeta {
   // endregion
 
   // region ValueMetaBase Attributesequals(
-  public static final Class<?> PKG = Const.class; // For Translator
+  public static final Class<?> PKG = Const.class;
 
   public static final String XML_META_TAG = "value-meta";
   public static final String XML_DATA_TAG = "value-data";

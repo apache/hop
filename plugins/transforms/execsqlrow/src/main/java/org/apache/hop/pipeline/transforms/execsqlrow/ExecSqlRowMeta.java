@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::ExecSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/execsqlrow.html")
 public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData> {
-  private static final Class<?> PKG = ExecSqlRowMeta.class; // For Translator
+  private static final Class<?> PKG = ExecSqlRowMeta.class;
 
   private IHopMetadataProvider metadataProvider;
 

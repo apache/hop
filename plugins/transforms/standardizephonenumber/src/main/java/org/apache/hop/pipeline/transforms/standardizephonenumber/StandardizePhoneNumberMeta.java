@@ -53,7 +53,7 @@ public class StandardizePhoneNumberMeta
     extends BaseTransformMeta<StandardizePhoneNumber, StandardizePhoneNumberData>
     implements Serializable {
 
-  private static final Class<?> PKG = StandardizePhoneNumberMeta.class; // For Translator
+  private static final Class<?> PKG = StandardizePhoneNumberMeta.class;
 
   private static final Set<PhoneNumberFormat> SUPPORTED_FORMATS =
       EnumSet.of(

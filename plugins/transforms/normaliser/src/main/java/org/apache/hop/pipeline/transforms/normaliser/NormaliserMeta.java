@@ -70,7 +70,7 @@ DATE      PRODUCT    Sales   Number
     keywords = "i18n::NormaliserMeta.keyword",
     documentationUrl = "/pipeline/transforms/rownormaliser.html")
 public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData> {
-  private static final Class<?> PKG = NormaliserMeta.class; // For Translator
+  private static final Class<?> PKG = NormaliserMeta.class;
 
   /** Name of the new type-field */
   @HopMetadataProperty(

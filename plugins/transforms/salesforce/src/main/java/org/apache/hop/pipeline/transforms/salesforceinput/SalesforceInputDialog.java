@@ -87,7 +87,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class SalesforceInputDialog extends SalesforceTransformDialog {
 
-  private static final Class<?> PKG = SalesforceInputMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInputMeta.class;
 
   private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'.000'XXX";
   private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";

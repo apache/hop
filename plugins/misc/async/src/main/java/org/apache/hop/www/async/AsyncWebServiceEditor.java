@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Text;
  * @see AsyncWebService
  */
 public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
-  private static final Class<?> PKG = WebServiceEditor.class; // For Translator
+  private static final Class<?> PKG = WebServiceEditor.class;
 
   private Text wName;
   private Button wEnabled;

@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Text;
 public class CassandraConnectionEditor extends MetadataEditor<CassandraConnection>
     implements IMetadataEditor<CassandraConnection> {
 
-  private static final Class<?> PKG = CassandraConnectionEditor.class; // For Translator
+  private static final Class<?> PKG = CassandraConnectionEditor.class;
 
   public static final String PARENT_WIDGET_ID = "CassandraConnectionEditor.Widgets.ParentId";
 

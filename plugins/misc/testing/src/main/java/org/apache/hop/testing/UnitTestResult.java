@@ -27,7 +27,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 
 public class UnitTestResult {
-  private static final Class<?> PKG = UnitTestResult.class; // For Translator
+  private static final Class<?> PKG = UnitTestResult.class;
 
   private String pipelineName;
   private String unitTestName;

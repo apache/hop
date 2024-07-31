@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 
 public class MissingPipelineDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = MissingPipelineDialog.class; // For Translator
+  private static final Class<?> PKG = MissingPipelineDialog.class;
 
   private Shell shell;
   private Shell shellParent;

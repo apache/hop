@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** A dialog to display version information. */
 public class AboutDialog extends Dialog {
-  private static final Class<?> PKG = AboutDialog.class; // For Translator
+  private static final Class<?> PKG = AboutDialog.class;
 
   private static final String[] JAVA_PROPERTIES =
       new String[] {

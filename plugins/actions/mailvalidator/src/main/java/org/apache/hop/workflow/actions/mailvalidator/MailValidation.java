@@ -38,7 +38,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class MailValidation {
 
-  private static final Class<?> PKG = ActionMailValidator.class; // For Translator
+  private static final Class<?> PKG = ActionMailValidator.class;
 
   public static boolean isRegExValid(String emailAdress) {
     return GenericValidator.isEmail(emailAdress);

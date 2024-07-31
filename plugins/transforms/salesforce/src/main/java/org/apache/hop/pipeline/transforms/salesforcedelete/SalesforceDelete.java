@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransform;
  */
 public class SalesforceDelete
     extends SalesforceTransform<SalesforceDeleteMeta, SalesforceDeleteData> {
-  private static final Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceDeleteMeta.class;
 
   public SalesforceDelete(
       TransformMeta transformMeta,

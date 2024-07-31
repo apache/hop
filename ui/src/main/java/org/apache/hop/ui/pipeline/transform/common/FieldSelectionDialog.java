@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Shell;
  * the "Sample data" dialog is opened to load fields.
  */
 public class FieldSelectionDialog extends BaseDialog {
-  private static final Class<?> PKG = FieldSelectionDialog.class; // For Translator
+  private static final Class<?> PKG = FieldSelectionDialog.class;
 
   private int numFields;
   protected boolean reloadAllFields;

@@ -62,7 +62,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionGetPOP.keyword",
     documentationUrl = "/workflow/actions/getpop.html")
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionGetPOP.class; // For Translator
+  private static final Class<?> PKG = ActionGetPOP.class;
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_PASSWORD = "password";
   private static final String CONST_MESSAGE_DELETED = "ActionGetMailsFromPOP.MessageDeleted";

@@ -50,7 +50,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     documentationUrl = "/workflow/actions/as400command.html",
     isIncludeJdbcDrivers = true)
 public class ActionAs400Command extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionAs400Command.class; // For Translator
+  private static final Class<?> PKG = ActionAs400Command.class;
 
   private static final String TAG_SERVER = "server";
 

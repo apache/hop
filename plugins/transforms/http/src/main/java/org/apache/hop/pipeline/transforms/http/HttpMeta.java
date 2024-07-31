@@ -48,7 +48,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::HttpMeta.keyword",
     documentationUrl = "/pipeline/transforms/http.html")
 public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
-  private static final Class<?> PKG = HttpMeta.class; // For Translator
+  private static final Class<?> PKG = HttpMeta.class;
 
   // the timeout for waiting for data (milliseconds)
   public static final int DEFAULT_SOCKET_TIMEOUT = 10000;

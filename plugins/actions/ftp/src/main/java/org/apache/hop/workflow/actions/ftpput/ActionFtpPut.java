@@ -62,7 +62,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionFtpPut.keyword",
     documentationUrl = "/workflow/actions/ftpput.html")
 public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtpConnection {
-  private static final Class<?> PKG = ActionFtpPut.class; // For Translator
+  private static final Class<?> PKG = ActionFtpPut.class;
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_PASSWORD = "password";
   private static final String CONST_LOCAL_DIRECTORY = "localDirectory";

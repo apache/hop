@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class UniqueRowsByHashSetDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // For Translator
+  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class;
 
   private final UniqueRowsByHashSetMeta input;
 

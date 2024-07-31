@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
  * ascending
  */
 public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMergeJoinData> {
-  private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
+  private static final Class<?> PKG = MultiMergeJoinMeta.class;
 
   public MultiMergeJoin(
       TransformMeta transformMeta,

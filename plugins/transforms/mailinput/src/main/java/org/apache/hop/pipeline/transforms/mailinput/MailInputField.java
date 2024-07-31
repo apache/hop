@@ -21,7 +21,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 /** Describes an Mail input field */
 public class MailInputField implements Cloneable {
-  private static final Class<?> PKG = MailInputMeta.class; // For Translator
+  private static final Class<?> PKG = MailInputMeta.class;
 
   public static final int COLUMN_MESSAGE_NR = 0;
   public static final int COLUMN_SUBJECT = 1;

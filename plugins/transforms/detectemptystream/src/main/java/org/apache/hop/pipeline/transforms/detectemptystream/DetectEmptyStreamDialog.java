@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class DetectEmptyStreamDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
+  private static final Class<?> PKG = DetectEmptyStreamMeta.class;
 
   private final DetectEmptyStreamMeta input;
 

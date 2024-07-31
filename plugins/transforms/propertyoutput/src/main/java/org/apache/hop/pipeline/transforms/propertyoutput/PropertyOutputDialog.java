@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class PropertyOutputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
+  private static final Class<?> PKG = PropertyOutputMeta.class;
 
   private Button wAddToResult;
 

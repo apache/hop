@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::RowGeneratorMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowgenerator.html")
 public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGeneratorData> {
-  private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
+  private static final Class<?> PKG = RowGeneratorMeta.class;
 
   @HopMetadataProperty(
       key = "never_ending",

@@ -47,7 +47,7 @@ import org.apache.hop.resource.ResourceDefinition;
     documentationUrl = "/pipeline/transforms/serialize-to-file.html")
 @HopMetadataWrapper(tag = "file")
 public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData> {
-  private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
+  private static final Class<?> PKG = CubeOutputMeta.class;
 
   @HopMetadataProperty(key = "name")
   private String filename;

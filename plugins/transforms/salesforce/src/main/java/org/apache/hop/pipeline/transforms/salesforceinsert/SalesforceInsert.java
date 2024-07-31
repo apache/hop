@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transforms.salesforceutils.SalesforceUtils;
  */
 public class SalesforceInsert
     extends SalesforceTransform<SalesforceInsertMeta, SalesforceInsertData> {
-  private static final Class<?> PKG = SalesforceInsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInsertMeta.class;
 
   public SalesforceInsert(
       TransformMeta transformMeta,

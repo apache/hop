@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Sort the rows in the input-streams based on certain criteria */
 public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
 
-  private static final Class<?> PKG = SortRows.class; // For Translator
+  private static final Class<?> PKG = SortRows.class;
 
   public SortRows(
       TransformMeta transformMeta,

@@ -30,7 +30,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     documentationUrl = "/metadata-types/staticschema.html")
 public class AzureMetadataType extends HopMetadataBase implements Serializable, IHopMetadata {
 
-  private static final Class<?> PKG = AzureMetadataType.class; // For Translator
+  private static final Class<?> PKG = AzureMetadataType.class;
   @HopMetadataProperty private String description;
   @HopMetadataProperty private String storageAccountName;
 

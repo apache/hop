@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class WorkflowLoggingDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = WorkflowLoggingDialog.class; // For Translator
+  private static final Class<?> PKG = WorkflowLoggingDialog.class;
 
   private final WorkflowLoggingMeta input;
   private Button wLoggingActionResults;

@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Caculate a checksum for each row. */
 public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
 
-  private static final Class<?> PKG = CheckSumMeta.class; // For Translator
+  private static final Class<?> PKG = CheckSumMeta.class;
 
   public CheckSum(
       TransformMeta transformMeta,

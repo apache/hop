@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/injector.html")
 public class InjectorMeta extends BaseTransformMeta<Injector, InjectorData> {
 
-  private static final Class<?> PKG = InjectorMeta.class; // For Translator
+  private static final Class<?> PKG = InjectorMeta.class;
 
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<InjectorField> injectorFields;

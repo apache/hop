@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class BlockUntilTransformsFinishMeta
     extends BaseTransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
 
-  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // For Translator
+  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class;
 
   @HopMetadataProperty(groupKey = "transforms", key = "transform")
   private List<BlockingTransform> blockingTransforms;

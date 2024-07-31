@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the delay action settings. */
 public class ActionDelayDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionDelay.class; // For Translator
+  private static final Class<?> PKG = ActionDelay.class;
 
   private Text wName;
 

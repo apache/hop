@@ -47,7 +47,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionTelnet.keyword",
     documentationUrl = "/workflow/actions/telnet.html")
 public class ActionTelnet extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionTelnet.class; // For Translator
+  private static final Class<?> PKG = ActionTelnet.class;
 
   @HopMetadataProperty(key = "hostname")
   private String hostname;

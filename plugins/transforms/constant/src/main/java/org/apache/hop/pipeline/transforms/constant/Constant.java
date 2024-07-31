@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Generates a number of (empty or the same) rows */
 public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
-  private static final Class<?> PKG = ConstantMeta.class; // For Translator
+  private static final Class<?> PKG = ConstantMeta.class;
 
   public Constant(
       TransformMeta transformMeta,

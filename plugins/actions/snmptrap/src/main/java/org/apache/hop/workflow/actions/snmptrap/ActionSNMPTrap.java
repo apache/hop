@@ -59,7 +59,7 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
     keywords = "i18n::ActionSNMPTrap.keyword",
     documentationUrl = "/workflow/actions/snmptrap.html")
 public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSNMPTrap.class; // For Translator
+  private static final Class<?> PKG = ActionSNMPTrap.class;
 
   @HopMetadataProperty(key = "servername")
   private String serverName;

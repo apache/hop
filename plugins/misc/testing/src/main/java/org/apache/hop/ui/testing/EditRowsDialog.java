@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** Allows the user to edit a list of rows in a TableView. */
 public class EditRowsDialog {
-  private static final Class<?> PKG = EditRowsDialog.class; // For Translator
+  private static final Class<?> PKG = EditRowsDialog.class;
 
   public static final int MAX_BINARY_STRING_PREVIEW_SIZE = 1000000;
 

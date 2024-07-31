@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class Fake extends BaseTransform<FakeMeta, FakeData> {
 
-  private static final Class<?> PKG = FakeMeta.class; // For Translator
+  private static final Class<?> PKG = FakeMeta.class;
 
   public Fake(
       TransformMeta transformMeta,

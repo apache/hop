@@ -46,7 +46,7 @@ import org.apache.hop.workflow.action.IAction;
     keywords = "i18n::ActionSimpleEval.keyword",
     documentationUrl = "/workflow/actions/simpleeval.html")
 public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSimpleEval.class; // For Translator
+  private static final Class<?> PKG = ActionSimpleEval.class;
 
   public enum ValueType implements IEnumHasCodeAndDescription {
     FIELD("field", BaseMessages.getString(PKG, "ActionSimpleEval.EvalPreviousField.Label")),

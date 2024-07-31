@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class MergeRowsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = MergeRowsMeta.class; // For Translator
+  private static final Class<?> PKG = MergeRowsMeta.class;
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeRowsSortWarning";
 
   private CCombo wReference;

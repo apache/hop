@@ -61,7 +61,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Send mail transform. based on Mail action */
 public class Mail extends BaseTransform<MailMeta, MailData> {
 
-  private static final Class<?> PKG = MailMeta.class; // For Translator
+  private static final Class<?> PKG = MailMeta.class;
 
   public Mail(
       TransformMeta transformMeta,

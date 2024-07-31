@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.i18n.BaseMessages;
 
 public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = GetRootServlet.class; // For Translator
+  private static final Class<?> PKG = GetRootServlet.class;
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/";

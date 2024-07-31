@@ -143,7 +143,7 @@ public abstract class Pipeline
   public static final String METRIC_NAME_INIT = "init";
 
   /** The package name, used for internationalization of messages. */
-  private static final Class<?> PKG = Pipeline.class; // For Translator
+  private static final Class<?> PKG = Pipeline.class;
 
   protected String pluginId;
   protected PipelineRunConfiguration pipelineRunConfiguration;

@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** Dialog to display the results of a verify operation. */
 public class CheckResultDialog extends Dialog {
-  private static final Class<?> PKG = CheckResultDialog.class; // For Translator
+  private static final Class<?> PKG = CheckResultDialog.class;
 
   private static final String STRING_HIDE_SUCESSFUL =
       BaseMessages.getString(PKG, "CheckResultDialog.HideSuccessful.Label");

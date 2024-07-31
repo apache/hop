@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XSLT job entry settings. */
 public class XsltDialog extends ActionDialog {
-  private static final Class<?> PKG = Xslt.class; // For Translator
+  private static final Class<?> PKG = Xslt.class;
 
   private static final String[] FILETYPES_XML =
       new String[] {

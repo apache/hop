@@ -41,7 +41,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
     documentationUrl = "/workflow/actions/mailvalidator.html")
 public class ActionMailValidator extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMailValidator.class; // For Translator
+  private static final Class<?> PKG = ActionMailValidator.class;
 
   @HopMetadataProperty private boolean smtpCheck;
   @HopMetadataProperty private String timeout;

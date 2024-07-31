@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/calculator.html")
 public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData> {
 
-  private static final Class<?> PKG = CalculatorMeta.class; // For Translator
+  private static final Class<?> PKG = CalculatorMeta.class;
 
   /** The calculations to be performed */
   @HopMetadataProperty(

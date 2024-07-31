@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Execute one or more SQL statements in a script, one time or parameterised (for every row) */
 public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
 
-  private static final Class<?> PKG = ExecSqlRowMeta.class; // For Translator
+  private static final Class<?> PKG = ExecSqlRowMeta.class;
 
   public ExecSqlRow(
       TransformMeta transformMeta,

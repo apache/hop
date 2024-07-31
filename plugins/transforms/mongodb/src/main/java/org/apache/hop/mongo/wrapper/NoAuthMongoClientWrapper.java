@@ -45,7 +45,7 @@ import org.bson.Document;
  * instantiated by MongoClientWrapperFactory.
  */
 class NoAuthMongoClientWrapper implements MongoClientWrapper {
-  private static final Class<?> PKG = NoAuthMongoClientWrapper.class; // For Translator
+  private static final Class<?> PKG = NoAuthMongoClientWrapper.class;
   public static final int MONGO_DEFAULT_PORT = 27017;
 
   public static final String LOCAL_DB = "local";

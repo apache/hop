@@ -38,7 +38,7 @@ import org.w3c.dom.Element;
  */
 public final class WsdlTypes implements Serializable {
 
-  private static final Class<?> PKG = WsdlTypes.class; // For Translator
+  private static final Class<?> PKG = WsdlTypes.class;
 
   private static final long serialVersionUID = 1L;
   private final String _targetNamespace;

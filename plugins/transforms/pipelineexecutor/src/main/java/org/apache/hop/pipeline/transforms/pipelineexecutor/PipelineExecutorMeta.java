@@ -66,7 +66,7 @@ public class PipelineExecutorMeta
     extends TransformWithMappingMeta<PipelineExecutor, PipelineExecutorData>
     implements ISubPipelineAwareMeta {
 
-  private static final Class<?> PKG = PipelineExecutorMeta.class; // For Translator
+  private static final Class<?> PKG = PipelineExecutorMeta.class;
 
   static final String F_EXECUTION_RESULT_TARGET_TRANSFORM = "execution_result_target_transform";
   static final String F_RESULT_FILE_TARGET_TRANSFORM = "result_files_target_transform";

@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 @GuiPlugin(description = "Pipeline Graph Log Delegate")
 public class HopGuiPipelineLogDelegate {
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiPipelineLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";

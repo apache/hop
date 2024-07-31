@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Output rows to Properties file and create a file. */
 public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOutputData> {
 
-  private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
+  private static final Class<?> PKG = PropertyOutputMeta.class;
 
   public PropertyOutput(
       TransformMeta transformMeta,

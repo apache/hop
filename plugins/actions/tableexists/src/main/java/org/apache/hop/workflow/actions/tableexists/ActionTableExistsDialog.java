@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
  * table to be checked) This entry type evaluates!
  */
 public class ActionTableExistsDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionTableExists.class; // For Translator
+  private static final Class<?> PKG = ActionTableExists.class;
 
   private Text wName;
 

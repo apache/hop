@@ -49,7 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     implements Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
-  private static final Class<?> PKG = SortRowsMeta.class; // For Translator
+  private static final Class<?> PKG = SortRowsMeta.class;
   private static final String CONST_SPACE = "      ";
   private static final String CONST_SPACE_LONG = "        ";
   private static final String CONST_FIELD = "field";

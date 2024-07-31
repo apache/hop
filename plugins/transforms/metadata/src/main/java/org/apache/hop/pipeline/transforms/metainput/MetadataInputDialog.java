@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class MetadataInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = MetadataInputMeta.class; // For Translator
+  private static final Class<?> PKG = MetadataInputMeta.class;
 
   private Text wTransformName;
 

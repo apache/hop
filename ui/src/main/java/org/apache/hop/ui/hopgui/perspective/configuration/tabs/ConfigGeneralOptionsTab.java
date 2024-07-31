@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Text;
 
 @GuiPlugin
 public class ConfigGeneralOptionsTab {
-  private static final Class<?> PKG = BaseDialog.class; // For Translator
+  private static final Class<?> PKG = BaseDialog.class;
 
   private Text wDefaultPreview;
   private Button wUseCache;

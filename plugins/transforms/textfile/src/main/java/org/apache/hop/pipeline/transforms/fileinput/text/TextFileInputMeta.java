@@ -81,7 +81,7 @@ public class TextFileInputMeta
         BaseFileInputFiles,
         BaseFileField>
     implements ICsvInputAwareMeta {
-  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileInputMeta.class;
 
   private static final String STRING_BASE64_PREFIX = "Base64: ";
 

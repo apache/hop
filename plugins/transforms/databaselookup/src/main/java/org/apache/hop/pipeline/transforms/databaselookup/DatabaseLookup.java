@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCac
 /** Looks up values in a database using keys from input streams. */
 public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLookupData> {
 
-  private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
+  private static final Class<?> PKG = DatabaseLookupMeta.class;
 
   public DatabaseLookup(
       TransformMeta transformMeta,

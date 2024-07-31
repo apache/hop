@@ -47,7 +47,7 @@ import org.xml.sax.SAXException;
  * then be put on the output stream.
  */
 public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorData> {
-  private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
+  private static final Class<?> PKG = XsdValidatorMeta.class;
 
   static final String JAXP_SCHEMA_LANGUAGE =
       "http://java.sun.com/xml/jaxp/properties/schemaLanguage";

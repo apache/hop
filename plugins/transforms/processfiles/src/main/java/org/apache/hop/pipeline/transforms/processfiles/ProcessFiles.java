@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesData> {
-  private static final Class<?> PKG = ProcessFilesMeta.class; // For Translator
+  private static final Class<?> PKG = ProcessFilesMeta.class;
 
   public ProcessFiles(
       TransformMeta transformMeta,

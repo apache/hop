@@ -24,7 +24,7 @@ import org.apache.hop.metadata.api.IEnumHasCode;
 
 /** Contains the properties of the target field, conversion mask, type, aggregation method, etc. */
 public class DenormaliserTargetField implements Cloneable {
-  private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
+  private static final Class<?> PKG = DenormaliserMeta.class;
 
   @HopMetadataProperty(
       key = "field_name",

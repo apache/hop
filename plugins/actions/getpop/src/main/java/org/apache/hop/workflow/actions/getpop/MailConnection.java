@@ -63,7 +63,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 /** MailConnection handles the process of connecting to, reading from POP3/IMAP. */
 public class MailConnection {
-  private static final Class<?> PKG = ActionGetPOP.class; // For Translator
+  private static final Class<?> PKG = ActionGetPOP.class;
   private static final String CONST_POP3_UNSUPPORTED =
       "MailConnection.Error.ReceivedDatePOP3Unsupported";
   private static final String CONST_MAIL = "mail.";

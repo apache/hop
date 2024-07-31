@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 public class MissingActionDialog extends ActionDialog {
-  private static final Class<?> PKG = MissingActionDialog.class; // For Translator
+  private static final Class<?> PKG = MissingActionDialog.class;
 
   private List<MissingAction> missingActions;
   private int mode;

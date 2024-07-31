@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class BlockingTransformMeta
     extends BaseTransformMeta<BlockingTransform, BlockingTransformData> {
 
-  private static final Class<?> PKG = BlockingTransformMeta.class; // For Translator
+  private static final Class<?> PKG = BlockingTransformMeta.class;
 
   /** Directory to store the temp files */
   @HopMetadataProperty private String directory;

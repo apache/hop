@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class StringCutDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = StringCutMeta.class; // For Translator
+  private static final Class<?> PKG = StringCutMeta.class;
 
   private TableView wFields;
 

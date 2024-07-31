@@ -53,7 +53,7 @@ import org.apache.hop.www.service.WebService;
 @HopServerServlet(id = "webService", name = "Output the content of a field in a transform")
 public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static final Class<?> PKG = WebServiceServlet.class; // For Translator
+  private static final Class<?> PKG = WebServiceServlet.class;
 
   private static final long serialVersionUID = 3634806745373343432L;
 

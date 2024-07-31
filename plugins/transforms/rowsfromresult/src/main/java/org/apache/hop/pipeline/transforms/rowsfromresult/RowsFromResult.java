@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Reads results from a previous pipeline in a Workflow */
 public class RowsFromResult extends BaseTransform<RowsFromResultMeta, RowsFromResultData> {
 
-  private static final Class<?> PKG = RowsFromResult.class; // For Translator
+  private static final Class<?> PKG = RowsFromResult.class;
 
   public RowsFromResult(
       TransformMeta transformMeta,

@@ -28,7 +28,7 @@ import org.apache.hop.workflow.action.IAction;
 @PluginMainClassType(IAction.class)
 @PluginAnnotationType(Action.class)
 public class ActionPluginType extends BasePluginType<Action> {
-  private static final Class<?> PKG = WorkflowMeta.class; // For Translator
+  private static final Class<?> PKG = WorkflowMeta.class;
 
   public static final String ID = "ACTION";
   public static final String GENERAL_CATEGORY =

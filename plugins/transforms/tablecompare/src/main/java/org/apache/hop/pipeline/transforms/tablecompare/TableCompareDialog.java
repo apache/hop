@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class TableCompareDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = TableCompare.class; // For Translator
+  private static final Class<?> PKG = TableCompare.class;
 
   private final TableCompareMeta input;
 

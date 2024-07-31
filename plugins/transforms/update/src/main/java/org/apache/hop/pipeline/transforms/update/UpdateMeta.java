@@ -54,7 +54,7 @@ import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
     documentationUrl = "/pipeline/transforms/update.html",
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
-  private static final Class<?> PKG = UpdateMeta.class; // For Translator
+  private static final Class<?> PKG = UpdateMeta.class;
 
   private IHopMetadataProvider metadataProvider;
 

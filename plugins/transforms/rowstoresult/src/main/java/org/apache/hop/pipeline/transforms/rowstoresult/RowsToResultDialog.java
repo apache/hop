@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class RowsToResultDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = RowsToResultMeta.class; // For Translator
+  private static final Class<?> PKG = RowsToResultMeta.class;
 
   private final RowsToResultMeta input;
 

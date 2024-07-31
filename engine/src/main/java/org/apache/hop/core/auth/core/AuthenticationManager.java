@@ -28,7 +28,7 @@ import org.apache.hop.core.auth.core.impl.DefaultAuthenticationPerformerFactory;
 import org.apache.hop.i18n.BaseMessages;
 
 public class AuthenticationManager {
-  private static final Class<?> PKG = AuthenticationManager.class; // For Translator
+  private static final Class<?> PKG = AuthenticationManager.class;
   private final Map<Class<?>, Map<Class<?>, Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>>>
       factoryMap = new HashMap<>();
   private IAuthenticationPerformerFactory authenticationPerformerFactory =

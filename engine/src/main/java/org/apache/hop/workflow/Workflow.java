@@ -93,7 +93,7 @@ public abstract class Workflow extends Variables
         IExecutor,
         IExtensionData,
         IWorkflowEngine<WorkflowMeta> {
-  protected static final Class<?> PKG = Workflow.class; // For Translator
+  protected static final Class<?> PKG = Workflow.class;
   private static final String CONST_WORKFLOW_FINISHED = "Workflow.Comment.WorkflowFinished";
   private static final String CONST_REASON_STARTED = "Workflow.Reason.Started";
   private static final String CONST_WORKFLOW_STARTED = "Workflow.Comment.WorkflowStarted";

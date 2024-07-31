@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
 // TODO correct sizing of window
 
 public class XmlInputStreamDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = XmlInputStreamMeta.class; // For Translator
+  private static final Class<?> PKG = XmlInputStreamMeta.class;
 
   private TextVar wFilename;
 

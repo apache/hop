@@ -61,7 +61,7 @@ import org.xml.sax.helpers.DefaultHandler;
     keywords = "i18n::XmlWellFormed.keyword",
     documentationUrl = "/workflow/actions/xmlwellformed.html")
 public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = XmlWellFormed.class; // For Translator
+  private static final Class<?> PKG = XmlWellFormed.class;
 
   public static final String SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED = "success_when_at_least";
   public static final String SUCCESS_IF_BAD_FORMED_FILES_LESS = "success_if_bad_formed_files_less";

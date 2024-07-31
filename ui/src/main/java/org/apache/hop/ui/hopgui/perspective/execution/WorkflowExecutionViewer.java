@@ -109,7 +109,7 @@ import org.w3c.dom.Node;
 @GuiPlugin
 public class WorkflowExecutionViewer extends BaseExecutionViewer
     implements IExecutionViewer, PaintListener, MouseListener {
-  private static final Class<?> PKG = WorkflowExecutionViewer.class; // For Translator
+  private static final Class<?> PKG = WorkflowExecutionViewer.class;
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "WorkflowExecutionViewer-Toolbar";
 

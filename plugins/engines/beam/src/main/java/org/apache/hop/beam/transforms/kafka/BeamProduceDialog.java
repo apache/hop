@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class BeamProduceDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = BeamProduce.class; // For Translator
+  private static final Class<?> PKG = BeamProduce.class;
   private final BeamProduceMeta input;
 
   int middle;

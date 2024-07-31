@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Sample rows. Filter rows based on line number */
 public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData> {
 
-  private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
+  private static final Class<?> PKG = SampleRowsMeta.class;
 
   public SampleRows(
       TransformMeta transformMeta,

@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Writes rows to a database table. */
 public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData> {
 
-  private static final Class<?> PKG = TableOutputMeta.class; // For Translator
+  private static final Class<?> PKG = TableOutputMeta.class;
 
   public TableOutput(
       TransformMeta transformMeta,

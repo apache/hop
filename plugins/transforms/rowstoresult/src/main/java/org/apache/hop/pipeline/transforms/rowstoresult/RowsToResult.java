@@ -28,7 +28,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Writes results to a next pipeline in a Job */
 public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultData> {
 
-  private static final Class<?> PKG = RowsToResult.class; // For Translator
+  private static final Class<?> PKG = RowsToResult.class;
 
   public RowsToResult(
       TransformMeta transformMeta,

@@ -49,7 +49,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/ldapinput.html")
 public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     implements ILdapMeta {
-  private static final Class<?> PKG = LdapInputMeta.class; // For Translator
+  private static final Class<?> PKG = LdapInputMeta.class;
 
   /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;

@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Files exist action settings. */
 public class ActionFilesExistDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionFilesExist.class; // For Translator
+  private static final Class<?> PKG = ActionFilesExist.class;
 
   private static final String[] FILETYPES =
       new String[] {

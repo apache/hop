@@ -106,7 +106,7 @@ import org.eclipse.jgit.util.RawParseUtils;
 import org.eclipse.jgit.util.SystemReader;
 
 public class UIGit extends VCS {
-  protected static final Class<?> PKG = UIGit.class; // For Translator
+  protected static final Class<?> PKG = UIGit.class;
 
   static {
     /**

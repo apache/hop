@@ -47,7 +47,7 @@ import org.apache.hop.workflow.action.IAction;
     keywords = "i18n::ActionCheckFilesLocked.keyword",
     documentationUrl = "/workflow/actions/checkfilelocked.html")
 public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionCheckFilesLocked.class; // For Translator
+  private static final Class<?> PKG = ActionCheckFilesLocked.class;
 
   @HopMetadataProperty(key = "arg_from_previous")
   private boolean argFromPrevious;

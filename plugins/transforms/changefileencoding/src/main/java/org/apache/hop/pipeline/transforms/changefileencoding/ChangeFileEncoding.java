@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class ChangeFileEncoding
     extends BaseTransform<ChangeFileEncodingMeta, ChangeFileEncodingData> {
 
-  private static final Class<?> PKG = ChangeFileEncoding.class; // For Translator
+  private static final Class<?> PKG = ChangeFileEncoding.class;
 
   private static final String COULD_NOT_FIND_FIELD =
       "ChangeFileEncoding.Exception.CouldnotFindField";

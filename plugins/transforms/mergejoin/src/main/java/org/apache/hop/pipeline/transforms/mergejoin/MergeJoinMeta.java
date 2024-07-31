@@ -52,7 +52,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     keywords = "i18n::MergeJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/mergejoin.html")
 public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
-  private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
+  private static final Class<?> PKG = MergeJoinMeta.class;
 
   public static final String[] joinTypes = {"INNER", "LEFT OUTER", "RIGHT OUTER", "FULL OUTER"};
   public static final boolean[] one_optionals = {false, false, true, true};

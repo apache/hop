@@ -35,7 +35,7 @@ public abstract class SalesforceTransform<
         Meta extends SalesforceTransformMeta, Data extends SalesforceTransformData>
     extends BaseTransform<Meta, Data> {
 
-  public static Class<?> PKG = SalesforceTransform.class; // For Translator
+  public static Class<?> PKG = SalesforceTransform.class;
 
   public SalesforceTransform(
       TransformMeta transformMeta,

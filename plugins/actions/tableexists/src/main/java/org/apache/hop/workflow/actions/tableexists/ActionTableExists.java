@@ -49,7 +49,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionTableExists.keyword",
     documentationUrl = "/workflow/actions/tableexists.html")
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionTableExists.class; // For Translator
+  private static final Class<?> PKG = ActionTableExists.class;
 
   @HopMetadataProperty(
       key = "tablename",

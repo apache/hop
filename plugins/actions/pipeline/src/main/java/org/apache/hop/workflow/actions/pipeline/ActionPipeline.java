@@ -72,7 +72,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     keywords = "i18n::ActionPipeline.keyword",
     documentationUrl = "/workflow/actions/pipeline.html")
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPipeline.class; // For Translator
+  private static final Class<?> PKG = ActionPipeline.class;
 
   public static final class ParameterDefinition {
     @HopMetadataProperty(key = "pass_all_parameters")

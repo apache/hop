@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
 @GuiPlugin
  */
 public class LogReaderEditor extends MetadataEditor<LogReader> {
-  private static final Class<?> PKG = LogReaderEditor.class; // For Translator
+  private static final Class<?> PKG = LogReaderEditor.class;
 
   private final LogReader hopDocumentation;
   private final LogReader workingDocumentation;

@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Write commands to SSH * */
 public class Ssh extends BaseTransform<SshMeta, SshData> {
-  private static final Class<?> PKG = SshMeta.class; // For Translator
+  private static final Class<?> PKG = SshMeta.class;
 
   public Ssh(
       TransformMeta transformMeta,

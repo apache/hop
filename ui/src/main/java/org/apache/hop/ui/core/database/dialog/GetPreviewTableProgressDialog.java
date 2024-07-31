@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Shell;
  * certain SQL query on a database.
  */
 public class GetPreviewTableProgressDialog {
-  private static final Class<?> PKG = GetPreviewTableProgressDialog.class; // For Translator
+  private static final Class<?> PKG = GetPreviewTableProgressDialog.class;
   private final IVariables variables;
 
   private Shell shell;

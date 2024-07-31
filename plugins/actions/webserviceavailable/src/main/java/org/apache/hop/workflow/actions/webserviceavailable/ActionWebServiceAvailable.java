@@ -43,7 +43,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionWebServiceAvailable.keyword",
     documentationUrl = "/workflow/actions/webserviceavailable.html")
 public class ActionWebServiceAvailable extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWebServiceAvailable.class; // For Translator
+  private static final Class<?> PKG = ActionWebServiceAvailable.class;
 
   private String url;
   private String connectTimeOut;

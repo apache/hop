@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class LoadFileInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = LoadFileInputMeta.class;
   private static final String CONST_COMBO_NO = "System.Combo.No";
   private static final String CONST_COMBO_YES = "System.Combo.Yes";
 

@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::JsonOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/jsonoutput.html")
 public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputData> {
-  private static final Class<?> PKG = JsonOutputMeta.class; // For Translator
+  private static final Class<?> PKG = JsonOutputMeta.class;
 
   /** Operations type */
   @HopMetadataProperty(

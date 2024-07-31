@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DorisBulkLoaderMeta.keyword",
     documentationUrl = "/pipeline/transforms/dorisbulkloader.html")
 public class DorisBulkLoaderMeta extends BaseTransformMeta<DorisBulkLoader, DorisBulkLoaderData> {
-  private static final Class<?> PKG = DorisBulkLoaderMeta.class; // For Translator
+  private static final Class<?> PKG = DorisBulkLoaderMeta.class;
 
   /** doris fe host */
   @HopMetadataProperty private String feHost;

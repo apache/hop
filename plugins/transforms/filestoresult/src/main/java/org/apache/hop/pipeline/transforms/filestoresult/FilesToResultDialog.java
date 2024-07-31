@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class FilesToResultDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = FilesToResultMeta.class; // For Translator
+  private static final Class<?> PKG = FilesToResultMeta.class;
 
   private CCombo wFilenameField;
 

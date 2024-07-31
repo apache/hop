@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** Allows you to edit/enter the pipeline debugging information */
 public class PipelineDebugDialog extends Dialog {
-  private static final Class<?> PKG = PipelineDebugDialog.class; // For Translator
+  private static final Class<?> PKG = PipelineDebugDialog.class;
 
   public static final int DEBUG_CANCEL = 0;
   public static final int DEBUG_LAUNCH = 1;

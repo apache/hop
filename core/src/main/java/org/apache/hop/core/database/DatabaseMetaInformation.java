@@ -34,7 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 /** Contains the schema's, catalogs, tables, views, synonyms, etc we can find in the databases... */
 public class DatabaseMetaInformation {
-  private static final Class<?> PKG = Database.class; // For Translator
+  private static final Class<?> PKG = Database.class;
 
   private String[] tables;
   private Map<String, Collection<String>> tableMap;

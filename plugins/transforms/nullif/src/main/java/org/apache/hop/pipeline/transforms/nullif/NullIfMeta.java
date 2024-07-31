@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/nullif.html")
 public class NullIfMeta extends BaseTransformMeta<NullIf, NullIfData> {
 
-  private static final Class<?> PKG = NullIfMeta.class; // For Translator
+  private static final Class<?> PKG = NullIfMeta.class;
 
   @HopMetadataProperty(
       groupKey = "fields",

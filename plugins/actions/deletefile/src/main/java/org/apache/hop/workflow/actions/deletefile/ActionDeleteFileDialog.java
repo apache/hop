@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Delete File action settings. */
 public class ActionDeleteFileDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionDeleteFile.class; // For Translator
+  private static final Class<?> PKG = ActionDeleteFile.class;
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionDeleteFile.Filetype.All")};

@@ -55,7 +55,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionWaitForSql.keyword",
     documentationUrl = "/workflow/actions/waitforsql.html")
 public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
+  private static final Class<?> PKG = ActionWaitForSql.class;
 
   @HopMetadataProperty(key = "clear_result_rows")
   private boolean clearResultList;

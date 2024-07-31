@@ -45,7 +45,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::FilesFromResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/filesfromresult.html")
 public class FilesFromResultMeta extends BaseTransformMeta<FilesFromResult, FilesFromResultData> {
-  private static final Class<?> PKG = FilesFromResult.class; // For Translator
+  private static final Class<?> PKG = FilesFromResult.class;
 
   public FilesFromResultMeta() {
     super(); // allocate BaseTransformMeta

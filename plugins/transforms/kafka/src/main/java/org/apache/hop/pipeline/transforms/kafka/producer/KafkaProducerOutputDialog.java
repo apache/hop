@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class KafkaProducerOutputDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = KafkaProducerOutputMeta.class; // For Translator
+  private static final Class<?> PKG = KafkaProducerOutputMeta.class;
 
   private static final ImmutableMap<String, String> DEFAULT_OPTION_VALUES =
       ImmutableMap.of(ProducerConfig.COMPRESSION_TYPE_CONFIG, "none");

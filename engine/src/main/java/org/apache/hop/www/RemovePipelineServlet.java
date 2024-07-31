@@ -34,7 +34,7 @@ import org.owasp.encoder.Encode;
 
 @HopServerServlet(id = "removePipeline", name = "Remove a pipeline")
 public class RemovePipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = RemovePipelineServlet.class; // For Translator
+  private static final Class<?> PKG = RemovePipelineServlet.class;
 
   private static final long serialVersionUID = 6618979989596401783L;
 

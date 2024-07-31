@@ -53,7 +53,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionFolderIsEmpty.keyword",
     documentationUrl = "/workflow/actions/folderisempty.html")
 public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFolderIsEmpty.class; // For Translator
+  private static final Class<?> PKG = ActionFolderIsEmpty.class;
 
   @HopMetadataProperty(key = "foldername")
   private String folderName;

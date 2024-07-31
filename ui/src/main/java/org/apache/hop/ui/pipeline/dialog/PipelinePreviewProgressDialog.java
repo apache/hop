@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Takes care of displaying a dialog that will handle the wait while previewing a pipeline... */
 public class PipelinePreviewProgressDialog {
-  private static final Class<?> PKG = PipelineDialog.class; // For Translator
+  private static final Class<?> PKG = PipelineDialog.class;
 
   private final Shell shell;
   private final IVariables variables;

@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Detect empty stream. Pass one row data to the next transforms. */
 public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, DetectEmptyStreamData> {
 
-  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
+  private static final Class<?> PKG = DetectEmptyStreamMeta.class;
 
   public DetectEmptyStream(
       TransformMeta transformMeta,

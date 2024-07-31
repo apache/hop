@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 /** Filters input rows base on conditions. */
 public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
 
-  private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
+  private static final Class<?> PKG = FilterRowsMeta.class;
 
   public FilterRows(
       TransformMeta transformMeta,

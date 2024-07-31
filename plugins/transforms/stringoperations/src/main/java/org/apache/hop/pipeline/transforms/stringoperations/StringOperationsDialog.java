@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class StringOperationsDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = StringOperationsMeta.class; // For Translator
+  private static final Class<?> PKG = StringOperationsMeta.class;
 
   private TableView wFields;
 

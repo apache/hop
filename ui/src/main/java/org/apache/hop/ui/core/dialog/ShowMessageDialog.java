@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog to enter a text. (descriptions etc.) */
 public class ShowMessageDialog extends Dialog {
-  private static final Class<?> PKG = ShowMessageDialog.class; // For Translator
+  private static final Class<?> PKG = ShowMessageDialog.class;
 
   private static final Map<Integer, String> buttonTextByFlagDefaults = new LinkedHashMap<>();
 

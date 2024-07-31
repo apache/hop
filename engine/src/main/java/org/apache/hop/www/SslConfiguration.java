@@ -26,7 +26,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.w3c.dom.Node;
 
 public class SslConfiguration {
-  private static final Class<?> PKG = SslConfiguration.class; // For Translator
+  private static final Class<?> PKG = SslConfiguration.class;
   public static final String XML_TAG = "sslConfig";
   private static final String XML_TAG_KEY_STORE = "keyStore";
   private static final String XML_TAG_KEY_STORE_TYPE = "keyStoreType";

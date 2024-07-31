@@ -42,7 +42,7 @@ import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.eclipse.swt.SWT;
 
 public class HopGuiPipelineRunDelegate {
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private HopGuiPipelineGraph pipelineGraph;
   private HopGui hopGui;

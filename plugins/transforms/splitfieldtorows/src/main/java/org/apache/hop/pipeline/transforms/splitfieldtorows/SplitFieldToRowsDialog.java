@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SplitFieldToRowsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
+  private static final Class<?> PKG = SplitFieldToRowsMeta.class;
 
   private ComboVar wSplitField;
 

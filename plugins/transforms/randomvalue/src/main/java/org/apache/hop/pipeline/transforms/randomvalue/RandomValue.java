@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Get random value. */
 public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData> {
 
-  private static final Class<?> PKG = RandomValueMeta.class; // For Translator
+  private static final Class<?> PKG = RandomValueMeta.class;
 
   public RandomValue(
       TransformMeta transformMeta,

@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 public class PipelineHopDialog extends Dialog {
-  private static final Class<?> PKG = PipelineDialog.class; // For Translator
+  private static final Class<?> PKG = PipelineDialog.class;
 
   private CCombo wFrom;
 

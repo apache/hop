@@ -33,7 +33,7 @@ import org.apache.hop.i18n.BaseMessages;
     documentationUrl = "/database/databases/mariadb.html")
 @GuiPlugin(id = "GUI-MariaDBDatabaseMeta")
 public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
-  private static final Class<?> PKG = MariaDBDatabaseMeta.class; // For Translator
+  private static final Class<?> PKG = MariaDBDatabaseMeta.class;
 
   private static final Set<String> SHORT_MESSAGE_EXCEPTIONS =
       Sets.newHashSet("org.mariadb.jdbc.internal.stream.MaxAllowedPacketException");

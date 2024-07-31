@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
  * streams.
  */
 public class YamlInputField implements Cloneable {
-  private static final Class<?> PKG = YamlInputMeta.class; // For Translator
+  private static final Class<?> PKG = YamlInputMeta.class;
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;

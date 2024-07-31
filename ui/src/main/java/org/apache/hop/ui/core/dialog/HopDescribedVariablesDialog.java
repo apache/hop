@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** Allows the user to edit the system settings of the hop.config file. */
 public class HopDescribedVariablesDialog extends Dialog {
-  private static final Class<?> PKG = HopDescribedVariablesDialog.class; // For Translator
+  private static final Class<?> PKG = HopDescribedVariablesDialog.class;
 
   private TableView wFields;
 

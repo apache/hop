@@ -47,7 +47,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/salesforceupsert.html")
 public class SalesforceUpsertMeta
     extends SalesforceTransformMeta<SalesforceUpsert, SalesforceUpsertData> {
-  private static final Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpsertMeta.class;
 
   /** UpsertField */
   private String UpsertField;

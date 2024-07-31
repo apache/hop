@@ -53,7 +53,7 @@ import org.w3c.dom.Node;
     localizationPrefix = "AddXMLMeta.Injection.",
     groups = {"OUTPUT_FIELDS"})
 public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
-  private static final Class<?> PKG = AddXmlMeta.class; // For Translator
+  private static final Class<?> PKG = AddXmlMeta.class;
 
   /** The base name of the output file */
 

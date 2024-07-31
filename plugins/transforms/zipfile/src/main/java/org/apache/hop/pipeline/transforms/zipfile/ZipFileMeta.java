@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::ZipFileMeta.keyword",
     documentationUrl = "/pipeline/transforms/zipfile.html")
 public class ZipFileMeta extends BaseTransformMeta<ZipFile, ZipFileData> {
-  private static final Class<?> PKG = ZipFileMeta.class; // For Translator
+  private static final Class<?> PKG = ZipFileMeta.class;
 
   /** dynamic filename */
   @HopMetadataProperty(key = "sourcefilenamefield", injectionKeyDescription = "")

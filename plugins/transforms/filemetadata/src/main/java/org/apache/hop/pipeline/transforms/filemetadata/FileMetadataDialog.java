@@ -63,7 +63,7 @@ public class FileMetadataDialog extends BaseTransformDialog {
    * localized keys is expected to reside in {the package of the class
    * specified}/messages/messages_{locale}.properties
    */
-  private static final Class<?> PKG = FileMetadataMeta.class; // For Translator
+  private static final Class<?> PKG = FileMetadataMeta.class;
 
   // this is the object the stores the transform's settings
   // the dialog reads the settings from it when opening

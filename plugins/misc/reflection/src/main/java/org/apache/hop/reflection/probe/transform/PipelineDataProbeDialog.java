@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class PipelineDataProbeDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = PipelineDataProbeDialog.class; // For Translator
+  private static final Class<?> PKG = PipelineDataProbeDialog.class;
 
   private final PipelineDataProbeMeta input;
 

@@ -57,7 +57,7 @@ import org.glassfish.jersey.uri.UriComponent;
 import org.json.simple.JSONObject;
 
 public class Rest extends BaseTransform<RestMeta, RestData> {
-  private static final Class<?> PKG = RestMeta.class; // For Translator
+  private static final Class<?> PKG = RestMeta.class;
 
   public Rest(
       TransformMeta transformMeta,

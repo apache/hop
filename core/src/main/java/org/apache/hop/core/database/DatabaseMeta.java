@@ -63,7 +63,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     image = "ui/images/database.svg",
     documentationUrl = "/metadata-types/rdbms-connection.html")
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {
-  private static final Class<?> PKG = Database.class; // For Translator
+  private static final Class<?> PKG = Database.class;
 
   private static final String CONST_TABLE = "TABLE";
   private static final String CONST_CONNECTION_ERROR = "DatabaseMeta.report.ConnectionError";

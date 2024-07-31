@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class AvroDecodeDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = AvroDecodeMeta.class; // For Translator
+  private static final Class<?> PKG = AvroDecodeMeta.class;
 
   private AvroDecodeMeta input;
 

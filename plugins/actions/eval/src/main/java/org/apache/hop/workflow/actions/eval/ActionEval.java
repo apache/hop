@@ -49,7 +49,7 @@ import org.mozilla.javascript.Scriptable;
     keywords = "i18n::ActionEval.keyword",
     documentationUrl = "/workflow/actions/eval.html")
 public class ActionEval extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionEval.class; // For Translator
+  private static final Class<?> PKG = ActionEval.class;
 
   @HopMetadataProperty(key = "script")
   private String script;

@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Run dynamic SQL. SQL is defined in a field. */
 public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData> {
 
-  private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
+  private static final Class<?> PKG = DynamicSqlRowMeta.class;
 
   public DynamicSqlRow(
       TransformMeta transformMeta,

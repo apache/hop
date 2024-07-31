@@ -42,7 +42,7 @@ import org.eclipse.swt.SWT;
 
 @GuiPlugin
 public class WebServiceGuiPlugin {
-  private static final Class<?> PKG = WebServiceGuiPlugin.class; // For Translator
+  private static final Class<?> PKG = WebServiceGuiPlugin.class;
 
   @GuiContextAction(
       id = "pipeline-graph-transform-9000-add-web-serviec",

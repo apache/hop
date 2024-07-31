@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class ChangeFileEncodingMeta
     extends BaseTransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
 
-  private static final Class<?> PKG = ChangeFileEncoding.class; // For Translator
+  private static final Class<?> PKG = ChangeFileEncoding.class;
 
   @HopMetadataProperty(
       key = "addsourceresultfilenames",

@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class GetSubFoldersDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
+  private static final Class<?> PKG = GetSubFoldersMeta.class;
 
   public static final String YES = BaseMessages.getString(PKG, "System.Combo.Yes");
   public static final String NO = BaseMessages.getString(PKG, "System.Combo.No");

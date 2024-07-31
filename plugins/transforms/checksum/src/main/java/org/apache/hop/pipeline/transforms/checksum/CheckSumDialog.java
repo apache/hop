@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class CheckSumDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = CheckSumDialog.class; // For Translator
+  private static final Class<?> PKG = CheckSumDialog.class;
 
   private final CheckSumMeta input;
 

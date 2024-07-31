@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/ifnull.html")
 public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
 
-  private static final Class<?> PKG = IfNullMeta.class; // For Translator
+  private static final Class<?> PKG = IfNullMeta.class;
 
   @HopMetadataProperty(
       groupKey = "fields",

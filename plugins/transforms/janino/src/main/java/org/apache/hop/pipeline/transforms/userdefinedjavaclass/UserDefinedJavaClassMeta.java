@@ -70,7 +70,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/userdefinedjavaclass.html")
 public class UserDefinedJavaClassMeta
     extends BaseTransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
-  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class;
 
   @SuppressWarnings("java:S115")
   public enum ElementNames {

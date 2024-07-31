@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit a Action As400Command metadata. */
 public class ActionAs400CommandDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionAs400CommandDialog.class; // For Translator
+  private static final Class<?> PKG = ActionAs400CommandDialog.class;
 
   private ActionAs400Command action;
 

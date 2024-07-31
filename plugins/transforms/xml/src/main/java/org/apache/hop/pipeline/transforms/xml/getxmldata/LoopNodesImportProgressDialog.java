@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Shell;
  * for an XML file
  */
 public class LoopNodesImportProgressDialog {
-  private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
+  private static final Class<?> PKG = GetXmlDataMeta.class;
 
   private Shell shell;
 

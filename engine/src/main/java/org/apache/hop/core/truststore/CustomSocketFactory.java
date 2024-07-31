@@ -31,7 +31,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class CustomSocketFactory extends SSLSocketFactory {
 
-  private static final Class<?> classFromPackage = CustomSocketFactory.class; // For Translator
+  private static final Class<?> classFromPackage = CustomSocketFactory.class;
 
   private static boolean configured;
 

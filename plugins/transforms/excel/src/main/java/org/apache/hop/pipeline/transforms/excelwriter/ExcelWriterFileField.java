@@ -22,7 +22,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ExcelWriterFileField {
 
-  private static final Class<?> PKG = ExcelWriterFileField.class; // For Translator
+  private static final Class<?> PKG = ExcelWriterFileField.class;
 
   /** The base name of the output file */
   @HopMetadataProperty(

@@ -69,7 +69,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionHttp.keyword",
     documentationUrl = "/workflow/actions/http.html")
 public class ActionHttp extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionHttp.class; // For Translator
+  private static final Class<?> PKG = ActionHttp.class;
 
   private static final String URL_FIELDNAME = "URL";
   private static final String UPLOADFILE_FIELDNAME = "UPLOAD";

@@ -30,7 +30,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 public class KafkaConsumerField {
-  private static final Class<?> PKG = KafkaConsumerField.class; // For Translator
+  private static final Class<?> PKG = KafkaConsumerField.class;
 
   private Name kafkaName;
 

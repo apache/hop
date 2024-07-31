@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::GetVariableMeta.keyword",
     documentationUrl = "/pipeline/transforms/getvariable.html")
 public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableData> {
-  private static final Class<?> PKG = GetVariableMeta.class; // For Translator
+  private static final Class<?> PKG = GetVariableMeta.class;
 
   @HopMetadataProperty(
       groupKey = "fields",
