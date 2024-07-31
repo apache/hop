@@ -196,17 +196,6 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
   }
 
   @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    List<DatabaseMeta> used = new ArrayList<>();
-    for (CDConnection connection : connections) {
-      if (connection.getDatabaseMeta() != null) {
-        used.add(connection.getDatabaseMeta());
-      }
-    }
-    return used.toArray(new DatabaseMeta[0]);
-  }
-
-  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

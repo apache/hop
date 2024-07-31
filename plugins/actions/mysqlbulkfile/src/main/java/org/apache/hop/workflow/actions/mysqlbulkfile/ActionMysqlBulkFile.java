@@ -424,13 +424,6 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     return result;
   }
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] {
-      connection,
-    };
-  }
-
   public void setHighPriority(boolean highpriority) {
     this.highPriority = highpriority;
   }

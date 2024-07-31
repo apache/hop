@@ -472,11 +472,6 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[0];
-  }
-
-  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

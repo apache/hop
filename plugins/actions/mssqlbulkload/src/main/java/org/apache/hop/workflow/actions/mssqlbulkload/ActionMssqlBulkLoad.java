@@ -559,13 +559,6 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return result;
   }
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] {
-      connection,
-    };
-  }
-
   public void setFilename(String filename) {
     this.filename = filename;
   }

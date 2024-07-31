@@ -406,13 +406,6 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
   }
 
   @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] {
-      connection,
-    };
-  }
-
-  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
