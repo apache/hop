@@ -29,6 +29,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.callback.GuiCallback;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
@@ -42,6 +43,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -71,6 +73,14 @@ public class GitGuiPlugin
   public static final String TOOLBAR_ITEM_COMMIT = "ExplorerPerspective-Toolbar-21000-Commit";
   public static final String TOOLBAR_ITEM_PUSH = "ExplorerPerspective-Toolbar-21100-Push";
   public static final String TOOLBAR_ITEM_PULL = "ExplorerPerspective-Toolbar-21200-Pull";
+
+  public static final String CONTEXT_MENU_GIT_INFO =
+      "ExplorerPerspective-ContextMenu-20000-GitInfo";
+  public static final String CONTEXT_MENU_GIT_ADD = "ExplorerPerspective-ContextMenu-20100-GitAdd";
+  public static final String CONTEXT_MENU_GIT_REVERT =
+      "ExplorerPerspective-ContextMenu-20200-GitRevert";
+  public static final String CONTEXT_MENU_GIT_COMMIT =
+      "ExplorerPerspective-ContextMenu-21000-GitCommit";
 
   private static GitGuiPlugin instance;
 
@@ -120,6 +130,12 @@ public class GitGuiPlugin
     explorerPerspective.getSelectionListeners().add(this);
   }
 
+  @GuiMenuElement(
+      root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_GIT_COMMIT,
+      label = "i18n::GitGuiPlugin.Menu.Commit.Text",
+      image = "git-commit.svg")
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_COMMIT,
@@ -250,6 +266,12 @@ public class GitGuiPlugin
     }
   }
 
+  @GuiMenuElement(
+      root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_GIT_ADD,
+      label = "i18n::GitGuiPlugin.Menu.Add.Text",
+      image = "git-add.svg")
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ADD,
@@ -279,6 +301,12 @@ public class GitGuiPlugin
     }
   }
 
+  @GuiMenuElement(
+      root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_GIT_REVERT,
+      label = "i18n::GitGuiPlugin.Menu.Revert.Text",
+      image = "git-revert.svg")
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REVERT,
@@ -429,17 +457,23 @@ public class GitGuiPlugin
   }
 
   private void enableButtons() {
-    GuiToolbarWidgets widgets = ExplorerPerspective.getInstance().getToolBarWidgets();
+
     boolean isGit = git != null;
     boolean isSelected = isGit && getSelectedFile() != null;
 
-    widgets.enableToolbarItem(TOOLBAR_ITEM_GIT_INFO, isGit);
-    widgets.enableToolbarItem(TOOLBAR_ITEM_ADD, isSelected);
-    widgets.enableToolbarItem(TOOLBAR_ITEM_REVERT, isSelected);
-    widgets.enableToolbarItem(TOOLBAR_ITEM_COMMIT, isSelected);
+    GuiToolbarWidgets toolBarWidgets = ExplorerPerspective.getInstance().getToolBarWidgets();
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_GIT_INFO, isGit);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ADD, isSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_REVERT, isSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_COMMIT, isSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_PUSH, isGit);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_PULL, isGit);
 
-    widgets.enableToolbarItem(TOOLBAR_ITEM_PUSH, isGit);
-    widgets.enableToolbarItem(TOOLBAR_ITEM_PULL, isGit);
+    GuiMenuWidgets menuWidgets = ExplorerPerspective.getInstance().getMenuWidgets();
+    menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_INFO, isGit);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_ADD, isSelected);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_COMMIT, isSelected);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_REVERT, isSelected);
   }
 
   /**
@@ -482,6 +516,13 @@ public class GitGuiPlugin
     }
   }
 
+  @GuiMenuElement(
+      root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_GIT_INFO,
+      label = "i18n::GitGuiPlugin.Menu.Info.Text",
+      image = "git-info.svg",
+      separator = true)
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_GIT_INFO,
