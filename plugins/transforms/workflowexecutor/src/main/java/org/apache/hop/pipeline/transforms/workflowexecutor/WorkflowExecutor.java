@@ -44,7 +44,7 @@ import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
 /** Execute a workflow for every input row. */
 public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, WorkflowExecutorData> {
-  private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
+  private static final Class<?> PKG = WorkflowExecutorMeta.class;
 
   public WorkflowExecutor(
       TransformMeta transformMeta,

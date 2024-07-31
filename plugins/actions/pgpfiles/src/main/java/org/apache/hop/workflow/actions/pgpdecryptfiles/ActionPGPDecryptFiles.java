@@ -63,7 +63,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionPGPDecryptFiles.keyword",
     documentationUrl = "/workflow/actions/pgpdecryptfiles.html")
 public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPGPDecryptFiles.class; // For Translator
+  private static final Class<?> PKG = ActionPGPDecryptFiles.class;
 
   private SimpleDateFormat daf;
   private GPG gpg;

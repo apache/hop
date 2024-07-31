@@ -114,7 +114,7 @@ import org.w3c.dom.Node;
 @GuiPlugin
 public class PipelineExecutionViewer extends BaseExecutionViewer
     implements IExecutionViewer, PaintListener, MouseListener {
-  private static final Class<?> PKG = PipelineExecutionViewer.class; // For Translator
+  private static final Class<?> PKG = PipelineExecutionViewer.class;
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "PipelineExecutionViewer-Toolbar";
 

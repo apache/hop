@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Write to file action settings. */
 public class ActionWriteToFileDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
+  private static final Class<?> PKG = ActionWriteToFile.class;
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionWriteToFile.Filetype.All")};

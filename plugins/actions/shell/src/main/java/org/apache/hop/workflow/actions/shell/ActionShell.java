@@ -69,7 +69,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionShell.keyword",
     documentationUrl = "/workflow/actions/shell.html")
 public class ActionShell extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionShell.class; // For Translator
+  private static final Class<?> PKG = ActionShell.class;
 
   private String filename;
 

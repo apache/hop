@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Shell;
  * A replacement of the system message box dialog to make sure the correct font and colors are used.
  */
 public class MessageBox extends Dialog {
-  private static final Class<?> PKG = MessageBox.class; // For Translator
+  private static final Class<?> PKG = MessageBox.class;
 
   private final PropsUi props;
 

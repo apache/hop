@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * (this is harder to do as currently we don't know the types)
  */
 public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupData> {
-  private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
+  private static final Class<?> PKG = StreamLookupMeta.class;
 
   public StreamLookup(
       TransformMeta transformMeta,

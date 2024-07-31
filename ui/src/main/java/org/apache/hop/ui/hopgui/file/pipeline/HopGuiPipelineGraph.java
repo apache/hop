@@ -223,7 +223,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         IHopFileTypeHandler,
         IGuiRefresher {
 
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiPipelineGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiPipelineGraph-ToolBar-10010-Run";

@@ -60,7 +60,7 @@ import org.apache.hop.pipeline.transforms.memgroupby.beam.GroupByTransform;
     documentationUrl = "/pipeline/transforms/memgroupby.html")
 public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGroupByData>
     implements IBeamPipelineTransformHandler {
-  private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
+  private static final Class<?> PKG = MemoryGroupByMeta.class;
 
   /** Fields to group over */
   @HopMetadataProperty(groupKey = "group", key = "field")

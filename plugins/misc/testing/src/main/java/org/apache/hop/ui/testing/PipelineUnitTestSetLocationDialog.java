@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 public class PipelineUnitTestSetLocationDialog extends Dialog {
-  private static final Class<?> PKG = PipelineUnitTestSetLocationDialog.class; // For Translator
+  private static final Class<?> PKG = PipelineUnitTestSetLocationDialog.class;
 
   private final PipelineUnitTestSetLocation location;
   private final List<DataSet> dataSets;

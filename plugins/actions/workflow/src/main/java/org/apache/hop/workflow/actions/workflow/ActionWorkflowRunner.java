@@ -27,7 +27,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class ActionWorkflowRunner implements Runnable {
-  private static final Class<?> PKG = Workflow.class; // For Translator
+  private static final Class<?> PKG = Workflow.class;
 
   private IWorkflowEngine<WorkflowMeta> workflow;
   private Result result;

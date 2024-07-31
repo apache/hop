@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class NullIfDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = NullIfMeta.class; // For Translator
+  private static final Class<?> PKG = NullIfMeta.class;
 
   private Text wTransformName;
 

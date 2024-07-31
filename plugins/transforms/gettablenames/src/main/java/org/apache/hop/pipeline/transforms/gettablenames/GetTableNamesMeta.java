@@ -49,7 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::GetTableNamesMeta.keyword",
     documentationUrl = "/pipeline/transforms/gettablenames.html")
 public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTableNamesData> {
-  private static final Class<?> PKG = GetTableNamesMeta.class; // For Translator
+  private static final Class<?> PKG = GetTableNamesMeta.class;
 
   /** The database connection */
   @HopMetadataProperty(

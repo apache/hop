@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/avro-decode.html",
     keywords = "i18n::AvroDecodeMeta.keyword")
 public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData> {
-  private static final Class<?> PKG = AvroDecodeMeta.class; // For Translator
+  private static final Class<?> PKG = AvroDecodeMeta.class;
 
   @HopMetadataProperty(key = "source_field")
   private String sourceFieldName;

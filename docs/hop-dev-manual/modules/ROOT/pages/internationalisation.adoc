@@ -56,7 +56,7 @@ If references a PKG variable typically defined at the top of the class like this
 
 [source]
 ----
-private static final Class<?> PKG = Foo.class; // For Translator
+private static final Class<?> PKG = Foo.class;
 ----
 
 By doing this we know the location of the message bundles that will be used for translations.

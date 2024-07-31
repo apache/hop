@@ -74,7 +74,7 @@ import org.eclipse.swt.widgets.Text;
 import org.ini4j.Wini;
 
 public class PropertyInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
+  private static final Class<?> PKG = PropertyInputMeta.class;
   private static final String[] YES_NO_COMBO =
       new String[] {
         BaseMessages.getString(PKG, "System.Combo.No"),

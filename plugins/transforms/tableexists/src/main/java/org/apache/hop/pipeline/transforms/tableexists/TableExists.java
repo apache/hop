@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Check if a table exists in a Database */
 public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData> {
-  private static final Class<?> PKG = TableExistsMeta.class; // For Translator
+  private static final Class<?> PKG = TableExistsMeta.class;
 
   public TableExists(
       TransformMeta transformMeta,

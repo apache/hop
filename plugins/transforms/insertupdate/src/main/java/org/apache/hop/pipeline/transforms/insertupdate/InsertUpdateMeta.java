@@ -53,7 +53,7 @@ import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
     documentationUrl = "/pipeline/transforms/insertupdate.html",
     actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.RDBMS})
 public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpdateData> {
-  private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
+  private static final Class<?> PKG = InsertUpdateMeta.class;
 
   /** Lookup key fields * */
   @HopMetadataProperty(key = "lookup")

@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the webservice available action. */
 public class ActionWebServiceAvailableDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionWebServiceAvailable.class; // For Translator
+  private static final Class<?> PKG = ActionWebServiceAvailable.class;
 
   private Text wName;
 

@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the MSSqlBulkLoader. */
 public class ActionMssqlBulkLoadDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // For Translator
+  private static final Class<?> PKG = ActionMssqlBulkLoad.class;
 
   private static final String[] FILETYPES =
       new String[] {

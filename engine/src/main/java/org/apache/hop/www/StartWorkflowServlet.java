@@ -44,7 +44,7 @@ import org.owasp.encoder.Encode;
 
 @HopServerServlet(id = "startWorkflow", name = "Start a workflow")
 public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = StartWorkflowServlet.class; // For Translator
+  private static final Class<?> PKG = StartWorkflowServlet.class;
   // needed by
   // Translator!!
 

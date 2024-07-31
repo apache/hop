@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::FilesToResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/filestoresult.html")
 public class FilesToResultMeta extends BaseTransformMeta<FilesToResult, FilesToResultData> {
-  private static final Class<?> PKG = FilesToResultMeta.class; // For Translator
+  private static final Class<?> PKG = FilesToResultMeta.class;
 
   @HopMetadataProperty(key = "filename_field")
   private String filenameField;

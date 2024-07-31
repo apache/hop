@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformData> {
 
-  private static final Class<?> PKG = TeraFastMeta.class; // For Translator
+  private static final Class<?> PKG = TeraFastMeta.class;
 
   private Process process;
 

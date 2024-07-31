@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SwitchCaseDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
+  private static final Class<?> PKG = SwitchCaseMeta.class;
 
   private CCombo wFieldName;
 

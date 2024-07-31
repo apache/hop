@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class SchemaDefinitionEditor extends MetadataEditor<SchemaDefinition> {
 
-  private static final Class<?> PKG = SchemaDefinitionEditor.class; // For Translator
+  private static final Class<?> PKG = SchemaDefinitionEditor.class;
 
   // Connection properties
   //

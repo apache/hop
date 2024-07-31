@@ -68,7 +68,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionFtp.keyword",
     documentationUrl = "/workflow/actions/ftp.html")
 public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpConnection {
-  private static final Class<?> PKG = ActionFtp.class; // For Translator
+  private static final Class<?> PKG = ActionFtp.class;
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_PASSWORD = "password";
   private static final String CONST_LOCAL_FILE_EXISTS = "ActionFTP.LocalFileExists";

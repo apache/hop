@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     keywords = "i18n::SwitchCaseMeta.keyword",
     documentationUrl = "/pipeline/transforms/switchcase.html")
 public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData> {
-  private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
+  private static final Class<?> PKG = SwitchCaseMeta.class;
 
   /** The field to switch over */
   @HopMetadataProperty(

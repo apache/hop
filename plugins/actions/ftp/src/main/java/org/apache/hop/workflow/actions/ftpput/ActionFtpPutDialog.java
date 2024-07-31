@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the FTP Put action settings */
 public class ActionFtpPutDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionFtpPut.class; // For Translator
+  private static final Class<?> PKG = ActionFtpPut.class;
 
   private Text wName;
 

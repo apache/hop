@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     documentationUrl = "/pipeline/transforms/append.html")
 public class AppendMeta extends BaseTransformMeta<Append, AppendData> {
 
-  private static final Class<?> PKG = Append.class; // For Translator
+  private static final Class<?> PKG = Append.class;
 
   @HopMetadataProperty(
       key = "head_name",

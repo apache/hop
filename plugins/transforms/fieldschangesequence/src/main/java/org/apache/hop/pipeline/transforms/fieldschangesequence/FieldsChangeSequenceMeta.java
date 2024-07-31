@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/addfieldschangesequence.html")
 public class FieldsChangeSequenceMeta
     extends BaseTransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
-  private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
+  private static final Class<?> PKG = FieldsChangeSequenceMeta.class;
 
   /** by which fields to display? */
   @HopMetadataProperty(

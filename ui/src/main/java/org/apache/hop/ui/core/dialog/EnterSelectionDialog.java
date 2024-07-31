@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 /** Allows the user to make a selection from a list of values. */
 public class EnterSelectionDialog extends Dialog {
-  private static final Class<?> PKG = EnterSelectionDialog.class; // For Translator
+  private static final Class<?> PKG = EnterSelectionDialog.class;
 
   private Label wlSelection;
   private List wSelection;

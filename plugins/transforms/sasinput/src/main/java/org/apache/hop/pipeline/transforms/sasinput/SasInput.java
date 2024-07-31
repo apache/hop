@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Reads data from a SAS file in SAS7BAT format. */
 public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
-  private static final Class<?> PKG = SasInputMeta.class; // for Translator
+  private static final Class<?> PKG = SasInputMeta.class;
 
   public SasInput(
       TransformMeta stepMeta,

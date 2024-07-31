@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
  * pipeline...
  */
 public class GetSqlProgressDialog {
-  private static final Class<?> PKG = GetSqlProgressDialog.class; // For Translator
+  private static final Class<?> PKG = GetSqlProgressDialog.class;
 
   private Shell shell;
   private final IVariables variables;

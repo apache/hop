@@ -62,7 +62,7 @@ import org.w3c.dom.Node;
     groups = {"OUTPUT_FIELDS"})
 public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFileOutputData> {
 
-  private static final Class<?> PKG = TextFileOutputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileOutputMeta.class;
 
   protected static final int FILE_COMPRESSION_TYPE_NONE = 0;
 

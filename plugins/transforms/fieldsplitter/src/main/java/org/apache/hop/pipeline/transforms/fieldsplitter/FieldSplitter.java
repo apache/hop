@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Split a single String fields into multiple parts based on certain conditions. */
 public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitterData> {
-  private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
+  private static final Class<?> PKG = FieldSplitterMeta.class;
 
   public FieldSplitter(
       TransformMeta transformMeta,

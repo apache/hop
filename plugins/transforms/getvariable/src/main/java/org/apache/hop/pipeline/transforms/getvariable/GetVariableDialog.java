@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class GetVariableDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = GetVariableMeta.class; // For Translator
+  private static final Class<?> PKG = GetVariableMeta.class;
 
   private TableView wFields;
 

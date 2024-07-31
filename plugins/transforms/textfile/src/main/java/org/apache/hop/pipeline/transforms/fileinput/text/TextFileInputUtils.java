@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalField;
 
 /** Some common methods for text file parsing. */
 public class TextFileInputUtils {
-  private static final Class<?> PKG = TextFileInputUtils.class; // For Translator
+  private static final Class<?> PKG = TextFileInputUtils.class;
 
   public static final String[] guessStringsFromLine(
       IVariables variables,

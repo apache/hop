@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class DenormaliserDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
+  private static final Class<?> PKG = DenormaliserMeta.class;
 
   public static final String STRING_SORT_WARNING_PARAMETER = "PivotSortWarning";
 

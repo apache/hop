@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Telnet action settings. */
 public class ActionTelnetDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionTelnet.class; // For Translator
+  private static final Class<?> PKG = ActionTelnet.class;
 
   private Text wName;
 

@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
-  private static final Class<?> PKG = PipelineUnitTestEditor.class; // For Translator
+  private static final Class<?> PKG = PipelineUnitTestEditor.class;
 
   private Text wName;
   private Text wDescription;

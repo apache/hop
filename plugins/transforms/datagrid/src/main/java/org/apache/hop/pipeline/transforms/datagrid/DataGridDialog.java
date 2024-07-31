@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class DataGridDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DataGridMeta.class; // For Translator
+  private static final Class<?> PKG = DataGridMeta.class;
 
   private CTabFolder wTabFolder;
   private Composite wDataComp;

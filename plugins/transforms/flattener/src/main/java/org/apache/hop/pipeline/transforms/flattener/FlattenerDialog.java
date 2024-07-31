@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class FlattenerDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = FlattenerMeta.class; // For Translator
+  private static final Class<?> PKG = FlattenerMeta.class;
 
   private TableView wFields;
 

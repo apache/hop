@@ -52,7 +52,7 @@ import org.apache.hop.resource.ResourceDefinition;
     documentationUrl = "/pipeline/transforms/getfilesrowcount.html")
 public class GetFilesRowsCountMeta
     extends BaseTransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
-  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
+  private static final Class<?> PKG = GetFilesRowsCountMeta.class;
 
   public static final String[] RequiredFilesDesc =
       new String[] {

@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SetValueConstantDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
+  private static final Class<?> PKG = SetValueConstantMeta.class;
 
   private final SetValueConstantMeta input;
 

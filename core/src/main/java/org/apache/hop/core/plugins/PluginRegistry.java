@@ -62,7 +62,7 @@ import org.apache.hop.i18n.BaseMessages;
  */
 public class PluginRegistry {
 
-  private static final Class<?> PKG = PluginRegistry.class; // For Translator
+  private static final Class<?> PKG = PluginRegistry.class;
 
   private static final PluginRegistry pluginRegistry = new PluginRegistry();
   private static final String CONST_PUGIN_CLASS = "Plugin class ";

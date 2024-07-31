@@ -65,7 +65,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionUnZip.keyword",
     documentationUrl = "/workflow/actions/unzip.html")
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionUnZip.class; // For Translator
+  private static final Class<?> PKG = ActionUnZip.class;
 
   private String zipFilename;
   public int afterunzip;

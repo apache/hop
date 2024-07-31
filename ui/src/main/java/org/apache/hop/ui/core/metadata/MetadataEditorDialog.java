@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Shell;
 
 public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
-  private static final Class<?> PKG = MetadataEditorDialog.class; // For Translator
+  private static final Class<?> PKG = MetadataEditorDialog.class;
 
   private Shell shell;
   private MetadataEditor<?> editor;

@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to enter a number. */
 public class EnterNumberDialog extends Dialog {
-  private static final Class<?> PKG = EnterNumberDialog.class; // For Translator
+  private static final Class<?> PKG = EnterNumberDialog.class;
 
   protected Text wNumber;
   protected Button wOk;

@@ -36,7 +36,7 @@ import org.w3c.dom.Node;
  * etc.
  */
 public class ResultFile implements Cloneable {
-  private static final Class<?> PKG = Const.class; // For Translator
+  private static final Class<?> PKG = Const.class;
 
   public static final int FILE_TYPE_GENERAL = 0;
   public static final int FILE_TYPE_LOG = 1;

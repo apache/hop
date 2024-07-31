@@ -38,7 +38,7 @@ import picocli.CommandLine;
 @ConfigPlugin(id = "WelcomeDialogOption", description = "Enable or disable the welcome dialog")
 @GuiPlugin(description = "i18n::WelcomeDialog.Description")
 public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
-  protected static Class<?> PKG = WelcomeDialogOptions.class; // For Translator
+  protected static Class<?> PKG = WelcomeDialogOptions.class;
 
   @CommandLine.Option(
       names = {"-wd", "--welcome-dialog-disabled"},

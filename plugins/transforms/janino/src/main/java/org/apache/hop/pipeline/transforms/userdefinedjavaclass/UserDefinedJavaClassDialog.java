@@ -100,7 +100,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class UserDefinedJavaClassDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class;
 
   private ModifyListener lsMod;
 

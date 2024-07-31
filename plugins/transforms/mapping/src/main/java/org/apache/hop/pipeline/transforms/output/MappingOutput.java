@@ -27,7 +27,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Do nothing. Pass all input data to the next transforms. */
 public class MappingOutput extends BaseTransform<MappingOutputMeta, MappingOutputData> {
 
-  private static final Class<?> PKG = MappingOutputMeta.class; // For Translator
+  private static final Class<?> PKG = MappingOutputMeta.class;
 
   public MappingOutput(
       TransformMeta transformMeta,

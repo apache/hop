@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/columnexists.html")
 public class ColumnExistsMeta extends BaseTransformMeta<ColumnExists, ColumnExistsData> {
 
-  private static final Class<?> PKG = ColumnExistsMeta.class; // For Translator
+  private static final Class<?> PKG = ColumnExistsMeta.class;
 
   /** database connection */
   @HopMetadataProperty(

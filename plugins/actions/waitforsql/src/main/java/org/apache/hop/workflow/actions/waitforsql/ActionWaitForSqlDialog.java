@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Wait for SQL action settings. */
 public class ActionWaitForSqlDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
+  private static final Class<?> PKG = ActionWaitForSql.class;
 
   private Button wbTable;
   private Button wbSqlTable;

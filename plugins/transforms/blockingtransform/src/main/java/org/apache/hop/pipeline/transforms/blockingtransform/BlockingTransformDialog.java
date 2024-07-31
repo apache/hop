@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class BlockingTransformDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = BlockingTransformDialog.class; // For Translator
+  private static final Class<?> PKG = BlockingTransformDialog.class;
 
   private final BlockingTransformMeta input;
 

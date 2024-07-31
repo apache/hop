@@ -67,7 +67,7 @@ import org.json.simple.JSONObject;
 /** Make a HTTP Post call */
 public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
-  private static final Class<?> PKG = HttpPostMeta.class; // For Translator
+  private static final Class<?> PKG = HttpPostMeta.class;
 
   private static final String CONTENT_TYPE = "Content-type";
   private static final String CONTENT_TYPE_TEXT_XML = "text/xml";

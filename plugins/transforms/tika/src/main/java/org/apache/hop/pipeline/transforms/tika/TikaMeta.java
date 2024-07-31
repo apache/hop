@@ -51,7 +51,7 @@ import org.apache.hop.resource.ResourceDefinition;
     documentationUrl = "/pipeline/transforms/apache-tika.html",
     keywords = "i18n::Tika.Keywords")
 public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
-  private static final Class<?> PKG = TikaMeta.class; // for Translator
+  private static final Class<?> PKG = TikaMeta.class;
 
   /** The list of files to read */
   @HopMetadataProperty(

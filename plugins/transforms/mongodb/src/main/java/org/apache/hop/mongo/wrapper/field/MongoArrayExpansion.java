@@ -30,7 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputData;
 
 public class MongoArrayExpansion {
-  protected static Class<?> PKG = MongoArrayExpansion.class; // For Translator
+  protected static Class<?> PKG = MongoArrayExpansion.class;
 
   /** The prefix of the full path that defines the expansion */
   public String expansionPath;

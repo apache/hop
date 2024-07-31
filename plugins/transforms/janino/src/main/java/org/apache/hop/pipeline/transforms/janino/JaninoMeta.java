@@ -54,7 +54,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::JaninoMeta.keyword",
     documentationUrl = "/pipeline/transforms/userdefinedjavaexpression.html")
 public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
-  private static final Class<?> PKG = JaninoMeta.class; // For Translator
+  private static final Class<?> PKG = JaninoMeta.class;
 
   /** The formula calculations to be performed */
   @InjectionDeep private JaninoMetaFunction[] formula;

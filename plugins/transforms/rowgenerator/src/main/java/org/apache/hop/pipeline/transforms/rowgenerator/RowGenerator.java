@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Generates a number of (empty or the same) rows */
 public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorData> {
 
-  private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
+  private static final Class<?> PKG = RowGeneratorMeta.class;
 
   public RowGenerator(
       TransformMeta transformMeta,

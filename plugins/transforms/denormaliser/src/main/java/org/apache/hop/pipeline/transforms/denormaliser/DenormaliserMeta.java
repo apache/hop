@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DenormaliserMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowdenormaliser.html")
 public class DenormaliserMeta extends BaseTransformMeta<Denormaliser, DenormaliserData> {
-  private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
+  private static final Class<?> PKG = DenormaliserMeta.class;
 
   /** Fields to group over */
   @HopMetadataProperty(groupKey = "group", key = "field")

@@ -26,7 +26,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
 public class TransformOption {
-  private static final Class<?> PKG = TransformOption.class; // For Translator
+  private static final Class<?> PKG = TransformOption.class;
 
   private final String key;
   private final String text;

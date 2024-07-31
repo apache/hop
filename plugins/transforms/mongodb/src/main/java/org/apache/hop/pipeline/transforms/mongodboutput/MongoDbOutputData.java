@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 /** Data class for the MongoDbOutput transform */
 public class MongoDbOutputData extends BaseTransformData implements ITransformData {
 
-  private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
+  private static final Class<?> PKG = MongoDbOutputMeta.class;
 
   public static final int MONGO_DEFAULT_PORT = 27017;
 

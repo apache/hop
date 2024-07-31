@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::MailMeta.keyword",
     documentationUrl = "/pipeline/transforms/mail.html")
 public class MailMeta extends BaseTransformMeta<Mail, MailData> {
-  private static final Class<?> PKG = MailMeta.class; // For Translator
+  private static final Class<?> PKG = MailMeta.class;
   private static final String CONST_SPACE = "      ";
   private static final String CONST_SPACE_SHORT = "    ";
 

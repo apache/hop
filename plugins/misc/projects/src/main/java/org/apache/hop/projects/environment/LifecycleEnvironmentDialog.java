@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class LifecycleEnvironmentDialog extends Dialog {
-  private static final Class<?> PKG = LifecycleEnvironmentDialog.class; // For Translator
+  private static final Class<?> PKG = LifecycleEnvironmentDialog.class;
 
   private final LifecycleEnvironment environment;
 

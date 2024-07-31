@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class RunPipelineTestsDialog extends ActionDialog implements IActionDialog {
 
-  private static final Class<?> PKG = RunPipelineTestsDialog.class; // For Translator
+  private static final Class<?> PKG = RunPipelineTestsDialog.class;
 
   private static final String COLON_SEPARATOR = " : ";
 

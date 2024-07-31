@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Removes the same consequetive rows from the input stream(s). */
 public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> {
-  private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
+  private static final Class<?> PKG = UniqueRowsMeta.class;
 
   public UniqueRows(
       TransformMeta transformMeta,

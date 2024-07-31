@@ -43,7 +43,7 @@ import org.mozilla.javascript.ScriptableObject;
  * put on the output stream.
  */
 public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesData> {
-  private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
+  private static final Class<?> PKG = ScriptValuesMeta.class;
 
   public static final int SKIP_PIPELINE = 1;
 

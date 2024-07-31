@@ -47,7 +47,7 @@ import org.xml.sax.InputSource;
 /** Converts input rows to one or more XML files. */
 public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
 
-  private static final Class<?> PKG = XmlJoinMeta.class; // For Translator
+  private static final Class<?> PKG = XmlJoinMeta.class;
 
   private Transformer transformer;
 

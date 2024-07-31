@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class AbortDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = AbortDialog.class; // For Translator
+  private static final Class<?> PKG = AbortDialog.class;
 
   private TextVar wRowThreshold;
 

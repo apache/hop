@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::FlattenerMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowflattener.html")
 public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
-  private static final Class<?> PKG = FlattenerMeta.class; // For Translator
+  private static final Class<?> PKG = FlattenerMeta.class;
 
   /** The field to flatten */
   @HopMetadataProperty(key = "field_name")

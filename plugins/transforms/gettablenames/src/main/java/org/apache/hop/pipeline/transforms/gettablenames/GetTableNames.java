@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Return tables name list from Database connection * */
 public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableNamesData> {
 
-  private static final Class<?> PKG = GetTableNamesMeta.class; // For Translator
+  private static final Class<?> PKG = GetTableNamesMeta.class;
 
   public GetTableNames(
       TransformMeta transformMeta,

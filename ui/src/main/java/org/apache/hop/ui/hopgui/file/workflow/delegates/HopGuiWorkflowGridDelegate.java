@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.TreeItem;
 @GuiPlugin(description = "Workflow Graph Grid Delegate")
 public class HopGuiWorkflowGridDelegate {
 
-  private static final Class<?> PKG = HopGuiWorkflowGridDelegate.class; // For Translator
+  private static final Class<?> PKG = HopGuiWorkflowGridDelegate.class;
 
   private HopGui hopGui;
 

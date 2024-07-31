@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * stream
  */
 public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
-  private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
+  private static final Class<?> PKG = FuzzyMatchMeta.class;
 
   public FuzzyMatch(
       TransformMeta transformMeta,

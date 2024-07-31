@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transforms.getfilesrowcount.GetFilesRowsCountMeta
 /** Read all files, count rows number */
 public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetFilesRowsCountData> {
 
-  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
+  private static final Class<?> PKG = GetFilesRowsCountMeta.class;
 
   public GetFilesRowsCount(
       TransformMeta transformMeta,

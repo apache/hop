@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class FormulaEditor extends Dialog implements KeyListener {
-  public static final Class<?> PKG = FormulaMeta.class; // For Translator
+  public static final Class<?> PKG = FormulaMeta.class;
   public static final String FUNCTIONS_FILE = "functions.xml";
 
   private Shell shell;

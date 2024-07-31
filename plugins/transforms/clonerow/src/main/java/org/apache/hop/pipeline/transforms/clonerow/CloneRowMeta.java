@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/clonerow.html")
 public class CloneRowMeta extends BaseTransformMeta<CloneRow, CloneRowData> {
 
-  private static final Class<?> PKG = CloneRowMeta.class; // For Translator
+  private static final Class<?> PKG = CloneRowMeta.class;
 
   /** nr of clone rows */
   @HopMetadataProperty(

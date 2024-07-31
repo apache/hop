@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Sample rows. Filter rows based on line number */
 public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappingData> {
 
-  private static final Class<?> PKG = SchemaMapping.class; // For Translator
+  private static final Class<?> PKG = SchemaMapping.class;
 
   public SchemaMapping(
       TransformMeta transformMeta,

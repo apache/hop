@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Writes filenames to a next action in a Workflow */
 public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResultData> {
 
-  private static final Class<?> PKG = FilesToResultMeta.class; // For Translator
+  private static final Class<?> PKG = FilesToResultMeta.class;
 
   public FilesToResult(
       TransformMeta transformMeta,

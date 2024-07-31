@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
  * the framework used for implementing action dialogs.
  */
 public abstract class ActionDialog extends Dialog implements IActionDialog {
-  private static final Class<?> PKG = ITransform.class; // For Translator
+  private static final Class<?> PKG = ITransform.class;
 
   /** The loggingObject for the dialog */
   public static final ILoggingObject loggingObject =

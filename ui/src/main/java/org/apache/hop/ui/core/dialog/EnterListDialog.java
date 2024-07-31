@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** This dialogs allows you to select a number of items from a list of strings. */
 public class EnterListDialog extends Dialog {
-  private static final Class<?> PKG = EnterListDialog.class; // For Translator
+  private static final Class<?> PKG = EnterListDialog.class;
 
   private final PropsUi props;
 

@@ -29,7 +29,7 @@ import org.eclipse.swt.SWT;
 
 public class HopGuiWorkflowHopDelegate {
 
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private HopGui hopGui;
   private HopGuiWorkflowGraph workflowGraph;

@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class RepeatDialog extends ActionDialog {
 
-  private static final Class<?> PKG = RepeatDialog.class; // For Translator
+  private static final Class<?> PKG = RepeatDialog.class;
 
   private static final String COLON_SEPARATOR = " : ";
 

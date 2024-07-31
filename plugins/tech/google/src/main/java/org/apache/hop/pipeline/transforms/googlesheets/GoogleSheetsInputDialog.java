@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class GoogleSheetsInputDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = GoogleSheetsInputMeta.class; // for Translator
+  private static final Class<?> PKG = GoogleSheetsInputMeta.class;
 
   private final GoogleSheetsInputMeta meta;
 

@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Reads information from a database table by using freehand SQL */
 public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, ClosureGeneratorData> {
 
-  private static final Class<?> PKG = ClosureGeneratorMeta.class; // For Translator
+  private static final Class<?> PKG = ClosureGeneratorMeta.class;
 
   public ClosureGenerator(
       TransformMeta transformMeta,

@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class PGPDecryptStreamDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = PGPDecryptStreamMeta.class; // For Translator
+  private static final Class<?> PKG = PGPDecryptStreamMeta.class;
   private boolean gotPreviousFields = false;
 
   private TextVar wGPGLocation;

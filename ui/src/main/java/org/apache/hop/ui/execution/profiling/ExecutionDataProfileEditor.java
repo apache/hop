@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.ToolItem;
  */
 @GuiPlugin(description = "Editor for execution data profile metadata")
 public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProfile> {
-  private static final Class<?> PKG = ExecutionDataProfileEditor.class; // For Translator
+  private static final Class<?> PKG = ExecutionDataProfileEditor.class;
 
   private ExecutionDataProfile executionDataProfile;
   private ExecutionDataProfile workingProfile;

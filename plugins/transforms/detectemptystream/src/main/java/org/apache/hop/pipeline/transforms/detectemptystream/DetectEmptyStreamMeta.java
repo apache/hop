@@ -42,7 +42,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/detectemptystream.html")
 public class DetectEmptyStreamMeta
     extends BaseTransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
-  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
+  private static final Class<?> PKG = DetectEmptyStreamMeta.class;
 
   public DetectEmptyStreamMeta() {
     super(); // allocate BaseTransformMeta

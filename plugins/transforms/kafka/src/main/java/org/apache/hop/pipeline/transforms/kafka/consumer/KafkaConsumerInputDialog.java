@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class KafkaConsumerInputDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = KafkaConsumerInputDialog.class; // For Translator
+  private static final Class<?> PKG = KafkaConsumerInputDialog.class;
 
   private static final Map<String, String> DEFAULT_OPTION_VALUES =
       ImmutableMap.of(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");

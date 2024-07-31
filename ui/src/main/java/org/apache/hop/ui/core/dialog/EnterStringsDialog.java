@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** Shows a dialog that allows you to enter values for a number of strings. */
 public class EnterStringsDialog extends Dialog {
-  private static final Class<?> PKG = EnterStringsDialog.class; // For Translator
+  private static final Class<?> PKG = EnterStringsDialog.class;
 
   private TableView wFields;
 

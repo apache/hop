@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class XmlJoinDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = XmlJoinMeta.class; // For Translator
+  private static final Class<?> PKG = XmlJoinMeta.class;
 
   private Button wComplexJoin;
 

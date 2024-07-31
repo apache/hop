@@ -21,7 +21,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 /** MailConnection handles the process of connecting to, reading from POP3/IMAP. */
 public class MailConnectionMeta {
-  private static final Class<?> PKG = ActionGetPOP.class; // For Translator
+  private static final Class<?> PKG = ActionGetPOP.class;
 
   public static final String FOLDER_SEPARATOR = "/";
 

@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class AnalyticQueryDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = AnalyticQueryDialog.class; // For Translator
+  private static final Class<?> PKG = AnalyticQueryDialog.class;
 
   public static final String STRING_SORT_WARNING_PARAMETER = "AnalyticQuerySortWarning";
   private TableView wGroup;

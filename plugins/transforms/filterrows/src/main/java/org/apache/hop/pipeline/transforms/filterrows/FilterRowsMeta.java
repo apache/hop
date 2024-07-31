@@ -56,7 +56,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     keywords = "i18n::FilterRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/filterrows.html")
 public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData> {
-  private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
+  private static final Class<?> PKG = FilterRowsMeta.class;
 
   /** This is the main condition for the complete filter. */
   @HopMetadataProperty(

@@ -49,7 +49,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::JoinRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/joinrows.html")
 public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
-  private static final Class<?> PKG = JoinRowsMeta.class; // For Translator
+  private static final Class<?> PKG = JoinRowsMeta.class;
 
   @Injection(name = "TEMP_DIR")
   private String directory;

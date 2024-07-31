@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Displays an HTML page. */
 public class ShowBrowserDialog extends Dialog {
-  private static final Class<?> PKG = ShowBrowserDialog.class; // For Translator
+  private static final Class<?> PKG = ShowBrowserDialog.class;
 
   private String dialogTitle;
   private String content;

@@ -25,7 +25,7 @@ import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
  */
 public abstract class BaseTransformData implements ITransformData {
 
-  private static final Class<?> PKG = BaseTransform.class; // For Translator
+  private static final Class<?> PKG = BaseTransform.class;
 
   /** The status. */
   private ComponentExecutionStatus status;

@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Text;
  */
 @Deprecated(since = "2.0")
 public class VariableButtonListenerFactory {
-  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileInputMeta.class;
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter(

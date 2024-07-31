@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Do nothing. Pass all input data to the next transforms. */
 public class Dummy extends BaseTransform<DummyMeta, DummyData> {
-  private static final Class<?> PKG = DummyMeta.class; // For Translator
+  private static final Class<?> PKG = DummyMeta.class;
 
   public Dummy(
       TransformMeta transformMeta,

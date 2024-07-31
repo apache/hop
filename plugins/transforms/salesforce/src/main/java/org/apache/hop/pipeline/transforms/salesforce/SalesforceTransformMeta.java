@@ -38,7 +38,7 @@ public abstract class SalesforceTransformMeta<
         Main extends SalesforceTransform, Data extends SalesforceTransformData>
     extends BaseTransformMeta<Main, Data> {
 
-  private static final Class<?> PKG = SalesforceTransformMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceTransformMeta.class;
 
   /** The Salesforce Target URL */
   @Injection(name = "SALESFORCE_URL")

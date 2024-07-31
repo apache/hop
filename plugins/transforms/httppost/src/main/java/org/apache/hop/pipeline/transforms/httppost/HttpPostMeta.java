@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::HttpPostMeta.keyword",
     documentationUrl = "/pipeline/transforms/httppost.html")
 public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
-  private static final Class<?> PKG = HttpPostMeta.class; // For Translator
+  private static final Class<?> PKG = HttpPostMeta.class;
 
   // the timeout for waiting for data (milliseconds)
   public static final int DEFAULT_SOCKET_TIMEOUT = 10000;

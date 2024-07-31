@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.Event;
 @GuiPlugin(description = "i18n::DataOrchestrationPerspective.GuiPlugin.Description")
 public class HopDataOrchestrationPerspective implements IHopPerspective, TabClosable {
 
-  private static final Class<?> PKG = HopDataOrchestrationPerspective.class; // For Translator
+  private static final Class<?> PKG = HopDataOrchestrationPerspective.class;
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";
 
   private final HopPipelineFileType<PipelineMeta> pipelineFileType;

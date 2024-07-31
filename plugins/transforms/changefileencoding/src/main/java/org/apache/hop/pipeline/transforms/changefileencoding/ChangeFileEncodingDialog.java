@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ChangeFileEncodingDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ChangeFileEncodingDialog.class; // For Translator
+  private static final Class<?> PKG = ChangeFileEncodingDialog.class;
 
   private CCombo wFileName;
 

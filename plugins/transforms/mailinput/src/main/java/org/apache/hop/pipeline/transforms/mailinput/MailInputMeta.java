@@ -50,7 +50,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::MailInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/emailinput.html")
 public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
-  private static final Class<?> PKG = MailInputMeta.class; // For Translator
+  private static final Class<?> PKG = MailInputMeta.class;
   private static final String CONST_SPACE = "      ";
   private static final String CONST_FIELD = "field";
 

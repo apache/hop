@@ -37,7 +37,7 @@ import org.apache.hop.i18n.BaseMessages;
 /** This defines a GnuPG wrapper class. */
 public class GPG {
 
-  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
+  private static final Class<?> PKG = ActionPGPEncryptFiles.class;
 
   private ILogChannel log;
 

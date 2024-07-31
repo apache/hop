@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** Displays an ArrayList of rows in a TableView. */
 public class PreviewRowsDialog {
-  private static final Class<?> PKG = PreviewRowsDialog.class; // For Translator
+  private static final Class<?> PKG = PreviewRowsDialog.class;
 
   public static final int MAX_BINARY_STRING_PREVIEW_SIZE = 1000000;
 

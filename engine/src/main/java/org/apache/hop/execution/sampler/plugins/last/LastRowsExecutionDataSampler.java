@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 public class LastRowsExecutionDataSampler
     extends ExecutionDataSamplerBase<LastRowsExecutionDataSamplerStore>
     implements IExecutionDataSampler<LastRowsExecutionDataSamplerStore> {
-  private static final Class<?> PKG = LastRowsExecutionDataSampler.class; // For Translator
+  private static final Class<?> PKG = LastRowsExecutionDataSampler.class;
 
   public LastRowsExecutionDataSampler() {
     super();

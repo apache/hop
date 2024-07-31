@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class SearchFieldsProgressDialog implements IRunnableWithProgress {
-  private static final Class<?> PKG = SearchFieldsProgressDialog.class; // For Translator
+  private static final Class<?> PKG = SearchFieldsProgressDialog.class;
 
   private final IVariables variables;
   private TransformMeta transformMeta;

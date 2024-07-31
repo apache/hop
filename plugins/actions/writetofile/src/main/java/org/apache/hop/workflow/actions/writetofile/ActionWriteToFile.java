@@ -53,7 +53,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionWriteToFile.keyword",
     documentationUrl = "/workflow/actions/writetofile.html")
 public class ActionWriteToFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
+  private static final Class<?> PKG = ActionWriteToFile.class;
 
   @HopMetadataProperty(key = "filename")
   private String filename;

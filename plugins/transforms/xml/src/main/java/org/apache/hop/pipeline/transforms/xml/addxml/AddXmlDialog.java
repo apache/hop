@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class AddXmlDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = AddXmlMeta.class; // For Translator
+  private static final Class<?> PKG = AddXmlMeta.class;
 
   private Button wOmitXMLHeader;
 

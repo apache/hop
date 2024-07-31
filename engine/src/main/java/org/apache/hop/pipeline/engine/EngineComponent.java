@@ -28,7 +28,7 @@ import org.apache.hop.pipeline.transform.IRowListener;
 
 public class EngineComponent implements IEngineComponent {
 
-  private static final Class<?> PKG = BaseTransform.class; // For Translator
+  private static final Class<?> PKG = BaseTransform.class;
 
   private String name;
   private int copyNr;

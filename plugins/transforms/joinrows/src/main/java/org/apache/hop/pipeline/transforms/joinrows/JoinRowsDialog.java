@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class JoinRowsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = JoinRowsMeta.class; // For Translator
+  private static final Class<?> PKG = JoinRowsMeta.class;
 
   private TextVar wSortDir;
 

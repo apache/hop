@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog that allows you to enter the settings for a Shell action. */
 public class ActionShellDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionShell.class; // For Translator
+  private static final Class<?> PKG = ActionShell.class;
 
   private static final String[] FILEFORMATS =
       new String[] {

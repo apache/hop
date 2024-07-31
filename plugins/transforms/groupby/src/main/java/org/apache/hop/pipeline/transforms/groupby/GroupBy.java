@@ -59,7 +59,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Groups data based on aggregation rules. (sum, count, ...) */
 public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
-  private static final Class<?> PKG = GroupByMeta.class; // For Translator
+  private static final Class<?> PKG = GroupByMeta.class;
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

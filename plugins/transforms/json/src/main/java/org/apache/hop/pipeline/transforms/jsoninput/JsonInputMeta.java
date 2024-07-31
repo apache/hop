@@ -92,7 +92,7 @@ public class JsonInputMeta
         JsonInputMeta.AdditionalFileOutputFields,
         JsonInputMeta.InputFiles,
         JsonInputField> {
-  private static final Class<?> PKG = JsonInputMeta.class; // For Translator
+  private static final Class<?> PKG = JsonInputMeta.class;
 
   public static final String[] RequiredFilesDesc =
       new String[] {

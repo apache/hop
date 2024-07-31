@@ -60,7 +60,7 @@ import org.w3c.dom.Node;
     localizationPrefix = "SelectValues.Injection.",
     groups = {"FIELDS", "REMOVES", "METAS"})
 public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValuesData> {
-  private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
+  private static final Class<?> PKG = SelectValuesMeta.class;
 
   public static final int UNDEFINED = -2;
 

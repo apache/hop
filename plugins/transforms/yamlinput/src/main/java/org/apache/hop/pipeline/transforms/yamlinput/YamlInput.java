@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * streams.
  */
 public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
-  private static final Class<?> PKG = YamlInputMeta.class; // For Translator
+  private static final Class<?> PKG = YamlInputMeta.class;
 
   public YamlInput(
       TransformMeta transformMeta,

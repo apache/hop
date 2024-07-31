@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class CreditCardValidator
     extends BaseTransform<CreditCardValidatorMeta, CreditCardValidatorData> {
 
-  private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
+  private static final Class<?> PKG = CreditCardValidatorMeta.class;
 
   public CreditCardValidator(
       TransformMeta transformMeta,

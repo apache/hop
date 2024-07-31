@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
  * ascending
  */
 public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> {
-  private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
+  private static final Class<?> PKG = MergeJoinMeta.class;
 
   public MergeJoin(
       TransformMeta transformMeta,

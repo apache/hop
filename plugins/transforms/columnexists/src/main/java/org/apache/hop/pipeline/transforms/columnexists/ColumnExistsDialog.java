@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ColumnExistsDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ColumnExistsDialog.class; // For Translator
+  private static final Class<?> PKG = ColumnExistsDialog.class;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

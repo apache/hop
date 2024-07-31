@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
  * have no time stamps in your source system.
  */
 public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
-  private static final Class<?> PKG = MergeRowsMeta.class; // For Translator
+  private static final Class<?> PKG = MergeRowsMeta.class;
 
   private static final String VALUE_IDENTICAL = "identical";
   private static final String VALUE_CHANGED = "changed";

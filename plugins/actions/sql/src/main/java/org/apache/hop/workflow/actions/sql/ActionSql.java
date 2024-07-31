@@ -58,7 +58,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     documentationUrl = "/workflow/actions/sql.html",
     actionTransformTypes = {ActionTransformType.RDBMS})
 public class ActionSql extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSql.class; // For Translator
+  private static final Class<?> PKG = ActionSql.class;
 
   @HopMetadataProperty(
       key = "sql",

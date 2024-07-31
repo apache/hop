@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
 /** Dialog class for the MongoDB output transform */
 public class MongoDbOutputDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
+  private static final Class<?> PKG = MongoDbOutputMeta.class;
 
   protected MongoDbOutputMeta currentMeta;
   protected MongoDbOutputMeta originalMeta;

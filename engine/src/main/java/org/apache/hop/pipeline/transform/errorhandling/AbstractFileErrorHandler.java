@@ -35,7 +35,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
 
 public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
-  private static final Class<?> PKG = AbstractFileErrorHandler.class; // For Translator
+  private static final Class<?> PKG = AbstractFileErrorHandler.class;
 
   private static final String DD_MMYYYY_HHMMSS = "ddMMyyyy-HHmmss";
 

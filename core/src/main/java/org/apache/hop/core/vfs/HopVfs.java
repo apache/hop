@@ -53,7 +53,7 @@ import org.apache.hop.core.vfs.plugin.VfsPluginType;
 import org.apache.hop.i18n.BaseMessages;
 
 public class HopVfs {
-  private static final Class<?> PKG = HopVfs.class; // For Translator
+  private static final Class<?> PKG = HopVfs.class;
 
   public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 

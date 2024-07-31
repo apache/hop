@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog to enter a text. (descriptions etc.) */
 public class EnterTextDialog extends Dialog {
-  private static final Class<?> PKG = EnterTextDialog.class; // For Translator
+  private static final Class<?> PKG = EnterTextDialog.class;
 
   private final String title;
   private final String message;

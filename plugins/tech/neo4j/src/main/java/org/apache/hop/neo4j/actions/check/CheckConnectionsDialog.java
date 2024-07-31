@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class CheckConnectionsDialog extends ActionDialog implements IActionDialog {
 
-  private static final Class<?> PKG = CheckConnectionsDialog.class; // For Translator
+  private static final Class<?> PKG = CheckConnectionsDialog.class;
 
   private CheckConnections action;
 

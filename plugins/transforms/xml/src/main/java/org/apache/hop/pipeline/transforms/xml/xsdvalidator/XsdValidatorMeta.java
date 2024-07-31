@@ -52,7 +52,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::XsdValidatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/xsdvalidator.html")
 public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidatorData> {
-  private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
+  private static final Class<?> PKG = XsdValidatorMeta.class;
 
   private String xsdFilename;
   private String xmlStream;

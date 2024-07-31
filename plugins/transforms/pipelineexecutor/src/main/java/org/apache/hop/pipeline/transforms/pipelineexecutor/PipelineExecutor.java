@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Execute a pipeline for every input row, set parameters. */
 public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, PipelineExecutorData> {
 
-  private static final Class<?> PKG = PipelineExecutorMeta.class; // For Translator
+  private static final Class<?> PKG = PipelineExecutorMeta.class;
 
   public PipelineExecutor(
       TransformMeta transformMeta,

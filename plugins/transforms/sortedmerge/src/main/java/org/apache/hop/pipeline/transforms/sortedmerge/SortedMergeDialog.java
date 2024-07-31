@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SortedMergeDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
+  private static final Class<?> PKG = SortedMergeMeta.class;
 
   public static final String STRING_SORT_WARNING_PARAMETER = "SortedMergeSortWarning";
 

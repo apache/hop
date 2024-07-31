@@ -79,7 +79,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     keywords = "i18n::ActionZipFile.keyword",
     documentationUrl = "/workflow/actions/zipfile.html")
 public class ActionZipFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionZipFile.class; // For Translator
+  private static final Class<?> PKG = ActionZipFile.class;
 
   @HopMetadataProperty(key = "zipfilename")
   private String zipFilename;

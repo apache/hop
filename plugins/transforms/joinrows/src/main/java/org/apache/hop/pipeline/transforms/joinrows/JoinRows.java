@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Performs a cartesian product between 2 or more input streams. */
 public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
-  private static final Class<?> PKG = JoinRowsMeta.class; // For Translator
+  private static final Class<?> PKG = JoinRowsMeta.class;
 
   public JoinRows(
       TransformMeta transformMeta,

@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenReplacementData> {
-  private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
+  private static final Class<?> PKG = TokenReplacementMeta.class;
 
   public TokenReplacement(
       TransformMeta transformMeta,

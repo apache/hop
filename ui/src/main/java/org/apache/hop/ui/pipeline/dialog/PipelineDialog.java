@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class PipelineDialog extends Dialog {
 
-  private static final Class<?> PKG = PipelineDialog.class; // For Translator
+  private static final Class<?> PKG = PipelineDialog.class;
 
   public enum Tabs {
     PIPELINE_TAB,

@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class RowsFromResultDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = RowsFromResultMeta.class; // For Translator
+  private static final Class<?> PKG = RowsFromResultMeta.class;
 
   private TableView wFields;
 

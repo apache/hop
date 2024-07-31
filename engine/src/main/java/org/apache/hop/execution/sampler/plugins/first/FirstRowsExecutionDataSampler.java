@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 public class FirstRowsExecutionDataSampler
     extends ExecutionDataSamplerBase<FirstRowsExecutionDataSamplerStore>
     implements IExecutionDataSampler<FirstRowsExecutionDataSamplerStore> {
-  private static final Class<?> PKG = FirstRowsExecutionDataSampler.class; // For Translator
+  private static final Class<?> PKG = FirstRowsExecutionDataSampler.class;
 
   public FirstRowsExecutionDataSampler() {
     super();

@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Reads information from a database table by using freehand SQL */
 public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
 
-  private static final Class<?> PKG = TableInputMeta.class; // For Translator
+  private static final Class<?> PKG = TableInputMeta.class;
 
   public TableInput(
       TransformMeta transformMeta,

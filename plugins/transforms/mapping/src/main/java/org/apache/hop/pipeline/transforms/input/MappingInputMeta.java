@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/mapping-input.html")
 public class MappingInputMeta extends BaseTransformMeta<MappingInput, MappingInputData> {
 
-  private static final Class<?> PKG = MappingInputMeta.class; // For Translator
+  private static final Class<?> PKG = MappingInputMeta.class;
 
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<InputField> fields;

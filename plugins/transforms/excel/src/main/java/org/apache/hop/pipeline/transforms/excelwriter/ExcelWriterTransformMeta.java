@@ -51,7 +51,7 @@ import org.apache.hop.resource.ResourceDefinition;
     documentationUrl = "/pipeline/transforms/excelwriter.html")
 public class ExcelWriterTransformMeta
     extends BaseTransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
-  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
+  private static final Class<?> PKG = ExcelWriterTransformMeta.class;
 
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
   public static final String IF_FILE_EXISTS_CREATE_NEW = "new";

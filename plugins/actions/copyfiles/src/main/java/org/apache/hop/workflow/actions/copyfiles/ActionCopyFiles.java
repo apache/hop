@@ -70,7 +70,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionCopyFiles.keyword",
     documentationUrl = "/workflow/actions/copyfiles.html")
 public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionCopyFiles.class; // For Translator
+  private static final Class<?> PKG = ActionCopyFiles.class;
 
   public static final String SOURCE_CONFIGURATION_NAME = "source_configuration_name";
   public static final String SOURCE_FILE_FOLDER = "source_filefolder";

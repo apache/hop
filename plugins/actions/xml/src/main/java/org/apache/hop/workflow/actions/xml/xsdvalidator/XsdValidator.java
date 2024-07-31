@@ -65,7 +65,7 @@ import org.xml.sax.SAXException;
     keywords = "i18n::XsdValidator.keyword",
     documentationUrl = "/workflow/actions/xsdvalidator.html")
 public class XsdValidator extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = XsdValidator.class; // For Translator
+  private static final Class<?> PKG = XsdValidator.class;
 
   public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION =
       "ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION";

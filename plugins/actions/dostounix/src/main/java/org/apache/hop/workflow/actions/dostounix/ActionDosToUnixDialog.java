@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XML valid action settings. */
 public class ActionDosToUnixDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionDosToUnix.class; // For Translator
+  private static final Class<?> PKG = ActionDosToUnix.class;
 
   private static final String[] FILETYPES =
       new String[] {

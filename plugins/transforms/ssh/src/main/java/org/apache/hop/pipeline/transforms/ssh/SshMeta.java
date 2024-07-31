@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::SSHMeta.keyword",
     documentationUrl = "/pipeline/transforms/runssh.html")
 public class SshMeta extends BaseTransformMeta<Ssh, SshData> {
-  private static final Class<?> PKG = SshMeta.class; // For Translator
+  private static final Class<?> PKG = SshMeta.class;
   private static final int DEFAULT_PORT = 22;
 
   @HopMetadataProperty private String command;

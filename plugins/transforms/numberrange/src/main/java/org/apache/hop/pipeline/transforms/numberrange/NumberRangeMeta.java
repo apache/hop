@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/numberrange.html")
 public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeData> {
 
-  private static final Class<?> PKG = NumberRangeMeta.class; // For Translator
+  private static final Class<?> PKG = NumberRangeMeta.class;
 
   @HopMetadataProperty(
       key = "inputField",

@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class DynamicSqlRowDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
+  private static final Class<?> PKG = DynamicSqlRowMeta.class;
 
   private boolean gotPreviousFields = false;
 

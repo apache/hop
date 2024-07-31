@@ -40,7 +40,7 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
     keywords = "i18n::ActionAbort.keyword",
     documentationUrl = "/workflow/actions/abort.html")
 public class ActionAbort extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionAbort.class; // For Translator
+  private static final Class<?> PKG = ActionAbort.class;
 
   @HopMetadataProperty(key = "message")
   private String messageAbort;

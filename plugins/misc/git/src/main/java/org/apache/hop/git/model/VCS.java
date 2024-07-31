@@ -25,7 +25,7 @@ import org.eclipse.swt.SWT;
 
 public abstract class VCS {
 
-  protected static final Class<?> PKG = UIGit.class; // For Translator
+  protected static final Class<?> PKG = UIGit.class;
 
   public static final String WORKINGTREE = "WORKINGTREE";
   public static final String INDEX = "INDEX";

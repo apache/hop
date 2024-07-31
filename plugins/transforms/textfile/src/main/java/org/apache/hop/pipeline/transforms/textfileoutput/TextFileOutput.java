@@ -51,7 +51,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFileOutputData>
     extends BaseTransform<Meta, Data> {
 
-  private static final Class<?> PKG = TextFileOutputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileOutputMeta.class;
 
   private static final String FILE_COMPRESSION_TYPE_NONE =
       TextFileOutputMeta.fileCompressionTypeCodes[TextFileOutputMeta.FILE_COMPRESSION_TYPE_NONE];

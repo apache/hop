@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SystemDataDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SystemDataMeta.class; // For Translator
+  private static final Class<?> PKG = SystemDataMeta.class;
 
   private Text wTransformName;
 

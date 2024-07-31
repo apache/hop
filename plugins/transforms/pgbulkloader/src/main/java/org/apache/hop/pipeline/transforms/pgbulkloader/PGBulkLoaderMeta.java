@@ -53,7 +53,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     isIncludeJdbcDrivers = true)
 public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoaderData> {
 
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
+  private static final Class<?> PKG = PGBulkLoaderMeta.class;
 
   /** what's the schema for the target? */
   @HopMetadataProperty(

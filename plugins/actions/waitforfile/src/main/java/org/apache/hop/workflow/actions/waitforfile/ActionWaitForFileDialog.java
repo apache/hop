@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Wait For File action settings. */
 public class ActionWaitForFileDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionWaitForFile.class; // For Translator
+  private static final Class<?> PKG = ActionWaitForFile.class;
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionWaitForFile.Filetype.All")};

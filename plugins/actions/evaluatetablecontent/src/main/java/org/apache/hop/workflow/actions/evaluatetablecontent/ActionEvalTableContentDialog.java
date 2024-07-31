@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
  * connection and the table to evaluate)
  */
 public class ActionEvalTableContentDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionEvalTableContent.class; // For Translator
+  private static final Class<?> PKG = ActionEvalTableContent.class;
 
   private Button wbTable;
   private Button wbSqlTable;

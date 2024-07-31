@@ -54,7 +54,7 @@ import picocli.CommandLine;
 public class ProjectsConfigOptionPlugin
     implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 
-  protected static Class<?> PKG = ProjectsConfigOptionPlugin.class; // For Translator
+  protected static Class<?> PKG = ProjectsConfigOptionPlugin.class;
 
   private static final String WIDGET_ID_ENABLE_PROJECTS = "10000-enable-projects-plugin";
   private static final String WIDGET_ID_PROJECT_MANDATORY = "10010-project-mandatory";

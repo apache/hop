@@ -50,7 +50,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionWaitForFile.keyword",
     documentationUrl = "/workflow/actions/waitforfile.html")
 public class ActionWaitForFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWaitForFile.class; // For Translator
+  private static final Class<?> PKG = ActionWaitForFile.class;
 
   @HopMetadataProperty(key = "filename")
   private String filename;

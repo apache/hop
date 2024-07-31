@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Delete Folders action settings. */
 public class ActionDeleteFoldersDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionDeleteFolders.class; // For Translator
+  private static final Class<?> PKG = ActionDeleteFolders.class;
 
   private Text wName;
 

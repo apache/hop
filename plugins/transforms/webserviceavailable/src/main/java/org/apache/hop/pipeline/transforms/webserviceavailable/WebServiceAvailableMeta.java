@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/checkwebserviceavailable.html")
 public class WebServiceAvailableMeta
     extends BaseTransformMeta<WebServiceAvailable, WebServiceAvailableData> {
-  private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator
+  private static final Class<?> PKG = WebServiceAvailableMeta.class;
 
   /** dynamic filename */
   @HopMetadataProperty(

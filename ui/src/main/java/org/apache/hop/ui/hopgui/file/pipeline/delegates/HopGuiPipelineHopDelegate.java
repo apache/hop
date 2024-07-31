@@ -39,7 +39,7 @@ import org.eclipse.swt.SWT;
 
 public class HopGuiPipelineHopDelegate {
 
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;

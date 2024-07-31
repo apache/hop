@@ -70,7 +70,7 @@ import org.w3c.dom.Node;
     localizationPrefix = "ScriptValuesMod.Injection.",
     groups = {"FIELDS", "SCRIPTS"})
 public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValuesData> {
-  private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
+  private static final Class<?> PKG = ScriptValuesMeta.class;
 
   private static final String JSSCRIPT_TAG_TYPE = "jsScript_type";
   private static final String JSSCRIPT_TAG_NAME = "jsScript_name";

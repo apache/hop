@@ -58,7 +58,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     keywords = "i18n::ActionSetVariables.keyword",
     documentationUrl = "/workflow/actions/setvariables.html")
 public class ActionSetVariables extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSetVariables.class; // For Translator
+  private static final Class<?> PKG = ActionSetVariables.class;
 
   @HopMetadataProperty(key = "replacevars")
   private boolean replaceVars;

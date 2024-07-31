@@ -60,7 +60,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionCopyMoveResultFilenames.keyword",
     documentationUrl = "/workflow/actions/processresultfilenames.html")
 public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // For Translator
+  private static final Class<?> PKG = ActionCopyMoveResultFilenames.class;
 
   private String folderName;
   private boolean specifyWildcard;

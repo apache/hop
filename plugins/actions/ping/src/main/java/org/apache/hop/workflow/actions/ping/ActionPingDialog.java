@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the ping action settings. */
 public class ActionPingDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionPing.class; // For Translator
+  private static final Class<?> PKG = ActionPing.class;
 
   private Text wName;
 

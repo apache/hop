@@ -76,7 +76,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class ExcelWriterTransformDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
+  private static final Class<?> PKG = ExcelWriterTransformMeta.class;
 
   private TextVar wFilename;
   private Label wlFilename;

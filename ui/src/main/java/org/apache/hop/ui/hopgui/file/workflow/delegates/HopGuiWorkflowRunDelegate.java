@@ -40,7 +40,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 public class HopGuiWorkflowRunDelegate {
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private HopGuiWorkflowGraph workflowGraph;
   private HopGui hopGui;

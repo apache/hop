@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the MySqlBulkLoader. */
 public class ActionMysqlBulkLoadDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionMysqlBulkLoad.class; // For Translator
+  private static final Class<?> PKG = ActionMysqlBulkLoad.class;
 
   private static final String[] FILETYPES =
       new String[] {

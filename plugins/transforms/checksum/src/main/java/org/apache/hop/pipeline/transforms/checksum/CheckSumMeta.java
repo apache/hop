@@ -49,7 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/addchecksum.html")
 public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
 
-  private static final Class<?> PKG = CheckSumMeta.class; // For Translator
+  private static final Class<?> PKG = CheckSumMeta.class;
 
   public enum CheckSumType implements IEnumHasCode {
     NONE("NONE", ""),

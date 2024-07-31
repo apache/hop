@@ -66,7 +66,7 @@ import org.w3c.dom.Node;
 
 /** Widget that allows you to edit a Condition in a graphical way. */
 public class ConditionEditor extends Canvas implements MouseMoveListener {
-  private static final Class<?> PKG = ConditionEditor.class; // For Translator
+  private static final Class<?> PKG = ConditionEditor.class;
 
   private static final int X_PADDING = 18;
   private static final String STRING_NOT = BaseMessages.getString(PKG, "ConditionEditor.StringNot");

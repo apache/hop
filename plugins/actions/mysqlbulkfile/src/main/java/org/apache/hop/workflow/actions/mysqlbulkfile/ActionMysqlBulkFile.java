@@ -58,7 +58,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionMysqlBulkFile.keyword",
     documentationUrl = "/workflow/actions/mysqlbulkfile.html")
 public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMysqlBulkFile.class; // For Translator
+  private static final Class<?> PKG = ActionMysqlBulkFile.class;
 
   private String tableName;
   private String schemaName;

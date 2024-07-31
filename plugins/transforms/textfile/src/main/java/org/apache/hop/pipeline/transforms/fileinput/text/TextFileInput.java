@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
  */
 public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData> {
 
-  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileInputMeta.class;
 
   public TextFileInput(
       TransformMeta transformMeta,

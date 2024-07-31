@@ -37,7 +37,7 @@ import org.apache.hop.workflow.action.IAction;
     keywords = "i18n::ActionSuccess.keyword",
     documentationUrl = "/workflow/actions/success.html")
 public class ActionSuccess extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSuccess.class; // For Translator
+  private static final Class<?> PKG = ActionSuccess.class;
 
   public ActionSuccess(String n, String scr) {
     super(n, "");

@@ -52,7 +52,7 @@ import org.postgresql.copy.PGCopyOutputStream;
 /** Performs a bulk load to a postgres table. */
 public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderData> {
 
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
+  private static final Class<?> PKG = PGBulkLoaderMeta.class;
 
   private Charset clientEncoding = Charset.defaultCharset();
   private PGCopyOutputStream pgCopyOut;

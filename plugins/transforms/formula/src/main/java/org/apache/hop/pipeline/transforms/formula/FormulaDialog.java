@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class FormulaDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = FormulaDialog.class; // For Translator
+  private static final Class<?> PKG = FormulaDialog.class;
 
   private TableView wFields;
 

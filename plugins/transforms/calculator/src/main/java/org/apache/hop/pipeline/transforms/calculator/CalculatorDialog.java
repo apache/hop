@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class CalculatorDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = CalculatorMeta.class; // For Translator
+  private static final Class<?> PKG = CalculatorMeta.class;
 
   private Text wTransformName;
 

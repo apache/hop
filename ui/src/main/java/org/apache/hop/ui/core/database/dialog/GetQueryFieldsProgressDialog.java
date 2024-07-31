@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
  * are output by a certain SQL query on a database.
  */
 public class GetQueryFieldsProgressDialog {
-  private static final Class<?> PKG = GetQueryFieldsProgressDialog.class; // For Translator
+  private static final Class<?> PKG = GetQueryFieldsProgressDialog.class;
   private final IVariables variables;
 
   private Shell shell;

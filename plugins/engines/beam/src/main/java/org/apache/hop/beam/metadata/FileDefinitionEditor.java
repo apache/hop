@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
 
-  private static final Class<?> PKG = FileDefinitionEditor.class; // For Translator
+  private static final Class<?> PKG = FileDefinitionEditor.class;
 
   // Connection properties
   //

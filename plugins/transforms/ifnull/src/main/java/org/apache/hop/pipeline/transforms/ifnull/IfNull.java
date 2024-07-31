@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Sets a field value to a constant if it is null */
 public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
 
-  private static final Class<?> PKG = IfNullMeta.class; // For Translator
+  private static final Class<?> PKG = IfNullMeta.class;
 
   public IfNull(
       TransformMeta transformMeta,

@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/salesforceupdate.html")
 public class SalesforceUpdateMeta
     extends SalesforceTransformMeta<SalesforceUpdate, SalesforceUpdateData> {
-  private static final Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpdateMeta.class;
 
   /** Field value to update */
   private String[] updateLookup;

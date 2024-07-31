@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Displays the meta-data on the Values in a row as well as the Transform origin of the Value. */
 public class TransformFieldsDialog extends Dialog {
-  private static final Class<?> PKG = TransformFieldsDialog.class; // For Translator
+  private static final Class<?> PKG = TransformFieldsDialog.class;
 
   private TableView wFields;
 

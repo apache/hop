@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class GetXmlDataDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
+  private static final Class<?> PKG = GetXmlDataMeta.class;
 
   private String xmlSource = null;
 

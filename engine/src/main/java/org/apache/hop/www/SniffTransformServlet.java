@@ -43,7 +43,7 @@ import org.owasp.encoder.Encode;
 
 @HopServerServlet(id = "sniffTransform", name = "Sniff test a pipeline transform")
 public class SniffTransformServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = GetPipelineStatusServlet.class; // For Translator
+  private static final Class<?> PKG = GetPipelineStatusServlet.class;
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/sniffTransform";

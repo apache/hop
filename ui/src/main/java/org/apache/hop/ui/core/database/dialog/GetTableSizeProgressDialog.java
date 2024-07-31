@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Shell;
  * rows for a certain table in a database.
  */
 public class GetTableSizeProgressDialog {
-  private static final Class<?> PKG = GetTableSizeProgressDialog.class; // For Translator
+  private static final Class<?> PKG = GetTableSizeProgressDialog.class;
 
   private final Shell shell;
   private final IVariables variables;

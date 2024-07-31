@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.Text;
  * table to be checked) This entry type evaluates!
  */
 public class ActionColumnsExistDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
+  private static final Class<?> PKG = ActionColumnsExist.class;
   private static final String CONST_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private Text wName;

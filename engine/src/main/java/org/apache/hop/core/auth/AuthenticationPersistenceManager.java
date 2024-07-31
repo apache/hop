@@ -29,7 +29,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 
 public class AuthenticationPersistenceManager {
-  private static final Class<?> PKG = AuthenticationPersistenceManager.class; // For Translator
+  private static final Class<?> PKG = AuthenticationPersistenceManager.class;
   private static final ILogChannel log =
       new LogChannel(AuthenticationPersistenceManager.class.getName());
 

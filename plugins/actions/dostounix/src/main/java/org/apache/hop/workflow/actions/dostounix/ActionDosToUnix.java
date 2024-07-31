@@ -64,7 +64,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private static final int LF = 0x0a;
   private static final int CR = 0x0d;
 
-  private static final Class<?> PKG = ActionDosToUnix.class; // For Translator
+  private static final Class<?> PKG = ActionDosToUnix.class;
   private static final String CONST_SPACE = "          ";
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_SUCCESS_CONDITION_BROKEN =

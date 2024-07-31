@@ -38,7 +38,7 @@ public abstract class BaseFileInputMeta<
         I extends BaseFileInputFiles,
         F extends BaseFileField>
     extends BaseTransformMeta<Main, Data> {
-  private static final Class<?> PKG = BaseFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = BaseFileInputMeta.class;
 
   public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
 

@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class Injector extends BaseTransform<InjectorMeta, InjectorData> {
 
-  private static final Class<?> PKG = InjectorMeta.class; // For Translator
+  private static final Class<?> PKG = InjectorMeta.class;
 
   public Injector(
       TransformMeta transformMeta,

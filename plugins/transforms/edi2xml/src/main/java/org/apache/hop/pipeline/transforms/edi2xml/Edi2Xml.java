@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifa
 
 public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
 
-  private static final Class<?> PKG = Edi2XmlMeta.class; // For Translator
+  private static final Class<?> PKG = Edi2XmlMeta.class;
   private static final String CONST_UNKNOWN = "<UNKNOWN>";
   private static final String CONST_PROBLEM_LINE = "Problem line: ";
 

@@ -49,7 +49,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::RegexEvalMeta.keyword",
     documentationUrl = "/pipeline/transforms/regexeval.html")
 public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
-  private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
+  private static final Class<?> PKG = RegexEvalMeta.class;
 
   private String script;
   private String matcher;

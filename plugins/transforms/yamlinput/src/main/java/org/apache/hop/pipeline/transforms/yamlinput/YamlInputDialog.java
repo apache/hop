@@ -68,7 +68,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class YamlInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = YamlInputMeta.class; // For Translator
+  private static final Class<?> PKG = YamlInputMeta.class;
 
   private Label wlFilename;
   private Label wlYamlIsAFile;

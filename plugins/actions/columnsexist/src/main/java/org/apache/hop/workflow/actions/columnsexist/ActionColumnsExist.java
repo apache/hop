@@ -49,7 +49,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionColumnsExist.keyword",
     documentationUrl = "/workflow/actions/columnsexist.html")
 public class ActionColumnsExist extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
+  private static final Class<?> PKG = ActionColumnsExist.class;
 
   public static final class ColumnExist {
     public ColumnExist() {}

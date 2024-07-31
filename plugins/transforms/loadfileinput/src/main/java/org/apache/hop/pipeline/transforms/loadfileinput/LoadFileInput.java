@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInputData> {
 
-  private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = LoadFileInputMeta.class;
 
   public LoadFileInput(
       TransformMeta transformMeta,

@@ -34,7 +34,7 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 
 public class MetadataContextHandler implements IGuiContextHandler {
 
-  private static final Class<?> PKG = MetadataContextHandler.class; // For Translator
+  private static final Class<?> PKG = MetadataContextHandler.class;
 
   public static final String CONTEXT_ID = "HopGuiMetadataContext";
 

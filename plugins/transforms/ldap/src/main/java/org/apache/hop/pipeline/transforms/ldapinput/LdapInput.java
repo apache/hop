@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Read LDAP Host, convert them to rows and writes these to one or more output streams. */
 public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
-  private static final Class<?> PKG = LdapInputMeta.class; // For Translator
+  private static final Class<?> PKG = LdapInputMeta.class;
 
   public LdapInput(
       TransformMeta transformMeta,

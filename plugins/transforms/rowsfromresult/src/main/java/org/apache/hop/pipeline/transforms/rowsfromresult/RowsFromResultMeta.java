@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::RowsFromResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/getrowsfromresult.html")
 public class RowsFromResultMeta extends BaseTransformMeta<RowsFromResult, RowsFromResultData> {
-  private static final Class<?> PKG = RowsFromResult.class; // For Translator
+  private static final Class<?> PKG = RowsFromResult.class;
 
   private String[] fieldname;
   private int[] type;

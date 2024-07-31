@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** Dialog to display the results of an SQL generation operation. */
 public class SqlStatementsDialog extends Dialog {
-  private static final Class<?> PKG = SqlStatementsDialog.class; // For Translator
+  private static final Class<?> PKG = SqlStatementsDialog.class;
 
   public static final ILoggingObject loggingObject =
       new SimpleLoggingObject("SQL Statements Dialog", LoggingObjectType.HOP_GUI, null);

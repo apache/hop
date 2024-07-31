@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     keywords = "i18n::JavaFilterMeta.keyword",
     documentationUrl = "/pipeline/transforms/javafilter.html")
 public class JavaFilterMeta extends BaseTransformMeta<JavaFilter, JavaFilterData> {
-  private static final Class<?> PKG = JavaFilterMeta.class; // For Translator
+  private static final Class<?> PKG = JavaFilterMeta.class;
 
   /** The formula calculations to be performed */
   @HopMetadataProperty(

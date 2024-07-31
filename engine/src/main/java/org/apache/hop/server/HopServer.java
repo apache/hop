@@ -105,7 +105,7 @@ import org.w3c.dom.Node;
     image = "ui/images/server.svg",
     documentationUrl = "/metadata-types/hop-server.html")
 public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
-  private static final Class<?> PKG = HopServer.class; // For Translator
+  private static final Class<?> PKG = HopServer.class;
   public static final String STRING_HOP_SERVER = "Hop Server";
   private static final Random RANDOM = new Random();
   public static final String XML_TAG = "hop-server";

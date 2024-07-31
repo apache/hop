@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ValidatorDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ValidatorMeta.class; // For Translator
+  private static final Class<?> PKG = ValidatorMeta.class;
   private final ValidatorMeta input;
   private List wValidationsList;
   private IRowMeta inputFields;

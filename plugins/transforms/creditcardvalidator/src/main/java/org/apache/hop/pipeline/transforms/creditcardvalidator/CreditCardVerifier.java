@@ -23,7 +23,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 
 public class CreditCardVerifier {
-  private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
+  private static final Class<?> PKG = CreditCardValidatorMeta.class;
 
   public static final int INVALID = -1;
   public static final int VISA = 0;

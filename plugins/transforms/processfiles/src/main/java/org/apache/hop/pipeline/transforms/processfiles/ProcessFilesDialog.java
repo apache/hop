@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ProcessFilesDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ProcessFilesMeta.class; // For Translator
+  private static final Class<?> PKG = ProcessFilesMeta.class;
 
   private CCombo wSourceFileNameField;
 

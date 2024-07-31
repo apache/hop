@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Get POP action settings. */
 public class ActionGetPOPDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionGetPOP.class; // For Translator
+  private static final Class<?> PKG = ActionGetPOP.class;
   private static final String CONST_OK = "System.Button.OK";
 
   private Text wName;

@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class RestDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = RestMeta.class; // For Translator
+  private static final Class<?> PKG = RestMeta.class;
 
   private ComboVar wApplicationType;
 

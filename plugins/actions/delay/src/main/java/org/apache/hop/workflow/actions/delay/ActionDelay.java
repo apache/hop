@@ -42,7 +42,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionDelay.keyword",
     documentationUrl = "/workflow/actions/waitfor.html")
 public class ActionDelay extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDelay.class; // For Translator
+  private static final Class<?> PKG = ActionDelay.class;
 
   private static final String DEFAULT_MAXIMUM_TIMEOUT = "0";
 

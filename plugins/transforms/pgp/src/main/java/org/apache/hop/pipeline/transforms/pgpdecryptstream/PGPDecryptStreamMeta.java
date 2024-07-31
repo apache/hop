@@ -48,7 +48,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/pgpdecryptstream.html")
 public class PGPDecryptStreamMeta
     extends BaseTransformMeta<PGPDecryptStream, PGPDecryptStreamData> {
-  private static final Class<?> PKG = PGPDecryptStreamMeta.class; // For Translator
+  private static final Class<?> PKG = PGPDecryptStreamMeta.class;
 
   /** GPG location */
   private String gpgLocation;

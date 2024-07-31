@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DelayMeta.keyword",
     documentationUrl = "/pipeline/transforms/delay.html")
 public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
-  private static final Class<?> PKG = DelayMeta.class; // For Translator
+  private static final Class<?> PKG = DelayMeta.class;
 
   @HopMetadataProperty(key = "timeout", injectionKeyDescription = "Delay.Injection.Timeout")
   private String timeout;

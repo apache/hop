@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Text;
  * connection and the table to be checked) This action evaluates!
  */
 public class ActionMysqlBulkFileDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionMysqlBulkFile.class; // For Translator
+  private static final Class<?> PKG = ActionMysqlBulkFile.class;
 
   private static final String[] FILETYPES =
       new String[] {

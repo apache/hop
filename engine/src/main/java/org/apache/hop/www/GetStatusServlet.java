@@ -43,7 +43,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 @HopServerServlet(id = "status", name = "Get the status of the server")
 public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final Class<?> PKG = GetStatusServlet.class; // For Translator
+  private static final Class<?> PKG = GetStatusServlet.class;
 
   private static final long serialVersionUID = 3634806745372015720L;
 

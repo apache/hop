@@ -52,7 +52,7 @@ import org.apache.poi.openxml4j.util.ZipSecureFile;
 /** This class reads data from one or more Microsoft Excel files. */
 public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
-  private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
+  private static final Class<?> PKG = ExcelInputMeta.class;
 
   public ExcelInput(
       TransformMeta transformMeta,

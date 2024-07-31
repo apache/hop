@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
  * org.apache.hop.execution.ExecutionInfoLocation} package to find the dialog.
  */
 public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLocation> {
-  private static final Class<?> PKG = ExecutionInfoLocationEditor.class; // For Translator
+  private static final Class<?> PKG = ExecutionInfoLocationEditor.class;
 
   private ExecutionInfoLocation executionInfoLocation;
   private ExecutionInfoLocation workingLocation;

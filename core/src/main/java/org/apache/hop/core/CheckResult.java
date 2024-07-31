@@ -21,7 +21,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 /** This class is used to store results of pipeline and transform verifications. */
 public class CheckResult implements ICheckResult {
-  private static final Class<?> PKG = Const.class; // For Translator
+  private static final Class<?> PKG = Const.class;
 
   public static final String[] typeDesc = {
     "",

@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit a Action Success object. */
 public class ActionSuccessDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionSuccess.class; // For Translator
+  private static final Class<?> PKG = ActionSuccess.class;
 
   private Text wName;
 

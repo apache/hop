@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Clone input row. */
 public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> {
 
-  private static final Class<?> PKG = CloneRowMeta.class; // For Translator
+  private static final Class<?> PKG = CloneRowMeta.class;
 
   public CloneRow(
       TransformMeta transformMeta,

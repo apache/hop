@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.Calc
 /** Calculate new field values using pre-defined functions. */
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
-  private static final Class<?> PKG = CalculatorMeta.class; // For Translator
+  private static final Class<?> PKG = CalculatorMeta.class;
 
   public class FieldIndexes {
     public int indexName;

@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class BlockingTransform extends BaseTransform<BlockingTransformMeta, BlockingTransformData> {
 
-  private static final Class<?> PKG = BlockingTransformMeta.class; // For Translator
+  private static final Class<?> PKG = BlockingTransformMeta.class;
 
   private Object[] lastRow;
 

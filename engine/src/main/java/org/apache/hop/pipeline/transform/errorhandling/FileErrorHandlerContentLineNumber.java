@@ -25,7 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
 
 public class FileErrorHandlerContentLineNumber extends AbstractFileErrorHandler {
-  private static final Class<?> PKG = FileErrorHandlerContentLineNumber.class; // For Translator
+  private static final Class<?> PKG = FileErrorHandlerContentLineNumber.class;
 
   public FileErrorHandlerContentLineNumber(
       Date date,

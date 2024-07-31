@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class ExecSqlDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
+  private static final Class<?> PKG = ExecSqlMeta.class;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

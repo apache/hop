@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::TableCompareMeta.keyword",
     documentationUrl = "/pipeline/transforms/tablecompare.html")
 public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompareData> {
-  private static final Class<?> PKG = TableCompare.class; // For Translator
+  private static final Class<?> PKG = TableCompare.class;
 
   @HopMetadataProperty(
       key = "reference_connection",

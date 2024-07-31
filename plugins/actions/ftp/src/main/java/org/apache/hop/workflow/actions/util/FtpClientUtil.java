@@ -31,7 +31,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
 public class FtpClientUtil {
-  private static final Class<?> PKG = FtpClientUtil.class; // For Translator
+  private static final Class<?> PKG = FtpClientUtil.class;
 
   public static final FTPClient connectAndLogin(
       ILogChannel log, IVariables variables, IFtpConnection connection, String actionName)

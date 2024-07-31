@@ -73,7 +73,7 @@ import org.w3c.dom.Node;
 public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFileInputData>
     implements IInputFileMeta {
 
-  private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
+  private static final Class<?> PKG = TextFileInputMeta.class;
 
   public static final String[] RequiredFilesDesc =
       new String[] {

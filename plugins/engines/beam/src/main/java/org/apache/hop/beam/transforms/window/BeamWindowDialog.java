@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class BeamWindowDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = BeamWindowDialog.class; // For Translator
+  private static final Class<?> PKG = BeamWindowDialog.class;
   private final BeamWindowMeta input;
 
   int middle;

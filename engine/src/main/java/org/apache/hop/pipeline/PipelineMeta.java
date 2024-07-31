@@ -109,7 +109,7 @@ public class PipelineMeta extends AbstractMeta
   private static final String CONST_PARAMETER = "parameter";
   private static final String CONST_EMPTY = "        ";
 
-  private static final Class<?> PKG = Pipeline.class; // For Translator
+  private static final Class<?> PKG = Pipeline.class;
 
   /** A constant specifying the tag value for the XML node of the pipeline. */
   public static final String XML_TAG = "pipeline";

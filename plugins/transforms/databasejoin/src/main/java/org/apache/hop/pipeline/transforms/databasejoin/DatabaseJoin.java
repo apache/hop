@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transforms.databasejoin.cache.DatabaseCache;
  */
 public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData> {
 
-  private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
+  private static final Class<?> PKG = DatabaseJoinMeta.class;
 
   private final ReentrantLock dbLock = new ReentrantLock();
 

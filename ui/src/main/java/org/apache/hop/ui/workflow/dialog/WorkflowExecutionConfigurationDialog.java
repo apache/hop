@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
-  private static final Class<?> PKG = WorkflowExecutionConfigurationDialog.class; // For Translator
+  private static final Class<?> PKG = WorkflowExecutionConfigurationDialog.class;
 
   public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS =
       "last-workflow-run-configurations";

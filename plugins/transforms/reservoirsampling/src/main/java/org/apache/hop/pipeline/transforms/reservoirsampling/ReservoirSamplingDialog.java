@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class ReservoirSamplingDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = ReservoirSamplingMeta.class; // For Translator
+  private static final Class<?> PKG = ReservoirSamplingMeta.class;
 
   private TextVar wSampleSize;
 

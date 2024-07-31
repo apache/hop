@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transforms.salesforceutils.SalesforceUtils;
  */
 public class SalesforceUpsert
     extends SalesforceTransform<SalesforceUpsertMeta, SalesforceUpsertData> {
-  private static final Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpsertMeta.class;
 
   private static final String BOOLEAN = "boolean";
   private static final String STRING = "string";

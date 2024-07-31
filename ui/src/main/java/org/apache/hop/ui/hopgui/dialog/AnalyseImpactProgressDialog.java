@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Shell;
  * a pipeline on the used databases.
  */
 public class AnalyseImpactProgressDialog {
-  private static final Class<?> PKG = AnalyseImpactProgressDialog.class; // For Translator
+  private static final Class<?> PKG = AnalyseImpactProgressDialog.class;
 
   private Shell shell;
   private final IVariables variables;

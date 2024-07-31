@@ -73,7 +73,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class GoogleAnalyticsDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = GoogleAnalyticsMeta.class; // For Translator
+  private static final Class<?> PKG = GoogleAnalyticsMeta.class;
 
   private GoogleAnalyticsMeta input;
 

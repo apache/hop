@@ -81,7 +81,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class ScriptDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = ScriptDialog.class; // for Translator
+  private static final Class<?> PKG = ScriptDialog.class;
 
   private static final String[] YES_NO_COMBO =
       new String[] {

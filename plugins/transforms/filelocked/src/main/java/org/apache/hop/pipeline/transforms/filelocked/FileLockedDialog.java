@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class FileLockedDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = FileLockedMeta.class; // For Translator
+  private static final Class<?> PKG = FileLockedMeta.class;
 
   private CCombo wFileName;
 

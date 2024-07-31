@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 
 /** Write to LDAP. */
 public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
-  private static Class<?> classFromResourcesPackage = LdapOutputMeta.class; // For Translator
+  private static Class<?> classFromResourcesPackage = LdapOutputMeta.class;
 
   public LdapOutput(
       TransformMeta transformMeta,

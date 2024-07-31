@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/creditcardvalidator.html")
 public class CreditCardValidatorMeta
     extends BaseTransformMeta<CreditCardValidator, CreditCardValidatorData> {
-  private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
+  private static final Class<?> PKG = CreditCardValidatorMeta.class;
 
   /** dynamic field */
   @HopMetadataProperty(key = "fieldname")

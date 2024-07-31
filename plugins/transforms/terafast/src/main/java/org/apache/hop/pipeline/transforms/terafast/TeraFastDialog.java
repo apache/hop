@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class TeraFastDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = TeraFastMeta.class; // For Translator
+  private static final Class<?> PKG = TeraFastMeta.class;
 
   private static final int FORM_ATTACHMENT_OFFSET = 100;
 

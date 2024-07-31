@@ -42,7 +42,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class HopServerSingleton {
 
-  private static final Class<?> PKG = org.apache.hop.www.HopServer.class; // For Translator
+  private static final Class<?> PKG = org.apache.hop.www.HopServer.class;
 
   private static HopServerConfig hopServerConfig;
   private static HopServerSingleton hopServerSingleton;

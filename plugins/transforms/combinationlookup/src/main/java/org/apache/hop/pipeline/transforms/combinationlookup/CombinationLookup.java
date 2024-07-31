@@ -65,7 +65,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class CombinationLookup extends BaseTransform<CombinationLookupMeta, CombinationLookupData> {
 
-  private static final Class<?> PKG = CombinationLookupMeta.class; // For Translator
+  private static final Class<?> PKG = CombinationLookupMeta.class;
 
   private static final int CREATION_METHOD_AUTOINC = 1;
   private static final int CREATION_METHOD_SEQUENCE = 2;

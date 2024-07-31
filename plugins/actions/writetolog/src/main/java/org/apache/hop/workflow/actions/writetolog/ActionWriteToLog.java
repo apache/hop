@@ -42,7 +42,7 @@ import org.apache.hop.workflow.action.IAction;
     keywords = "i18n::ActionWriteToLog.keyword",
     documentationUrl = "/workflow/actions/writetolog.html")
 public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWriteToLog.class; // For Translator
+  private static final Class<?> PKG = ActionWriteToLog.class;
 
   /** The log level with which the message should be logged. */
   @HopMetadataProperty(key = "loglevel", storeWithCode = true)

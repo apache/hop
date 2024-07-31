@@ -179,7 +179,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         IHopFileTypeHandler,
         IGuiRefresher {
 
-  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // For Translator
+  private static final Class<?> PKG = HopGuiWorkflowGraph.class;
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiWorkflowGraph-ToolBar-10010-Run";

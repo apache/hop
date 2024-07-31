@@ -58,7 +58,7 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
     keywords = "i18n::ActionFileCompare.keyword",
     documentationUrl = "/workflow/actions/filecompare.html")
 public class ActionFileCompare extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFileCompare.class; // For Translator
+  private static final Class<?> PKG = ActionFileCompare.class;
 
   @HopMetadataProperty(key = "filename1")
   private String filename1;

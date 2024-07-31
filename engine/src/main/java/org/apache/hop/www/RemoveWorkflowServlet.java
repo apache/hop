@@ -35,7 +35,7 @@ import org.owasp.encoder.Encode;
 @HopServerServlet(id = "removeWorkflow", name = "Remove a workflow from the server")
 public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static final Class<?> PKG = RemoveWorkflowServlet.class; // For Translator
+  private static final Class<?> PKG = RemoveWorkflowServlet.class;
   private static final long serialVersionUID = -2051906998698124039L;
 
   public static final String CONTEXT_PATH = "/hop/removeWorkflow";

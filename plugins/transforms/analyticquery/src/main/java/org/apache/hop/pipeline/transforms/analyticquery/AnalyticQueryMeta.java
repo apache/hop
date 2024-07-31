@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/analyticquery.html")
 public class AnalyticQueryMeta extends BaseTransformMeta<AnalyticQuery, AnalyticQueryData> {
 
-  private static final Class<?> PKG = AnalyticQuery.class; // For Translator
+  private static final Class<?> PKG = AnalyticQuery.class;
 
   /** Fields to partition by ie, CUSTOMER, PRODUCT */
   @HopMetadataProperty(groupKey = "group", key = "field", injectionGroupKey = "group")

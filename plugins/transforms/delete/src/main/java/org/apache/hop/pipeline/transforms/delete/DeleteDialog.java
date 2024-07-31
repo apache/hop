@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class DeleteDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DeleteMeta.class; // For Translator
+  private static final Class<?> PKG = DeleteMeta.class;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

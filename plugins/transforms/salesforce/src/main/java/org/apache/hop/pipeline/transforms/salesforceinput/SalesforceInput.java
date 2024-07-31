@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransform;
  * streams.
  */
 public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, SalesforceInputData> {
-  private static final Class<?> PKG = SalesforceInputMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInputMeta.class;
 
   public SalesforceInput(
       TransformMeta transformMeta,

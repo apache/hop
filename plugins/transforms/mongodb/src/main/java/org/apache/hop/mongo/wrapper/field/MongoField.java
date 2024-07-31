@@ -35,7 +35,7 @@ import org.bson.BsonUndefined;
 import org.bson.types.Binary;
 
 public class MongoField implements Comparable<MongoField> {
-  protected static Class<?> PKG = MongoField.class; // For Translator
+  protected static Class<?> PKG = MongoField.class;
 
   /** The name the the field will take in the outputted Hop stream */
   @Injection(name = "FIELD_NAME", group = "FIELDS")

@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Set variables action settings. */
 public class ActionSetVariablesDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionSetVariables.class; // For Translator
+  private static final Class<?> PKG = ActionSetVariables.class;
 
   private Text wName;
 

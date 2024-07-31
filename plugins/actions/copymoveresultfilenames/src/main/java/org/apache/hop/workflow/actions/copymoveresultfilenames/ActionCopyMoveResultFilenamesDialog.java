@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Copy/Move result filenames action settings. */
 public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // For Translator
+  private static final Class<?> PKG = ActionCopyMoveResultFilenames.class;
 
   private Text wName;
 

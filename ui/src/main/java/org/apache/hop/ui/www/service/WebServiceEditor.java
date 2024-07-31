@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
  * @see WebService
  */
 public class WebServiceEditor extends MetadataEditor<WebService> {
-  private static final Class<?> PKG = WebServiceEditor.class; // For Translator
+  private static final Class<?> PKG = WebServiceEditor.class;
 
   private Text wName;
   private Button wEnabled;

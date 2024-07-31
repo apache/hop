@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class WebResult {
-  private static final Class<?> PKG = WebResult.class; // For Translator
+  private static final Class<?> PKG = WebResult.class;
 
   public static final String XML_TAG = "webresult";
 

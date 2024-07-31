@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class GetServerStatusDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = GetServerStatusDialog.class; // For Translator
+  private static final Class<?> PKG = GetServerStatusDialog.class;
   private final GetServerStatusMeta input;
 
   int middle;

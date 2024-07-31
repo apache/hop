@@ -54,7 +54,7 @@ import org.bson.types.ObjectId;
 import org.bson.types.Symbol;
 
 public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverFields {
-  private static final Class<?> PKG = MongodbInputDiscoverFieldsImpl.class; // For Translator
+  private static final Class<?> PKG = MongodbInputDiscoverFieldsImpl.class;
 
   @Override
   public List<MongoField> discoverFields(

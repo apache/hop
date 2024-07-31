@@ -61,7 +61,7 @@ import org.json.simple.JSONObject;
 @HopServerServlet(id = "asyncRun", name = "Asynchronously run a workflow")
 public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static final Class<?> PKG = WebServiceServlet.class; // For Translator
+  private static final Class<?> PKG = WebServiceServlet.class;
 
   private static final long serialVersionUID = 3834384735363246432L;
 

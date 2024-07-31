@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog that allows you to edit the settings of a Neo4j connection */
 public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
-  private static final Class<?> PKG = NeoConnectionEditor.class; // for Translator2
+  private static final Class<?> PKG = NeoConnectionEditor.class;
 
   private CTabFolder wTabFolder;
 

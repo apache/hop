@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Create Folder action settings. */
 public class ActionFolderIsEmptyDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionFolderIsEmpty.class; // For Translator
+  private static final Class<?> PKG = ActionFolderIsEmpty.class;
 
   private Text wName;
 

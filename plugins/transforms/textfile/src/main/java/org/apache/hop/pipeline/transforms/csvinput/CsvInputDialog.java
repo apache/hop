@@ -94,7 +94,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class CsvInputDialog extends BaseTransformDialog
     implements IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {
-  private static final Class<?> PKG = CsvInput.class; // For Translator
+  private static final Class<?> PKG = CsvInput.class;
   public static final String STRING_USAGE_INFO_PARAMETER = "UsageInfoParameter";
 
   private final CsvInputMeta inputMeta;

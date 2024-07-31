@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class DatabaseJoinDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
+  private static final Class<?> PKG = DatabaseJoinMeta.class;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

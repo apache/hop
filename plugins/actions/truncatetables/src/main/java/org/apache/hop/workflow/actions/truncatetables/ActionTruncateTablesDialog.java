@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
  * the table to be truncated)
  */
 public class ActionTruncateTablesDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionTruncateTables.class; // For Translator
+  private static final Class<?> PKG = ActionTruncateTables.class;
 
   private Button wbTable;
 

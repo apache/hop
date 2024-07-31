@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::AddSequenceMeta.keyword")
 public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceData> {
 
-  private static final Class<?> PKG = AddSequenceMeta.class; // For Translator
+  private static final Class<?> PKG = AddSequenceMeta.class;
 
   @HopMetadataProperty(
       key = "valuename",

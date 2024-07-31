@@ -73,7 +73,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::WorkflowExecutorMeta.keyword")
 public class WorkflowExecutorMeta
     extends BaseTransformMeta<WorkflowExecutor, WorkflowExecutorData> {
-  private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
+  private static final Class<?> PKG = WorkflowExecutorMeta.class;
 
   /** The name of the workflow run configuration to execute with */
   private String runConfigurationName;

@@ -28,7 +28,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
 public class HopGuiWorkflowUndoDelegate {
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private HopGuiWorkflowGraph workflowGraph;
   private HopGui hopGui;

@@ -43,7 +43,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/uniquerowsbyhashset.html")
 public class UniqueRowsByHashSetMeta
     extends BaseTransformMeta<UniqueRowsByHashSet, UniqueRowsByHashSetData> {
-  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // For Translator
+  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class;
 
   /**
    * Whether to compare strictly by hash value or to store the row values for strict equality

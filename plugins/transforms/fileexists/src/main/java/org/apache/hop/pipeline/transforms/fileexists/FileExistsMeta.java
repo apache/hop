@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::FileExistsMeta.keyword",
     documentationUrl = "/pipeline/transforms/fileexists.html")
 public class FileExistsMeta extends BaseTransformMeta<FileExists, FileExistsData> {
-  private static final Class<?> PKG = FileExistsMeta.class; // For Translator
+  private static final Class<?> PKG = FileExistsMeta.class;
 
   @HopMetadataProperty(
       key = "addresultfilenames",

@@ -68,7 +68,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class LdapOutputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = LdapOutputMeta.class; // For Translator
+  private static final Class<?> PKG = LdapOutputMeta.class;
 
   private Button wUsingAuthentication;
 

@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class BeamHiveCatalogInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = BeamHiveCatalogInput.class; // For Translator
+  private static final Class<?> PKG = BeamHiveCatalogInput.class;
   private final BeamHiveCatalogInputMeta input;
 
   int middle;

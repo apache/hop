@@ -61,7 +61,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Read a simple CSV file Just output Strings found in the file... */
 public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
-  private static final Class<?> PKG = MetaInject.class; // For Translator
+  private static final Class<?> PKG = MetaInject.class;
 
   private static final Lock repoSaveLock = new ReentrantLock();
 

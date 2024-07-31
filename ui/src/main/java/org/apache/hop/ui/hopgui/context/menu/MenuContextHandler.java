@@ -33,7 +33,7 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 
 public class MenuContextHandler implements IGuiContextHandler {
 
-  private static final Class<?> PKG = MenuContextHandler.class; // For Translator
+  private static final Class<?> PKG = MenuContextHandler.class;
 
   public static final String CONTEXT_ID = "HopGuiMenuContext";
 

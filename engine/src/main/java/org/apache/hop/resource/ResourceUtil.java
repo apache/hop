@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 
 public class ResourceUtil {
 
-  private static final Class<?> PKG = ResourceUtil.class; // For Translator
+  private static final Class<?> PKG = ResourceUtil.class;
 
   /**
    * Serializes the referenced resource export interface (Workflow, Pipeline, Mapping, Transform,

@@ -51,7 +51,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/streamschemamerge.html")
 public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSchemaData> {
 
-  private static final Class<?> PKG = StreamSchemaMeta.class; // For Translator
+  private static final Class<?> PKG = StreamSchemaMeta.class;
 
   /** Stores the names of the transforms to merge into the output */
   private ArrayList<String> transformsToMerge = new ArrayList<>();

@@ -23,7 +23,7 @@ import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultDialog;
 import org.eclipse.swt.widgets.Shell;
 
 public class RecordsFromStreamDialog extends RowsFromResultDialog {
-  private static final Class<?> PKG = RecordsFromStreamMeta.class; // For Translator
+  private static final Class<?> PKG = RecordsFromStreamMeta.class;
 
   @Override
   public String getTitle() {

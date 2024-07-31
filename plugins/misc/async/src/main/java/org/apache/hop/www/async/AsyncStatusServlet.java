@@ -50,7 +50,7 @@ import org.apache.hop.www.WebServiceServlet;
     name = "Get the status of an asynchronously executing workflow")
 public class AsyncStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static final Class<?> PKG = WebServiceServlet.class; // For Translator
+  private static final Class<?> PKG = WebServiceServlet.class;
 
   private static final long serialVersionUID = 2943295824369134751L;
 

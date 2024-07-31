@@ -24,7 +24,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class Aggregation implements Cloneable {
 
-  private static final Class<?> PKG = Aggregation.class; // For Translator
+  private static final Class<?> PKG = Aggregation.class;
 
   public static final int TYPE_GROUP_NONE = 0;
 

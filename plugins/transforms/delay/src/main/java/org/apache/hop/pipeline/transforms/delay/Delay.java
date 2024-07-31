@@ -28,7 +28,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Delay input row. */
 public class Delay extends BaseTransform<DelayMeta, DelayData> {
 
-  private static final Class<?> PKG = DelayMeta.class; // For Translator
+  private static final Class<?> PKG = DelayMeta.class;
 
   public Delay(
       TransformMeta transformMeta,

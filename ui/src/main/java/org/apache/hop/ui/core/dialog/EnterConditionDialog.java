@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** This dialog allows you to enter a condition in a graphical way. */
 public class EnterConditionDialog extends Dialog {
-  private static final Class<?> PKG = EnterConditionDialog.class; // For Translator
+  private static final Class<?> PKG = EnterConditionDialog.class;
 
   private PropsUi props;
 

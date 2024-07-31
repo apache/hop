@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class JaninoDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = JaninoMeta.class; // For Translator
+  private static final Class<?> PKG = JaninoMeta.class;
 
   private Text wTransformName;
 

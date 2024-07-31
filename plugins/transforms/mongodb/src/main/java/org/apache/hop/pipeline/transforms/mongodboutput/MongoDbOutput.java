@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * certain fields) operations. Can also create and drop indexes based on one or more fields.
  */
 public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutputData> {
-  private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
+  private static final Class<?> PKG = MongoDbOutputMeta.class;
 
   protected MongoDbOutputData.MongoTopLevel mongoTopLevelStructure =
       MongoDbOutputData.MongoTopLevel.INCONSISTENT;

@@ -28,7 +28,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 
 public class TextFileLineUtil {
-  private static final Class<?> PKG = TextFileLineUtil.class; // For Translator
+  private static final Class<?> PKG = TextFileLineUtil.class;
 
   public static final int FILE_FORMAT_DOS = 0;
   public static final int FILE_FORMAT_UNIX = 1;

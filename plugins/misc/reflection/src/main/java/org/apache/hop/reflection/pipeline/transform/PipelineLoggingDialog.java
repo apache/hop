@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class PipelineLoggingDialog extends BaseTransformDialog {
 
-  private static final Class<?> PKG = PipelineLoggingDialog.class; // For Translator
+  private static final Class<?> PKG = PipelineLoggingDialog.class;
 
   private final PipelineLoggingMeta input;
   private Button wLoggingTransforms;

@@ -33,7 +33,7 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-DuckDBDatabaseMeta")
 public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
-  private static final Class<?> PKG = DuckDBDatabaseMeta.class; // For Translator
+  private static final Class<?> PKG = DuckDBDatabaseMeta.class;
 
   @Override
   public String getCreateTableStatement() {

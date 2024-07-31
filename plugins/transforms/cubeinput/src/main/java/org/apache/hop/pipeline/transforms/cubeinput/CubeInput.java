@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
 
-  private static final Class<?> PKG = CubeInputMeta.class; // For Translator
+  private static final Class<?> PKG = CubeInputMeta.class;
 
   private int realRowLimit;
 

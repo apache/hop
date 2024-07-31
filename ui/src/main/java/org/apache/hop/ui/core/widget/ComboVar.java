@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Listener;
  * variables.
  */
 public class ComboVar extends Composite {
-  private static final Class<?> PKG = ComboVar.class; // For Translator
+  private static final Class<?> PKG = ComboVar.class;
 
   private String toolTipText;
 

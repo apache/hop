@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
-  private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
+  private static final Class<?> PKG = RegexEvalMeta.class;
 
   public RegexEval(
       TransformMeta transformMeta,

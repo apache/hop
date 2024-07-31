@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class XmlOutputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = XmlOutputMeta.class; // For Translator
+  private static final Class<?> PKG = XmlOutputMeta.class;
 
   private TextVar wFilename;
 

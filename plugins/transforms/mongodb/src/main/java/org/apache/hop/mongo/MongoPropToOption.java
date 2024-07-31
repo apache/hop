@@ -27,7 +27,7 @@ import java.util.Arrays;
 import org.apache.hop.i18n.BaseMessages;
 
 class MongoPropToOption {
-  private static final Class<?> PKG = MongoPropToOption.class; // For Translator
+  private static final Class<?> PKG = MongoPropToOption.class;
 
   private MongoUtilLogger log;
 

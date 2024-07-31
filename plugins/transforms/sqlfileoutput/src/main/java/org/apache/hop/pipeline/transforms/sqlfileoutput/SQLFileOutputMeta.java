@@ -58,7 +58,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::SQLFileOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/sqlfileoutput.html")
 public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileOutputData> {
-  private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
+  private static final Class<?> PKG = SQLFileOutputMeta.class;
   private static final String CONST_SPACE = "      ";
   private static final String CONST_SPACE_SHORT = "    ";
 

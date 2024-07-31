@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class InjectorDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = InjectorMeta.class; // For Translator
+  private static final Class<?> PKG = InjectorMeta.class;
 
   private TableView wFields;
 

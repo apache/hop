@@ -52,7 +52,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionPing.keyword",
     documentationUrl = "/workflow/actions/ping.html")
 public class ActionPing extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPing.class; // For Translator
+  private static final Class<?> PKG = ActionPing.class;
 
   private String hostname;
   private String timeout;

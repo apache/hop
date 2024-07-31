@@ -66,7 +66,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SelectValuesDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
+  private static final Class<?> PKG = SelectValuesMeta.class;
 
   private CTabFolder wTabFolder;
 

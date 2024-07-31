@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class DBProcDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = DBProcMeta.class; // For Translator
+  private static final Class<?> PKG = DBProcMeta.class;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

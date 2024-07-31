@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Filters input rows base on conditions. */
 public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> {
-  private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
+  private static final Class<?> PKG = SwitchCaseMeta.class;
 
   public SwitchCase(
       TransformMeta transformMeta,

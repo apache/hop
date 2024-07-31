@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutputData> {
-  private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
+  private static final Class<?> PKG = SQLFileOutputMeta.class;
 
   String schemaTable;
   String schemaName;

@@ -41,7 +41,7 @@ import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 
 /** Read data from POP3/IMAP server and input data to the next transforms. */
 public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
-  private static final Class<?> PKG = MailInputMeta.class; // For Translator
+  private static final Class<?> PKG = MailInputMeta.class;
 
   private MessageParser instance = new MessageParser();
 

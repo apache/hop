@@ -59,7 +59,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionSftp.keyword",
     documentationUrl = "/workflow/actions/sftp.html")
 public class ActionSftp extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSftp.class; // For Translator
+  private static final Class<?> PKG = ActionSftp.class;
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_PASSWORD = "password";
 

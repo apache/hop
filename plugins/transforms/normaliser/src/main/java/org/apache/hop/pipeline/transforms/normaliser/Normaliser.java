@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Normalise de-normalised input data. */
 public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
-  private static final Class<?> PKG = NormaliserMeta.class; // For Translator
+  private static final Class<?> PKG = NormaliserMeta.class;
 
   public Normaliser(
       TransformMeta transformMeta,

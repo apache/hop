@@ -57,7 +57,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::MergeRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/mergerows.html")
 public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
-  private static final Class<?> PKG = MergeRowsMeta.class; // For Translator
+  private static final Class<?> PKG = MergeRowsMeta.class;
 
   @Injection(name = "FLAG_FIELD")
   private String flagField;

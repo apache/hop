@@ -64,7 +64,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionFoldersCompare.keyword",
     documentationUrl = "/workflow/actions/comparefolders.html")
 public class ActionFoldersCompare extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFoldersCompare.class; // For Translator
+  private static final Class<?> PKG = ActionFoldersCompare.class;
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_IS_A_FILE = "ActionFoldersCompare.Log.IsAFile";
   private static final String CONST_IS_A_FOLDER = "ActionFoldersCompare.Log.IsAFolder";

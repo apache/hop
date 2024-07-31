@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Retrieves values from a database by calling database stored procedures or functions */
 public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
-  private static final Class<?> PKG = DBProcMeta.class; // For Translator
+  private static final Class<?> PKG = DBProcMeta.class;
 
   public DBProc(
       TransformMeta transformMeta,

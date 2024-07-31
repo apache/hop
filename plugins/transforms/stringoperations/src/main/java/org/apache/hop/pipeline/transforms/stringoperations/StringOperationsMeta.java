@@ -51,7 +51,7 @@ import org.w3c.dom.Node;
 public class StringOperationsMeta
     extends BaseTransformMeta<StringOperations, StringOperationsData> {
 
-  private static final Class<?> PKG = StringOperationsMeta.class; // For Translator
+  private static final Class<?> PKG = StringOperationsMeta.class;
 
   /** which field in input stream to compare with? */
   @Injection(name = "SOURCEFIELDS")

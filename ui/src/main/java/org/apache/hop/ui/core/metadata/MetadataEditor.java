@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Shell;
 public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFileTypeHandler
     implements IMetadataEditor<T> {
 
-  private static final Class<?> PKG = MetadataEditorDialog.class; // For Translator
+  private static final Class<?> PKG = MetadataEditorDialog.class;
 
   protected HopGui hopGui;
   protected MetadataManager<T> manager;

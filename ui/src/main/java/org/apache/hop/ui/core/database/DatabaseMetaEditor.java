@@ -78,7 +78,7 @@ import org.eclipse.swt.widgets.ToolItem;
  * DatabaseMeta package to find the dialog.
  */
 public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
-  private static final Class<?> PKG = DatabaseMetaEditor.class; // For Translator
+  private static final Class<?> PKG = DatabaseMetaEditor.class;
 
   private CTabFolder wTabFolder;
 

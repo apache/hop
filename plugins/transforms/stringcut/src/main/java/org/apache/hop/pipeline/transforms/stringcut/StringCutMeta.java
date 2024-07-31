@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/stringcut.html")
 public class StringCutMeta extends BaseTransformMeta<StringCut, StringCutData> {
 
-  private static final Class<?> PKG = StringCutMeta.class; // For Translator
+  private static final Class<?> PKG = StringCutMeta.class;
 
   @HopMetadataProperty(
       groupKey = "fields",

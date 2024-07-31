@@ -76,7 +76,7 @@ public class WebServer {
   public static final int PORT = 80;
   public static final int SHUTDOWN_PORT = 8079;
   private static final int DEFAULT_DETECTION_TIMER = 20000;
-  private static final Class<?> PKG = WebServer.class; // For Translator
+  private static final Class<?> PKG = WebServer.class;
   private ILogChannel log;
   private IVariables variables;
   private Server server;

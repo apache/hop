@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class NormaliserDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = NormaliserMeta.class; // For Translator
+  private static final Class<?> PKG = NormaliserMeta.class;
 
   private static final int NAME_INDEX = 1;
 

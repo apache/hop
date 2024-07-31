@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.TableItem;
  * capability.
  */
 public interface IGetFieldsCapableTransformDialog<TransformMetaType extends BaseTransformMeta> {
-  Class<?> PKG = IGetFieldsCapableTransformDialog.class; // For Translator
+  Class<?> PKG = IGetFieldsCapableTransformDialog.class;
 
   LogChannel logger = new LogChannel(IGetFieldsCapableTransformDialog.class);
 

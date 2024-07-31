@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.MenuItem;
 
 public class TabCloseHandler {
 
-  private static final Class<?> PKG = HopDataOrchestrationPerspective.class; // For Translator
+  private static final Class<?> PKG = HopDataOrchestrationPerspective.class;
 
   CTabFolder tabFolder;
   CTabItem selectedItem;

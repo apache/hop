@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit a Action Abort object. */
 public class ActionAbortDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionAbortDialog.class; // For Translator
+  private static final Class<?> PKG = ActionAbortDialog.class;
 
   private ActionAbort action;
 

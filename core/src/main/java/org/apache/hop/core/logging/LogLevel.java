@@ -30,7 +30,7 @@ public enum LogLevel implements IEnumHasCodeAndDescription {
   DEBUG(5, "Debug"),
   ROWLEVEL(6, "Rowlevel");
 
-  private static final Class<?> PKG = LogLevel.class; // For Translator
+  private static final Class<?> PKG = LogLevel.class;
 
   public static final String[] logLevelDescriptions = {
     BaseMessages.getString(PKG, "LogWriter.Level.Nothing.LongDesc"),

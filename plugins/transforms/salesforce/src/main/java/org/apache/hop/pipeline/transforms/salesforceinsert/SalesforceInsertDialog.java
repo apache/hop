@@ -79,7 +79,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
-  private static final Class<?> PKG = SalesforceInsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInsertMeta.class;
 
   private Map<String, Integer> inputFields;
 

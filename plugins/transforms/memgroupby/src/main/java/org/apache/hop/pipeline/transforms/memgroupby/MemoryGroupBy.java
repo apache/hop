@@ -52,7 +52,7 @@ import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry
 
 /** Groups information based on aggregation rules. (sum, count, ...) */
 public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData> {
-  private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
+  private static final Class<?> PKG = MemoryGroupByMeta.class;
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

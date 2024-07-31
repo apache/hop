@@ -47,7 +47,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::XsltMeta.keyword",
     documentationUrl = "/pipeline/transforms/xslt.html")
 public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
-  private static final Class<?> PKG = XsltMeta.class; // For Translator
+  private static final Class<?> PKG = XsltMeta.class;
 
   public static final String[] outputProperties =
       new String[] {

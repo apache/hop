@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/salesforcedelete.html")
 public class SalesforceDeleteMeta
     extends SalesforceTransformMeta<SalesforceDelete, SalesforceDeleteData> {
-  private static final Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceDeleteMeta.class;
 
   /** Deletefield */
   private String deleteField;

@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Shell;
 public class HopGuiPipelineTransformDelegate {
 
   // TODO: move i18n package to HopGui
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;

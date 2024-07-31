@@ -54,7 +54,7 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
     keywords = "i18n::ActionDeleteFile.keyword",
     documentationUrl = "/workflow/actions/deletefile.html")
 public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDeleteFile.class; // For Translator
+  private static final Class<?> PKG = ActionDeleteFile.class;
 
   @HopMetadataProperty(key = "filename")
   private String filename;

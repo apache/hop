@@ -80,7 +80,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This class provides functionality common to Transform Dialogs. */
 public abstract class BaseTransformDialog extends Dialog implements ITransformDialog {
-  private static final Class<?> PKG = ITransform.class; // For Translator
+  private static final Class<?> PKG = ITransform.class;
 
   /** The logging object interface for this dialog. */
   public static final ILoggingObject loggingObject =

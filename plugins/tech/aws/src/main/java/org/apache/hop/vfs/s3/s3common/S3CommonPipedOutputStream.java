@@ -41,7 +41,7 @@ import org.apache.hop.i18n.BaseMessages;
 /** Custom OutputStream that enables chunked uploads into S3 */
 public class S3CommonPipedOutputStream extends PipedOutputStream {
 
-  private static final Class<?> PKG = S3CommonPipedOutputStream.class; // For Translator
+  private static final Class<?> PKG = S3CommonPipedOutputStream.class;
 
   /** set to aws multipart minimum 5MB. */
   private static final int DEFAULT_PART_SIZE = 5 * 1024 * 1024;

@@ -56,7 +56,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionSendNagiosPassiveCheck.keyword",
     documentationUrl = "/workflow/actions/sendnagiospassivecheck.html")
 public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // For Translator
+  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class;
 
   private String serverName;
   private String port;

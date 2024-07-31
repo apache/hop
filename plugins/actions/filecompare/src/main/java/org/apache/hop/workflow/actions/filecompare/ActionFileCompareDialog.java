@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the File compare action settings. */
 public class ActionFileCompareDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionFileCompare.class; // For Translator
+  private static final Class<?> PKG = ActionFileCompare.class;
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionFileCompare.Filetype.All")};

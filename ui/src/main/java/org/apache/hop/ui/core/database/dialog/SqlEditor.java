@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Dialog that allows the user to launch SQL statements towards the database. */
 public class SqlEditor {
-  private static final Class<?> PKG = SqlEditor.class; // For Translator
+  private static final Class<?> PKG = SqlEditor.class;
 
   public static final ILoggingObject loggingObject =
       new SimpleLoggingObject("SQL Editor", LoggingObjectType.HOP_GUI, null);

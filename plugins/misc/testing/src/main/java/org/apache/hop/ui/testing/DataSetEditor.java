@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class DataSetEditor extends MetadataEditor<DataSet> {
-  private static final Class<?> PKG = DataSetEditor.class; // For Translator
+  private static final Class<?> PKG = DataSetEditor.class;
 
   private Text wName;
   private Text wDescription;

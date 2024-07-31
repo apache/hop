@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the SFTP action settings. */
 public class ActionSftpDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionSftp.class; // For Translator
+  private static final Class<?> PKG = ActionSftp.class;
   private static final String[] FILETYPES =
       new String[] {
         BaseMessages.getString(PKG, "ActionSftp.Filetype.Pem"),

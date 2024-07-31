@@ -56,7 +56,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/xmljoin.html")
 @InjectionSupported(localizationPrefix = "XmlJoin.Injection.")
 public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
-  private static final Class<?> PKG = XmlJoinMeta.class; // For Translator
+  private static final Class<?> PKG = XmlJoinMeta.class;
 
   /** The base name of the output file */
 

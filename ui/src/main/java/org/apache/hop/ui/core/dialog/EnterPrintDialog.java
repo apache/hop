@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** A dialog that sets the printer settings for a Hop printout. */
 public class EnterPrintDialog extends Dialog {
-  private static final Class<?> PKG = EnterPrintDialog.class; // For Translator
+  private static final Class<?> PKG = EnterPrintDialog.class;
 
   private int retval;
   private Image image;

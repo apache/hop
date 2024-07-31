@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Denormalises data based on key-value pairs */
 public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserData> {
 
-  private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
+  private static final Class<?> PKG = DenormaliserMeta.class;
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

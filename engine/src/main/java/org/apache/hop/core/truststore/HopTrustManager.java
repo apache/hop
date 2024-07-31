@@ -34,7 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
  */
 public class HopTrustManager implements X509TrustManager {
 
-  private static final Class<?> classFromPackage = HopTrustManager.class; // For Translator
+  private static final Class<?> classFromPackage = HopTrustManager.class;
 
   /** The trust manager around which we wrap ourselves in this class. */
   private X509TrustManager tm;

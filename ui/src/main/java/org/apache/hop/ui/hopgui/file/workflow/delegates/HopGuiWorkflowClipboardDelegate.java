@@ -46,7 +46,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class HopGuiWorkflowClipboardDelegate {
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   public static final String XML_TAG_WORKFLOW_ACTIONS = "workflow-actions";
 

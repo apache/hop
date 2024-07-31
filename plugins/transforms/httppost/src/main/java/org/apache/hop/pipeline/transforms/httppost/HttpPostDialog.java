@@ -64,7 +64,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class HttpPostDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = HttpPostMeta.class; // For Translator
+  private static final Class<?> PKG = HttpPostMeta.class;
 
   private static final String[] YES_NO_COMBO =
       new String[] {

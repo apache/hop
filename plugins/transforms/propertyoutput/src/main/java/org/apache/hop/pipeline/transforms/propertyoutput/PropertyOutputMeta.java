@@ -52,7 +52,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::PropertyOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/propertyoutput.html")
 public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, PropertyOutputData> {
-  private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
+  private static final Class<?> PKG = PropertyOutputMeta.class;
 
   private String keyfield;
   private String valuefield;

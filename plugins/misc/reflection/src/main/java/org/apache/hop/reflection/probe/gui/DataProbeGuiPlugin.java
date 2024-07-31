@@ -49,7 +49,7 @@ import org.eclipse.swt.SWT;
 @GuiPlugin
 public class DataProbeGuiPlugin {
 
-  private static final Class<?> PKG = DataProbeGuiPlugin.class; // For Translator
+  private static final Class<?> PKG = DataProbeGuiPlugin.class;
 
   @GuiContextAction(
       id = "pipeline-graph-transform-9000-add-probe",

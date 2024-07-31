@@ -62,7 +62,7 @@ import org.w3c.dom.Node;
     actionTransformTypes = {ActionTransformType.INPUT, ActionTransformType.RDBMS})
 public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
 
-  private static final Class<?> PKG = TableInputMeta.class; // For Translator
+  private static final Class<?> PKG = TableInputMeta.class;
 
   @HopMetadataProperty(
       key = "sql",

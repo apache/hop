@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** NullIf transform, put null as value when the original field matches a specific value. */
 public class NullIf extends BaseTransform<NullIfMeta, NullIfData> {
-  private static final Class<?> PKG = NullIfMeta.class; // For Translator
+  private static final Class<?> PKG = NullIfMeta.class;
 
   public NullIf(
       TransformMeta transformMeta,

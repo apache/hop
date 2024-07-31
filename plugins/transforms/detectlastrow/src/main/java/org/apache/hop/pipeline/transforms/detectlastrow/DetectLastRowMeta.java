@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DetectLastRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/identifylastrow.html")
 public class DetectLastRowMeta extends BaseTransformMeta<DetectLastRow, DetectLastRowData> {
-  private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator
+  private static final Class<?> PKG = DetectLastRowMeta.class;
 
   /** function result: new value name */
   @HopMetadataProperty(key = "resultfieldname")

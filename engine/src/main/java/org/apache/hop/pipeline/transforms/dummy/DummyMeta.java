@@ -42,7 +42,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/dummy.html")
 public class DummyMeta extends BaseTransformMeta<Dummy, DummyData> {
 
-  private static final Class<?> PKG = DummyMeta.class; // For Translator
+  private static final Class<?> PKG = DummyMeta.class;
 
   public DummyMeta() {
     super(); // allocate BaseTransformMeta

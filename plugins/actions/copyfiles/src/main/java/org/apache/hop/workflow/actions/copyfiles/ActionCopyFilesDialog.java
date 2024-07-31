@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Copy Files action settings. */
 public class ActionCopyFilesDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionCopyFiles.class; // For Translator
+  private static final Class<?> PKG = ActionCopyFiles.class;
 
   protected static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionCopyFiles.Filetype.All")};

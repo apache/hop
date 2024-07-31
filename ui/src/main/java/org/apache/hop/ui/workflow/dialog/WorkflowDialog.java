@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Allows you to edit the Workflow settings. Just feed it a WorkflowMeta object. */
 public class WorkflowDialog extends Dialog {
-  private static final Class<?> PKG = WorkflowDialog.class; // For Translator
+  private static final Class<?> PKG = WorkflowDialog.class;
 
   private CTabFolder wTabFolder;
 

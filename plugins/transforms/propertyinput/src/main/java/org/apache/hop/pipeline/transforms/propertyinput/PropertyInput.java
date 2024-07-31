@@ -46,7 +46,7 @@ import org.ini4j.Wini;
  * output streams.
  */
 public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInputData> {
-  private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
+  private static final Class<?> PKG = PropertyInputMeta.class;
 
   public PropertyInput(
       TransformMeta transformMeta,

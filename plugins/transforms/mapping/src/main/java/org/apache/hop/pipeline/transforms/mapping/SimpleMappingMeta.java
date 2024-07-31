@@ -56,7 +56,7 @@ import org.apache.hop.resource.ResourceReference;
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData>
     implements ISubPipelineAwareMeta {
 
-  private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
+  private static final Class<?> PKG = SimpleMappingMeta.class;
 
   @HopMetadataProperty(key = "runConfiguration")
   private String runConfigurationName;

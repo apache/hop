@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class GetFileNamesDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = GetFileNamesMeta.class; // For Translator
+  private static final Class<?> PKG = GetFileNamesMeta.class;
 
   private static final String[] YES_NO_COMBO =
       new String[] {

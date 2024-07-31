@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class GetFilesRowsCountDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
+  private static final Class<?> PKG = GetFilesRowsCountMeta.class;
 
   private Label wlExcludeFileMask;
   private TextVar wExcludeFileMask;

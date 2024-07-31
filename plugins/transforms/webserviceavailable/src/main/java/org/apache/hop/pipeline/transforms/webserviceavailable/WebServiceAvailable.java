@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Check if a webservice is available * */
 public class WebServiceAvailable
     extends BaseTransform<WebServiceAvailableMeta, WebServiceAvailableData> {
-  private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator
+  private static final Class<?> PKG = WebServiceAvailableMeta.class;
 
   public WebServiceAvailable(
       TransformMeta transformMeta,

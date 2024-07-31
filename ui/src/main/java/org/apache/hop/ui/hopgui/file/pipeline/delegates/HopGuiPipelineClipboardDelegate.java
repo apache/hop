@@ -43,7 +43,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class HopGuiPipelineClipboardDelegate {
-  private static final Class<?> PKG = HopGui.class; // For Translator
+  private static final Class<?> PKG = HopGui.class;
 
   private static final String XML_TAG_PIPELINE_TRANSFORMS = "pipeline-transforms";
   private static final String XML_TAG_TRANSFORMS = "transforms";

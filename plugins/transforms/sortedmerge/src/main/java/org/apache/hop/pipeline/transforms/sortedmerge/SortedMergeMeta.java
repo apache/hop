@@ -52,7 +52,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::SortedMergeMeta.keyword",
     documentationUrl = "/pipeline/transforms/sortedmerge.html")
 public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeData> {
-  private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
+  private static final Class<?> PKG = SortedMergeMeta.class;
 
   /** order by which fields? */
   @Injection(name = "FIELD_NAME", group = "FIELDS")

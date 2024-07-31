@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
 
-  private static final Class<?> PKG = AzureMetadataTypeEditor.class; // For Translator
+  private static final Class<?> PKG = AzureMetadataTypeEditor.class;
 
   // Connection properties
   //

@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This defines a PGP verify action. */
 public class ActionPGPVerifyDialog extends ActionDialog {
-  private static final Class<?> PKG = ActionPGPVerify.class; // For Translator
+  private static final Class<?> PKG = ActionPGPVerify.class;
 
   private static final String[] EXTENSIONS = new String[] {"*"};
 

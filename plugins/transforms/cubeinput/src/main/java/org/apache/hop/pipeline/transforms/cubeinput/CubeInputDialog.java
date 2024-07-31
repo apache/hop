@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class CubeInputDialog extends BaseTransformDialog {
-  private static final Class<?> PKG = CubeInputMeta.class; // For Translator
+  private static final Class<?> PKG = CubeInputMeta.class;
 
   private TextVar wFilename;
 

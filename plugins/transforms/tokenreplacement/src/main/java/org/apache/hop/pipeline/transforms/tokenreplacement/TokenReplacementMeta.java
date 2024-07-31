@@ -55,7 +55,7 @@ import org.w3c.dom.Node;
     groups = {"OUTPUT_FIELDS"})
 public class TokenReplacementMeta
     extends BaseTransformMeta<TokenReplacement, TokenReplacementData> {
-  private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
+  private static final Class<?> PKG = TokenReplacementMeta.class;
 
   public static final String INPUT_TYPE = "input_type";
   public static final String INPUT_FIELD_NAME = "input_field_name";

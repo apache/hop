@@ -58,7 +58,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::GetXmlDataMeta.keyword",
     documentationUrl = "/pipeline/transforms/getdatafromxml.html")
 public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData> {
-  private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
+  private static final Class<?> PKG = GetXmlDataMeta.class;
 
   private static final String YES = "Y";
 

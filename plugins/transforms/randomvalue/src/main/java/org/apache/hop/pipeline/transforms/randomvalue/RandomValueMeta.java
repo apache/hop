@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::RandomValueMeta.keyword",
     documentationUrl = "/pipeline/transforms/generaterandomvalue.html")
 public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueData> {
-  private static final Class<?> PKG = RandomValueMeta.class; // For Translator
+  private static final Class<?> PKG = RandomValueMeta.class;
 
   @HopMetadataProperty(key = "seed")
   private String seed;

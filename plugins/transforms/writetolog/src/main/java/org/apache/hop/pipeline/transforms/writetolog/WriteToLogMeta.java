@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::WriteToLogMeta.keyword",
     documentationUrl = "/pipeline/transforms/writetolog.html")
 public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData> {
-  private static final Class<?> PKG = WriteToLogMeta.class; // For Translator
+  private static final Class<?> PKG = WriteToLogMeta.class;
 
   /** by which fields to display? */
   private String[] fieldName;

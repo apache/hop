@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.Text;
  * @see PipelineProbe
  */
 public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
-  private static final Class<?> PKG = PipelineProbeEditor.class; // For Translator
+  private static final Class<?> PKG = PipelineProbeEditor.class;
 
   private Text wName;
   private Button wEnabled;

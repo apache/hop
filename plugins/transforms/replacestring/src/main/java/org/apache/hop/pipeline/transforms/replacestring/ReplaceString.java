@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Search and replace in string. */
 public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStringData> {
 
-  private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
+  private static final Class<?> PKG = ReplaceStringMeta.class;
 
   public ReplaceString(
       TransformMeta transformMeta,

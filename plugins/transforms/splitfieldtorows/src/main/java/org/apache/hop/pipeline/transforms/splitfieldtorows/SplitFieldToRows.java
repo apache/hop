@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitFieldToRowsData> {
-  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
+  private static final Class<?> PKG = SplitFieldToRowsMeta.class;
 
   public SplitFieldToRows(
       TransformMeta transformMeta,

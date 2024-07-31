@@ -68,7 +68,7 @@ import org.eclipse.swt.widgets.TableItem;
 @GuiPlugin(description = "i18n::HopSearchPerspective.GuiPlugin.Description")
 public class HopSearchPerspective implements IHopPerspective {
 
-  private static final Class<?> PKG = HopSearchPerspective.class; // For Translator
+  private static final Class<?> PKG = HopSearchPerspective.class;
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20020-perspective-search";
 

@@ -26,7 +26,7 @@ public class SalesforceUtils {
 
   private SalesforceUtils() {}
 
-  private static final Class<?> PKG = SalesforceUtils.class; // For Translator
+  private static final Class<?> PKG = SalesforceUtils.class;
 
   private static final String EXTID_SEPARATOR = "/";
 

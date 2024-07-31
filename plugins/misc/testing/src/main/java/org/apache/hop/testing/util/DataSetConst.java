@@ -44,7 +44,7 @@ import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.xp.RowCollection;
 
 public class DataSetConst {
-  private static final Class<?> PKG = DataSetConst.class; // For Translator
+  private static final Class<?> PKG = DataSetConst.class;
 
   public static final String DATABASE_FACTORY_KEY = "DatabaseMetaFactory";
   public static final String GROUP_FACTORY_KEY = "DataSetGroupFactory";

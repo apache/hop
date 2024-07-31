@@ -69,7 +69,7 @@ import picocli.CommandLine.Parameters;
 
 @SuppressWarnings("java:S106")
 public class HopServer implements Runnable, IHasHopMetadataProvider {
-  private static final Class<?> PKG = HopServer.class; // For Translator
+  private static final Class<?> PKG = HopServer.class;
   private static final String CONST_FOUND = " found.";
   private static final String CONST_SPACE = "        ";
 

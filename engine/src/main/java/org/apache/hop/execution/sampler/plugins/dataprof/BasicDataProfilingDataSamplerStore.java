@@ -40,7 +40,7 @@ import org.apache.hop.i18n.BaseMessages;
 public class BasicDataProfilingDataSamplerStore
     extends ExecutionDataSamplerStoreBase<BasicDataProfilingDataSamplerStore>
     implements IExecutionDataSamplerStore {
-  private static final Class<?> PKG = BasicDataProfilingDataSampler.class; // For Translator
+  private static final Class<?> PKG = BasicDataProfilingDataSampler.class;
 
   protected BasicDataProfilingDataSampler dataSampler;
 

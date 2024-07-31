@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transforms.jsoninput.reader.RowOutputConverter;
  * streams.
  */
 public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputData> {
-  private static final Class<?> PKG = JsonInputMeta.class; // For Translator
+  private static final Class<?> PKG = JsonInputMeta.class;
 
   private RowOutputConverter rowOutputConverter;
 

@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DynamicSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/dynamicsqlrow.html")
 public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicSqlRowData> {
-  private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
+  private static final Class<?> PKG = DynamicSqlRowMeta.class;
 
   /** database connection */
   @HopMetadataProperty(

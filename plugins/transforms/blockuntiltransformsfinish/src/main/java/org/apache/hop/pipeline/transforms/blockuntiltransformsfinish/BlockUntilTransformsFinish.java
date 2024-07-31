@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class BlockUntilTransformsFinish
     extends BaseTransform<BlockUntilTransformsFinishMeta, BlockUntilTransformsFinishData> {
 
-  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // For Translator
+  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class;
 
   public BlockUntilTransformsFinish(
       TransformMeta transformMeta,

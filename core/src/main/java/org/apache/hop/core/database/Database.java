@@ -99,7 +99,7 @@ import org.apache.hop.i18n.BaseMessages;
  * The database specific parameters are defined in DatabaseInfo.
  */
 public class Database implements IVariables, ILoggingObject, AutoCloseable {
-  private static final Class<?> PKG = Database.class; // For Translator
+  private static final Class<?> PKG = Database.class;
 
   private static final Map<String, Set<String>> registeredDrivers = new HashMap<>();
 

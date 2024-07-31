@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 @SuppressWarnings("java:S1104")
 public class SshData extends BaseTransformData implements ITransformData {
-  private static final Class<?> PKG = SshMeta.class; // For Translator
+  private static final Class<?> PKG = SshMeta.class;
   public int indexOfCommand;
   public Connection conn;
   public boolean wroteOneRow;

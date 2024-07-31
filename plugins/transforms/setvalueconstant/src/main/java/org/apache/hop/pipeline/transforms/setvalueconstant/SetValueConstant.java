@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Replace Field value by a constant value. */
 public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetValueConstantData> {
 
-  private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
+  private static final Class<?> PKG = SetValueConstantMeta.class;
 
   public SetValueConstant(
       TransformMeta transformMeta,

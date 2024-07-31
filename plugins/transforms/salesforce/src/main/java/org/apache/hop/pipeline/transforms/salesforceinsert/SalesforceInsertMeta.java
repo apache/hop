@@ -47,7 +47,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/salesforceinsert.html")
 public class SalesforceInsertMeta
     extends SalesforceTransformMeta<SalesforceInsert, SalesforceInsertData> {
-  private static final Class<?> PKG = SalesforceInsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInsertMeta.class;
 
   /** Field value to update */
   private String[] updateLookup;
