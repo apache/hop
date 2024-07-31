@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-streamlookup</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Stream Lookup</name>
 
 </project>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-getfilesrowcount</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Get Files Row Count</name>
 
 </project>

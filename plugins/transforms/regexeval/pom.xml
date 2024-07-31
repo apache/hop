@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-regexeval</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Regular Expression Evaluation</name>
 
 </project>

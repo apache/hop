@@ -23,32 +23,32 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/cratedb</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/cratedb</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/cratedb</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
-    <fileSets>
-        <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-    </fileSets>
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-cratedb:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/cratedb</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>runtime</scope>
+            <excludes>
+                <exclude>org.apache.hop:hop-databases-cratedb:jar</exclude>
+            </excludes>
+            <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

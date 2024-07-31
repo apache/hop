@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-blockuntiltransformsfinish</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Block Until Transforms Finish</name>
 
 </project>

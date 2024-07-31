@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-webserviceavailable</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Check webservice availability</name>
 
 </project>

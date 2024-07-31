@@ -17,10 +17,10 @@
 
 package org.apache.hop.www.jaxrs;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;

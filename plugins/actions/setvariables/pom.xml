@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-setvariables</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Set variables</name>
 
 </project>

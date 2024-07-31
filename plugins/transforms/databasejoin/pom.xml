@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-databasejoin</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Database Join</name>
 
 </project>

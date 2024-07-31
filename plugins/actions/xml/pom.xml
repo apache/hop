@@ -27,20 +27,40 @@
 
     <artifactId>hop-action-xml</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions XML</name>
+
+    <properties>
+        <saxon.version>8.7</saxon.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon</artifactId>
-            <version>8.7</version>
+            <version>${saxon.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-xml</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

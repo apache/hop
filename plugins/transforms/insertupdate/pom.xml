@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-insertupdate</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Insert Update</name>
 
 </project>

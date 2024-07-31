@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-mapping</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Mapping</name>
 
 </project>

@@ -27,11 +27,6 @@
 
     <artifactId>hop-transform-processfiles</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Process Files</name>
-
-    <properties></properties>
-
-    <dependencies></dependencies>
 
 </project>

@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import javax.sql.PooledConnection;
-import org.apache.commons.dbcp.DelegatingConnection;
+import org.apache.commons.dbcp2.DelegatingConnection;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;

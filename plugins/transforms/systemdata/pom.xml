@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-systemdata</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms System Data</name>
 
 </project>

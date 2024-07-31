@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-splitfieldtorows</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Split Field To Rows</name>
 
 </project>

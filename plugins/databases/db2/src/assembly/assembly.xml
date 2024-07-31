@@ -23,28 +23,21 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/db2</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/db2</outputDirectory>
             <filtered>true</filtered>
         </file>
 
     </files>
-    <fileSets>
-        <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-    </fileSets>
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-db2:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/db2</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

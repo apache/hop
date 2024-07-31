@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-pipelineexecutor</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Pipeline Executor</name>
 
 </project>

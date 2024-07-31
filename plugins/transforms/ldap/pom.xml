@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-ldap</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms LDAP</name>
 
 </project>

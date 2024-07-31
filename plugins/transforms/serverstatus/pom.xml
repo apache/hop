@@ -26,7 +26,6 @@
 
     <artifactId>hop-transform-serverstatus</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Server Status</name>
 
 </project>

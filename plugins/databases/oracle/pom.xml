@@ -26,7 +26,6 @@
 
     <artifactId>hop-databases-oracle</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Oracle</name>
 
 </project>

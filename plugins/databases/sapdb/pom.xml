@@ -26,7 +26,6 @@
 
     <artifactId>hop-databases-sapdb</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases MaxDB (SAP DB)</name>
 
 </project>

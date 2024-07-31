@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-workflowexecutor</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Workflow Executor</name>
 
 </project>

@@ -23,36 +23,40 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>misc/git</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/misc/git</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-misc-git:jar</include>
             </includes>
+            <outputDirectory>plugins/misc/git</outputDirectory>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
             <scope>runtime</scope>
-            <includes>
-                <include>org.eclipse.jgit:org.eclipse.jgit</include>
-                <include>com.googlecode.javaewah:JavaEWAH</include>
-                <include>org.eclipse.jgit:org.eclipse.jgit.http.apache</include>
-            </includes>
+            <excludes>
+                <exclude>commons-codec:*</exclude>
+                <exclude>commons-logging:*</exclude>
+                <exclude>org.slf4j:*</exclude>
+                <exclude>org.apache.httpcomponents:*</exclude>
+            </excludes>
+            <outputDirectory>plugins/misc/git/lib</outputDirectory>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
     </dependencySets>
 </assembly>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-setvariable</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Set Variables</name>
 
 </project>

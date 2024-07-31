@@ -26,7 +26,6 @@
 
     <artifactId>hop-transform-delay</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Delay</name>
 
 </project>

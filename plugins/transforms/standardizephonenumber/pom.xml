@@ -27,15 +27,17 @@
 
     <artifactId>hop-transform-standardizephonenumber</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Standardize Phone Number</name>
+
+    <properties>
+        <libphonenumber.version>8.13.40</libphonenumber.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
-            <version>8.12.33</version>
-            <scope>compile</scope>
+            <version>${libphonenumber.version}</version>
         </dependency>
     </dependencies>
 

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-getsubfolders</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Get Subfolders</name>
 
 </project>

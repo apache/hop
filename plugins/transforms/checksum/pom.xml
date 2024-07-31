@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-checksum</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms CheckSum</name>
 
 </project>

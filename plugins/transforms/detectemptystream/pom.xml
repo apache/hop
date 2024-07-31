@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-detectemptystream</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Detect Empty Stream</name>
 
 </project>

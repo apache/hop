@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-multimerge</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Multi Merge</name>
 
 </project>

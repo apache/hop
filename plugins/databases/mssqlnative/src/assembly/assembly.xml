@@ -23,32 +23,32 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/mssqlnative</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/mssqlnative</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/mssqlnative</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
-    <fileSets>
-        <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-    </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-mssqlnative:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/mssqlnative</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.microsoft.sqlserver:mssql-jdbc:jar</include>
+            </includes>
+            <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

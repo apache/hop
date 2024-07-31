@@ -4,10 +4,9 @@
 # Allow files and directories
 !/assemblies/client/target/hop-*
 !/assemblies/client/target/hop
-!/assemblies/lib-jdbc
 !/integration-tests/scripts
 !/assemblies/web/target
-!/assemblies/plugins/dist/target
+!/assemblies/plugins/target
 !/docker
 !/rest
 !google-key-apache-hop-it.json

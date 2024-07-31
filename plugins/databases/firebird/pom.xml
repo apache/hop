@@ -25,9 +25,7 @@
     </parent>
 
     <artifactId>hop-databases-firebird</artifactId>
-
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Firebird</name>
 
 </project>

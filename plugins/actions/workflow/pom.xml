@@ -26,7 +26,6 @@
 
     <artifactId>hop-action-workflow</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Workflow</name>
 
 </project>

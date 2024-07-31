@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-tableinput</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Table Input</name>
 
 </project>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-valuemapper</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Value Mapper</name>
 
 </project>

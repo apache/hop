@@ -23,27 +23,34 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>actions/getpop</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/actions/getpop</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
+        <dependencySet>
+            <scope>runtime</scope>
+            <outputDirectory>lib/core</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-action-getpop:jar</include>
             </includes>
+            <outputDirectory>plugins/actions/getpop</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

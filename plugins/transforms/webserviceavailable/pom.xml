@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-webserviceavailable</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Web Service Available</name>
 
 </project>

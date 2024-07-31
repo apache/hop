@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-samplerows</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Sample Rows</name>
 
 </project>

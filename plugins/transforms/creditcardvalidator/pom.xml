@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-creditcardvalidator</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Credit Card Validator</name>
 
 </project>

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.net.http.HttpResponse;
 import org.apache.hop.core.exception.HopException;
 import org.junit.Before;
@@ -45,7 +46,7 @@ public class HttpClientBulkImportResponseTest {
   }
 
   @Test
-  public void shouldCalculateOutputRows() throws HopException {
+  public void shouldCalculateOutputRows() throws HopException, IOException {
     String responseBody =
         "{\"cols\":[],\"duration\":20.493383,\"results\":[{\"rowcount\": 1},{\"rowcount\": 1},{\"rowcount\": 1},{\"rowcount\":  1},{\"rowcount\": 1}]}";
     when(mockResponse.body()).thenReturn(responseBody);
@@ -59,7 +60,7 @@ public class HttpClientBulkImportResponseTest {
   }
 
   @Test
-  public void shouldCountRejectedRows() throws HopException {
+  public void shouldCountRejectedRows() throws HopException, IOException {
     String responseBody =
         "{\"cols\":[],\"duration\":20.493383,\"results\":[{\"rowcount\": 1},{\"rowcount\": 1},{\"rowcount\": 1},{\"rowcount\": 1},{\"rowcount\":-2}]}";
     // as per documentation: rowcount == 1 means imported row, while rowcount == -2 means rejected
@@ -76,7 +77,7 @@ public class HttpClientBulkImportResponseTest {
   }
 
   @Test
-  public void shouldReturnZeroOutputRowsWhenEmpty() throws HopException {
+  public void shouldReturnZeroOutputRowsWhenEmpty() throws HopException, IOException {
     String emptyResultsResponseBody = "{\"cols\":[],\"duration\":20.493383,\"results\":[]}";
     when(mockResponse.statusCode()).thenReturn(200);
     when(mockResponse.body()).thenReturn(emptyResultsResponseBody);

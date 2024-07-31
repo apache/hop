@@ -17,33 +17,40 @@
   -->
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
     <id>hop-transform-standardizephonenumber</id>
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>transforms/standardizephonenumber</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/transforms/standardizephonenumber</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
+        </fileSet>
+    </fileSets>
+
     <dependencySets>
         <dependencySet>
-
             <includes>
                 <include>org.apache.hop:hop-transform-standardizephonenumber:jar</include>
             </includes>
+            <outputDirectory>plugins/transforms/standardizephonenumber</outputDirectory>
         </dependencySet>
-				<dependencySet>
-
-            <outputDirectory>lib</outputDirectory>
+        <dependencySet>
             <includes>
                 <include>com.googlecode.libphonenumber:libphonenumber:jar</include>
             </includes>
-        </dependencySet>    
+            <outputDirectory>plugins/transforms/standardizephonenumber/lib</outputDirectory>
+        </dependencySet>
     </dependencySets>
 </assembly>

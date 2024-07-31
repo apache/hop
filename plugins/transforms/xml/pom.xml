@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-xml</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms XML</name>
 
     <properties>
@@ -36,18 +35,23 @@
         <saxon.version>8.7</saxon.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        <!-- required by org.dom4j -->
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
             <version>${jaxen.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>
@@ -62,6 +66,7 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-sortedmerge</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Sorted Merge</name>
 
 </project>

@@ -26,7 +26,6 @@
 
     <artifactId>hop-databases-googlebigquery</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Google BigQuery</name>
 
 </project>

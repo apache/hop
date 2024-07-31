@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-ifnull</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms If Null</name>
 
 </project>

@@ -27,35 +27,13 @@
 
     <artifactId>hop-transform-rest</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms REST</name>
-
-    <properties>
-        <jaxrs.version>2.1.6</jaxrs.version>
-    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>${jaxrs.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jersey.connectors</groupId>
             <artifactId>jersey-apache-connector</artifactId>
-            <version>2.30</version>
+            <version>2.43</version>
         </dependency>
     </dependencies>
 

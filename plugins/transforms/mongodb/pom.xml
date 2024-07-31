@@ -32,7 +32,7 @@
     <properties>
         <easymock.version>3.4</easymock.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <mongo-legacy-driver.version>3.12.11</mongo-legacy-driver.version>
+        <mongo-driver.version>3.12.14</mongo-driver.version>
     </properties>
 
     <dependencies>
@@ -40,25 +40,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>${mongo-legacy-driver.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engine</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-ui</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
+            <version>${mongo-driver.version}</version>
         </dependency>
         <dependency>
             <groupId>org.easymock</groupId>
@@ -66,7 +48,6 @@
             <version>${easymock.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest -->
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>

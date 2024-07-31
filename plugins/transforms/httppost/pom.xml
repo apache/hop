@@ -27,14 +27,17 @@
 
     <artifactId>hop-transform-httppost</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms HTTP Post</name>
+
+    <properties>
+        <httpclient.version>4.5.13</httpclient.version>
+    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1</version>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${httpclient.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -42,16 +45,5 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>4.5.13</version>
-        </dependency>
     </dependencies>
-
 </project>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-abort</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Abort</name>
 
 </project>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-mergerows</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Merge Rows (Diff)</name>
 
 </project>

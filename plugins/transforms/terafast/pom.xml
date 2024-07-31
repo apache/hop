@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-terafast</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Teradata Fastload Bulk Loader</name>
 
 </project>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-setvalueconstant</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Set Value to a Constant</name>
 
 </project>

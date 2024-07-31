@@ -26,7 +26,6 @@
 
     <artifactId>hop-transform-metadata</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Metadata Transforms</name>
 
 </project>

@@ -26,7 +26,26 @@
 
     <artifactId>hop-databases-monetdb</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Monet DB</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>monetdb</groupId>
+            <artifactId>monetdb-jdbc</artifactId>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>clojars</id>
+            <name>Clojars</name>
+            <url>https://clojars.org/repo/</url>
+        </repository>
+    </repositories>
 </project>

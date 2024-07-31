@@ -25,18 +25,7 @@
     </parent>
 
     <artifactId>hop-databases-sybase</artifactId>
-
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Sybase</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
 
 </project>

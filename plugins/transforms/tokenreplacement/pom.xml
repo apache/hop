@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-tokenreplacement</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Token Replacement</name>
 
 </project>

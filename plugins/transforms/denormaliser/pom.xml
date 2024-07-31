@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-denormaliser</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Denormaliser</name>
 
 </project>

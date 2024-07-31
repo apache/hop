@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-pgpfiles</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Encrypt/Decrypt/Verify files with PGP</name>
 
 </project>

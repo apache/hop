@@ -26,20 +26,17 @@
 
     <artifactId>hop-transform-edi2xml</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms EDI 2 XML</name>
+
+    <properties>
+        <antlr-complete.version>3.5.3</antlr-complete.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-complete</artifactId>
-            <version>3.5.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${antlr-complete.version}</version>
         </dependency>
     </dependencies>
 

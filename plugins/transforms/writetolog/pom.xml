@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-writetolog</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Write To Log</name>
 
 </project>

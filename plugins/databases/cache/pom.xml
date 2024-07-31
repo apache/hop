@@ -25,8 +25,7 @@
     </parent>
 
     <artifactId>hop-databases-cache</artifactId>
-
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases InterSystems Cache</name>
+
 </project>

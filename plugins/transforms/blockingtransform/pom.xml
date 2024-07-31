@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-blockingtransform</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Blocking</name>
 
 </project>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-splunk</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Splunk</name>
 
     <properties>

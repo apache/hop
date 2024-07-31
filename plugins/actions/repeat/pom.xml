@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-repeat</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Repeat</name>
 
 </project>

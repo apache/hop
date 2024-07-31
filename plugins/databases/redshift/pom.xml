@@ -25,22 +25,18 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.hop</groupId>
     <artifactId>hop-databases-redshift</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
-
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Redshift</name>
 
     <dependencyManagement>
         <dependencies>
-            <!-- test dependencies -->
             <dependency>
                 <groupId>org.apache.hop</groupId>
-                <artifactId>hop-databases-postgresql</artifactId>
+                <artifactId>hop-libs-jdbc</artifactId>
                 <version>${project.version}</version>
-                <scope>test</scope>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -49,39 +45,13 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-postgresql</artifactId>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazon.redshift</groupId>
+            <artifactId>redshift-jdbc42</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>mulesoft</id>
-            <name>Mulesoft</name>
-            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
-        </repository>
-    </repositories>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-cubeinput</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Cube Input</name>
 
 </project>

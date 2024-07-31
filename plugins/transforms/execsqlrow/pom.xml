@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-execsqlrow</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Execute SQL Row</name>
 
     <dependencies>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-changefileencoding</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Change File Encoding</name>
 
 </project>

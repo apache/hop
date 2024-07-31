@@ -26,7 +26,6 @@
 
     <artifactId>hop-databases-sqlbase</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Gupta SQLBase</name>
 
 </project>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-mysqlbulkload</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Bulk load into MySQL</name>
 
 </project>

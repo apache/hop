@@ -26,7 +26,6 @@
 
     <artifactId>hop-databases-exasol4</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Exasol</name>
 
 </project>

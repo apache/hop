@@ -25,9 +25,7 @@
     </parent>
 
     <artifactId>hop-databases-generic</artifactId>
-
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Generic</name>
 
 </project>

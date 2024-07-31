@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-writetofile</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Write to file</name>
 
 </project>

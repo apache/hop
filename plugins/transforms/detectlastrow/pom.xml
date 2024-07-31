@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-detectlastrow</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Detect Last Row</name>
 
 </project>

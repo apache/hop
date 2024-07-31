@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-tableoutput</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Table Output</name>
 
     <dependencies>

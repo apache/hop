@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-execinfo</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Execution Information</name>
 
 </project>

@@ -26,6 +26,6 @@
 
     <artifactId>hop-transform-databaselookup</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Database Lookup</name>
+
 </project>

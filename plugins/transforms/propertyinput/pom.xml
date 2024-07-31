@@ -27,14 +27,17 @@
 
     <artifactId>hop-transform-propertyinput</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Property Input</name>
+
+    <properties>
+        <ini4j.version>0.5.4</ini4j.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.ini4j</groupId>
             <artifactId>ini4j</artifactId>
-            <version>0.5.4</version>
+            <version>${ini4j.version}</version>
         </dependency>
     </dependencies>
 </project>

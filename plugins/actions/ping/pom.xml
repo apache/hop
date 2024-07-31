@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-ping</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Ping a host</name>
 
 </project>

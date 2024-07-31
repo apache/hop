@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-sql</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions SQL</name>
 
 </project>

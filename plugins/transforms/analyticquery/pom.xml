@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-analyticquery</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Analytic Query</name>
 
 </project>

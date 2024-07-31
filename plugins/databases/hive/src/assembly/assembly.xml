@@ -23,32 +23,27 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/hive</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/hive</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-hive:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/hive</outputDirectory>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.apache.hive:hive-common:jar</include>
                 <include>org.apache.hive:hive-jdbc:jar</include>
-                <include>org.apache.hive:hive-metastore:jar</include>
-                <include>org.apache.hive:hive-serde:jar</include>
-                <include>org.apache.hive:hive-service:jar</include>
-                <include>org.apache.hive:hive-service-rpc:jar</include>
-                <include>org.apache.hadoop:hadoop-client:jar</include>
-                <include>org.apache.thrift:libthrift:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/hive/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

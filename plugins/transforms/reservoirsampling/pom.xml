@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-reservoirsampling</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Reservoir Sampling</name>
 
 </project>

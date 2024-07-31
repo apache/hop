@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-closure</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Closure Generator</name>
 
 </project>

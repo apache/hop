@@ -26,7 +26,6 @@
 
     <artifactId>hop-databases-netezza</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Netteza</name>
 
 </project>

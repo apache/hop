@@ -25,27 +25,14 @@
     </parent>
 
     <artifactId>hop-databases-vectorwise</artifactId>
-
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Vectorwise</name>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-databases-ingres</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-ingres</artifactId>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

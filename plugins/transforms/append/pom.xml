@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-append</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Append</name>
 
 </project>

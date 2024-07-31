@@ -22,60 +22,42 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>tech/azure</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/tech/azure</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-tech-azure:jar</include>
             </includes>
+            <outputDirectory>plugins/tech/azure</outputDirectory>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
             <scope>runtime</scope>
+            <excludes>
+                <exclude>org.apache.hop:hop-tech-azure:jar</exclude>
+            </excludes>
+            <outputDirectory>plugins/tech/azure/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>provided</scope>
             <includes>
-                <include>com.microsoft.azure:azure-storage</include>
-                <include>com.microsoft.azure:azure-keyvault-core</include>
-                <include>com.microsoft.azure:azure-eventhubs:jar</include>
-                <include>org.apache.qpid:proton-j:jar</include>
-                <include>com.microsoft.azure:qpid-proton-j-extensions:jar</include>
-                <include>com.microsoft.azure:azure-client-authentication:jar</include>
-                <include>com.microsoft.azure:azure-client-runtime:jar</include>
-                <include>com.microsoft.rest:client-runtime:jar</include>
-                <include>com.squareup.retrofit2:retrofit:jar</include>
-                <include>com.squareup.okhttp3:logging-interceptor:jar</include>
-                <include>com.squareup.okhttp3:okhttp-urlconnection:jar</include>
-                <include>com.squareup.retrofit2:converter-jackson:jar</include>
-                <include>com.fasterxml.jackson.datatype:jackson-datatype-joda:jar</include>
-                <include>joda-time:joda-time:jar</include>
-                <include>io.reactivex:rxjava:jar</include>
-                <include>com.squareup.retrofit2:adapter-rxjava:jar</include>
-                <include>com.microsoft.azure:adal4j:jar</include>
-                <include>com.nimbusds:oauth2-oidc-sdk:jar</include>
-                <include>com.nimbusds:lang-tag:jar</include>
-                <include>com.microsoft.azure:azure-annotations:jar</include>
-                <include>com.nimbusds:nimbus-jose-jwt:jar</include>
-                <include>com.github.stephenc.jcip:jcip-annotations:jar</include>
-                <include>net.minidev:json-smart:jar</include>
-                <include>net.minidev:accessors-smart:jar</include>
-                <include>org.ow2.asm:asm:jar</include>
-                <include>com.microsoft.azure:azure-eventhubs-eph:jar</include>
+                <include>org.apache.commons:commons-lang3:jar</include>
             </includes>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

@@ -25,7 +25,6 @@
     </parent>
 
     <artifactId>hop-databases-universe</artifactId>
-
     <packaging>jar</packaging>
     <name>Hop Plugins Databases UniVerse</name>
 

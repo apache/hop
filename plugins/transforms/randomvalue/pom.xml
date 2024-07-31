@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-randomvalue</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Random Value</name>
 
 </project>

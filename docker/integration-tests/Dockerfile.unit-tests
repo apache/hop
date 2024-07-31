@@ -96,5 +96,3 @@ ENV GOOGLE_APPLICATION_CREDENTIALS="/tmp/google-key-apache-hop-it.json"
 WORKDIR /home/${JENKINS_USER}
 # CMD ["/bin/bash"]
 ENTRYPOINT []
-
-
