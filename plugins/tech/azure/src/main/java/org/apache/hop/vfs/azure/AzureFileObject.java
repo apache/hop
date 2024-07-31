@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -228,18 +229,18 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   protected void doDelete() throws Exception {
 
     DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
-
-    if (dataLakeFileClient == null) {
+    DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath.substring(1));
+    if (fileClient == null) {
       throw new UnsupportedOperationException();
     } else {
       FileObject parent = getParent();
       boolean lastFile = ((AzureFileObject) parent).doListChildren().length == 1;
       try {
         if (currentFilePath.equals("")) {
-          dataLakeFileClient.delete();
+          fileClient.delete();
         } else {
-          if (StringUtils.isNotEmpty(currentFilePath) && dataLakeFileClient.exists()) {
-            dataLakeFileClient.delete();
+          if (StringUtils.isNotEmpty(currentFilePath) && fileClient.exists()) {
+            fileClient.delete();
           } else if (dirPathItem != null) {
             ListPathsOptions lpo = new ListPathsOptions();
             lpo.setPath(((AzureFileName) getName()).getPathAfterContainer());
@@ -347,7 +348,9 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected String[] doListChildren() throws Exception {
-    return children == null ? new String[0] : children.toArray(new String[0]);
+    return children == null
+        ? ArrayUtils.toStringArray(getChildren())
+        : children.toArray(new String[0]);
   }
 
   @Override
@@ -365,6 +368,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     if (dataLakeFileClient.exists()) {
       try {
         doDelete();
+        return true;
       } catch (Exception e) {
         return false;
         // TODO log an error
