@@ -19,17 +19,30 @@
 #
 
 ORIGINDIR=$(pwd)
-BASEDIR=$(dirname $0)
-cd $BASEDIR
+BASEDIR=$(dirname "$0")
+cd "${BASEDIR}" || exit 1
+
+# set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
+if [ -n "${HOP_JAVA_HOME}" ]; then
+  _HOP_JAVA="${HOP_JAVA_HOME}/bin/java"
+elif [ -n "${JAVA_HOME}" ]; then
+  _HOP_JAVA="${JAVA_HOME}/bin/java"
+else
+  _HOP_JAVA="java"
+fi
 
 # Settings for all OSses
 #
-OPTIONS='-Xmx64m'
+if [ -z "${HOP_OPTIONS}" ]; then
+  HOP_OPTIONS="-Xmx64m"
+fi
 
 # optional line for attaching a debugger
 #
-# OPTIONS="${OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5009"
+# HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5009"
 
+# Add HOP variables if they're set:
+#
 if [ -n "${HOP_AUDIT_FOLDER}" ]; then
   HOP_OPTIONS="${HOP_OPTIONS} -DHOP_AUDIT_FOLDER=${HOP_AUDIT_FOLDER}"
 else
@@ -56,14 +69,14 @@ HOP_OPTIONS="${HOP_OPTIONS} --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED --
 
 case $(uname -s) in
 Linux)
-    if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
+    if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
         CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/arm64/*"
     else
         CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/$(uname -m)/*"
     fi
   ;;
 Darwin)
-  if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
+  if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
       CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/arm64/*"
   else
       CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/x86_64/*"
@@ -72,8 +85,8 @@ Darwin)
   ;;
 esac
 
-java ${HOP_OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.encryption.HopEncrypt $@
+"${_HOP_JAVA}" ${HOP_OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.encryption.HopEncrypt "$@"
 EXITCODE=$?
 
-cd ${ORIGINDIR}
+cd "${ORIGINDIR}" || exit 1
 exit $EXITCODE
