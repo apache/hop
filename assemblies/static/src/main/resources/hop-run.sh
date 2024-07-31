@@ -19,23 +19,24 @@
 #
 
 ORIGINDIR=$(pwd)
-BASEDIR=$(dirname $0)
-cd $BASEDIR
+BASEDIR=$(dirname "$0")
+cd "${BASEDIR}" || exit 1
 
 # set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
-if [ -n "$HOP_JAVA_HOME" ]; then
-  _HOP_JAVA=$HOP_JAVA_HOME/bin/java
-elif [ -n "$JAVA_HOME" ]; then
-  _HOP_JAVA=$JAVA_HOME/bin/java
+if [ -n "${HOP_JAVA_HOME}" ]; then
+  _HOP_JAVA="${HOP_JAVA_HOME}/bin/java"
+elif [ -n "${JAVA_HOME}" ]; then
+  _HOP_JAVA="${JAVA_HOME}/bin/java"
 else
   _HOP_JAVA="java"
 fi
 
 # Settings for all OSses
 #
-if [ -z "$HOP_OPTIONS" ]; then
+if [ -z "${HOP_OPTIONS}" ]; then
   HOP_OPTIONS="-Xmx2048m"
 fi
+
 # optional line for attaching a debugger
 #
 #HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5006"
@@ -68,14 +69,14 @@ HOP_OPTIONS="${HOP_OPTIONS} --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED --
 
 case $(uname -s) in
 Linux)
-    if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
+    if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
         CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/arm64/*"
     else
         CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/$(uname -m)/*"
     fi
   ;;
 Darwin)
-  if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
+  if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
       CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/arm64/*"
   else
       CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/x86_64/*"
@@ -84,8 +85,8 @@ Darwin)
   ;;
 esac
 
-"$_HOP_JAVA" ${HOP_OPTIONS} -Djava.library.path=$LIBPATH -classpath "${CLASSPATH}" org.apache.hop.run.HopRun "$@"
+"${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.run.HopRun "$@"
 EXITCODE=$?
 
-cd ${ORIGINDIR}
+cd "${ORIGINDIR}" || exit 1
 exit $EXITCODE
