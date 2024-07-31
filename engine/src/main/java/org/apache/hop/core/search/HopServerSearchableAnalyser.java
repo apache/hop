@@ -19,22 +19,23 @@ package org.apache.hop.core.search;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 
 @SearchableAnalyserPlugin(
     id = "HopServerSearchableAnalyser",
     name = "Search in hop server metadata")
-public class HopServerSearchableAnalyser extends BaseMetadataSearchableAnalyser<HopServer>
-    implements ISearchableAnalyser<HopServer> {
+public class HopServerSearchableAnalyser extends BaseMetadataSearchableAnalyser<HopServerMeta>
+    implements ISearchableAnalyser<HopServerMeta> {
 
   @Override
-  public Class<HopServer> getSearchableClass() {
-    return HopServer.class;
+  public Class<HopServerMeta> getSearchableClass() {
+    return HopServerMeta.class;
   }
 
   @Override
-  public List<ISearchResult> search(ISearchable<HopServer> searchable, ISearchQuery searchQuery) {
-    HopServer hopServer = searchable.getSearchableObject();
+  public List<ISearchResult> search(
+      ISearchable<HopServerMeta> searchable, ISearchQuery searchQuery) {
+    HopServerMeta hopServer = searchable.getSearchableObject();
     String component = getMetadataComponent();
     List<ISearchResult> results = new ArrayList<>();
 

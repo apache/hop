@@ -80,7 +80,7 @@ import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.HopServerPipelineStatus;
@@ -126,7 +126,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected EngineMetrics engineMetrics;
   protected Result previousResult;
 
-  protected HopServer hopServer;
+  protected HopServerMeta hopServer;
 
   protected ILoggingObject parent;
   protected IPipelineEngine<PipelineMeta> parentPipeline;
@@ -242,7 +242,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       serverPollInterval =
           Const.toLong(resolve(remotePipelineRunConfiguration.getServerPollInterval()), 2000L);
 
-      hopServer = metadataProvider.getSerializer(HopServer.class).load(hopServerName);
+      hopServer = metadataProvider.getSerializer(HopServerMeta.class).load(hopServerName);
       if (hopServer == null) {
         throw new HopException("Hop server '" + hopServerName + "' could not be found");
       }
@@ -1317,18 +1317,18 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   }
 
   /**
-   * Gets hopServer
+   * Gets Hop server metadata
    *
-   * @return value of hopServer
+   * @return value of Hop server
    */
-  public HopServer getHopServer() {
+  public HopServerMeta getHopServer() {
     return hopServer;
   }
 
   /**
    * @param hopServer The hopServer to set
    */
-  public void setHopServer(HopServer hopServer) {
+  public void setHopServer(HopServerMeta hopServer) {
     this.hopServer = hopServer;
   }
 

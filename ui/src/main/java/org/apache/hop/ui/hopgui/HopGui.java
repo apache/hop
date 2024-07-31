@@ -71,7 +71,7 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
@@ -247,7 +247,7 @@ public class HopGui
   private static final PrintStream originalSystemErr = System.err;
 
   public MetadataManager<DatabaseMeta> databaseMetaManager;
-  public MetadataManager<HopServer> hopServerManager;
+  public MetadataManager<HopServerMeta> hopServerManager;
   public MetadataManager<PartitionSchema> partitionManager;
 
   public HopGuiFileDelegate fileDelegate;
@@ -296,7 +296,8 @@ public class HopGui
   private void updateMetadataManagers() {
     databaseMetaManager =
         new MetadataManager<>(variables, metadataProvider, DatabaseMeta.class, shell);
-    hopServerManager = new MetadataManager<>(variables, metadataProvider, HopServer.class, shell);
+    hopServerManager =
+        new MetadataManager<>(variables, metadataProvider, HopServerMeta.class, shell);
     partitionManager =
         new MetadataManager<>(variables, metadataProvider, PartitionSchema.class, shell);
   }

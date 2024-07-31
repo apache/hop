@@ -72,10 +72,10 @@ import org.mockito.stubbing.Answer;
 /**
  * Tests for HopServer class
  *
- * @see HopServer
+ * @see HopServerMeta
  */
 public class HopServerTest {
-  HopServer hopServer;
+  HopServerMeta hopServer;
   IVariables variables;
 
   @BeforeClass
@@ -115,7 +115,7 @@ public class HopServerTest {
         .when(httpClient)
         .execute(any(HttpPost.class), nullable(HttpClientContext.class));
 
-    hopServer = spy(new HopServer());
+    hopServer = spy(new HopServerMeta());
     variables = new Variables();
     doReturn(httpClient).when(hopServer).getHttpClient();
     doReturn("response_body").when(hopServer).getResponseBodyAsString(nullable(InputStream.class));
@@ -285,10 +285,10 @@ public class HopServerTest {
   @Test
   public void testModifyingName() {
     hopServer.setName("test");
-    List<HopServer> list = new ArrayList<>();
+    List<HopServerMeta> list = new ArrayList<>();
     list.add(hopServer);
 
-    HopServer hopServer2 = spy(new HopServer());
+    HopServerMeta hopServer2 = spy(new HopServerMeta());
     hopServer2.setName("test");
 
     hopServer2.verifyAndModifyHopServerName(list, null);
@@ -298,20 +298,20 @@ public class HopServerTest {
 
   @Test
   public void testEqualsHashCodeConsistency() {
-    HopServer server = new HopServer();
+    HopServerMeta server = new HopServerMeta();
     server.setName("server");
     TestUtils.checkEqualsHashCodeConsistency(server, server);
 
-    HopServer serverSame = new HopServer();
+    HopServerMeta serverSame = new HopServerMeta();
     serverSame.setName("server");
     assertEquals(server, serverSame);
     TestUtils.checkEqualsHashCodeConsistency(server, serverSame);
 
-    HopServer serverCaps = new HopServer();
+    HopServerMeta serverCaps = new HopServerMeta();
     serverCaps.setName("SERVER");
     TestUtils.checkEqualsHashCodeConsistency(server, serverCaps);
 
-    HopServer serverOther = new HopServer();
+    HopServerMeta serverOther = new HopServerMeta();
     serverOther.setName("something else");
     TestUtils.checkEqualsHashCodeConsistency(server, serverOther);
   }

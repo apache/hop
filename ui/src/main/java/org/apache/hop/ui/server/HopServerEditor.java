@@ -20,7 +20,7 @@ package org.apache.hop.ui.server;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -46,9 +46,9 @@ import org.eclipse.swt.widgets.Text;
 /**
  * Editor that allows you to edit the settings of the Hop server
  *
- * @see HopServer
+ * @see HopServerMeta
  */
-public class HopServerEditor extends MetadataEditor<HopServer> {
+public class HopServerEditor extends MetadataEditor<HopServerMeta> {
   private static final Class<?> PKG = HopServerEditor.class;
 
   private CTabFolder wTabFolder;
@@ -70,7 +70,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
   private int middle;
   private int margin;
 
-  public HopServerEditor(HopGui hopGui, MetadataManager<HopServer> manager, HopServer metadata) {
+  public HopServerEditor(
+      HopGui hopGui, MetadataManager<HopServerMeta> manager, HopServerMeta metadata) {
     super(hopGui, manager, metadata);
   }
 
@@ -145,7 +146,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
   private void createServiceTab() {
     PropsUi props = PropsUi.getInstance();
-    HopServer hopServer = getMetadata();
+    HopServerMeta hopServer = getMetadata();
 
     // ////////////////////////
     // START OF DB TAB ///
@@ -300,7 +301,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
   private void createProxyTab() {
     PropsUi props = PropsUi.getInstance();
-    HopServer hopServer = getMetadata();
+    HopServerMeta hopServer = getMetadata();
 
     // ////////////////////////
     // START OF POOL TAB///
@@ -389,7 +390,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
   @Override
   public void setWidgetsContent() {
-    HopServer server = getMetadata();
+    HopServerMeta server = getMetadata();
 
     wName.setText(Const.NVL(server.getName(), ""));
     wHostname.setText(Const.NVL(server.getHostname(), ""));
@@ -404,7 +405,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
   }
 
   @Override
-  public void getWidgetsContent(HopServer server) {
+  public void getWidgetsContent(HopServerMeta server) {
     server.setName(wName.getText());
     server.setHostname(wHostname.getText());
     server.setPort(wPort.getText());
@@ -427,7 +428,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
   public void test() {
 
-    HopServer server = getMetadata();
+    HopServerMeta server = getMetadata();
     getWidgetsContent(server);
 
     try {

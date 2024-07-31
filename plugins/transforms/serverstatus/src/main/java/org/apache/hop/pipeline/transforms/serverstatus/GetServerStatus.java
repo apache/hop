@@ -24,7 +24,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.www.HopServerPipelineStatus;
 import org.apache.hop.www.HopServerStatus;
 import org.apache.hop.www.HopServerWorkflowStatus;
@@ -63,7 +63,7 @@ public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServe
     }
 
     String serverName = getInputRowMeta().getString(row, data.serverFieldIndex);
-    HopServer hopServer = metadataProvider.getSerializer(HopServer.class).load(serverName);
+    HopServerMeta hopServer = metadataProvider.getSerializer(HopServerMeta.class).load(serverName);
     if (hopServer == null) {
       throw new HopException("Hop server '" + serverName + "' couldn't be found");
     }

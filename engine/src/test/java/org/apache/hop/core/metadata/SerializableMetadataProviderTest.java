@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,9 +37,10 @@ public class SerializableMetadataProviderTest {
   @Test
   public void testRoundTrip() throws Exception {
     MemoryMetadataProvider source = new MemoryMetadataProvider();
-    IHopMetadataSerializer<HopServer> sourceSerializer = source.getSerializer(HopServer.class);
-    HopServer sourceServer1 =
-        new HopServer(
+    IHopMetadataSerializer<HopServerMeta> sourceSerializer =
+        source.getSerializer(HopServerMeta.class);
+    HopServerMeta sourceServer1 =
+        new HopServerMeta(
             "server1",
             "hostname1",
             "8181",
@@ -51,8 +52,8 @@ public class SerializableMetadataProviderTest {
             null,
             false);
     sourceSerializer.save(sourceServer1);
-    HopServer sourceServer2 =
-        new HopServer(
+    HopServerMeta sourceServer2 =
+        new HopServerMeta(
             "server2",
             "hostname2",
             "8282",
@@ -69,8 +70,9 @@ public class SerializableMetadataProviderTest {
         new SerializableMetadataProvider(source);
     String json = serializableMetadataProvider.toJson();
     SerializableMetadataProvider target = new SerializableMetadataProvider(json);
-    IHopMetadataSerializer<HopServer> targetSerializer = target.getSerializer(HopServer.class);
-    HopServer targetServer1 = targetSerializer.load("server1");
+    IHopMetadataSerializer<HopServerMeta> targetSerializer =
+        target.getSerializer(HopServerMeta.class);
+    HopServerMeta targetServer1 = targetSerializer.load("server1");
     assertNotNull(targetServer1);
     assertEquals(sourceServer1.getName(), targetServer1.getName());
     assertEquals(sourceServer1.getHostname(), targetServer1.getHostname());
@@ -78,7 +80,7 @@ public class SerializableMetadataProviderTest {
     assertEquals(sourceServer1.getUsername(), targetServer1.getUsername());
     assertEquals(sourceServer1.getPassword(), targetServer1.getPassword());
 
-    HopServer targetServer2 = targetSerializer.load("server2");
+    HopServerMeta targetServer2 = targetSerializer.load("server2");
     assertNotNull(targetServer2);
     assertEquals(sourceServer2.getName(), targetServer2.getName());
     assertEquals(sourceServer2.getHostname(), targetServer2.getHostname());

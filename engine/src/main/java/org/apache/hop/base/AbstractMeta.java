@@ -53,7 +53,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 
 public abstract class AbstractMeta
     implements IChanged, IUndo, IEngineMeta, INamedParameterDefinitions, IAttributes {
@@ -477,12 +477,12 @@ public abstract class AbstractMeta
    * @param serverString the name of the hop server
    * @return the hop server or null if we couldn't spot an approriate entry.
    */
-  public HopServer findHopServer(String serverString) {
+  public HopServerMeta findHopServer(String serverString) {
     if (metadataProvider == null || StringUtils.isEmpty(getName())) {
       return null;
     }
     try {
-      return metadataProvider.getSerializer(HopServer.class).load(getName());
+      return metadataProvider.getSerializer(HopServerMeta.class).load(getName());
     } catch (HopException e) {
       throw new RuntimeException(
           "Unable to load hop server with name '" + getName() + CONST_FROM_METADATA, e);
@@ -496,7 +496,7 @@ public abstract class AbstractMeta
    */
   public String[] getHopServerNames() {
     try {
-      List<String> names = metadataProvider.getSerializer(HopServer.class).listObjectNames();
+      List<String> names = metadataProvider.getSerializer(HopServerMeta.class).listObjectNames();
       Collections.sort(names);
       return names.toArray(new String[0]);
     } catch (HopException e) {

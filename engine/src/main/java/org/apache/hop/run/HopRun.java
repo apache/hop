@@ -59,7 +59,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -464,8 +464,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   private void configureHopServer(IExecutionConfiguration configuration, String name)
       throws HopException {
 
-    IHopMetadataSerializer<HopServer> serializer = metadataProvider.getSerializer(HopServer.class);
-    HopServer hopServer = serializer.load(name);
+    IHopMetadataSerializer<HopServerMeta> serializer =
+        metadataProvider.getSerializer(HopServerMeta.class);
+    HopServerMeta hopServer = serializer.load(name);
     if (hopServer == null) {
       throw new ParameterException(cmd, "Unable to find hop server '" + name + "' in the metadata");
     }

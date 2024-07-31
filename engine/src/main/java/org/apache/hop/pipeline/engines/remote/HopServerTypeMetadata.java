@@ -19,11 +19,11 @@ package org.apache.hop.pipeline.engines.remote;
 
 import org.apache.hop.core.gui.plugin.ITypeMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 
 public class HopServerTypeMetadata implements ITypeMetadata {
   @Override
   public Class<? extends IHopMetadata> getMetadataClass() {
-    return HopServer.class;
+    return HopServerMeta.class;
   }
 }

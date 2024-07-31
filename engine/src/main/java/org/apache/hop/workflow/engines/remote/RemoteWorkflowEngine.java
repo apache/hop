@@ -58,7 +58,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.remote.RemotePipelineEngine;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.IActionListener;
 import org.apache.hop.workflow.IDelegationListener;
@@ -103,7 +103,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   protected LogLevel logLevel;
   protected long serverPollDelay;
   protected long serverPollInterval;
-  protected HopServer hopServer;
+  protected HopServerMeta hopServer;
   protected String containerId;
   protected int lastLogLineNr;
   protected boolean stopped;
@@ -260,7 +260,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       serverPollInterval =
           Const.toLong(resolve(remoteWorkflowRunConfiguration.getServerPollInterval()), 2000L);
 
-      hopServer = metadataProvider.getSerializer(HopServer.class).load(hopServerName);
+      hopServer = metadataProvider.getSerializer(HopServerMeta.class).load(hopServerName);
       if (hopServer == null) {
         throw new HopException("Hop server '" + hopServerName + "' could not be found");
       }
@@ -956,14 +956,14 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
    *
    * @return value of hopServer
    */
-  public HopServer getHopServer() {
+  public HopServerMeta getHopServer() {
     return hopServer;
   }
 
   /**
    * @param hopServer The hopServer to set
    */
-  public void setHopServer(HopServer hopServer) {
+  public void setHopServer(HopServerMeta hopServer) {
     this.hopServer = hopServer;
   }
 
