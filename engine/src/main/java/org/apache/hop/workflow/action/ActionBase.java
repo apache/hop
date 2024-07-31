@@ -476,9 +476,8 @@ public abstract class ActionBase
   }
 
   /**
-   * Gets all the database connections that are used by the action. For ActionBase, this method
-   * returns an empty (non-null) array
-   *
+   * @deprecated Gets all the database connections that are used by the action. For ActionBase, this
+   *     method returns an empty (non-null) array
    * @return an empty (non-null) array
    */
   @Deprecated(since = "2.10")
