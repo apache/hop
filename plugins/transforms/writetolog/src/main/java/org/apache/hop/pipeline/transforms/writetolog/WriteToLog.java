@@ -48,8 +48,8 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
   @Override
   public boolean processRow() throws HopException {
 
-    Object[] r = getRow(); // get row, set busy!
-    if (r == null) { // no more input to be expected...
+    Object[] row = getRow(); // get row, set busy!
+    if (row == null) { // no more input to be expected...
 
       setOutputDone();
       return false;
@@ -57,25 +57,23 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
 
     // Limit hit? skip
     if (rowCounterLimitHit) {
-      putRow(getInputRowMeta(), r); // copy row to output
+      putRow(getInputRowMeta(), row); // copy row to output
       return true;
     }
 
     if (first) {
       first = false;
 
-      if (meta.getFieldName() != null && meta.getFieldName().length > 0) {
-        data.fieldnrs = new int[meta.getFieldName().length];
-
+      if (meta.getLogFields() != null && !meta.getLogFields().isEmpty()) {
+        data.fieldnrs = new int[meta.getLogFields().size()];
         for (int i = 0; i < data.fieldnrs.length; i++) {
-          data.fieldnrs[i] = getInputRowMeta().indexOfValue(meta.getFieldName()[i]);
+          LogField field = meta.getLogFields().get(i);
+          data.fieldnrs[i] = getInputRowMeta().indexOfValue(field.getName());
           if (data.fieldnrs[i] < 0) {
             logError(
-                BaseMessages.getString(
-                    PKG, "WriteToLog.Log.CanNotFindField", meta.getFieldName()[i]));
+                BaseMessages.getString(PKG, "WriteToLog.Log.CanNotFindField", field.getName()));
             throw new HopException(
-                BaseMessages.getString(
-                    PKG, "WriteToLog.Log.CanNotFindField", meta.getFieldName()[i]));
+                BaseMessages.getString(PKG, "WriteToLog.Log.CanNotFindField", field.getName()));
           }
         }
       } else {
@@ -85,10 +83,10 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
         }
       }
       data.fieldnr = data.fieldnrs.length;
-      data.loglevel = meta.getLogLevelByDesc();
-      data.logmessage = Const.NVL(this.resolve(meta.getLogMessage()), "");
-      if (!Utils.isEmpty(data.logmessage)) {
-        data.logmessage += Const.CR + Const.CR;
+      data.logLevel = meta.getLogLevel();
+      data.logMessage = Const.NVL(this.resolve(meta.getLogMessage()), "");
+      if (!Utils.isEmpty(data.logMessage)) {
+        data.logMessage += Const.CR + Const.CR;
       }
     } // end if first
 
@@ -104,7 +102,7 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
 
     // Loop through fields
     for (int i = 0; i < data.fieldnr; i++) {
-      String fieldvalue = getInputRowMeta().getString(r, data.fieldnrs[i]);
+      String fieldvalue = getInputRowMeta().getString(row, data.fieldnrs[i]);
 
       if (meta.isDisplayHeader()) {
         String fieldname = getInputRowMeta().getFieldNames()[data.fieldnrs[i]];
@@ -115,52 +113,46 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
     }
     out.append(Const.CR + "====================");
 
-    setLog(data.loglevel, out);
+    setLog(data.logLevel, out);
 
     // Increment counter
     if (meta.isLimitRows() && ++rowCounter >= meta.getLimitRowsNumber()) {
       rowCounterLimitHit = true;
     }
 
-    putRow(getInputRowMeta(), r); // copy row to output
+    putRow(getInputRowMeta(), row); // copy row to output
 
     return true;
   }
 
-  private void setLog(LogLevel loglevel, StringBuilder msg) {
+  /** Output message to log */
+  private void setLog(final LogLevel loglevel, final StringBuilder msg) {
     switch (loglevel) {
       case ERROR:
-        // Output message to log
         // Log level = ERREUR
         logError(msg.toString());
         break;
       case MINIMAL:
-        // Output message to log
         // Log level = MINIMAL
         logMinimal(msg.toString());
         break;
       case BASIC:
-        // Output message to log
         // Log level = BASIC
         logBasic(msg.toString());
         break;
       case DETAILED:
-        // Output message to log
         // Log level = DETAILED
         logDetailed(msg.toString());
         break;
       case DEBUG:
-        // Output message to log
         // Log level = DEBUG
         logDebug(msg.toString());
         break;
       case ROWLEVEL:
-        // Output message to log
         // Log level = ROW LEVEL
         logRowlevel(msg.toString());
         break;
       case NOTHING:
-        // Output nothing to log
         // Log level = NOTHING
         break;
       default:
@@ -169,16 +161,6 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
   }
 
   public String getRealLogMessage() {
-    return data.logmessage;
-  }
-
-  @Override
-  public boolean init() {
-
-    if (super.init()) {
-      // Add init code here.
-      return true;
-    }
-    return false;
+    return data.logMessage;
   }
 }
