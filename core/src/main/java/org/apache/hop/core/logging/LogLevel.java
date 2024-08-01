@@ -164,7 +164,7 @@ public enum LogLevel implements IEnumHasCodeAndDescription {
   /**
    * @return An array of log level codes, sorted by level (0==Nothing, 6=Row Level)
    */
-  public static String[] logLogLevelCodes() {
+  public static String[] getLogLevelCodes() {
     return IEnumHasCode.getCodes(LogLevel.class);
   }
 }

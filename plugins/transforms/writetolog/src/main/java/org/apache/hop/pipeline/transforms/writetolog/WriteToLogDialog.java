@@ -328,9 +328,11 @@ public class WriteToLogDialog extends BaseTransformDialog {
     wLimitRows.setSelection(input.isLimitRows());
     wLimitRowsNumber.setText("" + input.getLimitRowsNumber());
 
-    if (input.getLogLevel() != null) {
-      wLoglevel.select(input.getLogLevel().getLevel());
+    LogLevel logLevel = input.getLogLevel();
+    if (logLevel == null) {
+      logLevel = LogLevel.BASIC;
     }
+    wLoglevel.select(logLevel.getLevel());
 
     if (input.getLogMessage() != null) {
       wLogMessage.setText(input.getLogMessage());
