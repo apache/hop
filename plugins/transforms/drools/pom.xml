@@ -27,7 +27,7 @@
 
     <artifactId>hop-transform-drools</artifactId>
     <packaging>jar</packaging>
-    <name>Hop Plugins Transforms for Drools</name>
+    <name>Hop Plugins Transforms Drools</name>
 
     <properties>
         <drools.version>7.74.1.Final</drools.version>
@@ -119,6 +119,10 @@
             <version>${drools.version}</version>
             <exclusions>
                 <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
@@ -139,11 +143,23 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

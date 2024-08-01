@@ -62,7 +62,6 @@
                 <include>org.apache.commons:commons-compress:jar</include>
                 <include>xerces:xercesImpl:jar</include>
                 <include>xml-apis:xml-apis:jar</include>
-                <include>org.apache.logging.log4j:log4j-api:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
