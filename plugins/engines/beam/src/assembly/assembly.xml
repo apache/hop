@@ -49,6 +49,7 @@
                 <exclude>org.apache.hop:hop-engines-beam:jar</exclude>
                 <exclude>org.apache.hadoop:*:jar</exclude>
                 <exclude>org.apache.hadoop.thirdparty:*:jar</exclude>
+                <exclude>org.yaml:snakeyaml:jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -57,10 +58,8 @@
             <includes>
                 <include>org.apache.hadoop:*:jar</include>
                 <include>org.apache.hadoop.thirdparty:*:jar</include>
+                <include>org.yaml:snakeyaml:jar</include>
             </includes>
-            <excludes>
-                <exclude>org.apache.hop:hop-engines-beam:jar</exclude>
-            </excludes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
