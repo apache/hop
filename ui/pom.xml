@@ -58,6 +58,12 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>${swt.artifactId}</artifactId>
+            <version>${org.eclipse.platform.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>
             <version>${project.version}</version>
@@ -67,12 +73,6 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-engine</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.platform</groupId>
-            <artifactId>${swt.artifactId}</artifactId>
-            <version>${org.eclipse.platform.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

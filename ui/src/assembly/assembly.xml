@@ -26,6 +26,9 @@
     <baseDirectory>lib/core</baseDirectory>
     <dependencySets>
         <dependencySet>
+            <excludes>
+                <exclude>org.eclipse.platform:*</exclude>
+            </excludes>
             <outputDirectory>.</outputDirectory>
         </dependencySet>
     </dependencySets>
