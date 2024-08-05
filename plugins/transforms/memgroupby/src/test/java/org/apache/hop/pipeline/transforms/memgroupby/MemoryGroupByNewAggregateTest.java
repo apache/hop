@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import junit.framework.Assert;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -100,12 +102,7 @@ public class MemoryGroupByNewAggregateTest {
 
     transform =
         new MemoryGroupBy(
-            mockHelper.transformMeta,
-            mockHelper.iTransformMeta,
-            data,
-            0,
-            mockHelper.pipelineMeta,
-            mockHelper.pipeline);
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
   }
 
   @Test
@@ -118,18 +115,17 @@ public class MemoryGroupByNewAggregateTest {
 
     transform.newAggregate(r, agg);
 
-    Assert.assertEquals("All possible aggregation cases considered", 16, agg.agg.length);
+    assertEquals("All possible aggregation cases considered", 16, agg.agg.length);
 
     // all aggregations types is int values, filled in ascending order in perconditions
     for (int i = 0; i < agg.agg.length; i++) {
       int type = i + 1;
       if (strings.contains(type)) {
-        Assert.assertTrue(
-            "This is appendable type, type=" + type, agg.agg[i] instanceof Appendable);
+        assertTrue("This is appendable type, type=" + type, agg.agg[i] instanceof Appendable);
       } else if (statistics.contains(type)) {
-        Assert.assertTrue("This is collection, type=" + type, agg.agg[i] instanceof Collection);
+        assertTrue("This is collection, type=" + type, agg.agg[i] instanceof Collection);
       } else {
-        Assert.assertNull("Aggregation initialized with null, type=" + type, agg.agg[i]);
+        assertNull("Aggregation initialized with null, type=" + type, agg.agg[i]);
       }
     }
   }

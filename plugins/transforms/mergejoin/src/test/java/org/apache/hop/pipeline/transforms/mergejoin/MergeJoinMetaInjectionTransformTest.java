@@ -29,7 +29,7 @@ import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.Test;
 
-public class MergeJoinMetaInjectionTransform {
+public class MergeJoinMetaInjectionTransformTest {
 
   @Test
   public void testInjection() throws Exception {

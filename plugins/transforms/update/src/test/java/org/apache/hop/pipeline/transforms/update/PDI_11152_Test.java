@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -24,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import junit.framework.Assert;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -98,6 +98,6 @@ public class PDI_11152_Test {
         smh.getMockInputRowSet(new Object[] {"2013-12-20".getBytes()}));
     transform.init();
     transform.first = false;
-    Assert.assertTrue("Failure during row processing", transform.processRow());
+    assertTrue("Failure during row processing", transform.processRow());
   }
 }

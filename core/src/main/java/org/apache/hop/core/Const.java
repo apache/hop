@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -955,18 +956,19 @@ public class Const {
    * @return The rounded floating point value
    */
   public static double round(double f, int places) {
-    return round(f, places, BigDecimal.ROUND_HALF_EVEN);
+    return round(f, places, RoundingMode.HALF_EVEN);
   }
 
   /**
-   * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal
-   * class to avoid integer overflow while rounding
-   *
+   * @deprecated use {@link #round(double f, int places, RoundingMode roundingMode) round} instead
+   *     rounds double f to any number of places after decimal point Does arithmetic using
+   *     BigDecimal class to avoid integer overflow while rounding
    * @param f The value to round
    * @param places The number of decimal places
    * @param roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
    * @return The rounded floating point value
    */
+  @Deprecated(since = "2.10")
   public static double round(double f, int places, int roundingMode) {
     // We can't round non-numbers or infinite values
     //
@@ -981,14 +983,38 @@ public class Const {
   }
 
   /**
-   * rounds BigDecimal f to any number of places after decimal point Does arithmetic using
-   * BigDecimal class to avoid integer overflow while rounding
+   * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal
+   * class to avoid integer overflow while rounding
    *
+   * @param f The value to round
+   * @param places The number of decimal places
+   * @param roundingMode The mode for rounding, e.g. RoundingMode.HALF_EVEN
+   * @return The rounded floating point value
+   */
+  public static double round(double f, int places, RoundingMode roundingMode) {
+    // We can't round non-numbers or infinite values
+    //
+    if (Double.isNaN(f) || f == Double.NEGATIVE_INFINITY || f == Double.POSITIVE_INFINITY) {
+      return f;
+    }
+
+    // Do the rounding...
+    //
+    BigDecimal bdtemp = round(BigDecimal.valueOf(f), places, roundingMode);
+    return bdtemp.doubleValue();
+  }
+
+  /**
+   * @deprecated use {@link #round(BigDecimal f, int places, RoundingMode roundingMode) round}
+   *     instead rounds BigDecimal f to any number of places after decimal point Does arithmetic
+   *     using BigDecimal class to avoid integer overflow while rounding
    * @param f The value to round
    * @param places The number of decimal places
    * @param roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
    * @return The rounded floating point value
    */
+  @Deprecated(since = "2.10")
+  @SuppressWarnings("java:S1874") // Ignore BigDecimal RoundingModes as code will be removed
   public static BigDecimal round(BigDecimal f, int places, int roundingMode) {
     if (roundingMode == ROUND_HALF_CEILING) {
       if (f.signum() >= 0) {
@@ -1002,6 +1028,45 @@ public class Const {
   }
 
   /**
+   * rounds BigDecimal f to any number of places after decimal point Does arithmetic using
+   * BigDecimal class to avoid integer overflow while rounding
+   *
+   * @param f The value to round
+   * @param places The number of decimal places
+   * @param roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
+   * @return The rounded floating point value
+   */
+  public static BigDecimal round(BigDecimal f, int places, RoundingMode roundingMode) {
+    if (roundingMode == null) {
+      if (f.signum() >= 0) {
+        return round(f, places, RoundingMode.HALF_UP);
+      } else {
+        return round(f, places, RoundingMode.HALF_DOWN);
+      }
+    } else {
+      return f.setScale(places, roundingMode);
+    }
+  }
+
+  /**
+   * @deprecated use {@link #round(long f, int places, RoundingMode roundingMode) round} instead
+   *     rounds long f to any number of places after decimal point Does arithmetic using BigDecimal
+   *     class to avoid integer overflow while rounding
+   * @param f The value to round
+   * @param places The number of decimal places
+   * @param roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
+   * @return The rounded floating point value
+   */
+  @Deprecated(since = "2.10")
+  public static long round(long f, int places, int roundingMode) {
+    if (places >= 0) {
+      return f;
+    }
+    BigDecimal bdtemp = round(BigDecimal.valueOf(f), places, roundingMode);
+    return bdtemp.longValue();
+  }
+
+  /**
    * rounds long f to any number of places after decimal point Does arithmetic using BigDecimal
    * class to avoid integer overflow while rounding
    *
@@ -1010,7 +1075,7 @@ public class Const {
    * @param roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
    * @return The rounded floating point value
    */
-  public static long round(long f, int places, int roundingMode) {
+  public static long round(long f, int places, RoundingMode roundingMode) {
     if (places >= 0) {
       return f;
     }

@@ -17,12 +17,11 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.hop.mongo.MongoProp;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,7 +34,7 @@ public class MongoClientWrapperFactoryTest {
 
   @Before
   public void before() {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
     NoAuthMongoClientWrapper.clientFactory = mongoClientFactory;
   }
 
@@ -49,11 +48,11 @@ public class MongoClientWrapperFactoryTest {
                 .set(MongoProp.DBNAME, "dbname")
                 .build(),
             logger);
-    assertThat(wrapper, CoreMatchers.instanceOf(UsernamePasswordMongoClientWrapper.class));
+    assertTrue(wrapper instanceof UsernamePasswordMongoClientWrapper);
 
     wrapper =
         MongoClientWrapperFactory.createMongoClientWrapper(
             new MongoProperties.Builder().set(MongoProp.USE_KERBEROS, "false").build(), logger);
-    assertThat(wrapper, CoreMatchers.instanceOf(NoAuthMongoClientWrapper.class));
+    assertTrue(wrapper instanceof NoAuthMongoClientWrapper);
   }
 }

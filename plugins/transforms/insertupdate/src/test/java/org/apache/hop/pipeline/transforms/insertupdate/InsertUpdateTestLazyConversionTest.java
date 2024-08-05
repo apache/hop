@@ -41,7 +41,7 @@ import org.junit.Test;
 /**
  * @see InsertUpdate
  */
-public class InsertUpdateTestLazyConversion {
+public class InsertUpdateTestLazyConversionTest {
   TransformMockHelper<InsertUpdateMeta, InsertUpdateData> smh;
 
   @Before

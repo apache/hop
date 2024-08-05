@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
-import junit.framework.Assert;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -94,6 +94,6 @@ public class SetValueConstantTest {
     Object[] row = new Object[] {null};
     m.invoke(transform, new Object[] {row});
 
-    Assert.assertEquals("foo", valueMeta.getString(row[0]));
+    assertEquals("foo", valueMeta.getString(row[0]));
   }
 }

@@ -18,7 +18,8 @@
 package org.apache.hop.mongo;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -26,8 +27,6 @@ import static org.mockito.Mockito.mock;
 import com.mongodb.BasicDBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.util.JSONParseException;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.core.IsEqual;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,7 +37,7 @@ public class MongoPropToOptionTest {
 
   @Before
   public void before() {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
   }
 
   private static final String TAG_SET = "{\"use\" : \"production\"}";
@@ -94,13 +93,13 @@ public class MongoPropToOptionTest {
 
   @Test
   public void testGetVals() {
-    assertThat(new MongoPropToOption(log).intValue("invalid", 123), IsEqual.equalTo(123));
-    assertThat(new MongoPropToOption(log).intValue("234", 123), IsEqual.equalTo(234));
-    assertThat(new MongoPropToOption(log).longValue("invalid", 123l), IsEqual.equalTo(123l));
-    assertThat(new MongoPropToOption(log).longValue("", 123l), IsEqual.equalTo(123l));
-    assertThat(new MongoPropToOption(log).longValue("234", 123l), IsEqual.equalTo(234l));
-    assertThat(new MongoPropToOption(log).boolValue("", true), IsEqual.equalTo(true));
-    assertThat(new MongoPropToOption(log).boolValue("false", true), IsEqual.equalTo(false));
+    assertEquals(123, new MongoPropToOption(log).intValue("invalid", 123));
+    assertEquals(234, new MongoPropToOption(log).intValue("234", 123));
+    assertEquals(123, new MongoPropToOption(log).longValue("invalid", 123l));
+    assertEquals(123, new MongoPropToOption(log).longValue("", 123l));
+    assertEquals(234, new MongoPropToOption(log).longValue("234", 123l));
+    assertTrue(new MongoPropToOption(log).boolValue("", true));
+    assertFalse(new MongoPropToOption(log).boolValue("false", true));
   }
 
   @Test
@@ -108,7 +107,7 @@ public class MongoPropToOptionTest {
     MongoProperties props = new MongoProperties.Builder().set(MongoProp.writeConcern, "1").build();
     MongoPropToOption mongoPropToOption = new MongoPropToOption(log);
     WriteConcern writeConcern = mongoPropToOption.writeConcernValue(props);
-    assertThat((Integer) writeConcern.getWObject(), IsEqual.equalTo(1));
+    assertEquals(1, writeConcern.getWObject());
   }
 
   @Test
@@ -121,8 +120,8 @@ public class MongoPropToOptionTest {
             .build();
     MongoPropToOption mongoPropToOption = new MongoPropToOption(log);
     WriteConcern writeConcern = mongoPropToOption.writeConcernValue(props);
-    assertThat((Integer) writeConcern.getWObject(), IsEqual.equalTo(2));
-    assertThat(writeConcern.getWtimeout(), IsEqual.equalTo(1010));
+    assertEquals(2, writeConcern.getWObject());
+    assertEquals(1010, writeConcern.getWtimeout());
   }
 
   @Test
@@ -137,7 +136,7 @@ public class MongoPropToOptionTest {
     try {
       mongoPropToOption.writeConcernValue(props);
     } catch (MongoDbException e) {
-      assertThat(e.getCause(), CoreMatchers.instanceOf(NumberFormatException.class));
+      assertTrue(e.getCause() instanceof NumberFormatException);
       return;
     }
     fail("expected MongoDbException");
@@ -153,15 +152,14 @@ public class MongoPropToOptionTest {
             .build();
     MongoPropToOption mongoPropToOption = new MongoPropToOption(log);
     WriteConcern wc = mongoPropToOption.writeConcernValue(props);
-    assertThat(wc.getWString(), IsEqual.equalTo("majority"));
+    assertEquals("majority", wc.getWString());
   }
 
   @Test
   public void getReadPrefUnset() throws MongoDbException {
     MongoPropToOption mongoPropToOption = new MongoPropToOption(null);
-    assertThat(
+    assertNull(
         mongoPropToOption.readPrefValue(
-            new MongoProperties.Builder().set(MongoProp.readPreference, "").build()),
-        IsEqual.equalTo(null));
+            new MongoProperties.Builder().set(MongoProp.readPreference, "").build()));
   }
 }

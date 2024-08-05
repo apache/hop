@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.stringoperations;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import junit.framework.Assert;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -142,8 +142,8 @@ public class StringOperationsTest {
       processResult = transform.init();
     } while (processResult);
 
-    Assert.assertTrue(outputRowSet.isDone());
+    assertTrue(outputRowSet.isDone());
 
-    Assert.assertTrue("Unexpected output", verifyOutput(new Object[][] {{"Value"}}, outputRowSet));
+    assertTrue("Unexpected output", verifyOutput(new Object[][] {{"Value"}}, outputRowSet));
   }
 }

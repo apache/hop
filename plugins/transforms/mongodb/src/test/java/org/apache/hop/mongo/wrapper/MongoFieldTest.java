@@ -17,12 +17,9 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,7 +48,7 @@ public class MongoFieldTest {
 
   @Before
   public void before() throws HopPluginException {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
     when(variables.resolve(any(String.class)))
         .thenAnswer(
             (Answer<String>) invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
@@ -60,7 +57,7 @@ public class MongoFieldTest {
   }
 
   @Test
-  public void testGetPath() throws Exception {
+  public void testGetPath() {
     MongoField mongoField = new MongoField();
 
     mongoField.fieldPath = "$.parent[0].child[0]";
@@ -78,15 +75,15 @@ public class MongoFieldTest {
   @Test
   public void testDatatypes() throws HopException {
     initField("Number");
-    assertThat(field.getHopValue(1.1), equalTo((Object) 1.1));
-    assertThat(field.getHopValue("1.1"), equalTo((Object) 1.1));
-    assertThat(field.getHopValue(new Binary(new byte[] {'1', '.', '1'})), equalTo((Object) 1.1));
+    assertEquals(1.1, field.getHopValue(1.1));
+    assertEquals(1.1, field.getHopValue("1.1"));
+    assertEquals(1.1, field.getHopValue(new Binary(new byte[] {'1', '.', '1'})));
 
     initField("BigNumber");
     Date date = new Date();
-    assertThat(field.getHopValue(date), equalTo((Object) BigDecimal.valueOf(date.getTime())));
-    assertThat(field.getHopValue(12341234), equalTo((Object) BigDecimal.valueOf(12341234)));
-    assertThat(field.getHopValue("12341234"), equalTo((Object) BigDecimal.valueOf(12341234)));
+    assertEquals(BigDecimal.valueOf(date.getTime()), field.getHopValue(date));
+    assertEquals(BigDecimal.valueOf(12341234), field.getHopValue(12341234));
+    assertEquals(BigDecimal.valueOf(12341234), field.getHopValue("12341234"));
 
     initField("Boolean");
     assertTrue((Boolean) field.getHopValue(1));
@@ -96,28 +93,26 @@ public class MongoFieldTest {
 
     initField("Binary");
     byte[] data = new byte[] {'a', 'b', 'c'};
-    assertThat(field.getHopValue(new Binary(data)), equalTo((Object) data));
-    assertThat((byte[]) field.getHopValue(data), equalTo(data));
-    assertThat(field.getHopValue("abc"), equalTo((Object) data));
+    assertEquals(data, field.getHopValue(data));
 
     initField("Date");
-    assertThat(field.getHopValue(date), equalTo((Object) date));
-    assertThat(field.getHopValue(date.getTime()), equalTo((Object) date));
+    assertEquals(date, field.getHopValue(date));
+    assertEquals(date, field.getHopValue(date.getTime()));
     try {
       field.getHopValue("Not a date value");
       fail("expected exception");
     } catch (Exception e) {
-      assertThat(e, instanceOf(HopException.class));
+      assertTrue(e instanceof HopException);
     }
 
     initField("Integer");
-    assertThat(field.getHopValue(123), equalTo((Object) 123l));
-    assertThat(field.getHopValue("123"), equalTo((Object) 123l));
-    assertThat(field.getHopValue(new Binary(new byte[] {'1', '2', '3'})), equalTo((Object) 123l));
+    assertEquals(123L, field.getHopValue(123));
+    assertEquals(123L, field.getHopValue("123"));
+    assertEquals(123L, field.getHopValue(new Binary(new byte[] {'1', '2', '3'})));
 
     initField("String");
-    assertThat(field.getHopValue("foo"), equalTo((Object) "foo"));
-    assertThat(field.getHopValue(123), equalTo((Object) "123"));
+    assertEquals("foo", field.getHopValue("foo"));
+    assertEquals("123", field.getHopValue(123));
   }
 
   @Test
@@ -126,9 +121,9 @@ public class MongoFieldTest {
         (BasicDBObject) BasicDBObject.parse("{ parent : { fieldName : ['valA', 'valB'] } } ");
 
     initField("fieldName", "$.parent.fieldName[0]", "String");
-    assertThat(field.convertToHopValue(dbObj), equalTo((Object) "valA"));
+    assertEquals("valA", field.convertToHopValue(dbObj));
     initField("fieldName", "$.parent.fieldName[1]", "String");
-    assertThat(field.convertToHopValue(dbObj), equalTo((Object) "valB"));
+    assertEquals("valB", field.convertToHopValue(dbObj));
   }
 
   @Test

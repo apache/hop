@@ -17,7 +17,7 @@
 package org.apache.hop.mongo.wrapper.collection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -51,8 +50,8 @@ public class DefaultMongoCollectionWrapperTest {
   private DBObject[] dbObjectArray = new DBObject[0];
 
   @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
+  public void setUp() {
+    MockitoAnnotations.openMocks(this);
     defaultMongoCollectionWrapper = new DefaultMongoCollectionWrapper(mockDBCollection);
   }
 
@@ -97,7 +96,7 @@ public class DefaultMongoCollectionWrapperTest {
   }
 
   @Test
-  public void testAggregate() throws MongoDbException {
+  public void testAggregate() {
     Cursor mockCursor = mock(Cursor.class);
     when(mockDBCollection.aggregate(anyList(), any(AggregationOptions.class)))
         .thenReturn(mockCursor);
@@ -107,16 +106,12 @@ public class DefaultMongoCollectionWrapperTest {
 
   @Test
   public void testFindWrapsCursor() throws MongoDbException {
-    assertThat(
-        defaultMongoCollectionWrapper.find(), CoreMatchers.instanceOf(MongoCursorWrapper.class));
+    assertTrue(defaultMongoCollectionWrapper.find() instanceof MongoCursorWrapper);
     verify(mockDBCollection).find();
-    assertThat(
-        defaultMongoCollectionWrapper.find(dbObject, dbObject),
-        CoreMatchers.instanceOf(MongoCursorWrapper.class));
+    assertTrue(
+        defaultMongoCollectionWrapper.find(dbObject, dbObject) instanceof MongoCursorWrapper);
     verify(mockDBCollection).find(dbObject, dbObject);
-    assertThat(
-        defaultMongoCollectionWrapper.find(dbObject),
-        CoreMatchers.instanceOf(MongoCursorWrapper.class));
+    assertTrue(defaultMongoCollectionWrapper.find(dbObject) instanceof MongoCursorWrapper);
     verify(mockDBCollection).find(dbObject);
   }
 }
