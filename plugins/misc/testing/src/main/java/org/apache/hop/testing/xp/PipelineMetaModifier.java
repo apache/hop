@@ -49,6 +49,7 @@ public class PipelineMetaModifier {
   private final IVariables variables;
   private final PipelineMeta pipelineMeta;
   private final PipelineUnitTest unitTest;
+  private static final String REPLACING_TRANSFORM = "Replacing transform '";
 
   public PipelineMetaModifier(
       IVariables variables, PipelineMeta pipelineMeta, PipelineUnitTest unitTest) {
@@ -86,8 +87,10 @@ public class PipelineMetaModifier {
       String replacementDatabaseName =
           variables.resolve(dbReplacement.getReplacementDatabaseName());
 
-      DatabaseMeta sourceDatabaseMeta = copyPipelineMeta.findDatabase(sourceDatabaseName);
-      DatabaseMeta replacementDatabaseMeta = copyPipelineMeta.findDatabase(replacementDatabaseName);
+      DatabaseMeta sourceDatabaseMeta =
+          copyPipelineMeta.findDatabase(sourceDatabaseName, variables);
+      DatabaseMeta replacementDatabaseMeta =
+          copyPipelineMeta.findDatabase(replacementDatabaseName, variables);
       if (sourceDatabaseMeta == null) {
         throw new HopException(
             "Unable to find source database connection '"
@@ -174,7 +177,7 @@ public class PipelineMetaModifier {
 
     if (log.isDetailed()) {
       log.logDetailed(
-          "Replacing transform '"
+          REPLACING_TRANSFORM
               + transformMeta.getName()
               + "' with an Injector for dataset '"
               + inputSetName
@@ -225,7 +228,7 @@ public class PipelineMetaModifier {
 
     if (log.isDetailed()) {
       log.logDetailed(
-          "Replacing transform '"
+          REPLACING_TRANSFORM
               + transformMeta.getName()
               + "' with an Dummy for golden dataset '"
               + goldenSetName
@@ -245,7 +248,7 @@ public class PipelineMetaModifier {
   private void handleTweakBypassTransform(ILogChannel log, TransformMeta transformMeta) {
     if (log.isDetailed()) {
       log.logDetailed(
-          "Replacing transform '"
+          REPLACING_TRANSFORM
               + transformMeta.getName()
               + "' with an Dummy for Bypass transform tweak");
     }

@@ -16,7 +16,8 @@
  */
 package org.apache.hop.workflow.actions.mail;
 
-import junit.framework.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -35,26 +36,26 @@ public class WorkflowEntryTest {
   @Test
   public void testJobEntrymailPasswordFixed() {
     ActionMail jem = new ActionMail();
-    Assert.assertEquals(jem.getPassword("asdf"), "asdf");
+    assertEquals("asdf", jem.getPassword("asdf"));
   }
 
   @Test
   public void testJobEntrymailPasswordEcr() {
     ActionMail jem = new ActionMail();
-    Assert.assertEquals(jem.getPassword("Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc"), "asdf");
+    assertEquals("asdf", jem.getPassword("Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc"));
   }
 
   @Test
   public void testJobEntrymailPasswordVar() {
     ActionMail jem = new ActionMail();
     jem.setVariable("my_pass", "asdf");
-    Assert.assertEquals(jem.getPassword("${my_pass}"), "asdf");
+    assertEquals("asdf", jem.getPassword("${my_pass}"));
   }
 
   @Test
   public void testJobEntrymailPasswordEncrVar() {
     ActionMail jem = new ActionMail();
     jem.setVariable("my_pass", "Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc");
-    Assert.assertEquals(jem.getPassword("${my_pass}"), "asdf");
+    assertEquals("asdf", jem.getPassword("${my_pass}"));
   }
 }

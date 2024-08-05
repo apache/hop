@@ -17,6 +17,8 @@
 
 package org.apache.hop.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -25,7 +27,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.GZIPOutputStream;
-import junit.framework.Assert;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
@@ -47,12 +48,12 @@ public class HttpUtilTest {
    * @throws NoSuchAlgorithmException
    */
   @Test
-  public final void testDecodeBase64ZippedString() throws IOException, NoSuchAlgorithmException {
+  public final void testDecodeBase64ZippedString() throws IOException {
     String enc64 = this.canonicalBase64Encode(STANDART);
     // decode string
     String decoded = HttpUtil.decodeBase64ZippedString(enc64);
 
-    Assert.assertEquals("Strings are the same after pipeline", STANDART, decoded);
+    assertEquals(STANDART, decoded);
   }
 
   @Test
@@ -60,17 +61,17 @@ public class HttpUtilTest {
     Variables variables = new Variables();
     String expected = "hostname:1234/webAppName?param=value";
 
-    Assert.assertEquals(
+    assertEquals(
         "http://" + expected,
         HttpUtil.constructUrl(
             variables, "hostname", String.valueOf(1234), "webAppName", "?param=value"));
 
-    Assert.assertEquals(
+    assertEquals(
         "http://" + expected,
         HttpUtil.constructUrl(
             variables, "hostname", String.valueOf(1234), "webAppName", "?param=value", false));
 
-    Assert.assertEquals(
+    assertEquals(
         "https://" + expected,
         HttpUtil.constructUrl(
             variables, "hostname", String.valueOf(1234), "webAppName", "?param=value", true));
@@ -86,7 +87,7 @@ public class HttpUtilTest {
     String enc64 = HttpUtil.encodeBase64ZippedString(STANDART);
     String decoded = HttpUtil.decodeBase64ZippedString(enc64);
 
-    Assert.assertEquals("Strings are the same after pipeline", STANDART, decoded);
+    assertEquals(STANDART, decoded);
   }
 
   /**
@@ -109,8 +110,7 @@ public class HttpUtilTest {
     GZIPOutputStream gzos = new GZIPOutputStream(baos);
     gzos.write(bytes);
     gzos.close();
-    String encoded = new String(Base64.encodeBase64(baos.toByteArray()));
 
-    return encoded;
+    return new String(Base64.encodeBase64(baos.toByteArray()));
   }
 }

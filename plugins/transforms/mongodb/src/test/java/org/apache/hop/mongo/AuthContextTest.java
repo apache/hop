@@ -17,7 +17,7 @@
 
 package org.apache.hop.mongo;
 
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -26,13 +26,12 @@ import static org.mockito.Mockito.verify;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 public class AuthContextTest {
 
   @Test
-  public void testDoPrivalegedActionAsCurrentUser() throws Exception {
+  public void testDoPrivalegedActionAsCurrentUser() {
     PrivilegedAction<Object> privAction = mock(PrivilegedAction.class);
     AuthContext authContext = new AuthContext(null);
     authContext.doAs(privAction);
@@ -57,7 +56,7 @@ public class AuthContextTest {
       authContext.doAs(privExcAction);
       fail();
     } catch (Exception e) {
-      assertThat(e, CoreMatchers.instanceOf(PrivilegedActionException.class));
+      assertTrue(e instanceof PrivilegedActionException);
     }
     verify(privExcAction).run();
   }

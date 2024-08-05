@@ -17,20 +17,19 @@
 
 package org.apache.hop.www;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -126,29 +125,29 @@ public class BaseHopServerPluginTest {
         .thenReturn(Collections.enumeration(Arrays.asList("name1", "name2")));
     when(req.getParameterValues(any(String.class))).thenReturn(new String[] {"val"});
     when(req.getHeaderNames()).thenReturn(Collections.enumeration(Arrays.asList("name1", "name2")));
-    when(req.getHeaders("name1")).thenReturn(Collections.enumeration(ImmutableList.of("val")));
-    when(req.getHeaders("name2")).thenReturn(Collections.enumeration(ImmutableList.of("val")));
+    when(req.getHeaders("name1")).thenReturn(Collections.enumeration(List.of("val")));
+    when(req.getHeaders("name2")).thenReturn(Collections.enumeration(List.of("val")));
 
-    assertThat(carteRequest.getMethod(), is("POST"));
-    assertThat(carteRequest.getHeader("Connection"), is("Keep-Alive"));
-    assertThat(carteRequest.getParameter("param1"), is("val1"));
+    assertEquals("POST", carteRequest.getMethod());
+    assertEquals("Keep-Alive", carteRequest.getHeader("Connection"));
+    assertEquals("val1", carteRequest.getParameter("param1"));
 
     checkMappedVals(carteRequest.getParameters());
     checkMappedVals(carteRequest.getHeaders());
   }
 
   private void checkMappedVals(Map<String, Collection<String>> map) {
-    assertThat(map.size(), is(2));
+    assertEquals(2, map.size());
     Collection<String> name1Params = map.get("name1");
     Collection<String> name2Params = map.get("name2");
-    assertThat(name1Params.contains("val"), is(true));
-    assertThat(name2Params.contains("val"), is(true));
-    assertThat(name1Params.size() == 1 && name2Params.size() == 1, is(true));
+    assertEquals(true, name1Params.contains("val"));
+    assertEquals(true, name2Params.contains("val"));
+    assertEquals(name1Params.size(), name2Params.size());
   }
 
   @Test
   public void testGetService() {
     when(baseHopServerPlugin.getContextPath()).thenReturn("/Path");
-    assertThat(baseHopServerPlugin.getService().startsWith("/Path"), is(true));
+    assertEquals(true, baseHopServerPlugin.getService().startsWith("/Path"));
   }
 }

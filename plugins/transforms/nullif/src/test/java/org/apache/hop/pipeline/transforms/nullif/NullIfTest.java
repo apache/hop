@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.nullif;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -29,12 +30,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import junit.framework.Assert;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -71,7 +70,7 @@ public class NullIfTest {
     return smh.getMockInputRowSet(new Object[][] {{"value1", "nullable-value", "value3"}});
   }
 
-  private NullIfMeta mockProcessRowMeta() throws HopTransformException {
+  private NullIfMeta mockProcessRowMeta() {
     NullIfMeta processRowMeta = smh.iTransformMeta;
     List<NullIfField> fields = createArrayWithOneField("nullable-field", "nullable-value");
     doReturn(fields).when(processRowMeta).getFields();
@@ -123,13 +122,13 @@ public class NullIfTest {
     Object[] actualRow = outputRowSet.getRow();
     Object[] expectedRow = new Object[] {"value1", null, "value3"};
 
-    Assert.assertEquals(
+    assertEquals(
         "Output row is of an unexpected length",
         expectedRow.length,
         outputRowSet.getRowMeta().size());
 
     for (int i = 0; i < expectedRow.length; i++) {
-      Assert.assertEquals("Unexpected output value at index " + i, expectedRow[i], actualRow[i]);
+      assertEquals("Unexpected output value at index " + i, expectedRow[i], actualRow[i]);
     }
   }
 
@@ -160,7 +159,7 @@ public class NullIfTest {
     return inputRowMeta;
   }
 
-  private NullIfMeta mockProcessRowMeta2() throws HopTransformException {
+  private NullIfMeta mockProcessRowMeta2() {
     NullIfMeta processRowMeta = smh.iTransformMeta;
     List<NullIfField> fields = new ArrayList<>();
     fields.add(new NullIfField("value1", "20150606"));
@@ -220,13 +219,13 @@ public class NullIfTest {
     Object[] actualRow = outputRowSet.getRow();
     Object[] expectedRow = new Object[] {null, null, d3, d4};
 
-    Assert.assertEquals(
+    assertEquals(
         "Output row is of an unexpected length",
         expectedRow.length,
         outputRowSet.getRowMeta().size());
 
     for (int i = 0; i < expectedRow.length; i++) {
-      Assert.assertEquals("Unexpected output value at index " + i, expectedRow[i], actualRow[i]);
+      assertEquals("Unexpected output value at index " + i, expectedRow[i], actualRow[i]);
     }
   }
 }

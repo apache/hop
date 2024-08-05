@@ -65,7 +65,7 @@ public class BaseMongoDbTransformTest {
 
   @Before
   public void before() throws Exception {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
     when(mongoClientWrapperFactory.createMongoClientWrapper(
             any(MongoProperties.class), any(MongoUtilLogger.class)))
         .thenReturn(mongoClientWrapper);

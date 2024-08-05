@@ -72,12 +72,12 @@ public class MongodbInputDiscoverFieldsImplTest {
   @Captor private ArgumentCaptor<DBObject[]> dbObjectArrayCaptor;
 
   private MongodbInputDiscoverFieldsImpl discoverFields;
-  private final int NUM_DOCS_TO_SAMPLE = 2;
+  private static final int NUM_DOCS_TO_SAMPLE = 2;
 
   @Before
   public void before() throws MongoDbException, HopPluginException {
     variables = new Variables();
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
     when(clientFactory.createMongoClientWrapper(
             any(MongoProperties.class), any(MongoUtilLogger.class)))
         .thenReturn(clientWrapper);

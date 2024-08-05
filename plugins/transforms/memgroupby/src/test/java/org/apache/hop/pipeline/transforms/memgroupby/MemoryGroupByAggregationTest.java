@@ -17,18 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Optional;
@@ -37,7 +34,6 @@ import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 import com.google.common.collect.TreeBasedTable;
@@ -59,13 +55,14 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 public class MemoryGroupByAggregationTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -98,15 +95,15 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     rowMeta = new RowMeta();
     data = TreeBasedTable.create();
     variables = new Variables();
+    variables.setVariable("test", "test");
     aggregates = Maps.newHashMap(default_aggregates);
   }
 
   @Test
-  @Ignore
   public void testDefault() throws Exception {
     addColumn(new ValueMetaInteger("intg"), 0L, 1L, 1L, 10L);
     addColumn(new ValueMetaInteger("nul"));
@@ -117,76 +114,74 @@ public class MemoryGroupByAggregationTest {
 
     RowMetaAndData output = runTransform();
 
-    assertThat(output.getInteger("intg_min"), is(0L));
-    assertThat(output.getInteger("intg_max"), is(10L));
-    assertThat(output.getInteger("intg_sum"), is(12L));
-    assertThat(output.getInteger("intg_ave"), is(3L));
-    assertThat(output.getInteger("intg_count"), is(4L));
-    assertThat(output.getInteger("intg_count_any"), is(4L));
-    assertThat(output.getInteger("intg_count_distinct"), is(3L));
+    assertEquals(0, output.getInteger("intg_min"));
+    assertEquals(10, output.getInteger("intg_max"));
+    assertEquals(12, output.getInteger("intg_sum"));
+    assertEquals(3, output.getInteger("intg_ave"));
+    assertEquals(4, output.getInteger("intg_count"));
+    assertEquals(4, output.getInteger("intg_count_any"));
+    assertEquals(3, output.getInteger("intg_count_distinct"));
 
-    assertThat(output.getInteger("nul_min"), nullValue());
-    assertThat(output.getInteger("nul_max"), nullValue());
-    assertThat(output.getInteger("nul_sum"), nullValue());
-    assertThat(output.getInteger("nul_ave"), nullValue());
-    assertThat(output.getInteger("nul_count"), is(0L));
-    assertThat(output.getInteger("nul_count_any"), is(4L));
-    assertThat(output.getInteger("nul_count_distinct"), is(0L));
+    assertNull(output.getInteger("nul_min"));
+    assertNull(output.getInteger("nul_max"));
+    assertNull(output.getInteger("nul_sum"));
+    assertNull(output.getInteger("nul_ave"));
+    assertEquals(0, output.getInteger("nul_count"));
+    assertEquals(4, output.getInteger("nul_count_any"));
+    assertEquals(0, output.getInteger("nul_count_distinct"));
 
-    assertThat(output.getInteger("mix1_max"), is(2L));
-    assertThat(output.getInteger("mix1_min"), is(-1L));
-    assertThat(output.getInteger("mix1_sum"), is(1L));
-    assertThat(output.getInteger("mix1_ave"), is(0L));
-    assertThat(output.getInteger("mix1_count"), is(2L));
-    assertThat(output.getInteger("mix1_count_any"), is(4L));
-    assertThat(output.getInteger("mix1_count_distinct"), is(2L));
+    assertEquals(2, output.getInteger("mix1_max"));
+    assertEquals(-1, output.getInteger("mix1_min"));
+    assertEquals(1, output.getInteger("mix1_sum"));
+    assertEquals(0, output.getInteger("mix1_ave"));
+    assertEquals(2, output.getInteger("mix1_count"));
+    assertEquals(4, output.getInteger("mix1_count_any"));
+    assertEquals(2, output.getInteger("mix1_count_distinct"));
 
-    assertThat(output.getInteger("mix2_max"), is(7L));
-    assertThat(output.getInteger("mix2_min"), is(7L));
-    assertThat(output.getInteger("mix2_sum"), is(7L));
-    assertThat(output.getNumber("mix2_ave", Double.NaN), is(7.0));
-    assertThat(output.getInteger("mix2_count"), is(1L));
-    assertThat(output.getInteger("mix2_count_any"), is(4L));
-    assertThat(output.getInteger("mix2_count_distinct"), is(1L));
+    assertEquals(7, output.getInteger("mix2_max"));
+    assertEquals(7, output.getInteger("mix2_min"));
+    assertEquals(7, output.getInteger("mix2_sum"));
+    assertEquals(7.0, output.getNumber("mix2_ave", Double.NaN));
+    assertEquals(1, output.getInteger("mix2_count"));
+    assertEquals(4, output.getInteger("mix2_count_any"));
+    assertEquals(1, output.getInteger("mix2_count_distinct"));
 
-    assertThat(output.getNumber("mix3_max", Double.NaN), is(2.5));
-    assertThat(output.getNumber("mix3_min", Double.NaN), is(-1.0));
-    assertThat(output.getNumber("mix3_sum", Double.NaN), is(1.5));
-    assertThat(output.getNumber("mix3_ave", Double.NaN), is(0.75));
-    assertThat(output.getInteger("mix3_count"), is(2L));
-    assertThat(output.getInteger("mix3_count_any"), is(4L));
-    assertThat(output.getInteger("mix3_count_distinct"), is(2L));
+    assertEquals(2.5, output.getNumber("mix3_max", Double.NaN));
+    assertEquals(-1.0, output.getNumber("mix3_min", Double.NaN));
+    assertEquals(1.5, output.getNumber("mix3_sum", Double.NaN));
+    assertEquals(0.75, output.getNumber("mix3_ave", Double.NaN));
+    assertEquals(2, output.getInteger("mix3_count"));
+    assertEquals(4, output.getInteger("mix3_count_any"));
+    assertEquals(2, output.getInteger("mix3_count_distinct"));
 
-    assertThat(output.getNumber("date1_min", Double.NaN), is(1.0));
-    assertThat(output.getNumber("date1_max", Double.NaN), is(2.0));
-    assertThat(output.getNumber("date1_sum", Double.NaN), is(3.0));
-    assertThat(output.getNumber("date1_ave", Double.NaN), is(1.5));
-    assertThat(output.getInteger("date1_count"), is(2L));
-    assertThat(output.getInteger("date1_count_any"), is(4L));
-    assertThat(output.getInteger("date1_count_distinct"), is(2L));
+    assertEquals(1.0, output.getNumber("date1_min", Double.NaN));
+    assertEquals(2.0, output.getNumber("date1_max", Double.NaN));
+    assertEquals(3.0, output.getNumber("date1_sum", Double.NaN));
+    assertEquals(1.5, output.getNumber("date1_ave", Double.NaN));
+    assertEquals(2, output.getInteger("date1_count"));
+    assertEquals(4, output.getInteger("date1_count_any"));
+    assertEquals(2, output.getInteger("date1_count_distinct"));
   }
 
   @Test
-  @Ignore
   public void testNullMin() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "Y");
 
     addColumn(new ValueMetaInteger("intg"), null, 0L, 1L, -1L);
     addColumn(new ValueMetaString("str"), "A", null, "B", null);
 
-    aggregates = Maps.toMap(ImmutableList.of("min", "max"), Functions.forMap(default_aggregates));
+    aggregates = Maps.toMap(List.of("min", "max"), Functions.forMap(default_aggregates));
 
     RowMetaAndData output = runTransform();
 
-    assertThat(output.getInteger("intg_min"), nullValue());
-    assertThat(output.getInteger("intg_max"), is(1L));
+    assertNull(output.getInteger("intg_min"));
+    assertEquals(1, output.getInteger("intg_max"));
 
-    assertThat(output.getString("str_min", null), nullValue());
-    assertThat(output.getString("str_max", "invalid"), is("B"));
+    assertNull(output.getString("str_min", null));
+    assertEquals("B", output.getString("str_max", "invalid"));
   }
 
   @Test
-  @Ignore
   public void testNullsAreZeroCompatible() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y");
 
@@ -195,25 +190,24 @@ public class MemoryGroupByAggregationTest {
 
     RowMetaAndData output = runTransform();
 
-    assertThat(output.getInteger("nul_min"), is(0L));
-    assertThat(output.getInteger("nul_max"), is(0L));
-    assertThat(output.getInteger("nul_sum"), is(0L));
-    assertThat(output.getInteger("nul_ave"), is(0L));
-    assertThat(output.getInteger("nul_count"), is(0L));
-    assertThat(output.getInteger("nul_count_any"), is(4L));
-    assertThat(output.getInteger("nul_count_distinct"), is(0L));
+    assertEquals(0, output.getInteger("nul_min"));
+    assertEquals(0, output.getInteger("nul_max"));
+    assertEquals(0, output.getInteger("nul_sum"));
+    assertEquals(0, output.getInteger("nul_ave"));
+    assertEquals(0, output.getInteger("nul_count"));
+    assertEquals(4, output.getInteger("nul_count_any"));
+    assertEquals(0, output.getInteger("nul_count_distinct"));
 
-    assertThat(output.getInteger("both_max"), is(10L));
-    assertThat(output.getInteger("both_min"), is(-2L));
-    assertThat(output.getInteger("both_sum"), is(8L));
-    assertThat(output.getInteger("both_ave"), is(3L));
-    assertThat(output.getInteger("both_count"), is(3L));
-    assertThat(output.getInteger("both_count_any"), is(4L));
-    assertThat(output.getInteger("both_count_distinct"), is(3L));
+    assertEquals(10, output.getInteger("both_max"));
+    assertEquals(-2, output.getInteger("both_min"));
+    assertEquals(8, output.getInteger("both_sum"));
+    assertEquals(2, output.getInteger("both_ave"));
+    assertEquals(3, output.getInteger("both_count"));
+    assertEquals(4, output.getInteger("both_count_any"));
+    assertEquals(3, output.getInteger("both_count_distinct"));
   }
 
   @Test
-  @Ignore
   public void testNullsAreZeroDefault() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y");
 
@@ -223,45 +217,44 @@ public class MemoryGroupByAggregationTest {
 
     RowMetaAndData output = runTransform();
 
-    assertThat(output.getInteger("nul_min"), is(0L));
-    assertThat(output.getInteger("nul_max"), is(0L));
-    assertThat(output.getInteger("nul_sum"), is(0L));
-    assertThat(output.getInteger("nul_ave"), is(0L));
-    assertThat(output.getInteger("nul_count"), is(0L));
-    assertThat(output.getInteger("nul_count_any"), is(4L));
-    assertThat(output.getInteger("nul_count_distinct"), is(0L));
+    assertEquals(0, output.getInteger("nul_min"));
+    assertEquals(0, output.getInteger("nul_max"));
+    assertEquals(0, output.getInteger("nul_sum"));
+    assertEquals(0, output.getInteger("nul_ave"));
+    assertEquals(0, output.getInteger("nul_count"));
+    assertEquals(4, output.getInteger("nul_count_any"));
+    assertEquals(0, output.getInteger("nul_count_distinct"));
 
-    assertThat(output.getInteger("both_max"), is(10L));
-    assertThat(output.getInteger("both_min"), is(-2L));
-    assertThat(output.getInteger("both_sum"), is(8L));
-    assertThat(output.getInteger("both_ave"), is(2L));
-    assertThat(output.getInteger("both_count"), is(3L));
-    assertThat(output.getInteger("both_count_any"), is(4L));
-    assertThat(output.getInteger("both_count_distinct"), is(3L));
+    assertEquals(10, output.getInteger("both_max"));
+    assertEquals(-2, output.getInteger("both_min"));
+    assertEquals(8, output.getInteger("both_sum"));
+    assertEquals(2, output.getInteger("both_ave"));
+    assertEquals(3, output.getInteger("both_count"));
+    assertEquals(4, output.getInteger("both_count_any"));
+    assertEquals(3, output.getInteger("both_count_distinct"));
 
-    assertThat(output.getNumber("both_num_max", Double.NaN), is(10.0));
-    assertThat(output.getNumber("both_num_min", Double.NaN), is(-2.0));
-    assertThat(output.getNumber("both_num_sum", Double.NaN), is(8.0));
+    assertEquals(10.0, output.getNumber("both_num_max", Double.NaN));
+    assertEquals(-2.0, output.getNumber("both_num_min", Double.NaN));
+    assertEquals(8.0, output.getNumber("both_num_sum", Double.NaN));
     assertEquals(2.666666, output.getNumber("both_num_ave", Double.NaN), 0.000001 /* delta */);
-    assertThat(output.getInteger("both_num_count"), is(3L));
-    assertThat(output.getInteger("both_num_count_any"), is(4L));
-    assertThat(output.getInteger("both_num_count_distinct"), is(3L));
+    assertEquals(3, output.getInteger("both_num_count"));
+    assertEquals(4, output.getInteger("both_num_count_any"));
+    assertEquals(3, output.getInteger("both_num_count_distinct"));
   }
 
   @Test
-  @Ignore
   public void testSqlCompatible() throws Exception {
     addColumn(new ValueMetaInteger("value"), null, -2L, null, 0L, null, 10L, null, null, 0L, null);
 
     RowMetaAndData output = runTransform();
 
-    assertThat(output.getInteger("value_max"), is(10L));
-    assertThat(output.getInteger("value_min"), is(-2L));
-    assertThat(output.getInteger("value_sum"), is(8L));
-    assertThat(output.getInteger("value_ave"), is(2L));
-    assertThat(output.getInteger("value_count"), is(4L));
-    assertThat(output.getInteger("value_count_any"), is(10L));
-    assertThat(output.getInteger("value_count_distinct"), is(3L));
+    assertEquals(10, output.getInteger("value_max"));
+    assertEquals(-2, output.getInteger("value_min"));
+    assertEquals(8, output.getInteger("value_sum"));
+    assertEquals(2, output.getInteger("value_ave"));
+    assertEquals(4, output.getInteger("value_count"));
+    assertEquals(10, output.getInteger("value_count_any"));
+    assertEquals(3, output.getInteger("value_count_distinct"));
   }
 
   private RowMetaAndData runTransform() throws HopException {
@@ -283,14 +276,14 @@ public class MemoryGroupByAggregationTest {
     MemoryGroupByData data = new MemoryGroupByData();
     data.map = Maps.newHashMap();
 
-    // Add to pipeline
-    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = new TransformMeta(TRANSFORM_NAME, meta);
-    when(pipelineMeta.findTransform(TRANSFORM_NAME)).thenReturn(transformMeta);
+    PipelineMeta pipelineMeta = Mockito.mock(PipelineMeta.class);
+    Pipeline pipeline = Mockito.spy(new LocalPipelineEngine());
+    Mockito.when(pipelineMeta.findTransform(Mockito.eq(TRANSFORM_NAME))).thenReturn(transformMeta);
 
     // Spy on transform, regrettable but we need to easily inject rows
     MemoryGroupBy transform =
-        spy(new MemoryGroupBy(transformMeta, meta, data, 0, pipelineMeta, mock(Pipeline.class)));
+        spy(new MemoryGroupBy(transformMeta, meta, data, 0, pipelineMeta, pipeline));
     transform.copyFrom(variables);
     doNothing().when(transform).putRow((IRowMeta) any(), (Object[]) any());
     doNothing().when(transform).setOutputDone();
@@ -299,16 +292,15 @@ public class MemoryGroupByAggregationTest {
     doReturn(rowMeta).when(transform).getInputRowMeta();
     for (Object[] row : getRows()) {
       doReturn(row).when(transform).getRow();
-      //      assertThat(transform.processRow(), is(true));
-      while (transform.processRow()) {}
+      assertTrue(transform.processRow());
     }
     verify(transform, never()).putRow((IRowMeta) any(), (Object[]) any());
 
     // Mark stop
     doReturn(null).when(transform).getRow();
-    //    assertThat(transform.processRow(), is(true)) ;
-    while (transform.processRow()) {}
-    ;
+    while (transform.processRow()) {
+      // Run transform
+    }
     verify(transform).setOutputDone();
 
     // Collect output
@@ -330,7 +322,7 @@ public class MemoryGroupByAggregationTest {
 
   private Iterable<Object[]> getRows() {
     if (data.isEmpty()) {
-      return ImmutableSet.of();
+      return new java.util.HashSet<>();
     }
 
     Range<Integer> rows = Range.closed(0, data.rowMap().lastKey());

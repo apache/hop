@@ -19,13 +19,12 @@ package org.apache.hop.pipeline;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.any;
@@ -374,8 +373,8 @@ public class PipelineMetaTest {
     IRowMeta results =
         pipelineMeta.getTransformFields(variables, append, after, mock(IProgressMonitor.class));
 
-    assertThat(1, equalTo(results.size()));
-    assertThat("outputField", equalTo(results.getFieldNames()[0]));
+    assertEquals(1, results.size());
+    assertEquals("outputField", results.getFieldNames()[0]);
   }
 
   @Test
@@ -398,10 +397,9 @@ public class PipelineMetaTest {
         pipelineMeta.getTransformFields(
             variables, someTransform, after, mock(IProgressMonitor.class));
 
-    assertThat(4, equalTo(results.size()));
-    assertThat(
-        new String[] {"field3", "field4", "field5", "outputField"},
-        equalTo(results.getFieldNames()));
+    assertEquals(4, results.size());
+    assertArrayEquals(
+        new String[] {"field3", "field4", "field5", "outputField"}, results.getFieldNames());
   }
 
   @Test
@@ -409,8 +407,8 @@ public class PipelineMetaTest {
     PipelineMeta pipelineMeta = new PipelineMeta();
     List<TransformMeta> result = pipelineMeta.findPreviousTransforms(null, false);
 
-    assertThat(0, equalTo(result.size()));
-    assertThat(result, equalTo(new ArrayList<>()));
+    assertEquals(0, result.size());
+    assertEquals(result, new ArrayList<>());
   }
 
   private void wireUpTestPipelineMeta(

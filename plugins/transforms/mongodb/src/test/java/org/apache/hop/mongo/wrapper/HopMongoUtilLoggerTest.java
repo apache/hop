@@ -34,7 +34,7 @@ public class HopMongoUtilLoggerTest {
 
   @Before
   public void before() {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
     logger = new HopMongoUtilLogger(logChannelInterface);
   }
 
