@@ -174,7 +174,7 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "WriteToLogMeta.CheckResult.NotReceivingFields"),
               transformMeta);
       remarks.add(cr);
@@ -209,7 +209,7 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
         if (logFields.isEmpty()) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_WARNING,
+                  ICheckResult.TYPE_RESULT_WARNING,
                   BaseMessages.getString(PKG, "WriteToLogMeta.CheckResult.NoFieldsEntered"),
                   transformMeta);
 

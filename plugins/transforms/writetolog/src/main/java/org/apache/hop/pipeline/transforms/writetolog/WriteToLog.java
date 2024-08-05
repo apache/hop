@@ -83,7 +83,7 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
         }
       }
       data.fieldnr = data.fieldnrs.length;
-      data.logLevel = meta.getLogLevel();
+      data.logLevel = (meta.getLogLevel() == null) ? LogLevel.BASIC : meta.getLogLevel();
       data.logMessage = Const.NVL(this.resolve(meta.getLogMessage()), "");
       if (!Utils.isEmpty(data.logMessage)) {
         data.logMessage += Const.CR + Const.CR;
@@ -128,35 +128,13 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
   /** Output message to log */
   private void setLog(final LogLevel loglevel, final StringBuilder msg) {
     switch (loglevel) {
-      case ERROR:
-        // Log level = ERREUR
-        logError(msg.toString());
-        break;
-      case MINIMAL:
-        // Log level = MINIMAL
-        logMinimal(msg.toString());
-        break;
-      case BASIC:
-        // Log level = BASIC
-        logBasic(msg.toString());
-        break;
-      case DETAILED:
-        // Log level = DETAILED
-        logDetailed(msg.toString());
-        break;
-      case DEBUG:
-        // Log level = DEBUG
-        logDebug(msg.toString());
-        break;
-      case ROWLEVEL:
-        // Log level = ROW LEVEL
-        logRowlevel(msg.toString());
-        break;
-      case NOTHING:
-        // Log level = NOTHING
-        break;
-      default:
-        break;
+      case BASIC -> logBasic(msg.toString());
+      case ERROR -> logError(msg.toString());
+      case MINIMAL -> logMinimal(msg.toString());
+      case DETAILED -> logDetailed(msg.toString());
+      case DEBUG -> logDebug(msg.toString());
+      case ROWLEVEL -> logRowlevel(msg.toString());
+      case NOTHING -> {}
     }
   }
 
