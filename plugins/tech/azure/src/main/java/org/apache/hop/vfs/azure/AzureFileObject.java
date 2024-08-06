@@ -130,6 +130,9 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         type = FileType.FOLDER;
         dataLakeFileClient = null;
         currentFilePath = "";
+      } else if (isContainer(fullPath)) {
+        service.createFileSystem(fullPath.substring(1));
+        type = FileType.FOLDER;
       } else { // this is a subdirectory or file or a container
 
         currentFilePath = ((AzureFileName) getName()).getPathAfterContainer();
@@ -178,6 +181,14 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         }
       }
     }
+  }
+
+  private boolean isContainer(String fullPath) {
+    // TODO: replace with actual implementation
+    if (fullPath.equals("/nocontainer")) {
+      return true;
+    }
+    return false;
   }
 
   private static boolean isFileSystemRoot(String fullPath) {
@@ -302,6 +313,37 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     } else {
       throw new FileSystemException("Renaming of directories not supported on this file.");
     }
+  }
+
+  @Override
+  protected void doCreateFolder() {
+    // create a folder, we already know the path
+    service.getFileSystemClient(containerName).createDirectory(currentFilePath.substring(1));
+
+    //
+    //    if (container == null) {
+    //      throw new UnsupportedOperationException();
+    //    } else if (containerPath.equals("")) {
+    //      container.create();
+    //      type = FileType.FOLDER;
+    //      children = new ArrayList<>();
+    //    } else {
+    //      /*
+    //       * Azure doesn't actually have folders, so we create a temporary
+    //       * 'file' in the 'folder'
+    //       */
+    //      CloudBlockBlob blob =
+    //          container.getBlockBlobReference(containerPath.substring(1) + "/" + markerFileName);
+    //      byte[] buf =
+    //          ("This is a temporary blob created by a Commons VFS application to simulate a
+    // folder. It "
+    //                  + "may be safely deleted, but this will hide the folder in the application
+    // if it is empty.")
+    //              .getBytes(StandardCharsets.UTF_8);
+    //      blob.uploadFromByteArray(buf, 0, buf.length);
+    //      type = FileType.FOLDER;
+    //      children = new ArrayList<>();
+    //    }
   }
 
   @Override
