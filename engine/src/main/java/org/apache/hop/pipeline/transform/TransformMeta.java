@@ -668,8 +668,10 @@ public class TransformMeta
   }
 
   /**
-   * @return if error handling is supported for this transform, if error handling is defined and a
-   *     target transform is set
+   * Check if error handling is supported for this transform and if error handling is defined and
+   * enabled to a target transform.
+   *
+   * @return true if error handling is defined and enabled
    */
   public boolean isDoingErrorHandling() {
     return transform.supportsErrorHandling()
@@ -678,8 +680,16 @@ public class TransformMeta
         && transformErrorMeta.isEnabled();
   }
 
+  /**
+   * Checks if error handling is defined for the target transform, even if it is enabled or
+   * disabled.
+   *
+   * @return true if error handling is defined
+   */
   public boolean isSendingErrorRowsToTransform(TransformMeta targetTransform) {
-    return (isDoingErrorHandling()
+    return (transform.supportsErrorHandling()
+        && transformErrorMeta != null
+        && transformErrorMeta.getTargetTransform() != null
         && transformErrorMeta.getTargetTransform().equals(targetTransform));
   }
 
