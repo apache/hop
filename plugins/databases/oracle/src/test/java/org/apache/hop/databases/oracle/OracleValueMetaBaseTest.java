@@ -44,7 +44,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 public class OracleValueMetaBaseTest {
-
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private DatabaseMeta databaseMeta;

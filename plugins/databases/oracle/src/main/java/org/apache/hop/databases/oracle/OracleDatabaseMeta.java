@@ -773,4 +773,14 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public String getEndQuote() {
     return "\"";
   }
+
+  @Override
+  public boolean isSupportsBooleanDataType() {
+    return true;
+  }
+
+  @Override
+  public boolean isSupportsTimestampDataType() {
+    return true;
+  }
 }
