@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core;
 
+@SuppressWarnings("java:S1104")
 public class FileDialogOperation {
 
   public static String SELECT_FOLDER = "selectFolder";

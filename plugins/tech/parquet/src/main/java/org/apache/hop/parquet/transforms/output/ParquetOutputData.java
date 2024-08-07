@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.ParquetWriter;
 
+@SuppressWarnings("java:S1104")
 public class ParquetOutputData extends BaseTransformData implements ITransformData {
   public ArrayList<Integer> sourceFieldIndexes;
   public Configuration conf;

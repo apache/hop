@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 
+@SuppressWarnings("java:S1104")
 public class Neo4JOutputData extends BaseNeoTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

@@ -107,7 +107,7 @@ public class Result implements Cloneable {
   private Map<String, ResultFile> resultFiles;
 
   /** Whether the workflow or pipeline was stopped. */
-  public boolean stopped;
+  private boolean stopped;
 
   /** The number of lines rejected. */
   private long nrLinesRejected;

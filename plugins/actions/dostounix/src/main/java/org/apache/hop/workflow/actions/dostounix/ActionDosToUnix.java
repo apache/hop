@@ -60,6 +60,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionDosToUnix.keyword",
     documentationUrl = "/workflow/actions/dostounix.html")
+@SuppressWarnings("java:S1104")
 public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private static final int LF = 0x0a;
   private static final int CR = 0x0d;
@@ -386,22 +387,16 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   private boolean checkIfSuccessConditionBroken() {
-    boolean retval =
-        (nrAllErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-            || (nrErrorFiles >= limitFiles
-                && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS));
-    return retval;
+    return (nrAllErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+        || (nrErrorFiles >= limitFiles
+            && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS));
   }
 
   private boolean getSuccessStatus() {
-    boolean retval =
-        (nrAllErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-            || (nrProcessedFiles >= limitFiles
-                && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED))
-            || (nrErrorFiles < limitFiles
-                && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS));
-
-    return retval;
+    return (nrAllErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+        || (nrProcessedFiles >= limitFiles
+            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED))
+        || (nrErrorFiles < limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS));
   }
 
   private void updateErrors() {

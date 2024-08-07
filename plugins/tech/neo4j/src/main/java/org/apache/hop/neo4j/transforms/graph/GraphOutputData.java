@@ -32,6 +32,7 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 
+@SuppressWarnings("java:S1104")
 public class GraphOutputData extends BaseNeoTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

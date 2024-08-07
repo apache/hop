@@ -60,6 +60,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     keywords = "i18n::ActionEvalFilesMetrics.keyword",
     documentationUrl = "/workflow/actions/evalfilesmetrics.html")
+@SuppressWarnings("java:S1104")
 public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionEvalFilesMetrics.class;
 

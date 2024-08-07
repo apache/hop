@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 /** Some base data for file-based input transforms. */
+@SuppressWarnings("java:S1104")
 public class BaseFileInputTransformData extends BaseTransformData {
 
   public IFileErrorHandler dataErrorLineHandler;

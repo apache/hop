@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.shared;
 import org.apache.hop.core.gui.AreaOwner;
 import org.eclipse.swt.graphics.Image;
 
+@SuppressWarnings("java:S1104")
 public class HopGuiTooltipExtension {
   public int x;
   public int y;

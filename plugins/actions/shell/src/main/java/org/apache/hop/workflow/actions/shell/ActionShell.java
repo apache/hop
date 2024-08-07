@@ -68,6 +68,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
     keywords = "i18n::ActionShell.keyword",
     documentationUrl = "/workflow/actions/shell.html")
+@SuppressWarnings("java:S1104")
 public class ActionShell extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionShell.class;
 

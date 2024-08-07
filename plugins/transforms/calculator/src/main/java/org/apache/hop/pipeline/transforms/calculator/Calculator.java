@@ -37,6 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 
 /** Calculate new field values using pre-defined functions. */
+@SuppressWarnings("java:S1104")
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
   private static final Class<?> PKG = CalculatorMeta.class;

@@ -64,6 +64,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionUnZip.keyword",
     documentationUrl = "/workflow/actions/unzip.html")
+@SuppressWarnings("java:S1104")
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionUnZip.class;
 

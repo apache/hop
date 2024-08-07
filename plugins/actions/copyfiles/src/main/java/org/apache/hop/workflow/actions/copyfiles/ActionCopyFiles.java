@@ -61,6 +61,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 /** This defines a 'copy files' action. */
+@SuppressWarnings("java:S1104")
 @Action(
     id = "COPY_FILES",
     name = "i18n::ActionCopyFiles.Name",
