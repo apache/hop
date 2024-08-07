@@ -59,6 +59,7 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.summary.Notification;
 import org.neo4j.driver.summary.ResultSummary;
 
+@SuppressWarnings("java:S1104")
 public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData> {
 
   public GraphOutput(

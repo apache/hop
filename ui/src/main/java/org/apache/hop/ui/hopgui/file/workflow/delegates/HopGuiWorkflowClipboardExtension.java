@@ -22,6 +22,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowMeta;
 
+@SuppressWarnings("java:S1104")
 public class HopGuiWorkflowClipboardExtension {
   public String filename;
   public File file;

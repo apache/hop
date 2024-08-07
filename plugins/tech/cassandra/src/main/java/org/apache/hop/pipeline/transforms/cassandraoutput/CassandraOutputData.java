@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
  * cassandra, creating a new table, updating a table's meta data and constructing a batch insert CQL
  * statement.
  */
+@SuppressWarnings("java:S1104")
 public class CassandraOutputData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

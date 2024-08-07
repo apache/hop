@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
 
 /** A dialog that sets the printer settings for a Hop printout. */
+@SuppressWarnings("java:S1104")
 public class EnterPrintDialog extends Dialog {
   private static final Class<?> PKG = EnterPrintDialog.class;
 

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+@SuppressWarnings("java:S1104")
 public class ActionDetails {
   public String name;
   public String description;

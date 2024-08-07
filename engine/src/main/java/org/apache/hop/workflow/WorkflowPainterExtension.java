@@ -23,6 +23,7 @@ import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.workflow.action.ActionMeta;
 
+@SuppressWarnings("java:S1104")
 public class WorkflowPainterExtension {
 
   public IGc gc;

@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
  * Data class for the CassandraInput transform. Contains some utility methods for obtaining a
  * connection to cassandra, translating a row from cassandra to Hop and for compressing a query.
  */
+@SuppressWarnings("java:S1104")
 public class CassandraInputData extends BaseTransformData implements ITransformData {
 
   public CassandraConnection cassandraConnection;

@@ -57,6 +57,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionDeleteFolders.keyword",
     documentationUrl = "/workflow/actions/deletefolders.html")
+@SuppressWarnings("java:S1104")
 public class ActionDeleteFolders extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteFolders.class;
   private static final String CONST_SPACE_SHORT = "      ";
@@ -256,10 +257,8 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   private boolean checkIfSuccessConditionBroken() {
-    boolean retval =
-        (nrErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-            || (nrErrors >= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
-    return retval;
+    return (nrErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+        || (nrErrors >= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
   }
 
   private void updateSuccess() {
@@ -267,13 +266,10 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   private boolean getSuccessStatus() {
-    boolean retval =
-        (nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-            || (nrSuccess >= nrLimitFolders
-                && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED))
-            || (nrErrors <= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
-
-    return retval;
+    return (nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+        || (nrSuccess >= nrLimitFolders
+            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED))
+        || (nrErrors <= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
   }
 
   private boolean deleteFolder(String folderName) {

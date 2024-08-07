@@ -61,6 +61,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
     keywords = "i18n::ActionGetPOP.keyword",
     documentationUrl = "/workflow/actions/getpop.html")
+@SuppressWarnings("java:S1104")
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionGetPOP.class;
   private static final String CONST_SPACE_SHORT = "      ";

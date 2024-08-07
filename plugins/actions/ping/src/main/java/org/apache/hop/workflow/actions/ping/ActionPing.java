@@ -51,6 +51,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     keywords = "i18n::ActionPing.keyword",
     documentationUrl = "/workflow/actions/ping.html")
+@SuppressWarnings("java:S1104")
 public class ActionPing extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPing.class;
 

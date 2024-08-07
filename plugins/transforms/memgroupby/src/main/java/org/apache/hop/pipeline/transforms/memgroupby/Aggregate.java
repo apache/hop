@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.memgroupby;
 
 import java.util.Set;
 
+@SuppressWarnings("java:S1104")
 public class Aggregate {
   public Object[] agg;
   public long[] counts;

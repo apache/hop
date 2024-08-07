@@ -213,6 +213,7 @@ import org.eclipse.swt.widgets.ToolTip;
  * pipeline is handled per HopGuiPipelineGraph
  */
 @GuiPlugin(description = "The pipeline graph GUI plugin")
+@SuppressWarnings("java:S1104")
 public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     implements IRedrawable,
         MouseListener,

@@ -60,6 +60,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionMoveFiles.keyword",
     documentationUrl = "/workflow/actions/movefiles.html")
+@SuppressWarnings("java:S1104")
 public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMoveFiles.class;
 

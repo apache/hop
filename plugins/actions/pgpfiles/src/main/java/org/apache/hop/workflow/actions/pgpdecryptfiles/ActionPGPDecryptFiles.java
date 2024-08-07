@@ -62,6 +62,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
     keywords = "i18n::ActionPGPDecryptFiles.keyword",
     documentationUrl = "/workflow/actions/pgpdecryptfiles.html")
+@SuppressWarnings("java:S1104")
 public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPDecryptFiles.class;
 
