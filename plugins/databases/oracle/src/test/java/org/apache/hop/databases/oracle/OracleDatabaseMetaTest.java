@@ -237,7 +237,7 @@ public class OracleDatabaseMetaTest {
     assertEquals("", nativeMeta.getTablespaceDDL(v, dm, ""));
     assertFalse(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertEquals(2000, nativeMeta.getMaxVARCHARLength());
-    assertFalse(nativeMeta.isSupportsTimestampDataType());
+    assertTrue(nativeMeta.isSupportsTimestampDataType());
     assertEquals(32, nativeMeta.getMaxColumnsInIndex());
   }
 
@@ -267,7 +267,7 @@ public class OracleDatabaseMetaTest {
     assertEquals("SELECT FOO.currval FROM DUAL", nativeMeta.getSqlCurrentSequenceValue("FOO"));
     assertEquals("SELECT FOO.nextval FROM DUAL", nativeMeta.getSqlNextSequenceValue("FOO"));
     assertEquals(
-        "ALTER TABLE FOO ADD ( FOO DATE ) ",
+        "ALTER TABLE FOO ADD ( FOO TIMESTAMP ) ",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaTimestamp("FOO"), "", false, "", false));
     assertEquals(
@@ -395,7 +395,7 @@ public class OracleDatabaseMetaTest {
         "FOO DATE",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));
     assertEquals(
-        "DATE",
+        "TIMESTAMP",
         nativeMeta.getFieldDefinition(new ValueMetaTimestamp("FOO"), "", "", false, false, false));
 
     assertEquals(
