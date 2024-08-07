@@ -339,6 +339,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
     }
 
     Table table = wFields.table;
+    table.removeAll();
     for (int i = 0; i < input.getLogFields().size(); i++) {
       LogField field = input.getLogFields().get(i);
       TableItem ti = new TableItem(table, SWT.NONE);
@@ -387,6 +388,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
       TableItem item = wFields.getNonEmpty(i);
       LogField field = new LogField();
       field.setName(item.getText(1));
+      fields.add(field);
     }
     input.setLogFields(fields);
 
