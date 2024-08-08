@@ -19,15 +19,18 @@
 package org.apache.hop.vfs.azure;
 
 import com.azure.core.http.rest.PagedIterable;
+import com.azure.core.util.Context;
 import com.azure.storage.file.datalake.DataLakeDirectoryClient;
 import com.azure.storage.file.datalake.DataLakeFileClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClient;
 import com.azure.storage.file.datalake.DataLakeServiceClient;
+import com.azure.storage.file.datalake.models.ListFileSystemsOptions;
 import com.azure.storage.file.datalake.models.ListPathsOptions;
 import com.azure.storage.file.datalake.models.PathItem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
@@ -37,6 +40,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
+import org.apache.hop.core.exception.HopException;
 
 public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
@@ -105,7 +109,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   @Override
-  protected void doAttach() {
+  protected void doAttach() throws HopException {
     if (!attached) {
       containerName = ((AzureFileName) getName()).getContainer();
       String fullPath = ((AzureFileName) getName()).getPath();
@@ -131,8 +135,12 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         dataLakeFileClient = null;
         currentFilePath = "";
       } else if (isContainer(fullPath)) {
-        service.createFileSystem(fullPath.substring(1));
-        type = FileType.FOLDER;
+        if (containerExists()) {
+          type = FileType.FOLDER;
+        } else {
+          type = FileType.IMAGINARY;
+          throw new HopException("Container does not exist: " + fullPath);
+        }
       } else { // this is a subdirectory or file or a container
 
         currentFilePath = ((AzureFileName) getName()).getPathAfterContainer();
@@ -161,7 +169,8 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
             PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
             pathItems.forEach(
                 item -> {
-                  children.add(item.getName().replace("small/", "")); // TODO replace with path
+                  children.add(
+                      item.getName().replace("small/", "")); // TODO SDL replace with actual path
                 });
             size = children.size();
             type = FileType.FOLDER;
@@ -183,9 +192,25 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     }
   }
 
+  private boolean containerExists() {
+    String containerName = ((AzureFileName) getName()).getContainer();
+    ListFileSystemsOptions fileSystemsOptions = new ListFileSystemsOptions();
+    fileSystemsOptions.setPrefix(containerName);
+
+    final DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+
+    try {
+      return fileSystemClient.existsWithResponse(Duration.ofSeconds(5), Context.NONE).getValue();
+    } catch (IllegalStateException e) {
+      return false;
+    }
+  }
+
   private boolean isContainer(String fullPath) {
-    // TODO: replace with actual implementation
-    if (fullPath.equals("/nocontainer")) {
+    final String container = ((AzureFileName) getName()).getContainer();
+    final String fullPathWithoutTralilingSlash = StringUtils.removeStart(fullPath, "/");
+    if (StringUtils.equals(container, fullPathWithoutTralilingSlash)
+        && !StringUtils.isEmpty(fullPathWithoutTralilingSlash)) {
       return true;
     }
     return false;
@@ -201,7 +226,8 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   @Override
-  protected void doDetach() throws Exception {
+  protected void doDetach() {
+    // TODO SDL: make sure to assign all of these values at the doAttach method
     if (this.attached) {
       this.attached = false;
       this.children = null;
@@ -238,7 +264,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected void doDelete() throws Exception {
-
+    // TODO SDL; the fileClient null check should be done here or removed from the doDelete method
     DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
     DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath.substring(1));
     if (fileClient == null) {
@@ -319,31 +345,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   protected void doCreateFolder() {
     // create a folder, we already know the path
     service.getFileSystemClient(containerName).createDirectory(currentFilePath.substring(1));
-
-    //
-    //    if (container == null) {
-    //      throw new UnsupportedOperationException();
-    //    } else if (containerPath.equals("")) {
-    //      container.create();
-    //      type = FileType.FOLDER;
-    //      children = new ArrayList<>();
-    //    } else {
-    //      /*
-    //       * Azure doesn't actually have folders, so we create a temporary
-    //       * 'file' in the 'folder'
-    //       */
-    //      CloudBlockBlob blob =
-    //          container.getBlockBlobReference(containerPath.substring(1) + "/" + markerFileName);
-    //      byte[] buf =
-    //          ("This is a temporary blob created by a Commons VFS application to simulate a
-    // folder. It "
-    //                  + "may be safely deleted, but this will hide the folder in the application
-    // if it is empty.")
-    //              .getBytes(StandardCharsets.UTF_8);
-    //      blob.uploadFromByteArray(buf, 0, buf.length);
-    //      type = FileType.FOLDER;
-    //      children = new ArrayList<>();
-    //    }
   }
 
   @Override
