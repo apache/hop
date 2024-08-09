@@ -41,7 +41,7 @@ public class PreviewRowsDialogTest {
   }
 
   @Test
-  public void getDataForRow() throws Exception {
+  public void getDataForRow() {
 
     IRowMeta iRowMeta = Mockito.mock(IRowMeta.class);
     Mockito.when(iRowMeta.size()).thenReturn(3);

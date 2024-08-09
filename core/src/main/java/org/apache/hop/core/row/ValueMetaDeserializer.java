@@ -18,7 +18,6 @@
 
 package org.apache.hop.core.row;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -33,8 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 public class ValueMetaDeserializer extends JsonDeserializer<IValueMeta> {
   @Override
   public IValueMeta deserialize(
-      JsonParser jsonParser, DeserializationContext deserializationContext)
-      throws IOException, JacksonException {
+      JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
     ObjectMapper objectMapper = (ObjectMapper) jsonParser.getCodec();
     ObjectNode root = objectMapper.readTree(jsonParser);
     int type = root.get("type").asInt();

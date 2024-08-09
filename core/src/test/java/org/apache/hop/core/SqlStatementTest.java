@@ -23,12 +23,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.junit.Test;
 
 public class SqlStatementTest {
   @Test
-  public void testClass() throws HopException {
+  public void testClass() {
     final String name = "transformName";
     final DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     final String sql = "sql string";

@@ -586,7 +586,7 @@ public class UIGit extends VCS {
     return false;
   }
 
-  private void processPushResult(Iterable<PushResult> resultIterable) throws Exception {
+  private void processPushResult(Iterable<PushResult> resultIterable) {
     resultIterable.forEach(
         result -> { // for each (push)url
           StringBuilder sb = new StringBuilder();
@@ -613,7 +613,7 @@ public class UIGit extends VCS {
         });
   }
 
-  public String diff(String oldCommitId, String newCommitId) throws Exception {
+  public String diff(String oldCommitId, String newCommitId) {
     return diff(oldCommitId, newCommitId, null);
   }
 

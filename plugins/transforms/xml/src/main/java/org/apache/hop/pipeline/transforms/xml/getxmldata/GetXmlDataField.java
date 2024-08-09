@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.xml.XmlHandler;
@@ -137,7 +136,7 @@ public class GetXmlDataField implements Cloneable {
     return xml.toString();
   }
 
-  public GetXmlDataField(Node fnode) throws HopValueException {
+  public GetXmlDataField(Node fnode) {
     setName(XmlHandler.getTagValue(fnode, "name"));
     setXPath(XmlHandler.getTagValue(fnode, "xpath"));
     setElementType(getElementTypeByCode(XmlHandler.getTagValue(fnode, "element_type")));

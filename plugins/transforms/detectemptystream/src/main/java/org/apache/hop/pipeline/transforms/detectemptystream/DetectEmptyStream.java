@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.detectemptystream;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -46,7 +45,7 @@ public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, Dete
    *
    * @return
    */
-  private Object[] buildOneRow() throws HopTransformException {
+  private Object[] buildOneRow() {
     // return previous fields name
     Object[] outputRowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
     return outputRowData;

@@ -30,7 +30,6 @@ import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 
 /**
  * This metadata implementation is an in-memory metadata which serializes using JSON. In other
@@ -102,7 +101,7 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
     return jStore.toJSONString();
   }
 
-  public SerializableMetadataProvider(String storeJson) throws ParseException, HopException {
+  public SerializableMetadataProvider(String storeJson) throws HopException {
     this();
     this.description = "Serializable metadata provider (source is JSON)";
     try {

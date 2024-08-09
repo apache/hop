@@ -150,7 +150,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
     return true;
   }
 
-  private void addFileToResultFilesname(FileObject file) throws Exception {
+  private void addFileToResultFilesname(FileObject file) {
     if (meta.addResultFile()) {
       // Add this to the result file names...
       ResultFile resultFile =

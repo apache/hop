@@ -122,8 +122,6 @@ public class WorkflowActionEvalTableContentTest {
     }
   }
 
-  // private static DBMockIface dbi = DBMockIface();
-
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
@@ -147,7 +145,7 @@ public class WorkflowActionEvalTableContentTest {
   }
 
   @AfterClass
-  public static void tearDownAfterClass() throws Exception {
+  public static void tearDownAfterClass() {
     HopClientEnvironment.reset();
   }
 
@@ -174,7 +172,7 @@ public class WorkflowActionEvalTableContentTest {
   }
 
   @Test
-  public void testNrErrorsFailure() throws Exception {
+  public void testNrErrorsFailure() {
     action.setLimit("1");
     action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
     action.setTablename("table");
@@ -184,12 +182,12 @@ public class WorkflowActionEvalTableContentTest {
     assertFalse("Eval number of rows should fail", res.getResult());
     assertEquals(
         "No errors should be reported in result object accoding to the new behavior",
-        res.getNrErrors(),
-        0);
+        0,
+        res.getNrErrors());
   }
 
   @Test
-  public void testNrErrorsSuccess() throws Exception {
+  public void testNrErrorsSuccess() {
     action.setLimit("5");
     action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
     action.setTablename("table");
@@ -197,11 +195,11 @@ public class WorkflowActionEvalTableContentTest {
     Result res = action.execute(new Result(), 0);
 
     assertTrue("Eval number of rows should be suceeded", res.getResult());
-    assertEquals("Apparently there should no error", res.getNrErrors(), 0);
+    assertEquals("Apparently there should no error", 0, res.getNrErrors());
   }
 
   @Test
-  public void testNrErrorsNoCustomSql() throws Exception {
+  public void testNrErrorsNoCustomSql() {
     action.setLimit("5");
     action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
     action.setUseCustomSql(true);
@@ -210,6 +208,6 @@ public class WorkflowActionEvalTableContentTest {
     Result res = action.execute(new Result(), 0);
 
     assertFalse("Eval number of rows should fail", res.getResult());
-    assertEquals("Apparently there should be an error", res.getNrErrors(), 1);
+    assertEquals("Apparently there should be an error", 1, res.getNrErrors());
   }
 }

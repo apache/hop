@@ -17,10 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetEncoder;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -157,8 +155,7 @@ public class ColumnSpec {
     this.mainBuffer = buffer;
   }
 
-  public void encode(IValueMeta valueMeta, Object value)
-      throws CharacterCodingException, UnsupportedEncodingException, HopValueException {
+  public void encode(IValueMeta valueMeta, Object value) throws HopValueException {
     if (value == null || valueMeta == null || valueMeta.getNativeDataType(value) == null) {
       return;
     }

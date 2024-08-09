@@ -25,7 +25,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
@@ -65,7 +64,7 @@ public class ExtensionPointMapTest {
   }
 
   @Test
-  public void addExtensionPointTest() throws HopPluginException {
+  public void addExtensionPointTest() {
     ExtensionPointMap.getInstance().addExtensionPoint(pluginInterface);
     assertEquals(
         ExtensionPointMap.getInstance().getTableValue(TEST_NAME, "testID"), extensionPoint);

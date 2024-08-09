@@ -104,7 +104,7 @@ public class ManageLifecyclesOptionPlugin implements IConfigOptions {
     }
   }
 
-  private void listLifecycles(ILogChannel log) throws HopException {
+  private void listLifecycles(ILogChannel log) {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
     log.logBasic("Project lifecycles:");

@@ -37,7 +37,7 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.utils.KieHelper;
 
 public class RulesAccumulatorData extends BaseTransformData implements ITransformData {
-  private static Class<?> PKG = RulesAccumulator.class; // for i18n purposes
+  private static final Class<?> PKG = RulesAccumulator.class; // for i18n purposes
 
   private IRowMeta outputRowMeta;
   private IRowMeta inputRowMeta;
@@ -113,7 +113,7 @@ public class RulesAccumulatorData extends BaseTransformData implements ITransfor
     this.inputRowMeta = _inputRowMeta;
   }
 
-  public void loadRow(Object[] r) throws Exception {
+  public void loadRow(Object[] r) {
     // Store rows for processing
     Map<String, Object> columns = new Hashtable<>();
     for (String field : inputRowMeta.getFieldNames()) {

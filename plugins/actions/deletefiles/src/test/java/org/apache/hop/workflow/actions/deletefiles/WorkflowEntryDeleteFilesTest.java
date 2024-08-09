@@ -45,18 +45,18 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class WorkflowEntryDeleteFilesTest {
-  private final String PATH_TO_FILE = "path/to/file";
-  private final String STRING_SPACES_ONLY = "   ";
+  private static final String PATH_TO_FILE = "path/to/file";
+  private static final String STRING_SPACES_ONLY = "   ";
 
   private ActionDeleteFiles action;
 
   @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  public static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     action = new ActionDeleteFiles();
     IWorkflowEngine<WorkflowMeta> parentWorkflow = mock(Workflow.class);
     doReturn(false).when(parentWorkflow).isStopped();

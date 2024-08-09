@@ -62,7 +62,7 @@ public class VerticaDatabaseMetaTest {
   private VerticaDatabaseMeta nativeMeta;
 
   // Get PKG from class under test
-  private Class<?> PKG = ValueMetaBase.PKG;
+  private static final Class<?> PKG = ValueMetaBase.PKG;
   private StoreLoggingEventListener listener;
 
   @Spy private DatabaseMeta databaseMetaSpy = spy(new DatabaseMeta());
@@ -97,7 +97,7 @@ public class VerticaDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(5433, nativeMeta.getDefaultDatabasePort());
     assertEquals("com.vertica.Driver", nativeMeta.getDriverClass());
@@ -509,7 +509,7 @@ public class VerticaDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() throws Exception {
+  public void testGetFieldDefinition() {
     assertEquals(
         "FOO TIMESTAMP",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));

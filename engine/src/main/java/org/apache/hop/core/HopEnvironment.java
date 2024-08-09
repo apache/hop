@@ -183,7 +183,7 @@ public class HopEnvironment {
    *
    * @throws HopException when a lifecycle listener throws an exception
    */
-  private static void initLifecycleListeners() throws HopException {
+  private static void initLifecycleListeners() {
     // Register a shutdown hook to invoke the listener's onExit() methods
     Runtime.getRuntime()
         .addShutdownHook(

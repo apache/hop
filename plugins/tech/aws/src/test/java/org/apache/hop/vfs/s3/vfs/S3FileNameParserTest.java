@@ -34,7 +34,7 @@ public class S3FileNameParserTest {
   FileNameParser parser;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     parser = S3FileNameParser.getInstance();
   }
 

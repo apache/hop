@@ -38,14 +38,14 @@ public class PostgreSqlDatabaseMetaTest {
   PostgreSqlDatabaseMeta nativeMeta;
 
   @Before
-  public void setupBefore() throws Exception {
+  public void setupBefore() {
 
     nativeMeta = new PostgreSqlDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
     assertEquals("?", nativeMeta.getExtraOptionIndicator());
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());

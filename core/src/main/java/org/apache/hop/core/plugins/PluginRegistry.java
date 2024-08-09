@@ -19,7 +19,6 @@ package org.apache.hop.core.plugins;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -336,8 +335,7 @@ public class PluginRegistry {
     return loadClass(plugin, classType);
   }
 
-  private HopURLClassLoader createClassLoader(IPlugin plugin)
-      throws MalformedURLException, UnsupportedEncodingException {
+  private HopURLClassLoader createClassLoader(IPlugin plugin) throws MalformedURLException {
 
     List<String> jarFiles = plugin.getLibraries();
     URL[] urls = new URL[jarFiles.size()];
@@ -357,7 +355,7 @@ public class PluginRegistry {
   }
 
   private void addToClassLoader(IPlugin plugin, HopURLClassLoader ucl)
-      throws MalformedURLException, UnsupportedEncodingException {
+      throws MalformedURLException {
     String[] patterns = parentClassloaderPatternMap.get(plugin);
 
     if (ucl instanceof HopSelectiveParentFirstClassLoader) {

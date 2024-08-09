@@ -24,7 +24,7 @@ import org.junit.Test;
 public class HopLogLayoutTest {
 
   @Test
-  public void testFormat() throws Exception {
+  public void testFormat() {
     LogMessage mcg =
         new LogMessage("Log message for {0}", "Channel 01", new String[] {"Test"}, LogLevel.DEBUG);
 

@@ -114,7 +114,7 @@ public class WebServerTest {
   //  }
 
   @Test
-  public void testJettyOption_AcceptQueueSizeSetUp() throws Exception {
+  public void testJettyOption_AcceptQueueSizeSetUp() {
     assertEquals(getSocketConnectors(webServer).size(), EXPECTED_CONNECTORS_SIZE);
     for (ServerConnector sc : getSocketConnectors(webServer)) {
       assertEquals(EXPECTED_ACCEPT_QUEUE_SIZE, sc.getAcceptQueueSize());
@@ -122,7 +122,7 @@ public class WebServerTest {
   }
 
   @Test
-  public void testJettyOption_LowResourceMaxIdleTimeSetUp() throws Exception {
+  public void testJettyOption_LowResourceMaxIdleTimeSetUp() {
     assertEquals(getSocketConnectors(webServer).size(), EXPECTED_CONNECTORS_SIZE);
     for (ServerConnector sc : getSocketConnectors(webServer)) {
       assertEquals(EXPECTED_RES_MAX_IDLE_TIME, sc.getIdleTimeout());

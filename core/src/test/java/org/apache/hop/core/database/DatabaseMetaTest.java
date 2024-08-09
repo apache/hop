@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -66,7 +65,7 @@ public class DatabaseMetaTest {
   private IVariables variables;
 
   @BeforeClass
-  public static void setUpOnce() throws HopPluginException, HopException {
+  public static void setUpOnce() throws HopException {
     // Register Natives to create a default DatabaseMeta
     DatabasePluginType.getInstance().searchPlugins();
     ValueMetaPluginType.getInstance().searchPlugins();
@@ -108,7 +107,7 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testApplyingDefaultOptions() throws Exception {
+  public void testApplyingDefaultOptions() {
     HashMap<String, String> existingOptions = new HashMap<>();
     existingOptions.put("type1.extra", "extraValue");
     existingOptions.put("type1.existing", "existingValue");
@@ -127,7 +126,7 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testGetFeatureSummary() throws Exception {
+  public void testGetFeatureSummary() {
     DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
     NoneDatabaseMeta odbm = new NoneDatabaseMeta();
     doCallRealMethod().when(databaseMeta).setIDatabase(any(IDatabase.class));
@@ -178,7 +177,7 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testModifyingName() throws Exception {
+  public void testModifyingName() {
     DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
     NoneDatabaseMeta odbm = new NoneDatabaseMeta();
     doCallRealMethod().when(databaseMeta).setIDatabase(any(IDatabase.class));

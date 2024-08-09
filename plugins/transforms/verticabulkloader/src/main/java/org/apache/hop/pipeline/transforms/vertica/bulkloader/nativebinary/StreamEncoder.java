@@ -118,7 +118,7 @@ public class StreamEncoder {
         (bufferSize > 0 && bufferSize < MAXIMUM_BUFFER_SIZE ? bufferSize : MAXIMUM_BUFFER_SIZE);
   }
 
-  public void writeHeader() throws IOException {
+  public void writeHeader() {
     // File signature
     buffer
         .put("NATIVE".getBytes(charset))

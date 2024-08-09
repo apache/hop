@@ -247,7 +247,7 @@ public class XmlHandlerUnitTest {
   }
 
   @Test
-  public void testEscapingXmlBagCharacters() throws Exception {
+  public void testEscapingXmlBagCharacters() {
     String testString = "[value_start (\"'<&>) value_end]";
     String expectedStrAfterConversion =
         "<[value_start (&#34;&#39;&lt;&amp;&gt;) value_end] "

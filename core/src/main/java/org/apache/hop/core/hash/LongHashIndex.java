@@ -158,7 +158,7 @@ public class LongHashIndex {
     }
   }
 
-  public static int generateHashCode(Long key) throws HopValueException {
+  public static int generateHashCode(Long key) {
     return key.hashCode();
   }
 

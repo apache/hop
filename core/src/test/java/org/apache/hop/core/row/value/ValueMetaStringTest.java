@@ -17,17 +17,16 @@
 
 package org.apache.hop.core.row.value;
 
+import static junit.framework.TestCase.failNotEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-import junit.framework.Assert;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
@@ -901,7 +900,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetIntegerWithoutConversionMask() throws HopValueException, ParseException {
+  public void testGetIntegerWithoutConversionMask() throws HopValueException {
     String value = "100.56";
     IValueMeta stringValueMeta = new ValueMetaString("test");
 
@@ -911,7 +910,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetNumberWithoutConversionMask() throws HopValueException, ParseException {
+  public void testGetNumberWithoutConversionMask() throws HopValueException {
     String value = "100.56";
     IValueMeta stringValueMeta = new ValueMetaString("test");
 
@@ -921,7 +920,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetBigNumberWithoutConversionMask() throws HopValueException, ParseException {
+  public void testGetBigNumberWithoutConversionMask() throws HopValueException {
     String value = "100.5";
     IValueMeta stringValueMeta = new ValueMetaString("test");
 
@@ -931,7 +930,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetDateWithoutConversionMask() throws HopValueException, ParseException {
+  public void testGetDateWithoutConversionMask() throws HopValueException {
     Calendar date = new GregorianCalendar(2017, 9, 20); // month 9 = Oct
     String value = "2017/10/20 00:00:00.000";
     IValueMeta stringValueMeta = new ValueMetaString("test");
@@ -948,11 +947,11 @@ public class ValueMetaStringTest {
   private static void assertSignum(String msg, int expected, int actual) {
     if (expected < 0) {
       if (actual >= 0) {
-        Assert.failNotEquals(msg, "(<0)", actual);
+        failNotEquals(msg, "(<0)", actual);
       }
     } else if (expected > 0) {
       if (actual <= 0) {
-        Assert.failNotEquals(msg, "(>0)", actual);
+        failNotEquals(msg, "(>0)", actual);
       }
     } else {
       assertEquals(msg, expected, actual);

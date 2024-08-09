@@ -122,8 +122,7 @@ public class WorkflowLoggingExtensionPoint
       final ILogChannel log,
       final Session session,
       final NeoConnection connection,
-      final IWorkflowEngine<WorkflowMeta> workflow)
-      throws HopException {
+      final IWorkflowEngine<WorkflowMeta> workflow) {
     log.logDetailed("Logging workflow metadata to Neo4j server : " + connection.getName());
 
     final WorkflowMeta workflowMeta = workflow.getWorkflowMeta();
@@ -215,8 +214,7 @@ public class WorkflowLoggingExtensionPoint
       final ILogChannel log,
       final Session session,
       final NeoConnection connection,
-      final IWorkflowEngine<WorkflowMeta> workflow)
-      throws HopException {
+      final IWorkflowEngine<WorkflowMeta> workflow) {
     log.logDetailed(
         "Logging execution start of workflow to Neo4j connection : " + connection.getName());
 
@@ -268,8 +266,7 @@ public class WorkflowLoggingExtensionPoint
       final ILogChannel log,
       final Session session,
       final NeoConnection connection,
-      final IWorkflowEngine<WorkflowMeta> workflow)
-      throws HopException {
+      final IWorkflowEngine<WorkflowMeta> workflow) {
     log.logDetailed(
         "Logging execution end of workflow to Neo4j connection : " + connection.getName());
 

@@ -28,7 +28,7 @@ public class NamedParamsDefaultTest {
   INamedParameters namedParams;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     namedParams = spy(new NamedParameters());
   }
 

@@ -36,12 +36,12 @@ public class HopGuiEventsHandlerTest {
   private HopGuiEventsHandler events;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     events = new HopGuiEventsHandler();
   }
 
   @Test
-  public void testAddRemoveListener() throws Exception {
+  public void testAddRemoveListener() {
     Map<String, Map<String, IHopGuiEventListener>> guiEventListenerMap =
         events.getGuiEventListenerMap();
 
@@ -60,7 +60,7 @@ public class HopGuiEventsHandlerTest {
   }
 
   @Test
-  public void testAddRemoveListeners() throws Exception {
+  public void testAddRemoveListeners() {
     Map<String, Map<String, IHopGuiEventListener>> guiEventListenerMap =
         events.getGuiEventListenerMap();
 
@@ -91,7 +91,7 @@ public class HopGuiEventsHandlerTest {
   }
 
   @Test
-  public void testAddEventExceptions() throws Exception {
+  public void testAddEventExceptions() {
     // The GUI ID can't be null or empty
     //
     assertThrows(RuntimeException.class, () -> events.addEventListener(null, e -> {}, "eventId-1"));
@@ -105,7 +105,7 @@ public class HopGuiEventsHandlerTest {
   }
 
   @Test
-  public void testFireEventExceptions() throws Exception {
+  public void testFireEventExceptions() {
     // The GUI ID can't be null or empty
     //
     assertThrows(RuntimeException.class, () -> events.fire());

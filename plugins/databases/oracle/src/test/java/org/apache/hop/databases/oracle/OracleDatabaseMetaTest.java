@@ -242,7 +242,7 @@ public class OracleDatabaseMetaTest {
   }
 
   @Test
-  public void testOverriddenSqlStatements() throws Exception {
+  public void testOverriddenSqlStatements() {
     assertEquals(" WHERE ROWNUM <= 5", nativeMeta.getLimitClause(5));
     String reusedFieldsQuery = "SELECT * FROM FOO WHERE 1=0";
     assertEquals(reusedFieldsQuery, nativeMeta.getSqlQueryFields("FOO"));
@@ -390,7 +390,7 @@ public class OracleDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() throws Exception {
+  public void testGetFieldDefinition() {
     assertEquals(
         "FOO DATE",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));
@@ -528,7 +528,7 @@ public class OracleDatabaseMetaTest {
   }
 
   @Test
-  public void testSupportsTimestampDataTypeIsTrue() throws Exception {
+  public void testSupportsTimestampDataTypeIsTrue() {
     nativeMeta.setSupportsTimestampDataType(true);
     assertEquals(
         "TIMESTAMP",

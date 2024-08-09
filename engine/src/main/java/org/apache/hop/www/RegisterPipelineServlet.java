@@ -46,7 +46,7 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
       HttpServletResponse response,
       boolean useXML,
       IVariables variables)
-      throws IOException, HopException, HopException, ParseException {
+      throws IOException, HopException, ParseException {
 
     final String xml = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
 

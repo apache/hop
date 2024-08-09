@@ -50,7 +50,7 @@ public class AS400DatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
     assertEquals("com.ibm.as400.access.AS400JDBCDriver", nativeMeta.getDriverClass());

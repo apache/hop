@@ -48,7 +48,7 @@ public class RowMetaAndDataTest {
   }
 
   @Before
-  public void prepare() throws Exception {
+  public void prepare() {
     rowsMeta = new RowMeta();
 
     IValueMeta valueMetaString = new ValueMetaString("str");

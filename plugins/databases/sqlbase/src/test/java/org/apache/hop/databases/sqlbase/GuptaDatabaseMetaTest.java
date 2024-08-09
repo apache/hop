@@ -43,7 +43,7 @@ public class GuptaDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(2155, nativeMeta.getDefaultDatabasePort());
     assertFalse(nativeMeta.isSupportsAutoInc());

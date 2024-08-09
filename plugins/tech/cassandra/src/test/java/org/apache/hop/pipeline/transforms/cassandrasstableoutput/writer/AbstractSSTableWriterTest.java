@@ -25,7 +25,7 @@ import org.junit.Test;
 public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
 
   @Test
-  public void testGetDirectory() throws Exception {
+  public void testGetDirectory() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(System.getProperty("java.io.tmpdir"), writer.getDirectory());
     writer.setDirectory("some_dir");
@@ -33,7 +33,7 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Test
-  public void testGetKeyspace() throws Exception {
+  public void testGetKeyspace() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(null, writer.getKeyspace());
     writer.setKeyspace("some_keyspace");
@@ -41,7 +41,7 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Test
-  public void testGetTable() throws Exception {
+  public void testGetTable() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(null, writer.getTable());
     writer.setTable("some_table");
@@ -49,7 +49,7 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Test
-  public void testGetBufferSize() throws Exception {
+  public void testGetBufferSize() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(16, writer.getBufferSize());
     writer.setBufferSize(10);
@@ -57,7 +57,7 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Test
-  public void testGetKeyField() throws Exception {
+  public void testGetKeyField() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(null, writer.getPrimaryKey());
     writer.setPrimaryKey("some_keyField");
@@ -65,17 +65,17 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Override
-  public void init() throws Exception {
+  public void init() {
     // Do nothing
   }
 
   @Override
-  public void processRow(Map<String, Object> record) throws Exception {
+  public void processRow(Map<String, Object> record) {
     // Do nothing
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     // Do nothing
   }
 }

@@ -155,7 +155,7 @@ public class ProjectsUtil {
 
   public static void validateFileInProject(
       ILogChannel log, String executableFilename, IVariables variables)
-      throws HopException, FileSystemException, HopException {
+      throws FileSystemException, HopException {
 
     if (StringUtils.isEmpty(executableFilename)) {
       // Repo or remote

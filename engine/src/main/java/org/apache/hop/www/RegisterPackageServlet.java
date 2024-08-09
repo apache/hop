@@ -45,7 +45,6 @@ import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -74,7 +73,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
       HttpServletResponse response,
       boolean useXML,
       IVariables variables)
-      throws HopException, IOException, HopException, ParseException {
+      throws IOException, HopException {
     FileObject tempFile =
         HopVfs.createTempFile("export", ".zip", System.getProperty("java.io.tmpdir"));
     OutputStream out = HopVfs.getOutputStream(tempFile, false);
@@ -154,7 +153,6 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
       throws HopFileException, IOException {
     String filename = MessageFormat.format(ZIP_CONT, archiveUrl, "metadata.json");
     InputStream inputStream = HopVfs.getInputStream(filename);
-    String metaStoreJson = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
-    return metaStoreJson;
+    return IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
   }
 }

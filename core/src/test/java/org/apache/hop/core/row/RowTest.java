@@ -50,8 +50,8 @@ public class RowTest {
         new Object[] {
           "sampleString",
           fmt.parse("2007/05/07 13:04:13.203"),
-          new Double(9123.00),
-          new Long(12345),
+          Double.valueOf(9123.00),
+          Long.valueOf(12345),
           new BigDecimal("123456789012345678.9349"),
           Boolean.TRUE,
         };
@@ -69,8 +69,8 @@ public class RowTest {
         new Object[] {
           null,
           fmt.parse("20070507130413"),
-          new Double(9123.9),
-          new Long(12345),
+          Double.valueOf(9123.9),
+          Long.valueOf(12345),
           new BigDecimal("123456789012345678.9349"),
           Boolean.FALSE,
         };

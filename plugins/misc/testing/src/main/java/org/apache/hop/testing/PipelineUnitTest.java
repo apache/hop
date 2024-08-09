@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -214,7 +213,7 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
   }
 
   public boolean matchesPipelineFilename(IVariables variables, String referencePipelineFilename)
-      throws HopFileException, FileSystemException {
+      throws HopFileException {
     if (Utils.isEmpty(referencePipelineFilename)) {
       return false;
     }

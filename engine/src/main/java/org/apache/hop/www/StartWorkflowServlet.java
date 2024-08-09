@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
@@ -229,7 +228,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
-  protected void runWorkflow(final IWorkflowEngine workflow) throws HopException {
+  protected void runWorkflow(final IWorkflowEngine workflow) {
     new Thread(() -> workflow.startExecution()).start();
   }
 

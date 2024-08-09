@@ -120,7 +120,7 @@ public class WorkflowTest {
   }
 
   @Before
-  public void init() throws HopException {
+  public void init() {
     mockedDataBase = mock(Database.class);
     mockedWorkflow = mock(Workflow.class);
     mockedVariableSpace = mock(IVariables.class);

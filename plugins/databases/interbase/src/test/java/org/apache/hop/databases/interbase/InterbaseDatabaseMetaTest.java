@@ -42,7 +42,7 @@ public class InterbaseDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(3050, nativeMeta.getDefaultDatabasePort());
     assertFalse(nativeMeta.isSupportsAutoInc());

@@ -28,7 +28,7 @@ public class PDI_11948_TransformsTestsParent<T extends BaseTransform, E extends 
   protected Pipeline pipelineMock;
   protected E transformDataMock;
 
-  public void init() throws Exception {
+  public void init() {
     pipelineMock = mock(Pipeline.class);
   }
 }

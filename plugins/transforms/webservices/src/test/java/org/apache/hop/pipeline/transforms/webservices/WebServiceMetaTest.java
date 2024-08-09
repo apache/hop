@@ -143,7 +143,7 @@ public class WebServiceMetaTest {
   }
 
   @Test
-  public void testCheck() throws Exception {
+  public void testCheck() {
     WebServiceMeta webServiceMeta = new WebServiceMeta();
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = mock(TransformMeta.class);

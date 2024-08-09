@@ -36,7 +36,7 @@ public class SvgSupportTest {
           + "L 10,0 z\"/>\n</svg>";
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     // This isn't really a setup line, instead it is here to show that we didn't privatize the
     // default constructor.
     // It will stop compiling if we make that change to the code. However it should probably be
@@ -46,7 +46,7 @@ public class SvgSupportTest {
   }
 
   @Test
-  public void testIsSvgEnabled() throws Exception {
+  public void testIsSvgEnabled() {
     assertTrue(SvgSupport.isSvgEnabled());
   }
 
@@ -57,7 +57,7 @@ public class SvgSupportTest {
   }
 
   @Test
-  public void testToPngName() throws Exception {
+  public void testToPngName() {
     assertTrue(SvgSupport.isPngName("my_file.png"));
     assertTrue(SvgSupport.isPngName("my_file.PNG"));
     assertTrue(SvgSupport.isPngName(".png"));
@@ -67,7 +67,7 @@ public class SvgSupportTest {
   }
 
   @Test
-  public void testToSvgName() throws Exception {
+  public void testToSvgName() {
     assertTrue(SvgSupport.isSvgName("my_file.svg"));
     assertTrue(SvgSupport.isSvgName("my_file.SVG"));
     assertTrue(SvgSupport.isSvgName(".svg"));

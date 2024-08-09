@@ -93,6 +93,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
     this(clazz, new ArrayList<>());
   }
 
+  @Override
   public IFieldLoadSaveValidatorFactory getFieldLoadSaveValidatorFactory() {
     return fieldLoadSaveValidatorFactory;
   }
@@ -124,7 +125,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
     testClone();
   }
 
-  protected void testClone() throws HopException {
+  protected void testClone() {
     T metaToSave = createMeta();
     if (initializer != null) {
       initializer.modify(metaToSave);

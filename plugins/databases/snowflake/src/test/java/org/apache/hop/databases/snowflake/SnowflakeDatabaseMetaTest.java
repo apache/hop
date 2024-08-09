@@ -46,13 +46,13 @@ public class SnowflakeDatabaseMetaTest {
   }
 
   @Test
-  public void testAccessType() throws Exception {
+  public void testAccessType() {
     int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
   }
 
   @Test
-  public void testUrl() throws Exception {
+  public void testUrl() {
     assertEquals("net.snowflake.client.jdbc.SnowflakeDriver", nativeMeta.getDriverClass());
 
     assertEquals(
@@ -92,7 +92,7 @@ public class SnowflakeDatabaseMetaTest {
   }
 
   @Test
-  public void testSupport() throws Exception {
+  public void testSupport() {
     assertTrue(nativeMeta.isSupportsSchemas());
     assertTrue(nativeMeta.isSupportsViews());
     assertTrue(nativeMeta.isSupportsSequences());

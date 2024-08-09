@@ -57,7 +57,7 @@ public class ZipCompressionOutputStreamTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     factory = CompressionProviderFactory.getInstance();
     ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     internalStream = new ByteArrayOutputStream();
@@ -65,7 +65,7 @@ public class ZipCompressionOutputStreamTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     internalStream = null;
   }
 

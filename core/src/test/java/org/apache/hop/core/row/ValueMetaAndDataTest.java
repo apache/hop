@@ -23,14 +23,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -52,7 +49,7 @@ public class ValueMetaAndDataTest {
   }
 
   @Test
-  public void testConstructors() throws HopValueException {
+  public void testConstructors() {
     ValueMetaAndData result;
 
     result = new ValueMetaAndData(new ValueMetaString("ValueStringName"), "testValue1");
@@ -115,7 +112,7 @@ public class ValueMetaAndDataTest {
   }
 
   @Test
-  public void testLoadXml() throws HopValueException, HopPluginException, ParseException {
+  public void testLoadXml() {
     ValueMetaAndData valueMetaAndData =
         new ValueMetaAndData(Mockito.mock(IValueMeta.class), new Object());
     List<IPlugin> pluginTypeList = new ArrayList<>();

@@ -33,7 +33,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -64,7 +63,7 @@ public class MsSqlServerDatabaseMetaTest {
   private IVariables variables;
 
   @BeforeClass
-  public static void setUpOnce() throws HopPluginException, HopException {
+  public static void setUpOnce() throws HopException {
     // Register Natives to create a default DatabaseMeta
     DatabasePluginType.getInstance().searchPlugins();
     ValueMetaPluginType.getInstance().searchPlugins();
@@ -72,7 +71,7 @@ public class MsSqlServerDatabaseMetaTest {
   }
 
   @Before
-  public void setupOnce() throws Exception {
+  public void setupOnce() {
     nativeMeta = new MsSqlServerDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
     databaseMeta = new DatabaseMeta();
@@ -82,7 +81,7 @@ public class MsSqlServerDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertFalse(nativeMeta.isSupportsCatalogs());
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(1433, nativeMeta.getDefaultDatabasePort());
@@ -536,7 +535,7 @@ public class MsSqlServerDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() throws Exception {
+  public void testGetFieldDefinition() {
     assertEquals(
         "CHAR(1)",
         nativeMeta.getFieldDefinition(new ValueMetaBoolean("BAR"), "", "", false, false, false));

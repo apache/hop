@@ -492,7 +492,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     return true;
   }
 
-  private void addFileToResultFilesname(FileObject file) throws Exception {
+  private void addFileToResultFilesname(FileObject file) {
     if (meta.addResultFile()) {
       // Add this to the result file names...
       ResultFile resultFile =

@@ -99,11 +99,9 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     if (timestamp == null) {
       return null;
     }
-    BigDecimal nanos =
-        BigDecimal.valueOf(timestamp.getTime())
-            .multiply(BigDecimal.valueOf(1000000000L))
-            .add(BigDecimal.valueOf(timestamp.getNanos()));
-    return nanos;
+    return BigDecimal.valueOf(timestamp.getTime())
+        .multiply(BigDecimal.valueOf(1000000000L))
+        .add(BigDecimal.valueOf(timestamp.getNanos()));
   }
 
   @Override
@@ -275,8 +273,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     return returnValue;
   }
 
-  protected synchronized String convertTimestampToString(Timestamp timestamp)
-      throws HopValueException {
+  protected synchronized String convertTimestampToString(Timestamp timestamp) {
 
     if (timestamp == null) {
       return null;
@@ -399,7 +396,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     return convertData(convertMeta, pol);
   }
 
-  public Timestamp convertDateToTimestamp(Date date) throws HopValueException {
+  public Timestamp convertDateToTimestamp(Date date) {
     if (date == null) {
       return null;
     }
@@ -629,16 +626,6 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     } catch (IOException e) {
       throw new HopFileException(
           this + " : Unable to write value timestamp data to output stream", e);
-    } catch (HopValueException e) {
-      throw new RuntimeException(
-          this
-              + " : There was a data type error: the data type of "
-              + object.getClass().getName()
-              + " object ["
-              + object
-              + "] does not correspond to value meta ["
-              + toStringMeta()
-              + "]");
     }
   }
 

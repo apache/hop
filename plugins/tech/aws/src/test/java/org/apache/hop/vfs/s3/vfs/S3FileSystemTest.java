@@ -49,7 +49,7 @@ public class S3FileSystemTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     fileName = new S3FileName(S3FileNameTest.SCHEME, "/", "", FileType.FOLDER);
     fileSystem = new S3FileSystem(fileName, new FileSystemOptions());
   }
@@ -62,7 +62,7 @@ public class S3FileSystemTest {
   }
 
   @Test
-  public void testGetS3Service() throws Exception {
+  public void testGetS3Service() {
     assertNotNull(fileSystem.getS3Client());
 
     FileSystemOptions options = new FileSystemOptions();
@@ -144,7 +144,7 @@ public class S3FileSystemTest {
     assertEquals(_10MBLong, s3FileSystem.convertToLong("10MB"));
   }
 
-  public S3FileSystem getTestInstance() throws Exception {
+  public S3FileSystem getTestInstance() {
     FileName rootName = mock(FileName.class);
     FileSystemOptions fileSystemOptions = new FileSystemOptions();
     return new S3FileSystem(rootName, fileSystemOptions);

@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.yamlinput;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.xml.XmlHandler;
@@ -94,7 +93,7 @@ public class YamlInputField implements Cloneable {
     return retval.toString();
   }
 
-  public YamlInputField(Node fnode) throws HopValueException {
+  public YamlInputField(Node fnode) {
     setName(XmlHandler.getTagValue(fnode, "name"));
     setPath(XmlHandler.getTagValue(fnode, "path"));
     setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));

@@ -39,7 +39,7 @@ public class S3NFileSystemTest {
   S3NFileName fileName;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     fileName = new S3NFileName(S3FileNameTest.SCHEME, "/", "", FileType.FOLDER);
     fileSystem = new S3NFileSystem(fileName, new FileSystemOptions());
   }
@@ -52,7 +52,7 @@ public class S3NFileSystemTest {
   }
 
   @Test
-  public void testGetS3Service() throws Exception {
+  public void testGetS3Service() {
     assertNotNull(fileSystem.getS3Client());
 
     FileSystemOptions options = new FileSystemOptions();

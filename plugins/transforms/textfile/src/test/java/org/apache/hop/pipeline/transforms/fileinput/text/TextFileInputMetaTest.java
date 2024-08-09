@@ -62,7 +62,7 @@ public class TextFileInputMetaTest {
   }
 
   @Test
-  public void testGetXmlWorksIfWeUpdateOnlyPartOfInputFilesInformation() throws Exception {
+  public void testGetXmlWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
     inputMeta.inputFiles = new BaseFileInputFiles();
     inputMeta.inputFiles.fileName = new String[] {FILE_NAME_VALID_PATH};
 
@@ -76,7 +76,7 @@ public class TextFileInputMetaTest {
   }
 
   @Test
-  public void testClonelWorksIfWeUpdateOnlyPartOfInputFilesInformation() throws Exception {
+  public void testClonelWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
     inputMeta.inputFiles = new BaseFileInputFiles();
     inputMeta.inputFiles.fileName = new String[] {FILE_NAME_VALID_PATH};
 

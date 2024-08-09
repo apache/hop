@@ -99,8 +99,7 @@ public class DebugLevelUtil {
   }
 
   public static void storeActionDebugLevel(
-      Map<String, String> debugGroupAttributesMap, String entryName, ActionDebugLevel debugLevel)
-      throws HopValueException, UnsupportedEncodingException {
+      Map<String, String> debugGroupAttributesMap, String entryName, ActionDebugLevel debugLevel) {
     debugGroupAttributesMap.put(
         entryName + " : " + Defaults.ACTION_ATTR_LOGLEVEL, debugLevel.getLogLevel().getCode());
     debugGroupAttributesMap.put(
@@ -118,8 +117,7 @@ public class DebugLevelUtil {
   }
 
   public static ActionDebugLevel getActionDebugLevel(
-      Map<String, String> debugGroupAttributesMap, String entryName)
-      throws UnsupportedEncodingException, HopXmlException {
+      Map<String, String> debugGroupAttributesMap, String entryName) {
 
     String logLevelCode =
         debugGroupAttributesMap.get(entryName + " : " + Defaults.ACTION_ATTR_LOGLEVEL);

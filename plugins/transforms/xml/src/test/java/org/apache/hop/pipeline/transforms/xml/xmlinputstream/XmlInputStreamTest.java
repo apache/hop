@@ -352,7 +352,7 @@ public class XmlInputStreamTest {
     assertEquals("other data", rl.getWritten().get(3)[3]);
   }
 
-  private void doTest() throws IOException, HopException {
+  private void doTest() throws HopException {
     XmlInputStream xmlInputStream =
         new XmlInputStream(
             transformMockHelper.transformMeta,

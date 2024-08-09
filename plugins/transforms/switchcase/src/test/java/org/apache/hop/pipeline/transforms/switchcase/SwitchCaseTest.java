@@ -96,19 +96,19 @@ public class SwitchCaseTest {
   }
 
   @Test
-  public void prepareObjectTypeBinaryTest_Equals() throws Exception {
+  public void prepareObjectTypeBinaryTest_Equals() {
     assertEquals(
         Arrays.hashCode(new byte[] {1, 2, 3}), SwitchCase.prepareObjectType(new byte[] {1, 2, 3}));
   }
 
   @Test
-  public void prepareObjectTypeBinaryTest_NotEquals() throws Exception {
+  public void prepareObjectTypeBinaryTest_NotEquals() {
     assertNotEquals(
         Arrays.hashCode(new byte[] {1, 2, 4}), SwitchCase.prepareObjectType(new byte[] {1, 2, 3}));
   }
 
   @Test
-  public void prepareObjectTypeBinaryTest_Null() throws Exception {
+  public void prepareObjectTypeBinaryTest_Null() {
     byte[] given = null;
     byte[] expected = null;
 
@@ -116,17 +116,17 @@ public class SwitchCaseTest {
   }
 
   @Test
-  public void prepareObjectTypeTest_Equals() throws Exception {
+  public void prepareObjectTypeTest_Equals() {
     assertEquals("2", SwitchCase.prepareObjectType("2"));
   }
 
   @Test
-  public void prepareObjectTypeTest_NotEquals() throws Exception {
+  public void prepareObjectTypeTest_NotEquals() {
     assertNotEquals("2", SwitchCase.prepareObjectType("1"));
   }
 
   @Test
-  public void prepareObjectTypeTest_Null() throws Exception {
+  public void prepareObjectTypeTest_Null() {
     assertNull(SwitchCase.prepareObjectType(null));
   }
 
