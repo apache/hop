@@ -48,7 +48,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -110,7 +109,7 @@ public class ValueMetaBaseTest {
   protected static final int MAX_TEXT_FIELD_LEN = 5;
 
   // Get PKG from class under test
-  protected Class<?> PKG = ValueMetaBase.PKG;
+  protected static final Class<?> PKG = ValueMetaBase.PKG;
   protected StoreLoggingEventListener listener;
 
   @Spy protected DatabaseMeta databaseMetaSpy = spy(new DatabaseMeta());
@@ -158,33 +157,33 @@ public class ValueMetaBaseTest {
     ValueMetaBase base = new ValueMetaBase();
     assertNotNull(base);
     assertNull(base.getName());
-    assertEquals(base.getType(), IValueMeta.TYPE_NONE);
+    assertEquals(IValueMeta.TYPE_NONE, base.getType());
   }
 
   @Test
   public void testCtorName() {
     ValueMetaBase base = new ValueMetaBase("myValueMeta");
-    assertEquals(base.getName(), "myValueMeta");
-    assertEquals(base.getType(), IValueMeta.TYPE_NONE);
+    assertEquals("myValueMeta", base.getName());
+    assertEquals(IValueMeta.TYPE_NONE, base.getType());
     assertNotNull(base.getTypeDesc());
   }
 
   @Test
   public void testCtorNameAndType() {
     IValueMeta base = new ValueMetaString("myStringType");
-    assertEquals(base.getName(), "myStringType");
-    assertEquals(base.getType(), IValueMeta.TYPE_STRING);
-    assertEquals(base.getTypeDesc(), "String");
+    assertEquals("myStringType", base.getName());
+    assertEquals(IValueMeta.TYPE_STRING, base.getType());
+    assertEquals("String", base.getTypeDesc());
   }
 
   @Test
   public void test4ArgCtor() {
     ValueMetaBase base = new ValueMetaBoolean("Hello, is it me you're looking for?", 4, 9);
-    assertEquals(base.getName(), "Hello, is it me you're looking for?");
-    assertEquals(base.getType(), IValueMeta.TYPE_BOOLEAN);
-    assertEquals(base.getLength(), 4);
-    assertEquals(base.getPrecision(), -1);
-    assertEquals(base.getStorageType(), IValueMeta.STORAGE_TYPE_NORMAL);
+    assertEquals("Hello, is it me you're looking for?", base.getName());
+    assertEquals(IValueMeta.TYPE_BOOLEAN, base.getType());
+    assertEquals(4, base.getLength());
+    assertEquals(-1, base.getPrecision());
+    assertEquals(IValueMeta.STORAGE_TYPE_NORMAL, base.getStorageType());
   }
 
   @Test
@@ -368,7 +367,7 @@ public class ValueMetaBaseTest {
     result =
         outValueMetaDate.convertDataFromString(
             inputValueEmptyString, inValueMetaString, nullIf, ifNull, trimType);
-    assertEquals("Conversion from empty string to date must return null", result, null);
+    assertEquals("Conversion from empty string to date must return null", null, result);
   }
 
   @Test(expected = HopValueException.class)
@@ -428,40 +427,40 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testGetTrimTypeByCode() {
-    assertEquals(ValueMetaBase.getTrimTypeByCode("none"), IValueMeta.TRIM_TYPE_NONE);
-    assertEquals(ValueMetaBase.getTrimTypeByCode("left"), IValueMeta.TRIM_TYPE_LEFT);
-    assertEquals(ValueMetaBase.getTrimTypeByCode("right"), IValueMeta.TRIM_TYPE_RIGHT);
-    assertEquals(ValueMetaBase.getTrimTypeByCode("both"), IValueMeta.TRIM_TYPE_BOTH);
-    assertEquals(ValueMetaBase.getTrimTypeByCode(null), IValueMeta.TRIM_TYPE_NONE);
-    assertEquals(ValueMetaBase.getTrimTypeByCode(""), IValueMeta.TRIM_TYPE_NONE);
-    assertEquals(ValueMetaBase.getTrimTypeByCode("fake"), IValueMeta.TRIM_TYPE_NONE);
+    assertEquals(IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByCode("none"));
+    assertEquals(IValueMeta.TRIM_TYPE_LEFT, ValueMetaBase.getTrimTypeByCode("left"));
+    assertEquals(IValueMeta.TRIM_TYPE_RIGHT, ValueMetaBase.getTrimTypeByCode("right"));
+    assertEquals(IValueMeta.TRIM_TYPE_BOTH, ValueMetaBase.getTrimTypeByCode("both"));
+    assertEquals(IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByCode(null));
+    assertEquals(IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByCode(""));
+    assertEquals(IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByCode("fake"));
   }
 
   @Test
   public void testGetTrimTypeCode() {
-    assertEquals(ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE), "none");
-    assertEquals(ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_LEFT), "left");
-    assertEquals(ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_RIGHT), "right");
-    assertEquals(ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_BOTH), "both");
+    assertEquals("none", ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE));
+    assertEquals("left", ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_LEFT));
+    assertEquals("right", ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_RIGHT));
+    assertEquals("both", ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_BOTH));
   }
 
   @Test
   public void testGetTrimTypeByDesc() {
     assertEquals(
-        ValueMetaBase.getTrimTypeByDesc(BaseMessages.getString(PKG, "ValueMeta.TrimType.None")),
-        IValueMeta.TRIM_TYPE_NONE);
+        IValueMeta.TRIM_TYPE_NONE,
+        ValueMetaBase.getTrimTypeByDesc(BaseMessages.getString(PKG, "ValueMeta.TrimType.None")));
     assertEquals(
-        ValueMetaBase.getTrimTypeByDesc(BaseMessages.getString(PKG, "ValueMeta.TrimType.Left")),
-        IValueMeta.TRIM_TYPE_LEFT);
+        IValueMeta.TRIM_TYPE_LEFT,
+        ValueMetaBase.getTrimTypeByDesc(BaseMessages.getString(PKG, "ValueMeta.TrimType.Left")));
     assertEquals(
-        ValueMetaBase.getTrimTypeByDesc(BaseMessages.getString(PKG, "ValueMeta.TrimType.Right")),
-        IValueMeta.TRIM_TYPE_RIGHT);
+        IValueMeta.TRIM_TYPE_RIGHT,
+        ValueMetaBase.getTrimTypeByDesc(BaseMessages.getString(PKG, "ValueMeta.TrimType.Right")));
     assertEquals(
-        ValueMetaBase.getTrimTypeByDesc(BaseMessages.getString(PKG, "ValueMeta.TrimType.Both")),
-        IValueMeta.TRIM_TYPE_BOTH);
-    assertEquals(ValueMetaBase.getTrimTypeByDesc(null), IValueMeta.TRIM_TYPE_NONE);
-    assertEquals(ValueMetaBase.getTrimTypeByDesc(""), IValueMeta.TRIM_TYPE_NONE);
-    assertEquals(ValueMetaBase.getTrimTypeByDesc("fake"), IValueMeta.TRIM_TYPE_NONE);
+        IValueMeta.TRIM_TYPE_BOTH,
+        ValueMetaBase.getTrimTypeByDesc(BaseMessages.getString(PKG, "ValueMeta.TrimType.Both")));
+    assertEquals(IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc(null));
+    assertEquals(IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc(""));
+    assertEquals(IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByDesc("fake"));
   }
 
   @Test
@@ -489,73 +488,73 @@ public class ValueMetaBaseTest {
   public void testOrigin() {
     ValueMetaBase base = new ValueMetaBase();
     base.setOrigin("myOrigin");
-    assertEquals(base.getOrigin(), "myOrigin");
+    assertEquals("myOrigin", base.getOrigin());
     base.setOrigin(null);
     assertNull(base.getOrigin());
     base.setOrigin("");
-    assertEquals(base.getOrigin(), "");
+    assertEquals("", base.getOrigin());
   }
 
   @Test
   public void testName() {
     ValueMetaBase base = new ValueMetaBase();
     base.setName("myName");
-    assertEquals(base.getName(), "myName");
+    assertEquals("myName", base.getName());
     base.setName(null);
     assertNull(base.getName());
     base.setName("");
-    assertEquals(base.getName(), "");
+    assertEquals("", base.getName());
   }
 
   @Test
   public void testLength() {
     ValueMetaBase base = new ValueMetaBase();
     base.setLength(6);
-    assertEquals(base.getLength(), 6);
+    assertEquals(6, base.getLength());
     base.setLength(-1);
-    assertEquals(base.getLength(), -1);
+    assertEquals(-1, base.getLength());
   }
 
   @Test
   public void testPrecision() {
     ValueMetaBase base = new ValueMetaBase();
     base.setPrecision(6);
-    assertEquals(base.getPrecision(), 6);
+    assertEquals(6, base.getPrecision());
     base.setPrecision(-1);
-    assertEquals(base.getPrecision(), -1);
+    assertEquals(-1, base.getPrecision());
   }
 
   @Test
   public void testCompareIntegers() throws HopValueException {
     ValueMetaBase intMeta = new ValueMetaInteger("int");
-    Long int1 = new Long(6223372036854775804L);
-    Long int2 = new Long(-6223372036854775804L);
+    Long int1 = Long.valueOf(6223372036854775804L);
+    Long int2 = Long.valueOf(-6223372036854775804L);
     assertEquals(1, intMeta.compare(int1, int2));
     assertEquals(-1, intMeta.compare(int2, int1));
     assertEquals(0, intMeta.compare(int1, int1));
     assertEquals(0, intMeta.compare(int2, int2));
 
-    int1 = new Long(9223372036854775804L);
-    int2 = new Long(-9223372036854775804L);
+    int1 = Long.valueOf(9223372036854775804L);
+    int2 = Long.valueOf(-9223372036854775804L);
     assertEquals(1, intMeta.compare(int1, int2));
     assertEquals(-1, intMeta.compare(int2, int1));
     assertEquals(0, intMeta.compare(int1, int1));
     assertEquals(0, intMeta.compare(int2, int2));
 
-    int1 = new Long(6223372036854775804L);
-    int2 = new Long(-9223372036854775804L);
+    int1 = Long.valueOf(6223372036854775804L);
+    int2 = Long.valueOf(-9223372036854775804L);
     assertEquals(1, intMeta.compare(int1, int2));
     assertEquals(-1, intMeta.compare(int2, int1));
     assertEquals(0, intMeta.compare(int1, int1));
 
-    int1 = new Long(9223372036854775804L);
-    int2 = new Long(-6223372036854775804L);
+    int1 = Long.valueOf(9223372036854775804L);
+    int2 = Long.valueOf(-6223372036854775804L);
     assertEquals(1, intMeta.compare(int1, int2));
     assertEquals(-1, intMeta.compare(int2, int1));
     assertEquals(0, intMeta.compare(int1, int1));
 
     int1 = null;
-    int2 = new Long(6223372036854775804L);
+    int2 = Long.valueOf(6223372036854775804L);
     assertEquals(-1, intMeta.compare(int1, int2));
     intMeta.setSortedDescending(true);
     assertEquals(1, intMeta.compare(int1, int2));
@@ -564,9 +563,9 @@ public class ValueMetaBaseTest {
   @Test
   public void testCompareIntegerToDouble() throws HopValueException {
     IValueMeta intMeta = new ValueMetaInteger("int");
-    Long int1 = new Long(2L);
+    Long int1 = Long.valueOf(2L);
     IValueMeta numberMeta = new ValueMetaNumber("number");
-    Double double2 = new Double(1.5);
+    Double double2 = Double.valueOf(1.5);
     assertEquals(1, intMeta.compare(int1, numberMeta, double2));
   }
 
@@ -761,9 +760,9 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testConvertDataUsingConversionMetaData() throws HopValueException, ParseException {
+  public void testConvertDataUsingConversionMetaData() throws HopValueException {
     ValueMetaString base = new ValueMetaString();
-    double DELTA = 1e-15;
+    double delta = 1e-15;
 
     base.setConversionMetadata(new ValueMetaString("STRING"));
     Object defaultStringData = "STRING DATA";
@@ -780,7 +779,7 @@ public class ValueMetaBaseTest {
     Object defaultNumberData = "1.999";
     double convertedNumberData =
         (double) base.convertDataUsingConversionMetaData(defaultNumberData);
-    assertEquals(1.999, convertedNumberData, DELTA);
+    assertEquals(1.999, convertedNumberData, delta);
 
     IValueMeta dateConversionMeta = new ValueMetaDate("DATE");
     dateConversionMeta.setDateFormatTimeZone(TimeZone.getTimeZone("CST"));
@@ -807,7 +806,7 @@ public class ValueMetaBaseTest {
     ValueMetaInteger valueMetaInteger = new ValueMetaInteger("INTEGER");
     valueMetaInteger.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
 
-    assertEquals("2", valueMetaInteger.getCompatibleString(new Long(2))); // BACKLOG-15750
+    assertEquals("2", valueMetaInteger.getCompatibleString(Long.valueOf(2))); // BACKLOG-15750
   }
 
   @Test
@@ -950,34 +949,34 @@ public class ValueMetaBaseTest {
     ValueMetaBase valueMetaString = new ValueMetaBase();
 
     valueMetaString.type = IValueMeta.TYPE_BOOLEAN;
-    assertEquals(valueMetaString.hashCode(null), 0 ^ 1);
+    assertEquals(0 ^ 1, valueMetaString.hashCode(null));
 
     valueMetaString.type = IValueMeta.TYPE_DATE;
-    assertEquals(valueMetaString.hashCode(null), 0 ^ 2);
+    assertEquals(0 ^ 2, valueMetaString.hashCode(null));
 
     valueMetaString.type = IValueMeta.TYPE_NUMBER;
-    assertEquals(valueMetaString.hashCode(null), 0 ^ 4);
+    assertEquals(0 ^ 4, valueMetaString.hashCode(null));
 
     valueMetaString.type = IValueMeta.TYPE_STRING;
-    assertEquals(valueMetaString.hashCode(null), 0 ^ 8);
+    assertEquals(0 ^ 8, valueMetaString.hashCode(null));
 
     valueMetaString.type = IValueMeta.TYPE_INTEGER;
-    assertEquals(valueMetaString.hashCode(null), 0 ^ 16);
+    assertEquals(0 ^ 16, valueMetaString.hashCode(null));
 
     valueMetaString.type = IValueMeta.TYPE_BIGNUMBER;
-    assertEquals(valueMetaString.hashCode(null), 0 ^ 32);
+    assertEquals(0 ^ 32, valueMetaString.hashCode(null));
 
     valueMetaString.type = IValueMeta.TYPE_BINARY;
-    assertEquals(valueMetaString.hashCode(null), 0 ^ 64);
+    assertEquals(0 ^ 64, valueMetaString.hashCode(null));
 
     valueMetaString.type = IValueMeta.TYPE_TIMESTAMP;
-    assertEquals(valueMetaString.hashCode(null), 0 ^ 128);
+    assertEquals(0 ^ 128, valueMetaString.hashCode(null));
 
     valueMetaString.type = IValueMeta.TYPE_INET;
-    assertEquals(valueMetaString.hashCode(null), 0 ^ 256);
+    assertEquals(0 ^ 256, valueMetaString.hashCode(null));
 
     valueMetaString.type = IValueMeta.TYPE_NONE;
-    assertEquals(valueMetaString.hashCode(null), 0);
+    assertEquals(0, valueMetaString.hashCode(null));
   }
 
   @Test
@@ -985,46 +984,46 @@ public class ValueMetaBaseTest {
     ValueMetaBase valueMetaString = new ValueMetaBase();
 
     valueMetaString.type = IValueMeta.TYPE_BOOLEAN;
-    assertEquals(valueMetaString.hashCode(true), 1231);
+    assertEquals(1231, valueMetaString.hashCode(true));
 
     SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
     String dateInString = "1/1/2018";
     Date dateObj = sdf.parse(dateInString);
     valueMetaString.type = IValueMeta.TYPE_DATE;
-    assertEquals(valueMetaString.hashCode(dateObj), -1358655136);
+    assertEquals(-1358655136, valueMetaString.hashCode(dateObj));
 
     Double numberObj = Double.valueOf(5.1);
     valueMetaString.type = IValueMeta.TYPE_NUMBER;
-    assertEquals(valueMetaString.hashCode(numberObj), 645005312);
+    assertEquals(645005312, valueMetaString.hashCode(numberObj));
 
     valueMetaString.type = IValueMeta.TYPE_STRING;
-    assertEquals(valueMetaString.hashCode("test"), 3556498);
+    assertEquals(3556498, valueMetaString.hashCode("test"));
 
     Long longObj = 123L;
     valueMetaString.type = IValueMeta.TYPE_INTEGER;
-    assertEquals(valueMetaString.hashCode(longObj), 123);
+    assertEquals(123, valueMetaString.hashCode(longObj));
 
     BigDecimal bDecimalObj = new BigDecimal(123.1);
     valueMetaString.type = IValueMeta.TYPE_BIGNUMBER;
-    assertEquals(valueMetaString.hashCode(bDecimalObj), 465045870);
+    assertEquals(465045870, valueMetaString.hashCode(bDecimalObj));
 
     byte[] bBinary = new byte[2];
     bBinary[0] = 1;
     bBinary[1] = 0;
     valueMetaString.type = IValueMeta.TYPE_BINARY;
-    assertEquals(valueMetaString.hashCode(bBinary), 992);
+    assertEquals(992, valueMetaString.hashCode(bBinary));
 
     Timestamp timestampObj = Timestamp.valueOf("2018-01-01 10:10:10.000000000");
     valueMetaString.type = IValueMeta.TYPE_TIMESTAMP;
-    assertEquals(valueMetaString.hashCode(timestampObj), -1322045776);
+    assertEquals(-1322045776, valueMetaString.hashCode(timestampObj));
 
     byte[] ipAddr = new byte[] {127, 0, 0, 1};
     InetAddress addrObj = InetAddress.getByAddress(ipAddr);
     valueMetaString.type = IValueMeta.TYPE_INET;
-    assertEquals(valueMetaString.hashCode(addrObj), 2130706433);
+    assertEquals(2130706433, valueMetaString.hashCode(addrObj));
 
     valueMetaString.type = IValueMeta.TYPE_NONE;
-    assertEquals(valueMetaString.hashCode("any"), 0);
+    assertEquals(0, valueMetaString.hashCode("any"));
   }
 
   @Test

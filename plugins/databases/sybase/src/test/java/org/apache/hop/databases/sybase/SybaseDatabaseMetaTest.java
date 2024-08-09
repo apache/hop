@@ -43,7 +43,7 @@ public class SybaseDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(5001, nativeMeta.getDefaultDatabasePort());
     assertEquals(1, nativeMeta.getNotFoundTK(true));

@@ -35,7 +35,7 @@ public class XmlJoinMetaGetFieldsTest {
   PipelineMeta pipelineMeta;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     xmlJoinMeta = new XmlJoinMeta();
     pipelineMeta = mock(PipelineMeta.class);
   }

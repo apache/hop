@@ -28,12 +28,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.variables.IVariables;
@@ -71,12 +68,12 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testPathExist() throws HopXmlException, IOException, URISyntaxException {
+  public void testPathExist() {
     assertTrue(testPath("je1-je4"));
   }
 
   @Test
-  public void testPathNotExist() throws HopXmlException, IOException, URISyntaxException {
+  public void testPathNotExist() {
     assertFalse(testPath("je2-je4"));
   }
 
@@ -110,7 +107,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testContentChangeListener() throws Exception {
+  public void testContentChangeListener() {
     workflowMeta.setChanged();
     workflowMeta.setChanged(true);
 
@@ -239,7 +236,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testAddRemoveJobEntryCopySetUnsetParent() throws Exception {
+  public void testAddRemoveJobEntryCopySetUnsetParent() {
     ActionMeta actionCopy = mock(ActionMeta.class);
     workflowMeta.addAction(actionCopy);
     workflowMeta.removeAction(0);
@@ -248,7 +245,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testHasLoop_simpleLoop() throws Exception {
+  public void testHasLoop_simpleLoop() {
     // main->2->3->main
     WorkflowMeta workflowMetaSpy = spy(workflowMeta);
     ActionMeta actionCopyMain = createAction("mainTransform");
@@ -264,7 +261,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testHasLoop_loopInPrevTransforms() throws Exception {
+  public void testHasLoop_loopInPrevTransforms() {
     // main->2->3->4->3
     WorkflowMeta workflowMetaSpy = spy(workflowMeta);
     ActionMeta actionCopyMain = createAction("mainTransform");

@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.cratedbbulkloader.http;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -71,7 +70,7 @@ public class BulkImportClientIT {
 
   @Test
   public void whenDataSizeGreaterThanMaxSize_shouldReturnRejectedRows()
-      throws HopException, JsonProcessingException, CrateDBHopException, IOException {
+      throws HopException, CrateDBHopException, IOException {
     BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "alice", "password");
 
     var response =
@@ -90,7 +89,7 @@ public class BulkImportClientIT {
 
   @Test
   public void whenRequestIsValid_shouldReturn200AndResult()
-      throws HopException, JsonProcessingException, SQLException, CrateDBHopException, IOException {
+      throws HopException, SQLException, CrateDBHopException, IOException {
     BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "alice", "password");
     HttpBulkImportResponse response =
         client.batchInsert(
@@ -114,8 +113,7 @@ public class BulkImportClientIT {
   }
 
   @Test
-  public void whenWrongPassword_shouldThrowUnauthorizedException()
-      throws HopException, JsonProcessingException, SQLException, CrateDBHopException {
+  public void whenWrongPassword_shouldThrowUnauthorizedException() {
     BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "alice", "wrongpassword");
 
     assertThrows(

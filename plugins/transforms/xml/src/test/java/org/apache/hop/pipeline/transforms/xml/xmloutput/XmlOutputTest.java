@@ -123,10 +123,10 @@ public class XmlOutputTest {
     xmlFields[1].setContentType(ContentType.getIfPresent("Attribute"));
     xmlFields[2].setContentType(ContentType.getIfPresent(""));
     xmlFields[3].setContentType(ContentType.getIfPresent("WrongValue"));
-    assertEquals(xmlFields[0].getContentType(), ContentType.Element);
-    assertEquals(xmlFields[1].getContentType(), ContentType.Attribute);
-    assertEquals(xmlFields[2].getContentType(), ContentType.Element);
-    assertEquals(xmlFields[3].getContentType(), ContentType.Element);
+    assertEquals(ContentType.Element, xmlFields[0].getContentType());
+    assertEquals(ContentType.Attribute, xmlFields[1].getContentType());
+    assertEquals(ContentType.Element, xmlFields[2].getContentType());
+    assertEquals(ContentType.Element, xmlFields[3].getContentType());
   }
 
   private void testNullValuesInAttribute(int writeNullInvocationExpected)

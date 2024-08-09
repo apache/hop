@@ -60,7 +60,7 @@ public class HopServerConfigTest {
   HopServerConfig slServerConfig;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     slServerConfig = new HopServerConfig();
   }
 

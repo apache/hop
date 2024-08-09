@@ -52,7 +52,7 @@ public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (tmpFile != null) {
       tmpFile.delete();
       tmpFile = null;

@@ -51,7 +51,7 @@ public class MailConnectionTest {
    * @throws MessagingException
    */
   @Test
-  public void openFolderTest() throws HopException, MessagingException {
+  public void openFolderTest() throws HopException {
     conn.openFolder("a/b", false, false);
     Folder folder = conn.getFolder();
     Assert.assertEquals("Folder B is opened", "B", folder.getFullName());
@@ -64,7 +64,7 @@ public class MailConnectionTest {
    * @throws MessagingException
    */
   @Test
-  public void setDestinationFolderTest() throws HopException, MessagingException {
+  public void setDestinationFolderTest() throws HopException {
     conn.setDestinationFolder("a/b/c", true);
     Assert.assertTrue("Folder C created", conn.cCreated);
     Assert.assertEquals(

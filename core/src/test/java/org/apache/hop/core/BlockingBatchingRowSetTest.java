@@ -71,7 +71,7 @@ public class BlockingBatchingRowSetTest {
     for (int i = 0; i < 5; i++) {
       rows.add(
           new Object[] {
-            new Long(i),
+            Long.valueOf(i),
           });
     }
 

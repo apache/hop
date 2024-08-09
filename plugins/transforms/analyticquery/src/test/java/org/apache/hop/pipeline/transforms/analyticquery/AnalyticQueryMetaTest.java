@@ -93,7 +93,7 @@ public class AnalyticQueryMetaTest {
   }
 
   @Test
-  public void testInjectionMetadata() throws Exception {
+  public void testInjectionMetadata() {
     BeanInjectionInfo<AnalyticQueryMeta> injectionInfo =
         new BeanInjectionInfo<>(AnalyticQueryMeta.class);
     assertEquals(5, injectionInfo.getProperties().size());

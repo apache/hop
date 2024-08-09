@@ -43,7 +43,7 @@ public class WorkflowActionFilesExistTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionFilesExist();
 

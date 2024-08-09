@@ -54,7 +54,7 @@ import org.mockito.stubbing.Answer;
 
 public class CalculatorValueDataUtilTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  private static String yyyy_MM_dd = "yyyy-MM-dd";
+  private static final String yyyy_MM_dd = "yyyy-MM-dd";
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -65,7 +65,7 @@ public class CalculatorValueDataUtilTest {
   public void testDateDiff_A_GT_B() {
     Object daysDiff =
         calculate("2010-05-12", "2010-01-01", IValueMeta.TYPE_DATE, CalculationType.DATE_DIFF);
-    assertEquals(new Long(131), daysDiff);
+    assertEquals(Long.valueOf(131), daysDiff);
   }
 
   @Test
@@ -76,7 +76,7 @@ public class CalculatorValueDataUtilTest {
             "2011-02-10",
             IValueMeta.TYPE_DATE,
             CalculatorMetaFunction.CalculationType.DATE_DIFF);
-    assertEquals(new Long(-41), daysDiff);
+    assertEquals(Long.valueOf(-41), daysDiff);
   }
 
   @Test
@@ -87,7 +87,7 @@ public class CalculatorValueDataUtilTest {
             "2010-01-01",
             IValueMeta.TYPE_DATE,
             CalculatorMetaFunction.CalculationType.DATE_WORKING_DIFF);
-    assertEquals(new Long(94), daysDiff);
+    assertEquals(Long.valueOf(94), daysDiff);
   }
 
   @Test
@@ -98,7 +98,7 @@ public class CalculatorValueDataUtilTest {
             "2011-02-10",
             IValueMeta.TYPE_DATE,
             CalculatorMetaFunction.CalculationType.DATE_WORKING_DIFF);
-    assertEquals(new Long(-30), daysDiff);
+    assertEquals(Long.valueOf(-30), daysDiff);
   }
 
   @Test
@@ -687,7 +687,7 @@ public class CalculatorValueDataUtilTest {
   }
 
   @Test
-  public void testMulitplyBigNumbers() throws Exception {
+  public void testMulitplyBigNumbers() {
     BigDecimal field1 = new BigDecimal("123456789012345678901.1234567890123456789");
     BigDecimal field2 = new BigDecimal("1.0");
     BigDecimal field3 = new BigDecimal("2.0");
@@ -708,7 +708,7 @@ public class CalculatorValueDataUtilTest {
   }
 
   @Test
-  public void testDivisionBigNumbers() throws Exception {
+  public void testDivisionBigNumbers() {
     BigDecimal field1 = new BigDecimal("123456789012345678901.1234567890123456789");
     BigDecimal field2 = new BigDecimal("1.0");
     BigDecimal field3 = new BigDecimal("2.0");
@@ -1612,15 +1612,15 @@ public class CalculatorValueDataUtilTest {
         calculate(
             "10", null, IValueMeta.TYPE_INTEGER, CalculatorMetaFunction.CalculationType.REMAINDER));
     assertEquals(
-        new Long("1"),
+        Long.valueOf("1"),
         calculate(
             "10", "3", IValueMeta.TYPE_INTEGER, CalculatorMetaFunction.CalculationType.REMAINDER));
     assertEquals(
-        new Long("-1"),
+        Long.valueOf("-1"),
         calculate(
             "-10", "3", IValueMeta.TYPE_INTEGER, CalculatorMetaFunction.CalculationType.REMAINDER));
 
-    Double comparisonDelta = new Double("0.0000000000001");
+    Double comparisonDelta = Double.valueOf("0.0000000000001");
     assertNull(
         calculate(
             null, null, IValueMeta.TYPE_NUMBER, CalculatorMetaFunction.CalculationType.REMAINDER));
@@ -1634,7 +1634,7 @@ public class CalculatorValueDataUtilTest {
             IValueMeta.TYPE_NUMBER,
             CalculatorMetaFunction.CalculationType.REMAINDER));
     assertEquals(
-        new Double("1.4").doubleValue(),
+        Double.valueOf("1.4").doubleValue(),
         ((Double)
                 calculate(
                     "17.8",
@@ -1644,7 +1644,7 @@ public class CalculatorValueDataUtilTest {
             .doubleValue(),
         comparisonDelta.doubleValue());
     assertEquals(
-        new Double("1.4").doubleValue(),
+        Double.valueOf("1.4").doubleValue(),
         ((Double)
                 calculate(
                     "17.8",
@@ -1655,7 +1655,7 @@ public class CalculatorValueDataUtilTest {
         comparisonDelta.doubleValue());
 
     assertEquals(
-        new Double("-1.4").doubleValue(),
+        Double.valueOf("-1.4").doubleValue(),
         ((Double)
                 calculate(
                     "-17.8",
@@ -1692,21 +1692,21 @@ public class CalculatorValueDataUtilTest {
             IValueMeta.TYPE_BIGNUMBER,
             CalculatorMetaFunction.CalculationType.REMAINDER));
     assertEquals(
-        new Double("2.6000000000000005").doubleValue(),
+        Double.valueOf("2.6000000000000005").doubleValue(),
         calculate(
             "12.5",
             "3.3",
             IValueMeta.TYPE_NUMBER,
             CalculatorMetaFunction.CalculationType.REMAINDER));
     assertEquals(
-        new Double("4.0").doubleValue(),
+        Double.valueOf("4.0").doubleValue(),
         calculate(
             "12.5",
             "4.25",
             IValueMeta.TYPE_NUMBER,
             CalculatorMetaFunction.CalculationType.REMAINDER));
     assertEquals(
-        new Long("1").longValue(),
+        Long.valueOf("1").longValue(),
         calculate(
             "10",
             "3.3",
@@ -1726,7 +1726,7 @@ public class CalculatorValueDataUtilTest {
 
     assertNull(ValueDataUtil.sum(metaA, null, metaB, null));
 
-    Long valueB = new Long(2);
+    Long valueB = Long.valueOf(2);
     ValueDataUtil.sum(metaA, null, metaB, valueB);
   }
 
@@ -1739,7 +1739,7 @@ public class CalculatorValueDataUtilTest {
     metaB.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     Object valueB = "2";
 
-    when(metaA.convertData(metaB, valueB)).thenAnswer((Answer<Long>) invocation -> new Long(2));
+    when(metaA.convertData(metaB, valueB)).thenAnswer((Answer<Long>) invocation -> Long.valueOf(2));
 
     Object returnValue = ValueDataUtil.sum(metaA, null, metaB, valueB);
     verify(metaA).convertData(metaB, valueB);
@@ -1750,18 +1750,18 @@ public class CalculatorValueDataUtilTest {
   @Test
   public void testJaro() {
     assertEquals(
-        new Double("0.0"),
+        Double.valueOf("0.0"),
         calculate(
             "abcd", "defg", IValueMeta.TYPE_STRING, CalculatorMetaFunction.CalculationType.JARO));
     assertEquals(
-        new Double("0.44166666666666665"),
+        Double.valueOf("0.44166666666666665"),
         calculate(
             "elephant",
             "hippo",
             IValueMeta.TYPE_STRING,
             CalculatorMetaFunction.CalculationType.JARO));
     assertEquals(
-        new Double("0.8666666666666667"),
+        Double.valueOf("0.8666666666666667"),
         calculate(
             "hello", "hallo", IValueMeta.TYPE_STRING, CalculatorMetaFunction.CalculationType.JARO));
   }
@@ -1769,7 +1769,7 @@ public class CalculatorValueDataUtilTest {
   @Test
   public void testJaroWinkler() {
     assertEquals(
-        new Double("0.0"),
+        Double.valueOf("0.0"),
         calculate(
             "abcd",
             "defg",

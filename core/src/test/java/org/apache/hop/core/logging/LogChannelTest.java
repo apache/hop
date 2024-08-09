@@ -52,7 +52,7 @@ public class LogChannelTest {
   private LogChannelFileWriterBuffer logChFileWriterBuffer;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     LogLevel logLevelStatic = Mockito.mock(LogLevel.class);
     mockedDefaultLogLevel.when(DefaultLogLevel::getLogLevel).thenReturn(LogLevel.BASIC);
 

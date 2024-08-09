@@ -44,7 +44,7 @@ public class IngresDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(
         -1, nativeMeta.getDefaultDatabasePort()); // pretty sure this is a bug - should be 21064 (

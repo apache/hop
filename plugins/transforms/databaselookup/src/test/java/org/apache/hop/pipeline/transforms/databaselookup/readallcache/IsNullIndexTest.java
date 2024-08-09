@@ -73,7 +73,7 @@ public class IsNullIndexTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     matchingNulls = new IsNullIndex(0, new ValueMetaInteger(), 5, true);
     matchingNulls.performIndexingOf(rows);
 

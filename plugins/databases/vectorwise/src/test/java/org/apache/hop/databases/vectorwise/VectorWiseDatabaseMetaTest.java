@@ -33,7 +33,7 @@ import org.junit.Test;
 public class VectorWiseDatabaseMetaTest {
 
   @Test
-  public void testIngresOverrides() throws Exception {
+  public void testIngresOverrides() {
     VectorWiseDatabaseMeta nativeMeta;
     nativeMeta = new VectorWiseDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);

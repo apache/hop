@@ -121,7 +121,7 @@ public abstract class BaseParsingTest<
   }
 
   /** Check result no has errors. */
-  protected void checkErrors() throws Exception {
+  protected void checkErrors() {
     assertEquals("There are errors", 0, errorsCount);
     assertEquals("There are transform errors", 0, transform.getErrors());
   }
@@ -132,7 +132,7 @@ public abstract class BaseParsingTest<
    * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row
    *     1"}, { "field 1 value in row 2","field 2 value in row 2"} }
    */
-  protected void checkRowCount(Object[][] expected) throws Exception {
+  protected void checkRowCount(Object[][] expected) {
     assertEquals("Wrong rows count", expected.length, rows.size());
     checkContent(expected);
   }
@@ -143,7 +143,7 @@ public abstract class BaseParsingTest<
    * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row
    *     1"}, { "field 1 value in row 2","field 2 value in row 2"} }
    */
-  protected void checkContent(Object[][] expected) throws Exception {
+  protected void checkContent(Object[][] expected) {
     for (int i = 0; i < expected.length; i++) {
       assertArrayEquals("Wrong row: " + Arrays.asList(rows.get(i)), expected[i], rows.get(i));
     }

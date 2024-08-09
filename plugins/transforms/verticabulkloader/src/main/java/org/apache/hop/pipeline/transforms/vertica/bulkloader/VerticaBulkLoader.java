@@ -672,8 +672,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
   }
 
   @VisibleForTesting
-  VerticaConnection getVerticaConnection()
-      throws SQLException, ClassNotFoundException, HopDatabaseException {
+  VerticaConnection getVerticaConnection() throws SQLException {
 
     Connection conn = data.db.getConnection();
     if (conn != null) {

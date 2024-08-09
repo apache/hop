@@ -361,7 +361,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testMulitplyBigNumbers() throws Exception {
+  public void testMulitplyBigNumbers() {
     BigDecimal field1 = new BigDecimal("123456789012345678901.1234567890123456789");
     BigDecimal field2 = new BigDecimal("1.0");
     BigDecimal field3 = new BigDecimal("2.0");
@@ -382,7 +382,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testDivisionBigNumbers() throws Exception {
+  public void testDivisionBigNumbers() {
     BigDecimal field1 = new BigDecimal("123456789012345678901.1234567890123456789");
     BigDecimal field2 = new BigDecimal("1.0");
     BigDecimal field3 = new BigDecimal("2.0");
@@ -441,11 +441,11 @@ public class ValueDataUtilTest {
     metaB.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     Object valueB = "2";
 
-    when(metaA.convertData(metaB, valueB)).thenAnswer((Answer<Long>) invocation -> new Long(2));
+    when(metaA.convertData(metaB, valueB)).thenAnswer((Answer<Long>) invocation -> Long.valueOf(2));
 
     Object returnValue = ValueDataUtil.sum(metaA, null, metaB, valueB);
     verify(metaA).convertData(metaB, valueB);
     assertEquals(2L, returnValue);
-    assertEquals(metaA.getStorageType(), IValueMeta.STORAGE_TYPE_NORMAL);
+    assertEquals(IValueMeta.STORAGE_TYPE_NORMAL, metaA.getStorageType());
   }
 }

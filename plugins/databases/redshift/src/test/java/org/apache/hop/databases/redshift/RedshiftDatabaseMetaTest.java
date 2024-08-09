@@ -32,7 +32,7 @@ public class RedshiftDatabaseMetaTest {
   private RedshiftDatabaseMeta dbMeta;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbMeta = new RedshiftDatabaseMeta();
     dbMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
   }
@@ -45,17 +45,17 @@ public class RedshiftDatabaseMetaTest {
   }
 
   @Test
-  public void testGetDefaultDatabasePort() throws Exception {
+  public void testGetDefaultDatabasePort() {
     assertEquals(5439, dbMeta.getDefaultDatabasePort());
   }
 
   @Test
-  public void testGetDriverClass() throws Exception {
+  public void testGetDriverClass() {
     assertEquals("com.amazon.redshift.jdbc42.Driver", dbMeta.getDriverClass());
   }
 
   @Test
-  public void testGetURL() throws Exception {
+  public void testGetURL() {
     assertEquals("jdbc:redshift://:/", dbMeta.getURL("", "", ""));
     assertEquals(
         "jdbc:redshift://rs.project-hop.org:4444/myDB",
@@ -63,19 +63,19 @@ public class RedshiftDatabaseMetaTest {
   }
 
   @Test
-  public void testGetExtraOptionsHelpText() throws Exception {
+  public void testGetExtraOptionsHelpText() {
     assertEquals(
         "http://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html",
         dbMeta.getExtraOptionsHelpText());
   }
 
   @Test
-  public void testIsFetchSizeSupported() throws Exception {
+  public void testIsFetchSizeSupported() {
     assertFalse(dbMeta.isFetchSizeSupported());
   }
 
   @Test
-  public void testSupportsSetMaxRows() throws Exception {
+  public void testSupportsSetMaxRows() {
     assertFalse(dbMeta.isSupportsSetMaxRows());
   }
 }

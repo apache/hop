@@ -174,7 +174,7 @@ public class TextFileOutputMetaTest {
   }
 
   @Test
-  public void testVarReplaceSplit() throws Exception {
+  public void testVarReplaceSplit() {
     TextFileOutputMeta meta = new TextFileOutputMeta();
     meta.setDefault();
     meta.setSplitEveryRows("${splitVar}");

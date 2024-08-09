@@ -58,18 +58,18 @@ public class SimpleTimestampFormatTest {
   private Date dateWithoutPrecision = new Date(timestampWithoutPrecision.getTime());
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     formatLocale = Locale.getDefault(Locale.Category.FORMAT);
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     Locale.setDefault(Locale.Category.FORMAT, formatLocale);
   }
 
   @Test
   @Ignore
-  public void testFormat() throws Exception {
+  public void testFormat() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
       tdb =
@@ -77,8 +77,6 @@ public class SimpleTimestampFormatTest {
               "org.apache.hop/core/row/value/timestamp/messages/testdates", locale);
       checkFormat("HOP.LONG");
       checkFormat("LOCALE.DATE", new SimpleTimestampFormat(new SimpleDateFormat().toPattern()));
-      // checkFormat( "LOCALE.TIMESTAMP", new SimpleTimestampFormat( new
-      // SimpleDateFormat().toPattern() ) );
       checkFormat("HOP");
       checkFormat("DB.DEFAULT");
       checkFormat("LOCALE.DEFAULT");
@@ -130,9 +128,6 @@ public class SimpleTimestampFormatTest {
       checkParseHopLong();
       checkParseDbDefault();
       checkParseLocaleDefault();
-      // Uncomment in case of locale timestamp format is defined for the most locales as in
-      // SimpleDateFormat()
-      // checkParseLocalTimestamp();
     }
   }
 
@@ -227,7 +222,7 @@ public class SimpleTimestampFormatTest {
 
   @Test
   @Ignore
-  public void testToPattern() throws Exception {
+  public void testToPattern() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
       tdb =
@@ -245,7 +240,7 @@ public class SimpleTimestampFormatTest {
 
   @Test
   @Ignore
-  public void testToLocalizedPattern() throws Exception {
+  public void testToLocalizedPattern() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
       tdb =
@@ -267,7 +262,7 @@ public class SimpleTimestampFormatTest {
 
   @Test
   @Ignore
-  public void testApplyPattern() throws Exception {
+  public void testApplyPattern() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
       tdb =
@@ -282,7 +277,7 @@ public class SimpleTimestampFormatTest {
   }
 
   @Test
-  public void testApplyLocalizedPattern() throws Exception {
+  public void testApplyLocalizedPattern() {
     Locale.setDefault(Locale.Category.FORMAT, Locale.US);
     SimpleTimestampFormat stf = new SimpleTimestampFormat(new SimpleDateFormat().toPattern());
     for (Locale locale : locales) {

@@ -23,7 +23,7 @@ import org.junit.Test;
 public class SourceToTargetMappingTest {
 
   @Test
-  public void testClass() throws Exception {
+  public void testClass() {
     SourceToTargetMapping mapping = new SourceToTargetMapping(2, 3);
     assertEquals(2, mapping.getSourcePosition());
     assertEquals(3, mapping.getTargetPosition());

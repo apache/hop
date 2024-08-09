@@ -49,7 +49,7 @@ public class GzipCompressionProviderTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     factory = CompressionProviderFactory.getInstance();
   }
 

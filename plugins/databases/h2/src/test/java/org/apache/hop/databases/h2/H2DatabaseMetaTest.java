@@ -44,7 +44,7 @@ public class H2DatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertEquals(8082, nativeMeta.getDefaultDatabasePort());
     assertEquals("org.h2.Driver", nativeMeta.getDriverClass());
 

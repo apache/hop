@@ -142,7 +142,7 @@ public class ZipFileMetaTest {
   }
 
   @Test
-  public void testGetTransform() throws Exception {
+  public void testGetTransform() {
     TransformMeta transformMeta = mock(TransformMeta.class);
     when(transformMeta.getName()).thenReturn("Zip Transform Name");
     ZipFileData transformData = mock(ZipFileData.class);

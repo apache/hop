@@ -333,7 +333,7 @@ public class RedshiftBulkLoader
     return sb.toString();
   }
 
-  private Object[] writeToOutputStream(Object[] r) throws HopException, IOException {
+  private Object[] writeToOutputStream(Object[] r) {
     assert (r != null);
 
     Object[] insertRowData = r;

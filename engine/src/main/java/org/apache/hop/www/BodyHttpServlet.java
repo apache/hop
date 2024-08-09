@@ -85,7 +85,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     }
   }
 
-  protected void beginHtml(HttpServletResponse response, PrintWriter out) throws IOException {
+  protected void beginHtml(HttpServletResponse response, PrintWriter out) {
     response.setContentType("text/html;charset=UTF-8");
     out.println("<HTML>");
     out.println("<HEAD>");
@@ -104,7 +104,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     out.println("</HTML>");
   }
 
-  protected void startXml(HttpServletResponse response, PrintWriter out) throws IOException {
+  protected void startXml(HttpServletResponse response, PrintWriter out) {
     response.setContentType("text/xml");
     response.setCharacterEncoding(Const.XML_ENCODING);
     out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));

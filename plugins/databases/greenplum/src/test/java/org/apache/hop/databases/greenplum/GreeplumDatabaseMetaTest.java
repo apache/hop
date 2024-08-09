@@ -26,7 +26,7 @@ import org.junit.Test;
 public class GreeplumDatabaseMetaTest extends PostgreSqlDatabaseMetaTest {
 
   @Test
-  public void testPostgresqlOverrides() throws Exception {
+  public void testPostgresqlOverrides() {
     PostgreSqlDatabaseMeta meta1 = new PostgreSqlDatabaseMeta();
     GreenplumDatabaseMeta meta2 = new GreenplumDatabaseMeta();
     String[] meta1Reserved = meta1.getReservedWords();

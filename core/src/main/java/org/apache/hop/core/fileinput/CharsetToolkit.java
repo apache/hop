@@ -19,7 +19,6 @@ package org.apache.hop.core.fileinput;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -103,17 +102,15 @@ public class CharsetToolkit {
     }
   }
 
-  public static Charset guessEncoding(FileObject file, int bufferLength)
-      throws FileNotFoundException, IOException {
+  public static Charset guessEncoding(FileObject file, int bufferLength) throws IOException {
     return guessEncoding(new File(file.getName().getPathDecoded()), bufferLength);
   }
 
-  public static String guessEncodingName(FileObject file)
-      throws FileNotFoundException, IOException {
+  public static String guessEncodingName(FileObject file) throws IOException {
     return guessEncodingName(new File(file.getName().getPathDecoded()));
   }
 
-  public static String guessEncodingName(File file) throws FileNotFoundException, IOException {
+  public static String guessEncodingName(File file) throws IOException {
     return guessEncoding(file, 4096).displayName();
   }
 

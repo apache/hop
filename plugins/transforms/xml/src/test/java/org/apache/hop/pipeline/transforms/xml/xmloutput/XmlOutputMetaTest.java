@@ -323,7 +323,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetNewline() throws Exception {
+  public void testGetNewline() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     assertEquals("\r\n", xmlOutputMeta.getNewLine("DOS"));
     assertEquals("\n", xmlOutputMeta.getNewLine("UNIX"));
@@ -343,7 +343,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testSetDefault() throws Exception {
+  public void testSetDefault() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     assertEquals("file", xmlOutputMeta.getFileName());
@@ -365,7 +365,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetFiles() throws Exception {
+  public void testGetFiles() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     xmlOutputMeta.setTransformNrInFilename(true);
@@ -391,7 +391,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetFields() throws Exception {
+  public void testGetFields() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     XmlField xmlField = new XmlField();
@@ -411,7 +411,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testLoadXmlException() throws Exception {
+  public void testLoadXmlException() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
@@ -467,7 +467,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testCheck() throws Exception {
+  public void testCheck() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);

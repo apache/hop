@@ -30,7 +30,7 @@ public class MsSqlServerNativeDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
-  public void testMsSqlOverrides() throws Exception {
+  public void testMsSqlOverrides() {
     MsSqlServerNativeDatabaseMeta localNativeMeta = new MsSqlServerNativeDatabaseMeta();
     localNativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 

@@ -1238,7 +1238,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
    *
    * @param condition The condition to which we want to add one more.
    */
-  private void addCondition(Condition condition) throws HopValueException {
+  private void addCondition(Condition condition) {
     activeCondition.addCondition(condition);
   }
 

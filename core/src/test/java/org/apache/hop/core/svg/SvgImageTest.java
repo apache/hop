@@ -30,13 +30,13 @@ public class SvgImageTest {
   Document document;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     document = mock(Document.class);
     image = new SvgImage(document);
   }
 
   @Test
-  public void testGetDocument() throws Exception {
+  public void testGetDocument() {
     assertEquals(document, image.getDocument());
   }
 }

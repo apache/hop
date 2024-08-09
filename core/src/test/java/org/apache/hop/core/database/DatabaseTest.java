@@ -130,10 +130,10 @@ public class DatabaseTest {
     db.setConnection(conn);
     IRowMeta iRowMeta = db.getQueryFieldsFromDatabaseMetaData();
 
-    assertEquals(iRowMeta.size(), 1);
-    assertEquals(iRowMeta.getValueMeta(0).getName(), columnName);
-    assertEquals(iRowMeta.getValueMeta(0).getOriginalColumnTypeName(), columnType);
-    assertEquals(iRowMeta.getValueMeta(0).getLength(), columnSize);
+    assertEquals(1, iRowMeta.size());
+    assertEquals(columnName, iRowMeta.getValueMeta(0).getName());
+    assertEquals(columnType, iRowMeta.getValueMeta(0).getOriginalColumnTypeName());
+    assertEquals(columnSize, iRowMeta.getValueMeta(0).getLength());
   }
 
   /**
@@ -469,7 +469,7 @@ public class DatabaseTest {
 
   @Test
   public void testDisconnectPstmCloseFail()
-      throws SQLException, HopDatabaseException, NoSuchFieldException, IllegalAccessException {
+      throws SQLException, NoSuchFieldException, IllegalAccessException {
     Database db = new Database(log, variables, meta);
     Connection connection = mockConnection(dbMetaData);
     db.setConnection(connection);
@@ -523,7 +523,7 @@ public class DatabaseTest {
     db.setConnection(mockConnection(dbMetaDataMock));
 
     String[] tableNames = db.getTablenames();
-    assertEquals(tableNames.length, 1);
+    assertEquals(1, tableNames.length);
   }
 
   @Test
@@ -592,8 +592,8 @@ public class DatabaseTest {
     db.setConnection(conn);
     IRowMeta iRowMeta = db.getQueryFieldsFromPreparedStatement(sql);
 
-    assertEquals(iRowMeta.size(), 1);
-    assertEquals(iRowMeta.getValueMeta(0).getName(), columnName);
+    assertEquals(1, iRowMeta.size());
+    assertEquals(columnName, iRowMeta.getValueMeta(0).getName());
     assertTrue(iRowMeta.getValueMeta(0) instanceof ValueMetaNumber);
   }
 
@@ -614,8 +614,8 @@ public class DatabaseTest {
     db.setConnection(conn);
     IRowMeta iRowMeta = db.getQueryFieldsFallback(sql, false, null, null);
 
-    assertEquals(iRowMeta.size(), 1);
-    assertEquals(iRowMeta.getValueMeta(0).getName(), columnName);
+    assertEquals(1, iRowMeta.size());
+    assertEquals(columnName, iRowMeta.getValueMeta(0).getName());
     assertTrue(iRowMeta.getValueMeta(0) instanceof ValueMetaNumber);
   }
 }

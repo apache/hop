@@ -291,12 +291,8 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
     return rowMeta.compare(previous, rowData, data.groupnrs) == 0;
   }
 
-  /**
-   * Initialize a new group...
-   *
-   * @throws HopException
-   */
-  private void newGroup() throws HopException {
+  /** Initialize a new group... */
+  private void newGroup() {
     // There is no need anymore to take care of the meta-data.
     // That is done once in DenormaliserMeta.getFields()
     //

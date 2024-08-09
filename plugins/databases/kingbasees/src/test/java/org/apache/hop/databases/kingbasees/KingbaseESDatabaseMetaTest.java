@@ -45,7 +45,7 @@ public class KingbaseESDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(54321, nativeMeta.getDefaultDatabasePort());
     assertEquals(0, nativeMeta.getNotFoundTK(true));

@@ -26,7 +26,7 @@ import org.junit.Test;
 public class FileInputListTest {
 
   @Test
-  public void testGetUrlStrings() throws Exception {
+  public void testGetUrlStrings() {
 
     String sFileA = "hdfs://myfolderA/myfileA.txt";
     String sFileB = "file:///myfolderB/myfileB.txt";

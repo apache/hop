@@ -93,8 +93,7 @@ public class PipelineTest {
    * @throws InterruptedException
    */
   @Test
-  public void testPipelineFinishListenersConcurrentModification()
-      throws HopException, InterruptedException {
+  public void testPipelineFinishListenersConcurrentModification() throws InterruptedException {
     CountDownLatch start = new CountDownLatch(1);
     PipelineFinishListenerAdder add = new PipelineFinishListenerAdder(pipeline, start);
     PipelineFinishListenerFirer firer = new PipelineFinishListenerFirer(pipeline, start);
