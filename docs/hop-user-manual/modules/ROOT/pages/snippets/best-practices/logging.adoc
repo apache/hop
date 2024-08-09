@@ -18,9 +18,11 @@ under the License.
 [[Logging]]
 :imagesdir: ../../assets/images
 
-Take some time to capture the logging of your workflows and pipelines.
-Any time you run anything you want to have a trace of it.
+Take some time to capture the logging of your workflows and pipelines, so you can easily find a trace of anything you have run.
+
 Things tend to go wrong when you least expect it and at that point you like being able to see what happened.
+
 See xref:logging/logging-basics.adoc[Logging Basics], xref:logging/logging-reflection.adoc[Logging Reflection] or consider logging to a xref:technology/neo4j/index.adoc[Neo4j] graph database.
 This last one allows you to browse the logging results in the Neo4j perspective.
 
+Other options include the xref:metadata-types/pipeline-log.adoc[Pipeline Log], xref:metadata-types/pipeline-probe.adoc[Pipeline Probe], xref:metadata-types/workflow-log.adoc[Workflow log] and xref:metadata-types/execution-information-location.adoc[Execution Information Location]. Take a look at the available options and choose a logging strategy that works for your project and team.

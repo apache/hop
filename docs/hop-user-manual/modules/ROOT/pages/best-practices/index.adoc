@@ -43,11 +43,13 @@ include::../snippets/best-practices/variables.adoc[]
 
 include::../snippets/best-practices/logging.adoc[]
 
-== Mappings
+== Reusable code
+
+Organize your project so that you can reuse pipelines or workflows that require the same operations in multiple locations.
+
+For example, this could be organized as utility folders, by using parameters or variables to add flexibility to your pippeline or workflow behavior.
 
 include::../snippets/best-practices/mappings.adoc[]
-
-== Metadata Injection
 
 include::../snippets/best-practices/metadata-injection.adoc[]
 
@@ -55,13 +57,13 @@ include::../snippets/best-practices/metadata-injection.adoc[]
 
 include::../snippets/best-practices/performance-basics.adoc[]
 
-== Governance
-
-include::../snippets/best-practices/governance.adoc[]
-
 == Loops
 
 include::../snippets/best-practices/loops.adoc[]
+
+== Governance
+
+include::../snippets/best-practices/governance.adoc[]
 
 
 

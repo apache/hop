@@ -18,11 +18,12 @@ under the License.
 [[MetadataInjection]]
 :imagesdir: ../../assets/images
 
-If you find that you need to create 'almost' the same pipeline a lot of times, consider that you can use xref:pipeline/transforms/metainject.adoc[Metadata Injection] to create re-usable template pipelines.
+=== Metadata Injection
+
+If you you need to create 'almost' the same pipeline a lot of times, consider using xref:pipeline/transforms/metainject.adoc[Metadata Injection] to create re-usable template pipelines.
 
 * Avoid manual population of dialogs
 * Whenever you need dynamic ETL
 * Supports data streaming
 
-Example use cases include:
-* Load 50 different file formats into a database with one pipeline template * Automatically normalize and load property sets
+As example use cases is Loading data from 50 different file formats into a database with one pipeline template. This helps you to automatically normalize and load property sets.

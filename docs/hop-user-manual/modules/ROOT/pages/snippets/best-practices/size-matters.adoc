@@ -18,7 +18,7 @@ under the License.
 [[SizeMetters]]
 :imagesdir: ../../assets/images
 
-Limit the amount of transforms or actions!
+Keep the number of actions in your workflows and transforms in your pipelines within reason.
 
 * Larger pipelines or workflows become harder to debug and develop against.
 * For every transform you add to a pipeline you start at least one new thread at runtime.

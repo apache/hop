@@ -20,9 +20,7 @@ under the License.
 
 Here are a few things to consider when looking at performance in a pipeline:
 
-* Pipelines are networks.
-The speed of the network is limited by the slowest transform in it.
-* Slow transforms are indicated when running in Hop GUI.
-You'll see a dotted line around the slow transforms.
-* Adding more copies and increasing parallelism is not always beneficial, but it can be.
-The proof of that pudding is in the eating so take note of execution times and see if you should increase or decrease parallelism to help performance.
+* Pipelines are networks: the speed of the network is limited by the slowest transform in it.
+* Slow transforms are indicated when running in Hop GUI. You'll see a dotted line around the slow transforms.
+* Adding more copies and increasing parallelism is not always beneficial, but it can be. Definitely don't overdo it. Running all of the transforms in your pipeline with multiple copies definitely will **not** help. Test, measure and iterate to improve performance.
+* Optimizing performance requires measuring: take note of execution times and see if you should increase or decrease parallelism to help performance.
