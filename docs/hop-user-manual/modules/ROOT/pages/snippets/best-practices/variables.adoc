@@ -20,11 +20,9 @@ under the License.
 :closevar: }
 :imagesdir: ../../assets/images
 
-xref:variables.adoc[Variables] provide an easy way to avoid hard-coding all sorts of things in your system, environment or project.
-Here is some best practices advice on the subject:
+Parameterize everything! xref:variables.adoc[Variables] provide an easy way to avoid hard-coding all sorts of things in your system, environment or project.
 
-* Put environment specific settings in an environment (Duh!) configuration file.
-Create an environment for this.
+* Put environment specific settings in one or more xref:projects/projects-environments.adoc[environment] configuration files. This allows you to deploy your project to another environment (dev/uat/prod) without changing your project, you'll only need to configure another set of configuration files.
 * When referencing file locations, prefer `{openvar}PROJECT_HOME{closevar}` over expressions like `{openvar}Internal.Entry.Current.Directory{closevar}` or `{openvar}Internal.Pipeline.Filename.Directory{closevar}`
 * Configure transform copies with variables to allow for easy transition between differently sized environments.
-
+* use the xref:variables.adoc#_environment_variables[Environment Variables] to keep your projects and environments, audit information etc outside of your Apache Hop installation.
