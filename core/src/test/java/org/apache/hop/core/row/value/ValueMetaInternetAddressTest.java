@@ -107,7 +107,7 @@ public class ValueMetaInternetAddressTest {
   }
 
   @Test
-  public void testGetBigNumber_NullParameter() throws UnknownHostException, HopValueException {
+  public void testGetBigNumber_NullParameter() throws HopValueException {
     ValueMetaInternetAddress vm = new ValueMetaInternetAddress();
 
     assertNull(vm.getBigNumber(null));

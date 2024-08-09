@@ -81,9 +81,9 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
   private String nrErrorsLessThan;
 
   private String successCondition;
-  public String SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED = "success_when_at_least";
-  public String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
-  public String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
+  public static final String SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED = "success_when_at_least";
+  public static final String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
+  public static final String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
 
   private boolean addDate;
   private boolean addTime;
@@ -1235,7 +1235,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
     return getIt;
   }
 
-  private String getDestinationFilename(String shortsourcefilename) throws Exception {
+  private String getDestinationFilename(String shortsourcefilename) {
     String shortfilename = shortsourcefilename;
     int lenstring = shortsourcefilename.length();
     int lastindexOfDot = shortfilename.lastIndexOf('.');
@@ -1275,8 +1275,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
     return shortfilename;
   }
 
-  private String getMoveDestinationFilename(String shortsourcefilename, String dateFormat)
-      throws Exception {
+  private String getMoveDestinationFilename(String shortsourcefilename, String dateFormat) {
     String shortfilename = shortsourcefilename;
     int lenstring = shortsourcefilename.length();
     int lastindexOfDot = shortfilename.lastIndexOf('.');

@@ -112,8 +112,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
   }
 
-  private void listEnvironments(ILogChannel log, ProjectsConfig config, IVariables variables)
-      throws HopException {
+  private void listEnvironments(ILogChannel log, ProjectsConfig config, IVariables variables) {
 
     log.logBasic("Lifecycle environments:");
     List<String> names = config.listEnvironmentNames();

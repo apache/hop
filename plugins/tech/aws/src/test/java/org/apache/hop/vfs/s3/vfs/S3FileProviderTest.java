@@ -31,12 +31,12 @@ public class S3FileProviderTest {
   S3FileProvider provider;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     provider = new S3FileProvider();
   }
 
   @Test
-  public void testDoCreateFileSystem() throws Exception {
+  public void testDoCreateFileSystem() {
     FileName fileName = mock(FileName.class);
     FileSystemOptions options = new FileSystemOptions();
     assertNotNull(provider.doCreateFileSystem(fileName, options));

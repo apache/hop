@@ -183,7 +183,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void doesNotSupportLockTables() throws Exception {
+  public void doesNotSupportLockTables() {
     assertThrows(
         UnsupportedOperationException.class,
         () -> executeUpdate(nativeMeta.getSqlLockTables(new String[] {"FOO", "BAR"})));

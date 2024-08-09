@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.cratedbbulkloader.http;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URI;
@@ -52,7 +51,7 @@ public class BulkImportClient {
 
   public HttpBulkImportResponse batchInsert(
       String schema, String table, String[] columns, List<Object[]> args)
-      throws HopException, CrateDBHopException, JsonProcessingException, IOException {
+      throws HopException, CrateDBHopException, IOException {
     ObjectMapper mapper = new ObjectMapper();
     BulkImportRequest body = new BulkImportRequest(schema + "." + table, List.of(columns), args);
     HttpRequest request =

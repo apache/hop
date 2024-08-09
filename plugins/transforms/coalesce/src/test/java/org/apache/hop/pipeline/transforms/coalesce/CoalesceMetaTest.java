@@ -34,7 +34,7 @@ import org.junit.Test;
 public class CoalesceMetaTest {
 
   @Test
-  public void testInjectionMetadata() throws Exception {
+  public void testInjectionMetadata() {
 
     BeanInjectionInfo<CoalesceMeta> injectionInfo = new BeanInjectionInfo<>(CoalesceMeta.class);
 

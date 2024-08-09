@@ -45,13 +45,13 @@ public class ClickhouseDatabaseMetaTest {
   }
 
   @Test
-  public void testAccessType() throws Exception {
+  public void testAccessType() {
     int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
   }
 
   @Test
-  public void testUrl() throws Exception {
+  public void testUrl() {
     assertEquals("com.clickhouse.jdbc.ClickHouseDriver", nativeMeta.getDriverClass());
 
     assertEquals(
@@ -67,7 +67,7 @@ public class ClickhouseDatabaseMetaTest {
   }
 
   @Test
-  public void testSupport() throws Exception {
+  public void testSupport() {
     assertFalse(nativeMeta.isSupportsSchemas());
     assertTrue(nativeMeta.isSupportsViews());
     assertFalse(nativeMeta.isSupportsSequences());

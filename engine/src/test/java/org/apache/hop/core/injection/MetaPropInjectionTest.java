@@ -46,7 +46,7 @@ public class MetaPropInjectionTest {
    * @throws Exception
    */
   @Test
-  public void testHopMetadataPropertyInjectionInfo() throws Exception {
+  public void testHopMetadataPropertyInjectionInfo() {
     BeanInjectionInfo<PropBeanParent> info = new BeanInjectionInfo<>(PropBeanParent.class);
     assertEquals(4, info.getGroups().size());
     assertEquals(11, info.getProperties().size());
@@ -200,12 +200,12 @@ public class MetaPropInjectionTest {
     injector.setProperty(
         parent, "grand_child_description", Arrays.asList(parentMetadata), "grandChildDescription");
 
-    assertEquals(parent.getStringField(), "someString");
-    assertEquals(parent.getIntField(), 123);
-    assertEquals(parent.getLongField(), 987654321L);
+    assertEquals("someString", parent.getStringField());
+    assertEquals(123, parent.getIntField());
+    assertEquals(987654321L, parent.getLongField());
     assertTrue(parent.isBooleanField());
-    assertEquals(parent.getChild().getChildField1(), "cv1");
-    assertEquals(parent.getChild().getChildField2(), "cv2");
+    assertEquals("cv1", parent.getChild().getChildField1());
+    assertEquals("cv2", parent.getChild().getChildField2());
     assertEquals("someName", parent.getChild().getGrandChild().getGrandChildName());
     assertEquals("someDescription", parent.getChild().getGrandChild().getGrandChildDescription());
 

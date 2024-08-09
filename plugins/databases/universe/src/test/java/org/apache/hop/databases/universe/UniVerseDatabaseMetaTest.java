@@ -43,7 +43,7 @@ public class UniVerseDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(65535, nativeMeta.getMaxVARCHARLength());
     assertEquals(-1, nativeMeta.getDefaultDatabasePort());

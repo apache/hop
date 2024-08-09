@@ -113,7 +113,7 @@ public class YamlReader {
     return this.yaml;
   }
 
-  public void loadString(String string) throws Exception {
+  public void loadString(String string) {
     this.string = string;
     for (Object data : getYaml().loadAll(getStringValue())) {
       documents.add(data);

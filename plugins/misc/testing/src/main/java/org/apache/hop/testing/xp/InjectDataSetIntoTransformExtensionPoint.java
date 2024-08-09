@@ -179,7 +179,7 @@ public class InjectDataSetIntoTransformExtensionPoint
       final IHopMetadataProvider metadataProvider,
       final TransformMeta transformMeta,
       PipelineUnitTestSetLocation inputLocation)
-      throws HopException, HopException {
+      throws HopException {
 
     final DataSet dataSet = metadataProvider.getSerializer(DataSet.class).load(dataSetName);
     if (dataSet == null) {

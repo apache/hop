@@ -26,7 +26,7 @@ import org.junit.Test;
 /** User: Dzmitry Stsiapanau Date: 3/11/14 Time: 11:44 AM */
 public class EncodingTypeTest {
   @Test
-  public void testIsReturn() throws Exception {
+  public void testIsReturn() {
     int lineFeed = '\n';
     int carriageReturn = '\r';
     assertTrue("SINGLE.isLineFeed is not line feed", EncodingType.SINGLE.isLinefeed(lineFeed));
@@ -46,7 +46,7 @@ public class EncodingTypeTest {
   }
 
   @Test
-  public void testIsLinefeed() throws Exception {
+  public void testIsLinefeed() {
     int lineFeed = '\n';
     int carriageReturn = '\r';
     assertFalse("SINGLE.isReturn is line feed", EncodingType.SINGLE.isReturn(lineFeed));

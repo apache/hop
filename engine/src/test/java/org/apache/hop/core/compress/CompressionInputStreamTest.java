@@ -51,7 +51,7 @@ public class CompressionInputStreamTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     factory = CompressionProviderFactory.getInstance();
     ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayInputStream in = createTestInputStream();

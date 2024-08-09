@@ -23,7 +23,7 @@ import org.junit.Test;
 public class LoggingObjectTest {
 
   @Test
-  public void testEquals() throws Exception {
+  public void testEquals() {
     ILoggingObject parent =
         new LoggingObject(new SimpleLoggingObject("parent", LoggingObjectType.WORKFLOW, null));
 

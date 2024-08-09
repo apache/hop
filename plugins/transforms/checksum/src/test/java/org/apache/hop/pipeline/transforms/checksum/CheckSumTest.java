@@ -89,8 +89,7 @@ public class CheckSumTest {
     }
   }
 
-  private Pipeline buildHexadecimalChecksumPipeline(CheckSumMeta.CheckSumType checkSumType)
-      throws Exception {
+  private Pipeline buildHexadecimalChecksumPipeline(CheckSumMeta.CheckSumType checkSumType) {
     // Create a new pipeline...
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName(getClass().getName());
@@ -127,7 +126,7 @@ public class CheckSumTest {
     return new LocalPipelineEngine(pipelineMeta);
   }
 
-  private RowMeta createStringRowMeta(IValueMeta meta) throws Exception {
+  private RowMeta createStringRowMeta(IValueMeta meta) {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(meta);
     return rowMeta;

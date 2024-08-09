@@ -42,12 +42,12 @@ public class WorkflowActionWriteToLogTest {
   private ActionWriteToLog action;
 
   @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  public static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     parentWorkflow = mock(Workflow.class);
     doReturn(false).when(parentWorkflow).isStopped();
 

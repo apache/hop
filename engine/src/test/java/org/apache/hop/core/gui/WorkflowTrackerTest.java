@@ -37,7 +37,7 @@ public class WorkflowTrackerTest {
 
   @Test
   // Number of workflow trackers should be limited by HOP_MAX_JOB_TRACKER_SIZE
-  public void testAddJobTracker() throws Exception {
+  public void testAddJobTracker() {
     final String old = System.getProperty(Const.HOP_MAX_WORKFLOW_TRACKER_SIZE);
 
     final Integer maxTestSize = 30;
@@ -118,7 +118,6 @@ public class WorkflowTrackerTest {
     IAction action = mock(IAction.class);
     when(action.getName()).thenReturn(actionName);
 
-    ActionMeta actionMeta = new ActionMeta(action);
-    return actionMeta;
+    return new ActionMeta(action);
   }
 }

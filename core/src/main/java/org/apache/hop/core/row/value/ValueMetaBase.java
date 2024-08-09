@@ -1162,8 +1162,7 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  protected synchronized String convertNumberToCompatibleString(Double number)
-      throws HopValueException {
+  protected synchronized String convertNumberToCompatibleString(Double number) {
     if (number == null) {
       return null;
     }
@@ -1479,8 +1478,7 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  protected synchronized String convertIntegerToCompatibleString(Long integer)
-      throws HopValueException {
+  protected synchronized String convertIntegerToCompatibleString(Long integer) {
     if (integer == null) {
       return null;
     }
@@ -5490,7 +5488,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   private Object getNetezzaDateValueWorkaround(IDatabase iDatabase, ResultSet resultSet, int index)
-      throws SQLException, HopDatabaseException {
+      throws SQLException {
     Object data = null;
     int type = resultSet.getMetaData().getColumnType(index);
     if (type == Types.TIME) {

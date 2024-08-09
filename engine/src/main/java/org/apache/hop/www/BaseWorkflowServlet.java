@@ -42,15 +42,13 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
-import org.json.simple.parser.ParseException;
 
 public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
   private static final long serialVersionUID = 8523062215275251356L;
 
   protected IWorkflowEngine<WorkflowMeta> createWorkflow(
-      WorkflowConfiguration workflowConfiguration)
-      throws HopException, HopException, ParseException {
+      WorkflowConfiguration workflowConfiguration) throws HopException {
     WorkflowExecutionConfiguration workflowExecutionConfiguration =
         workflowConfiguration.getWorkflowExecutionConfiguration();
 
@@ -102,8 +100,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
   }
 
   protected IPipelineEngine<PipelineMeta> createPipeline(
-      PipelineConfiguration pipelineConfiguration)
-      throws HopException, HopException, ParseException {
+      PipelineConfiguration pipelineConfiguration) throws HopException {
     PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
     PipelineExecutionConfiguration pipelineExecutionConfiguration =
         pipelineConfiguration.getPipelineExecutionConfiguration();

@@ -43,7 +43,7 @@ public class IrisDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
 
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, cdm.getAccessTypeList());
     assertEquals(1972, cdm.getDefaultDatabasePort());

@@ -69,8 +69,7 @@ public class HttpUtil {
       String port,
       String webAppName,
       String serviceAndArguments,
-      boolean isSecure)
-      throws UnsupportedEncodingException {
+      boolean isSecure) {
     String realHostname = variables.resolve(hostname);
     if (!StringUtils.isEmpty(webAppName)) {
       serviceAndArguments = "/" + variables.resolve(webAppName) + serviceAndArguments;

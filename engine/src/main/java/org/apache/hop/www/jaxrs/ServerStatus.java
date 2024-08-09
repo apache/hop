@@ -22,7 +22,6 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
@@ -93,7 +92,7 @@ public class ServerStatus {
     this.statusDescription = statusDescription;
   }
 
-  public ServerStatus(Node statusNode) throws HopException {
+  public ServerStatus(Node statusNode) {
     this();
     statusDescription = XmlHandler.getTagValue(statusNode, "statusdesc");
 

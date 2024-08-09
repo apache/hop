@@ -35,25 +35,25 @@ public class SingleRowRowSetTest {
   }
 
   @Test
-  public void testPutRow() throws Exception {
+  public void testPutRow() {
     rowSet.putRow(new RowMeta(), row);
     assertSame(row, rowSet.getRow());
   }
 
   @Test
-  public void testPutRowWait() throws Exception {
+  public void testPutRowWait() {
     rowSet.putRowWait(new RowMeta(), row, 1, TimeUnit.SECONDS);
     assertSame(row, rowSet.getRowWait(1, TimeUnit.SECONDS));
   }
 
   @Test
-  public void testGetRowImmediate() throws Exception {
+  public void testGetRowImmediate() {
     rowSet.putRow(new RowMeta(), row);
     assertSame(row, rowSet.getRowImmediate());
   }
 
   @Test
-  public void testSize() throws Exception {
+  public void testSize() {
     assertEquals(0, rowSet.size());
     rowSet.putRow(new RowMeta(), row);
     assertEquals(1, rowSet.size());

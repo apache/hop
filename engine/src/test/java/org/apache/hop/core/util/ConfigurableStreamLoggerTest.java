@@ -39,7 +39,7 @@ public class ConfigurableStreamLoggerTest {
   private InputStream is;
 
   @Before
-  public void init() throws Exception {
+  public void init() {
     log = Mockito.mock(LogChannel.class);
     is = new ByteArrayInputStream(INPUT.getBytes(StandardCharsets.UTF_8));
   }

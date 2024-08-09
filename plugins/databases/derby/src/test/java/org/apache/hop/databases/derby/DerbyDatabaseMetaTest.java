@@ -44,7 +44,7 @@ public class DerbyDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(0, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
@@ -64,7 +64,7 @@ public class DerbyDatabaseMetaTest {
     assertEquals(
         "http://db.apache.org/derby/papers/DerbyClientSpec.html",
         nativeMeta.getExtraOptionsHelpText());
-    assertEquals(
+    assertArrayEquals(
         new String[] {
           "ADD",
           "ALL",

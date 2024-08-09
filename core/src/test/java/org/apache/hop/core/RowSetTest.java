@@ -64,11 +64,11 @@ public class RowSetTest {
 
     IRowMeta rm = createRowMetaInterface();
 
-    Object[] r1 = new Object[] {new Long(1L)};
-    Object[] r2 = new Object[] {new Long(2L)};
-    Object[] r3 = new Object[] {new Long(3L)};
-    Object[] r4 = new Object[] {new Long(4L)};
-    Object[] r5 = new Object[] {new Long(5L)};
+    Object[] r1 = new Object[] {Long.valueOf(1L)};
+    Object[] r2 = new Object[] {Long.valueOf(2L)};
+    Object[] r3 = new Object[] {Long.valueOf(3L)};
+    Object[] r4 = new Object[] {Long.valueOf(4L)};
+    Object[] r5 = new Object[] {Long.valueOf(5L)};
 
     // TODO assertTrue(set.isEmpty());
     assertEquals(0, set.size());

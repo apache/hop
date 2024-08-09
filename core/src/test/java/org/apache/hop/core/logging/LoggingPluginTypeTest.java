@@ -29,24 +29,24 @@ public class LoggingPluginTypeTest {
   private LoggingPlugin annotation;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     annotation = mock(LoggingPlugin.class);
     when(annotation.id()).thenReturn("id");
   }
 
   @Test
-  public void pickUpsId() throws Exception {
+  public void pickUpsId() {
     assertEquals("id", LoggingPluginType.getInstance().extractID(annotation));
   }
 
   @Test
-  public void pickUpName_NameIsSpecified() throws Exception {
+  public void pickUpName_NameIsSpecified() {
     when(annotation.name()).thenReturn("name");
     assertEquals("name", LoggingPluginType.getInstance().extractName(annotation));
   }
 
   @Test
-  public void pickUpName_NameIsNotSpecified() throws Exception {
+  public void pickUpName_NameIsNotSpecified() {
     assertEquals("id", LoggingPluginType.getInstance().extractName(annotation));
   }
 }

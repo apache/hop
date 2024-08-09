@@ -20,10 +20,8 @@ package org.apache.hop.core.vfs;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.variables.Variables;
 import org.junit.Test;
 
@@ -45,7 +43,7 @@ public class HopVfsTest {
   }
 
   @Test
-  public void testCheckForSchemeSuccess() throws HopFileException, IOException {
+  public void testCheckForSchemeSuccess() {
     String[] schemes = {"hdfs"};
     String vfsFilename = "hdfs://company.com:8020/tmp/acltest/";
 
@@ -54,7 +52,7 @@ public class HopVfsTest {
   }
 
   @Test
-  public void testCheckForSchemeFail() throws HopFileException, IOException {
+  public void testCheckForSchemeFail() {
     String[] schemes = {"file"};
     String vfsFilename = "hdfs://company.com:8020/tmp/acltest/";
 

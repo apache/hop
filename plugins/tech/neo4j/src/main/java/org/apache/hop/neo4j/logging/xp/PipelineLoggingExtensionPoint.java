@@ -126,8 +126,7 @@ public class PipelineLoggingExtensionPoint
       final ILogChannel log,
       final Session session,
       final NeoConnection connection,
-      final IPipelineEngine<PipelineMeta> pipeline)
-      throws HopException {
+      final IPipelineEngine<PipelineMeta> pipeline) {
     log.logDetailed("Logging pipeline metadata to Neo4j connection : " + connection.getName());
 
     final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
@@ -216,8 +215,7 @@ public class PipelineLoggingExtensionPoint
       final ILogChannel log,
       final Session session,
       final NeoConnection connection,
-      final IPipelineEngine<PipelineMeta> pipeline)
-      throws HopException {
+      final IPipelineEngine<PipelineMeta> pipeline) {
     log.logDetailed(
         "Logging execution start of pipeline to Neo4j connection : " + connection.getName());
 
@@ -271,8 +269,7 @@ public class PipelineLoggingExtensionPoint
       final ILogChannel log,
       final Session session,
       final NeoConnection connection,
-      final IPipelineEngine<PipelineMeta> pipeline)
-      throws HopException {
+      final IPipelineEngine<PipelineMeta> pipeline) {
     log.logDetailed(
         "Logging execution end of pipeline to Neo4j connection : " + connection.getName());
 

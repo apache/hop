@@ -42,7 +42,7 @@ public class RowProducerTest {
   Object[] rowData;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     iTransform = mock(ITransform.class);
     rowSet = mock(IRowSet.class);
     rowProducer = new RowProducer(iTransform, rowSet);
@@ -51,7 +51,7 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testPutRow2Arg() throws Exception {
+  public void testPutRow2Arg() {
     when(rowSet.putRowWait(
             any(IRowMeta.class), any(Object[].class), anyLong(), any(TimeUnit.class)))
         .thenReturn(true);
@@ -61,7 +61,7 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testPutRow3Arg() throws Exception {
+  public void testPutRow3Arg() {
     when(rowSet.putRowWait(
             any(IRowMeta.class), any(Object[].class), anyLong(), any(TimeUnit.class)))
         .thenReturn(true);
@@ -71,19 +71,19 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testPutRowWait() throws Exception {
+  public void testPutRowWait() {
     rowProducer.putRowWait(rowMeta, rowData, 1, TimeUnit.MILLISECONDS);
     verify(rowSet, times(1)).putRowWait(rowMeta, rowData, 1, TimeUnit.MILLISECONDS);
   }
 
   @Test
-  public void testFinished() throws Exception {
+  public void testFinished() {
     rowProducer.finished();
     verify(rowSet, times(1)).setDone();
   }
 
   @Test
-  public void testGetSetRowSet() throws Exception {
+  public void testGetSetRowSet() {
     assertEquals(rowSet, rowProducer.getRowSet());
     rowProducer.setRowSet(null);
     assertNull(rowProducer.getRowSet());
@@ -93,7 +93,7 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testGetSetTransform() throws Exception {
+  public void testGetSetTransform() {
     assertEquals(iTransform, rowProducer.getTransform());
     rowProducer.setTransform(null);
     assertNull(rowProducer.getTransform());

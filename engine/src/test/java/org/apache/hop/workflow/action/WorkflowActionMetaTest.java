@@ -37,7 +37,7 @@ public class WorkflowActionMetaTest {
   private IAction originAction;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     originActionMeta = new ActionMeta();
     copyActionMeta = new ActionMeta();
 
@@ -49,7 +49,7 @@ public class WorkflowActionMetaTest {
   }
 
   @Test
-  public void testReplaceMetaCloneEntryOfOrigin() throws Exception {
+  public void testReplaceMetaCloneEntryOfOrigin() {
 
     copyActionMeta.replaceMeta(originActionMeta);
     assertNotSame(
@@ -59,7 +59,7 @@ public class WorkflowActionMetaTest {
   }
 
   @Test
-  public void testReplaceMetaDoesNotChangeEntryOfOrigin() throws Exception {
+  public void testReplaceMetaDoesNotChangeEntryOfOrigin() {
 
     copyActionMeta.replaceMeta(originActionMeta);
     assertEquals(
@@ -69,7 +69,7 @@ public class WorkflowActionMetaTest {
   }
 
   @Test
-  public void testReplaceMetaChangesEntryOfCopy() throws Exception {
+  public void testReplaceMetaChangesEntryOfCopy() {
 
     copyActionMeta.replaceMeta(originActionMeta);
     assertEquals(
@@ -79,14 +79,14 @@ public class WorkflowActionMetaTest {
   }
 
   @Test
-  public void testSetParentMeta() throws Exception {
+  public void testSetParentMeta() {
     WorkflowMeta meta = Mockito.mock(WorkflowMeta.class);
     originActionMeta.setParentWorkflowMeta(meta);
     assertEquals(meta, originAction.getParentWorkflowMeta());
   }
 
   @Test
-  public void testCloneClonesAttributesMap() throws Exception {
+  public void testCloneClonesAttributesMap() {
 
     ActionMeta clonedActionMeta = (ActionMeta) originActionMeta.clone();
     assertNotNull(clonedActionMeta.getAttributesMap());
@@ -96,7 +96,7 @@ public class WorkflowActionMetaTest {
   }
 
   @Test
-  public void testDeepCloneClonesAttributesMap() throws Exception {
+  public void testDeepCloneClonesAttributesMap() {
 
     ActionMeta deepClonedActionMeta = (ActionMeta) originActionMeta.cloneDeep();
     assertNotNull(deepClonedActionMeta.getAttributesMap());

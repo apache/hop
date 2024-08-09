@@ -23,7 +23,7 @@ import org.junit.Test;
 public class ProgressNullMonitorListenerTest {
 
   @Test
-  public void testClass() throws Exception {
+  public void testClass() {
     ProgressNullMonitorListener listener = new ProgressNullMonitorListener();
     listener.beginTask("", 0);
     listener.subTask("");

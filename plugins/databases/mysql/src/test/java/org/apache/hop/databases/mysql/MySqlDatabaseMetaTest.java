@@ -79,7 +79,7 @@ public class MySqlDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  public void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(3306, nativeMeta.getDefaultDatabasePort());
     assertTrue(nativeMeta.isSupportsAutoInc());

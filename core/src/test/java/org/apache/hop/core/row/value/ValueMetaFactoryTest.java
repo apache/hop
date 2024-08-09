@@ -453,22 +453,25 @@ public class ValueMetaFactoryTest {
         ValueMetaFactory.guessValueMetaInterface(new BigDecimal(1.0))
             instanceof ValueMetaBigNumber);
     assertTrue(
-        ValueMetaFactory.guessValueMetaInterface(new Double(1.0)) instanceof ValueMetaNumber);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(new Long(1)) instanceof ValueMetaInteger);
+        ValueMetaFactory.guessValueMetaInterface(Double.valueOf(1.0)) instanceof ValueMetaNumber);
+    assertTrue(
+        ValueMetaFactory.guessValueMetaInterface(Long.valueOf(1)) instanceof ValueMetaInteger);
     assertTrue(ValueMetaFactory.guessValueMetaInterface(new String()) instanceof ValueMetaString);
     assertTrue(ValueMetaFactory.guessValueMetaInterface(new Date()) instanceof ValueMetaDate);
     assertTrue(
-        ValueMetaFactory.guessValueMetaInterface(new Boolean(false)) instanceof ValueMetaBoolean);
+        ValueMetaFactory.guessValueMetaInterface(Boolean.valueOf(false))
+            instanceof ValueMetaBoolean);
     assertTrue(
-        ValueMetaFactory.guessValueMetaInterface(new Boolean(true)) instanceof ValueMetaBoolean);
+        ValueMetaFactory.guessValueMetaInterface(Boolean.valueOf(true))
+            instanceof ValueMetaBoolean);
     assertTrue(ValueMetaFactory.guessValueMetaInterface(false) instanceof ValueMetaBoolean);
     assertTrue(ValueMetaFactory.guessValueMetaInterface(true) instanceof ValueMetaBoolean);
     assertTrue(ValueMetaFactory.guessValueMetaInterface(new byte[10]) instanceof ValueMetaBinary);
 
     // Test Unsupported Data Types
     assertEquals(null, ValueMetaFactory.guessValueMetaInterface(null));
-    assertEquals(null, ValueMetaFactory.guessValueMetaInterface(new Short((short) 1)));
-    assertEquals(null, ValueMetaFactory.guessValueMetaInterface(new Byte((byte) 1)));
+    assertEquals(null, ValueMetaFactory.guessValueMetaInterface(Short.valueOf((short) 1)));
+    assertEquals(null, ValueMetaFactory.guessValueMetaInterface(Byte.valueOf((byte) 1)));
     assertEquals(null, ValueMetaFactory.guessValueMetaInterface(new Float(1.0)));
     assertEquals(null, ValueMetaFactory.guessValueMetaInterface(new StringBuilder()));
     assertEquals(null, ValueMetaFactory.guessValueMetaInterface((byte) 1));

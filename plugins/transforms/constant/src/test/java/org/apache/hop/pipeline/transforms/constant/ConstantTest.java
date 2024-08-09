@@ -52,7 +52,7 @@ public class ConstantTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
 
     mockHelper = new TransformMockHelper<>("Add Constants", ConstantMeta.class, ConstantData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -72,7 +72,7 @@ public class ConstantTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     mockHelper.cleanUp();
   }
 

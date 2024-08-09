@@ -30,7 +30,7 @@ public class SnappyCompressionOutputStream extends CompressionOutputStream {
     super(getDelegate(out), provider);
   }
 
-  private static SnappyOutputStream getDelegate(OutputStream out) throws IOException {
+  private static SnappyOutputStream getDelegate(OutputStream out) {
     SnappyOutputStream delegate;
     if (out instanceof SnappyOutputStream) {
       delegate = (SnappyOutputStream) out;

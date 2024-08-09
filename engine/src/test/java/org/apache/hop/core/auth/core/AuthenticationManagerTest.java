@@ -104,8 +104,7 @@ public class AuthenticationManagerTest {
   }
 
   @Test
-  public void testGetSupportedPerformers()
-      throws AuthenticationConsumptionException, AuthenticationFactoryException {
+  public void testGetSupportedPerformers() throws AuthenticationFactoryException {
     manager.registerConsumerClass(DelegatingNoAuthConsumer.class);
     manager.registerConsumerClass(DelegatingUsernamePasswordConsumer.class);
     manager.registerConsumerClass(DelegatingKerberosConsumer.class);
