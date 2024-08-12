@@ -26,6 +26,7 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.HopLogStore;
@@ -68,8 +69,8 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
       logDebug(BaseMessages.getString(PKG, "StartWorkflowServlet.Log.StartWorkflowRequested"));
     }
 
-    String workflowName = request.getParameter("name");
-    String id = request.getParameter("id");
+    String workflowName = StringEscapeUtils.escapeHtml(request.getParameter("name"));
+    String id = StringEscapeUtils.escapeHtml(request.getParameter("id"));
     boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
 
     response.setStatus(HttpServletResponse.SC_OK);

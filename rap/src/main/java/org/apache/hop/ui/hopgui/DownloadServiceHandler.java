@@ -23,6 +23,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
 public class DownloadServiceHandler implements ServiceHandler {
@@ -31,7 +32,7 @@ public class DownloadServiceHandler implements ServiceHandler {
   public void service(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     // Which file to download?
-    String fileName = request.getParameter("filename");
+    String fileName = StringEscapeUtils.escapeHtml(request.getParameter("filename"));
     // Get the file content
     File file = new File(fileName);
     FileInputStream fin = null;
