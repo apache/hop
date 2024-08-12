@@ -42,6 +42,8 @@ public class InputsReader implements Iterable<InputStream> {
   private JsonInputData data;
   private ErrorHandler errorHandler;
 
+  private static final String CONST_REMOVE = "remove";
+
   public InputsReader(
       JsonInput transform, JsonInputMeta meta, JsonInputData data, ErrorHandler errorHandler) {
     this.transform = transform;
@@ -120,7 +122,7 @@ public class InputsReader implements Iterable<InputStream> {
 
     @Override
     public void remove() {
-      throw new UnsupportedOperationException("remove");
+      throw new UnsupportedOperationException(CONST_REMOVE);
     }
 
     protected abstract T tryNext() throws Exception;
@@ -218,7 +220,7 @@ public class InputsReader implements Iterable<InputStream> {
 
     @Override
     public void remove() {
-      throw new UnsupportedOperationException("remove");
+      throw new UnsupportedOperationException(CONST_REMOVE);
     }
   }
 
@@ -262,7 +264,7 @@ public class InputsReader implements Iterable<InputStream> {
 
     @Override
     public void remove() {
-      throw new UnsupportedOperationException("remove");
+      throw new UnsupportedOperationException(CONST_REMOVE);
     }
   }
 }

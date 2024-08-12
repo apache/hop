@@ -57,6 +57,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/sendnagiospassivecheck.html")
 public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class;
+  public static final String CONST_SPACES = "      ";
 
   private String serverName;
   private String port;
@@ -72,13 +73,13 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
   private String password;
 
   /** Default responseTimeOut to 1000 milliseconds */
-  private static int DEFAULT_RESPONSE_TIME_OUT = 10000; // ms
+  private static final int DEFAULT_RESPONSE_TIME_OUT = 10000; // ms
 
   /** Default connection responseTimeOut to 5000 milliseconds */
-  public static int DEFAULT_CONNECTION_TIME_OUT = 5000; // ms
+  public static final int DEFAULT_CONNECTION_TIME_OUT = 5000; // ms
 
   /** Default port */
-  public static int DEFAULT_PORT = 5667;
+  public static final int DEFAULT_PORT = 5667;
 
   public static final String[] encryptionModeDesc =
       new String[] {
@@ -194,19 +195,25 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     StringBuilder retval = new StringBuilder(200);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("port", port));
-    retval.append("      ").append(XmlHandler.addTagValue("servername", serverName));
-    retval.append("      ").append(XmlHandler.addTagValue("password", password));
-    retval.append("      ").append(XmlHandler.addTagValue("responseTimeOut", responseTimeOut));
-    retval.append("      ").append(XmlHandler.addTagValue("connectionTimeOut", connectionTimeOut));
-
-    retval.append("      ").append(XmlHandler.addTagValue("senderServerName", senderServerName));
-    retval.append("      ").append(XmlHandler.addTagValue("senderServiceName", senderServiceName));
-    retval.append("      ").append(XmlHandler.addTagValue("message", message));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("port", port));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("servername", serverName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("password", password));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("responseTimeOut", responseTimeOut));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("connectionTimeOut", connectionTimeOut));
+
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("senderServerName", senderServerName));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("senderServiceName", senderServiceName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("message", message));
+    retval
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("encryptionMode", getEncryptionModeCode(encryptionMode)));
-    retval.append("      ").append(XmlHandler.addTagValue("level", getLevelCode(level)));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("level", getLevelCode(level)));
 
     return retval.toString();
   }

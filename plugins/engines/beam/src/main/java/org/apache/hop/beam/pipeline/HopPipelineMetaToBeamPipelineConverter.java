@@ -72,6 +72,7 @@ import org.jboss.jandex.IndexView;
 
 public class HopPipelineMetaToBeamPipelineConverter {
 
+  public static final String CONST_TRANSFORM = "Transform ";
   protected final String runConfigName;
   protected final PipelineRunConfiguration runConfiguration;
 
@@ -431,7 +432,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
         }
       } else {
         log.logBasic(
-            "Transform "
+            CONST_TRANSFORM
                 + transformMeta.getName()
                 + " reading from previous transform targeting this one using : "
                 + targetName);
@@ -527,7 +528,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
             input = transformCollectionMap.get(firstPreviousTransform.getName());
           } else {
             log.logBasic(
-                "Transform "
+                CONST_TRANSFORM
                     + transformMeta.getName()
                     + " reading from previous transform targeting this one using : "
                     + targetName);
@@ -550,7 +551,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
                 previousPCollection = transformCollectionMap.get(previousTransform.getName());
               } else {
                 log.logBasic(
-                    "Transform "
+                    CONST_TRANSFORM
                         + transformMeta.getName()
                         + " reading from previous transform targetting this one using : "
                         + targetName);
@@ -608,9 +609,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
       throw new HopException(
           "Group By is not supported.  Use the Memory Group By transform instead.  It comes closest to Beam functionality.");
     }
-    //    if (meta instanceof SortRowsMeta) {
-    //      throw new HopException("Sort rows is not yet supported on Beam.");
-    //    }
     if (meta instanceof UniqueRowsMeta) {
       throw new HopException(
           "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows");

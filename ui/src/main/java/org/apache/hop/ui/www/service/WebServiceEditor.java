@@ -59,6 +59,7 @@ import org.eclipse.swt.widgets.Text;
  */
 public class WebServiceEditor extends MetadataEditor<WebService> {
   private static final Class<?> PKG = WebServiceEditor.class;
+  public static final String CONST_ERROR = "Error";
 
   private Text wName;
   private Button wEnabled;
@@ -374,7 +375,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
         hopGui.fileDelegate.fileSave();
       }
     } catch (Exception e) {
-      new ErrorDialog(parent.getShell(), "Error", "Error creating pipeline", e);
+      new ErrorDialog(parent.getShell(), CONST_ERROR, "Error creating pipeline", e);
     }
   }
 
@@ -390,7 +391,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
         hopGui.fileDelegate.fileOpen(filename);
       }
     } catch (Exception e) {
-      new ErrorDialog(parent.getShell(), "Error", "Error creating pipeline", e);
+      new ErrorDialog(parent.getShell(), CONST_ERROR, "Error creating pipeline", e);
     }
   }
 
@@ -487,7 +488,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
       wTransform.setText(transformName);
       wField.setText(fieldName);
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error selecting output field", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error selecting output field", e);
     }
   }
 }

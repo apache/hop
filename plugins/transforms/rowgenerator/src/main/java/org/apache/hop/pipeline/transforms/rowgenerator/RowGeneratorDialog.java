@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -53,6 +52,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class RowGeneratorDialog extends BaseTransformDialog {
   private static final Class<?> PKG = RowGeneratorMeta.class;
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private Label wlLimit;
   private TextVar wLimit;
@@ -274,7 +274,7 @@ public class RowGeneratorDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "System.Column.SetEmptyString"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              BaseMessages.getString(PKG, "System.Combo.Yes"),
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
               BaseMessages.getString(PKG, "System.Combo.No"))
         };
 
@@ -366,7 +366,7 @@ public class RowGeneratorDialog extends BaseTransformDialog {
       item.setText(
           col++,
           field.isSetEmptyString()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
+              ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
               : BaseMessages.getString(PKG, "System.Combo.No"));
     }
 
@@ -394,7 +394,7 @@ public class RowGeneratorDialog extends BaseTransformDialog {
       getInfo(input); // to put the content on the input structure for real if all is well.
       input.setChanged();
       dispose();
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "RowGeneratorDialog.Illegal.Dialog.Settings.Title"),
@@ -403,7 +403,7 @@ public class RowGeneratorDialog extends BaseTransformDialog {
     }
   }
 
-  private void getInfo(RowGeneratorMeta meta) throws HopException {
+  private void getInfo(RowGeneratorMeta meta) {
     meta.setRowLimit(wLimit.getText());
     meta.setNeverEnding(wNeverEnding.getSelection());
     meta.setIntervalInMs(wInterval.getText());
@@ -423,7 +423,7 @@ public class RowGeneratorDialog extends BaseTransformDialog {
       field.setGroup(item.getText(8));
       field.setValue(field.isSetEmptyString() ? "" : item.getText(9));
       field.setSetEmptyString(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(10)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(10)));
       field.setType(field.isSetEmptyString() ? "String" : item.getText(2));
 
       meta.getFields().add(field);
@@ -438,7 +438,7 @@ public class RowGeneratorDialog extends BaseTransformDialog {
     RowGeneratorMeta oneMeta = new RowGeneratorMeta();
     try {
       getInfo(oneMeta);
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "RowGeneratorDialog.Illegal.Dialog.Settings.Title"),
@@ -471,18 +471,18 @@ public class RowGeneratorDialog extends BaseTransformDialog {
       Pipeline pipeline = progressDialog.getPipeline();
       String loggingText = progressDialog.getLoggingText();
 
-      if (!progressDialog.isCancelled()) {
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        }
+      if (!progressDialog.isCancelled()
+          && pipeline.getResult() != null
+          && pipeline.getResult().getNrErrors() > 0) {
+        EnterTextDialog etd =
+            new EnterTextDialog(
+                shell,
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                loggingText,
+                true);
+        etd.setReadOnly();
+        etd.open();
       }
 
       PreviewRowsDialog prd =

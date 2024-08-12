@@ -43,6 +43,8 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
 public class MainBeam {
 
+  public static final String CONST_UTF_8 = "UTF-8";
+
   public static void main(String[] args) {
     try {
       System.out.println(">>>>>> Initializing Hop");
@@ -64,11 +66,11 @@ public class MainBeam {
             switch (key) {
               case ("--HopPipelinePath"):
                 System.out.println("Pipeline filename (.hpl): " + value);
-                pipelineMetaXml = readFileIntoString(value, "UTF-8");
+                pipelineMetaXml = readFileIntoString(value, CONST_UTF_8);
                 break;
               case ("--HopMetadataPath"):
                 System.out.println("Metadata filename (.json): " + value);
-                metadataJson = readFileIntoString(value, "UTF-8");
+                metadataJson = readFileIntoString(value, CONST_UTF_8);
                 break;
               case ("--HopRunConfigurationName"):
                 System.out.println("Pipeline run configuration name: " + value);
@@ -83,9 +85,9 @@ public class MainBeam {
         }
       } else {
         System.out.println("Argument 1 : Pipeline filename (.hpl)   : " + args[0]);
-        pipelineMetaXml = readFileIntoString(args[0], "UTF-8");
+        pipelineMetaXml = readFileIntoString(args[0], CONST_UTF_8);
         System.out.println("Argument 2 : Environment state filename: (.json)  : " + args[1]);
-        metadataJson = readFileIntoString(args[1], "UTF-8");
+        metadataJson = readFileIntoString(args[1], CONST_UTF_8);
         System.out.println("Argument 3 : Pipeline run configuration : " + args[2]);
         runConfigName = args[2];
         if (args.length > 3) {

@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.salesforceinput;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -43,6 +42,8 @@ public class SalesforceInputField implements Cloneable {
     BaseMessages.getString(PKG, "SalesforceInputField.TrimType.Right"),
     BaseMessages.getString(PKG, "SalesforceInputField.TrimType.Both")
   };
+  public static final String CONST_FIELD = "field";
+  public static final String CONST_SPACES = "        ";
 
   @Injection(name = "NAME", group = "FIELDS")
   private String name;
@@ -99,33 +100,33 @@ public class SalesforceInputField implements Cloneable {
     this("");
   }
 
-  public SalesforceInputField(Node fnode) throws HopTransformException {
+  public SalesforceInputField(Node fnode) {
     readData(fnode);
   }
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append("      ").append(XmlHandler.openTag("field")).append(Const.CR);
-    retval.append("        ").append(XmlHandler.addTagValue("name", getName()));
-    retval.append("        ").append(XmlHandler.addTagValue("field", getField()));
-    retval.append("        ").append(XmlHandler.addTagValue("idlookup", isIdLookup()));
-    retval.append("        ").append(XmlHandler.addTagValue("type", getTypeDesc()));
-    retval.append("        ").append(XmlHandler.addTagValue("format", getFormat()));
-    retval.append("        ").append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
-    retval.append("        ").append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
-    retval.append("        ").append(XmlHandler.addTagValue("group", getGroupSymbol()));
-    retval.append("        ").append(XmlHandler.addTagValue("length", getLength()));
-    retval.append("        ").append(XmlHandler.addTagValue("precision", getPrecision()));
-    retval.append("        ").append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
-    retval.append("        ").append(XmlHandler.addTagValue("repeat", isRepeated()));
-    retval.append("      ").append(XmlHandler.closeTag("field")).append(Const.CR);
+    retval.append("      ").append(XmlHandler.openTag(CONST_FIELD)).append(Const.CR);
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getName()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FIELD, getField()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("idlookup", isIdLookup()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("type", getTypeDesc()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("format", getFormat()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("group", getGroupSymbol()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", getLength()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", getPrecision()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("repeat", isRepeated()));
+    retval.append("      ").append(XmlHandler.closeTag(CONST_FIELD)).append(Const.CR);
     return retval.toString();
   }
 
   public void readData(Node fnode) {
     setName(XmlHandler.getTagValue(fnode, "name"));
-    setField(XmlHandler.getTagValue(fnode, "field"));
+    setField(XmlHandler.getTagValue(fnode, CONST_FIELD));
     setIdLookup("Y".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "idlookup")));
     setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
     setFormat(XmlHandler.getTagValue(fnode, "format"));

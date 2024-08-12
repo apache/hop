@@ -64,6 +64,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
 
   private static final ImmutableMap<String, String> DEFAULT_OPTION_VALUES =
       ImmutableMap.of(ProducerConfig.COMPRESSION_TYPE_CONFIG, "none");
+  public static final String CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE =
+      "KafkaProducerOutputDialog.FieldNotExists.Title";
 
   private final KafkaFactory kafkaFactory = KafkaFactory.defaultFactory();
 
@@ -464,7 +466,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
       mb.setMessage(
           BaseMessages.getString(
               PKG, "KafkaProducerOutputDialog.BootstrapServerMandatory.Message"));
-      mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
+      mb.setText(
+          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
       mb.open();
       return;
     }
@@ -477,7 +480,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
       mb.setMessage(
           BaseMessages.getString(
               PKG, "KafkaProducerOutputDialog.KeyFieldNotExists.Message", wKeyField.getText()));
-      mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
+      mb.setText(
+          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
       mb.open();
       return;
     }
@@ -487,7 +491,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageFieldMandatory.Message"));
-      mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
+      mb.setText(
+          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
       mb.open();
       return;
     }
@@ -499,7 +504,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
               PKG,
               "KafkaProducerOutputDialog.MessageFieldNotExists.Message",
               wMessageField.getText()));
-      mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
+      mb.setText(
+          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
       mb.open();
       return;
     }

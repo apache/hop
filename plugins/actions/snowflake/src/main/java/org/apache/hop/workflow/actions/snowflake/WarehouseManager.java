@@ -85,6 +85,10 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   public static final String FAIL_IF_NOT_EXISTS = "failIfNotExists";
   private static final Class<?> PKG =
       WarehouseManager.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_IF_EXISTS = "IF EXISTS ";
+  public static final String CONST_ALTER_WAREHOUSE = "ALTER WAREHOUSE ";
+  public static final String CONST_COMMIT = ";\ncommit;";
 
   /** The database to connect to. */
   private DatabaseMeta databaseMeta;
@@ -334,69 +338,69 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
 
     returnValue.append(super.getXml());
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 CONNECTION, databaseMeta == null ? null : databaseMeta.getName()));
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 MANAGEMENT_ACTION, getManagementAction())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue(REPLACE, isReplace())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(FAIL_IF_EXISTS, isFailIfExists())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 WAREHOUSE_NAME, getWarehouseName())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 WAREHOUSE_SIZE, getWarehouseSize())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 WAREHOUSE_TYPE, getWarehouseType())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 MAX_CLUSTER_COUNT, getMaxClusterCount())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 MIN_CLUSTER_COUNT, getMinClusterCount())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(AUTO_SUSPEND, getAutoSuspend())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue(AUTO_RESUME, isAutoResume())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 INITIALLY_SUSPENDED, isInitiallySuspended())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 RESOURCE_MONITOR, getResourceMonitor())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue(COMMENT, getComment())); // $NON-NLS-1$ //$NON-NLS-2$
     returnValue
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue(FAIL_IF_NOT_EXISTS, isFailIfNotExists()));
 
     return returnValue.toString();
@@ -558,17 +562,17 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     StringBuilder sql = new StringBuilder();
     sql.append("DROP WAREHOUSE ");
     if (!failIfNotExists) {
-      sql.append("IF EXISTS ");
+      sql.append(CONST_IF_EXISTS);
     }
-    sql.append(resolve(warehouseName)).append(";\ncommit;");
+    sql.append(resolve(warehouseName)).append(CONST_COMMIT);
     return sql.toString();
   }
 
   private String getResumeSQL() {
     StringBuilder sql = new StringBuilder();
-    sql.append("ALTER WAREHOUSE ");
+    sql.append(CONST_ALTER_WAREHOUSE);
     if (!failIfNotExists) {
-      sql.append("IF EXISTS ");
+      sql.append(CONST_IF_EXISTS);
     }
     sql.append(resolve(warehouseName)).append(" RESUME;\ncommit;");
     return sql.toString();
@@ -576,9 +580,9 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
 
   private String getSuspendSQL() {
     StringBuilder sql = new StringBuilder();
-    sql.append("ALTER WAREHOUSE ");
+    sql.append(CONST_ALTER_WAREHOUSE);
     if (!failIfNotExists) {
-      sql.append("IF EXISTS ");
+      sql.append(CONST_IF_EXISTS);
     }
     sql.append(resolve(warehouseName)).append(" SUSPEND;\ncommit;");
     return sql.toString();
@@ -627,15 +631,15 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
       sql.append("COMMENT = \"").append(comment.replaceAll("\"", "\"\"")).append("\" ");
     }
 
-    sql.append(";\ncommit;");
+    sql.append(CONST_COMMIT);
     return sql.toString();
   }
 
   private String getAlterSQL() {
     StringBuilder sql = new StringBuilder();
-    sql.append("ALTER WAREHOUSE ");
+    sql.append(CONST_ALTER_WAREHOUSE);
     if (!failIfNotExists) {
-      sql.append("IF EXISTS ");
+      sql.append(CONST_IF_EXISTS);
     }
     sql.append(warehouseName).append(" SET ");
 
@@ -669,7 +673,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
       sql.append("COMMENT = \"").append(comment.replaceAll("\"", "\"\"")).append("\" ");
     }
 
-    sql.append(";\ncommit;");
+    sql.append(CONST_COMMIT);
     return sql.toString();
   }
 

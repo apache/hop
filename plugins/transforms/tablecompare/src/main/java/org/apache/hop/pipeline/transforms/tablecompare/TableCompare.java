@@ -35,6 +35,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class;
+  public static final String CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD =
+      "TableCompare.Exception.CanNotFindField";
 
   public TableCompare(
       TransformMeta transformMeta,
@@ -73,7 +75,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       if (data.refSchemaIndex < 0) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "TableCompare.Exception.CanNotFindField", meta.getReferenceSchemaField()));
+                PKG,
+                CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
+                meta.getReferenceSchemaField()));
       }
 
       // Reference table
@@ -86,7 +90,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       if (data.refTableIndex < 0) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "TableCompare.Exception.CanNotFindField", meta.getReferenceTableField()));
+                PKG,
+                CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
+                meta.getReferenceTableField()));
       }
 
       // Compare schema
@@ -99,7 +105,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       if (data.cmpSchemaIndex < 0) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "TableCompare.Exception.CanNotFindField", meta.getCompareSchemaField()));
+                PKG,
+                CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
+                meta.getCompareSchemaField()));
       }
 
       // Compare table
@@ -112,7 +120,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       if (data.cmpTableIndex < 0) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "TableCompare.Exception.CanNotFindField", meta.getCompareTableField()));
+                PKG,
+                CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
+                meta.getCompareTableField()));
       }
 
       // Key fields
@@ -125,7 +135,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       if (data.keyFieldsIndex < 0) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "TableCompare.Exception.CanNotFindField", meta.getKeyFieldsField()));
+                PKG, CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD, meta.getKeyFieldsField()));
       }
 
       // Exclude fields
@@ -138,7 +148,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       if (data.excludeFieldsIndex < 0) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "TableCompare.Exception.CanNotFindField", meta.getExcludeFieldsField()));
+                PKG,
+                CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
+                meta.getExcludeFieldsField()));
       }
 
       // error handling: Key description
@@ -151,7 +163,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       if (data.keyDescIndex < 0) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "TableCompare.Exception.CanNotFindField", meta.getKeyDescriptionField()));
+                PKG,
+                CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
+                meta.getKeyDescriptionField()));
       }
 
       // error handling: reference value
@@ -164,7 +178,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       if (data.valueReferenceIndex < 0) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "TableCompare.Exception.CanNotFindField", meta.getValueReferenceField()));
+                PKG,
+                CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
+                meta.getValueReferenceField()));
       }
 
       // error handling: compare value
@@ -177,7 +193,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       if (data.valueCompareIndex < 0) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "TableCompare.Exception.CanNotFindField", meta.getValueCompareField()));
+                PKG,
+                CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
+                meta.getValueCompareField()));
       }
     } // end if first
 

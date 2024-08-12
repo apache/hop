@@ -50,6 +50,8 @@ import org.eclipse.swt.widgets.Text;
 /** Search and replace in string. */
 public class ReplaceStringDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ReplaceStringMeta.class;
+  public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private TableView wFields;
 
@@ -147,8 +149,8 @@ public class ReplaceStringDialog extends BaseTransformDialog {
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.useRegEx"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            BaseMessages.getString(PKG, "System.Combo.Yes"),
-            BaseMessages.getString(PKG, "System.Combo.No"));
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
     ciKey[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.Replace"),
@@ -163,8 +165,8 @@ public class ReplaceStringDialog extends BaseTransformDialog {
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.SetEmptyString"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            BaseMessages.getString(PKG, "System.Combo.Yes"),
-            BaseMessages.getString(PKG, "System.Combo.No"));
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
 
     ciKey[6] =
         new ColumnInfo(
@@ -177,20 +179,20 @@ public class ReplaceStringDialog extends BaseTransformDialog {
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.WholeWord"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            BaseMessages.getString(PKG, "System.Combo.Yes"),
-            BaseMessages.getString(PKG, "System.Combo.No"));
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
     ciKey[8] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.CaseSensitive"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            BaseMessages.getString(PKG, "System.Combo.Yes"),
-            BaseMessages.getString(PKG, "System.Combo.No"));
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
     ciKey[9] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.IsUnicode"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            BaseMessages.getString(PKG, "System.Combo.Yes"),
-            BaseMessages.getString(PKG, "System.Combo.No"));
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
 
     ciKey[1].setToolTip(
         BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.OutStreamField.Tooltip"));
@@ -257,14 +259,14 @@ public class ReplaceStringDialog extends BaseTransformDialog {
 
   public String toBooleanDescription(boolean b) {
     if (b) {
-      return BaseMessages.getString(PKG, "System.Combo.Yes");
+      return BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES);
     } else {
-      return BaseMessages.getString(PKG, "System.Combo.No");
+      return BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO);
     }
   }
 
   public boolean toBoolean(String description) {
-    return BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(description);
+    return BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(description);
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -338,11 +340,11 @@ public class ReplaceStringDialog extends BaseTransformDialog {
             (tableItem, v) -> {
               if (v.getType() == IValueMeta.TYPE_STRING) {
                 // Only process strings
-                tableItem.setText(3, BaseMessages.getString(PKG, "System.Combo.No"));
-                tableItem.setText(6, BaseMessages.getString(PKG, "System.Combo.No"));
-                tableItem.setText(8, BaseMessages.getString(PKG, "System.Combo.No"));
-                tableItem.setText(9, BaseMessages.getString(PKG, "System.Combo.No"));
-                tableItem.setText(10, BaseMessages.getString(PKG, "System.Combo.No"));
+                tableItem.setText(3, BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
+                tableItem.setText(6, BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
+                tableItem.setText(8, BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
+                tableItem.setText(9, BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
+                tableItem.setText(10, BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
                 return true;
               } else {
                 return false;

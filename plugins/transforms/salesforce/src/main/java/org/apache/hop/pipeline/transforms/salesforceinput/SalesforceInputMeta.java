@@ -57,7 +57,8 @@ import org.w3c.dom.Node;
     groups = {"FIELDS"})
 public class SalesforceInputMeta
     extends SalesforceTransformMeta<SalesforceInput, SalesforceInputData> {
-  public static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+  public static final String CONST_FIELDS = "fields";
+  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
   private static final Class<?> PKG = SalesforceInputMeta.class;
 
@@ -497,11 +498,11 @@ public class SalesforceInputMeta
                 SalesforceConnectionUtils.getRecordsFilterCode(getRecordsFilter())));
     retval.append("    ").append(XmlHandler.addTagValue("queryAll", isQueryAll()));
 
-    retval.append("    ").append(XmlHandler.openTag("fields")).append(Const.CR);
+    retval.append("    ").append(XmlHandler.openTag(CONST_FIELDS)).append(Const.CR);
     for (SalesforceInputField field : inputFields) {
       retval.append(field.getXml());
     }
-    retval.append("    ").append(XmlHandler.closeTag("fields")).append(Const.CR);
+    retval.append("    ").append(XmlHandler.closeTag(CONST_FIELDS)).append(Const.CR);
     retval.append("    ").append(XmlHandler.addTagValue("limit", getRowLimit()));
 
     return retval.toString();
@@ -537,7 +538,7 @@ public class SalesforceInputMeta
               Const.NVL(XmlHandler.getTagValue(transformNode, "records_filter"), "")));
       setQueryAll("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "queryAll")));
 
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
+      Node fields = XmlHandler.getSubNode(transformNode, CONST_FIELDS);
       int nrFields = XmlHandler.countNodes(fields, "field");
 
       allocate(nrFields);

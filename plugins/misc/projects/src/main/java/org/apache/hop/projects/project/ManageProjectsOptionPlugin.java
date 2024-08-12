@@ -45,6 +45,8 @@ import picocli.CommandLine;
     description = "Allows command line editing of the projects")
 public class ManageProjectsOptionPlugin implements IConfigOptions {
 
+  public static final String CONST_PROJECT = "Project '";
+
   @CommandLine.Option(
       names = {"-pc", "--project-create"},
       description = "Create a new project. Also specify the name and its home")
@@ -210,12 +212,12 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
-      throw new HopException("Project '" + projectName + "' doesn't exist, it can't be deleted");
+      throw new HopException(CONST_PROJECT + projectName + "' doesn't exist, it can't be deleted");
     }
     config.removeProjectConfig(projectName);
     ProjectsConfigSingleton.saveConfig();
 
-    log.logBasic("Project '" + projectName + " was removed from the configuration");
+    log.logBasic(CONST_PROJECT + projectName + " was removed from the configuration");
   }
 
   private void modifyProject(ILogChannel log, ProjectsConfig config, IVariables variables)
@@ -224,7 +226,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
-      throw new HopException("Project '" + projectName + "' doesn't exist, it can't be modified");
+      throw new HopException(CONST_PROJECT + projectName + "' doesn't exist, it can't be modified");
     }
 
     if (StringUtils.isNotEmpty(projectHome)) {
@@ -328,7 +330,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig != null) {
-      throw new HopException("Project '" + projectName + "' already exists.");
+      throw new HopException(CONST_PROJECT + projectName + "' already exists.");
     }
 
     String defaultProjectConfigFilename = variables.resolve(config.getDefaultProjectConfigFile());
@@ -340,7 +342,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     config.addProjectConfig(projectConfig);
     ProjectsConfigSingleton.saveConfig();
 
-    log.logBasic("Project '" + projectName + "' was created for home folder : " + projectHome);
+    log.logBasic(CONST_PROJECT + projectName + "' was created for home folder : " + projectHome);
 
     Project project = projectConfig.loadProject(variables);
     project.setParentProjectName(config.getStandardParentProject());
@@ -388,7 +390,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
       throw new HopException(
-          "Project '" + projectName + "' couldn't be found in the Hop configuration");
+          CONST_PROJECT + projectName + "' couldn't be found in the Hop configuration");
     }
     Project project = projectConfig.loadProject(Variables.getADefaultVariableSpace());
     ProjectsUtil.enableProject(

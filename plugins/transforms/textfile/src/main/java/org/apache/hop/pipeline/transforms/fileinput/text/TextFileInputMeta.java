@@ -84,6 +84,16 @@ public class TextFileInputMeta
   private static final Class<?> PKG = TextFileInputMeta.class;
 
   private static final String STRING_BASE64_PREFIX = "Base64: ";
+  public static final String CONST_FILTER_POSITION = "filter_position";
+  public static final String CONST_FILTER_IS_LAST_LINE = "filter_is_last_line";
+  public static final String CONST_FILTER_IS_POSITIVE = "filter_is_positive";
+  public static final String CONST_SPACES_LONG = "        ";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_FORMAT = "format";
+  public static final String CONST_LENGTH = "length";
+  public static final String CONST_FIELD = "field";
+  public static final String CONST_FILTER = "filter";
+  public static final String CONST_FILTER_STRING = "filter_string";
 
   @InjectionDeep public Content content = new Content();
 
@@ -324,16 +334,16 @@ public class TextFileInputMeta
       content.rowNumberByFile =
           YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownumByFile"));
       content.rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      content.fileFormat = XmlHandler.getTagValue(transformNode, "format");
+      content.fileFormat = XmlHandler.getTagValue(transformNode, CONST_FORMAT);
       content.encoding = XmlHandler.getTagValue(transformNode, "encoding");
-      content.length = XmlHandler.getTagValue(transformNode, "length");
+      content.length = XmlHandler.getTagValue(transformNode, CONST_LENGTH);
 
       Node filenode = XmlHandler.getSubNode(transformNode, "file");
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
       Node filtersNode = XmlHandler.getSubNode(transformNode, "filters");
       int nrfiles = XmlHandler.countNodes(filenode, "name");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      int nrfilters = XmlHandler.countNodes(filtersNode, "filter");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
+      int nrfilters = XmlHandler.countNodes(filtersNode, CONST_FILTER);
 
       allocate(nrfiles, nrFields, nrfilters);
 
@@ -360,26 +370,26 @@ public class TextFileInputMeta
       }
 
       // Backward compatibility : just one filter
-      if (XmlHandler.getTagValue(transformNode, "filter") != null) {
+      if (XmlHandler.getTagValue(transformNode, CONST_FILTER) != null) {
         filter = new TextFileFilter[1];
         filter[0] = new TextFileFilter();
 
         filter[0].setFilterPosition(
-            Const.toInt(XmlHandler.getTagValue(transformNode, "filter_position"), -1));
-        filter[0].setFilterString(XmlHandler.getTagValue(transformNode, "filter_string"));
+            Const.toInt(XmlHandler.getTagValue(transformNode, CONST_FILTER_POSITION), -1));
+        filter[0].setFilterString(XmlHandler.getTagValue(transformNode, CONST_FILTER_STRING));
         filter[0].setFilterLastLine(
-            YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "filter_is_last_line")));
+            YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CONST_FILTER_IS_LAST_LINE)));
         filter[0].setFilterPositive(
-            YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "filter_is_positive")));
+            YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CONST_FILTER_IS_POSITIVE)));
       } else {
         for (int i = 0; i < nrfilters; i++) {
-          Node fnode = XmlHandler.getSubNodeByNr(filtersNode, "filter", i);
+          Node fnode = XmlHandler.getSubNodeByNr(filtersNode, CONST_FILTER, i);
           filter[i] = new TextFileFilter();
 
           filter[i].setFilterPosition(
-              Const.toInt(XmlHandler.getTagValue(fnode, "filter_position"), -1));
+              Const.toInt(XmlHandler.getTagValue(fnode, CONST_FILTER_POSITION), -1));
 
-          String filterString = XmlHandler.getTagValue(fnode, "filter_string");
+          String filterString = XmlHandler.getTagValue(fnode, CONST_FILTER_STRING);
           if (filterString != null && filterString.startsWith(STRING_BASE64_PREFIX)) {
             filter[i].setFilterString(
                 new String(
@@ -390,26 +400,26 @@ public class TextFileInputMeta
           }
 
           filter[i].setFilterLastLine(
-              YES.equalsIgnoreCase(XmlHandler.getTagValue(fnode, "filter_is_last_line")));
+              YES.equalsIgnoreCase(XmlHandler.getTagValue(fnode, CONST_FILTER_IS_LAST_LINE)));
           filter[i].setFilterPositive(
-              YES.equalsIgnoreCase(XmlHandler.getTagValue(fnode, "filter_is_positive")));
+              YES.equalsIgnoreCase(XmlHandler.getTagValue(fnode, CONST_FILTER_IS_POSITIVE)));
         }
       }
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
         BaseFileField field = new BaseFileField();
 
         field.setName(XmlHandler.getTagValue(fnode, "name"));
         field.setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
-        field.setFormat(XmlHandler.getTagValue(fnode, "format"));
+        field.setFormat(XmlHandler.getTagValue(fnode, CONST_FORMAT));
         field.setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
         field.setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
         field.setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
         field.setNullString(XmlHandler.getTagValue(fnode, "nullif"));
         field.setIfNullValue(XmlHandler.getTagValue(fnode, "ifnull"));
         field.setPosition(Const.toInt(XmlHandler.getTagValue(fnode, "position"), -1));
-        field.setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
+        field.setLength(Const.toInt(XmlHandler.getTagValue(fnode, CONST_LENGTH), -1));
         field.setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
         field.setTrimType(
             ValueMetaString.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
@@ -566,7 +576,7 @@ public class TextFileInputMeta
     }
 
     for (int i = 0; i < nrFields; i++) {
-      inputFields[i] = new BaseFileField("field" + (i + 1), 1, -1);
+      inputFields[i] = new BaseFileField(CONST_FIELD + (i + 1), 1, -1);
     }
 
     content.dateFormatLocale = Locale.getDefault();
@@ -752,9 +762,9 @@ public class TextFileInputMeta
     retval.append("    ").append(XmlHandler.addTagValue("rownum", content.includeRowNumber));
     retval.append("    ").append(XmlHandler.addTagValue("rownumByFile", content.rowNumberByFile));
     retval.append("    ").append(XmlHandler.addTagValue("rownum_field", content.rowNumberField));
-    retval.append("    ").append(XmlHandler.addTagValue("format", content.fileFormat));
+    retval.append("    ").append(XmlHandler.addTagValue(CONST_FORMAT, content.fileFormat));
     retval.append("    ").append(XmlHandler.addTagValue("encoding", content.encoding));
-    retval.append("    ").append(XmlHandler.addTagValue("length", content.length));
+    retval.append("    ").append(XmlHandler.addTagValue(CONST_LENGTH, content.length));
     retval.append(
         "    " + XmlHandler.addTagValue("add_to_result_filenames", inputFiles.isaddresult));
 
@@ -765,20 +775,22 @@ public class TextFileInputMeta
     inputFiles.normalizeAllocation(inputFiles.fileName.length);
     for (int i = 0; i < inputFiles.fileName.length; i++) {
       saveSource(retval, inputFiles.fileName[i]);
-      retval.append("      ").append(XmlHandler.addTagValue("filemask", inputFiles.fileMask[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
+          .append(XmlHandler.addTagValue("filemask", inputFiles.fileMask[i]));
+      retval
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("exclude_filemask", inputFiles.excludeFileMask[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("file_required", inputFiles.fileRequired[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("include_subfolders", inputFiles.includeSubFolders[i]));
     }
-    retval.append("      ").append(XmlHandler.addTagValue("type", content.fileType));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("type", content.fileType));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 "compression",
@@ -798,19 +810,22 @@ public class TextFileInputMeta
 
       retval.append("      <filter>").append(Const.CR);
       retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("filter_string", filterEncoded, false));
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue(CONST_FILTER_STRING, filterEncoded, false));
       retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("filter_position", filter[i].getFilterPosition(), false));
-      retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
           .append(
-              XmlHandler.addTagValue("filter_is_last_line", filter[i].isFilterLastLine(), false));
+              XmlHandler.addTagValue(CONST_FILTER_POSITION, filter[i].getFilterPosition(), false));
       retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
           .append(
-              XmlHandler.addTagValue("filter_is_positive", filter[i].isFilterPositive(), false));
+              XmlHandler.addTagValue(
+                  CONST_FILTER_IS_LAST_LINE, filter[i].isFilterLastLine(), false));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(
+              XmlHandler.addTagValue(
+                  CONST_FILTER_IS_POSITIVE, filter[i].isFilterPositive(), false));
       retval.append("      </filter>").append(Const.CR);
     }
     retval.append("    </filters>").append(Const.CR);
@@ -820,23 +835,39 @@ public class TextFileInputMeta
       BaseFileField field = inputFields[i];
 
       retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", field.getName()));
-      retval.append("        ").append(XmlHandler.addTagValue("type", field.getTypeDesc()));
-      retval.append("        ").append(XmlHandler.addTagValue("format", field.getFormat()));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", field.getName()));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("type", field.getTypeDesc()));
       retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue(CONST_FORMAT, field.getFormat()));
+      retval
+          .append(CONST_SPACES_LONG)
           .append(XmlHandler.addTagValue("currency", field.getCurrencySymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("group", field.getGroupSymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("nullif", field.getNullString()));
-      retval.append("        ").append(XmlHandler.addTagValue("ifnull", field.getIfNullValue()));
-      retval.append("        ").append(XmlHandler.addTagValue("position", field.getPosition()));
-      retval.append("        ").append(XmlHandler.addTagValue("length", field.getLength()));
-      retval.append("        ").append(XmlHandler.addTagValue("precision", field.getPrecision()));
       retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("group", field.getGroupSymbol()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("nullif", field.getNullString()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("ifnull", field.getIfNullValue()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("position", field.getPosition()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue(CONST_LENGTH, field.getLength()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("precision", field.getPrecision()));
+      retval
+          .append(CONST_SPACES_LONG)
           .append(XmlHandler.addTagValue("trim_type", field.getTrimTypeCode()));
-      retval.append("        ").append(XmlHandler.addTagValue("repeat", field.isRepeated()));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("repeat", field.isRepeated()));
       retval.append("      </field>").append(Const.CR);
     }
     retval.append("    </fields>").append(Const.CR);
@@ -1162,7 +1193,7 @@ public class TextFileInputMeta
   }
 
   protected void saveSource(StringBuilder retVal, String source) {
-    retVal.append("      ").append(XmlHandler.addTagValue("name", source));
+    retVal.append(CONST_SPACES).append(XmlHandler.addTagValue("name", source));
   }
 
   @Override

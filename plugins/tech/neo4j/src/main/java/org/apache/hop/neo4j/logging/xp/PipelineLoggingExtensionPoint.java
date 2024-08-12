@@ -57,6 +57,8 @@ public class PipelineLoggingExtensionPoint
 
   public static final String EXECUTION_TYPE_PIPELINE = LoggingObjectType.PIPELINE.name();
   public static final String EXECUTION_TYPE_TRANSFORM = LoggingObjectType.TRANSFORM.name();
+  public static final String CONST_STATUS = "status";
+  public static final String CONST_PIPELINE_NAME = "pipelineName";
 
   @Override
   public void callExtensionPoint(
@@ -138,7 +140,7 @@ public class PipelineLoggingExtensionPoint
                 try {
 
                   Map<String, Object> transPars = new HashMap<>();
-                  transPars.put("pipelineName", pipelineMeta.getName());
+                  transPars.put(CONST_PIPELINE_NAME, pipelineMeta.getName());
                   transPars.put("description", pipelineMeta.getDescription());
                   transPars.put("filename", pipelineMeta.getFilename());
                   StringBuilder transCypher = new StringBuilder();
@@ -152,7 +154,7 @@ public class PipelineLoggingExtensionPoint
                   for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
 
                     Map<String, Object> transformPars = new HashMap<>();
-                    transformPars.put("pipelineName", pipelineMeta.getName());
+                    transformPars.put(CONST_PIPELINE_NAME, pipelineMeta.getName());
                     transformPars.put("transformName", transformMeta.getName());
                     transformPars.put("description", transformMeta.getDescription());
                     transformPars.put("pluginId", transformMeta.getPluginId());
@@ -192,7 +194,7 @@ public class PipelineLoggingExtensionPoint
                     Map<String, Object> hopPars = new HashMap<>();
                     hopPars.put("fromTransform", hopMeta.getFromTransform().getName());
                     hopPars.put("toTransform", hopMeta.getToTransform().getName());
-                    hopPars.put("pipelineName", pipelineMeta.getName());
+                    hopPars.put(CONST_PIPELINE_NAME, pipelineMeta.getName());
 
                     String hopCypher =
                         "MATCH (from:Transform { pipelineName : $pipelineName, name : $fromTransform }) "
@@ -233,7 +235,7 @@ public class PipelineLoggingExtensionPoint
                   Date startDate = (Date) pipeline.getExtensionDataMap().get(PIPELINE_START_DATE);
 
                   Map<String, Object> pipelinePars = new HashMap<>();
-                  pipelinePars.put("pipelineName", pipelineMeta.getName());
+                  pipelinePars.put(CONST_PIPELINE_NAME, pipelineMeta.getName());
                   pipelinePars.put("id", channel.getLogChannelId());
                   pipelinePars.put("type", EXECUTION_TYPE_PIPELINE);
                   pipelinePars.put("containerId", pipeline.getContainerId());
@@ -241,7 +243,7 @@ public class PipelineLoggingExtensionPoint
                   pipelinePars.put(
                       "executionStart",
                       new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(startDate));
-                  pipelinePars.put("status", pipeline.getStatusDescription());
+                  pipelinePars.put(CONST_STATUS, pipeline.getStatusDescription());
 
                   String pipelineCypher =
                       "MATCH (pipeline:Pipeline { name : $pipelineName } ) "
@@ -294,7 +296,7 @@ public class PipelineLoggingExtensionPoint
                   Date startDate = (Date) pipeline.getExtensionDataMap().get(PIPELINE_START_DATE);
 
                   Map<String, Object> pipelinePars = new HashMap<>();
-                  pipelinePars.put("pipelineName", pipelineMeta.getName());
+                  pipelinePars.put(CONST_PIPELINE_NAME, pipelineMeta.getName());
                   pipelinePars.put("type", EXECUTION_TYPE_PIPELINE);
                   pipelinePars.put("id", channel.getLogChannelId());
                   pipelinePars.put(
@@ -308,7 +310,7 @@ public class PipelineLoggingExtensionPoint
                   pipelinePars.put("linesWritten", result.getNrLinesWritten());
                   pipelinePars.put("linesRejected", result.getNrLinesRejected());
                   pipelinePars.put("loggingText", transLoggingText);
-                  pipelinePars.put("status", pipeline.getStatusDescription());
+                  pipelinePars.put(CONST_STATUS, pipeline.getStatusDescription());
 
                   String pipelineCypher =
                       "MATCH (pipeline:Pipeline { name : $pipelineName } ) "
@@ -339,13 +341,13 @@ public class PipelineLoggingExtensionPoint
                             .getBuffer(transformLogChannelId, false)
                             .toString();
                     Map<String, Object> transformPars = new HashMap<>();
-                    transformPars.put("pipelineName", pipelineMeta.getName());
+                    transformPars.put(CONST_PIPELINE_NAME, pipelineMeta.getName());
                     transformPars.put("name", combi.transformName);
                     transformPars.put("type", EXECUTION_TYPE_TRANSFORM);
                     transformPars.put("id", transformLogChannelId);
                     transformPars.put("transId", transLogChannelId);
                     transformPars.put("copy", Long.valueOf(combi.copy));
-                    transformPars.put("status", combi.transform.getStatus().getDescription());
+                    transformPars.put(CONST_STATUS, combi.transform.getStatus().getDescription());
                     transformPars.put("loggingText", transformLoggingText);
                     transformPars.put("errors", combi.transform.getErrors());
                     transformPars.put("linesRead", combi.transform.getLinesRead());

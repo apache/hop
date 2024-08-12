@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class LifecycleEnvironmentDialog extends Dialog {
   private static final Class<?> PKG = LifecycleEnvironmentDialog.class;
+  public static final String CONST_ERROR = "Error";
 
   private final LifecycleEnvironment environment;
 
@@ -280,7 +281,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
       }
 
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error editing configuration file", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error editing configuration file", e);
     }
   }
 
@@ -343,7 +344,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
-          "Error",
+          CONST_ERROR,
           "Error creating new environment configuration file",
           e);
     }
@@ -362,12 +363,10 @@ public class LifecycleEnvironmentDialog extends Dialog {
       if (StringUtils.isEmpty(environmentName)) {
         throw new HopException("Please give your environment a name");
       }
-      if (StringUtils.isNotEmpty(originalName)) {
-        if (!originalName.equals(environmentName)) {
-          wName.setText(originalName);
-          throw new HopException(
-              "Sorry, renaming environment '" + originalName + "' is not supported.");
-        }
+      if (StringUtils.isNotEmpty(originalName) && !originalName.equals(environmentName)) {
+        wName.setText(originalName);
+        throw new HopException(
+            "Sorry, renaming environment '" + originalName + "' is not supported.");
       }
 
       getInfo(environment);
@@ -375,7 +374,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
       dispose();
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "There is a configuration error in the environment", e);
+      new ErrorDialog(shell, CONST_ERROR, "There is a configuration error in the environment", e);
     }
   }
 

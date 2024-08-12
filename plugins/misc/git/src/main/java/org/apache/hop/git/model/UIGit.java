@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Date;
@@ -107,6 +108,14 @@ import org.eclipse.jgit.util.SystemReader;
 
 public class UIGit extends VCS {
   protected static final Class<?> PKG = UIGit.class;
+  public static final String CONST_FOR_COMMIT_ID = "' for commit ID '";
+  public static final String CONST_OURS = ".ours";
+  public static final String CONST_THEIRS = ".theirs";
+  public static final String
+      CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED =
+          "Authentication is required but no CredentialsProvider has been registered";
+  public static final String CONST_NOT_AUTHORIZED = "not authorized";
+  public static final String CONST_DIALOG_ERROR = "Dialog.Error";
 
   static {
     /**
@@ -256,10 +265,10 @@ public class UIGit extends VCS {
       if (value.equals("")) {
         removeRemote();
       } else {
-        showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+        showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
       }
     } catch (GitAPIException e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
   }
 
@@ -269,7 +278,7 @@ public class UIGit extends VCS {
     try {
       cmd.call();
     } catch (GitAPIException e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
   }
 
@@ -417,14 +426,16 @@ public class UIGit extends VCS {
 
   public void add(String filePattern) throws HopException {
     try {
-      if (filePattern.endsWith(".ours") || filePattern.endsWith(".theirs")) {
+      if (filePattern.endsWith(CONST_OURS) || filePattern.endsWith(CONST_THEIRS)) {
         FileUtils.rename(
             new File(directory, filePattern),
             new File(directory, FilenameUtils.removeExtension(filePattern)),
             StandardCopyOption.REPLACE_EXISTING);
         filePattern = FilenameUtils.removeExtension(filePattern);
-        org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, filePattern + ".ours"));
-        org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, filePattern + ".theirs"));
+        org.apache.commons.io.FileUtils.deleteQuietly(
+            new File(directory, filePattern + CONST_OURS));
+        org.apache.commons.io.FileUtils.deleteQuietly(
+            new File(directory, filePattern + CONST_THEIRS));
       }
       git.add().addFilepattern(filePattern).call();
     } catch (Exception e) {
@@ -436,7 +447,7 @@ public class UIGit extends VCS {
     try {
       git.rm().addFilepattern(filepattern).call();
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
   }
 
@@ -445,7 +456,7 @@ public class UIGit extends VCS {
     try {
       git.reset().setRef(name).call();
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
   }
 
@@ -454,7 +465,7 @@ public class UIGit extends VCS {
     try {
       git.reset().addPath(path).call();
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
   }
 
@@ -466,7 +477,7 @@ public class UIGit extends VCS {
   public boolean rollback(String name) {
     if (hasUncommittedChanges()) {
       showMessageBox(
-          BaseMessages.getString(PKG, "Dialog.Error"),
+          BaseMessages.getString(PKG, CONST_DIALOG_ERROR),
           BaseMessages.getString(PKG, "Git.Dialog.UncommittedChanges.Message"));
       return false;
     }
@@ -487,7 +498,7 @@ public class UIGit extends VCS {
       git.reset().setRef(commit).call();
       return true;
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
     return false;
   }
@@ -508,9 +519,10 @@ public class UIGit extends VCS {
           Constants.DEFAULT_REMOTE_NAME + "/" + getBranch(), MergeStrategy.RECURSIVE.getName());
     } catch (TransportException e) {
       if (e.getMessage()
-              .contains("Authentication is required but no CredentialsProvider has been registered")
+              .contains(
+                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
           || e.getMessage()
-              .contains("not authorized")) { // when the cached credential does not work
+              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
         if (promptUsernamePassword()) {
           return pull();
         }
@@ -571,9 +583,10 @@ public class UIGit extends VCS {
       return true;
     } catch (TransportException e) {
       if (e.getMessage()
-              .contains("Authentication is required but no CredentialsProvider has been registered")
+              .contains(
+                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
           || e.getMessage()
-              .contains("not authorized")) { // when the cached credential does not work
+              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
         if (promptUsernamePassword()) {
           return push(type);
         }
@@ -608,7 +621,7 @@ public class UIGit extends VCS {
                 BaseMessages.getString(PKG, "Dialog.Success"),
                 BaseMessages.getString(PKG, "Dialog.Success"));
           } else {
-            showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), sb.toString());
+            showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), sb.toString());
           }
         });
   }
@@ -624,7 +637,7 @@ public class UIGit extends VCS {
           .setOutputStream(out)
           .setPathFilter(file == null ? TreeFilter.ALL : PathFilter.create(file))
           .call();
-      return out.toString("UTF-8");
+      return out.toString(StandardCharsets.UTF_8);
     } catch (Exception e) {
       return e.getMessage();
     }
@@ -651,16 +664,16 @@ public class UIGit extends VCS {
       return loader.openStream();
     } catch (MissingObjectException e) {
       throw new HopException(
-          "Unable to find file '" + file + "' for commit ID '" + commitId + "", e);
+          "Unable to find file '" + file + CONST_FOR_COMMIT_ID + commitId + "", e);
     } catch (IncorrectObjectTypeException e) {
       throw new HopException(
-          "Incorrect object type error for file '" + file + "' for commit ID '" + commitId + "", e);
+          "Incorrect object type error for file '" + file + CONST_FOR_COMMIT_ID + commitId + "", e);
     } catch (CorruptObjectException e) {
       throw new HopException(
-          "Corrupt object error for file '" + file + "' for commit ID '" + commitId + "", e);
+          "Corrupt object error for file '" + file + CONST_FOR_COMMIT_ID + commitId + "", e);
     } catch (IOException e) {
       throw new HopException(
-          "Error reading git file '" + file + "' for commit ID '" + commitId + "", e);
+          "Error reading git file '" + file + CONST_FOR_COMMIT_ID + commitId + "", e);
     }
   }
 
@@ -677,13 +690,13 @@ public class UIGit extends VCS {
       if ((e instanceof TransportException)
           && (e.getMessage()
                   .contains(
-                      "Authentication is required but no CredentialsProvider has been registered")
-              || e.getMessage().contains("not authorized"))) {
+                      CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
+              || e.getMessage().contains(CONST_NOT_AUTHORIZED))) {
         if (promptUsernamePassword()) {
           return cloneRepo(directory, uri);
         }
       } else {
-        showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+        showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
       }
     }
     return false;
@@ -693,7 +706,7 @@ public class UIGit extends VCS {
     try {
       git.checkout().setName(name).call();
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
   }
 
@@ -721,8 +734,8 @@ public class UIGit extends VCS {
       git.add().addFilepattern(path).call();
 
       git.checkout().setStartPoint(Constants.HEAD).addPath(path).call();
-      org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, path + ".ours"));
-      org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, path + ".theirs"));
+      org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, path + CONST_OURS));
+      org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, path + CONST_THEIRS));
     } catch (Exception e) {
       throw new HopException("Git: error reverting path '" + path + "'", e);
     }
@@ -763,7 +776,7 @@ public class UIGit extends VCS {
       checkoutBranch(getExpandedName(value, VCS.TYPE_BRANCH));
       return true;
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
       return false;
     }
   }
@@ -776,7 +789,7 @@ public class UIGit extends VCS {
           .call();
       return true;
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
       return false;
     }
   }
@@ -792,12 +805,12 @@ public class UIGit extends VCS {
         // TODO: get rid of message box
         //
         showMessageBox(
-            BaseMessages.getString(PKG, "Dialog.Error"), result.getMergeStatus().toString());
+            BaseMessages.getString(PKG, CONST_DIALOG_ERROR), result.getMergeStatus().toString());
         if (result.getMergeStatus() == MergeStatus.CONFLICTING) {
           Map<String, int[][]> conflicts = result.getConflicts();
           for (String path : conflicts.keySet()) {
-            checkout(path, Constants.HEAD, ".ours");
-            checkout(path, getExpandedName(value, VCS.TYPE_BRANCH), ".theirs");
+            checkout(path, Constants.HEAD, CONST_OURS);
+            checkout(path, getExpandedName(value, VCS.TYPE_BRANCH), CONST_THEIRS);
           }
           return true;
         }
@@ -828,7 +841,7 @@ public class UIGit extends VCS {
       throw new HopException(
           "Error checking out file '"
               + path
-              + "' for commit ID '"
+              + CONST_FOR_COMMIT_ID
               + commitId
               + "' and postfix "
               + postfix,
@@ -900,7 +913,7 @@ public class UIGit extends VCS {
       git.tag().setName(name).call();
       return true;
     } catch (Exception e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
       return false;
     }
   }
@@ -910,7 +923,7 @@ public class UIGit extends VCS {
       git.tagDelete().setTags(getExpandedName(name, VCS.TYPE_TAG)).call();
       return true;
     } catch (GitAPIException e) {
-      showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
       return false;
     }
   }
@@ -926,7 +939,7 @@ public class UIGit extends VCS {
           try {
             return git.getRepository().findRef(Constants.R_REMOTES + name).getName();
           } catch (Exception e1) {
-            showMessageBox(BaseMessages.getString(PKG, "Dialog.Error"), e.getMessage());
+            showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
           }
         }
       default:

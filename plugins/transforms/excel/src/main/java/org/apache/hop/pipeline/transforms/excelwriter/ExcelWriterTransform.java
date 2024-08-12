@@ -73,6 +73,8 @@ public class ExcelWriterTransform
       "HOP_EXCEL_WRITER_STREAMER_FORCE_RECALCULATE";
 
   public static final int BYTE_ARRAY_MAX_OVERRIDE = 250000000;
+  public static final String CONST_COULDN_T_BE_FOUND_IN_THE_INPUT_STREAM =
+      "] couldn't be found in the input stream!";
 
   public ExcelWriterTransform(
       TransformMeta transformMeta,
@@ -141,7 +143,7 @@ public class ExcelWriterTransform
           String outputFieldName = outputField.getName();
           data.fieldnrs[i] = data.inputRowMeta.indexOfValue(outputFieldName);
           if (data.fieldnrs[i] < 0) {
-            logError("Field [" + outputFieldName + "] couldn't be found in the input stream!");
+            logError("Field [" + outputFieldName + CONST_COULDN_T_BE_FOUND_IN_THE_INPUT_STREAM);
             setErrors(1);
             stopAll();
             return false;
@@ -151,7 +153,8 @@ public class ExcelWriterTransform
           String commentField = outputField.getCommentField();
           data.commentfieldnrs[i] = data.inputRowMeta.indexOfValue(commentField);
           if (data.commentfieldnrs[i] < 0 && !Utils.isEmpty(commentField)) {
-            logError("Comment Field [" + commentField + "] couldn't be found in the input stream!");
+            logError(
+                "Comment Field [" + commentField + CONST_COULDN_T_BE_FOUND_IN_THE_INPUT_STREAM);
             setErrors(1);
             stopAll();
             return false;
@@ -164,7 +167,7 @@ public class ExcelWriterTransform
             logError(
                 "Comment Author Field ["
                     + commentAuthorField
-                    + "] couldn't be found in the input stream!");
+                    + CONST_COULDN_T_BE_FOUND_IN_THE_INPUT_STREAM);
             setErrors(1);
             stopAll();
             return false;
@@ -174,7 +177,7 @@ public class ExcelWriterTransform
           String hyperlinkField = outputField.getHyperlinkField();
           data.linkfieldnrs[i] = data.inputRowMeta.indexOfValue(hyperlinkField);
           if (data.linkfieldnrs[i] < 0 && !Utils.isEmpty(hyperlinkField)) {
-            logError("Link Field [" + hyperlinkField + "] couldn't be found in the input stream!");
+            logError("Link Field [" + hyperlinkField + CONST_COULDN_T_BE_FOUND_IN_THE_INPUT_STREAM);
             setErrors(1);
             stopAll();
             return false;

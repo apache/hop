@@ -75,6 +75,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
 
   public static final String SPECIFY_FILENAME = "filename";
   public static final String NO_NEED = "noneed";
+  public static final String CONST_SPACES = "      ";
 
   private String xsdSource;
   private String xmlfilename;
@@ -109,10 +110,10 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     StringBuffer xml = new StringBuffer(50);
 
     xml.append(super.getXml());
-    xml.append("      ").append(XmlHandler.addTagValue("xsdsource", xsdSource));
-    xml.append("      ").append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
-    xml.append("      ").append(XmlHandler.addTagValue("xsdfilename", xsdfilename));
-    xml.append("      ")
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xsdsource", xsdSource));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xsdfilename", xsdfilename));
+    xml.append(CONST_SPACES)
         .append(XmlHandler.addTagValue("allowExternalEntities", allowExternalEntities));
 
     return xml.toString();

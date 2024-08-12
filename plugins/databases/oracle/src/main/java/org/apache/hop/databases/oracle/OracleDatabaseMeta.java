@@ -40,6 +40,8 @@ import org.apache.hop.core.variables.IVariables;
 public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   private static final String STRICT_BIGNUMBER_INTERPRETATION = "STRICT_NUMBER_38_INTERPRETATION";
+  public static final String CONST_SELECT = "SELECT ";
+  public static final String CONST_JDBC_ORACLE_THIN = "jdbc:oracle:thin:@";
 
   @Override
   public int[] getAccessTypeList() {
@@ -93,7 +95,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   public String getSqlQueryColumnFields(String columnName, String tableName) {
-    return "SELECT " + columnName + " FROM " + tableName + " WHERE 1=0";
+    return CONST_SELECT + columnName + " FROM " + tableName + " WHERE 1=0";
   }
 
   @Override
@@ -110,7 +112,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       // <host>:<port>:<SID>
       if (!Utils.isEmpty(databaseName)
           && (databaseName.startsWith("/") || databaseName.startsWith(":"))) {
-        return "jdbc:oracle:thin:@" + hostname + ":" + port + databaseName;
+        return CONST_JDBC_ORACLE_THIN + hostname + ":" + port + databaseName;
       } else if (Utils.isEmpty(hostname) && (Utils.isEmpty(port) || port.equals("-1"))) {
         // -1 when file based stored
         //                                    // connection
@@ -129,10 +131,10 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         // (DESCRIPTION=(FAILOVER=ON)(ADDRESS_LIST=(LOAD_BALANCE=ON)
         // (ADDRESS=(PROTOCOL=TCP)(HOST=xxxxx)(PORT=1526))
         // (ADDRESS=(PROTOCOL=TCP)(HOST=xxxx)(PORT=1526)))(CONNECT_DATA=(SERVICE_NAME=somesid)))
-        return "jdbc:oracle:thin:@" + databaseName;
+        return CONST_JDBC_ORACLE_THIN + databaseName;
       } else {
         // by default we assume a SID
-        return "jdbc:oracle:thin:@" + hostname + ":" + port + ":" + databaseName;
+        return CONST_JDBC_ORACLE_THIN + hostname + ":" + port + ":" + databaseName;
       }
     } else {
       // OCI
@@ -211,7 +213,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    */
   @Override
   public String getSqlCurrentSequenceValue(String sequenceName) {
-    return "SELECT " + sequenceName + ".currval FROM DUAL";
+    return CONST_SELECT + sequenceName + ".currval FROM DUAL";
   }
 
   /**
@@ -222,7 +224,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    */
   @Override
   public String getSqlNextSequenceValue(String sequenceName) {
-    return "SELECT " + sequenceName + ".nextval FROM DUAL";
+    return CONST_SELECT + sequenceName + ".nextval FROM DUAL";
   }
 
   @Override

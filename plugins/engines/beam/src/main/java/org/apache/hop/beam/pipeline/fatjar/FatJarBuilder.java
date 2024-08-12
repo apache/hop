@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ import org.jboss.jandex.Indexer;
 
 public class FatJarBuilder {
 
+  public static final String CONST_META_INF = "META-INF";
   private ILogChannel log;
   private IVariables variables;
   private String targetJarFile;
@@ -132,11 +134,11 @@ public class FatJarBuilder {
                   skip = true;
                 } else if (entryName.contains("META-INF/MANIFEST.MF")) {
                   skip = true;
-                } else if (entryName.startsWith("META-INF") && entryName.endsWith(".SF")) {
+                } else if (entryName.startsWith(CONST_META_INF) && entryName.endsWith(".SF")) {
                   skip = true;
-                } else if (entryName.startsWith("META-INF") && entryName.endsWith(".DSA")) {
+                } else if (entryName.startsWith(CONST_META_INF) && entryName.endsWith(".DSA")) {
                   skip = true;
-                } else if (entryName.startsWith("META-INF") && entryName.endsWith(".RSA")) {
+                } else if (entryName.startsWith(CONST_META_INF) && entryName.endsWith(".RSA")) {
                   skip = true;
                 } else if (entryName.startsWith("META-INF/services/")) {
                   merge = true;
@@ -207,7 +209,7 @@ public class FatJarBuilder {
                 }
 
                 if (merge) {
-                  String fileContent = IOUtils.toString(zipInputStream, "UTF-8");
+                  String fileContent = IOUtils.toString(zipInputStream, StandardCharsets.UTF_8);
                   fileContentMap.merge(entryName, fileContent, (a, b) -> a + Const.CR + b);
                 } else if (!skip) {
                   int len;
@@ -245,7 +247,7 @@ public class FatJarBuilder {
         for (String entryName : fileContentMap.keySet()) {
           String fileContent = fileContentMap.get(entryName);
           zipOutputStream.putNextEntry(new ZipEntry(entryName));
-          zipOutputStream.write(fileContent.getBytes("UTF-8"));
+          zipOutputStream.write(fileContent.getBytes(StandardCharsets.UTF_8));
           zipOutputStream.closeEntry();
         }
 

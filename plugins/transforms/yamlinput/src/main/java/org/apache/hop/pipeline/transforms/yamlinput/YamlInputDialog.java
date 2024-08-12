@@ -69,6 +69,10 @@ import org.eclipse.swt.widgets.Text;
 
 public class YamlInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = YamlInputMeta.class;
+  public static final String CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_TITLE =
+      "YamlInputDialog.ErrorParsingData.DialogTitle";
+  public static final String CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE =
+      "YamlInputDialog.ErrorParsingData.DialogMessage";
 
   private Label wlFilename;
   private Label wlYamlIsAFile;
@@ -288,7 +292,9 @@ public class YamlInputDialog extends BaseTransformDialog {
     wYAMLLField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -891,11 +897,13 @@ public class YamlInputDialog extends BaseTransformDialog {
                 mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
                 mb.open();
               }
-            } catch (HopException ex) {
+            } catch (Exception ex) {
               new ErrorDialog(
                   shell,
-                  BaseMessages.getString(PKG, "YamlInputDialog.ErrorParsingData.DialogTitle"),
-                  BaseMessages.getString(PKG, "YamlInputDialog.ErrorParsingData.DialogMessage"),
+                  BaseMessages.getString(
+                      PKG, CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_TITLE),
+                  BaseMessages.getString(
+                      PKG, CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE),
                   ex);
             }
           }
@@ -1032,7 +1040,7 @@ public class YamlInputDialog extends BaseTransformDialog {
 
       FileInputList inputList = meta.getFiles(variables);
 
-      if (inputList.getFiles().size() > 0) {
+      if (!inputList.getFiles().isEmpty()) {
         wFields.removeAll();
 
         yaml = new YamlReader();
@@ -1054,8 +1062,8 @@ public class YamlInputDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "YamlInputDialog.ErrorParsingData.DialogTitle"),
-          BaseMessages.getString(PKG, "YamlInputDialog.ErrorParsingData.DialogMessage"),
+          BaseMessages.getString(PKG, CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_TITLE),
+          BaseMessages.getString(PKG, CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE),
           e);
     } finally {
       if (yaml != null) {
@@ -1189,17 +1197,17 @@ public class YamlInputDialog extends BaseTransformDialog {
   private void ok() {
     try {
       getInfo(input);
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "YamlInputDialog.ErrorParsingData.DialogTitle"),
-          BaseMessages.getString(PKG, "YamlInputDialog.ErrorParsingData.DialogMessage"),
+          BaseMessages.getString(PKG, CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_TITLE),
+          BaseMessages.getString(PKG, CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE),
           e);
     }
     dispose();
   }
 
-  private void getInfo(YamlInputMeta in) throws HopException {
+  private void getInfo(YamlInputMeta in) {
     transformName = wTransformName.getText(); // return value
 
     // copy info to TextFileInputMeta class (input)
@@ -1301,7 +1309,7 @@ public class YamlInputDialog extends BaseTransformDialog {
           prd.open();
         }
       }
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "YamlInputDialog.ErrorPreviewingData.DialogTitle"),

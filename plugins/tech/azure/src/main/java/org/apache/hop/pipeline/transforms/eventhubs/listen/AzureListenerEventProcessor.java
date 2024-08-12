@@ -22,6 +22,7 @@ import com.microsoft.azure.eventhubs.EventData;
 import com.microsoft.azure.eventprocessorhost.CloseReason;
 import com.microsoft.azure.eventprocessorhost.IEventProcessor;
 import com.microsoft.azure.eventprocessorhost.PartitionContext;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,6 +32,7 @@ import org.apache.hop.core.row.RowDataUtil;
 
 public class AzureListenerEventProcessor implements IEventProcessor {
 
+  public static final String CONST_PARTITION = "Partition ";
   private final AzureListener azureTransform;
   private final AzureListenerData azureData;
 
@@ -64,7 +66,7 @@ public class AzureListenerEventProcessor implements IEventProcessor {
   @Override
   public void onOpen(PartitionContext context) {
     if (azureTransform.isDebug()) {
-      azureTransform.logDebug("Partition " + context.getPartitionId() + " is opening");
+      azureTransform.logDebug(CONST_PARTITION + context.getPartitionId() + " is opening");
     }
   }
 
@@ -78,7 +80,10 @@ public class AzureListenerEventProcessor implements IEventProcessor {
   public void onClose(PartitionContext context, CloseReason reason) {
     if (azureTransform.isDebug()) {
       azureTransform.logDebug(
-          "Partition " + context.getPartitionId() + " is closing for reason " + reason.toString());
+          CONST_PARTITION
+              + context.getPartitionId()
+              + " is closing for reason "
+              + reason.toString());
     }
   }
 
@@ -134,7 +139,7 @@ public class AzureListenerEventProcessor implements IEventProcessor {
         // Message : String
         //
         if (StringUtils.isNotEmpty(azureData.outputField)) {
-          row[index++] = new String(data.getBytes(), "UTF-8");
+          row[index++] = new String(data.getBytes(), StandardCharsets.UTF_8);
         }
 
         // Partition ID : String
@@ -188,7 +193,7 @@ public class AzureListenerEventProcessor implements IEventProcessor {
                   + ","
                   + data.getSystemProperties().getSequenceNumber()
                   + "): "
-                  + new String(data.getBytes(), "UTF8")
+                  + new String(data.getBytes(), StandardCharsets.UTF_8)
                   + " ("
                   + index
                   + " values in row)");
@@ -212,7 +217,7 @@ public class AzureListenerEventProcessor implements IEventProcessor {
         if ((checkpointBatchingCount % checkpointBatchingSize) == 0) {
           if (azureTransform.isDebug()) {
             azureTransform.logDebug(
-                "Partition "
+                CONST_PARTITION
                     + context.getPartitionId()
                     + " checkpointing at "
                     + data.getSystemProperties().getOffset()
@@ -246,7 +251,7 @@ public class AzureListenerEventProcessor implements IEventProcessor {
     }
     if (azureTransform.isDebug()) {
       azureTransform.logDebug(
-          "Partition "
+          CONST_PARTITION
               + context.getPartitionId()
               + " batch size was "
               + eventCount

@@ -33,6 +33,10 @@ import org.apache.hop.core.row.IValueMeta;
     documentationUrl = "/database/databases/oraclerdb.html")
 @GuiPlugin(id = "GUI-OracleRDBDatabaseMeta")
 public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
+  public static final String CONST_SELECT = "SELECT ";
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -77,7 +81,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   }
 
   public String getSqlQueryColumnFields(String columnname, String tableName) {
-    return "SELECT " + columnname + " FROM " + tableName + " WHERE 1=0";
+    return CONST_SELECT + columnname + " FROM " + tableName + " WHERE 1=0";
   }
 
   @Override
@@ -134,7 +138,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
    */
   @Override
   public String getSqlCurrentSequenceValue(String sequenceName) {
-    return "SELECT " + sequenceName + ".currval FROM DUAL";
+    return CONST_SELECT + sequenceName + ".currval FROM DUAL";
   }
 
   /**
@@ -145,7 +149,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
    */
   @Override
   public String getSqlNextSequenceValue(String sequenceName) {
-    return "SELECT " + sequenceName + ".nextval FROM dual";
+    return CONST_SELECT + sequenceName + ".nextval FROM dual";
   }
 
   /**
@@ -179,7 +183,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   @Override
   public String getAddColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ADD ( "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false)
@@ -200,7 +204,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   @Override
   public String getDropColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE " + tableName + " DROP ( " + v.getName() + " ) " + Const.CR;
+    return CONST_ALTER_TABLE + tableName + " DROP ( " + v.getName() + " ) " + Const.CR;
   }
 
   /**
@@ -217,7 +221,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   @Override
   public String getModifyColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " MODIFY ("
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false)

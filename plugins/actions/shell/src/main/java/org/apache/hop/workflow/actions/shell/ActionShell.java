@@ -71,6 +71,13 @@ import org.w3c.dom.Node;
 @SuppressWarnings("java:S1104")
 public class ActionShell extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionShell.class;
+  public static final String CONST_JAVA_IO_TMPDIR = "java.io.tmpdir";
+  public static final String CONST_WINDOWS_95 = "Windows 95";
+  public static final String CONST_WINDOWS = "Windows";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_FILENAME = "filename";
+  public static final String CONST_LOGFILE = "logfile";
+  public static final String CONST_ARGUMENT = "argument";
 
   private String filename;
 
@@ -127,21 +134,25 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
     retval.append(super.getXml());
 
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    retval.append("      ").append(XmlHandler.addTagValue("work_directory", workDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("exec_per_row", execPerRow));
-    retval.append("      ").append(XmlHandler.addTagValue("set_logfile", setLogfile));
-    retval.append("      ").append(XmlHandler.addTagValue("logfile", logfile));
-    retval.append("      ").append(XmlHandler.addTagValue("set_append_logfile", setAppendLogfile));
-    retval.append("      ").append(XmlHandler.addTagValue("logext", logext));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
-    retval.append("      ").append(XmlHandler.addTagValue("insertScript", insertScript));
-    retval.append("      ").append(XmlHandler.addTagValue("script", script));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FILENAME, filename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("work_directory", workDirectory));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("exec_per_row", execPerRow));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("set_logfile", setLogfile));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_LOGFILE, logfile));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("set_append_logfile", setAppendLogfile));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("logext", logext));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_date", addDate));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_time", addTime));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("insertScript", insertScript));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("script", script));
 
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 "loglevel", (logFileLevel == null) ? null : logFileLevel.getCode()));
@@ -149,8 +160,10 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     if (arguments != null) {
       for (int i = 0; i < arguments.length; i++) {
         // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
-        // THE XML "DUBIOUS". DON'T REUSE IT. (Sven B)
-        retval.append("      ").append(XmlHandler.addTagValue("argument" + i, arguments[i]));
+        // THE XML "DUBIOUS". DON'T REUSE IT.
+        retval
+            .append(CONST_SPACES)
+            .append(XmlHandler.addTagValue(CONST_ARGUMENT + i, arguments[i]));
       }
     }
 
@@ -162,7 +175,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       throws HopXmlException {
     try {
       super.loadXml(entrynode);
-      setFilename(XmlHandler.getTagValue(entrynode, "filename"));
+      setFilename(XmlHandler.getTagValue(entrynode, CONST_FILENAME));
       setWorkDirectory(XmlHandler.getTagValue(entrynode, "work_directory"));
       argFromPrevious =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
@@ -172,7 +185,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_append_logfile"));
       addDate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_date"));
       addTime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_time"));
-      logfile = XmlHandler.getTagValue(entrynode, "logfile");
+      logfile = XmlHandler.getTagValue(entrynode, CONST_LOGFILE);
       logext = XmlHandler.getTagValue(entrynode, "logext");
       logFileLevel = LogLevel.getLogLevelForCode(XmlHandler.getTagValue(entrynode, "loglevel"));
       insertScript = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "insertScript"));
@@ -181,7 +194,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
       // How many arguments?
       int argnr = 0;
-      while (XmlHandler.getTagValue(entrynode, "argument" + argnr) != null) {
+      while (XmlHandler.getTagValue(entrynode, CONST_ARGUMENT + argnr) != null) {
         argnr++;
       }
       allocate(argnr);
@@ -190,7 +203,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
       // THE XML "DUBIOUS". DON'T REUSE IT.
       for (int a = 0; a < argnr; a++) {
-        arguments[a] = XmlHandler.getTagValue(entrynode, "argument" + a);
+        arguments[a] = XmlHandler.getTagValue(entrynode, CONST_ARGUMENT + a);
       }
     } catch (HopException e) {
       throw new HopXmlException("Unable to load action of type 'shell' from XML node", e);
@@ -374,19 +387,17 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       iteration++;
     }
 
-    if (setLogfile) {
-      if (loggingEventListener != null) {
-        HopLogStore.getAppender().removeLoggingEventListener(loggingEventListener);
-        loggingEventListener.close();
+    if (setLogfile && loggingEventListener != null) {
+      HopLogStore.getAppender().removeLoggingEventListener(loggingEventListener);
+      loggingEventListener.close();
 
-        ResultFile resultFile =
-            new ResultFile(
-                ResultFile.FILE_TYPE_LOG,
-                loggingEventListener.getFile(),
-                parentWorkflow.getWorkflowName(),
-                getName());
-        result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
-      }
+      ResultFile resultFile =
+          new ResultFile(
+              ResultFile.FILE_TYPE_LOG,
+              loggingEventListener.getFile(),
+              parentWorkflow.getWorkflowName(),
+              getName());
+      result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
     }
 
     return result;
@@ -413,23 +424,24 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         fileObject = HopVfs.getFileObject(realFilename);
       }
 
-      if (Const.getSystemOs().equals("Windows 95")) {
+      if (Const.getSystemOs().equals(CONST_WINDOWS_95)) {
         base = new String[] {"command.com", "/C"};
         if (insertScript) {
           tempFile =
-              HopVfs.createTempFile("hop", "shell.bat", System.getProperty("java.io.tmpdir"));
+              HopVfs.createTempFile("hop", "shell.bat", System.getProperty(CONST_JAVA_IO_TMPDIR));
           fileObject = createTemporaryShellFile(tempFile, realScript);
         }
-      } else if (Const.getSystemOs().startsWith("Windows")) {
+      } else if (Const.getSystemOs().startsWith(CONST_WINDOWS)) {
         base = new String[] {"cmd.exe", "/C"};
         if (insertScript) {
           tempFile =
-              HopVfs.createTempFile("hop", "shell.bat", System.getProperty("java.io.tmpdir"));
+              HopVfs.createTempFile("hop", "shell.bat", System.getProperty(CONST_JAVA_IO_TMPDIR));
           fileObject = createTemporaryShellFile(tempFile, realScript);
         }
       } else {
         if (insertScript) {
-          tempFile = HopVfs.createTempFile("hop", "shell", System.getProperty("java.io.tmpdir"));
+          tempFile =
+              HopVfs.createTempFile("hop", "shell", System.getProperty(CONST_JAVA_IO_TMPDIR));
           fileObject = createTemporaryShellFile(tempFile, realScript);
         }
         base = new String[] {HopVfs.getFilename(fileObject)};
@@ -442,7 +454,8 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           cmds.add(base[i]);
         }
 
-        if (Const.getSystemOs().equals("Windows 95") || Const.getSystemOs().startsWith("Windows")) {
+        if (Const.getSystemOs().equals(CONST_WINDOWS_95)
+            || Const.getSystemOs().startsWith(CONST_WINDOWS)) {
           // for windows all arguments including the command itself
           // need to be
           // included in 1 argument to cmd/command.
@@ -480,7 +493,8 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           cmds.add(base[i]);
         }
 
-        if (Const.getSystemOs().equals("Windows 95") || Const.getSystemOs().startsWith("Windows")) {
+        if (Const.getSystemOs().equals(CONST_WINDOWS_95)
+            || Const.getSystemOs().startsWith(CONST_WINDOWS)) {
           // for windows all arguments including the command itself
           // need to be
           // included in 1 argument to cmd/command.
@@ -702,7 +716,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "filename",
+            CONST_FILENAME,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
 
@@ -710,7 +724,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       ActionValidatorUtils.andValidator()
           .validate(
               this,
-              "logfile",
+              CONST_LOGFILE,
               remarks,
               AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     }

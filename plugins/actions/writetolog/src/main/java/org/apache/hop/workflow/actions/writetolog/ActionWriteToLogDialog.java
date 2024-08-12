@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Text;
 /** This dialog allows you to edit a ActionWriteToLog object. */
 public class ActionWriteToLogDialog extends ActionDialog {
   private static final Class<?> PKG = ActionWriteToLog.class;
+  public static final String CONST_WRITE_TO_LOG_NAME_DEFAULT = "WriteToLog.Name.Default";
 
   private Text wName;
 
@@ -64,7 +65,7 @@ public class ActionWriteToLogDialog extends ActionDialog {
     super(parent, workflowMeta, variables);
     this.action = action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "WriteToLog.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, CONST_WRITE_TO_LOG_NAME_DEFAULT));
     }
   }
 
@@ -146,7 +147,7 @@ public class ActionWriteToLogDialog extends ActionDialog {
     wlLogSubject.setLayoutData(fdlLogSubject);
 
     wLogSubject = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wLogSubject.setText(BaseMessages.getString(PKG, "WriteToLog.Name.Default"));
+    wLogSubject.setText(BaseMessages.getString(PKG, CONST_WRITE_TO_LOG_NAME_DEFAULT));
     PropsUi.setLook(wLogSubject);
     wLogSubject.addModifyListener(lsMod);
     FormData fdLogSubject = new FormData();
@@ -168,7 +169,7 @@ public class ActionWriteToLogDialog extends ActionDialog {
     wLogMessage =
         new TextVar(
             variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    wLogMessage.setText(BaseMessages.getString(PKG, "WriteToLog.Name.Default"));
+    wLogMessage.setText(BaseMessages.getString(PKG, CONST_WRITE_TO_LOG_NAME_DEFAULT));
     PropsUi.setLook(wLogMessage, Props.WIDGET_STYLE_FIXED);
     wLogMessage.addModifyListener(lsMod);
     FormData fdLogMessage = new FormData();

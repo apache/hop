@@ -55,6 +55,9 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
   public static final String REPL_SET_COLLECTION = "system.replset";
   public static final String REPL_SET_SETTINGS = "settings";
   public static final String REPL_SET_LAST_ERROR_MODES = "getLastErrorModes";
+  public static final String CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH =
+      "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath";
+  public static final String CONST_PUSH = "$push";
 
   /** Shared connection in metadata */
   public MongoDbConnection connection;
@@ -258,7 +261,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
    */
   public void applyIndexes(
       List<MongoDbOutputMeta.MongoIndex> indexes, ILogChannel log, boolean truncate)
-      throws MongoException, HopException, MongoDbException {
+      throws MongoException, MongoDbException {
 
     for (MongoDbOutputMeta.MongoIndex index : indexes) {
       String[] indexParts = index.pathToFields.split(",");
@@ -415,7 +418,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
               (field.environUpdateMongoDocPath != null) ? field.environUpdateMongoDocPath : "";
 
           if (path.endsWith("]")
-              && modifierUpdateOpp.equals("$push")
+              && modifierUpdateOpp.equals(CONST_PUSH)
               && !field.useIncomingFieldNameAsMongoFieldName) {
 
             // strip off the brackets as push appends to the end of the named
@@ -450,7 +453,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
               setComplexArrays.put(arrayPath, fds);
             }
             fds.add(a);
-          } else if (modifierUpdateOpp.equals("$push")
+          } else if (modifierUpdateOpp.equals(CONST_PUSH)
               && path.indexOf('[') > 0
               && path.indexOf(mongoOperatorUpdateAllArray) < 0) {
             // we ignore any index that might have been specified as $push
@@ -527,18 +530,18 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
       DBObject fieldsToUpdateWithValues = null;
 
-      if (updateObject.get("$push") != null) {
+      if (updateObject.get(CONST_PUSH) != null) {
         // if we have some field(s) already associated with this type of
         // modifier
         // operation then just add to them
-        fieldsToUpdateWithValues = (DBObject) updateObject.get("$push");
+        fieldsToUpdateWithValues = (DBObject) updateObject.get(CONST_PUSH);
       } else {
         // otherwise create a new DBObject for this modifier operation
         fieldsToUpdateWithValues = new BasicDBObject();
       }
 
       fieldsToUpdateWithValues.put(path, valueToSet);
-      updateObject.put("$push", fieldsToUpdateWithValues);
+      updateObject.put(CONST_PUSH, fieldsToUpdateWithValues);
     }
 
     // do the modifiers that involve primitive field values
@@ -737,7 +740,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         if (lookup != null && lookup instanceof Integer) {
           BasicDBList temp = (BasicDBList) current;
           if (temp.get(lookup.toString()) == null) {
-            if (pathParts.size() == 0 && !field.useIncomingFieldNameAsMongoFieldName) {
+            if (pathParts.isEmpty() && !field.useIncomingFieldNameAsMongoFieldName) {
               // leaf - primitive element of the array (unless Hop field
               // value is JSON)
               boolean res =
@@ -755,7 +758,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
               current = newRec;
 
               // end of the path?
-              if (pathParts.size() == 0) {
+              if (pathParts.isEmpty()) {
                 if (field.useIncomingFieldNameAsMongoFieldName) {
                   boolean res =
                       setMongoValueFromHopValue(
@@ -769,7 +772,8 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
                 } else {
                   throw new HopException(
                       BaseMessages.getString(
-                          PKG, "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath")); //
+                          PKG,
+                          CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH)); //
                 }
               }
             }
@@ -780,29 +784,28 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             // no more path parts so we must be setting a field in an array
             // element
             // that is a record
-            if (pathParts == null || pathParts.size() == 0) {
-              if (current instanceof BasicDBObject) {
-                if (field.useIncomingFieldNameAsMongoFieldName) {
-                  boolean res =
-                      setMongoValueFromHopValue(
-                          current,
-                          incomingFieldName,
-                          vm,
-                          row[index],
-                          field.inputJson,
-                          field.insertNull);
-                  haveNonNullFields = (haveNonNullFields || res);
-                } else {
-                  throw new HopException(
-                      BaseMessages.getString(
-                          PKG, "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath")); //
-                }
+            if ((pathParts == null || pathParts.isEmpty()) && current instanceof BasicDBObject) {
+              if (field.useIncomingFieldNameAsMongoFieldName) {
+                boolean res =
+                    setMongoValueFromHopValue(
+                        current,
+                        incomingFieldName,
+                        vm,
+                        row[index],
+                        field.inputJson,
+                        field.insertNull);
+                haveNonNullFields = (haveNonNullFields || res);
+              } else {
+                throw new HopException(
+                    BaseMessages.getString(
+                        PKG,
+                        CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH)); //
               }
             }
           }
         } else {
           // record/object
-          if (lookup == null && pathParts.size() == 0) {
+          if (lookup == null && pathParts.isEmpty()) {
             if (field.useIncomingFieldNameAsMongoFieldName) {
               boolean res =
                   setMongoValueFromHopValue(
@@ -816,10 +819,11 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             } else {
               throw new HopException(
                   BaseMessages.getString(
-                      PKG, "MongoDbOutput.Messages.Error.NoFieldNameSpecifiedForPath")); //
+                      PKG,
+                      CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH)); //
             }
           } else {
-            if (pathParts.size() == 0) {
+            if (pathParts.isEmpty()) {
               if (!field.useIncomingFieldNameAsMongoFieldName) {
                 boolean res =
                     setMongoValueFromHopValue(
@@ -929,7 +933,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
   private static Object getPathElementName(
       List<String> pathParts, DBObject current, boolean incomingAsFieldName) throws HopException {
 
-    if (pathParts == null || pathParts.size() == 0) {
+    if (pathParts == null || pathParts.isEmpty()) {
       return null;
     }
 
@@ -1007,7 +1011,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
   protected static MongoTopLevel checkTopLevelConsistency(
       List<MongoDbOutputMeta.MongoField> fieldDefs, IVariables vars) throws HopException {
 
-    if (fieldDefs == null || fieldDefs.size() == 0) {
+    if (fieldDefs == null || fieldDefs.isEmpty()) {
       throw new HopException(
           BaseMessages.getString(PKG, "MongoDbOutput.Messages.Error.NoMongoPathsDefined"));
     }

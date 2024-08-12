@@ -63,6 +63,15 @@ import org.w3c.dom.Node;
 @SuppressWarnings("java:S1104")
 public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMoveFiles.class;
+  public static final String CONST_SPACES_LONG = "          ";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_DO_NOTHING = "do_nothing";
+  public static final String CONST_ACTION_MOVE_FILES_ERROR_GETTING_FILENAME =
+      "ActionMoveFiles.Error.GettingFilename";
+  public static final String CONST_ACTION_MOVE_FILES_LOG_FILE_MOVED =
+      "ActionMoveFiles.Log.FileMoved";
+  public static final String CONST_ACTION_MOVE_FILES_ERROR_SUCCESS_CONDITIONBROKEN =
+      "ActionMoveFiles.Error.SuccessConditionbroken";
 
   public boolean moveEmptyFolders;
   public boolean argFromPrevious;
@@ -112,7 +121,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     addMovedTime = false;
     addMovedDateBeforeExtension = false;
     movedDateTimeFormat = null;
-    ifMovedFileExists = "do_nothing";
+    ifMovedFileExists = CONST_DO_NOTHING;
     destinationFolder = null;
     doNotKeepFolderStructure = false;
     moveEmptyFolders = true;
@@ -131,7 +140,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     specifyFormat = false;
     dateTimeFormat = null;
     addDateBeforeExtension = false;
-    ifFileExists = "do_nothing";
+    ifFileExists = CONST_DO_NOTHING;
   }
 
   public ActionMoveFiles() {
@@ -162,58 +171,74 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     StringBuilder retval = new StringBuilder(600);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("move_empty_folders", moveEmptyFolders));
-    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("move_empty_folders", moveEmptyFolders));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
+    retval
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("add_result_filesname", addResultFilenames));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("destination_is_a_file", destinationIsAFile));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("create_destination_folder", createDestinationFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
-    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_date", addDate));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_time", addTime));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("success_condition", successCondition));
+    retval
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("DoNotKeepFolderStructure", doNotKeepFolderStructure));
-    retval.append("      ").append(XmlHandler.addTagValue("iffileexists", ifFileExists));
-    retval.append("      ").append(XmlHandler.addTagValue("destinationFolder", destinationFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("ifmovedfileexists", ifMovedFileExists));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("iffileexists", ifFileExists));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("destinationFolder", destinationFolder));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("ifmovedfileexists", ifMovedFileExists));
+    retval
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("moved_date_time_format", movedDateTimeFormat));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("create_move_to_folder", createMoveToFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("add_moved_date", addMovedDate));
-    retval.append("      ").append(XmlHandler.addTagValue("add_moved_time", addMovedTime));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyMoveFormat", specifyMoveFormat));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_moved_date", addMovedDate));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_moved_time", addMovedTime));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("SpecifyMoveFormat", specifyMoveFormat));
+    retval
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("AddMovedDateBeforeExtension", addMovedDateBeforeExtension));
-    retval.append("      ").append(XmlHandler.addTagValue("simulate", simulate));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("simulate", simulate));
 
     retval.append("      <fields>").append(Const.CR);
     if (sourceFileFolder != null) {
       for (int i = 0; i < sourceFileFolder.length; i++) {
         retval.append("        <field>").append(Const.CR);
         retval
-            .append("          ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("source_filefolder", sourceFileFolder[i]));
         retval
-            .append("          ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("destination_filefolder", destinationFileFolder[i]));
-        retval.append("          ").append(XmlHandler.addTagValue("wildcard", wildcard[i]));
+        retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("wildcard", wildcard[i]));
         retval.append("        </field>").append(Const.CR);
       }
     }
@@ -376,7 +401,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           if (!successConditionBrokenExit) {
             logError(
                 BaseMessages.getString(
-                    PKG, "ActionMoveFiles.Error.SuccessConditionbroken", "" + nrErrors));
+                    PKG, CONST_ACTION_MOVE_FILES_ERROR_SUCCESS_CONDITIONBROKEN, "" + nrErrors));
             successConditionBrokenExit = true;
           }
           result.setNrErrors(nrErrors);
@@ -433,7 +458,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           if (!successConditionBrokenExit) {
             logError(
                 BaseMessages.getString(
-                    PKG, "ActionMoveFiles.Error.SuccessConditionbroken", "" + nrErrors));
+                    PKG, CONST_ACTION_MOVE_FILES_ERROR_SUCCESS_CONDITIONBROKEN, "" + nrErrors));
             successConditionBrokenExit = true;
           }
           result.setNrErrors(nrErrors);
@@ -575,7 +600,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                         PKG,
                         BaseMessages.getString(
                             PKG,
-                            "ActionMoveFiles.Error.GettingFilename",
+                            CONST_ACTION_MOVE_FILES_ERROR_GETTING_FILENAME,
                             sourcefilefolder.getName().getBaseName(),
                             e.toString())));
                 return entrystatus;
@@ -614,7 +639,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                         PKG,
                         BaseMessages.getString(
                             PKG,
-                            "ActionMoveFiles.Error.GettingFilename",
+                            CONST_ACTION_MOVE_FILES_ERROR_GETTING_FILENAME,
                             sourcefilefolder.getName().getBaseName(),
                             e.toString())));
                 return entrystatus;
@@ -690,7 +715,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                     if (!successConditionBrokenExit) {
                       logError(
                           BaseMessages.getString(
-                              PKG, "ActionMoveFiles.Error.SuccessConditionbroken", "" + nrErrors));
+                              PKG,
+                              CONST_ACTION_MOVE_FILES_ERROR_SUCCESS_CONDITIONBROKEN,
+                              "" + nrErrors));
                       successConditionBrokenExit = true;
                     }
                     return false;
@@ -798,7 +825,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           logDetailed(
               BaseMessages.getString(
                   PKG,
-                  "ActionMoveFiles.Log.FileMoved",
+                  CONST_ACTION_MOVE_FILES_LOG_FILE_MOVED,
                   sourcefilename.getName().toString(),
                   destinationfilename.getName().toString()));
         }
@@ -806,7 +833,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         // add filename to result filename
         if (addResultFilenames
             && !ifFileExists.equals("fail")
-            && !ifFileExists.equals("do_nothing")) {
+            && !ifFileExists.equals(CONST_DO_NOTHING)) {
           addFileToResultFilenames(destinationfilename.toString(), result, parentWorkflow);
         }
 
@@ -834,7 +861,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           // add filename to result filename
           if (addResultFilenames
               && !ifFileExists.equals("fail")
-              && !ifFileExists.equals("do_nothing")) {
+              && !ifFileExists.equals(CONST_DO_NOTHING)) {
             addFileToResultFilenames(destinationfilename.toString(), result, parentWorkflow);
           }
 
@@ -852,7 +879,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 BaseMessages.getString(
                     PKG,
                     BaseMessages.getString(
-                        PKG, "ActionMoveFiles.Error.GettingFilename", shortFilename)),
+                        PKG, CONST_ACTION_MOVE_FILES_ERROR_GETTING_FILENAME, shortFilename)),
                 e);
             return retval;
           }
@@ -868,7 +895,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
-                    "ActionMoveFiles.Log.FileMoved",
+                    CONST_ACTION_MOVE_FILES_LOG_FILE_MOVED,
                     sourcefilename.getName().toString(),
                     destinationfile.getName().toString()));
           }
@@ -876,7 +903,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           // add filename to result filename
           if (addResultFilenames
               && !ifFileExists.equals("fail")
-              && !ifFileExists.equals("do_nothing")) {
+              && !ifFileExists.equals(CONST_DO_NOTHING)) {
             addFileToResultFilenames(destinationfile.toString(), result, parentWorkflow);
           }
 
@@ -905,7 +932,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 BaseMessages.getString(
                     PKG,
                     BaseMessages.getString(
-                        PKG, "ActionMoveFiles.Error.GettingFilename", shortFilename)),
+                        PKG, CONST_ACTION_MOVE_FILES_ERROR_GETTING_FILENAME, shortFilename)),
                 e);
             return retval;
           }
@@ -921,7 +948,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
-                      "ActionMoveFiles.Log.FileMoved",
+                      CONST_ACTION_MOVE_FILES_LOG_FILE_MOVED,
                       sourcefilename.getName().toString(),
                       destinationfile.getName().toString()));
             }
@@ -929,7 +956,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             // add filename to result filename
             if (addResultFilenames
                 && !ifFileExists.equals("fail")
-                && !ifFileExists.equals("do_nothing")) {
+                && !ifFileExists.equals(CONST_DO_NOTHING)) {
               addFileToResultFilenames(destinationfile.toString(), result, parentWorkflow);
             }
 
@@ -949,7 +976,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               // add filename to result filename
               if (addResultFilenames
                   && !ifFileExists.equals("fail")
-                  && !ifFileExists.equals("do_nothing")) {
+                  && !ifFileExists.equals(CONST_DO_NOTHING)) {
                 addFileToResultFilenames(destinationfile.toString(), result, parentWorkflow);
               }
 
@@ -973,14 +1000,14 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 logDetailed(
                     BaseMessages.getString(
                         PKG,
-                        "ActionMoveFiles.Log.FileMoved",
+                        CONST_ACTION_MOVE_FILES_LOG_FILE_MOVED,
                         destinationfile.getName().toString()));
               }
 
               // add filename to result filename
               if (addResultFilenames
                   && !ifFileExists.equals("fail")
-                  && !ifFileExists.equals("do_nothing")) {
+                  && !ifFileExists.equals(CONST_DO_NOTHING)) {
                 addFileToResultFilenames(destinationfile.toString(), result, parentWorkflow);
               }
 
@@ -1044,7 +1071,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                   PKG,
                   BaseMessages.getString(
                       PKG,
-                      "ActionMoveFiles.Error.GettingFilename",
+                      CONST_ACTION_MOVE_FILES_ERROR_GETTING_FILENAME,
                       currentfile.getName().getBaseName(),
                       e.toString())));
           return entrystatus;
@@ -1300,8 +1327,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     return shortfilename;
   }
 
-  private String getMoveDestinationFilename(String shortsourcefilename, String dateFormat)
-      throws Exception {
+  private String getMoveDestinationFilename(String shortsourcefilename, String dateFormat) {
     String shortfilename = shortsourcefilename;
     int lenstring = shortsourcefilename.length();
     int lastindexOfDot = shortfilename.lastIndexOf('.');

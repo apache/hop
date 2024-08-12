@@ -59,6 +59,10 @@ import org.eclipse.swt.widgets.Text;
 public class CassandraInputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = CassandraInputMeta.class;
+  public static final String
+      CONST_CASSANDRA_INPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE =
+          "CassandraInputDialog.Error.ProblemGettingSchemaInfo.Message";
+  public static final String CONST_NEWLINES = ":\n\n";
 
   private final CassandraInputMeta input;
 
@@ -398,18 +402,18 @@ public class CassandraInputDialog extends BaseTransformDialog {
       Pipeline pipeline = progressDialog.getPipeline();
       String loggingText = progressDialog.getLoggingText();
 
-      if (!progressDialog.isCancelled()) {
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        }
+      if (!progressDialog.isCancelled()
+          && pipeline.getResult() != null
+          && pipeline.getResult().getNrErrors() > 0) {
+        EnterTextDialog etd =
+            new EnterTextDialog(
+                shell,
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                loggingText,
+                true);
+        etd.setReadOnly();
+        etd.open();
       }
       PreviewRowsDialog prd =
           new PreviewRowsDialog(
@@ -437,8 +441,8 @@ public class CassandraInputDialog extends BaseTransformDialog {
       } catch (Exception e) {
         logError(
             BaseMessages.getString(
-                    PKG, "CassandraInputDialog.Error.ProblemGettingSchemaInfo.Message")
-                + ":\n\n"
+                    PKG, CONST_CASSANDRA_INPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+                + CONST_NEWLINES
                 + e.getLocalizedMessage(),
             e);
         new ErrorDialog(
@@ -446,8 +450,8 @@ public class CassandraInputDialog extends BaseTransformDialog {
             BaseMessages.getString(
                 PKG, "CassandraInputDialog.Error.ProblemGettingSchemaInfo.Title"),
             BaseMessages.getString(
-                    PKG, "CassandraInputDialog.Error.ProblemGettingSchemaInfo.Message")
-                + ":\n\n"
+                    PKG, CONST_CASSANDRA_INPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+                + CONST_NEWLINES
                 + e.getLocalizedMessage(),
             e);
         return;
@@ -476,15 +480,17 @@ public class CassandraInputDialog extends BaseTransformDialog {
       smd.open();
     } catch (Exception e1) {
       logError(
-          BaseMessages.getString(PKG, "CassandraInputDialog.Error.ProblemGettingSchemaInfo.Message")
-              + ":\n\n"
+          BaseMessages.getString(
+                  PKG, CONST_CASSANDRA_INPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+              + CONST_NEWLINES
               + e1.getMessage(),
           e1);
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "CassandraInputDialog.Error.ProblemGettingSchemaInfo.Title"),
-          BaseMessages.getString(PKG, "CassandraInputDialog.Error.ProblemGettingSchemaInfo.Message")
-              + ":\n\n"
+          BaseMessages.getString(
+                  PKG, CONST_CASSANDRA_INPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+              + CONST_NEWLINES
               + e1.getMessage(),
           e1);
     }

@@ -32,6 +32,14 @@ import org.apache.hop.core.row.IValueMeta;
     documentationUrl = "/database/databases/firebird.html")
 @GuiPlugin(id = "GUI-FirebirdDatabaseMeta")
 public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  public static final String CONST_TIMESTAMP = "TIMESTAMP";
+  public static final String CONST_SMALLINT = "SMALLINT";
+  public static final String CONST_INTEGER = "INTEGER";
+  public static final String CONST_DOUBLE = "DOUBLE";
+  public static final String CONST_VARCHAR = "VARCHAR";
+  public static final String CONST_UNKNOWN = "UNKNOWN";
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -151,7 +159,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     int type = v.getType();
     switch (type) {
       case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
-        retval += "TIMESTAMP";
+        retval += CONST_TIMESTAMP;
         break;
       case IValueMeta.TYPE_BOOLEAN:
         if (isSupportsBooleanDataType()) {
@@ -179,20 +187,20 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
                 retval += "BIGINT";
               } else {
                 if (length < 5) {
-                  retval += "SMALLINT";
+                  retval += CONST_SMALLINT;
                 } else {
-                  retval += "INTEGER";
+                  retval += CONST_INTEGER;
                 }
               }
             }
           } else {
-            retval += "DOUBLE";
+            retval += CONST_DOUBLE;
           }
         }
         break;
       case IValueMeta.TYPE_STRING:
         if (length < 32720) {
-          retval += "VARCHAR";
+          retval += CONST_VARCHAR;
           if (length > 0) {
             retval += "(" + length + ")";
           } else {
@@ -206,7 +214,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
         retval += "BLOB";
         break;
       default:
-        retval += "UNKNOWN";
+        retval += CONST_UNKNOWN;
         break;
     }
 
@@ -317,7 +325,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "DISTINCT",
       "DO",
       "DOMAIN",
-      "DOUBLE",
+      CONST_DOUBLE,
       "DROP",
       "ECHO",
       "EDIT",
@@ -377,7 +385,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "INSENSITIVE",
       "INSERT",
       "INT",
-      "INTEGER",
+      CONST_INTEGER,
       "INTERSECT",
       "INTERVAL",
       "INTO",
@@ -497,7 +505,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "SHOW",
       "SINGULAR",
       "SIZE",
-      "SMALLINT",
+      CONST_SMALLINT,
       "SNAPSHOT",
       "SOME",
       "SORT",
@@ -523,7 +531,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "TERMINATOR",
       "THEN",
       "TIME",
-      "TIMESTAMP",
+      CONST_TIMESTAMP,
       "TIMEZONE_HOUR",
       "TIMEZONE_MINUTE",
       "TO",
@@ -538,7 +546,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "UNCOMMITTED",
       "UNION",
       "UNIQUE",
-      "UNKNOWN",
+      CONST_UNKNOWN,
       "UPDATE",
       "UPPER",
       "USAGE",
@@ -546,7 +554,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "USING",
       "VALUE",
       "VALUES",
-      "VARCHAR",
+      CONST_VARCHAR,
       "VARIABLE",
       "VARYING",
       "VERSION",
@@ -660,7 +668,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "DISTINCT",
       "DO",
       "DOMAIN",
-      "DOUBLE",
+      CONST_DOUBLE,
       "DROP",
       "ECHO",
       "EDIT",
@@ -720,7 +728,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "INSENSITIVE",
       "INSERT",
       "INT",
-      "INTEGER",
+      CONST_INTEGER,
       "INTERSECT",
       "INTERVAL",
       "INTO",
@@ -840,7 +848,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "SHOW",
       "SINGULAR",
       "SIZE",
-      "SMALLINT",
+      CONST_SMALLINT,
       "SNAPSHOT",
       "SOME",
       "SORT",
@@ -866,7 +874,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "TERMINATOR",
       "THEN",
       "TIME",
-      "TIMESTAMP",
+      CONST_TIMESTAMP,
       "TIMEZONE_HOUR",
       "TIMEZONE_MINUTE",
       "TO",
@@ -881,7 +889,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "UNCOMMITTED",
       "UNION",
       "UNIQUE",
-      "UNKNOWN",
+      CONST_UNKNOWN,
       "UPDATE",
       "UPPER",
       "USAGE",
@@ -889,7 +897,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "USING",
       "VALUE",
       "VALUES",
-      "VARCHAR",
+      CONST_VARCHAR,
       "VARIABLE",
       "VARYING",
       "VERSION",

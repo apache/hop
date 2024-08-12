@@ -74,6 +74,8 @@ import org.eclipse.swt.widgets.Text;
 public class GoogleAnalyticsDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = GoogleAnalyticsMeta.class;
+  public static final String CONST_GOOGLE_ANALYTICS_DIALOG_QUERY_REFERENCE_LABEL =
+      "GoogleAnalyticsDialog.Query.Reference.Label";
 
   private GoogleAnalyticsMeta input;
 
@@ -299,7 +301,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     Link wQuDimensionsReference = new Link(gQuery, SWT.SINGLE);
 
     wQuDimensionsReference.setText(
-        BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
+        BaseMessages.getString(PKG, CONST_GOOGLE_ANALYTICS_DIALOG_QUERY_REFERENCE_LABEL));
     PropsUi.setLook(wQuDimensionsReference);
     wQuDimensionsReference.addListener(
         SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_DIMENSIONS_URI));
@@ -336,7 +338,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
 
     Link wQuMetricsReference = new Link(gQuery, SWT.SINGLE);
     wQuMetricsReference.setText(
-        BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
+        BaseMessages.getString(PKG, CONST_GOOGLE_ANALYTICS_DIALOG_QUERY_REFERENCE_LABEL));
     PropsUi.setLook(wQuMetricsReference);
     wQuMetricsReference.addListener(
         SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_METRICS_URI));
@@ -371,7 +373,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
 
     Link wQuSortReference = new Link(gQuery, SWT.SINGLE);
     wQuSortReference.setText(
-        BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
+        BaseMessages.getString(PKG, CONST_GOOGLE_ANALYTICS_DIALOG_QUERY_REFERENCE_LABEL));
     PropsUi.setLook(wQuSortReference);
     wQuSortReference.addListener(
         SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_SORT_URI));
@@ -692,18 +694,18 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
       Pipeline pipeline = progressDialog.getPipeline();
       String loggingText = progressDialog.getLoggingText();
 
-      if (!progressDialog.isCancelled()) {
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        }
+      if (!progressDialog.isCancelled()
+          && pipeline.getResult() != null
+          && pipeline.getResult().getNrErrors() > 0) {
+        EnterTextDialog etd =
+            new EnterTextDialog(
+                shell,
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                loggingText,
+                true);
+        etd.setReadOnly();
+        etd.open();
       }
 
       PreviewRowsDialog prd =

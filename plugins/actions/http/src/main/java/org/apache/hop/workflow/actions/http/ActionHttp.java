@@ -69,11 +69,15 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionHttp.keyword",
     documentationUrl = "/workflow/actions/http.html")
 public class ActionHttp extends ActionBase implements Cloneable, IAction {
+  public static final String SPACES = "      ";
   private static final Class<?> PKG = ActionHttp.class;
 
-  private static final String URL_FIELDNAME = "URL";
-  private static final String UPLOADFILE_FIELDNAME = "UPLOAD";
-  private static final String TARGETFILE_FIELDNAME = "DESTINATION";
+  private static final String CONST_URL_FIELDNAME = "URL";
+  private static final String COSNT_UPLOADFILE_FIELDNAME = "UPLOAD";
+  private static final String CONST_TARGETFILE_FIELDNAME = "DESTINATION";
+  public static final String CONST_HTTP_PROXY_HOST = "http.proxyHost";
+  public static final String CONST_HTTP_PROXY_PORT = "http.proxyPort";
+  public static final String CONST_HTTP_NON_PROXY_HOSTS = "http.nonProxyHosts";
 
   // Base info
   private String url;
@@ -148,32 +152,31 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
     StringBuilder retval = new StringBuilder(300);
 
     retval.append(super.getXml());
-
-    retval.append("      ").append(XmlHandler.addTagValue("url", url));
-    retval.append("      ").append(XmlHandler.addTagValue("targetfilename", targetFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("file_appended", fileAppended));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_added", dateTimeAdded));
+    retval.append(SPACES).append(XmlHandler.addTagValue("url", url));
+    retval.append(SPACES).append(XmlHandler.addTagValue("targetfilename", targetFilename));
+    retval.append(SPACES).append(XmlHandler.addTagValue("file_appended", fileAppended));
+    retval.append(SPACES).append(XmlHandler.addTagValue("date_time_added", dateTimeAdded));
     retval
-        .append("      ")
+        .append(SPACES)
         .append(XmlHandler.addTagValue("targetfilename_extension", targetFilenameExtension));
-    retval.append("      ").append(XmlHandler.addTagValue("uploadfilename", uploadFilename));
+    retval.append(SPACES).append(XmlHandler.addTagValue("uploadfilename", uploadFilename));
 
-    retval.append("      ").append(XmlHandler.addTagValue("run_every_row", runForEveryRow));
-    retval.append("      ").append(XmlHandler.addTagValue("ignore_ssl", ignoreSsl));
-    retval.append("      ").append(XmlHandler.addTagValue("url_fieldname", urlFieldname));
-    retval.append("      ").append(XmlHandler.addTagValue("upload_fieldname", uploadFieldname));
-    retval.append("      ").append(XmlHandler.addTagValue("dest_fieldname", destinationFieldname));
+    retval.append(SPACES).append(XmlHandler.addTagValue("run_every_row", runForEveryRow));
+    retval.append(SPACES).append(XmlHandler.addTagValue("ignore_ssl", ignoreSsl));
+    retval.append(SPACES).append(XmlHandler.addTagValue("url_fieldname", urlFieldname));
+    retval.append(SPACES).append(XmlHandler.addTagValue("upload_fieldname", uploadFieldname));
+    retval.append(SPACES).append(XmlHandler.addTagValue("dest_fieldname", destinationFieldname));
 
-    retval.append("      ").append(XmlHandler.addTagValue("username", username));
+    retval.append(SPACES).append(XmlHandler.addTagValue("username", username));
     retval
-        .append("      ")
+        .append(SPACES)
         .append(
             XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
 
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHostname));
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
-    retval.append("      ").append(XmlHandler.addTagValue("non_proxy_hosts", nonProxyHosts));
-    retval.append("      ").append(XmlHandler.addTagValue("addfilenameresult", addfilenameresult));
+    retval.append(SPACES).append(XmlHandler.addTagValue("proxy_host", proxyHostname));
+    retval.append(SPACES).append(XmlHandler.addTagValue("proxy_port", proxyPort));
+    retval.append(SPACES).append(XmlHandler.addTagValue("non_proxy_hosts", nonProxyHosts));
+    retval.append(SPACES).append(XmlHandler.addTagValue("addfilenameresult", addfilenameresult));
     retval.append("      <headers>").append(Const.CR);
     if (headerName != null) {
       for (int i = 0; i < headerName.length; i++) {
@@ -347,19 +350,19 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
     String destinationFieldnameToUse;
 
     if (Utils.isEmpty(urlFieldname)) {
-      urlFieldnameToUse = URL_FIELDNAME;
+      urlFieldnameToUse = CONST_URL_FIELDNAME;
     } else {
       urlFieldnameToUse = urlFieldname;
     }
 
     if (Utils.isEmpty(uploadFieldname)) {
-      uploadFieldnameToUse = UPLOADFILE_FIELDNAME;
+      uploadFieldnameToUse = COSNT_UPLOADFILE_FIELDNAME;
     } else {
       uploadFieldnameToUse = uploadFieldname;
     }
 
     if (Utils.isEmpty(destinationFieldname)) {
-      destinationFieldnameToUse = TARGETFILE_FIELDNAME;
+      destinationFieldnameToUse = CONST_TARGETFILE_FIELDNAME;
     } else {
       destinationFieldnameToUse = destinationFieldname;
     }
@@ -382,9 +385,9 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
 
     URL server = null;
 
-    String beforeProxyHost = getVariable("http.proxyHost");
-    String beforeProxyPort = getVariable("http.proxyPort");
-    String beforeNonProxyHosts = getVariable("http.nonProxyHosts");
+    String beforeProxyHost = getVariable(CONST_HTTP_PROXY_HOST);
+    String beforeProxyPort = getVariable(CONST_HTTP_PROXY_PORT);
+    String beforeNonProxyHosts = getVariable(CONST_HTTP_NON_PROXY_HOSTS);
 
     for (int i = 0; i < resultRows.size() && result.getNrErrors() == 0; i++) {
       RowMetaAndData row = resultRows.get(i);
@@ -402,10 +405,10 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
         logBasic(BaseMessages.getString(PKG, "ActionHTTP.Log.ConnectingURL", urlToUse));
 
         if (!Utils.isEmpty(proxyHostname)) {
-          System.setProperty("http.proxyHost", resolve(proxyHostname));
-          System.setProperty("http.proxyPort", resolve(proxyPort));
+          System.setProperty(CONST_HTTP_PROXY_HOST, resolve(proxyHostname));
+          System.setProperty(CONST_HTTP_PROXY_PORT, resolve(proxyPort));
           if (nonProxyHosts != null) {
-            System.setProperty("http.nonProxyHosts", resolve(nonProxyHosts));
+            System.setProperty(CONST_HTTP_NON_PROXY_HOSTS, resolve(nonProxyHosts));
           }
         }
 
@@ -573,9 +576,9 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
         }
 
         // Set the proxy settings back as they were on the system!
-        System.setProperty("http.proxyHost", Const.NVL(beforeProxyHost, ""));
-        System.setProperty("http.proxyPort", Const.NVL(beforeProxyPort, ""));
-        System.setProperty("http.nonProxyHosts", Const.NVL(beforeNonProxyHosts, ""));
+        System.setProperty(CONST_HTTP_PROXY_HOST, Const.NVL(beforeProxyHost, ""));
+        System.setProperty(CONST_HTTP_PROXY_PORT, Const.NVL(beforeProxyPort, ""));
+        System.setProperty(CONST_HTTP_NON_PROXY_HOSTS, Const.NVL(beforeNonProxyHosts, ""));
       }
     }
 

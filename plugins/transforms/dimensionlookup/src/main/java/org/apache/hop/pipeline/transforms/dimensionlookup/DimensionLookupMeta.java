@@ -61,6 +61,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/dimensionlookup.html")
 public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData> {
   private static final Class<?> PKG = DimensionLookupMeta.class;
+  public static final String CONST_DIMENSION_LOOKUP_META_CHECK_RESULT_KEY_HAS_PROBLEM =
+      "DimensionLookupMeta.CheckResult.KeyHasProblem";
+  public static final String CONST_TYPE = "Type = ";
 
   /** The lookup schema name */
   @HopMetadataProperty(
@@ -749,7 +752,8 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         remarks.add(
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.KeyHasProblem")
+                BaseMessages.getString(
+                        PKG, CONST_DIMENSION_LOOKUP_META_CHECK_RESULT_KEY_HAS_PROBLEM)
                     + " "
                     + key.getName()
                     + BaseMessages.getString(
@@ -764,7 +768,8 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         remarks.add(
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.KeyHasProblem")
+                BaseMessages.getString(
+                        PKG, CONST_DIMENSION_LOOKUP_META_CHECK_RESULT_KEY_HAS_PROBLEM)
                     + " "
                     + BaseMessages.getString(
                         PKG, "DimensionLookupMeta.CheckResult.KeyNotPresentInDimensionTable")
@@ -781,7 +786,8 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         remarks.add(
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.KeyHasProblem")
+                BaseMessages.getString(
+                        PKG, CONST_DIMENSION_LOOKUP_META_CHECK_RESULT_KEY_HAS_PROBLEM)
                     + " "
                     + prevValueMeta.getName()
                     + " ("
@@ -1071,7 +1077,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
               key.getName(),
               v == null ? "" : v.getOrigin(),
               "",
-              v == null ? "" : "Type = " + v.toStringMeta());
+              v == null ? "" : CONST_TYPE + v.toStringMeta());
       impact.add(ii);
     }
 
@@ -1090,7 +1096,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
               field.getLookup(),
               v == null ? "" : v.getOrigin(),
               "",
-              v == null ? "" : "Type = " + v.toStringMeta());
+              v == null ? "" : CONST_TYPE + v.toStringMeta());
       impact.add(ii);
     }
   }
@@ -1120,7 +1126,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
               key.getName(),
               v != null ? v.getOrigin() : "?",
               "",
-              v == null ? "" : "Type = " + v.toStringMeta());
+              v == null ? "" : CONST_TYPE + v.toStringMeta());
       impact.add(ii);
     }
 
@@ -1139,7 +1145,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
               field.getLookup(),
               v == null ? "" : v.getOrigin(),
               "",
-              v == null ? "" : "Type = " + v.toStringMeta());
+              v == null ? "" : CONST_TYPE + v.toStringMeta());
       impact.add(ii);
     }
   }

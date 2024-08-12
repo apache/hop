@@ -33,6 +33,9 @@ import org.apache.hop.core.util.Utils;
     documentationUrl = "/database/databases/ingres.html")
 @GuiPlugin(id = "GUI-IngresDatabaseMeta")
 public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -90,7 +93,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getAddColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
@@ -110,7 +113,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getModifyColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
@@ -130,7 +133,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDropColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
+    return CONST_ALTER_TABLE + tableName + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   @Override

@@ -55,6 +55,7 @@ public class WorkflowLoggingExtensionPoint
 
   public static final String EXECUTION_TYPE_WORKFLOW = LoggingObjectType.WORKFLOW.name();
   public static final String EXECUTION_TYPE_ACTION = LoggingObjectType.ACTION.name();
+  public static final String CONST_WORKFLOW_NAME = "workflowName";
 
   @Override
   public void callExtensionPoint(
@@ -134,7 +135,7 @@ public class WorkflowLoggingExtensionPoint
                 try {
 
                   Map<String, Object> workflowPars = new HashMap<>();
-                  workflowPars.put("workflowName", workflowMeta.getName());
+                  workflowPars.put(CONST_WORKFLOW_NAME, workflowMeta.getName());
                   workflowPars.put("description", workflowMeta.getDescription());
                   workflowPars.put("filename", workflowMeta.getFilename());
                   StringBuilder workflowCypher = new StringBuilder();
@@ -148,7 +149,7 @@ public class WorkflowLoggingExtensionPoint
                   for (ActionMeta actionMeta : workflowMeta.getActions()) {
 
                     Map<String, Object> actionPars = new HashMap<>();
-                    actionPars.put("workflowName", workflowMeta.getName());
+                    actionPars.put(CONST_WORKFLOW_NAME, workflowMeta.getName());
                     actionPars.put("name", actionMeta.getName());
                     actionPars.put("description", actionMeta.getDescription());
                     actionPars.put("pluginId", actionMeta.getAction().getPluginId());
@@ -189,7 +190,7 @@ public class WorkflowLoggingExtensionPoint
                     Map<String, Object> hopPars = new HashMap<>();
                     hopPars.put("fromAction", hopMeta.getFromAction().getName());
                     hopPars.put("toAction", hopMeta.getToAction().getName());
-                    hopPars.put("workflowName", workflowMeta.getName());
+                    hopPars.put(CONST_WORKFLOW_NAME, workflowMeta.getName());
 
                     StringBuilder hopCypher = new StringBuilder();
                     hopCypher.append(
@@ -232,7 +233,7 @@ public class WorkflowLoggingExtensionPoint
                   Date startDate = (Date) workflow.getExtensionDataMap().get(WORKFLOW_START_DATE);
 
                   Map<String, Object> workflowPars = new HashMap<>();
-                  workflowPars.put("workflowName", workflowMeta.getName());
+                  workflowPars.put(CONST_WORKFLOW_NAME, workflowMeta.getName());
                   workflowPars.put("id", channel.getLogChannelId());
                   workflowPars.put("type", EXECUTION_TYPE_WORKFLOW);
                   workflowPars.put("containerId", workflow.getContainerId());
@@ -292,7 +293,7 @@ public class WorkflowLoggingExtensionPoint
                   Date startDate = (Date) workflow.getExtensionDataMap().get(WORKFLOW_START_DATE);
 
                   Map<String, Object> workflowPars = new HashMap<>();
-                  workflowPars.put("workflowName", workflowMeta.getName());
+                  workflowPars.put(CONST_WORKFLOW_NAME, workflowMeta.getName());
                   workflowPars.put("type", EXECUTION_TYPE_WORKFLOW);
                   workflowPars.put("id", channel.getLogChannelId());
                   workflowPars.put(
@@ -344,7 +345,7 @@ public class WorkflowLoggingExtensionPoint
                         HopLogStore.getAppender().getBuffer(actionLogChannelId, true).toString();
                     Result result = actionResult.getResult();
                     Map<String, Object> actionPars = new HashMap<>();
-                    actionPars.put("workflowName", workflowMeta.getName());
+                    actionPars.put(CONST_WORKFLOW_NAME, workflowMeta.getName());
                     actionPars.put("name", actionResult.getActionName());
                     actionPars.put("type", EXECUTION_TYPE_ACTION);
                     actionPars.put("id", actionLogChannelId);

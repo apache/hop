@@ -55,6 +55,7 @@ import org.eclipse.swt.widgets.ToolItem;
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiToolbarWidgets extends BaseGuiWidgets {
 
+  public static final String CONST_TOOLBAR_ITEM_WITH_ID = "toolbar item with id '";
   private Map<String, GuiToolbarItem> guiToolBarMap;
   private Map<String, Control> widgetsMap;
   private Map<String, ToolItem> toolItemMap;
@@ -445,14 +446,15 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           combo.setItems(getComboItems(item));
         } else {
           LogChannel.UI.logError(
-              "toolbar item with id '" + id + "' : widget not of instance Combo");
+              CONST_TOOLBAR_ITEM_WITH_ID + id + "' : widget not of instance Combo");
         }
       } else {
         LogChannel.UI.logError(
-            "toolbar item with id '" + id + "' : control not found when refreshing combo");
+            CONST_TOOLBAR_ITEM_WITH_ID + id + "' : control not found when refreshing combo");
       }
     } else {
-      LogChannel.UI.logError("toolbar item with id '" + id + "' : not found when refreshing combo");
+      LogChannel.UI.logError(
+          CONST_TOOLBAR_ITEM_WITH_ID + id + "' : not found when refreshing combo");
     }
   }
 

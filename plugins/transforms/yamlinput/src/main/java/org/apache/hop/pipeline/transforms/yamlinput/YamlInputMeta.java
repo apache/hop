@@ -66,6 +66,8 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
         BaseMessages.getString(PKG, "System.Combo.Yes")
       };
   public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_FIELD = "field";
 
   /** Array of filenames */
   private String[] fileName;
@@ -399,11 +401,11 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
 
     retval.append("    <file>").append(Const.CR);
     for (int i = 0; i < fileName.length; i++) {
-      retval.append("      ").append(XmlHandler.addTagValue("name", fileName[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("filemask", fileMask[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("file_required", fileRequired[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fileName[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("filemask", fileMask[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("file_required", fileRequired[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders[i]));
     }
     retval.append("    </file>").append(Const.CR);
@@ -464,7 +466,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       Node filenode = XmlHandler.getSubNode(transformNode, "file");
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
       int nrFiles = XmlHandler.countNodes(filenode, "name");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFiles, nrFields);
 
@@ -480,7 +482,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       }
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
         YamlInputField field = new YamlInputField(fnode);
         inputFields[i] = field;
       }
@@ -529,7 +531,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     }
 
     for (int i = 0; i < nrFields; i++) {
-      inputFields[i] = new YamlInputField("field" + (i + 1));
+      inputFields[i] = new YamlInputField(CONST_FIELD + (i + 1));
     }
 
     rowLimit = 0;
@@ -659,7 +661,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       }
     } else {
       FileInputList fileInputList = getFiles(variables);
-      if (fileInputList == null || fileInputList.getFiles().size() == 0) {
+      if (fileInputList == null || fileInputList.getFiles().isEmpty()) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
@@ -711,11 +713,8 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
 
       if (!isInFields()) {
         FileInputList fileList = getFiles(variables);
-        if (fileList.getFiles().size() > 0) {
+        if (!fileList.getFiles().isEmpty()) {
           for (FileObject fileObject : fileList.getFiles()) {
-            // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.xml
-            // To : /home/matt/test/files/foo/bar.xml
-            //
             // If the file doesn't exist, forget about this effort too!
             //
             if (fileObject.exists()) {

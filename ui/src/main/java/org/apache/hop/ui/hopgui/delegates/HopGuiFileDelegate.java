@@ -58,6 +58,7 @@ import org.eclipse.swt.SWT;
 
 public class HopGuiFileDelegate {
 
+  public static final String CONST_ERROR = "Error";
   private final HopGui hopGui;
 
   public HopGuiFileDelegate(HopGui hopGui) {
@@ -87,7 +88,7 @@ public class HopGuiFileDelegate {
       }
       fileOpen(hopGui.getVariables().resolve(filename));
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error opening file", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error opening file", e);
     }
   }
 
@@ -164,7 +165,7 @@ public class HopGuiFileDelegate {
 
       return filename;
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error saving file", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error saving file", e);
       return null;
     }
   }
@@ -186,7 +187,7 @@ public class HopGuiFileDelegate {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error saving file", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error saving file", e);
     }
   }
 
@@ -199,7 +200,7 @@ public class HopGuiFileDelegate {
         perspective.remove(typeHandler);
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error saving/closing file", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error saving/closing file", e);
     }
     return false;
   }
@@ -289,7 +290,7 @@ public class HopGuiFileDelegate {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getActiveShell(), "Error", "Error getting list of recently opened files", e);
+          hopGui.getActiveShell(), CONST_ERROR, "Error getting list of recently opened files", e);
     }
   }
 
@@ -367,7 +368,7 @@ public class HopGuiFileDelegate {
       }
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error exporting to SVG", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error exporting to SVG", e);
     }
   }
 }

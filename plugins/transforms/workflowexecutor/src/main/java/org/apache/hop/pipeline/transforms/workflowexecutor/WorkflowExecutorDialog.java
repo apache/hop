@@ -74,6 +74,10 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
   private static final int FIELD_DESCRIPTION = 1;
   private static final int FIELD_NAME = 2;
+  public static final String CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_TITLE =
+      "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title";
+  public static final String CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_MESSAGE =
+      "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message";
 
   private WorkflowExecutorMeta workflowExecutorMeta;
 
@@ -383,8 +387,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
       LogChannel.UI.logError("Error getting workflow run configurations", e);
     }
 
-    // TODO: throw in a separate thread.
-    //
     try {
       String[] prevTransforms = pipelineMeta.getTransformNames();
       Arrays.sort(prevTransforms);
@@ -609,8 +611,10 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
-          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
+          BaseMessages.getString(
+              PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_TITLE),
+          BaseMessages.getString(
+              PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_MESSAGE),
           e);
     }
   }
@@ -659,8 +663,10 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
-          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
+          BaseMessages.getString(
+              PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_TITLE),
+          BaseMessages.getString(
+              PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_MESSAGE),
           e);
     }
   }
@@ -1114,8 +1120,10 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
-          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
+          BaseMessages.getString(
+              PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_TITLE),
+          BaseMessages.getString(
+              PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_MESSAGE),
           e);
     }
 

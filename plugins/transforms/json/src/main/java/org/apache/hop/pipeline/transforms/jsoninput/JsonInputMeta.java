@@ -99,6 +99,9 @@ public class JsonInputMeta
         BaseMessages.getString(PKG, "System.Combo.No"),
         BaseMessages.getString(PKG, "System.Combo.Yes")
       };
+  public static final String CONST_DEFAULT_PATH_LEAF_TO_NULL = "defaultPathLeafToNull";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_FIELD = "field";
 
   // TextFileInputMeta.Content.includeFilename
   /** Flag indicating that we should include the filename in the output */
@@ -161,8 +164,7 @@ public class JsonInputMeta
         String name,
         IRowMeta[] info,
         IVariables variables,
-        IHopMetadataProvider metadataProvider)
-        throws HopTransformException {
+        IHopMetadataProvider metadataProvider) {
       // TextFileInput is the same, this can be refactored further
       if (shortFilenameField != null) {
         IValueMeta v = new ValueMetaString(variables.resolve(shortFilenameField));
@@ -613,19 +615,22 @@ public class JsonInputMeta
     retval.append("    " + XmlHandler.addTagValue("IsIgnoreEmptyFile", isIgnoreEmptyFile));
     retval.append("    " + XmlHandler.addTagValue("doNotFailIfNoFile", doNotFailIfNoFile));
     retval.append("    " + XmlHandler.addTagValue("ignoreMissingPath", ignoreMissingPath));
-    retval.append("    " + XmlHandler.addTagValue("defaultPathLeafToNull", defaultPathLeafToNull));
+    retval.append(
+        "    " + XmlHandler.addTagValue(CONST_DEFAULT_PATH_LEAF_TO_NULL, defaultPathLeafToNull));
     retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumberField));
 
     retval.append("    <file>").append(Const.CR);
     for (int i = 0; i < getFileName().length; i++) {
-      retval.append("      ").append(XmlHandler.addTagValue("name", getFileName()[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("filemask", getFileMask()[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getFileName()[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("filemask", getFileMask()[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("exclude_filemask", getExcludeFileMask()[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("file_required", getFileRequired()[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
+          .append(XmlHandler.addTagValue("file_required", getFileRequired()[i]));
+      retval
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("include_subfolders", getIncludeSubFolders()[i]));
     }
     retval.append("    </file>").append(Const.CR);
@@ -693,7 +698,7 @@ public class JsonInputMeta
       Node filenode = XmlHandler.getSubNode(transformNode, "file");
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
       int nrFiles = XmlHandler.countNodes(filenode, "name");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       initArrayFields(nrFiles, nrFields);
 
@@ -711,7 +716,7 @@ public class JsonInputMeta
       }
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
         JsonInputField field = new JsonInputField(fnode);
         getInputFields()[i] = field;
       }
@@ -742,9 +747,12 @@ public class JsonInputMeta
   // defaultPathLeafToNull as default true.
   private static boolean getDefaultPathLeafToNull(Node transformnode) {
     boolean result = true;
-    List<Node> nodes = XmlHandler.getNodes(transformnode, "defaultPathLeafToNull");
-    if (nodes != null && nodes.size() > 0) {
-      result = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "defaultPathLeafToNull"));
+    List<Node> nodes = XmlHandler.getNodes(transformnode, CONST_DEFAULT_PATH_LEAF_TO_NULL);
+    if (nodes != null && !nodes.isEmpty()) {
+      result =
+          "Y"
+              .equalsIgnoreCase(
+                  XmlHandler.getTagValue(transformnode, CONST_DEFAULT_PATH_LEAF_TO_NULL));
     }
     return result;
   }
@@ -790,7 +798,7 @@ public class JsonInputMeta
     initArrayFields(nrFiles, nrFields);
 
     for (int i = 0; i < nrFields; i++) {
-      getInputFields()[i] = new JsonInputField("field" + (i + 1));
+      getInputFields()[i] = new JsonInputField(CONST_FIELD + (i + 1));
     }
 
     rowLimit = 0;
@@ -912,7 +920,7 @@ public class JsonInputMeta
       }
     } else {
       FileInputList fileInputList = getFiles(variables);
-      if (fileInputList == null || fileInputList.getFiles().size() == 0) {
+      if (fileInputList == null || fileInputList.getFiles().isEmpty()) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
@@ -964,7 +972,7 @@ public class JsonInputMeta
 
       if (!isInFields()) {
         FileInputList fileList = getFiles(variables);
-        if (fileList.getFiles().size() > 0) {
+        if (!fileList.getFiles().isEmpty()) {
           for (FileObject fileObject : fileList.getFiles()) {
             // From : ${Internal.Transformation.Filename.Directory}/../foo/bar.xml
             // To : /home/matt/test/files/foo/bar.xml

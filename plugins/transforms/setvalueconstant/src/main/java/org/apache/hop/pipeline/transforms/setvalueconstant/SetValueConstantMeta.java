@@ -52,6 +52,7 @@ import org.w3c.dom.Node;
 public class SetValueConstantMeta
     extends BaseTransformMeta<SetValueConstant, SetValueConstantData> {
   private static final Class<?> PKG = SetValueConstantMeta.class;
+  public static final String CONST_SPACES = "        ";
 
   @InjectionDeep private List<Field> fields = new ArrayList<>();
 
@@ -120,11 +121,11 @@ public class SetValueConstantMeta
     fields.forEach(
         field -> {
           retval.append("      <field>" + Const.CR);
-          retval.append("        " + XmlHandler.addTagValue("name", field.getFieldName()));
-          retval.append("        " + XmlHandler.addTagValue("value", field.getReplaceValue()));
-          retval.append("        " + XmlHandler.addTagValue("mask", field.getReplaceMask()));
+          retval.append(CONST_SPACES + XmlHandler.addTagValue("name", field.getFieldName()));
+          retval.append(CONST_SPACES + XmlHandler.addTagValue("value", field.getReplaceValue()));
+          retval.append(CONST_SPACES + XmlHandler.addTagValue("mask", field.getReplaceMask()));
           retval.append(
-              "        " + XmlHandler.addTagValue("set_empty_string", field.isEmptyString()));
+              CONST_SPACES + XmlHandler.addTagValue("set_empty_string", field.isEmptyString()));
           retval.append("        </field>" + Const.CR);
         });
     retval.append("      </fields>" + Const.CR);
@@ -152,7 +153,7 @@ public class SetValueConstantMeta
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "SetValueConstantMeta.CheckResult.NotReceivingFields"),
               transformMeta);
       remarks.add(cr);
@@ -187,7 +188,7 @@ public class SetValueConstantMeta
         if (Utils.isEmpty(fields)) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_WARNING,
+                  ICheckResult.TYPE_RESULT_WARNING,
                   BaseMessages.getString(PKG, "SetValueConstantMeta.CheckResult.NoFieldsEntered"),
                   transformMeta);
         } else {

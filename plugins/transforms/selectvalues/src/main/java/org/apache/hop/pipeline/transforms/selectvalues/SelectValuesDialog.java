@@ -67,6 +67,12 @@ import org.eclipse.swt.widgets.Text;
 
 public class SelectValuesDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SelectValuesMeta.class;
+  public static final String CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING =
+      "SelectValuesDialog.ColumnInfo.Loading";
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
+  public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
+  public static final String CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_FIELDNAME =
+      "SelectValuesDialog.ColumnInfo.Fieldname";
 
   private CTabFolder wTabFolder;
 
@@ -216,9 +222,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
     ColumnInfo[] colinf = new ColumnInfo[fieldsCols];
     colinf[0] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Fieldname"),
+            BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_FIELDNAME),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            new String[] {BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Loading")},
+            new String[] {
+              BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING)
+            },
             false);
     colinf[1] =
         new ColumnInfo(
@@ -315,9 +323,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
     ColumnInfo[] colrem = new ColumnInfo[RemoveCols];
     colrem[0] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Fieldname"),
+            BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_FIELDNAME),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            new String[] {BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Loading")},
+            new String[] {
+              BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING)
+            },
             false);
     fieldColumns.add(colrem[0]);
     wRemove =
@@ -388,9 +398,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
     ColumnInfo[] colmeta =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Fieldname"),
+              BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_FIELDNAME),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Loading")},
+              new String[] {
+                BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING)
+              },
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Renameto"),
@@ -413,8 +425,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Label"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No"),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
               }),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Format"),
@@ -424,8 +436,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateLenient"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No"),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
               }),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateFormatLocale"),
@@ -439,8 +451,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.LenientStringToNumber"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No"),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
               }),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Encoding"),
@@ -639,14 +651,14 @@ public class SelectValuesDialog extends BaseTransformDialog {
         item.setText(
             index++,
             change.getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No"));
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
         item.setText(index++, Const.NVL(change.getConversionMask(), ""));
         item.setText(
             index++,
             change.isDateFormatLenient()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No"));
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
         item.setText(
             index++,
             change.getDateFormatLocale() == null ? "" : change.getDateFormatLocale().toString());
@@ -658,8 +670,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
         item.setText(
             index++,
             change.isLenientStringToNumber()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No"));
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
         item.setText(index++, Const.NVL(change.getEncoding(), ""));
         item.setText(index++, Const.NVL(change.getDecimalSymbol(), ""));
         item.setText(index++, Const.NVL(change.getGroupingSymbol(), ""));
@@ -755,20 +767,23 @@ public class SelectValuesDialog extends BaseTransformDialog {
       if (change.getPrecision() < -2) {
         change.setPrecision(-2);
       }
-      if (BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(index++))) {
+      if (BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+          .equalsIgnoreCase(item.getText(index++))) {
         change.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
       }
 
       change.setConversionMask(item.getText(index++));
       // If DateFormatLenient is anything but Yes (including blank) then it is false
       change.setDateFormatLenient(
-          item.getText(index++).equalsIgnoreCase(BaseMessages.getString(PKG, "System.Combo.Yes"))
+          item.getText(index++)
+                  .equalsIgnoreCase(BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES))
               ? true
               : false);
       change.setDateFormatLocale(item.getText(index++));
       change.setDateFormatTimeZone(item.getText(index++));
       change.setLenientStringToNumber(
-          item.getText(index++).equalsIgnoreCase(BaseMessages.getString(PKG, "System.Combo.Yes"))
+          item.getText(index++)
+                  .equalsIgnoreCase(BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES))
               ? true
               : false);
       change.setEncoding(item.getText(index++));
@@ -818,8 +833,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
     if (!bPreviousFieldsLoaded) {
       BaseDialog.openMessageBox(
           shell,
-          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Loading"),
-          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Loading"),
+          BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING),
+          BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING),
           SWT.ICON_ERROR | SWT.OK);
       return;
     }
@@ -856,7 +871,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
 
     TransformMeta transformMeta = new TransformMeta(transformName, input);
     List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transformMeta);
-    if (nextTransforms.size() == 0 || nextTransforms.size() > 1) {
+    if (nextTransforms.isEmpty() || nextTransforms.size() > 1) {
       BaseDialog.openMessageBox(
           shell,
           BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoNextTransformTitle"),

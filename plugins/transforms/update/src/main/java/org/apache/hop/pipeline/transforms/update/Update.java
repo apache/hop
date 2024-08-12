@@ -39,6 +39,12 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Update data in a database table, does NOT ever perform an insert. */
 public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class;
+  public static final String CONST_IS_NULL = "IS NULL";
+  public static final String CONST_UPDATE_EXCEPTION_FIELD_REQUIRED =
+      "Update.Exception.FieldRequired";
+  public static final String CONST_IS_NOT_NULL = "IS NOT NULL";
+  public static final String CONST_NULL = "= ~NULL";
+  public static final String CONST_BETWEEN = "BETWEEN";
 
   public Update(
       TransformMeta transformMeta,
@@ -134,12 +140,10 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         }
       }
     } else {
-      if (!meta.isSkipLookup()) {
-        if (log.isRowLevel()) {
-          logRowlevel(
-              BaseMessages.getString(PKG, "Update.Log.FoundRow")
-                  + data.lookupReturnRowMeta.getString(add));
-        }
+      if (!meta.isSkipLookup() && log.isRowLevel()) {
+        logRowlevel(
+            BaseMessages.getString(PKG, "Update.Log.FoundRow")
+                + data.lookupReturnRowMeta.getString(add));
       }
 
       /*
@@ -236,18 +240,18 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
         if (keynr < 0
             && // couldn't find field!
-            !"IS NULL".equalsIgnoreCase(keyItem.getKeyCondition())
+            !CONST_IS_NULL.equalsIgnoreCase(keyItem.getKeyCondition())
             && // No field needed!
-            !"IS NOT NULL".equalsIgnoreCase(keyItem.getKeyCondition()) // No field needed!
+            !CONST_IS_NOT_NULL.equalsIgnoreCase(keyItem.getKeyCondition()) // No field needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "Update.Exception.FieldRequired", keyItem.getKeyStream()));
+                  PKG, CONST_UPDATE_EXCEPTION_FIELD_REQUIRED, keyItem.getKeyStream()));
         }
         keynrs.add(keynr);
 
         // this operator needs two bindings
-        if ("= ~NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
+        if (CONST_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
           keynrs.add(keynr);
           keynrs2.add(-1);
         }
@@ -255,11 +259,11 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         int keynr2 = getInputRowMeta().indexOfValue(keyItem.getKeyStream2());
         if (keynr2 < 0
             && // couldn't find field!
-            "BETWEEN".equalsIgnoreCase(keyItem.getKeyCondition()) // 2 fields needed!
+            CONST_BETWEEN.equalsIgnoreCase(keyItem.getKeyCondition()) // 2 fields needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "Update.Exception.FieldRequired", keyItem.getKeyStream2()));
+                  PKG, CONST_UPDATE_EXCEPTION_FIELD_REQUIRED, keyItem.getKeyStream2()));
         }
         keynrs2.add(keynr2);
 
@@ -284,7 +288,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "Update.Exception.FieldRequired", fieldItem.getUpdateStream()));
+                  PKG, CONST_UPDATE_EXCEPTION_FIELD_REQUIRED, fieldItem.getUpdateStream()));
         }
         if (log.isDebug()) {
           logDebug(
@@ -300,19 +304,19 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         data.lookupParameterRowMeta = new RowMeta();
         for (int i = 0; i < meta.getLookupField().getLookupKeys().size(); i++) {
           UpdateKeyField keyItem = meta.getLookupField().getLookupKeys().get(i);
-          if ("BETWEEN".equalsIgnoreCase(keyItem.getKeyCondition())) {
+          if (CONST_BETWEEN.equalsIgnoreCase(keyItem.getKeyCondition())) {
             data.lookupParameterRowMeta.addValueMeta(
                 getInputRowMeta().searchValueMeta(keyItem.getKeyStream()));
             data.lookupParameterRowMeta.addValueMeta(
                 getInputRowMeta().searchValueMeta(keyItem.getKeyStream2()));
           } else {
-            if ("= ~NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
+            if (CONST_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
               data.lookupParameterRowMeta.addValueMeta(
                   getInputRowMeta().searchValueMeta(keyItem.getKeyStream()));
               data.lookupParameterRowMeta.addValueMeta(
                   getInputRowMeta().searchValueMeta(keyItem.getKeyStream()).clone());
-            } else if (!"IS NULL".equalsIgnoreCase(keyItem.getKeyCondition())
-                && !"IS NOT NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
+            } else if (!CONST_IS_NULL.equalsIgnoreCase(keyItem.getKeyCondition())
+                && !CONST_IS_NOT_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
               data.lookupParameterRowMeta.addValueMeta(
                   getInputRowMeta().searchValueMeta(keyItem.getKeyStream()));
             }
@@ -330,10 +334,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       if (outputRow != null) {
         putRow(data.outputRowMeta, outputRow); // copy non-ignored rows to output rowset(s)
       }
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "Update.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "Update.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       if (getTransformMeta().isDoingErrorHandling()) {
@@ -385,15 +387,15 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       sql += " ( ( ";
 
       sql += databaseMeta.quoteField(keyItem.getKeyLookup());
-      if ("BETWEEN".equalsIgnoreCase(keyItem.getKeyCondition())) {
+      if (CONST_BETWEEN.equalsIgnoreCase(keyItem.getKeyCondition())) {
         sql += " BETWEEN ? AND ? ";
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream2()));
       } else {
-        if ("IS NULL".equalsIgnoreCase(keyItem.getKeyCondition())
-            || "IS NOT NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
+        if (CONST_IS_NULL.equalsIgnoreCase(keyItem.getKeyCondition())
+            || CONST_IS_NOT_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
           sql += " " + keyItem.getKeyCondition() + " ";
-        } else if ("= ~NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
+        } else if (CONST_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
 
           sql += " IS NULL AND ";
 
@@ -462,14 +464,14 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       }
       sql += " ( ( ";
       sql += databaseMeta.quoteField(keyItem.getKeyLookup());
-      if ("BETWEEN".equalsIgnoreCase(keyItem.getKeyCondition())) {
+      if (CONST_BETWEEN.equalsIgnoreCase(keyItem.getKeyCondition())) {
         sql += " BETWEEN ? AND ? ";
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream2()));
-      } else if ("IS NULL".equalsIgnoreCase(keyItem.getKeyCondition())
-          || "IS NOT NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
+      } else if (CONST_IS_NULL.equalsIgnoreCase(keyItem.getKeyCondition())
+          || CONST_IS_NOT_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
         sql += " " + keyItem.getKeyCondition() + " ";
-      } else if ("= ~NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
+      } else if (CONST_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
 
         sql += " IS NULL AND ";
 

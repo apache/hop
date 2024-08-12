@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.jsoninput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
@@ -31,6 +30,8 @@ import org.w3c.dom.Node;
 
 /** Describes a JsonPath field. */
 public class JsonInputField extends BaseFileField implements Cloneable {
+
+  public static final String CONST_SPACES = "        ";
 
   @Injection(name = "FIELD_PATH", group = "FIELDS")
   private String path;
@@ -48,24 +49,24 @@ public class JsonInputField extends BaseFileField implements Cloneable {
     StringBuffer retval = new StringBuffer(400);
 
     retval.append("      <field>").append(Const.CR);
-    retval.append("        ").append(XmlHandler.addTagValue("name", getName()));
-    retval.append("        ").append(XmlHandler.addTagValue("path", getPath()));
-    retval.append("        ").append(XmlHandler.addTagValue("type", getTypeDesc()));
-    retval.append("        ").append(XmlHandler.addTagValue("format", getFormat()));
-    retval.append("        ").append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
-    retval.append("        ").append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
-    retval.append("        ").append(XmlHandler.addTagValue("group", getGroupSymbol()));
-    retval.append("        ").append(XmlHandler.addTagValue("length", getLength()));
-    retval.append("        ").append(XmlHandler.addTagValue("precision", getPrecision()));
-    retval.append("        ").append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
-    retval.append("        ").append(XmlHandler.addTagValue("repeat", isRepeated()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getName()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("path", getPath()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("type", getTypeDesc()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("format", getFormat()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("group", getGroupSymbol()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", getLength()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", getPrecision()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("repeat", isRepeated()));
 
     retval.append("      </field>").append(Const.CR);
 
     return retval.toString();
   }
 
-  public JsonInputField(Node fnode) throws HopValueException {
+  public JsonInputField(Node fnode) {
     setName(XmlHandler.getTagValue(fnode, "name"));
     setPath(XmlHandler.getTagValue(fnode, "path"));
     setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));

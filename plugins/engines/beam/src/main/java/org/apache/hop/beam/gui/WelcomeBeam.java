@@ -47,6 +47,7 @@ public class WelcomeBeam {
   private static final Class<?> PKG = WelcomeBeam.class; // i18n
 
   private static final String WELCOME_BEAM_PARENT_ID = "WelcomeBeam.Parent.ID";
+  public static final String CONST_ERROR = "Error";
 
   @GuiWidgetElement(
       type = GuiElementType.COMPOSITE,
@@ -158,7 +159,7 @@ public class WelcomeBeam {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(), "Error", "Error opening sample file " + filename, e);
+          HopGui.getInstance().getShell(), CONST_ERROR, "Error opening sample file " + filename, e);
     }
   }
 
@@ -168,7 +169,8 @@ public class WelcomeBeam {
         EnvironmentUtils.getInstance().openUrl(url);
       }
     } catch (Exception e) {
-      new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error opening link to " + url, e);
+      new ErrorDialog(
+          HopGui.getInstance().getShell(), CONST_ERROR, "Error opening link to " + url, e);
     }
   }
 
@@ -210,7 +212,7 @@ public class WelcomeBeam {
       } catch (Exception e) {
         new ErrorDialog(
             HopGui.getInstance().getShell(),
-            "Error",
+            CONST_ERROR,
             "Sorry, I couldn't switch to the samples project",
             e);
         return false;

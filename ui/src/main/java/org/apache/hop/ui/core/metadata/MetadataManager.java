@@ -51,6 +51,8 @@ import org.eclipse.swt.widgets.Shell;
 public class MetadataManager<T extends IHopMetadata> {
 
   private static final Class<?> PKG = MetadataManager.class; // For i18n
+  public static final String CONST_ERROR = "Error";
+  public static final String CONST_ERROR_EDITING_METADATA = "Error editing metadata";
   private final Shell parentShell;
   private IHopMetadataProvider metadataProvider;
   private IVariables variables;
@@ -106,7 +108,7 @@ public class MetadataManager<T extends IHopMetadata> {
               new GuiContextHandler("HopGuiMetadataContext", actions));
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error editing metadata", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, CONST_ERROR_EDITING_METADATA, e);
       return false;
     }
   }
@@ -145,7 +147,7 @@ public class MetadataManager<T extends IHopMetadata> {
               new GuiContextHandler("HopGuiMetadaContext", actions));
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error deleting metadata", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error deleting metadata", e);
       return false;
     }
   }
@@ -208,7 +210,7 @@ public class MetadataManager<T extends IHopMetadata> {
       }
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error editing metadata", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, CONST_ERROR_EDITING_METADATA, e);
       return false;
     }
   }
@@ -245,7 +247,7 @@ public class MetadataManager<T extends IHopMetadata> {
         perspective.setActiveEditor(editor);
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error editing metadata", e);
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, CONST_ERROR_EDITING_METADATA, e);
     }
   }
 
@@ -298,7 +300,7 @@ public class MetadataManager<T extends IHopMetadata> {
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
-          "Error",
+          CONST_ERROR,
           "Error deleting metadata element " + elementName,
           e);
       return false;
@@ -405,7 +407,7 @@ public class MetadataManager<T extends IHopMetadata> {
       return newMetadata(element);
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(), "Error", "Error creating new metadata element", e);
+          HopGui.getInstance().getShell(), CONST_ERROR, "Error creating new metadata element", e);
       return null;
     }
   }
@@ -440,7 +442,7 @@ public class MetadataManager<T extends IHopMetadata> {
       return element;
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(), "Error", "Error editing new metadata element", e);
+          HopGui.getInstance().getShell(), CONST_ERROR, "Error editing new metadata element", e);
       return null;
     }
   }
@@ -472,7 +474,8 @@ public class MetadataManager<T extends IHopMetadata> {
 
       return element;
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error creating new metadata element", e);
+      new ErrorDialog(
+          hopGui.getActiveShell(), CONST_ERROR, "Error creating new metadata element", e);
       return null;
     }
   }

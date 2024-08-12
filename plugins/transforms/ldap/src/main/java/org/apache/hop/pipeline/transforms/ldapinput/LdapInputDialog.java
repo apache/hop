@@ -69,6 +69,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class LdapInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = LdapInputMeta.class;
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
+  public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
 
   private Button wInclRownum;
 
@@ -640,7 +642,9 @@ public class LdapInputDialog extends BaseTransformDialog {
     wSearchBaseField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -715,7 +719,9 @@ public class LdapInputDialog extends BaseTransformDialog {
     wFilterField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -968,7 +974,9 @@ public class LdapInputDialog extends BaseTransformDialog {
     wSearchScope.addSelectionListener(
         new SelectionAdapter() {
           @Override
-          public void widgetSelected(SelectionEvent e) {}
+          public void widgetSelected(SelectionEvent e) {
+            // Do Nothing
+          }
         });
 
     FormData fdContentComp = new FormData();
@@ -1028,8 +1036,8 @@ public class LdapInputDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "LdapInputDialog.FieldsTable.IsSortedKey.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
               },
               true),
           new ColumnInfo(
@@ -1070,8 +1078,8 @@ public class LdapInputDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "LdapInputDialog.FieldsTable.Repeat.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
               },
               true),
         };
@@ -1232,7 +1240,7 @@ public class LdapInputDialog extends BaseTransformDialog {
         } else {
           item.setText(3, BaseMessages.getString(PKG, "LdapInputField.FetchAttributeAs.String"));
         }
-        item.setText(4, BaseMessages.getString(PKG, "System.Combo.No"));
+        item.setText(4, BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
         item.setText(5, v.getTypeDesc());
       }
       colinf[1].setComboValues(fieldsName);
@@ -1349,8 +1357,8 @@ public class LdapInputDialog extends BaseTransformDialog {
         String path = field.getAttribute();
         String issortedkey =
             field.isSortedKey()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No");
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO);
         String returntype = field.getFetchAttributeAsDesc();
         String type = field.getTypeDesc();
         String format = field.getFormat();
@@ -1362,8 +1370,8 @@ public class LdapInputDialog extends BaseTransformDialog {
         String trim = field.getTrimTypeDesc();
         String rep =
             field.isRepeated()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No");
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO);
 
         if (name != null) {
           item.setText(1, name);
@@ -1431,7 +1439,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     transformName = wTransformName.getText();
     try {
       getInfo(input);
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "LdapInputDialog.ErrorParsingData.DialogTitle"),
@@ -1441,7 +1449,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     dispose();
   }
 
-  private void getInfo(LdapInputMeta in) throws HopException {
+  private void getInfo(LdapInputMeta in) {
     transformName = wTransformName.getText(); // return value
     in.setProtocol(wProtocol.getText());
     in.setUseCertificate(wSetTrustStore.getSelection());
@@ -1482,7 +1490,7 @@ public class LdapInputDialog extends BaseTransformDialog {
       field.setAttribute(item.getText(2));
       field.setFetchAttributeAs(LdapInputField.getFetchAttributeAsByDesc(item.getText(3)));
       field.setSortedKey(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(4)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(4)));
       field.setType(ValueMetaFactory.getIdForValueMeta(item.getText(5)));
       field.setFormat(item.getText(6));
       field.setLength(Const.toInt(item.getText(7), -1));
@@ -1492,7 +1500,7 @@ public class LdapInputDialog extends BaseTransformDialog {
       field.setGroupSymbol(item.getText(11));
       field.setTrimType(LdapInputField.getTrimTypeByDesc(item.getText(12)));
       field.setRepeated(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(13)));
 
       in.getInputFields()[i] = field;
     }
@@ -1562,7 +1570,7 @@ public class LdapInputDialog extends BaseTransformDialog {
           prd.open();
         }
       }
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "LdapInputDialog.ErrorPreviewingData.DialogTitle"),

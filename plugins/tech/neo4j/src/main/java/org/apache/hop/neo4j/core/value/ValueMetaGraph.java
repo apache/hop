@@ -40,6 +40,9 @@ public class ValueMetaGraph extends ValueMetaBase implements IValueMeta {
    */
   public static final int TYPE_GRAPH = 303;
 
+  public static final String CONST_UNKNOWN_STORAGE_TYPE = " : Unknown storage type ";
+  public static final String CONST_SPECIFIED = " specified.";
+
   public ValueMetaGraph() {
     super(null, TYPE_GRAPH);
   }
@@ -119,7 +122,7 @@ public class ValueMetaGraph extends ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
           }
           if (string != null) {
             string = trim(string);
@@ -162,7 +165,7 @@ public class ValueMetaGraph extends ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
           }
           break;
 
@@ -179,7 +182,7 @@ public class ValueMetaGraph extends ValueMetaBase implements IValueMeta {
               break; // just go for the default toString()
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
           }
           break;
 
@@ -199,7 +202,7 @@ public class ValueMetaGraph extends ValueMetaBase implements IValueMeta {
           break;
 
         default:
-          throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+          throw new HopValueException(toString() + " : Unknown type " + type + CONST_SPECIFIED);
       }
 
       if (isOutputPaddingEnabled() && getLength() > 0) {

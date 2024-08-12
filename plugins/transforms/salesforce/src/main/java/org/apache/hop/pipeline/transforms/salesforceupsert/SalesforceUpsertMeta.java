@@ -48,6 +48,8 @@ import org.w3c.dom.Node;
 public class SalesforceUpsertMeta
     extends SalesforceTransformMeta<SalesforceUpsert, SalesforceUpsertData> {
   private static final Class<?> PKG = SalesforceUpsertMeta.class;
+  public static final String CONST_SPACES = "        ";
+  public static final String CONST_FIELD = "field";
 
   /** UpsertField */
   private String UpsertField;
@@ -204,10 +206,10 @@ public class SalesforceUpsertMeta
 
     for (int i = 0; i < updateLookup.length; i++) {
       retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", getUpdateLookup()[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field", getUpdateStream()[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getUpdateLookup()[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FIELD, getUpdateStream()[i]));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("useExternalId", getUseExternalId()[i].booleanValue()));
       retval.append("      </field>").append(Const.CR);
     }
@@ -227,15 +229,15 @@ public class SalesforceUpsertMeta
       setSalesforceIDFieldName(XmlHandler.getTagValue(transformNode, "salesforceIDFieldName"));
 
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFields);
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         updateLookup[i] = XmlHandler.getTagValue(fnode, "name");
-        updateStream[i] = XmlHandler.getTagValue(fnode, "field");
+        updateStream[i] = XmlHandler.getTagValue(fnode, CONST_FIELD);
         if (updateStream[i] == null) {
           updateStream[i] = updateLookup[i]; // default: the same name!
         }

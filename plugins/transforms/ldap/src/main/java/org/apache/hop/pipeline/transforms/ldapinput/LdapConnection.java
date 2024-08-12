@@ -49,6 +49,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
 public class LdapConnection {
+  public static final String CONST_LDAP_CONNECTION_ERROR_DELETING_NAME_NOT_FOUND =
+      "LdapConnection.Error.Deleting.NameNotFound";
   private static Class<?> classFromResourcesPackage = LdapInputMeta.class;
 
   public static final int SEARCH_SCOPE_OBJECT_SCOPE = 0;
@@ -299,7 +301,7 @@ public class LdapConnection {
       if (checkEntry) {
         throw new HopException(
             BaseMessages.getString(
-                classFromResourcesPackage, "LdapConnection.Error.Deleting.NameNotFound", dn),
+                classFromResourcesPackage, CONST_LDAP_CONNECTION_ERROR_DELETING_NAME_NOT_FOUND, dn),
             n);
       }
       return STATUS_SKIPPED;
@@ -337,7 +339,7 @@ public class LdapConnection {
       if (checkEntry) {
         throw new HopException(
             BaseMessages.getString(
-                classFromResourcesPackage, "LdapConnection.Error.Deleting.NameNotFound", dn),
+                classFromResourcesPackage, CONST_LDAP_CONNECTION_ERROR_DELETING_NAME_NOT_FOUND, dn),
             n);
       }
       return STATUS_SKIPPED;
@@ -364,7 +366,7 @@ public class LdapConnection {
       if (checkEntry) {
         throw new HopException(
             BaseMessages.getString(
-                classFromResourcesPackage, "LdapConnection.Error.Deleting.NameNotFound", dn),
+                classFromResourcesPackage, CONST_LDAP_CONNECTION_ERROR_DELETING_NAME_NOT_FOUND, dn),
             n);
       }
       return STATUS_SKIPPED;

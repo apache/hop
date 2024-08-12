@@ -41,6 +41,8 @@ TODO: Re-enable when we have usage for it
  */
 public class ManageLifecyclesOptionPlugin implements IConfigOptions {
 
+  public static final String CONST_PROJECT_LIFECYCLE = "Project lifecycle '";
+
   @CommandLine.Option(
       names = {"-lc", "--lifecycle-create"},
       description =
@@ -135,13 +137,13 @@ public class ManageLifecyclesOptionPlugin implements IConfigOptions {
     ProjectLifecycle lifecycle = config.findLifecycle(lifecycleName);
     if (lifecycle == null) {
       throw new HopException(
-          "Project lifecycle '" + lifecycleName + "' doesn't exist, it can't be deleted");
+          CONST_PROJECT_LIFECYCLE + lifecycleName + "' doesn't exist, it can't be deleted");
     }
 
     config.removeLifecycle(lifecycleName);
 
     HopConfig.getInstance().saveToFile();
-    log.logBasic("Project lifecycle '" + lifecycleName + "' was delete.");
+    log.logBasic(CONST_PROJECT_LIFECYCLE + lifecycleName + "' was delete.");
   }
 
   private void modifyLifecycle(ILogChannel log) throws Exception {
@@ -150,7 +152,7 @@ public class ManageLifecyclesOptionPlugin implements IConfigOptions {
     ProjectLifecycle lifecycle = config.findLifecycle(lifecycleName);
     if (lifecycle == null) {
       throw new HopException(
-          "Project lifecycle '" + lifecycleName + "' doesn't exist, it can't be modified");
+          CONST_PROJECT_LIFECYCLE + lifecycleName + "' doesn't exist, it can't be modified");
     }
 
     if (lifecycleEnvironments != null) {
@@ -164,7 +166,7 @@ public class ManageLifecyclesOptionPlugin implements IConfigOptions {
 
     config.addLifecycle(lifecycle);
     HopConfig.getInstance().saveToFile();
-    log.logBasic("Project lifecycle '" + lifecycleName + "' was modified.");
+    log.logBasic(CONST_PROJECT_LIFECYCLE + lifecycleName + "' was modified.");
     log.logBasic("Details after changes:");
     logLifecycleDetails(log, lifecycle);
   }
@@ -177,7 +179,7 @@ public class ManageLifecyclesOptionPlugin implements IConfigOptions {
     log.logBasic("Creating project lifecycle '" + lifecycleName + "'");
     ProjectLifecycle lifecycle = config.findLifecycle(lifecycleName);
     if (lifecycle != null) {
-      throw new HopException("Project lifecycle '" + lifecycleName + "' already exists.");
+      throw new HopException(CONST_PROJECT_LIFECYCLE + lifecycleName + "' already exists.");
     }
 
     lifecycle = new ProjectLifecycle();
@@ -191,7 +193,7 @@ public class ManageLifecyclesOptionPlugin implements IConfigOptions {
 
     config.addLifecycle(lifecycle);
     HopConfig.getInstance().saveToFile();
-    log.logBasic("Project lifecycle '" + lifecycleName + "' was created.");
+    log.logBasic(CONST_PROJECT_LIFECYCLE + lifecycleName + "' was created.");
     log.logBasic("Details after creation:");
     logLifecycleDetails(log, lifecycle);
   }

@@ -30,6 +30,8 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 /** Utility methods for conveniently storing and retrieving items, lists and so on... */
 public class AuditManagerGuiUtil {
 
+  public static final String CONST_IN_GROUP = " in group ";
+
   /**
    * Return the last used value of a certain type. This method looks in the active namespace in
    * HopGui In case there is an error it is simply logged on the UI log channel as it's not THAT
@@ -52,7 +54,7 @@ public class AuditManagerGuiUtil {
       LogChannel.UI.logError(
           "Unable to get last used value from audit manager type: "
               + type
-              + " in group "
+              + CONST_IN_GROUP
               + HopNamespace.getNamespace(),
           e);
       return "";
@@ -81,7 +83,7 @@ public class AuditManagerGuiUtil {
       LogChannel.UI.logError(
           "Unable to get last used values from audit manager type: "
               + type
-              + " in group "
+              + CONST_IN_GROUP
               + HopNamespace.getNamespace(),
           e);
       return new String[0];
@@ -120,7 +122,7 @@ public class AuditManagerGuiUtil {
       LogChannel.UI.logError(
           "Unable to store list using audit manager with type: "
               + type
-              + " in group "
+              + CONST_IN_GROUP
               + HopNamespace.getNamespace(),
           e);
     }
@@ -141,7 +143,7 @@ public class AuditManagerGuiUtil {
       LogChannel.UI.logError(
           "Unable to retrieve the usage map for type "
               + type
-              + " in group "
+              + CONST_IN_GROUP
               + HopNamespace.getNamespace(),
           e);
       return new HashMap<>();
@@ -159,7 +161,7 @@ public class AuditManagerGuiUtil {
       LogChannel.UI.logError(
           "Unable to save the usage map for type "
               + type
-              + " in group "
+              + CONST_IN_GROUP
               + HopNamespace.getNamespace(),
           e);
     }

@@ -85,6 +85,14 @@ public class CypherBuilderDialog extends BaseTransformDialog {
       CypherBuilderMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String STRING_EXPERIMENTAL_WARNING = "CypherBuilderWarning";
+  public static final String CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_LABEL =
+      "CypherBuilderDialog.Operation.NodeAlias.Label";
+  public static final String CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_TOOLTIP =
+      "CypherBuilderDialog.Operation.NodeAlias.Tooltip";
+  public static final String CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME =
+      "CypherBuilderDialog.Operation.Properties.Column.Name";
+  public static final String CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION =
+      "CypherBuilderDialog.Operation.Properties.Column.Expression";
 
   private CTabFolder wTabFolder;
 
@@ -536,8 +544,8 @@ public class CypherBuilderDialog extends BaseTransformDialog {
         addOperationWidgetText(
             matchOperation,
             lastControl,
-            BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.NodeAlias.Label"),
-            BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.NodeAlias.Tooltip"),
+            BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_LABEL),
+            BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_TOOLTIP),
             matchOperation.getAlias(),
             c -> matchOperation.setAlias(c.getText()));
     addOperationWidgetKeys(matchOperation, lastControl);
@@ -555,8 +563,8 @@ public class CypherBuilderDialog extends BaseTransformDialog {
         addOperationWidgetText(
             mergeOperation,
             lastControl,
-            BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.NodeAlias.Label"),
-            BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.NodeAlias.Tooltip"),
+            BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_LABEL),
+            BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_TOOLTIP),
             mergeOperation.getAlias(),
             c -> mergeOperation.setAlias(c.getText()));
     lastControl = addOperationWidgetKeys(mergeOperation, lastControl);
@@ -575,8 +583,8 @@ public class CypherBuilderDialog extends BaseTransformDialog {
         addOperationWidgetText(
             createOperation,
             lastControl,
-            BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.NodeAlias.Label"),
-            BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.NodeAlias.Tooltip"),
+            BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_LABEL),
+            BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_TOOLTIP),
             createOperation.getAlias(),
             c -> createOperation.setAlias(c.getText()));
     lastControl = addOperationWidgetKeys(createOperation, lastControl);
@@ -595,8 +603,8 @@ public class CypherBuilderDialog extends BaseTransformDialog {
         addOperationWidgetText(
             deleteOperation,
             lastControl,
-            BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.NodeAlias.Label"),
-            BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.NodeAlias.Tooltip"),
+            BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_LABEL),
+            BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_NODE_ALIAS_TOOLTIP),
             deleteOperation.getAlias(),
             c -> deleteOperation.setAlias(c.getText()));
     addOperationWidgetKeys(deleteOperation, lastControl);
@@ -966,13 +974,14 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Name"),
+              BaseMessages.getString(
+                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
           new ColumnInfo(
               BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.Properties.Column.Expression"),
+                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
@@ -1053,13 +1062,14 @@ public class CypherBuilderDialog extends BaseTransformDialog {
               false,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Name"),
+              BaseMessages.getString(
+                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
           new ColumnInfo(
               BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.Properties.Column.Expression"),
+                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
@@ -1246,7 +1256,8 @@ public class CypherBuilderDialog extends BaseTransformDialog {
               false,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Name"),
+              BaseMessages.getString(
+                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
@@ -1258,7 +1269,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
               false),
           new ColumnInfo(
               BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.Properties.Column.Expression"),
+                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
@@ -1497,8 +1508,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
       for (TableItem item : tableView.getNonEmptyItems()) {
         list.add(itemFunction.apply(item));
       }
-
-      // activeItem.setText(activeColumn, oldValue);
     }
   }
 }

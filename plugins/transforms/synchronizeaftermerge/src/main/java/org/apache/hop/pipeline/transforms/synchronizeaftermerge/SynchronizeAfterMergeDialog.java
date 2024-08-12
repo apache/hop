@@ -77,6 +77,12 @@ import org.eclipse.swt.widgets.Text;
 
 public class SynchronizeAfterMergeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class;
+  public static final String
+      CONST_SYNCHRONIZE_AFTER_MERGE_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE =
+          "SynchronizeAfterMergeDialog.FailedToGetFields.DialogTitle";
+  public static final String
+      CONST_SYNCHRONIZE_AFTER_MERGE_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_MESSAGE =
+          "SynchronizeAfterMergeDialog.FailedToGetFields.DialogMessage";
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -369,7 +375,9 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog {
     wTableField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -603,7 +611,9 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog {
     wOperationField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -997,9 +1007,9 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog {
         new ErrorDialog(
             shell,
             BaseMessages.getString(
-                PKG, "SynchronizeAfterMergeDialog.FailedToGetFields.DialogTitle"),
+                PKG, CONST_SYNCHRONIZE_AFTER_MERGE_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE),
             BaseMessages.getString(
-                PKG, "SynchronizeAfterMergeDialog.FailedToGetFields.DialogMessage"),
+                PKG, CONST_SYNCHRONIZE_AFTER_MERGE_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_MESSAGE),
             ke);
       }
       gotPreviousFields = true;
@@ -1211,9 +1221,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog {
     } catch (HopException ke) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(
-              PKG, "SynchronizeAfterMergeDialog.FailedToGetFields.DialogMessage"),
+              PKG, CONST_SYNCHRONIZE_AFTER_MERGE_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE),
+          BaseMessages.getString(
+              PKG, CONST_SYNCHRONIZE_AFTER_MERGE_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_MESSAGE),
           ke);
     }
   }
@@ -1233,9 +1244,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog {
     } catch (HopException ke) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(
-              PKG, "SynchronizeAfterMergeDialog.FailedToGetFields.DialogMessage"),
+              PKG, CONST_SYNCHRONIZE_AFTER_MERGE_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE),
+          BaseMessages.getString(
+              PKG, CONST_SYNCHRONIZE_AFTER_MERGE_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_MESSAGE),
           ke);
     }
   }

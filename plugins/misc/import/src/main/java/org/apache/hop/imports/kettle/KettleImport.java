@@ -77,6 +77,10 @@ import org.w3c.dom.NodeList;
     documentationUrl = "/plugins/import/kettle-import.html")
 public class KettleImport extends HopImportBase implements IHopImport {
   private static final Class<?> PKG = KettleImport.class;
+  public static final String CONST_SERVERNAME = "servername";
+  public static final String CONST_TABLESPACE = "tablespace";
+  public static final String CONST_DATA_TABLESPACE = "data_tablespace";
+  public static final String CONST_INDEX_TABLESPACE = "index_tablespace";
 
   private int kjbCounter;
   private int ktrCounter;
@@ -413,27 +417,29 @@ public class KettleImport extends HopImportBase implements IHopImport {
           if (connElement.getElementsByTagName("password").getLength() > 0) {
             databaseMeta.getIDatabase().setPassword(getTextContent(connElement, "password", 0));
           }
-          if (connElement.getElementsByTagName("servername").getLength() > 0
-              && !Utils.isEmpty(getTextContent(connElement, "servername", 0))) {
-            databaseMeta.getIDatabase().setServername(getTextContent(connElement, "servername", 0));
-          }
-          if (connElement.getElementsByTagName("tablespace").getLength() > 0
-              && !Utils.isEmpty(getTextContent(connElement, "tablespace", 0))) {
+          if (connElement.getElementsByTagName(CONST_SERVERNAME).getLength() > 0
+              && !Utils.isEmpty(getTextContent(connElement, CONST_SERVERNAME, 0))) {
             databaseMeta
                 .getIDatabase()
-                .setDataTablespace(getTextContent(connElement, "tablespace", 0));
+                .setServername(getTextContent(connElement, CONST_SERVERNAME, 0));
           }
-          if (connElement.getElementsByTagName("data_tablespace").getLength() > 0
-              && !Utils.isEmpty(getTextContent(connElement, "data_tablespace", 0))) {
+          if (connElement.getElementsByTagName(CONST_TABLESPACE).getLength() > 0
+              && !Utils.isEmpty(getTextContent(connElement, CONST_TABLESPACE, 0))) {
             databaseMeta
                 .getIDatabase()
-                .setDataTablespace(getTextContent(connElement, "data_tablespace", 0));
+                .setDataTablespace(getTextContent(connElement, CONST_TABLESPACE, 0));
           }
-          if (connElement.getElementsByTagName("index_tablespace").getLength() > 0
-              && !Utils.isEmpty(getTextContent(connElement, "index_tablespace", 0))) {
+          if (connElement.getElementsByTagName(CONST_DATA_TABLESPACE).getLength() > 0
+              && !Utils.isEmpty(getTextContent(connElement, CONST_DATA_TABLESPACE, 0))) {
             databaseMeta
                 .getIDatabase()
-                .setIndexTablespace(getTextContent(connElement, "index_tablespace", 0));
+                .setDataTablespace(getTextContent(connElement, CONST_DATA_TABLESPACE, 0));
+          }
+          if (connElement.getElementsByTagName(CONST_INDEX_TABLESPACE).getLength() > 0
+              && !Utils.isEmpty(getTextContent(connElement, CONST_INDEX_TABLESPACE, 0))) {
+            databaseMeta
+                .getIDatabase()
+                .setIndexTablespace(getTextContent(connElement, CONST_INDEX_TABLESPACE, 0));
           }
           Map<String, String> attributesMap = new HashMap<>();
           NodeList connNodeList = connElement.getElementsByTagName("attributes");
@@ -505,21 +511,19 @@ public class KettleImport extends HopImportBase implements IHopImport {
     // do a first pass to remove repository definitions
     for (int i = 0; i < nodeList.getLength(); i++) {
       Node repositoryNode = nodeList.item(i);
-      if (repositoryNode.getNodeType() == Node.ELEMENT_NODE) {
-        if (KettleConst.repositoryTypes.contains(repositoryNode.getTextContent())) {
-
-          for (int j = 0; j < node.getChildNodes().getLength(); j++) {
-            Node childNode = node.getChildNodes().item(j);
-            if (childNode.getNodeName().equals("jobname")
-                || childNode.getNodeName().equals("transname")
-                || childNode.getNodeName().equals("trans_name")) {
-              if (!StringUtil.isEmpty(childNode.getTextContent())) {
-                nodeToProcess = processRepositoryNode(node);
-              }
+      if (repositoryNode.getNodeType() == Node.ELEMENT_NODE
+          && KettleConst.repositoryTypes.contains(repositoryNode.getTextContent())) {
+        for (int j = 0; j < node.getChildNodes().getLength(); j++) {
+          Node childNode = node.getChildNodes().item(j);
+          if (childNode.getNodeName().equals("jobname")
+              || childNode.getNodeName().equals("transname")
+              || childNode.getNodeName().equals("trans_name")) {
+            if (!StringUtil.isEmpty(childNode.getTextContent())) {
+              nodeToProcess = processRepositoryNode(node);
             }
           }
-          nodeList = nodeToProcess.getChildNodes();
         }
+        nodeList = nodeToProcess.getChildNodes();
       }
     }
 
@@ -620,10 +624,10 @@ public class KettleImport extends HopImportBase implements IHopImport {
           if (KettleConst.kettleStartEntryElementsToRemove.containsKey(currentNode.getNodeName())) {
             currentNode.getParentNode().removeChild(currentNode);
           }
-        } else if (entryType == EntryType.DUMMY) {
-          if (KettleConst.kettleDummyEntryElementsToRemove.containsKey(currentNode.getNodeName())) {
-            currentNode.getParentNode().removeChild(currentNode);
-          }
+        } else if (entryType == EntryType.DUMMY
+            && KettleConst.kettleDummyEntryElementsToRemove.containsKey(
+                currentNode.getNodeName())) {
+          currentNode.getParentNode().removeChild(currentNode);
         }
 
         if (entryType == EntryType.FORMULA && currentNode.getNodeName().equals("formula")) {
@@ -658,13 +662,12 @@ public class KettleImport extends HopImportBase implements IHopImport {
               .setNodeValue(Integer.toString(ValueMetaFactory.getIdForValueMeta(formulaType)));
         }
 
-        if (entryType == EntryType.JOB || entryType == EntryType.TRANS) {
-          if (currentNode.getNodeName().equals("run_configuration")) {
-            if (entryType == EntryType.JOB)
-              currentNode.setTextContent(defaultWorkflowRunConfiguration);
-            else if (entryType == EntryType.TRANS)
-              currentNode.setTextContent(defaultPipelineRunConfiguration);
-          }
+        if ((entryType == EntryType.JOB || entryType == EntryType.TRANS)
+            && currentNode.getNodeName().equals("run_configuration")) {
+          if (entryType == EntryType.JOB)
+            currentNode.setTextContent(defaultWorkflowRunConfiguration);
+          else if (entryType == EntryType.TRANS)
+            currentNode.setTextContent(defaultPipelineRunConfiguration);
         }
 
         // rename Kettle elements to Hop elements

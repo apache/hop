@@ -42,6 +42,8 @@ import org.json.simple.parser.JSONParser;
     documentationUrl = "/metadata-types/neo4j/neo4j-graphmodel.html")
 public class GraphModel extends HopMetadataBase implements IHopMetadata {
 
+  public static final String CONST_DESCRIPTION = "description";
+  public static final String CONST_PROPERTIES = "properties";
   @HopMetadataProperty protected String description;
 
   @HopMetadataProperty protected List<GraphNode> nodes;
@@ -77,7 +79,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
       JSONObject jsonModel = (JSONObject) parser.parse(jsonModelString);
 
       setName((String) jsonModel.get("name"));
-      setDescription((String) jsonModel.get("description"));
+      setDescription((String) jsonModel.get(CONST_DESCRIPTION));
 
       // Parse all the nodes...
       //
@@ -87,7 +89,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
           JSONObject jsonNode = (JSONObject) jsonNode1;
           GraphNode graphNode = new GraphNode();
           graphNode.setName((String) jsonNode.get("name"));
-          graphNode.setDescription((String) jsonNode.get("description"));
+          graphNode.setDescription((String) jsonNode.get(CONST_DESCRIPTION));
 
           // Parse node labels
           //
@@ -100,7 +102,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
 
           // Parse node properties
           //
-          JSONArray jsonProperties = (JSONArray) jsonNode.get("properties");
+          JSONArray jsonProperties = (JSONArray) jsonNode.get(CONST_PROPERTIES);
           if (jsonProperties != null) {
             for (JSONObject jsonProperty : (Iterable<JSONObject>) jsonProperties) {
               graphNode.getProperties().add(parseGraphPropertyJson(jsonProperty));
@@ -126,14 +128,14 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
           JSONObject jsonRelationship = (JSONObject) jsonRelationship1;
           GraphRelationship graphRelationship = new GraphRelationship();
           graphRelationship.setName((String) jsonRelationship.get("name"));
-          graphRelationship.setDescription((String) jsonRelationship.get("description"));
+          graphRelationship.setDescription((String) jsonRelationship.get(CONST_DESCRIPTION));
           graphRelationship.setLabel((String) jsonRelationship.get("label"));
           graphRelationship.setNodeSource((String) jsonRelationship.get("source"));
           graphRelationship.setNodeTarget((String) jsonRelationship.get("target"));
 
           // Parse relationship properties
           //
-          JSONArray jsonProperties = (JSONArray) jsonRelationship.get("properties");
+          JSONArray jsonProperties = (JSONArray) jsonRelationship.get(CONST_PROPERTIES);
           if (jsonProperties != null) {
             for (JSONObject jsonProperty : (Iterable<JSONObject>) jsonProperties) {
               graphRelationship.getProperties().add(parseGraphPropertyJson(jsonProperty));
@@ -150,7 +152,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
   private GraphProperty parseGraphPropertyJson(JSONObject jsonProperty) {
     GraphProperty graphProperty = new GraphProperty();
     graphProperty.setName((String) jsonProperty.get("name"));
-    graphProperty.setDescription((String) jsonProperty.get("description"));
+    graphProperty.setDescription((String) jsonProperty.get(CONST_DESCRIPTION));
     graphProperty.setPrimary((boolean) jsonProperty.get("primary"));
     graphProperty.setType(GraphPropertyType.parseCode((String) jsonProperty.get("type")));
     return graphProperty;
@@ -162,7 +164,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
       JSONObject jsonModel = new JSONObject();
       jsonModel.put("name", name);
       if (StringUtils.isNotEmpty(description)) {
-        jsonModel.put("description", description);
+        jsonModel.put(CONST_DESCRIPTION, description);
       }
 
       // Add all the node information to the JSON model
@@ -172,7 +174,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
         JSONObject jsonNode = new JSONObject();
         jsonNode.put("name", graphNode.getName());
         if (StringUtils.isNotEmpty(graphNode.getDescription())) {
-          jsonNode.put("description", graphNode.getDescription());
+          jsonNode.put(CONST_DESCRIPTION, graphNode.getDescription());
         }
 
         // Add the labels
@@ -189,7 +191,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
         for (GraphProperty graphProperty : graphNode.getProperties()) {
           jsonProperties.add(getJsonProperty(graphProperty));
         }
-        jsonNode.put("properties", jsonProperties);
+        jsonNode.put(CONST_PROPERTIES, jsonProperties);
 
         // The presentation...
         //
@@ -212,7 +214,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
         JSONObject jsonRelationship = new JSONObject();
         jsonRelationship.put("name", graphRelationship.getName());
         if (StringUtils.isNotEmpty(graphRelationship.getDescription())) {
-          jsonRelationship.put("description", graphRelationship.getDescription());
+          jsonRelationship.put(CONST_DESCRIPTION, graphRelationship.getDescription());
         }
         jsonRelationship.put("label", graphRelationship.getLabel());
         jsonRelationship.put("source", graphRelationship.getNodeSource());
@@ -224,7 +226,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
         for (GraphProperty graphProperty : graphRelationship.getProperties()) {
           jsonProperties.add(getJsonProperty(graphProperty));
         }
-        jsonRelationship.put("properties", jsonProperties);
+        jsonRelationship.put(CONST_PROPERTIES, jsonProperties);
 
         jsonRelationships.add(jsonRelationship);
       }
@@ -248,7 +250,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
     JSONObject jsonProperty = new JSONObject();
     jsonProperty.put("name", graphProperty.getName());
     if (StringUtils.isNotEmpty(graphProperty.getDescription())) {
-      jsonProperty.put("description", graphProperty.getDescription());
+      jsonProperty.put(CONST_DESCRIPTION, graphProperty.getDescription());
     }
     jsonProperty.put("type", GraphPropertyType.getCode(graphProperty.getType()));
     jsonProperty.put("primary", graphProperty.isPrimary());

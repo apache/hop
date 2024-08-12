@@ -70,6 +70,10 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
   private static final int CREATION_METHOD_AUTOINC = 1;
   private static final int CREATION_METHOD_SEQUENCE = 2;
   private static final int CREATION_METHOD_TABLEMAX = 3;
+  public static final String CONST_UNABLE_TO_RETRIEVE_AUTO_INCREMENT_OF_COMBI_INSERT_KEY =
+      "Unable to retrieve auto-increment of combi insert key : ";
+  public static final String CONST_COMBINATION_LOOKUP_LOG_UNEXPECTED_ERROR =
+      "CombinationLookup.Log.UnexpectedError";
 
   private int techKeyCreation;
 
@@ -190,10 +194,8 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       for (int i = 0; i < keys.size(); i++) {
         RowMetaAndData key = keys.get(i);
         Long value = data.cache.get(key);
-        if (value != null) {
-          if (value.longValue() <= data.smallestCacheKey) {
-            data.cache.remove(key); // this one has to go.
-          }
+        if (value != null && value.longValue() <= data.smallestCacheKey) {
+          data.cache.remove(key); // this one has to go.
         }
       }
 
@@ -663,13 +665,13 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
             valKey = Long.valueOf(keys.getLong(1));
           } else {
             throw new HopDatabaseException(
-                "Unable to retrieve auto-increment of combi insert key : "
+                CONST_UNABLE_TO_RETRIEVE_AUTO_INCREMENT_OF_COMBI_INSERT_KEY
                     + returnFields.getTechnicalKeyField()
                     + ", no fields in resultset");
           }
         } catch (SQLException ex) {
           throw new HopDatabaseException(
-              "Unable to retrieve auto-increment of combi insert key : "
+              CONST_UNABLE_TO_RETRIEVE_AUTO_INCREMENT_OF_COMBI_INSERT_KEY
                   + returnFields.getTechnicalKeyField(),
               ex);
         } finally {
@@ -679,7 +681,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
             }
           } catch (SQLException ex) {
             throw new HopDatabaseException(
-                "Unable to retrieve auto-increment of combi insert key : "
+                CONST_UNABLE_TO_RETRIEVE_AUTO_INCREMENT_OF_COMBI_INSERT_KEY
                     + returnFields.getTechnicalKeyField(),
                 ex);
           }
@@ -748,7 +750,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         }
       } catch (HopDatabaseException e) {
         logError(
-            BaseMessages.getString(PKG, "CombinationLookup.Log.UnexpectedError")
+            BaseMessages.getString(PKG, CONST_COMBINATION_LOOKUP_LOG_UNEXPECTED_ERROR)
                 + " : "
                 + e.toString());
       } finally {
@@ -773,12 +775,12 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     if (meta.isPreloadCache() && meta.getCacheSize() >= 0) {
       if (hashRowMeta == null) {
         throw new HopConfigException(
-            BaseMessages.getString(PKG, "CombinationLookup.Log.UnexpectedError"));
+            BaseMessages.getString(PKG, CONST_COMBINATION_LOOKUP_LOG_UNEXPECTED_ERROR));
       }
       DatabaseMeta databaseMeta = meta.getDatabaseMeta();
       if (databaseMeta == null) {
         throw new HopConfigException(
-            BaseMessages.getString(PKG, "CombinationLookup.Log.UnexpectedError"));
+            BaseMessages.getString(PKG, CONST_COMBINATION_LOOKUP_LOG_UNEXPECTED_ERROR));
       }
       String lookupKeys = "";
       String sql = "";

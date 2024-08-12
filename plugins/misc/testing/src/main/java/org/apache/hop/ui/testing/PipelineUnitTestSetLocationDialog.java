@@ -56,6 +56,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class PipelineUnitTestSetLocationDialog extends Dialog {
   private static final Class<?> PKG = PipelineUnitTestSetLocationDialog.class;
+  public static final String CONST_ERROR = "Error";
 
   private final PipelineUnitTestSetLocation location;
   private final List<DataSet> dataSets;
@@ -317,7 +318,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
         wFieldMappings.optWidth(true);
       }
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error mapping fields from transform to dataset", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error mapping fields from transform to dataset", e);
     }
   }
 
@@ -351,7 +352,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
       wFieldOrder.optWidth(true);
 
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting sort fields", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error getting sort fields", e);
     }
   }
 
@@ -367,7 +368,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     try {
       wDataset.fillItems();
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting data sets from the metadata", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error getting data sets from the metadata", e);
     }
     wDataset.setText(Const.NVL(location.getDataSetName(), ""));
 

@@ -44,6 +44,8 @@ import org.w3c.dom.Node;
 public class UniqueRowsByHashSetMeta
     extends BaseTransformMeta<UniqueRowsByHashSet, UniqueRowsByHashSetData> {
   private static final Class<?> PKG = UniqueRowsByHashSetMeta.class;
+  public static final String CONST_FIELD = "field";
+  public static final String CONST_SPACES = "      ";
 
   /**
    * Whether to compare strictly by hash value or to store the row values for strict equality
@@ -141,12 +143,12 @@ public class UniqueRowsByHashSetMeta
       errorDescription = XmlHandler.getTagValue(transformNode, "error_description");
 
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFields);
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         compareFields[i] = XmlHandler.getTagValue(fnode, "name");
       }
@@ -169,7 +171,7 @@ public class UniqueRowsByHashSetMeta
     allocate(nrFields);
 
     for (int i = 0; i < nrFields; i++) {
-      compareFields[i] = "field" + i;
+      compareFields[i] = CONST_FIELD + i;
     }
   }
 
@@ -181,15 +183,18 @@ public class UniqueRowsByHashSetMeta
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider)
-      throws HopTransformException {}
+      throws HopTransformException {
+    // Do Nothing
+  }
 
   @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append("      " + XmlHandler.addTagValue("store_values", storeValues));
-    retval.append("      " + XmlHandler.addTagValue("reject_duplicate_row", rejectDuplicateRow));
-    retval.append("      " + XmlHandler.addTagValue("error_description", errorDescription));
+    retval.append(CONST_SPACES + XmlHandler.addTagValue("store_values", storeValues));
+    retval.append(
+        CONST_SPACES + XmlHandler.addTagValue("reject_duplicate_row", rejectDuplicateRow));
+    retval.append(CONST_SPACES + XmlHandler.addTagValue("error_description", errorDescription));
     retval.append("    <fields>");
     for (int i = 0; i < compareFields.length; i++) {
       retval.append("      <field>");

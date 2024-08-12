@@ -109,6 +109,15 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "System.Combo.No"),
         BaseMessages.getString(PKG, "System.Combo.Yes")
       };
+  public static final String CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_TITLE =
+      "ScriptValuesDialogMod.TestFailed.DialogTitle";
+  public static final String CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_MESSAGE =
+      "ScriptValuesDialogMod.TestFailed.DialogMessage";
+  public static final String CONST_SKIP_PIPELINE = "SKIP_PIPELINE";
+  public static final String CONST_ERROR_PIPELINE = "ERROR_PIPELINE";
+  public static final String CONST_CONTINUE_PIPELINE = "CONTINUE_PIPELINE";
+  public static final String CONST_FUNCTION = "Function";
+  public static final String CONST_JS_FUNCTION = "jsFunction";
 
   private ModifyListener lsMod;
 
@@ -547,9 +556,9 @@ public class ScriptValuesDialog extends BaseTransformDialog {
             if (item != null && item.getParentItem() != null) {
               if (item.getParentItem().equals(wTreeScriptsItem)) {
                 event.doit = false;
-              } else if (!item.getData().equals("Function")) {
+              } else if (!item.getData().equals(CONST_FUNCTION)) {
                 String strInsert = (String) item.getData();
-                if (strInsert.equals("jsFunction")) {
+                if (strInsert.equals(CONST_JS_FUNCTION)) {
                   event.doit = true;
                 } else {
                   event.doit = false;
@@ -1087,24 +1096,24 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         Pipeline pipeline = progressDialog.getPipeline();
         String loggingText = progressDialog.getLoggingText();
 
-        if (!progressDialog.isCancelled()) {
-          if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-            EnterTextDialog etd =
-                new EnterTextDialog(
-                    shell,
-                    BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                    BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                    loggingText,
-                    true);
-            etd.setReadOnly();
-            etd.open();
-          }
+        if (!progressDialog.isCancelled()
+            && pipeline.getResult() != null
+            && pipeline.getResult().getNrErrors() > 0) {
+          EnterTextDialog etd =
+              new EnterTextDialog(
+                  shell,
+                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                  loggingText,
+                  true);
+          etd.setReadOnly();
+          etd.open();
         }
 
         IRowMeta previewRowsMeta = progressDialog.getPreviewRowsMeta(wTransformName.getText());
         List<Object[]> previewRows = progressDialog.getPreviewRows(wTransformName.getText());
 
-        if (previewRowsMeta != null && previewRows != null && previewRows.size() > 0) {
+        if (previewRowsMeta != null && previewRows != null && !previewRows.isEmpty()) {
           PreviewRowsDialog prd =
               new PreviewRowsDialog(
                   shell,
@@ -1122,8 +1131,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestFailed.DialogTitle"),
-          BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestFailed.DialogMessage"),
+          BaseMessages.getString(PKG, CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_TITLE),
+          BaseMessages.getString(PKG, CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_MESSAGE),
           e);
       return false;
     }
@@ -1197,10 +1206,10 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
         // Adding some Constants to the JavaScript
         try {
-          jsscope.put("SKIP_PIPELINE", jsscope, SKIP_PIPELINE);
+          jsscope.put(CONST_SKIP_PIPELINE, jsscope, SKIP_PIPELINE);
           jsscope.put("ABORT_PIPELINE", jsscope, ABORT_PIPELINE);
-          jsscope.put("ERROR_PIPELINE", jsscope, ERROR_PIPELINE);
-          jsscope.put("CONTINUE_PIPELINE", jsscope, CONTINUE_PIPELINE);
+          jsscope.put(CONST_ERROR_PIPELINE, jsscope, ERROR_PIPELINE);
+          jsscope.put(CONST_CONTINUE_PIPELINE, jsscope, CONTINUE_PIPELINE);
         } catch (Exception ex) {
           testException =
               new HopException(
@@ -1394,8 +1403,9 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         } else {
           new ErrorDialog(
               shell,
-              BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestFailed.DialogTitle"),
-              BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestFailed.DialogMessage"),
+              BaseMessages.getString(PKG, CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_TITLE),
+              BaseMessages.getString(
+                  PKG, CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_MESSAGE),
               testException);
         }
       }
@@ -1403,8 +1413,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       retval = false;
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestFailed.DialogTitle"),
-          BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestFailed.DialogMessage"),
+          BaseMessages.getString(PKG, CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_TITLE),
+          BaseMessages.getString(PKG, CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_MESSAGE),
           ke);
     } finally {
       if (jscx != null) {
@@ -1421,16 +1431,16 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     item.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.TansformConstant.Label"));
     TreeItem itemT = new TreeItem(item, SWT.NULL);
     itemT.setImage(GuiResource.getInstance().getImageLabel());
-    itemT.setText("SKIP_PIPELINE");
-    itemT.setData("SKIP_PIPELINE");
+    itemT.setText(CONST_SKIP_PIPELINE);
+    itemT.setData(CONST_SKIP_PIPELINE);
     itemT = new TreeItem(item, SWT.NULL);
     itemT.setImage(GuiResource.getInstance().getImageLabel());
-    itemT.setText("ERROR_PIPELINE");
-    itemT.setData("ERROR_PIPELINE");
+    itemT.setText(CONST_ERROR_PIPELINE);
+    itemT.setData(CONST_ERROR_PIPELINE);
     itemT = new TreeItem(item, SWT.NULL);
     itemT.setImage(GuiResource.getInstance().getImageLabel());
-    itemT.setText("CONTINUE_PIPELINE");
-    itemT.setData("CONTINUE_PIPELINE");
+    itemT.setText(CONST_CONTINUE_PIPELINE);
+    itemT.setData(CONST_CONTINUE_PIPELINE);
 
     item = new TreeItem(wTree, SWT.NULL);
     item.setImage(guiresource.getImageFolder());
@@ -1442,32 +1452,32 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     itemStringFunctionsGroup.setImage(GuiResource.getInstance().getImageFolder());
     itemStringFunctionsGroup.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.StringFunctions.Label"));
-    itemStringFunctionsGroup.setData("Function");
+    itemStringFunctionsGroup.setData(CONST_FUNCTION);
     TreeItem itemNumericFunctionsGroup = new TreeItem(item, SWT.NULL);
     itemNumericFunctionsGroup.setImage(GuiResource.getInstance().getImageFolder());
     itemNumericFunctionsGroup.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.NumericFunctions.Label"));
-    itemNumericFunctionsGroup.setData("Function");
+    itemNumericFunctionsGroup.setData(CONST_FUNCTION);
     TreeItem itemDateFunctionsGroup = new TreeItem(item, SWT.NULL);
     itemDateFunctionsGroup.setImage(GuiResource.getInstance().getImageFolder());
     itemDateFunctionsGroup.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.DateFunctions.Label"));
-    itemDateFunctionsGroup.setData("Function");
+    itemDateFunctionsGroup.setData(CONST_FUNCTION);
     TreeItem itemLogicFunctionsGroup = new TreeItem(item, SWT.NULL);
     itemLogicFunctionsGroup.setImage(GuiResource.getInstance().getImageFolder());
     itemLogicFunctionsGroup.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.LogicFunctions.Label"));
-    itemLogicFunctionsGroup.setData("Function");
+    itemLogicFunctionsGroup.setData(CONST_FUNCTION);
     TreeItem itemSpecialFunctionsGroup = new TreeItem(item, SWT.NULL);
     itemSpecialFunctionsGroup.setImage(GuiResource.getInstance().getImageFolder());
     itemSpecialFunctionsGroup.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.SpecialFunctions.Label"));
-    itemSpecialFunctionsGroup.setData("Function");
+    itemSpecialFunctionsGroup.setData(CONST_FUNCTION);
     TreeItem itemFileFunctionsGroup = new TreeItem(item, SWT.NULL);
     itemFileFunctionsGroup.setImage(GuiResource.getInstance().getImageFolder());
     itemFileFunctionsGroup.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.FileFunctions.Label"));
-    itemFileFunctionsGroup.setData("Function");
+    itemFileFunctionsGroup.setData(CONST_FUNCTION);
 
     Hashtable<String, String> hatFunctions = scVHelp.getFunctionList();
 
@@ -1504,7 +1514,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       if (itemFunction != null) {
         itemFunction.setText(strFunction);
         itemFunction.setImage(GuiResource.getInstance().getImageFunction());
-        strData = "jsFunction";
+        strData = CONST_JS_FUNCTION;
         itemFunction.setData(strData);
       }
     }
@@ -1565,7 +1575,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     if (item != null && item.getParentItem() != null) {
       if (item.getParentItem().equals(wTreeScriptsItem)) {
         setActiveCtab(item.getText());
-      } else if (!item.getData().equals("Function")) {
+      } else if (!item.getData().equals(CONST_FUNCTION)) {
         int iStart = wScript.getTextWidget().getCaretPosition();
         int selCount =
             wScript.getSelectionCount(); // this selection will be replaced by wScript.insert
@@ -1575,7 +1585,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
           iStart = 0; // just safety
         }
         String strInsert = (String) item.getData();
-        if (strInsert.equals("jsFunction")) {
+        if (strInsert.equals(CONST_JS_FUNCTION)) {
           strInsert = item.getText();
         }
         wScript.insert(strInsert);
@@ -1842,7 +1852,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
               tMenu.getItem(0).setEnabled(false);
               tMenu.getItem(1).setEnabled(false);
               tMenu.getItem(3).setEnabled(false);
-            } else if (tItem.getData() != null && tItem.getData().equals("jsFunction")) {
+            } else if (tItem.getData() != null && tItem.getData().equals(CONST_JS_FUNCTION)) {
               tMenu.getItem(0).setEnabled(false);
               tMenu.getItem(1).setEnabled(false);
               tMenu.getItem(3).setEnabled(true);
@@ -1870,82 +1880,79 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   // This function is for a Windows Like renaming inside the tree
   private void renameFunction(TreeItem tItem) {
     final TreeItem item = tItem;
-    if (item.getParentItem() != null && item.getParentItem().equals(wTreeScriptsItem)) {
-      if (item != null && item == lastItem[0]) {
-        boolean isCarbon = SWT.getPlatform().equals("carbon");
-        final Composite composite = new Composite(wTree, SWT.NONE);
-        if (!isCarbon) {
-          composite.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        }
-        final Text text = new Text(composite, SWT.NONE);
-        final int inset = isCarbon ? 0 : 1;
-        composite.addListener(
-            SWT.Resize,
-            e -> {
-              Rectangle rect = composite.getClientArea();
-              text.setBounds(
-                  rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2);
-            });
-        Listener textListener =
-            e -> {
-              switch (e.type) {
-                case SWT.FocusOut:
-                  if (text.getText().length() > 0) {
-                    // Check if the name Exists
-                    if (getCTabItemByName(text.getText()) == null) {
+    if (item.getParentItem() != null
+        && item.getParentItem().equals(wTreeScriptsItem)
+        && item != null
+        && item == lastItem[0]) {
+      boolean isCarbon = SWT.getPlatform().equals("carbon");
+      final Composite composite = new Composite(wTree, SWT.NONE);
+      if (!isCarbon) {
+        composite.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+      }
+      final Text text = new Text(composite, SWT.NONE);
+      final int inset = isCarbon ? 0 : 1;
+      composite.addListener(
+          SWT.Resize,
+          e -> {
+            Rectangle rect = composite.getClientArea();
+            text.setBounds(
+                rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2);
+          });
+      Listener textListener =
+          e -> {
+            switch (e.type) {
+              case SWT.FocusOut:
+                if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
+                  // Check if the name Exists
+                  modifyCTabItem(item, RENAME_ITEM, text.getText());
+                  item.setText(text.getText());
+                }
+                composite.dispose();
+                break;
+              case SWT.Verify:
+                String newText = text.getText();
+                String leftText = newText.substring(0, e.start);
+                String rightText = newText.substring(e.end, newText.length());
+                Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
+                size = text.computeSize(size.x, SWT.DEFAULT);
+                editor.horizontalAlignment = SWT.LEFT;
+                Rectangle itemRect = item.getBounds();
+                Rectangle rect = wTree.getClientArea();
+                editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
+                int left = itemRect.x;
+                int right = rect.x + rect.width;
+                editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
+                editor.minimumHeight = size.y + inset * 2;
+                editor.layout();
+                break;
+              case SWT.Traverse:
+                switch (e.detail) {
+                  case SWT.TRAVERSE_RETURN:
+                    if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
+                      // Check if the name Exists
                       modifyCTabItem(item, RENAME_ITEM, text.getText());
                       item.setText(text.getText());
                     }
-                  }
-                  composite.dispose();
-                  break;
-                case SWT.Verify:
-                  String newText = text.getText();
-                  String leftText = newText.substring(0, e.start);
-                  String rightText = newText.substring(e.end, newText.length());
-                  Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
-                  size = text.computeSize(size.x, SWT.DEFAULT);
-                  editor.horizontalAlignment = SWT.LEFT;
-                  Rectangle itemRect = item.getBounds();
-                  Rectangle rect = wTree.getClientArea();
-                  editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
-                  int left = itemRect.x;
-                  int right = rect.x + rect.width;
-                  editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
-                  editor.minimumHeight = size.y + inset * 2;
-                  editor.layout();
-                  break;
-                case SWT.Traverse:
-                  switch (e.detail) {
-                    case SWT.TRAVERSE_RETURN:
-                      if (text.getText().length() > 0) {
-                        // Check if the name Exists
-                        if (getCTabItemByName(text.getText()) == null) {
-                          modifyCTabItem(item, RENAME_ITEM, text.getText());
-                          item.setText(text.getText());
-                        }
-                      }
-                      break;
-                    case SWT.TRAVERSE_ESCAPE:
-                      composite.dispose();
-                      e.doit = false;
-                      break;
-                    default:
-                      break;
-                  }
-                  break;
-                default:
-                  break;
-              }
-            };
-        text.addListener(SWT.FocusOut, textListener);
-        text.addListener(SWT.Traverse, textListener);
-        text.addListener(SWT.Verify, textListener);
-        editor.setEditor(composite, item);
-        text.setText(item.getText());
-        text.selectAll();
-        text.setFocus();
-      }
+                    break;
+                  case SWT.TRAVERSE_ESCAPE:
+                    composite.dispose();
+                    e.doit = false;
+                    break;
+                  default:
+                    break;
+                }
+                break;
+              default:
+                break;
+            }
+          };
+      text.addListener(SWT.FocusOut, textListener);
+      text.addListener(SWT.Traverse, textListener);
+      text.addListener(SWT.Verify, textListener);
+      editor.setEditor(composite, item);
+      text.setText(item.getText());
+      text.selectAll();
+      text.setFocus();
     }
     lastItem[0] = item;
   }

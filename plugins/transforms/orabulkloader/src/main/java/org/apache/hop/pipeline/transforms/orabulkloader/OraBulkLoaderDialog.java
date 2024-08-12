@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -73,6 +74,12 @@ import org.eclipse.swt.widgets.Text;
 public class OraBulkLoaderDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       OraBulkLoaderDialog.class; // for i18n purposes, needed by Translator2!!
+  public static final String CONST_ORA_BULK_LOADER_DIALOG_DATE_MASK_LABEL =
+      "OraBulkLoaderDialog.DateMask.Label";
+  public static final String CONST_ORA_BULK_LOADER_DIALOG_DATE_TIME_MASK_LABEL =
+      "OraBulkLoaderDialog.DateTimeMask.Label";
+  public static final String CONST_ORA_BULK_LOADER_DIALOG_BROWSE_BUTTON =
+      "OraBulkLoaderDialog.Browse.Button";
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
   private TextVar wSchema;
@@ -191,7 +198,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
 
     // Tab folder
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    PropsUi.setLook(wTabFolder, PropsUi.WIDGET_STYLE_DEFAULT);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_DEFAULT);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -270,7 +277,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
 
     Button wbTable = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
-    wbTable.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
+    wbTable.setText(BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_BROWSE_BUTTON));
     wbTable.addListener(SWT.Selection, e -> getTableName());
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
@@ -297,7 +304,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
 
     Button wbSqlldr = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSqlldr);
-    wbSqlldr.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
+    wbSqlldr.setText(BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_BROWSE_BUTTON));
     FormData fdbSqlldr = new FormData();
     fdbSqlldr.right = new FormAttachment(100, 0);
     fdbSqlldr.top = new FormAttachment(wTable, margin);
@@ -447,7 +454,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     wlControlFile.setLayoutData(fdlControlFile);
     Button wbControlFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbControlFile);
-    wbControlFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
+    wbControlFile.setText(BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_BROWSE_BUTTON));
     FormData fdbControlFile = new FormData();
     fdbControlFile.right = new FormAttachment(100, 0);
     fdbControlFile.top = new FormAttachment(wReadSize, margin);
@@ -472,7 +479,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     wlDataFile.setLayoutData(fdlDataFile);
     Button wbDataFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbDataFile);
-    wbDataFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
+    wbDataFile.setText(BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_BROWSE_BUTTON));
     FormData fdbDataFile = new FormData();
     fdbDataFile.right = new FormAttachment(100, 0);
     fdbDataFile.top = new FormAttachment(wControlFile, margin);
@@ -497,7 +504,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     wlLogFile.setLayoutData(fdlLogFile);
     Button wbLogFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbLogFile);
-    wbLogFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
+    wbLogFile.setText(BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_BROWSE_BUTTON));
     FormData fdbLogFile = new FormData();
     fdbLogFile.right = new FormAttachment(100, 0);
     fdbLogFile.top = new FormAttachment(wDataFile, margin);
@@ -522,7 +529,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     wlBadFile.setLayoutData(fdlBadFile);
     Button wbBadFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbBadFile);
-    wbBadFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
+    wbBadFile.setText(BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_BROWSE_BUTTON));
     FormData fdbBadFile = new FormData();
     fdbBadFile.right = new FormAttachment(100, 0);
     fdbBadFile.top = new FormAttachment(wLogFile, margin);
@@ -547,7 +554,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     wlDiscardFile.setLayoutData(fdlDiscardFile);
     Button wbDiscardFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbDiscardFile);
-    wbDiscardFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
+    wbDiscardFile.setText(BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_BROWSE_BUTTON));
     FormData fdbDiscardFile = new FormData();
     fdbDiscardFile.right = new FormAttachment(100, 0);
     fdbDiscardFile.top = new FormAttachment(wBadFile, margin);
@@ -778,8 +785,8 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
               "",
-              BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateMask.Label"),
-              BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateTimeMask.Label")
+              BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_DATE_MASK_LABEL),
+              BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_DATE_TIME_MASK_LABEL)
             },
             true);
     tableFieldColumns.add(ciReturn[0]);
@@ -1040,9 +1047,11 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
       String dateMask = mapping.getDateMask();
       if (dateMask != null) {
         if (OraBulkLoaderMeta.DATE_MASK_DATE.equals(dateMask)) {
-          item.setText(3, BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateMask.Label"));
+          item.setText(
+              3, BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_DATE_MASK_LABEL));
         } else if (OraBulkLoaderMeta.DATE_MASK_DATETIME.equals(dateMask)) {
-          item.setText(3, BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateTimeMask.Label"));
+          item.setText(
+              3, BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_DATE_TIME_MASK_LABEL));
         } else {
           item.setText(3, "");
         }
@@ -1155,10 +1164,10 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
       mapping.setFieldTable(item.getText(1));
       mapping.setFieldStream(item.getText(2));
 
-      if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateMask.Label")
+      if (BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_DATE_MASK_LABEL)
           .equals(item.getText(3))) {
         mapping.setDateMask(OraBulkLoaderMeta.DATE_MASK_DATE);
-      } else if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateTimeMask.Label")
+      } else if (BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_DATE_TIME_MASK_LABEL)
           .equals(item.getText(3))) {
         mapping.setDateMask(OraBulkLoaderMeta.DATE_MASK_DATETIME);
       }
@@ -1337,7 +1346,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
               if (v.getType() == IValueMeta.TYPE_DATE) {
                 // The default is date mask.
                 tableItem.setText(
-                    3, BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateMask.Label"));
+                    3, BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_DIALOG_DATE_MASK_LABEL));
               } else {
                 tableItem.setText(3, "");
               }

@@ -54,6 +54,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/getsystemdata.html")
 public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData> {
   private static final Class<?> PKG = SystemDataMeta.class;
+  public static final String CONST_FIELD = "field";
 
   @Injection(name = "FIELD_NAME")
   private String[] fieldName;
@@ -121,13 +122,13 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
   private void readData(Node transformNode) throws HopXmlException {
     try {
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int count = XmlHandler.countNodes(fields, "field");
+      int count = XmlHandler.countNodes(fields, CONST_FIELD);
       String type;
 
       allocate(count);
 
       for (int i = 0; i < count; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         fieldName[i] = XmlHandler.getTagValue(fnode, "name");
         type = XmlHandler.getTagValue(fnode, "type");
@@ -145,7 +146,7 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
     allocate(count);
 
     for (int i = 0; i < count; i++) {
-      fieldName[i] = "field" + i;
+      fieldName[i] = CONST_FIELD + i;
       fieldType[i] = SystemDataTypes.TYPE_SYSTEM_INFO_SYSTEM_DATE;
     }
   }

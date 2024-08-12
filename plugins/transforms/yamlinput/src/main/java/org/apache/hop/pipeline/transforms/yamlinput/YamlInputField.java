@@ -44,6 +44,7 @@ public class YamlInputField implements Cloneable {
     BaseMessages.getString(PKG, "YamlInputField.TrimType.Right"),
     BaseMessages.getString(PKG, "YamlInputField.TrimType.Both")
   };
+  public static final String CONST_SPACES = "        ";
 
   private String name;
   private String path;
@@ -77,16 +78,16 @@ public class YamlInputField implements Cloneable {
     StringBuilder retval = new StringBuilder(400);
 
     retval.append("      <field>").append(Const.CR);
-    retval.append("        ").append(XmlHandler.addTagValue("name", getName()));
-    retval.append("        ").append(XmlHandler.addTagValue("path", getPath()));
-    retval.append("        ").append(XmlHandler.addTagValue("type", getTypeDesc()));
-    retval.append("        ").append(XmlHandler.addTagValue("format", getFormat()));
-    retval.append("        ").append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
-    retval.append("        ").append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
-    retval.append("        ").append(XmlHandler.addTagValue("group", getGroupSymbol()));
-    retval.append("        ").append(XmlHandler.addTagValue("length", getLength()));
-    retval.append("        ").append(XmlHandler.addTagValue("precision", getPrecision()));
-    retval.append("        ").append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getName()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("path", getPath()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("type", getTypeDesc()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("format", getFormat()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("group", getGroupSymbol()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", getLength()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", getPrecision()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
 
     retval.append("      </field>").append(Const.CR);
 

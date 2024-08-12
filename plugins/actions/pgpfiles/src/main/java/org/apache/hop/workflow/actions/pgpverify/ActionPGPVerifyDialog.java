@@ -51,6 +51,7 @@ public class ActionPGPVerifyDialog extends ActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionPGPVerify.Filetype.All")};
+  public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
 
   private Text wName;
 
@@ -151,7 +152,7 @@ public class ActionPGPVerifyDialog extends ActionDialog {
 
     Button wbGPGLocation = new Button(wSettings, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbGPGLocation);
-    wbGPGLocation.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbGPGLocation.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbGPGLocation = new FormData();
     fdbGPGLocation.right = new FormAttachment(100, 0);
     fdbGPGLocation.top = new FormAttachment(wName, 0);
@@ -178,7 +179,7 @@ public class ActionPGPVerifyDialog extends ActionDialog {
 
     Button wbFilename = new Button(wSettings, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFilename);
-    wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
     fdbFilename.top = new FormAttachment(wGPGLocation, 0);
@@ -233,7 +234,7 @@ public class ActionPGPVerifyDialog extends ActionDialog {
 
     wbDetachedFilename = new Button(wSettings, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbDetachedFilename);
-    wbDetachedFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbDetachedFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbDetachedFilename = new FormData();
     fdbDetachedFilename.right = new FormAttachment(100, 0);
     fdbDetachedFilename.top = new FormAttachment(wlDetachedFilename, 0, SWT.CENTER);

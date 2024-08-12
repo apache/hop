@@ -32,6 +32,9 @@ import org.apache.hop.core.row.IValueMeta;
     documentationUrl = "/database/databases/kingbasees.html")
 @GuiPlugin(id = "GUI-KingbaseDatabaseMeta")
 public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
+
   /**
    * @return The extra option separator in database URL for this platform
    */
@@ -167,7 +170,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getAddColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
@@ -187,7 +190,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getDropColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
+    return CONST_ALTER_TABLE + tableName + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   /**
@@ -206,9 +209,9 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
     String retval = "";
     retval +=
-        "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR + ";" + Const.CR;
+        CONST_ALTER_TABLE + tableName + " DROP COLUMN " + v.getName() + Const.CR + ";" + Const.CR;
     retval +=
-        "ALTER TABLE "
+        CONST_ALTER_TABLE
             + tableName
             + " ADD COLUMN "
             + getFieldDefinition(v, tk, pk, useAutoinc, true, false);

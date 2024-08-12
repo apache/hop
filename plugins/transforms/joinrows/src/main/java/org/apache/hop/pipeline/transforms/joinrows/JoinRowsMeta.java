@@ -50,6 +50,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/joinrows.html")
 public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
   private static final Class<?> PKG = JoinRowsMeta.class;
+  public static final String CONST_SPACES = "      ";
 
   @Injection(name = "TEMP_DIR")
   private String directory;
@@ -215,14 +216,14 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
   public String getXml() throws HopException {
     StringBuilder xml = new StringBuilder(300);
 
-    xml.append("      ").append(XmlHandler.addTagValue("directory", directory));
-    xml.append("      ").append(XmlHandler.addTagValue("prefix", prefix));
-    xml.append("      ").append(XmlHandler.addTagValue("cache_size", cacheSize));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("directory", directory));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("prefix", prefix));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("cache_size", cacheSize));
 
     if (mainTransformName == null) {
       mainTransformName = getLookupTransformName();
     }
-    xml.append("      ").append(XmlHandler.addTagValue("main", mainTransformName));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("main", mainTransformName));
 
     xml.append("    <compare>").append(Const.CR);
 

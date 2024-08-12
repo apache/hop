@@ -26,7 +26,6 @@ import static org.apache.hop.core.Condition.Operator.lookupType;
 import java.util.ArrayList;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -84,6 +83,10 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   private static final int AREA_RIGHT_VALUE = 9;
   private static final int AREA_RIGHT_EXACT = 10;
   private static final int AREA_ICON_ADD = 11;
+  public static final String CONST_ERROR = "Error";
+  public static final String CONST_ERROR_MOVING_CONDITION = "Error moving condition";
+  public static final String CONST_FIELD = "<field>";
+  public static final String CONST_CONDITION_EDITOR_ERROR = "ConditionEditor.Error";
 
   protected Canvas widget;
   private Shell shell;
@@ -339,7 +342,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                                       null));
                         } catch (Exception exception) {
                           new ErrorDialog(
-                              shell, "Error", "Error creating value meta object", exception);
+                              shell, CONST_ERROR, "Error creating value meta object", exception);
                         }
                       } else {
                         v =
@@ -372,7 +375,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
               }
             }
           } catch (Exception ex) {
-            new ErrorDialog(shell, "Error", "Error editing condition", ex);
+            new ErrorDialog(shell, CONST_ERROR, "Error editing condition", ex);
           }
         });
 
@@ -475,7 +478,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
               try {
                 addCondition();
               } catch (Exception ex) {
-                new ErrorDialog(shell, "Error", "Error adding condition", ex);
+                new ErrorDialog(shell, CONST_ERROR, "Error adding condition", ex);
               }
             });
         setMenu(mPop);
@@ -515,7 +518,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                   setModified();
                   widget.redraw();
                 } catch (Exception ex) {
-                  new ErrorDialog(shell, "Error", "Error adding sub-condition", ex);
+                  new ErrorDialog(shell, CONST_ERROR, "Error adding sub-condition", ex);
                 }
               });
         }
@@ -533,7 +536,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                 GuiResource.getInstance().toClipboard(xml);
                 widget.redraw();
               } catch (Exception ex) {
-                new ErrorDialog(shell, "Error", "Error encoding to XML", ex);
+                new ErrorDialog(shell, CONST_ERROR, "Error encoding to XML", ex);
               }
             });
         MenuItem miPasteBef = new MenuItem(mPop, SWT.PUSH);
@@ -553,7 +556,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                 } else {
                   new ErrorDialog(
                       shell,
-                      BaseMessages.getString(PKG, "ConditionEditor.Error"),
+                      BaseMessages.getString(PKG, CONST_CONDITION_EDITOR_ERROR),
                       BaseMessages.getString(PKG, "ConditionEditor.NoConditionFoundXML"),
                       new HopXmlException(
                           BaseMessages.getString(
@@ -564,7 +567,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
               } catch (Exception ex) {
                 new ErrorDialog(
                     shell,
-                    BaseMessages.getString(PKG, "ConditionEditor.Error"),
+                    BaseMessages.getString(PKG, CONST_CONDITION_EDITOR_ERROR),
                     BaseMessages.getString(PKG, "ConditionEditor.ErrorParsingCondition"),
                     ex);
               }
@@ -589,7 +592,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                 } else {
                   new ErrorDialog(
                       shell,
-                      BaseMessages.getString(PKG, "ConditionEditor.Error"),
+                      BaseMessages.getString(PKG, CONST_CONDITION_EDITOR_ERROR),
                       BaseMessages.getString(PKG, "ConditionEditor.NoConditionFoundXML"),
                       new HopXmlException(
                           BaseMessages.getString(
@@ -600,7 +603,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
               } catch (Exception ex) {
                 new ErrorDialog(
                     shell,
-                    BaseMessages.getString(PKG, "ConditionEditor.Error"),
+                    BaseMessages.getString(PKG, CONST_CONDITION_EDITOR_ERROR),
                     BaseMessages.getString(PKG, "ConditionEditor.ErrorParsingCondition"),
                     ex);
               }
@@ -626,7 +629,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
                 widget.redraw();
               } catch (Exception ex) {
-                new ErrorDialog(shell, "Error", "Error moving condition", ex);
+                new ErrorDialog(shell, CONST_ERROR, CONST_ERROR_MOVING_CONDITION, ex);
               }
             });
         MenuItem miMoveParent = new MenuItem(mPop, SWT.PUSH);
@@ -653,7 +656,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
                 widget.redraw();
               } catch (Exception ex) {
-                new ErrorDialog(shell, "Error", "Error removing condition", ex);
+                new ErrorDialog(shell, CONST_ERROR, "Error removing condition", ex);
               }
             });
         // --------------------------------------------------
@@ -673,7 +676,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
                 widget.redraw();
               } catch (Exception ex) {
-                new ErrorDialog(shell, "Error", "Error moving condition", ex);
+                new ErrorDialog(shell, CONST_ERROR, CONST_ERROR_MOVING_CONDITION, ex);
               }
             });
         MenuItem miMoveUp = new MenuItem(mPop, SWT.PUSH);
@@ -691,7 +694,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
                 widget.redraw();
               } catch (Exception ex) {
-                new ErrorDialog(shell, "Error", "Error moving condition", ex);
+                new ErrorDialog(shell, CONST_ERROR, CONST_ERROR_MOVING_CONDITION, ex);
               }
             });
 
@@ -855,7 +858,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       String left = Const.rightPad(condition.getLeftValueName(), maxFieldLength);
       Point extLeft = gc.textExtent(left);
       if (condition.getLeftValueName() == null) {
-        extLeft = gc.textExtent("<field>");
+        extLeft = gc.textExtent(CONST_FIELD);
       }
 
       String fnMax = Condition.functions[Condition.FUNC_NOT_NULL];
@@ -865,7 +868,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       String rightval = Const.rightPad(condition.getRightValueName(), maxFieldLength);
       Point extRval = gc.textExtent(rightval);
       if (condition.getLeftValueName() == null) {
-        extRval = gc.textExtent("<field>");
+        extRval = gc.textExtent(CONST_FIELD);
       }
 
       String rightex = condition.getRightValueString();
@@ -931,7 +934,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       } else {
         gc.setForeground(gray);
         gc.drawText(
-            "<field>", sizeLeft.x + 1 + offsetx, sizeLeft.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+            CONST_FIELD, sizeLeft.x + 1 + offsetx, sizeLeft.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
         gc.setForeground(black);
       }
 
@@ -952,7 +955,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
               sizeRightval.y + 1 + offsety,
               SWT.DRAW_TRANSPARENT);
         } else {
-          String nothing = rightex == null ? "<field>" : "";
+          String nothing = rightex == null ? CONST_FIELD : "";
           gc.setForeground(gray);
           gc.drawText(
               nothing,
@@ -990,7 +993,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
             "-", sizeRightex.x + 1 + offsetx, sizeRightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
       }
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error drawing condition", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error drawing condition", e);
     }
   }
 
@@ -1223,7 +1226,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     }
   }
 
-  private void addCondition() throws HopValueException {
+  private void addCondition() {
     Condition c = new Condition();
     c.setOperator(AND);
 

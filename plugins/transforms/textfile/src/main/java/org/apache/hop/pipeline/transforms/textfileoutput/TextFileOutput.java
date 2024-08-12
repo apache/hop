@@ -55,6 +55,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
   private static final String FILE_COMPRESSION_TYPE_NONE =
       TextFileOutputMeta.fileCompressionTypeCodes[TextFileOutputMeta.FILE_COMPRESSION_TYPE_NONE];
+  public static final String CONST_ERROR_OPENING_NEW_FILE = "Error opening new file : ";
 
   public TextFileOutput(
       TransformMeta transformMeta,
@@ -82,7 +83,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     try {
       return getFileObject(filename, this).exists();
     } catch (Exception e) {
-      throw new HopException("Error opening new file : " + e.toString());
+      throw new HopException(CONST_ERROR_OPENING_NEW_FILE + e.toString());
     }
   }
 
@@ -90,7 +91,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     try {
       return getFileObject(filename, this).getContent().getSize() == 0;
     } catch (Exception e) {
-      throw new HopException("Error opening new file : " + e.toString());
+      throw new HopException(CONST_ERROR_OPENING_NEW_FILE + e.toString());
     }
   }
 
@@ -225,7 +226,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         }
       } catch (Exception e) {
         if (!(e instanceof HopException)) {
-          throw new HopException("Error opening new file : " + e.toString());
+          throw new HopException(CONST_ERROR_OPENING_NEW_FILE + e.toString());
         } else {
           throw (HopException) e;
         }
@@ -239,7 +240,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     } catch (HopException ke) {
       throw ke;
     } catch (Exception e) {
-      throw new HopException("Error opening new file : " + e.toString());
+      throw new HopException(CONST_ERROR_OPENING_NEW_FILE + e.toString());
     }
   }
 
@@ -681,11 +682,9 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     boolean retval = false;
     try {
       String sLine = resolve(meta.getEndedLine());
-      if (sLine != null) {
-        if (sLine.trim().length() > 0) {
-          data.writer.write(getBinaryString(sLine));
-          incrementLinesOutput();
-        }
+      if (sLine != null && !sLine.trim().isEmpty()) {
+        data.writer.write(getBinaryString(sLine));
+        incrementLinesOutput();
       }
     } catch (Exception e) {
       logError("Error writing ended tag line: " + e.toString());
@@ -956,18 +955,17 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
             }
           }
 
-        } else if (separatorExists && source[index] == separator[0]) {
-
+        } else if (separatorExists
+            && source[index] == separator[0]
+            && index + separator.length <= source.length) {
           // Potential match found, make sure there are enough bytes to support a full match
-          if (index + separator.length <= source.length) {
-            // First byte of separator found
-            result = true; // Assume match
-            for (int i = 1; i < separator.length; i++) {
-              if (source[index + i] != separator[i]) {
-                // Separator match is proven false
-                result = false;
-                break;
-              }
+          // First byte of separator found
+          result = true; // Assume match
+          for (int i = 1; i < separator.length; i++) {
+            if (source[index + i] != separator[i]) {
+              // Separator match is proven false
+              result = false;
+              break;
             }
           }
         }
@@ -1043,7 +1041,9 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   }
 
   @Override
-  public void startBundle() throws HopException {}
+  public void startBundle() {
+    // Do Nothing
+  }
 
   @Override
   public void batchComplete() throws HopException {

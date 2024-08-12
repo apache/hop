@@ -56,6 +56,13 @@ import org.w3c.dom.Node;
 public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputData> {
 
   private static final Class<?> PKG = MongoDbOutputMeta.class;
+  public static final String CONST_SPACES = "\n    ";
+  public static final String CONST_FIELDS = "mongo_fields";
+  public static final String MONGO_FIELD = "mongo_field";
+  public static final String CONST_MONGO_INDEXES = "mongo_indexes";
+  public static final String CONST_MONGO_INDEX = "mongo_index";
+  public static final String CONST_SPACES1 = "\n      ";
+  public static final String CONST_SPACES2 = "\n         ";
 
   /** Class encapsulating paths to document fields */
   public static class MongoField {
@@ -174,7 +181,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     }
 
     public void reset() {
-      if (tempPathList != null && tempPathList.size() > 0) {
+      if (tempPathList != null && !tempPathList.isEmpty()) {
         tempPathList.clear();
       }
       if (tempPathList != null) {
@@ -515,68 +522,68 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     xml.append(XmlHandler.addTagValue("connection", connectionName));
 
     if (!StringUtils.isEmpty(getCollection())) {
-      xml.append("\n    ").append(XmlHandler.addTagValue("mongo_collection", getCollection()));
+      xml.append(CONST_SPACES).append(XmlHandler.addTagValue("mongo_collection", getCollection()));
     }
     if (!StringUtils.isEmpty(batchInsertSize)) {
-      xml.append("\n    ").append(XmlHandler.addTagValue("batch_insert_size", batchInsertSize));
+      xml.append(CONST_SPACES).append(XmlHandler.addTagValue("batch_insert_size", batchInsertSize));
     }
 
-    xml.append("\n    ").append(XmlHandler.addTagValue("truncate", truncate));
-    xml.append("\n    ").append(XmlHandler.addTagValue("update", update));
-    xml.append("\n    ").append(XmlHandler.addTagValue("upsert", upsert));
-    xml.append("\n    ").append(XmlHandler.addTagValue("multi", multi));
-    xml.append("\n    ").append(XmlHandler.addTagValue("modifier_update", modifierUpdate));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("truncate", truncate));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("update", update));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("upsert", upsert));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("multi", multi));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("modifier_update", modifierUpdate));
 
     xml.append("    ").append(XmlHandler.addTagValue("write_retries", writeRetries));
     xml.append("    ").append(XmlHandler.addTagValue("write_retry_delay", writeRetryDelay));
 
-    if (mongoFields != null && mongoFields.size() > 0) {
-      xml.append("\n    ").append(XmlHandler.openTag("mongo_fields"));
+    if (mongoFields != null && !mongoFields.isEmpty()) {
+      xml.append(CONST_SPACES).append(XmlHandler.openTag(CONST_FIELDS));
 
       for (MongoField field : mongoFields) {
-        xml.append("\n      ").append(XmlHandler.openTag("mongo_field"));
+        xml.append(CONST_SPACES1).append(XmlHandler.openTag(MONGO_FIELD));
 
-        xml.append("\n         ")
+        xml.append(CONST_SPACES2)
             .append(XmlHandler.addTagValue("incoming_field_name", field.incomingFieldName));
-        xml.append("\n         ")
+        xml.append(CONST_SPACES2)
             .append(XmlHandler.addTagValue("mongo_doc_path", field.mongoDocPath));
-        xml.append("\n         ")
+        xml.append(CONST_SPACES2)
             .append(
                 XmlHandler.addTagValue(
                     "use_incoming_field_name_as_mongo_field_name",
                     field.useIncomingFieldNameAsMongoFieldName));
-        xml.append("\n         ")
+        xml.append(CONST_SPACES2)
             .append(XmlHandler.addTagValue("update_match_field", field.updateMatchField));
-        xml.append("\n         ")
+        xml.append(CONST_SPACES2)
             .append(
                 XmlHandler.addTagValue("modifier_update_operation", field.modifierUpdateOperation));
-        xml.append("\n         ")
+        xml.append(CONST_SPACES2)
             .append(XmlHandler.addTagValue("modifier_policy", field.modifierOperationApplyPolicy));
-        xml.append("\n         ").append(XmlHandler.addTagValue("json_field", field.inputJson));
-        xml.append("\n         ").append(XmlHandler.addTagValue("allow_null", field.insertNull));
+        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("json_field", field.inputJson));
+        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("allow_null", field.insertNull));
 
-        xml.append("\n      ").append(XmlHandler.closeTag("mongo_field"));
+        xml.append(CONST_SPACES1).append(XmlHandler.closeTag(MONGO_FIELD));
       }
 
-      xml.append("\n    ").append(XmlHandler.closeTag("mongo_fields"));
+      xml.append(CONST_SPACES).append(XmlHandler.closeTag(CONST_FIELDS));
     }
 
-    if (mongoIndexes != null && mongoIndexes.size() > 0) {
-      xml.append("\n    ").append(XmlHandler.openTag("mongo_indexes"));
+    if (mongoIndexes != null && !mongoIndexes.isEmpty()) {
+      xml.append(CONST_SPACES).append(XmlHandler.openTag(CONST_MONGO_INDEXES));
 
       for (MongoIndex index : mongoIndexes) {
-        xml.append("\n      ").append(XmlHandler.openTag("mongo_index"));
+        xml.append(CONST_SPACES1).append(XmlHandler.openTag(CONST_MONGO_INDEX));
 
-        xml.append("\n         ")
+        xml.append(CONST_SPACES2)
             .append(XmlHandler.addTagValue("path_to_fields", index.pathToFields));
-        xml.append("\n         ").append(XmlHandler.addTagValue("drop", index.drop));
-        xml.append("\n         ").append(XmlHandler.addTagValue("unique", index.unique));
-        xml.append("\n         ").append(XmlHandler.addTagValue("sparse", index.sparse));
+        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("drop", index.drop));
+        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("unique", index.unique));
+        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("sparse", index.sparse));
 
-        xml.append("\n      ").append(XmlHandler.closeTag("mongo_index"));
+        xml.append(CONST_SPACES1).append(XmlHandler.closeTag(CONST_MONGO_INDEX));
       }
 
-      xml.append("\n    ").append(XmlHandler.closeTag("mongo_indexes"));
+      xml.append(CONST_SPACES).append(XmlHandler.closeTag(CONST_MONGO_INDEXES));
     }
 
     return xml.toString();
@@ -615,13 +622,13 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
       this.writeRetryDelay = writeRetryDelay;
     }
 
-    Node fields = XmlHandler.getSubNode(node, "mongo_fields");
-    if (fields != null && XmlHandler.countNodes(fields, "mongo_field") > 0) {
-      int nrFields = XmlHandler.countNodes(fields, "mongo_field");
+    Node fields = XmlHandler.getSubNode(node, CONST_FIELDS);
+    if (fields != null && XmlHandler.countNodes(fields, MONGO_FIELD) > 0) {
+      int nrFields = XmlHandler.countNodes(fields, MONGO_FIELD);
       mongoFields = new ArrayList<>();
 
       for (int i = 0; i < nrFields; i++) {
-        Node fieldNode = XmlHandler.getSubNodeByNr(fields, "mongo_field", i);
+        Node fieldNode = XmlHandler.getSubNodeByNr(fields, MONGO_FIELD, i);
 
         MongoField newField = new MongoField();
         newField.incomingFieldName = XmlHandler.getTagValue(fieldNode, "incoming_field_name");
@@ -649,14 +656,14 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
       }
     }
 
-    fields = XmlHandler.getSubNode(node, "mongo_indexes");
-    if (fields != null && XmlHandler.countNodes(fields, "mongo_index") > 0) {
-      int nrFields = XmlHandler.countNodes(fields, "mongo_index");
+    fields = XmlHandler.getSubNode(node, CONST_MONGO_INDEXES);
+    if (fields != null && XmlHandler.countNodes(fields, CONST_MONGO_INDEX) > 0) {
+      int nrFields = XmlHandler.countNodes(fields, CONST_MONGO_INDEX);
 
       mongoIndexes = new ArrayList<>();
 
       for (int i = 0; i < nrFields; i++) {
-        Node fieldNode = XmlHandler.getSubNodeByNr(fields, "mongo_index", i);
+        Node fieldNode = XmlHandler.getSubNodeByNr(fields, CONST_MONGO_INDEX, i);
 
         MongoIndex newIndex = new MongoIndex();
 

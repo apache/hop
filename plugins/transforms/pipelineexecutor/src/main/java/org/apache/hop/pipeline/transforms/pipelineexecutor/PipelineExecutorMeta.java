@@ -71,6 +71,7 @@ public class PipelineExecutorMeta
   static final String F_EXECUTION_RESULT_TARGET_TRANSFORM = "execution_result_target_transform";
   static final String F_RESULT_FILE_TARGET_TRANSFORM = "result_files_target_transform";
   static final String F_EXECUTOR_OUTPUT_TRANSFORM = "executors_output_transform";
+  public static final String CONST_RESULT_ROWS_FIELD = "result_rows_field";
 
   /** The name of the pipeline run configuration with which we want to execute the pipeline. */
   private String runConfigurationName;
@@ -311,14 +312,14 @@ public class PipelineExecutorMeta
                     ? null
                     : outputRowsSourceTransformMeta.getName()));
     for (int i = 0; i < outputRowsField.length; i++) {
-      retval.append("      ").append(XmlHandler.openTag("result_rows_field"));
+      retval.append("      ").append(XmlHandler.openTag(CONST_RESULT_ROWS_FIELD));
       retval.append(XmlHandler.addTagValue("name", outputRowsField[i], false));
       retval.append(
           XmlHandler.addTagValue(
               "type", ValueMetaFactory.getValueMetaName(outputRowsType[i]), false));
       retval.append(XmlHandler.addTagValue("length", outputRowsLength[i], false));
       retval.append(XmlHandler.addTagValue("precision", outputRowsPrecision[i], false));
-      retval.append(XmlHandler.closeTag("result_rows_field")).append(Const.CR);
+      retval.append(XmlHandler.closeTag(CONST_RESULT_ROWS_FIELD)).append(Const.CR);
     }
 
     retval
@@ -396,12 +397,12 @@ public class PipelineExecutorMeta
       outputRowsSourceTransform =
           XmlHandler.getTagValue(transformNode, "result_rows_target_transform");
 
-      int nrFields = XmlHandler.countNodes(transformNode, "result_rows_field");
+      int nrFields = XmlHandler.countNodes(transformNode, CONST_RESULT_ROWS_FIELD);
       allocate(nrFields);
 
       for (int i = 0; i < nrFields; i++) {
 
-        Node fieldNode = XmlHandler.getSubNodeByNr(transformNode, "result_rows_field", i);
+        Node fieldNode = XmlHandler.getSubNodeByNr(transformNode, CONST_RESULT_ROWS_FIELD, i);
 
         outputRowsField[i] = XmlHandler.getTagValue(fieldNode, "name");
         outputRowsType[i] =
@@ -679,7 +680,9 @@ public class PipelineExecutorMeta
 
   /** Remove the cached {@link TransformIOMeta} so it is recreated when it is next accessed. */
   @Override
-  public void resetTransformIoMeta() {}
+  public void resetTransformIoMeta() {
+    // Do Nothing
+  }
 
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {

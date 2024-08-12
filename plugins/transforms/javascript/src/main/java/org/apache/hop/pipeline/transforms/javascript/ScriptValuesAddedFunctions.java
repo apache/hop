@@ -84,6 +84,13 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   public static final int LOGIC_FUNCTION = 3;
   public static final int SPECIAL_FUNCTION = 4;
   public static final int FILE_FUNCTION = 5;
+  public static final String CONST_REASON = "\" (reason: \"";
+  public static final String CONST_FILE = "file [";
+  public static final String CONST_CAN_NOT_BE_FOUND = "] can not be found!";
+  public static final String CONST_TRANSFORM = "_transform_";
+  public static final String CONST_ON_THE_STRING_FOR = " on the string for ";
+  public static final String CONST_THE_FIRST_ARGUMENT_MUST_BE_A_NUMBER =
+      "The first Argument must be a Number.";
 
   public static String[] jsFunctionList = {
     "appendToFile",
@@ -329,7 +336,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
     if (argList.length == 1) {
       try {
-        Object scmO = actualObject.get("_transform_", actualObject);
+        Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
         ITransform scm = (ITransform) Context.jsToJava(scmO, ITransform.class);
         String strType = Context.toString(argList[0]).toLowerCase();
 
@@ -363,7 +370,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       case 1:
         try {
           if (!isNull(argList) && !isUndefined(argList)) {
-            Object scmO = actualObject.get("_transform_", actualObject);
+            Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
             ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
             String strMessage = Context.toString(argList[0]);
             scm.logDebug(strMessage);
@@ -375,7 +382,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       case 2:
         try {
           if (!isNull(argList) && !isUndefined(argList)) {
-            Object scmO = actualObject.get("_transform_", actualObject);
+            Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
             ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
 
             String strType = Context.toString(argList[0]).toLowerCase();
@@ -560,7 +567,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     Object oRC = new Object();
     if (argList.length == 2) {
       try {
-        Object scmO = actualObject.get("_transform_", actualObject);
+        Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
         ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
         String strDBName = Context.toString(argList[0]);
         String strSql = Context.toString(argList[1]);
@@ -1105,7 +1112,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           throw Context.reportRuntimeError(
               "Could not apply the given format "
                   + sArg2
-                  + " on the string for "
+                  + CONST_ON_THE_STRING_FOR
                   + sArg1
                   + " : "
                   + e.getMessage());
@@ -1135,7 +1142,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
                   + sArg3
                   + " with the given format "
                   + sArg2
-                  + " on the string for "
+                  + CONST_ON_THE_STRING_FOR
                   + sArg1
                   + " : "
                   + e.getMessage());
@@ -1172,7 +1179,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
                   + sArg3
                   + " with the given format "
                   + sArg2
-                  + " on the string for "
+                  + CONST_ON_THE_STRING_FOR
                   + sArg1
                   + " : "
                   + e.getMessage());
@@ -1363,7 +1370,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           }
           double sArg1 = Context.toNumber(argList[0]);
           if (Double.isNaN(sArg1)) {
-            throw Context.reportRuntimeError("The first Argument must be a Number.");
+            throw Context.reportRuntimeError(CONST_THE_FIRST_ARGUMENT_MUST_BE_A_NUMBER);
           }
           DecimalFormat formatter = new DecimalFormat();
           sRC = formatter.format(sArg1);
@@ -1381,7 +1388,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           }
           double sArg1 = Context.toNumber(argList[0]);
           if (Double.isNaN(sArg1)) {
-            throw Context.reportRuntimeError("The first Argument must be a Number.");
+            throw Context.reportRuntimeError(CONST_THE_FIRST_ARGUMENT_MUST_BE_A_NUMBER);
           }
           String sArg2 = Context.toString(argList[1]);
           DecimalFormat formatter = new DecimalFormat(sArg2);
@@ -1400,7 +1407,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           }
           double sArg1 = Context.toNumber(argList[0]);
           if (Double.isNaN(sArg1)) {
-            throw Context.reportRuntimeError("The first Argument must be a Number.");
+            throw Context.reportRuntimeError(CONST_THE_FIRST_ARGUMENT_MUST_BE_A_NUMBER);
           }
           String sArg2 = Context.toString(argList[1]);
           String sArg3 = Context.toString(argList[2]);
@@ -1648,7 +1655,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         if (System.getProperties().containsValue(sArg1)) {
           sRC = System.getProperty(sArg1, "");
         } else {
-          Object scmo = actualObject.get("_transform_", actualObject);
+          Object scmo = actualObject.get(CONST_TRANSFORM, actualObject);
           Object scmO = Context.jsToJava(scmo, ITransform.class);
 
           if (scmO instanceof ITransform) {
@@ -1823,42 +1830,34 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       actualContext.evaluateReader(evalScope, inStream, fileName, 1, null);
     } catch (FileNotFoundException signal) {
       Context.reportError(
-          "Unable to open file \"" + fileName + "\" (reason: \"" + signal.getMessage() + "\")");
+          "Unable to open file \"" + fileName + CONST_REASON + signal.getMessage() + "\")");
     } catch (WrappedException signal) {
       Context.reportError(
           "WrappedException while evaluating file \""
               + fileName
-              + "\" (reason: \""
+              + CONST_REASON
               + signal.getMessage()
               + "\")");
     } catch (EvaluatorException signal) {
       Context.reportError(
           "EvaluatorException while evaluating file \""
               + fileName
-              + "\" (reason: \""
+              + CONST_REASON
               + signal.getMessage()
               + "\")");
     } catch (JavaScriptException signal) {
       Context.reportError(
           "JavaScriptException while evaluating file \""
               + fileName
-              + "\" (reason: \""
+              + CONST_REASON
               + signal.getMessage()
               + "\")");
     } catch (IOException signal) {
       Context.reportError(
-          "Error while reading file \""
-              + fileName
-              + "\" (reason: \""
-              + signal.getMessage()
-              + "\")");
+          "Error while reading file \"" + fileName + CONST_REASON + signal.getMessage() + "\")");
     } catch (HopFileException signal) {
       Context.reportError(
-          "Error while reading file \""
-              + fileName
-              + "\" (reason: \""
-              + signal.getMessage()
-              + "\")");
+          "Error while reading file \"" + fileName + CONST_REASON + signal.getMessage() + "\")");
     } finally {
       try {
         if (inStream != null) {
@@ -1881,7 +1880,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     }
 
     Object transformObject =
-        Context.jsToJava(actualObject.get("_transform_", actualObject), ITransform.class);
+        Context.jsToJava(actualObject.get(CONST_TRANSFORM, actualObject), ITransform.class);
     if (transformObject instanceof ITransform) {
       ITransform transform = (ITransform) transformObject;
       IPipelineEngine pipeline = transform.getPipeline();
@@ -1980,7 +1979,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     String sArg2 = "";
     if (argList.length == 2) {
       try {
-        Object scmo = actualObject.get("_transform_", actualObject);
+        Object scmo = actualObject.get(CONST_TRANSFORM, actualObject);
         Object scmO = Context.jsToJava(scmo, ITransform.class);
 
         if (scmO instanceof ITransform) {
@@ -2008,7 +2007,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
     if (argList.length == 0) {
       try {
-        Object scmO = actualObject.get("_transform_", actualObject);
+        Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
         try {
           ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
           return scm.getOutputRowMeta();
@@ -2034,7 +2033,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
     if (argList.length == 0) {
       try {
-        Object scmO = actualObject.get("_transform_", actualObject);
+        Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
         try {
           ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
           return scm.getInputRowMeta();
@@ -2081,7 +2080,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       try {
         Object[] newRow = (Object[]) Context.jsToJava(argList[0], (new Object[] {}).getClass());
 
-        Object scmO = actualObject.get("_transform_", actualObject);
+        Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
         try {
           ScriptValues transform = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
           transform.putRow(transform.getOutputRowMeta(), newRow);
@@ -2123,7 +2122,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
           } else {
             Context.reportRuntimeError(
-                "file [" + Context.toString(argList[0]) + "] can not be found!");
+                CONST_FILE + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
         } catch (IOException e) {
           throw Context.reportRuntimeError("The function call deleteFile is not valid.");
@@ -2213,7 +2212,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
             }
           } else {
             Context.reportRuntimeError(
-                "file to copy [" + Context.toString(argList[0]) + "] can not be found!");
+                "file to copy [" + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
         } catch (IOException e) {
           throw Context.reportRuntimeError(
@@ -2264,7 +2263,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
             }
           } else {
             Context.reportRuntimeError(
-                "file [" + Context.toString(argList[0]) + "] can not be found!");
+                CONST_FILE + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
           return filesize;
         } catch (IOException e) {
@@ -2309,7 +2308,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
             }
           } else {
             Context.reportRuntimeError(
-                "file [" + Context.toString(argList[0]) + "] can not be found!");
+                CONST_FILE + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
           return isafile;
         } catch (IOException e) {
@@ -2354,7 +2353,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
             }
           } else {
             Context.reportRuntimeError(
-                "folder [" + Context.toString(argList[0]) + "] can not be found!");
+                "folder [" + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
           return isafolder;
         } catch (IOException e) {
@@ -2396,7 +2395,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
           } else {
             Context.reportRuntimeError(
-                "file [" + Context.toString(argList[0]) + "] can not be found!");
+                CONST_FILE + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
 
           return filename;
@@ -2439,7 +2438,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
           } else {
             Context.reportRuntimeError(
-                "file [" + Context.toString(argList[0]) + "] can not be found!");
+                CONST_FILE + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
 
           return extension;
@@ -2482,7 +2481,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
           } else {
             Context.reportRuntimeError(
-                "file [" + Context.toString(argList[0]) + "] can not be found!");
+                CONST_FILE + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
 
           return folderName;
@@ -2531,7 +2530,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
           } else {
             Context.reportRuntimeError(
-                "file [" + Context.toString(argList[0]) + "] can not be found!");
+                CONST_FILE + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
 
           return lastmodifiedtime;
@@ -2674,7 +2673,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
             }
           } else {
             Context.reportRuntimeError(
-                "file to move [" + Context.toString(argList[0]) + "] can not be found!");
+                "file to move [" + Context.toString(argList[0]) + CONST_CAN_NOT_BE_FOUND);
           }
         } catch (IOException e) {
           throw Context.reportRuntimeError(

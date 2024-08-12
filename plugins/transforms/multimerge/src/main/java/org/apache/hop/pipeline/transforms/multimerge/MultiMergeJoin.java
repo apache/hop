@@ -51,6 +51,8 @@ import org.apache.hop.pipeline.transform.stream.IStream;
  */
 public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMergeJoinData> {
   private static final Class<?> PKG = MultiMergeJoinMeta.class;
+  public static final String CONST_MULTI_MERGE_JOIN_LOG_UNABLE_TO_FIND_REFERENCE_STREAM =
+      "MultiMergeJoin.Log.UnableToFindReferenceStream";
 
   public MultiMergeJoin(
       TransformMeta transformMeta,
@@ -85,7 +87,9 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
         // should not arrive here, shoud typically have been caught by init.
         throw new HopException(
             BaseMessages.getString(
-                PKG, "MultiMergeJoin.Log.UnableToFindReferenceStream", inputTransformName));
+                PKG,
+                CONST_MULTI_MERGE_JOIN_LOG_UNABLE_TO_FIND_REFERENCE_STREAM,
+                inputTransformName));
       }
       // check the hop
       pipelineHopMeta = getPipelineMeta().findPipelineHop(fromTransformMeta, toTransformMeta, true);
@@ -94,7 +98,9 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
         // should not arrive here, shoud typically have been caught by init.
         throw new HopException(
             BaseMessages.getString(
-                PKG, "MultiMergeJoin.Log.UnableToFindReferenceStream", inputTransformName));
+                PKG,
+                CONST_MULTI_MERGE_JOIN_LOG_UNABLE_TO_FIND_REFERENCE_STREAM,
+                inputTransformName));
       } else if (pipelineHopMeta.isEnabled()) {
         inputTransformNameList.add(inputTransformName);
       } else {
@@ -398,7 +404,9 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
         if (stream.getTransformMeta() == null) {
           logError(
               BaseMessages.getString(
-                  PKG, "MultiMergeJoin.Log.UnableToFindReferenceStream", inputTransformName));
+                  PKG,
+                  CONST_MULTI_MERGE_JOIN_LOG_UNABLE_TO_FIND_REFERENCE_STREAM,
+                  inputTransformName));
           return false;
         }
       }

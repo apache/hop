@@ -73,6 +73,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   private static final Class<?> PKG = HopServer.class;
   private static final String CONST_FOUND = " found.";
   private static final String CONST_SPACE = "        ";
+  private static final String CONST_USAGE_EXAMPLE = "HopServer.Usage.Example";
 
   @Parameters(description = "One XML configuration file or a hostname and port", arity = "0..3")
   private List<String> parameters;
@@ -167,7 +168,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     HopServerMeta hopServer = config.getHopServer();
 
     String hostname = hopServer.getHostname();
-    int port = WebServer.PORT;
+    int port = WebServer.CONST_PORT;
     int shutdownPort = WebServer.SHUTDOWN_PORT;
     if (!Utils.isEmpty(hopServer.getPort())) {
       port = parsePort(hopServer);
@@ -249,10 +250,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
 
       // If the server name was specified we make it look like 2 parameters were specified
       //
-      if (CollectionUtils.isEmpty(parameters)) {
-        if (StringUtils.isNotEmpty(serverName)) {
-          setupByServerName();
-        }
+      if (CollectionUtils.isEmpty(parameters) && StringUtils.isNotEmpty(serverName)) {
+        setupByServerName();
       }
 
       // Build the server configuration from the options...
@@ -606,16 +605,16 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   private static void printExtraUsageExamples() {
     System.err.println();
     System.err.println(
-        BaseMessages.getString(PKG, "HopServer.Usage.Example") + ": hop-server.sh 0.0.0.0 8080");
+        BaseMessages.getString(PKG, CONST_USAGE_EXAMPLE) + ": hop-server.sh 0.0.0.0 8080");
     System.err.println(
-        BaseMessages.getString(PKG, "HopServer.Usage.Example")
+        BaseMessages.getString(PKG, CONST_USAGE_EXAMPLE)
             + ": hop-server.sh 192.168.1.221 8081 8082");
     System.err.println();
     System.err.println(
-        BaseMessages.getString(PKG, "HopServer.Usage.Example")
+        BaseMessages.getString(PKG, CONST_USAGE_EXAMPLE)
             + ": hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml");
     System.err.println(
-        BaseMessages.getString(PKG, "HopServer.Usage.Example")
+        BaseMessages.getString(PKG, CONST_USAGE_EXAMPLE)
             + ": hop-server.sh 127.0.0.1 8080 --kill --userName cluster --password cluster");
   }
 

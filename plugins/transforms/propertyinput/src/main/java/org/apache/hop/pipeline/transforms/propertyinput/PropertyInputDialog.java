@@ -75,11 +75,14 @@ import org.ini4j.Wini;
 
 public class PropertyInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PropertyInputMeta.class;
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
+  public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
   private static final String[] YES_NO_COMBO =
       new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
+        BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
+        BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
       };
+  public static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private CTabFolder wTabFolder;
 
@@ -891,8 +894,8 @@ public class PropertyInputDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "PropertyInputDialog.FieldsTable.Repeat.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
               },
               true),
         };
@@ -1058,7 +1061,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
       } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(BaseMessages.getString(PKG, "PropertyInputDialog.NoFileFound.DialogMessage"));
-        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+        mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
         mb.open();
       }
     } catch (Exception ex) {
@@ -1156,7 +1159,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
       } catch (Exception e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE),
             BaseMessages.getString(
                 PKG, "PropertyInputDialog.ErrorReadingFile.DialogMessage", e.toString()),
             e);
@@ -1302,8 +1305,8 @@ public class PropertyInputDialog extends BaseTransformDialog {
         String trim = field.getTrimType().getDescription();
         String rep =
             field.isRepeating()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No");
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO);
 
         item.setText(1, Const.NVL(name, ""));
         item.setText(2, Const.NVL(column, ""));
@@ -1371,7 +1374,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
 
     try {
       getInfo(input);
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "PropertyInputDialog.ErrorParsingData.DialogTitle"),
@@ -1382,7 +1385,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
     dispose();
   }
 
-  private void getInfo(PropertyInputMeta in) throws HopException {
+  private void getInfo(PropertyInputMeta in) {
     transformName = wTransformName.getText(); // return value
 
     // copy info to PropertyInputMeta class (input)
@@ -1432,7 +1435,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
       field.setGroup(item.getText(9));
       field.setTrimType(IValueMeta.TrimType.lookupDescription(item.getText(10)));
       field.setRepeating(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(11)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(11)));
     }
     in.setShortFileFieldName(wShortFileFieldName.getText());
     in.setPathFieldName(wPathFieldName.getText());
@@ -1501,7 +1504,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
           prd.open();
         }
       }
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "PropertyInputDialog.ErrorPreviewingData.DialogTitle"),
@@ -1555,7 +1558,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(
             BaseMessages.getString(PKG, "PropertyInputDialog.FilesMissing.DialogMessage"));
-        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+        mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
         mb.open();
       }
     } catch (Exception e) {

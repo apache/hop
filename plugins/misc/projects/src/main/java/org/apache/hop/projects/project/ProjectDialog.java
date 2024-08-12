@@ -61,6 +61,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class ProjectDialog extends Dialog {
   private static final Class<?> PKG = ProjectDialog.class;
+  public static final String CONST_PROJECT = "Project '";
 
   private final Project project;
   private final ProjectConfig projectConfig;
@@ -560,7 +561,7 @@ public class ProjectDialog extends Dialog {
           && !wParentProject.getText().isEmpty()
           && projectName.equals(wParentProject.getText())) {
         throw new HopException(
-            "Project '" + projectName + "' cannot be set as a parent project of itself");
+            CONST_PROJECT + projectName + "' cannot be set as a parent project of itself");
       }
 
       ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
@@ -572,7 +573,7 @@ public class ProjectDialog extends Dialog {
         for (String prj : prjs) {
           if (projectName.equals(prj)) {
             throw new HopException(
-                "Project '" + projectName + "' already exists. Project name must be unique!");
+                CONST_PROJECT + projectName + "' already exists. Project name must be unique!");
           }
         }
       }
@@ -583,7 +584,7 @@ public class ProjectDialog extends Dialog {
         boolean parentPrjExists = ProjectsUtil.projectExists(wParentProject.getText());
         if (!parentPrjExists)
           throw new HopException(
-              "Project '"
+              CONST_PROJECT
                   + wParentProject.getText()
                   + "' cannot be set as parent project because it does not exists!");
 
@@ -592,7 +593,7 @@ public class ProjectDialog extends Dialog {
         if (parentPrj.getParentProjectName() != null
             && parentPrj.getParentProjectName().equals(projectName))
           throw new HopException(
-              "Project '"
+              CONST_PROJECT
                   + projectName
                   + "' cannot reference '"
                   + wParentProject.getText()

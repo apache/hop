@@ -50,6 +50,7 @@ import org.eclipse.swt.widgets.Display;
  */
 public class SwtSvgImageUtil {
 
+  public static final String CONST_UNABLE_TO_LOAD_IMAGE = "Unable to load image [";
   private static ILogChannel log = new LogChannel("SwtSvgImageUtil");
 
   private static final String NO_IMAGE = "ui/images/no_image.svg";
@@ -117,11 +118,11 @@ public class SwtSvgImageUtil {
       result = getImageAsResourceInternal(display, SvgSupport.toPngName(location));
     }
     if (result == null && !location.equals(NO_IMAGE)) {
-      log.logError("Unable to load image [" + location + "]", new Exception());
+      log.logError(CONST_UNABLE_TO_LOAD_IMAGE + location + "]", new Exception());
       result = getImageAsResource(display, NO_IMAGE);
     }
     if (result == null) {
-      log.logError("Unable to load image [" + location + "]", new Exception());
+      log.logError(CONST_UNABLE_TO_LOAD_IMAGE + location + "]", new Exception());
       result = getMissingImage(display);
     }
     return result;
@@ -180,7 +181,7 @@ public class SwtSvgImageUtil {
 
     // if we can't load PNG, use default "no_image" graphic
     if (result == null) {
-      log.logError("Unable to load image [" + filename + "]", new Exception());
+      log.logError(CONST_UNABLE_TO_LOAD_IMAGE + filename + "]", new Exception());
       result = getImageAsResource(display, NO_IMAGE);
     }
     return result;

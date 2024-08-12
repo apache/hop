@@ -53,6 +53,8 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/propertyoutput.html")
 public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, PropertyOutputData> {
   private static final Class<?> PKG = PropertyOutputMeta.class;
+  public static final String CONST_SPACES_LONG = "      ";
+  public static final String CONST_SPACES = "    ";
 
   private String keyfield;
   private String valuefield;
@@ -365,24 +367,25 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
 
     // Items ...
 
-    retval.append("    " + XmlHandler.addTagValue("keyfield", keyfield));
-    retval.append("    " + XmlHandler.addTagValue("valuefield", valuefield));
-    retval.append("    " + XmlHandler.addTagValue("comment", comment));
+    retval.append(CONST_SPACES + XmlHandler.addTagValue("keyfield", keyfield));
+    retval.append(CONST_SPACES + XmlHandler.addTagValue("valuefield", valuefield));
+    retval.append(CONST_SPACES + XmlHandler.addTagValue("comment", comment));
 
-    retval.append("    " + XmlHandler.addTagValue("fileNameInField", fileNameInField));
-    retval.append("    " + XmlHandler.addTagValue("fileNameField", fileNameField));
+    retval.append(CONST_SPACES + XmlHandler.addTagValue("fileNameInField", fileNameInField));
+    retval.append(CONST_SPACES + XmlHandler.addTagValue("fileNameField", fileNameField));
     retval.append("    <file>" + Const.CR);
 
-    retval.append("      " + XmlHandler.addTagValue("name", fileName));
-    retval.append("      " + XmlHandler.addTagValue("extention", extension));
-    retval.append("      " + XmlHandler.addTagValue("split", transformNrInFilename));
-    retval.append("      " + XmlHandler.addTagValue("haspartno", partNrInFilename));
-    retval.append("      " + XmlHandler.addTagValue("add_date", dateInFilename));
-    retval.append("      " + XmlHandler.addTagValue("add_time", timeInFilename));
+    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("name", fileName));
+    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("extention", extension));
+    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("split", transformNrInFilename));
+    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("haspartno", partNrInFilename));
+    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("add_date", dateInFilename));
+    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("add_time", timeInFilename));
 
-    retval.append("      " + XmlHandler.addTagValue("create_parent_folder", createparentfolder));
-    retval.append("    " + XmlHandler.addTagValue("addtoresult", addToResult));
-    retval.append("    " + XmlHandler.addTagValue("append", append));
+    retval.append(
+        CONST_SPACES_LONG + XmlHandler.addTagValue("create_parent_folder", createparentfolder));
+    retval.append(CONST_SPACES + XmlHandler.addTagValue("addtoresult", addToResult));
+    retval.append(CONST_SPACES + XmlHandler.addTagValue("append", append));
     retval.append("      </file>" + Const.CR);
 
     return retval.toString();

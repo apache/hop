@@ -50,18 +50,6 @@ import org.w3c.dom.Node;
 public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   private static final Class<?> PKG = RestMeta.class;
 
-  public static final String[] APPLICATION_TYPES =
-      new String[] {
-        "TEXT PLAIN",
-        "XML",
-        "JSON",
-        "OCTET STREAM",
-        "XHTML",
-        "FORM URLENCODED",
-        "ATOM XML",
-        "SVG XML",
-        "TEXT XML"
-      };
   public static final String APPLICATION_TYPE_TEXT_PLAIN = "TEXT PLAIN";
   public static final String APPLICATION_TYPE_XML = "XML";
   public static final String APPLICATION_TYPE_JSON = "JSON";
@@ -71,12 +59,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public static final String APPLICATION_TYPE_ATOM_XML = "ATOM XML";
   public static final String APPLICATION_TYPE_SVG_XML = "SVG XML";
   public static final String APPLICATION_TYPE_TEXT_XML = "TEXT XML";
-
-  private String applicationType;
-
-  public static final String[] HTTP_METHODS =
-      new String[] {"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"};
-
   public static final String HTTP_METHOD_GET = "GET";
   public static final String HTTP_METHOD_POST = "POST";
   public static final String HTTP_METHOD_PUT = "PUT";
@@ -84,6 +66,36 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public static final String HTTP_METHOD_HEAD = "HEAD";
   public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
   public static final String HTTP_METHOD_PATCH = "PATCH";
+
+  public static final String[] APPLICATION_TYPES =
+      new String[] {
+        APPLICATION_TYPE_TEXT_PLAIN,
+        APPLICATION_TYPE_XML,
+        APPLICATION_TYPE_JSON,
+        APPLICATION_TYPE_OCTET_STREAM,
+        APPLICATION_TYPE_XHTML,
+        APPLICATION_TYPE_FORM_URLENCODED,
+        APPLICATION_TYPE_ATOM_XML,
+        APPLICATION_TYPE_SVG_XML,
+        APPLICATION_TYPE_TEXT_XML
+      };
+  public static final String CONST_RESULT = "result";
+  public static final String CONST_SPACES_LONG = "        ";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_FIELD = "field";
+
+  private String applicationType;
+
+  public static final String[] HTTP_METHODS =
+      new String[] {
+        HTTP_METHOD_GET,
+        HTTP_METHOD_POST,
+        HTTP_METHOD_PUT,
+        HTTP_METHOD_DELETE,
+        HTTP_METHOD_HEAD,
+        HTTP_METHOD_OPTIONS,
+        HTTP_METHOD_PATCH
+      };
 
   /** The default timeout until a connection is established (milliseconds) */
   public static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
@@ -407,7 +419,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public void setDefault() {
     allocate(0, 0, 0);
 
-    this.fieldName = "result";
+    this.fieldName = CONST_RESULT;
     this.resultCodeFieldName = "";
     this.responseTimeFieldName = "";
     this.responseHeaderFieldName = "";
@@ -493,8 +505,8 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     retval.append("    <headers>").append(Const.CR);
     for (int i = 0, len = (headerName != null ? headerName.length : 0); i < len; i++) {
       retval.append("      <header>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("field", headerField[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("name", headerName[i]));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue(CONST_FIELD, headerField[i]));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", headerName[i]));
       retval.append("        </header>").append(Const.CR);
     }
     retval.append("      </headers>").append(Const.CR);
@@ -502,8 +514,10 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     retval.append("    <parameters>").append(Const.CR);
     for (int i = 0, len = (parameterName != null ? parameterName.length : 0); i < len; i++) {
       retval.append("      <parameter>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("field", parameterField[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("name", parameterName[i]));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue(CONST_FIELD, parameterField[i]));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", parameterName[i]));
       retval.append("        </parameter>").append(Const.CR);
     }
     retval.append("      </parameters>").append(Const.CR);
@@ -513,18 +527,24 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
         i < len;
         i++) {
       retval.append("      <matrixParameter>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("field", matrixParameterField[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("name", matrixParameterName[i]));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue(CONST_FIELD, matrixParameterField[i]));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("name", matrixParameterName[i]));
       retval.append("        </matrixParameter>").append(Const.CR);
     }
     retval.append("      </matrixParameters>").append(Const.CR);
 
     retval.append("    <result>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("name", fieldName));
-    retval.append("      ").append(XmlHandler.addTagValue("code", resultCodeFieldName));
-    retval.append("      ").append(XmlHandler.addTagValue("response_time", responseTimeFieldName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fieldName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("code", resultCodeFieldName));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("response_time", responseTimeFieldName));
+    retval
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("response_header", responseHeaderFieldName));
     retval.append("      </result>").append(Const.CR);
 
@@ -570,28 +590,30 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       allocate(nrheaders, nrparameters, nrmatrixparameters);
       for (int i = 0; i < nrheaders; i++) {
         Node anode = XmlHandler.getSubNodeByNr(headernode, "header", i);
-        headerField[i] = XmlHandler.getTagValue(anode, "field");
+        headerField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
         headerName[i] = XmlHandler.getTagValue(anode, "name");
       }
       for (int i = 0; i < nrparameters; i++) {
         Node anode = XmlHandler.getSubNodeByNr(paramnode, "parameter", i);
-        parameterField[i] = XmlHandler.getTagValue(anode, "field");
+        parameterField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
         parameterName[i] = XmlHandler.getTagValue(anode, "name");
       }
       for (int i = 0; i < nrmatrixparameters; i++) {
         Node anode = XmlHandler.getSubNodeByNr(matrixparamnode, "matrixParameter", i);
-        matrixParameterField[i] = XmlHandler.getTagValue(anode, "field");
+        matrixParameterField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
         matrixParameterName[i] = XmlHandler.getTagValue(anode, "name");
       }
 
-      fieldName = XmlHandler.getTagValue(transformNode, "result", "name"); // Optional, can be null
+      fieldName =
+          XmlHandler.getTagValue(transformNode, CONST_RESULT, "name"); // Optional, can be null
       resultCodeFieldName =
-          XmlHandler.getTagValue(transformNode, "result", "code"); // Optional, can be null
+          XmlHandler.getTagValue(transformNode, CONST_RESULT, "code"); // Optional, can be null
       responseTimeFieldName =
-          XmlHandler.getTagValue(transformNode, "result", "response_time"); // Optional, can be null
+          XmlHandler.getTagValue(
+              transformNode, CONST_RESULT, "response_time"); // Optional, can be null
       responseHeaderFieldName =
           XmlHandler.getTagValue(
-              transformNode, "result", "response_header"); // Optional, can be null
+              transformNode, CONST_RESULT, "response_header"); // Optional, can be null
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "RestMeta.Exception.UnableToReadTransformMeta"), e);

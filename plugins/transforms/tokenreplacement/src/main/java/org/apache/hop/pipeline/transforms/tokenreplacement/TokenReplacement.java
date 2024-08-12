@@ -46,6 +46,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenReplacementData> {
   private static final Class<?> PKG = TokenReplacementMeta.class;
+  public static final String CONST_NOT_FOUND_ON_INPUT_STREAM = " not found on input stream.";
+  public static final String CONST_FIELD = "field";
 
   public TokenReplacement(
       TransformMeta transformMeta,
@@ -69,7 +71,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = getInputRowMeta().clone();
 
-      if (meta.getOutputType().equalsIgnoreCase("field")) {
+      if (meta.getOutputType().equalsIgnoreCase(CONST_FIELD)) {
         meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
       }
       if (meta.getOutputType().equalsIgnoreCase("file") && !meta.isOutputFileNameInField()) {
@@ -95,15 +97,14 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
     if (meta.getOutputType().equalsIgnoreCase("file")
         && !meta.isOutputFileNameInField()
         && meta.getSplitEvery() > 0
-        && data.rowNumber % meta.getSplitEvery() == 0) {
-      if (data.rowNumber > 0) {
-        closeAllOutputFiles();
-        data.splitnr++;
-        String filename =
-            meta.buildFilename(
-                meta.getOutputFileName(), this, getCopy(), getPartitionId(), data.splitnr);
-        openNewOutputFile(filename);
-      }
+        && data.rowNumber % meta.getSplitEvery() == 0
+        && data.rowNumber > 0) {
+      closeAllOutputFiles();
+      data.splitnr++;
+      String filename =
+          meta.buildFilename(
+              meta.getOutputFileName(), this, getCopy(), getPartitionId(), data.splitnr);
+      openNewOutputFile(filename);
     }
 
     String outputFilename = "";
@@ -134,7 +135,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
         }
         resolver.addToken(field.getTokenName(), fieldValue);
       } else {
-        throw new HopValueException("Field " + field.getName() + " not found on input stream.");
+        throw new HopValueException("Field " + field.getName() + CONST_NOT_FOUND_ON_INPUT_STREAM);
       }
     }
 
@@ -149,7 +150,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
               resolve(meta.getTokenStartString()),
               resolve(meta.getTokenEndString()));
 
-    } else if (meta.getInputType().equalsIgnoreCase("field")) {
+    } else if (meta.getInputType().equalsIgnoreCase(CONST_FIELD)) {
       if (data.inputRowMeta.indexOfValue(meta.getInputFieldName()) >= 0) {
         String inputString = data.inputRowMeta.getString(r, meta.getInputFieldName(), "");
         reader =
@@ -161,7 +162,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
 
       } else {
         throw new HopValueException(
-            "Input field " + meta.getInputFieldName() + " not found on input stream.");
+            "Input field " + meta.getInputFieldName() + CONST_NOT_FOUND_ON_INPUT_STREAM);
       }
     } else if (meta.getInputType().equalsIgnoreCase("file")) {
       if (meta.isInputFileNameInField()) {
@@ -171,7 +172,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
           throw new HopValueException(
               "Input filename field "
                   + resolve(meta.getInputFileNameField())
-                  + " not found on input stream.");
+                  + CONST_NOT_FOUND_ON_INPUT_STREAM);
         }
       } else {
         inputFilename = resolve(meta.getInputFileName());
@@ -207,7 +208,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
     Writer stringWriter = null;
     OutputStream bufferedWriter = null;
 
-    if (meta.getOutputType().equalsIgnoreCase("field")) {
+    if (meta.getOutputType().equalsIgnoreCase(CONST_FIELD)) {
       stringWriter = new StringWriter(5000);
     } else {
       if (meta.getOutputType().equalsIgnoreCase("file")) {
@@ -236,7 +237,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
       char[] cbuf = new char[5000];
       int length = 0;
       while ((length = reader.read(cbuf)) > 0) {
-        if (meta.getOutputType().equalsIgnoreCase("field")) {
+        if (meta.getOutputType().equalsIgnoreCase(CONST_FIELD)) {
           stringWriter.write(cbuf, 0, length);
         } else if (meta.getOutputType().equalsIgnoreCase("file")) {
           CharBuffer cBuffer = CharBuffer.wrap(cbuf, 0, length);
@@ -248,7 +249,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
         cbuf = new char[5000];
       }
 
-      if (meta.getOutputType().equalsIgnoreCase("field")) {
+      if (meta.getOutputType().equalsIgnoreCase(CONST_FIELD)) {
         output += stringWriter.toString();
       } else if (meta.getOutputType().equalsIgnoreCase("file")) {
         bufferedWriter.write(meta.getOutputFileFormatString().getBytes());
@@ -270,7 +271,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
       }
     }
 
-    if (meta.getOutputType().equalsIgnoreCase("field")) {
+    if (meta.getOutputType().equalsIgnoreCase(CONST_FIELD)) {
       r = RowDataUtil.addValueData(r, data.outputRowMeta.size() - 1, output);
     } else if (meta.getOutputType().equalsIgnoreCase("file")) {
       incrementLinesWritten();

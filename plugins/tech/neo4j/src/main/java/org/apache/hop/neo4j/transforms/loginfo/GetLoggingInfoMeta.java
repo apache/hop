@@ -52,6 +52,7 @@ import org.w3c.dom.Node;
 public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLoggingInfoData> {
   private static final Class<?> PKG =
       GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
+  public static final String CONST_SPACES = "        ";
 
   @Injection(name = "FIELD_NAME")
   private String[] fieldName;
@@ -208,11 +209,11 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
 
     for (int i = 0; i < fieldName.length; i++) {
       retval.append("      <field>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", fieldName[i]));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue("name", fieldName[i]));
       retval.append(
-          "        "
+          CONST_SPACES
               + XmlHandler.addTagValue("type", fieldType[i] != null ? fieldType[i].getCode() : ""));
-      retval.append("        " + XmlHandler.addTagValue("argument", fieldArgument[i]));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue("argument", fieldArgument[i]));
       retval.append("        </field>" + Const.CR);
     }
     retval.append("      </fields>" + Const.CR);

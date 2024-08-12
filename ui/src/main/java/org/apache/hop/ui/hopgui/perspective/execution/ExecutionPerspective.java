@@ -109,6 +109,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   public static final String TOOLBAR_ITEM_REFRESH = "ExecutionPerspective-Toolbar-10100-Refresh";
 
   public static final String KEY_HELP = "Help";
+  public static final String CONST_ERROR = "error";
+  public static final String CONST_ERROR1 = "Error";
 
   private static ExecutionPerspective instance;
 
@@ -355,7 +357,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler fileTypeHandler) {}
+  public void setActiveFileTypeHandler(IHopFileTypeHandler fileTypeHandler) {
+    // Do Nothing
+  }
 
   protected void onTabClose(CTabFolderEvent event) {
     CTabItem tabItem = (CTabItem) event.item;
@@ -378,14 +382,14 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           ExecutionState executionState =
               location.getExecutionInfoLocation().getExecutionState(execution.getId());
           createExecutionViewer(location.getName(), execution, executionState);
-        } else if (treeItem.getData("error") instanceof Exception) {
-          Exception e = (Exception) treeItem.getData("error");
-          new ErrorDialog(getShell(), "Error", "Location error:", e);
+        } else if (treeItem.getData(CONST_ERROR) instanceof Exception) {
+          Exception e = (Exception) treeItem.getData(CONST_ERROR);
+          new ErrorDialog(getShell(), CONST_ERROR1, "Location error:", e);
         }
       }
     } catch (Exception e) {
       getShell().setCursor(null);
-      new ErrorDialog(getShell(), "Error", "Error showing viewer for execution", e);
+      new ErrorDialog(getShell(), CONST_ERROR1, "Error showing viewer for execution", e);
     }
   }
 
@@ -471,7 +475,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
         createExecutionViewer(location.getName(), execution, executionState);
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error opening view on last execution information", e);
+      new ErrorDialog(
+          getShell(), CONST_ERROR1, "Error opening view on last execution information", e);
     }
   }
 
@@ -564,7 +569,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
                 TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
                 errorItem.setText("Error reading " + id + " (double click for details)");
                 errorItem.setForeground(GuiResource.getInstance().getColorRed());
-                errorItem.setData("error", e);
+                errorItem.setData(CONST_ERROR, e);
                 errorItem.setImage(GuiResource.getInstance().getImageError());
               }
             }
@@ -574,7 +579,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
             TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
             errorItem.setText("Not reachable (double click for details)");
             errorItem.setForeground(GuiResource.getInstance().getColorRed());
-            errorItem.setData("error", e);
+            errorItem.setData(CONST_ERROR, e);
             errorItem.setImage(GuiResource.getInstance().getImageError());
           }
         } catch (Exception e) {
@@ -585,7 +590,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
               0, Const.NVL(location.getName(), "") + " (error: double click for details)");
           locationItem.setForeground(GuiResource.getInstance().getColorRed());
           locationItem.setImage(GuiResource.getInstance().getImageLocation());
-          locationItem.setData("error", e);
+          locationItem.setData(CONST_ERROR, e);
         }
       }
 
@@ -617,7 +622,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       executionItem.setData(execution);
     } catch (Exception e) {
       new ErrorDialog(
-          getShell(), "Error", "Error drawing pipeline execution information tree item", e);
+          getShell(), CONST_ERROR1, "Error drawing pipeline execution information tree item", e);
     }
   }
 
@@ -633,7 +638,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       executionItem.setData(execution);
     } catch (Exception e) {
       new ErrorDialog(
-          getShell(), "Error", "Error drawing workflow execution information tree item", e);
+          getShell(), CONST_ERROR1, "Error drawing workflow execution information tree item", e);
     }
   }
 
@@ -701,7 +706,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
         refresh();
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error deleting location(s)", e);
+      new ErrorDialog(getShell(), CONST_ERROR1, "Error deleting location(s)", e);
     }
   }
 

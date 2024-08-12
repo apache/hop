@@ -134,6 +134,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       "PipelineExecutionViewer-Toolbar-12100-ViewMetadata";
 
   public static final String PIPELINE_EXECUTION_VIEWER_TABS = "PipelineExecutionViewer.Tabs.ID";
+  public static final String CONST_ERROR = "Error";
 
   protected final PipelineMeta pipelineMeta;
 
@@ -330,7 +331,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             "Error handling extension point 'PipelineExecutionViewerUpdate'", xe);
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error refreshing pipeline status", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error refreshing pipeline status", e);
     }
   }
 
@@ -362,7 +363,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
         } catch (Exception e) {
           new ErrorDialog(
               hopGui.getActiveShell(),
-              "Error",
+              CONST_ERROR,
               "Hop was unable to invoke @GuiTab method "
                   + tabItem.getMethod().getName()
                   + " with the parent composite as argument",
@@ -581,7 +582,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error showing transform data rows", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error showing transform data rows", e);
     } finally {
       layout(true, true);
       dataSash.setWeights(weights);
@@ -735,7 +736,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
         viewPort = pipelinePainter.getViewPort();
         graphPort = pipelinePainter.getGraphPort();
       } catch (Exception e) {
-        new ErrorDialog(hopGui.getActiveShell(), "Error", "Error drawing pipeline image", e);
+        new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error drawing pipeline image", e);
       }
     } finally {
       gc.dispose();
@@ -806,7 +807,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error navigating to pipeline in Hop GUI", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error navigating to pipeline in Hop GUI", e);
     }
   }
 
@@ -950,7 +951,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
         showDataRows();
       } catch (Exception e) {
         // Ignore this error: there simply isn't any data to be found
-        new ErrorDialog(getShell(), "Error", "Error showing transform data", e);
+        new ErrorDialog(getShell(), CONST_ERROR, "Error showing transform data", e);
       }
     } finally {
       getShell().setCursor(null);
@@ -1089,7 +1090,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       perspective.createExecutionViewer(locationName, childExecution, executionState);
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error drilling down into selected action", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error drilling down into selected action", e);
     }
   }
 
@@ -1163,7 +1164,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       //
       perspective.createExecutionViewer(locationName, grandParent, executionState);
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error navigating up to parent execution", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error navigating up to parent execution", e);
     }
   }
 
@@ -1221,7 +1222,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       p.activate();
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error viewing the executor", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error viewing the executor", e);
     }
   }
 

@@ -41,6 +41,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData> {
 
   private static final Class<?> PKG = ExecProcessMeta.class;
+  public static final String CONST_EXEC_PROCESS_EXCEPTION_COULD_NOT_FIND_FIELD =
+      "ExecProcess.Exception.CouldNotFindField";
   private boolean killing;
   private CountDownLatch waitForLatch;
 
@@ -159,13 +161,13 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       if (data.indexOfProcess < 0) {
         // The field is unreachable !
         logError(
-            BaseMessages.getString(PKG, "ExecProcess.Exception.CouldNotFindField")
+            BaseMessages.getString(PKG, CONST_EXEC_PROCESS_EXCEPTION_COULD_NOT_FIND_FIELD)
                 + "["
                 + meta.getProcessField()
                 + "]");
         throw new HopException(
             BaseMessages.getString(
-                PKG, "ExecProcess.Exception.CouldNotFindField", meta.getProcessField()));
+                PKG, CONST_EXEC_PROCESS_EXCEPTION_COULD_NOT_FIND_FIELD, meta.getProcessField()));
       }
     }
     if (meta.isArgumentsInFields() && data.argumentIndexes == null) {
@@ -175,12 +177,13 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
         int argumentIndex = getInputRowMeta().indexOfValue(fieldName);
         if (argumentIndex < 0) {
           logError(
-              BaseMessages.getString(PKG, "ExecProcess.Exception.CouldNotFindField")
+              BaseMessages.getString(PKG, CONST_EXEC_PROCESS_EXCEPTION_COULD_NOT_FIND_FIELD)
                   + "["
                   + fieldName
                   + "]");
           throw new HopException(
-              BaseMessages.getString(PKG, "ExecProcess.Exception.CouldNotFindField", fieldName));
+              BaseMessages.getString(
+                  PKG, CONST_EXEC_PROCESS_EXCEPTION_COULD_NOT_FIND_FIELD, fieldName));
         }
         data.argumentIndexes.add(argumentIndex);
       }

@@ -39,6 +39,9 @@ type registration.
 public final class ComplexType implements java.io.Serializable {
 
   private static final long serialVersionUID = 1L;
+  public static final String CONST_GROUP = "group";
+  public static final String CONST_CHOICE = "choice";
+  public static final String CONST_SEQUENCE = "sequence";
   private final HashMap<String, QName> _elements = new HashMap<>();
   private final List<String> _elementNames = new ArrayList<>();
   private final String Name;
@@ -62,13 +65,13 @@ public final class ComplexType implements java.io.Serializable {
       processSimpleContent(child);
     } else if ((child = DomUtils.getChildElementByName(type, "complexContent")) != null) {
       processComplexContent(child);
-    } else if ((child = DomUtils.getChildElementByName(type, "group")) != null) {
+    } else if ((child = DomUtils.getChildElementByName(type, CONST_GROUP)) != null) {
       processGroup(child);
     } else if ((child = DomUtils.getChildElementByName(type, "all")) != null) {
       processAll(child);
-    } else if ((child = DomUtils.getChildElementByName(type, "choice")) != null) {
+    } else if ((child = DomUtils.getChildElementByName(type, CONST_CHOICE)) != null) {
       processChoice(child);
-    } else if ((child = DomUtils.getChildElementByName(type, "sequence")) != null) {
+    } else if ((child = DomUtils.getChildElementByName(type, CONST_SEQUENCE)) != null) {
       processSequence(child);
     }
 
@@ -164,13 +167,13 @@ public final class ComplexType implements java.io.Serializable {
     // annotation?, (group, | all | choice | sequence)?, (attribute | attributeGroup)*,
     // anyAttribute?
     Element child;
-    if ((child = DomUtils.getChildElementByName(complexExtension, "group")) != null) {
+    if ((child = DomUtils.getChildElementByName(complexExtension, CONST_GROUP)) != null) {
       processGroup(child);
     } else if ((child = DomUtils.getChildElementByName(complexExtension, "all")) != null) {
       processAll(child);
-    } else if ((child = DomUtils.getChildElementByName(complexExtension, "choice")) != null) {
+    } else if ((child = DomUtils.getChildElementByName(complexExtension, CONST_CHOICE)) != null) {
       processChoice(child);
-    } else if ((child = DomUtils.getChildElementByName(complexExtension, "sequence")) != null) {
+    } else if ((child = DomUtils.getChildElementByName(complexExtension, CONST_SEQUENCE)) != null) {
       processSequence(child);
     }
   }
@@ -183,13 +186,14 @@ public final class ComplexType implements java.io.Serializable {
   private void processComplexRestriction(Element complexRestriction) {
     // annotation?, (group | all | choice | sequence)?, (attribute | attributeGroup)*, anyAttribute?
     Element child;
-    if ((child = DomUtils.getChildElementByName(complexRestriction, "group")) != null) {
+    if ((child = DomUtils.getChildElementByName(complexRestriction, CONST_GROUP)) != null) {
       processGroup(child);
     } else if ((child = DomUtils.getChildElementByName(complexRestriction, "all")) != null) {
       processAll(child);
-    } else if ((child = DomUtils.getChildElementByName(complexRestriction, "choice")) != null) {
+    } else if ((child = DomUtils.getChildElementByName(complexRestriction, CONST_CHOICE)) != null) {
       processChoice(child);
-    } else if ((child = DomUtils.getChildElementByName(complexRestriction, "sequence")) != null) {
+    } else if ((child = DomUtils.getChildElementByName(complexRestriction, CONST_SEQUENCE))
+        != null) {
       processSequence(child);
     }
   }
@@ -219,9 +223,9 @@ public final class ComplexType implements java.io.Serializable {
     Element child;
     if ((child = DomUtils.getChildElementByName(group, "all")) != null) {
       processAll(child);
-    } else if ((child = DomUtils.getChildElementByName(group, "choice")) != null) {
+    } else if ((child = DomUtils.getChildElementByName(group, CONST_CHOICE)) != null) {
       processChoice(child);
-    } else if ((child = DomUtils.getChildElementByName(group, "sequence")) != null) {
+    } else if ((child = DomUtils.getChildElementByName(group, CONST_SEQUENCE)) != null) {
       processSequence(child);
     }
   }
@@ -238,17 +242,17 @@ public final class ComplexType implements java.io.Serializable {
       processElement(itr.next());
     }
 
-    elements = DomUtils.getChildElementsByName(sequence, "group");
+    elements = DomUtils.getChildElementsByName(sequence, CONST_GROUP);
     for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
       processGroup(itr.next());
     }
 
-    elements = DomUtils.getChildElementsByName(sequence, "choice");
+    elements = DomUtils.getChildElementsByName(sequence, CONST_CHOICE);
     for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
       processChoice(itr.next());
     }
 
-    elements = DomUtils.getChildElementsByName(sequence, "sequence");
+    elements = DomUtils.getChildElementsByName(sequence, CONST_SEQUENCE);
     for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
       processSequence(itr.next());
     }

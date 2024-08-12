@@ -59,6 +59,7 @@ public class MonetDbBulkLoaderMeta
     extends BaseTransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
       MonetDbBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+  public static final String CONST_SPACES = "        ";
 
   /** The database connection name * */
   @Injection(name = "CONNECTIONNAME")
@@ -359,9 +360,9 @@ public class MonetDbBulkLoaderMeta
         fieldFormat = fieldFormatOk[i];
       }
       retval.append("      <mapping>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("stream_name", fieldTable[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field_name", fieldStream[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field_format_ok", fieldFormat));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("stream_name", fieldTable[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("field_name", fieldStream[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("field_format_ok", fieldFormat));
       retval.append("      </mapping>").append(Const.CR);
     }
 

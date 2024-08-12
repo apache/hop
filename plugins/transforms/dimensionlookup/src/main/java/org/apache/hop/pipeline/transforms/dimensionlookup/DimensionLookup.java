@@ -63,6 +63,11 @@ import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.Te
 public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData> {
 
   private static final Class<?> PKG = DimensionLookupMeta.class;
+  public static final String CONST_DIMENSION_LOOKUP_EXCEPTION_KEY_FIELD_NOT_FOUND =
+      "DimensionLookup.Exception.KeyFieldNotFound";
+  public static final String CONST_UPDATE = "UPDATE ";
+  public static final String CONST_AND = "AND   ";
+  public static final String CONST_WHERE = " WHERE ";
 
   int[] columnLookupArray = null;
 
@@ -136,7 +141,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         if (data.keynrs[i] < 0) { // couldn't find field!
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "DimensionLookup.Exception.KeyFieldNotFound", key.getName()));
+                  PKG, CONST_DIMENSION_LOOKUP_EXCEPTION_KEY_FIELD_NOT_FOUND, key.getName()));
         }
       }
 
@@ -149,7 +154,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           if (data.fieldnrs[i] < 0) {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "DimensionLookup.Exception.KeyFieldNotFound", field.getName()));
+                    PKG, CONST_DIMENSION_LOOKUP_EXCEPTION_KEY_FIELD_NOT_FOUND, field.getName()));
           }
         } else {
           data.fieldnrs[i] = -1;
@@ -344,7 +349,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           //
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "DimensionLookup.Exception.KeyFieldNotFound", key.getName()));
+                  PKG, CONST_DIMENSION_LOOKUP_EXCEPTION_KEY_FIELD_NOT_FOUND, key.getName()));
         }
         data.preloadIndexes.add(index);
       }
@@ -887,7 +892,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
               + data.databaseMeta.quoteField(f.getDate().getTo());
     }
 
-    sql += " FROM " + data.schemaTable + " WHERE ";
+    sql += " FROM " + data.schemaTable + CONST_WHERE;
 
     for (int i = 0; i < f.getKeys().size(); i++) {
       DLKey key = f.getKeys().get(i);
@@ -1086,7 +1091,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
        */
       IRowMeta updateRowMeta = new RowMeta();
 
-      String sqlUpdate = "UPDATE " + data.schemaTable + Const.CR;
+      String sqlUpdate = CONST_UPDATE + data.schemaTable + Const.CR;
 
       // The end of the date range
       //
@@ -1117,13 +1122,13 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       for (int i = 0; i < f.getKeys().size(); i++) {
         DLKey key = f.getKeys().get(i);
         if (i > 0) {
-          sqlUpdate += "AND   ";
+          sqlUpdate += CONST_AND;
         }
         sqlUpdate += data.databaseMeta.quoteField(key.getLookup()) + " = ?" + Const.CR;
         updateRowMeta.addValueMeta(inputRowMeta.getValueMeta(data.keynrs[i]));
       }
       sqlUpdate +=
-          "AND   " + data.databaseMeta.quoteField(f.getReturns().getVersionField()) + " = ? ";
+          CONST_AND + data.databaseMeta.quoteField(f.getReturns().getVersionField()) + " = ? ";
       updateRowMeta.addValueMeta(new ValueMetaInteger(f.getReturns().getVersionField()));
 
       try {
@@ -1331,7 +1336,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
        * UPDATE d_customer SET fieldlookup[] = row.getValue(fieldnrs) , last_updated = <now> WHERE returnkey = dimkey
        */
 
-      String sql = "UPDATE " + data.schemaTable + Const.CR + "SET ";
+      String sql = CONST_UPDATE + data.schemaTable + Const.CR + "SET ";
       boolean comma = false;
       for (int i = 0; i < f.getFields().size(); i++) {
         DLField field = f.getFields().get(i);
@@ -1423,7 +1428,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
        * UPDATE table SET punchv1 = fieldx, ... , last_updated = <now> WHERE keylookup[] = keynrs[]
        */
 
-      String sqlUpdate = "UPDATE " + data.schemaTable + Const.CR;
+      String sqlUpdate = CONST_UPDATE + data.schemaTable + Const.CR;
       sqlUpdate += "SET ";
       boolean first = true;
       for (int i = 0; i < f.getFields().size(); i++) {
@@ -1461,7 +1466,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       for (int i = 0; i < f.getKeys().size(); i++) {
         DLKey key = f.getKeys().get(i);
         if (i > 0) {
-          sqlUpdate += "AND   ";
+          sqlUpdate += CONST_AND;
         }
         sqlUpdate += data.databaseMeta.quoteField(key.getLookup()) + " = ?" + Const.CR;
         data.punchThroughRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]));
@@ -1657,10 +1662,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
    *     - Technical key (Integer) - Version (Integer) -
    */
   private IRowMeta assembleCacheValueRowMeta() {
-    IRowMeta cacheRowMeta = data.returnRowMeta.clone();
     // The technical key and version are always an Integer...
-    //
-    return cacheRowMeta;
+    return data.returnRowMeta.clone();
   }
 
   private Object[] getFromCache(Object[] keyValues, Date dateValue) throws HopValueException {
@@ -1723,7 +1726,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       String sql =
           "SELECT count(*) FROM "
               + data.schemaTable
-              + " WHERE "
+              + CONST_WHERE
               + data.databaseMeta.quoteField(f.getReturns().getKeyField())
               + " = "
               + startTechnicalKey;
@@ -1737,7 +1740,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     String sql =
         "SELECT count(*) FROM "
             + data.schemaTable
-            + " WHERE "
+            + CONST_WHERE
             + data.databaseMeta.quoteField(f.getReturns().getKeyField())
             + " = "
             + startTechnicalKey;

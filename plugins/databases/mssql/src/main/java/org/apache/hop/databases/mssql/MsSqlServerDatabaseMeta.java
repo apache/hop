@@ -40,6 +40,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @GuiPlugin(id = "GUI-MSSQLServerDatabaseMeta")
 public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
+
   @GuiWidgetElement(
       id = "instanceName",
       order = "20",
@@ -211,7 +213,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   @Override
   public String getAddColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ADD "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
@@ -231,7 +233,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   @Override
   public String getModifyColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
@@ -251,7 +253,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   @Override
   public String getDropColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
+    return CONST_ALTER_TABLE + tableName + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   @Override

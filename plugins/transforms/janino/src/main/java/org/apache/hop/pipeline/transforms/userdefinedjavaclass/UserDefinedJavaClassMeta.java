@@ -71,6 +71,7 @@ import org.w3c.dom.Node;
 public class UserDefinedJavaClassMeta
     extends BaseTransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class;
+  public static final String CONST_STR = "\n        ";
 
   @SuppressWarnings("java:S115")
   public enum ElementNames {
@@ -505,11 +506,11 @@ public class UserDefinedJavaClassMeta
   }
 
   private boolean checkClassCookings(ILogChannel logChannel) {
-    boolean ok = cookedTransformClass != null && cookErrors.size() == 0;
+    boolean ok = cookedTransformClass != null && cookErrors.isEmpty();
     if (changed) {
       cookClasses();
       if (cookedTransformClass == null) {
-        if (cookErrors.size() > 0) {
+        if (!cookErrors.isEmpty()) {
           logChannel.logDebug(
               BaseMessages.getString(
                   PKG, "UserDefinedJavaClass.Exception.CookingError", cookErrors.get(0)));
@@ -569,7 +570,7 @@ public class UserDefinedJavaClassMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     if (!checkClassCookings(getLog())) {
-      if (cookErrors.size() > 0) {
+      if (!cookErrors.isEmpty()) {
         throw new HopTransformException(
             "Error initializing UserDefinedJavaClass to get fields: ", cookErrors.get(0));
       } else {
@@ -610,13 +611,13 @@ public class UserDefinedJavaClassMeta
     for (UserDefinedJavaClassDef def : definitions) {
       retval.append(String.format("\n        <%s>", ElementNames.definition.name()));
       retval
-          .append("\n        ")
+          .append(CONST_STR)
           .append(
               XmlHandler.addTagValue(ElementNames.class_type.name(), def.getClassType().name()));
       retval
-          .append("\n        ")
+          .append(CONST_STR)
           .append(XmlHandler.addTagValue(ElementNames.class_name.name(), def.getClassName()));
-      retval.append("\n        ");
+      retval.append(CONST_STR);
       retval.append(XmlHandler.addTagValue(ElementNames.class_source.name(), def.getSource()));
       retval.append(String.format("\n        </%s>", ElementNames.definition.name()));
     }
@@ -626,18 +627,18 @@ public class UserDefinedJavaClassMeta
     for (FieldInfo fi : fields) {
       retval.append(String.format("\n        <%s>", ElementNames.field.name()));
       retval
-          .append("\n        ")
+          .append(CONST_STR)
           .append(XmlHandler.addTagValue(ElementNames.field_name.name(), fi.name));
       retval
-          .append("\n        ")
+          .append(CONST_STR)
           .append(
               XmlHandler.addTagValue(
                   ElementNames.field_type.name(), ValueMetaFactory.getValueMetaName(fi.type)));
       retval
-          .append("\n        ")
+          .append(CONST_STR)
           .append(XmlHandler.addTagValue(ElementNames.field_length.name(), fi.length));
       retval
-          .append("\n        ")
+          .append(CONST_STR)
           .append(XmlHandler.addTagValue(ElementNames.field_precision.name(), fi.precision));
       retval.append(String.format("\n        </%s>", ElementNames.field.name()));
     }

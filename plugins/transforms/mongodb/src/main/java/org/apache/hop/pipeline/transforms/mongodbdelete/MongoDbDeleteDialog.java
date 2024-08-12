@@ -72,6 +72,9 @@ import org.eclipse.swt.widgets.Text;
 public class MongoDbDeleteDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = MongoDbDeleteDialog.class;
+  public static final String CONST_ERROR = "Error";
+  public static final String CONST_MONGO_DB_INPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT =
+      "MongoDbInputDialog.ErrorMessage.UnableToConnect";
 
   private MetaSelectionLine<MongoDbConnection> wConnection;
   protected MongoDbDeleteMeta currentMeta;
@@ -187,7 +190,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
     try {
       wConnection.fillItems();
     } catch (HopException e) {
-      new ErrorDialog(shell, "Error", "Error loading list of MongoDB connection names", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error loading list of MongoDB connection names", e);
     }
 
     // collection line
@@ -578,7 +581,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
         smd.open();
       }
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting collections", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error getting collections", e);
     }
   }
 
@@ -714,11 +717,15 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
           }
         } catch (Exception e) {
           logError(
-              BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"), e);
+              BaseMessages.getString(
+                  PKG, CONST_MONGO_DB_INPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT),
+              e);
           new ErrorDialog(
               shell,
-              BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
-              BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
+              BaseMessages.getString(
+                  PKG, CONST_MONGO_DB_INPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT),
+              BaseMessages.getString(
+                  PKG, CONST_MONGO_DB_INPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT),
               e);
         }
       } else {
@@ -745,7 +752,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
         wCollection.setText(current);
       }
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting collections", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error getting collections", e);
     }
   }
 
@@ -878,7 +885,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
     OPEN_BRACKET,
     CLOSE_BRACKET,
     COMMA
-  };
+  }
 
   private static void pad(StringBuffer toPad, int numBlanks) {
     for (int i = 0; i < numBlanks; i++) {

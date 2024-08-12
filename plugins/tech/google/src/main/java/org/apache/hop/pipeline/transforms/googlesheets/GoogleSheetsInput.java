@@ -44,6 +44,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Describe your transform plugin. */
 public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, GoogleSheetsInputData> {
 
+  public static final String CONST_IN_SPREADSHEET = " in spreadsheet :";
+
   public GoogleSheetsInput(
       TransformMeta transformMeta,
       GoogleSheetsInputMeta meta,
@@ -59,15 +61,15 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
   public boolean init() {
 
     List<TransformMeta> transform = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-    data.hasInput = transform != null && transform.size() > 0;
+    data.hasInput = transform != null && !transform.isEmpty();
 
-    JsonFactory JSON_FACTORY = null;
-    NetHttpTransport HTTP_TRANSPORT = null;
+    JsonFactory jsonFactory = null;
+    NetHttpTransport httpTransport = null;
     String scope = SheetsScopes.SPREADSHEETS_READONLY;
 
     try {
-      JSON_FACTORY = JacksonFactory.getDefaultInstance();
-      HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+      jsonFactory = JacksonFactory.getDefaultInstance();
+      httpTransport = GoogleNetHttpTransport.newTrustedTransport();
     } catch (Exception e) {
       log.logError("cannot initiate HTTP transport" + e.getMessage());
       return false;
@@ -83,8 +85,8 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
                 variables);
         Sheets service =
             new Sheets.Builder(
-                    HTTP_TRANSPORT,
-                    JSON_FACTORY,
+                    httpTransport,
+                    jsonFactory,
                     GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
                 .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                 .build();
@@ -95,7 +97,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
           log.logError(
               "No data found for worksheet : "
                   + resolve(meta.getWorksheetId())
-                  + " in spreadsheet :"
+                  + CONST_IN_SPREADSHEET
                   + resolve(meta.getSpreadsheetKey()));
           return false;
         } else {
@@ -105,7 +107,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
             throw new HopTransformException(
                 "No response found for worksheet : "
                     + resolve(meta.getWorksheetId())
-                    + " in spreadsheet :"
+                    + CONST_IN_SPREADSHEET
                     + resolve(meta.getSpreadsheetKey()));
           } else {
             data.rows = values;
@@ -115,7 +117,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
         log.logError(
             "Error: for worksheet : "
                 + resolve(meta.getWorksheetId())
-                + " in spreadsheet :"
+                + CONST_IN_SPREADSHEET
                 + resolve(meta.getSpreadsheetKey())
                 + e.getMessage(),
             e);
@@ -127,6 +129,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
     return false;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     if (first) {
@@ -225,9 +228,9 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
             outputRowData[outputIndex++] = null;
           } else {
             if (row.get(outputIndex) != null) {
-              logRowlevel("getting value" + Integer.toString(outputIndex));
-              value = row.get(outputIndex); // .toString();
-              logRowlevel("got value " + Integer.toString(outputIndex));
+              logRowlevel("getting value" + outputIndex);
+              value = row.get(outputIndex);
+              logRowlevel("got value " + outputIndex);
             }
             if (value == null || value.toString().isEmpty()) {
               outputRowData[outputIndex++] = null;

@@ -101,6 +101,13 @@ import org.eclipse.swt.widgets.TreeItem;
 
 public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class;
+  public static final String CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL =
+      "UserDefinedJavaClassDialog.GettingFields.Label";
+  public static final String CONST_GET_S = "get%s()";
+  public static final String CONST_FIELD_HELPERS = "Field Helpers";
+  public static final String CONST_SET_VALUE_R_VALUE = ".setValue(r, value);";
+  public static final String CONST_SET_VALUE = "setValue()";
+  public static final String CONST_SNIPPITS_CATEGORY = "Snippits Category";
 
   private ModifyListener lsMod;
 
@@ -426,37 +433,37 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     itemInput = new TreeItem(wTree, SWT.NULL);
     itemInput.setImage(guiResource.getImageInput());
     itemInput.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.InputFields.Label"));
-    itemInput.setData("Field Helpers");
+    itemInput.setData(CONST_FIELD_HELPERS);
     // Info Fields
     itemInfo = new TreeItem(wTree, SWT.NULL);
     itemInfo.setImage(guiResource.getImageInput());
     itemInfo.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.InfoFields.Label"));
-    itemInfo.setData("Field Helpers");
+    itemInfo.setData(CONST_FIELD_HELPERS);
     // Output Fields
     itemOutput = new TreeItem(wTree, SWT.NULL);
     itemOutput.setImage(guiResource.getImageOutput());
     itemOutput.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.OutputFields.Label"));
-    itemOutput.setData("Field Helpers");
+    itemOutput.setData(CONST_FIELD_HELPERS);
 
     // Display waiting message for input
     TreeItem itemWaitFieldsIn = new TreeItem(itemInput, SWT.NULL);
     itemWaitFieldsIn.setText(
-        BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.GettingFields.Label"));
+        BaseMessages.getString(PKG, CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL));
     itemWaitFieldsIn.setForeground(guiResource.getColorDirectory());
     itemInput.setExpanded(true);
 
     // Display waiting message for info
     TreeItem itemWaitFieldsInfo = new TreeItem(itemInfo, SWT.NULL);
     itemWaitFieldsInfo.setText(
-        BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.GettingFields.Label"));
+        BaseMessages.getString(PKG, CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL));
     itemWaitFieldsInfo.setForeground(guiResource.getColorDirectory());
     itemInfo.setExpanded(true);
 
     // Display waiting message for output
     TreeItem itemWaitFieldsOut = new TreeItem(itemOutput, SWT.NULL);
     itemWaitFieldsOut.setText(
-        BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.GettingFields.Label"));
+        BaseMessages.getString(PKG, CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL));
     itemWaitFieldsOut.setForeground(guiResource.getColorDirectory());
     itemOutput.setExpanded(true);
 
@@ -498,13 +505,13 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
             // Allow dragging snippits and field helpers
             if (item != null && item.getParentItem() != null) {
-              if ("Snippits Category".equals(item.getParentItem().getData())
-                  && !"Snippits Category".equals(item.getData())) {
+              if (CONST_SNIPPITS_CATEGORY.equals(item.getParentItem().getData())
+                  && !CONST_SNIPPITS_CATEGORY.equals(item.getData())) {
                 doit = true;
-              } else if ("Field Helpers".equals(item.getParentItem().getData())) {
+              } else if (CONST_FIELD_HELPERS.equals(item.getParentItem().getData())) {
                 doit = true;
               } else if (item.getParentItem().getParentItem() != null
-                  && "Field Helpers".equals(item.getParentItem().getParentItem().getData())) {
+                  && CONST_FIELD_HELPERS.equals(item.getParentItem().getParentItem().getData())) {
                 doit = true;
               }
             }
@@ -1052,7 +1059,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
 
     List<UserDefinedJavaClassDef> definitions = input.getDefinitions();
-    if (definitions.size() == 0) {
+    if (definitions.isEmpty()) {
       try {
         definitions = new ArrayList<>();
         // Note the tab name isn't i18n because it is a Java Class name and i18n characters might
@@ -1421,24 +1428,24 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         Pipeline pipeline = progressDialog.getPipeline();
         String loggingText = progressDialog.getLoggingText();
 
-        if (!progressDialog.isCancelled()) {
-          if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-            EnterTextDialog etd =
-                new EnterTextDialog(
-                    shell,
-                    BaseMessages.getString("System.Dialog.PreviewError.Title"),
-                    BaseMessages.getString("System.Dialog.PreviewError.Message"),
-                    loggingText,
-                    true);
-            etd.setReadOnly();
-            etd.open();
-          }
+        if (!progressDialog.isCancelled()
+            && pipeline.getResult() != null
+            && pipeline.getResult().getNrErrors() > 0) {
+          EnterTextDialog etd =
+              new EnterTextDialog(
+                  shell,
+                  BaseMessages.getString("System.Dialog.PreviewError.Title"),
+                  BaseMessages.getString("System.Dialog.PreviewError.Message"),
+                  loggingText,
+                  true);
+          etd.setReadOnly();
+          etd.open();
         }
 
         IRowMeta previewRowsMeta = progressDialog.getPreviewRowsMeta(wTransformName.getText());
         List<Object[]> previewRows = progressDialog.getPreviewRows(wTransformName.getText());
 
-        if (previewRowsMeta != null && previewRows != null && previewRows.size() > 0) {
+        if (previewRowsMeta != null && previewRows != null && !previewRows.isEmpty()) {
           PreviewRowsDialog prd =
               new PreviewRowsDialog(
                   shell,
@@ -1477,7 +1484,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
       TreeItem itemGroup = new TreeItem(item, SWT.NULL);
       itemGroup.setImage(guiResource.getImageFolder());
       itemGroup.setText(cat.getDescription());
-      itemGroup.setData("Snippits Category");
+      itemGroup.setData(CONST_SNIPPITS_CATEGORY);
       categoryTreeItems.put(cat, itemGroup);
     }
 
@@ -1524,11 +1531,11 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
                   itemField.setData(itemData);
                   TreeItem itemFieldGet = new TreeItem(itemField, SWT.NULL);
                   itemFieldGet.setText(
-                      String.format("get%s()", FieldHelper.getNativeDataTypeSimpleName(v)));
+                      String.format(CONST_GET_S, FieldHelper.getNativeDataTypeSimpleName(v)));
                   itemFieldGet.setData(FieldHelper.getGetSignature(itemData, v));
                   TreeItem itemFieldSet = new TreeItem(itemField, SWT.NULL);
-                  itemFieldSet.setText("setValue()");
-                  itemFieldSet.setData(itemData + ".setValue(r, value);");
+                  itemFieldSet.setText(CONST_SET_VALUE);
+                  itemFieldSet.setData(itemData + CONST_SET_VALUE_R_VALUE);
                 }
               }
               if (infoRowMeta != null) {
@@ -1542,11 +1549,11 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
                   itemField.setData(itemData);
                   TreeItem itemFieldGet = new TreeItem(itemField, SWT.NULL);
                   itemFieldGet.setText(
-                      String.format("get%s()", FieldHelper.getNativeDataTypeSimpleName(v)));
+                      String.format(CONST_GET_S, FieldHelper.getNativeDataTypeSimpleName(v)));
                   itemFieldGet.setData(FieldHelper.getGetSignature(itemData, v));
                   TreeItem itemFieldSet = new TreeItem(itemField, SWT.NULL);
-                  itemFieldSet.setText("setValue()");
-                  itemFieldSet.setData(itemData + ".setValue(r, value);");
+                  itemFieldSet.setText(CONST_SET_VALUE);
+                  itemFieldSet.setData(itemData + CONST_SET_VALUE_R_VALUE);
                 }
               }
               if (outputRowMeta != null) {
@@ -1560,11 +1567,11 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
                   itemField.setData(itemData);
                   TreeItem itemFieldGet = new TreeItem(itemField, SWT.NULL);
                   itemFieldGet.setText(
-                      String.format("get%s()", FieldHelper.getNativeDataTypeSimpleName(v)));
+                      String.format(CONST_GET_S, FieldHelper.getNativeDataTypeSimpleName(v)));
                   itemFieldGet.setData(FieldHelper.getGetSignature(itemData, v));
                   TreeItem itemFieldSet = new TreeItem(itemField, SWT.NULL);
-                  itemFieldSet.setText("setValue()");
-                  itemFieldSet.setData(itemData + ".setValue(r, value);");
+                  itemFieldSet.setText(CONST_SET_VALUE);
+                  itemFieldSet.setData(itemData + CONST_SET_VALUE_R_VALUE);
                 }
               }
             });
@@ -1733,7 +1740,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
               tMenu.getItem(3).setEnabled(false);
             } else if (pItem != null
                 && pItem.getData() != null
-                && pItem.getData().equals("Snippits Category")) {
+                && pItem.getData().equals(CONST_SNIPPITS_CATEGORY)) {
               tMenu.getItem(0).setEnabled(false);
               tMenu.getItem(1).setEnabled(false);
               tMenu.getItem(3).setEnabled(true);
@@ -1761,81 +1768,78 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   // This function is for a Windows Like renaming inside the tree
   private void renameFunction(TreeItem tItem) {
     final TreeItem item = tItem;
-    if (item.getParentItem() != null && item.getParentItem().equals(wTreeClassesItem)) {
-      if (item != null && item == lastItem[0]) {
-        boolean isCarbon = SWT.getPlatform().equals("carbon");
-        final Composite composite = new Composite(wTree, SWT.NONE);
-        if (!isCarbon) {
-          composite.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        }
-        final Text text = new Text(composite, SWT.NONE);
-        final int inset = isCarbon ? 0 : 1;
-        composite.addListener(
-            SWT.Resize,
-            e -> {
-              Rectangle rect = composite.getClientArea();
-              text.setBounds(
-                  rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2);
-            });
-        Listener textListener =
-            e -> {
-              switch (e.type) {
-                case SWT.FocusOut:
-                  if (text.getText().length() > 0) {
-                    // Check if the field_name Exists
-                    if (getCTabItemByName(text.getText()) == null) {
+    if (item.getParentItem() != null
+        && item.getParentItem().equals(wTreeClassesItem)
+        && item != null
+        && item == lastItem[0]) {
+      boolean isCarbon = SWT.getPlatform().equals("carbon");
+      final Composite composite = new Composite(wTree, SWT.NONE);
+      if (!isCarbon) {
+        composite.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+      }
+      final Text text = new Text(composite, SWT.NONE);
+      final int inset = isCarbon ? 0 : 1;
+      composite.addListener(
+          SWT.Resize,
+          e -> {
+            Rectangle rect = composite.getClientArea();
+            text.setBounds(
+                rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2);
+          });
+      Listener textListener =
+          e -> {
+            switch (e.type) {
+              case SWT.FocusOut:
+                if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
+                  // Check if the field_name Exists
+                  modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
+                  item.setText(cleanClassName(text.getText()));
+                }
+                composite.dispose();
+                break;
+              case SWT.Verify:
+                String newText = text.getText();
+                String leftText = newText.substring(0, e.start);
+                String rightText = newText.substring(e.end, newText.length());
+                Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
+                size = text.computeSize(size.x, SWT.DEFAULT);
+                editor.horizontalAlignment = SWT.LEFT;
+                Rectangle itemRect = item.getBounds();
+                Rectangle rect = wTree.getClientArea();
+                editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
+                int left = itemRect.x;
+                int right = rect.x + rect.width;
+                editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
+                editor.minimumHeight = size.y + inset * 2;
+                editor.layout();
+                break;
+              case SWT.Traverse:
+                switch (e.detail) {
+                  case SWT.TRAVERSE_RETURN:
+                    if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
+                      // Check if the field_name Exists
                       modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
                       item.setText(cleanClassName(text.getText()));
                     }
-                  }
-                  composite.dispose();
-                  break;
-                case SWT.Verify:
-                  String newText = text.getText();
-                  String leftText = newText.substring(0, e.start);
-                  String rightText = newText.substring(e.end, newText.length());
-                  Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
-                  size = text.computeSize(size.x, SWT.DEFAULT);
-                  editor.horizontalAlignment = SWT.LEFT;
-                  Rectangle itemRect = item.getBounds();
-                  Rectangle rect = wTree.getClientArea();
-                  editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
-                  int left = itemRect.x;
-                  int right = rect.x + rect.width;
-                  editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
-                  editor.minimumHeight = size.y + inset * 2;
-                  editor.layout();
-                  break;
-                case SWT.Traverse:
-                  switch (e.detail) {
-                    case SWT.TRAVERSE_RETURN:
-                      if (text.getText().length() > 0) {
-                        // Check if the field_name Exists
-                        if (getCTabItemByName(text.getText()) == null) {
-                          modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
-                          item.setText(cleanClassName(text.getText()));
-                        }
-                      }
-                    case SWT.TRAVERSE_ESCAPE:
-                      composite.dispose();
-                      e.doit = false;
-                      break;
-                    default:
-                      break;
-                  }
-                  break;
-                default:
-                  break;
-              }
-            };
-        text.addListener(SWT.FocusOut, textListener);
-        text.addListener(SWT.Traverse, textListener);
-        text.addListener(SWT.Verify, textListener);
-        editor.setEditor(composite, item);
-        text.setText(item.getText());
-        text.selectAll();
-        text.setFocus();
-      }
+                  case SWT.TRAVERSE_ESCAPE:
+                    composite.dispose();
+                    e.doit = false;
+                    break;
+                  default:
+                    break;
+                }
+                break;
+              default:
+                break;
+            }
+          };
+      text.addListener(SWT.FocusOut, textListener);
+      text.addListener(SWT.Traverse, textListener);
+      text.addListener(SWT.Verify, textListener);
+      editor.setEditor(composite, item);
+      text.setText(item.getText());
+      text.selectAll();
+      text.setFocus();
     }
     lastItem[0] = item;
   }

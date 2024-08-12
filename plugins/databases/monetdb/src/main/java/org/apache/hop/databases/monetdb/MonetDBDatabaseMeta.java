@@ -35,6 +35,8 @@ import org.apache.hop.core.util.Utils;
 @GuiPlugin(id = "GUI-MonetDBDatabaseMeta")
 public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  public static final String CONST_BIGINT = "BIGINT";
+  public static final String CONST_DOUBLE = "DOUBLE";
   public static ThreadLocal<Boolean> safeModeLocal = new ThreadLocal<>();
 
   public static final int DEFAULT_VARCHAR_LENGTH = 100;
@@ -192,9 +194,9 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       "TINYINT",
       "SMALLINT",
       "INT",
-      "BIGINT",
+      CONST_BIGINT,
       "REAL",
-      "DOUBLE",
+      CONST_DOUBLE,
       "BOOLEAN",
       "DATE",
       "TIME",
@@ -293,7 +295,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
           if (useAutoinc) {
             retval.append("SERIAL");
           } else {
-            retval.append("BIGINT");
+            retval.append(CONST_BIGINT);
           }
         } else {
           // Integer values...
@@ -302,14 +304,14 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
               if (length < 19) {
                 // can hold signed values between -9223372036854775808 and 9223372036854775807
                 // 18 significant digits
-                retval.append("BIGINT");
+                retval.append(CONST_BIGINT);
               } else {
                 retval.append("DECIMAL(").append(length).append(")");
               }
             } else if (type == IValueMeta.TYPE_NUMBER) {
-              retval.append("DOUBLE");
+              retval.append(CONST_DOUBLE);
             } else {
-              retval.append("BIGINT");
+              retval.append(CONST_BIGINT);
             }
           } else {
             // Floating point values...
@@ -323,7 +325,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
               // A double-precision floating-point number is accurate to approximately 15 decimal
               // places.
               // http://mysql.mirrors-r-us.net/doc/refman/5.1/en/numeric-type-overview.html
-              retval.append("DOUBLE");
+              retval.append(CONST_DOUBLE);
             }
           }
         }

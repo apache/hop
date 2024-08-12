@@ -47,6 +47,8 @@ import org.w3c.dom.Node;
     keywords = "i18n::DtdValidator.keyword",
     documentationUrl = "/workflow/actions/dtdvalidator.html")
 public class DtdValidator extends ActionBase implements Cloneable, IAction {
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_DTDFILENAME = "dtdfilename";
   private String xmlfilename;
   private String dtdfilename;
   private boolean dtdintern;
@@ -73,9 +75,9 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     StringBuffer retval = new StringBuffer(50);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
-    retval.append("      ").append(XmlHandler.addTagValue("dtdfilename", dtdfilename));
-    retval.append("      ").append(XmlHandler.addTagValue("dtdintern", dtdintern));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_DTDFILENAME, dtdfilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("dtdintern", dtdintern));
 
     return retval.toString();
   }
@@ -87,7 +89,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     try {
       super.loadXml(entrynode);
       xmlfilename = XmlHandler.getTagValue(entrynode, "xmlfilename");
-      dtdfilename = XmlHandler.getTagValue(entrynode, "dtdfilename");
+      dtdfilename = XmlHandler.getTagValue(entrynode, CONST_DTDFILENAME);
       dtdintern = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "dtdintern"));
 
     } catch (HopXmlException xe) {
@@ -195,7 +197,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
-    ActionValidatorUtils.andValidator().validate(this, "dtdfilename", remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, CONST_DTDFILENAME, remarks, ctx);
     ActionValidatorUtils.andValidator().validate(this, "xmlFilename", remarks, ctx);
   }
 }

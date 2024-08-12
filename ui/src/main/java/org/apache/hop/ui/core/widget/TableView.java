@@ -130,6 +130,7 @@ public class TableView extends Composite {
   // define CANCEL_KEYS here so that RWT needs not to be imported.
   //
   private static final String CANCEL_KEYS = "org.eclipse.rap.rwt.cancelKeys";
+  public static final String CONST_SHIFT_TAB = "SHIFT+TAB";
 
   private final Composite parent;
   private final ColumnInfo[] columns;
@@ -469,7 +470,7 @@ public class TableView extends Composite {
 
     lsTraverse = e -> e.doit = false;
     table.addTraverseListener(lsTraverse);
-    table.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
+    table.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
 
     // See what is selected in the table.
     //
@@ -565,16 +566,15 @@ public class TableView extends Composite {
             && !activeTableItem.isDisposed()
             && editor != null
             && editor.getEditor() != null
-            && !editor.getEditor().isDisposed()) {
-          if (activeTableColumn > 0) {
-            switch (columns[activeTableColumn - 1].getType()) {
-              case ColumnInfo.COLUMN_TYPE_TEXT:
-                applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
-                break;
-              case ColumnInfo.COLUMN_TYPE_CCOMBO:
-                applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
-                break;
-            }
+            && !editor.getEditor().isDisposed()
+            && activeTableColumn > 0) {
+          switch (columns[activeTableColumn - 1].getType()) {
+            case ColumnInfo.COLUMN_TYPE_TEXT:
+              applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
+              break;
+            case ColumnInfo.COLUMN_TYPE_CCOMBO:
+              applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
+              break;
           }
         }
         boolean rightClick = event.button == 3;
@@ -2204,13 +2204,10 @@ public class TableView extends Composite {
         ta.setNew(grid, idx);
         addUndo(ta);
       }
-      if (rowNr == 0 && table.getItemCount() > rowNr + 1) {
+      if (rowNr == 0 && table.getItemCount() > rowNr + 1 && isEmpty(rowNr, -1)) {
         // Empty row at rowNr?
         // Remove it!
-
-        if (isEmpty(rowNr, -1)) {
-          table.remove(rowNr);
-        }
+        table.remove(rowNr);
       }
       setRowNums();
       unEdit();
@@ -2545,7 +2542,7 @@ public class TableView extends Composite {
         textWidget.setToolTipText("");
       }
       textWidget.addTraverseListener(lsTraverse);
-      textWidget.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
+      textWidget.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       textWidget.addFocusListener(lsFocusText);
       if (OsHelper.isMac()) {
         textWidget.addListener(SWT.KeyUp, lsKeyUp);
@@ -2571,7 +2568,7 @@ public class TableView extends Composite {
         textWidget.setToolTipText("");
       }
       textWidget.addTraverseListener(lsTraverse);
-      textWidget.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
+      textWidget.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       textWidget.addFocusListener(lsFocusText);
       if (OsHelper.isMac()) {
         textWidget.addListener(SWT.KeyUp, lsKeyUp);
@@ -2727,7 +2724,7 @@ public class TableView extends Composite {
       PropsUi.setLook(comboVar);
       fixWebLook(comboVar.getCComboWidget());
       comboVar.addTraverseListener(lsTraverse);
-      comboVar.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
+      comboVar.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       comboVar.addModifyListener(lsModCombo);
       comboVar.addFocusListener(lsFocusCombo);
       comboVar.setText(item.getText(colNr));
@@ -2758,7 +2755,7 @@ public class TableView extends Composite {
       PropsUi.setLook(combo);
       fixWebLook(combo);
       combo.addTraverseListener(lsTraverse);
-      combo.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
+      combo.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       combo.addModifyListener(lsModCombo);
       combo.addFocusListener(lsFocusCombo);
 
@@ -2830,7 +2827,7 @@ public class TableView extends Composite {
       button.setToolTipText("");
     }
     button.addTraverseListener(lsTraverse); // hop to next field
-    button.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
+    button.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
     button.addTraverseListener(arg0 -> closeActiveButton());
 
     editor.horizontalAlignment = SWT.LEFT;

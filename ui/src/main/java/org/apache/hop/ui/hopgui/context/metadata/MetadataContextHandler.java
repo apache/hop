@@ -37,6 +37,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
   private static final Class<?> PKG = MetadataContextHandler.class;
 
   public static final String CONTEXT_ID = "HopGuiMetadataContext";
+  public static final String CONST_METADATA = "Metadata";
 
   private HopGui hopGui;
   private IHopMetadataProvider metadataProvider;
@@ -78,7 +79,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
             hopMetadata.image(),
             (shiftClicked, controlClicked, parameters) -> metadataManager.newMetadataWithEditor());
     newAction.setClassLoader(metadataObjectClass.getClassLoader());
-    newAction.setCategory("Metadata");
+    newAction.setCategory(CONST_METADATA);
     newAction.setCategoryOrder("2");
     actions.add(newAction);
 
@@ -91,7 +92,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
             hopMetadata.image(),
             (shiftClicked, controlClicked, parameters) -> metadataManager.editMetadata());
     editAction.setClassLoader(metadataObjectClass.getClassLoader());
-    editAction.setCategory("Metadata");
+    editAction.setCategory(CONST_METADATA);
     editAction.setCategoryOrder("2");
     actions.add(editAction);
 
@@ -107,7 +108,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
             hopMetadata.image(),
             (shiftClicked, controlClicked, parameters) -> metadataManager.deleteMetadata());
     deleteAction.setClassLoader(metadataObjectClass.getClassLoader());
-    deleteAction.setCategory("Metadata");
+    deleteAction.setCategory(CONST_METADATA);
     deleteAction.setCategoryOrder("2");
     actions.add(deleteAction);
 
@@ -124,7 +125,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
               (shiftClicked, controlClicked, parameters) ->
                   DbCache.getInstance().clear((String) parameters[0]));
       newAction.setClassLoader(metadataObjectClass.getClassLoader());
-      newAction.setCategory("Metadata");
+      newAction.setCategory(CONST_METADATA);
       newAction.setCategoryOrder("3");
       actions.add(databaseClearCacheAction);
     }

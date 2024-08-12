@@ -72,6 +72,19 @@ import org.eclipse.swt.widgets.Text;
 
 public class GetXmlDataDialog extends BaseTransformDialog {
   private static final Class<?> PKG = GetXmlDataMeta.class;
+  public static final String CONST_UTF_8 = "UTF-8";
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
+  public static final String CONST_GET_XMLDATA_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE =
+      "GetXMLDataDialog.FailedToGetFields.DialogTitle";
+  public static final String CONST_GET_XMLDATA_DIALOG_ERROR_PARSING_DATA_DIALOG_TITLE =
+      "GetXMLDataDialog.ErrorParsingData.DialogTitle";
+  public static final String CONST_GET_XMLDATA_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE =
+      "GetXMLDataDialog.ErrorParsingData.DialogMessage";
+  public static final String CONST_SYSTEM_FILE_TYPE_ALL_FILES = "System.FileType.AllFiles";
+  public static final String CONST_GET_XMLDATA_DIALOG_ASK_URL_TITLE =
+      "GetXMLDataDialog.AskURL.Title";
+  public static final String CONST_SYSTEM_FILE_TYPE_XMLFILES = "System.FileType.XMLFiles";
+  public static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private String xmlSource = null;
 
@@ -373,7 +386,9 @@ public class GetXmlDataDialog extends BaseTransformDialog {
     wXMLField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -650,7 +665,9 @@ public class GetXmlDataDialog extends BaseTransformDialog {
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -1048,7 +1065,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Repeat.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
                 BaseMessages.getString(PKG, "System.Combo.No")
               },
               true),
@@ -1179,14 +1196,16 @@ public class GetXmlDataDialog extends BaseTransformDialog {
                 MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
                 mb.setMessage(
                     BaseMessages.getString(PKG, "GetXMLDataDialog.NoFileFound.DialogMessage"));
-                mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+                mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
                 mb.open();
               }
-            } catch (HopException ex) {
+            } catch (Exception ex) {
               new ErrorDialog(
                   shell,
-                  BaseMessages.getString(PKG, "GetXMLDataDialog.ErrorParsingData.DialogTitle"),
-                  BaseMessages.getString(PKG, "GetXMLDataDialog.ErrorParsingData.DialogMessage"),
+                  BaseMessages.getString(
+                      PKG, CONST_GET_XMLDATA_DIALOG_ERROR_PARSING_DATA_DIALOG_TITLE),
+                  BaseMessages.getString(
+                      PKG, CONST_GET_XMLDATA_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE),
                   ex);
             }
           }
@@ -1221,8 +1240,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
                 variables,
                 new String[] {"*.xml", "*.XML", "*"},
                 new String[] {
-                  BaseMessages.getString(PKG, "System.FileType.XMLFiles"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_XMLFILES),
+                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
                 },
                 true));
 
@@ -1319,7 +1338,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
                     new ErrorDialog(
                         shell,
                         BaseMessages.getString(
-                            PKG, "GetXMLDataDialog.FailedToGetFields.DialogTitle"),
+                            PKG, CONST_GET_XMLDATA_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE),
                         BaseMessages.getString(
                             PKG, "GetXMLDataDialog.FailedToGetFieldsFromSnippet.DialogMessage"),
                         ex);
@@ -1354,7 +1373,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
       wXMLField.setText(EMPTY_FIELDS);
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "GetXMLDataDialog.FailedToGetFields.DialogTitle"),
+          BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE),
           BaseMessages.getString(PKG, "GetXMLDataDialog.FailedToGetFields.DialogMessage"),
           ke);
     }
@@ -1449,7 +1468,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
                 new EnterStringDialog(
                     shell,
                     "",
-                    BaseMessages.getString(PKG, "GetXMLDataDialog.AskURL.Title"),
+                    BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_ASK_URL_TITLE),
                     BaseMessages.getString(PKG, "GetXMLDataDialog.AskURL.Message"));
             url = d.open();
           }
@@ -1468,8 +1487,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
             dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
             dialog.setFilterNames(
                 new String[] {
-                  BaseMessages.getString(PKG, "System.FileType.XMLFiles"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_XMLFILES),
+                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
                 });
 
             if (dialog.open() != null) {
@@ -1479,7 +1498,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
                       + dialog.getFileName();
             }
             readFilePdOption = new PdOption();
-            readFilePdOption.setEncoding(meta.getEncoding() == null ? "UTF-8" : meta.getEncoding());
+            readFilePdOption.setEncoding(
+                meta.getEncoding() == null ? CONST_UTF_8 : meta.getEncoding());
             readFilePdOption.setValidating(meta.isValidating());
             LoopNodesImportProgressDialog pd =
                 new LoopNodesImportProgressDialog(shell, str, readFilePdOption);
@@ -1514,7 +1534,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
             readHopVfsPdOption = new PdOption();
             readHopVfsPdOption.setValidating(meta.isValidating());
             readHopVfsPdOption.setEncoding(
-                meta.getEncoding() == null ? "UTF-8" : meta.getEncoding());
+                meta.getEncoding() == null ? CONST_UTF_8 : meta.getEncoding());
             String xml = HopVfs.getFilename(fileinputList.getFile(0));
             LoopNodesImportProgressDialog pd =
                 new LoopNodesImportProgressDialog(shell, xml, readHopVfsPdOption);
@@ -1531,7 +1551,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
           // No file specified
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
           mb.setMessage(BaseMessages.getString(PKG, "GetXMLDataDialog.FilesMissing.DialogMessage"));
-          mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+          mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
           mb.open();
         }
       }
@@ -1577,8 +1597,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
                 new EnterStringDialog(
                     shell,
                     "",
-                    BaseMessages.getString(PKG, "GetXMLDataDialog.AskURL.Title"),
-                    BaseMessages.getString(PKG, "GetXMLDataDialog.AskURL.Title"));
+                    BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_ASK_URL_TITLE),
+                    BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_ASK_URL_TITLE));
             url = enterStringDialog.open();
           }
           XmlInputFieldsImportProgressDialog prd =
@@ -1594,8 +1614,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
             dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
             dialog.setFilterNames(
                 new String[] {
-                  BaseMessages.getString(PKG, "System.FileType.XMLFiles"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_XMLFILES),
+                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
                 });
 
             if (dialog.open() != null) {
@@ -1630,7 +1650,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
 
         FileInputList inputList = meta.getFiles(variables);
 
-        if (inputList.getFiles().size() > 0) {
+        if (!inputList.getFiles().isEmpty()) {
           XmlInputFieldsImportProgressDialog prd =
               new XmlInputFieldsImportProgressDialog(
                   shell,
@@ -1643,8 +1663,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "GetXMLDataDialog.ErrorParsingData.DialogTitle"),
-          BaseMessages.getString(PKG, "GetXMLDataDialog.ErrorParsingData.DialogMessage"),
+          BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_ERROR_PARSING_DATA_DIALOG_TITLE),
+          BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE),
           e);
     } finally {
       try {
@@ -1669,7 +1689,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
       }
 
       // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", "UTF-8");
+      String defEncoding = Const.getEnvironmentVariable("file.encoding", CONST_UTF_8);
       int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
       if (idx >= 0) {
         wEncoding.select(idx);
@@ -1744,7 +1764,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
     if (in.getEncoding() != null) {
       wEncoding.setText("" + in.getEncoding());
     } else {
-      wEncoding.setText("UTF-8");
+      wEncoding.setText(CONST_UTF_8);
     }
 
     logDebug(BaseMessages.getString(PKG, "GetXMLDataDialog.Log.GettingFieldsInfo"));
@@ -1767,7 +1787,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
         String trim = field.getTrimTypeDesc();
         String rep =
             field.isRepeated()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
                 : BaseMessages.getString(PKG, "System.Combo.No");
 
         if (name != null) {
@@ -1860,17 +1880,17 @@ public class GetXmlDataDialog extends BaseTransformDialog {
   private void ok() {
     try {
       getInfo(input);
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "GetXMLDataDialog.ErrorParsingData.DialogTitle"),
-          BaseMessages.getString(PKG, "GetXMLDataDialog.ErrorParsingData.DialogMessage"),
+          BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_ERROR_PARSING_DATA_DIALOG_TITLE),
+          BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE),
           e);
     }
     dispose();
   }
 
-  private void getInfo(GetXmlDataMeta in) throws HopException {
+  private void getInfo(GetXmlDataMeta in) {
     transformName = wTransformName.getText(); // return value
 
     // copy info to TextFileInputMeta class (input)
@@ -1923,7 +1943,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
       field.setGroupSymbol(item.getText(11));
       field.setTrimType(GetXmlDataField.getTrimTypeByDesc(item.getText(12)));
       field.setRepeated(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(13)));
 
       in.getInputFields()[i] = field;
     }
@@ -1943,7 +1963,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "GetXMLDataDialog.SpecifyRepeatingElement.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
       return false;
     } else {
@@ -2011,7 +2031,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
           prd.open();
         }
       }
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "GetXMLDataDialog.ErrorPreviewingData.DialogTitle"),

@@ -67,7 +67,7 @@ public class HopServerSingleton {
 
     HopServerMeta hopServer = config.getHopServer();
     if (hopServer != null) {
-      int port = WebServer.PORT;
+      int port = WebServer.CONST_PORT;
       if (!Utils.isEmpty(hopServer.getPort())) {
         try {
           port = Integer.parseInt(hopServer.getPort());

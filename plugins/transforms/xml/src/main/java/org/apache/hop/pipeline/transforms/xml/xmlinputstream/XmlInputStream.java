@@ -47,12 +47,13 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Use a StAX parser to read XML in a flexible and fast way. */
-// TODO black box testing
 public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputStreamData> {
   private static final Class<?> PKG = XmlInputStream.class;
 
   private static final int PARENT_ID_ALLOCATE_SIZE =
       1000; // max. number of nested elements, we may let the user configure
+  public static final String CONST_XMLINPUT_STREAM_LOG_UNABLE_TO_CLOSE_FILE =
+      "XMLInputStream.Log.UnableToCloseFile";
   // this
 
   private int inputFieldIndex;
@@ -169,7 +170,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
     return true;
   }
 
-  private void prepareProcessPreviousFields() throws HopTransformException {
+  private void prepareProcessPreviousFields() {
     if (getInputRowMeta() == null) {
       data.previousFieldsNumber = 0;
       data.finalOutputRowMeta = data.outputRowMeta;
@@ -218,7 +219,9 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         if (log.isBasic()) {
           log.logBasic(
               BaseMessages.getString(
-                  PKG, "XMLInputStream.Log.UnableToCloseFile", data.filenames[(data.filenr - 1)]),
+                  PKG,
+                  CONST_XMLINPUT_STREAM_LOG_UNABLE_TO_CLOSE_FILE,
+                  data.filenames[(data.filenr - 1)]),
               e);
         }
       }
@@ -230,7 +233,9 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         if (log.isBasic()) {
           log.logBasic(
               BaseMessages.getString(
-                  PKG, "XMLInputStream.Log.UnableToCloseFile", data.filenames[(data.filenr - 1)]),
+                  PKG,
+                  CONST_XMLINPUT_STREAM_LOG_UNABLE_TO_CLOSE_FILE,
+                  data.filenames[(data.filenr - 1)]),
               e);
         }
       }
@@ -242,7 +247,9 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         if (log.isBasic()) {
           log.logBasic(
               BaseMessages.getString(
-                  PKG, "XMLInputStream.Log.UnableToCloseFile", data.filenames[(data.filenr - 1)]),
+                  PKG,
+                  CONST_XMLINPUT_STREAM_LOG_UNABLE_TO_CLOSE_FILE,
+                  data.filenames[(data.filenr - 1)]),
               e);
         }
       }
@@ -460,12 +467,10 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
 
       case XMLStreamConstants.PROCESSING_INSTRUCTION:
         outputRowData = null; // ignore & continue
-        // TODO test if possible
         break;
 
       case XMLStreamConstants.COMMENT:
         outputRowData = null; // ignore & continue
-        // TODO test if possible
         break;
 
       case XMLStreamConstants.ENTITY_REFERENCE:

@@ -47,6 +47,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/getrowsfromresult.html")
 public class RowsFromResultMeta extends BaseTransformMeta<RowsFromResult, RowsFromResultData> {
   private static final Class<?> PKG = RowsFromResult.class;
+  public static final String CONST_SPACES = "        ";
 
   private String[] fieldname;
   private int[] type;
@@ -144,11 +145,12 @@ public class RowsFromResultMeta extends BaseTransformMeta<RowsFromResult, RowsFr
     retval.append("    <fields>");
     for (int i = 0; i < fieldname.length; i++) {
       retval.append("      <field>");
-      retval.append("        " + XmlHandler.addTagValue("name", fieldname[i]));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue("name", fieldname[i]));
       retval.append(
-          "        " + XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(type[i])));
-      retval.append("        " + XmlHandler.addTagValue("length", length[i]));
-      retval.append("        " + XmlHandler.addTagValue("precision", precision[i]));
+          CONST_SPACES
+              + XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(type[i])));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue("length", length[i]));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue("precision", precision[i]));
       retval.append("        </field>");
     }
     retval.append("      </fields>");

@@ -33,6 +33,8 @@ import org.apache.hop.databases.ingres.IngresDatabaseMeta;
 @GuiPlugin(id = "GUI-VectorWiseDatabaseMeta")
 public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatabase {
 
+  public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
+
   @Override
   public String getURL(String hostname, String port, String databaseName) {
 
@@ -57,7 +59,7 @@ public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatab
   @Override
   public String getAddColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
@@ -77,7 +79,7 @@ public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatab
   @Override
   public String getModifyColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
@@ -97,7 +99,7 @@ public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatab
   @Override
   public String getDropColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
+    return CONST_ALTER_TABLE + tableName + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   @Override

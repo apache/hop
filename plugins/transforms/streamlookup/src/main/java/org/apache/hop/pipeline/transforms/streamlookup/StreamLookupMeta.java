@@ -56,6 +56,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/streamlookup.html")
 public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLookupData> {
   private static final Class<?> PKG = StreamLookupMeta.class;
+  public static final String CONST_SPACES = "        ";
 
   /** fields in input streams with which we look up values */
   @Injection(name = "KEY_STREAM")
@@ -268,18 +269,18 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
     retval.append("    <lookup>").append(Const.CR);
     for (int i = 0; i < getKeystream().length; i++) {
       retval.append("      <key>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", getKeystream()[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field", getKeylookup()[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getKeystream()[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("field", getKeylookup()[i]));
       retval.append("      </key>").append(Const.CR);
     }
 
     for (int i = 0; i < getValue().length; i++) {
       retval.append("      <value>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", getValue()[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("rename", getValueName()[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("default", getValueDefault()[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getValue()[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("rename", getValueName()[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("default", getValueDefault()[i]));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "type", ValueMetaFactory.getValueMetaName(getValueDefaultType()[i])));

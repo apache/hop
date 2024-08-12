@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -96,6 +97,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
   private static final Class<?> PKG = WebServiceMeta.class;
 
   public static final String NS_PREFIX = "ns";
+  public static final String CONST_V_READER_GET_LOCAL_NAME = "vReader.getLocalName = ";
+  public static final String CONST_OUT_FIELD_ARGUMENT_NAME = "OutFieldArgumentName = ";
 
   private int nbRowProcess;
 
@@ -383,7 +386,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
       vHttpMethod = getHttpMethod(cachedURLService);
 
-      HttpEntity requestEntity = new ByteArrayEntity(xml.toString().getBytes("UTF-8"));
+      HttpEntity requestEntity =
+          new ByteArrayEntity(xml.toString().getBytes(StandardCharsets.UTF_8));
       vHttpMethod.setEntity(requestEntity);
       HttpResponse httpResponse = cachedHttpClient.execute(vHttpMethod);
       int responseCode = httpResponse.getStatusLine().getStatusCode();
@@ -814,9 +818,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       }
     } catch (Exception e) {
       throw new HopTransformException(
-          BaseMessages.getString(
-              PKG, "WebServices.ERROR0010.OutputParsingError", response.toString()),
-          e);
+          BaseMessages.getString(PKG, "WebServices.ERROR0010.OutputParsingError", response), e);
     }
   }
 
@@ -847,7 +849,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
     // Create a new reader to feed into the XML Input Factory below...
     //
-    StringReader stringReader = new StringReader(response.toString());
+    StringReader stringReader = new StringReader(response);
 
     // TODO Very empirical : see if we can do something better here
     try {
@@ -880,7 +882,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
             // we start a new row
             //
             if (log.isRowLevel()) {
-              logRowlevel("vReader.getLocalName = " + vReader.getLocalName());
+              logRowlevel(CONST_V_READER_GET_LOCAL_NAME + vReader.getLocalName());
             }
             if (Utils.isEmpty(meta.getOutFieldArgumentName())) {
               // getOutFieldArgumentName() == null
@@ -904,14 +906,14 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
             } else {
               // getOutFieldArgumentName() != null
               if (log.isRowLevel()) {
-                logRowlevel("OutFieldArgumentName = " + meta.getOutFieldArgumentName());
+                logRowlevel(CONST_OUT_FIELD_ARGUMENT_NAME + meta.getOutFieldArgumentName());
               }
               if (meta.getOutFieldArgumentName().equals(vReader.getLocalName())) {
                 if (log.isRowLevel()) {
-                  logRowlevel("vReader.getLocalName = " + vReader.getLocalName());
+                  logRowlevel(CONST_V_READER_GET_LOCAL_NAME + vReader.getLocalName());
                 }
                 if (log.isRowLevel()) {
-                  logRowlevel("OutFieldArgumentName = ");
+                  logRowlevel(CONST_OUT_FIELD_ARGUMENT_NAME);
                 }
                 if (processing) {
                   WebServiceField field =
@@ -958,10 +960,10 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
               } else {
                 if (log.isRowLevel()) {
-                  logRowlevel("vReader.getLocalName = " + vReader.getLocalName());
+                  logRowlevel(CONST_V_READER_GET_LOCAL_NAME + vReader.getLocalName());
                 }
                 if (log.isRowLevel()) {
-                  logRowlevel("OutFieldArgumentName = " + meta.getOutFieldArgumentName());
+                  logRowlevel(CONST_OUT_FIELD_ARGUMENT_NAME + meta.getOutFieldArgumentName());
                 }
               }
             }
@@ -1132,8 +1134,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     return false;
   }
 
-  private Object getValue(String vNodeValue, WebServiceField field)
-      throws XMLStreamException, ParseException {
+  private Object getValue(String vNodeValue, WebServiceField field) {
     if (vNodeValue == null) {
       return null;
     } else {

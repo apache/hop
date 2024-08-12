@@ -149,11 +149,12 @@ public class KettleConst {
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
+  public static final String CONST_TRANS = "TRANS";
   public static final Map<String, String> kettleReplaceContent =
       Stream.of(
               new Object[][] {
                 {"JOB", "WORKFLOW"},
-                {"TRANS", "PIPELINE"},
+                {CONST_TRANS, "PIPELINE"},
                 {"PARENT_JOB", "PARENT_WORKFLOW"},
                 {"GP_JOB", "GP_WORKFLOW"},
                 {"ROOT_JOB", "ROOT_WORKFLOW"},
@@ -216,11 +217,11 @@ public class KettleConst {
 
   public static final HashMap<String, String> replacements = new HashMap<>();
 
-  public static final List<String> repositoryTypes = Arrays.asList("JOB", "TRANS");
+  public static final List<String> repositoryTypes = Arrays.asList("JOB", CONST_TRANS);
 
   public static final List<String> jobTypes = Arrays.asList("JOB");
 
-  public static final List<String> transTypes = Arrays.asList("TRANS");
+  public static final List<String> transTypes = Arrays.asList(CONST_TRANS);
 
   public KettleConst() {
     // Do nothing

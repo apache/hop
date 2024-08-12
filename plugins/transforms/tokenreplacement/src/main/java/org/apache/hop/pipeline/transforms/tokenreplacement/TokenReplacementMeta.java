@@ -89,8 +89,9 @@ public class TokenReplacementMeta
   public static final String OUTPUT_SPLIT_EVERY = "output_split_every";
   public static final String OUTPUT_FILE_FORMAT = "output_file_format";
 
-  public static final String[] INPUT_TYPES = {"text", "field", "file"};
-  public static final String[] OUTPUT_TYPES = {"field", "file"};
+  public static final String CONST_FIELD = "field";
+  public static final String[] INPUT_TYPES = {"text", CONST_FIELD, "file"};
+  public static final String[] OUTPUT_TYPES = {CONST_FIELD, "file"};
   public static final String[] formatMapperLineTerminator =
       new String[] {"DOS", "UNIX", "CR", "None"};
 
@@ -101,6 +102,8 @@ public class TokenReplacementMeta
         BaseMessages.getString(PKG, "TokenReplacementDialog.Format.CR"),
         BaseMessages.getString(PKG, "TokenReplacementDialog.Format.None")
       };
+  public static final String CONST_FILE_ENCODING = "file.encoding";
+  public static final String CONST_UTF_8 = "UTF-8";
 
   @Injection(name = "INPUT_TYPE")
   private String inputType;
@@ -292,7 +295,8 @@ public class TokenReplacementMeta
   }
 
   public String getOutputFileEncoding() {
-    return Const.NVL(outputFileEncoding, Const.getEnvironmentVariable("file.encoding", "UTF-8"));
+    return Const.NVL(
+        outputFileEncoding, Const.getEnvironmentVariable(CONST_FILE_ENCODING, CONST_UTF_8));
   }
 
   public void setOutputFileEncoding(String outputFileEncoding) {
@@ -451,7 +455,7 @@ public class TokenReplacementMeta
       outputFileEncoding =
           Const.NVL(
               XmlHandler.getTagValue(transformNode, OUTPUT_FILE_ENCODING),
-              Const.getEnvironmentVariable("file.encoding", "UTF-8"));
+              Const.getEnvironmentVariable(CONST_FILE_ENCODING, CONST_UTF_8));
       splitEvery = Const.toInt(XmlHandler.getTagValue(transformNode, OUTPUT_SPLIT_EVERY), 0);
       createParentFolder =
           "Y"
@@ -497,12 +501,12 @@ public class TokenReplacementMeta
       tokenEndString = XmlHandler.getTagValue(transformNode, TOKEN_END_STRING);
 
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrfields = XmlHandler.countNodes(fields, "field");
+      int nrfields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrfields);
 
       for (int i = 0; i < nrfields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         tokenReplacementFields[i] = new TokenReplacementField();
         tokenReplacementFields[i].setName(XmlHandler.getTagValue(fnode, FIELD_NAME));
@@ -613,7 +617,7 @@ public class TokenReplacementMeta
     includeTimeInOutputFileName = false;
     specifyDateFormatOutputFileName = false;
     addOutputFileNameToResult = false;
-    outputFileEncoding = Const.getEnvironmentVariable("file.encoding", "UTF-8");
+    outputFileEncoding = Const.getEnvironmentVariable(CONST_FILE_ENCODING, CONST_UTF_8);
     outputFileFormat = Const.isWindows() ? "DOS" : "UNIX";
     splitEvery = 0;
 
@@ -787,7 +791,7 @@ public class TokenReplacementMeta
       throws HopTransformException {
     // change the case insensitive flag too
 
-    if (outputType.equalsIgnoreCase("field")) {
+    if (outputType.equalsIgnoreCase(CONST_FIELD)) {
       IValueMeta v = new ValueMetaString(variables.resolve(outputFieldName));
       v.setOrigin(name);
       row.addValueMeta(v);

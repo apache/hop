@@ -54,6 +54,10 @@ import org.w3c.dom.Node;
 @SuppressWarnings("java:S1104")
 public class ActionPing extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPing.class;
+  public static final String CONST_ACTION_PING_OK_LABEL = "ActionPing.OK.Label";
+  public static final String CONST_ACTION_PING_NOK_LABEL = "ActionPing.NOK.Label";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_HOSTNAME = "hostname";
 
   private String hostname;
   private String timeout;
@@ -95,14 +99,14 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     StringBuilder retval = new StringBuilder(100);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("hostname", hostname));
-    retval.append("      ").append(XmlHandler.addTagValue("nbr_packets", nbrPackets));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_HOSTNAME, hostname));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("nbr_packets", nbrPackets));
 
     // TODO: The following line may be removed 3 versions after 2.5.0
-    retval.append("      ").append(XmlHandler.addTagValue("nbrpaquets", nbrPackets));
-    retval.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("nbrpaquets", nbrPackets));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("timeout", timeout));
 
-    retval.append("      ").append(XmlHandler.addTagValue("pingtype", pingtype));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("pingtype", pingtype));
 
     return retval.toString();
   }
@@ -113,7 +117,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     try {
       String nbrPaquets;
       super.loadXml(entrynode);
-      hostname = XmlHandler.getTagValue(entrynode, "hostname");
+      hostname = XmlHandler.getTagValue(entrynode, CONST_HOSTNAME);
       nbrPackets = XmlHandler.getTagValue(entrynode, "nbr_packets");
 
       // TODO: The following lines may be removed 3 versions after 2.5.0
@@ -204,12 +208,12 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
           if (log.isDetailed()) {
             log.logDetailed(
                 BaseMessages.getString(PKG, "ActionPing.SystemPing"),
-                BaseMessages.getString(PKG, "ActionPing.OK.Label", hostname));
+                BaseMessages.getString(PKG, CONST_ACTION_PING_OK_LABEL, hostname));
           }
         } else {
           log.logError(
               BaseMessages.getString(PKG, "ActionPing.SystemPing"),
-              BaseMessages.getString(PKG, "ActionPing.NOK.Label", hostname));
+              BaseMessages.getString(PKG, CONST_ACTION_PING_NOK_LABEL, hostname));
         }
       }
       if ((ipingtype == iclassicPing) || (ipingtype == ibothPings && !status)) {
@@ -219,12 +223,12 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
           if (log.isDetailed()) {
             log.logDetailed(
                 BaseMessages.getString(PKG, "ActionPing.ClassicPing"),
-                BaseMessages.getString(PKG, "ActionPing.OK.Label", hostname));
+                BaseMessages.getString(PKG, CONST_ACTION_PING_OK_LABEL, hostname));
           }
         } else {
           log.logError(
               BaseMessages.getString(PKG, "ActionPing.ClassicPing"),
-              BaseMessages.getString(PKG, "ActionPing.NOK.Label", hostname));
+              BaseMessages.getString(PKG, CONST_ACTION_PING_NOK_LABEL, hostname));
         }
       }
     } catch (Exception ex) {
@@ -232,12 +236,12 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     }
     if (status) {
       if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "ActionPing.OK.Label", hostname));
+        logDetailed(BaseMessages.getString(PKG, CONST_ACTION_PING_OK_LABEL, hostname));
       }
       result.setNrErrors(0);
       result.setResult(true);
     } else {
-      logError(BaseMessages.getString(PKG, "ActionPing.NOK.Label", hostname));
+      logError(BaseMessages.getString(PKG, CONST_ACTION_PING_NOK_LABEL, hostname));
     }
     return result;
   }
@@ -336,7 +340,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "hostname",
+            CONST_HOSTNAME,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }

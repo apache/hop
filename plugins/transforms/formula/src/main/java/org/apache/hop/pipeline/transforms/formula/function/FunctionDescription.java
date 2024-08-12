@@ -26,6 +26,7 @@ import org.w3c.dom.Node;
 
 public class FunctionDescription {
   public static final String XML_TAG = "function";
+  public static final String CONST_TD = "</td>";
 
   private String category;
   private String name;
@@ -250,7 +251,7 @@ public class FunctionDescription {
 
     // Examples
     //
-    if (functionExamples.size() > 0) {
+    if (!functionExamples.isEmpty()) {
       report.append(Const.CR);
       report.append("<br><b><u>Examples:</u></b><p>  ").append(Const.CR);
 
@@ -268,10 +269,10 @@ public class FunctionDescription {
         // <comment>Simple concatenation.</comment></example>
 
         report.append("<tr>");
-        report.append("<td>").append(example.getExpression()).append("</td>");
-        report.append("<td>").append(example.getResult()).append("</td>");
+        report.append("<td>").append(example.getExpression()).append(CONST_TD);
+        report.append("<td>").append(example.getResult()).append(CONST_TD);
         if (!Utils.isEmpty(example.getComment())) {
-          report.append("<td>").append(example.getComment()).append("</td>");
+          report.append("<td>").append(example.getComment()).append(CONST_TD);
         }
         report.append("</tr>");
         report.append(Const.CR);

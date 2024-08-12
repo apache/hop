@@ -42,6 +42,12 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateData> {
   private static final Class<?> PKG = InsertUpdateMeta.class;
+  public static final String CONST_IS_NULL = "IS NULL";
+  public static final String CONST_IS_NOT_NULL = "IS NOT NULL";
+  public static final String CONST_INSERT_UPDATE_EXCEPTION_FIELD_REQUIRED =
+      "InsertUpdate.Exception.FieldRequired";
+  public static final String CONST_NULL = "= ~NULL";
+  public static final String CONST_BETWEEN = "BETWEEN";
 
   public InsertUpdate(
       TransformMeta transformMeta,
@@ -215,18 +221,18 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
         if (keynr < 0
             && // couldn't find field!
-            !"IS NULL".equalsIgnoreCase(keyField.getKeyCondition())
+            !CONST_IS_NULL.equalsIgnoreCase(keyField.getKeyCondition())
             && // No field needed!
-            !"IS NOT NULL".equalsIgnoreCase(keyField.getKeyCondition()) // No field needed!
+            !CONST_IS_NOT_NULL.equalsIgnoreCase(keyField.getKeyCondition()) // No field needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "InsertUpdate.Exception.FieldRequired", keyField.getKeyStream()));
+                  PKG, CONST_INSERT_UPDATE_EXCEPTION_FIELD_REQUIRED, keyField.getKeyStream()));
         }
         keynrs.add(keynr);
 
         // this operator needs two bindings
-        if ("= ~NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
+        if (CONST_NULL.equalsIgnoreCase(keyField.getKeyCondition())) {
           keynrs.add(keynr);
           keynrs2.add(-1);
         }
@@ -234,11 +240,11 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
         int keynr2 = getInputRowMeta().indexOfValue(keyField.getKeyStream2());
         if (keynr2 < 0
             && // couldn't find field!
-            "BETWEEN".equalsIgnoreCase(keyField.getKeyCondition()) // 2 fields needed!
+            CONST_BETWEEN.equalsIgnoreCase(keyField.getKeyCondition()) // 2 fields needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "InsertUpdate.Exception.FieldRequired", keyField.getKeyStream2()));
+                  PKG, CONST_INSERT_UPDATE_EXCEPTION_FIELD_REQUIRED, keyField.getKeyStream2()));
         }
         keynrs2.add(keynr2);
 
@@ -265,7 +271,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "InsertUpdate.Exception.FieldRequired", valueField.getUpdateStream()));
+                  PKG, CONST_INSERT_UPDATE_EXCEPTION_FIELD_REQUIRED, valueField.getUpdateStream()));
         }
         if (log.isDebug()) {
           logDebug(
@@ -294,8 +300,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
           data.insertRowMeta.addValueMeta(insertValue);
         } else {
           throw new HopTransformException(
-              "The same column can't be inserted into the target row twice: "
-                  + insValue.getName()); // TODO i18n
+              "The same column can't be inserted into the target row twice: " + insValue.getName());
         }
       }
       data.db.prepareInsert(
@@ -320,10 +325,8 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
           r); // Nothing changed to the input, return the same row, pass a "cloned" metadata
       // row.
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "InsertUpdate.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "InsertUpdate.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       if (getTransformMeta().isDoingErrorHandling()) {
@@ -375,15 +378,15 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       sql += " ( ( ";
 
       sql += databaseMeta.quoteField(keyField.getKeyLookup());
-      if ("BETWEEN".equalsIgnoreCase(keyField.getKeyCondition())) {
+      if (CONST_BETWEEN.equalsIgnoreCase(keyField.getKeyCondition())) {
         sql += " BETWEEN ? AND ? ";
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream2()));
       } else {
-        if ("IS NULL".equalsIgnoreCase(keyField.getKeyCondition())
-            || "IS NOT NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
+        if (CONST_IS_NULL.equalsIgnoreCase(keyField.getKeyCondition())
+            || CONST_IS_NOT_NULL.equalsIgnoreCase(keyField.getKeyCondition())) {
           sql += " " + keyField.getKeyCondition() + " ";
-        } else if ("= ~NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
+        } else if (CONST_NULL.equalsIgnoreCase(keyField.getKeyCondition())) {
 
           sql += " IS NULL AND ";
 
@@ -458,14 +461,14 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       }
       sql += " ( ( ";
       sql += databaseMeta.quoteField(keyField.getKeyLookup());
-      if ("BETWEEN".equalsIgnoreCase(keyField.getKeyCondition())) {
+      if (CONST_BETWEEN.equalsIgnoreCase(keyField.getKeyCondition())) {
         sql += " BETWEEN ? AND ? ";
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream2()));
-      } else if ("IS NULL".equalsIgnoreCase(keyField.getKeyCondition())
-          || "IS NOT NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
+      } else if (CONST_IS_NULL.equalsIgnoreCase(keyField.getKeyCondition())
+          || CONST_IS_NOT_NULL.equalsIgnoreCase(keyField.getKeyCondition())) {
         sql += " " + keyField.getKeyCondition() + " ";
-      } else if ("= ~NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
+      } else if (CONST_NULL.equalsIgnoreCase(keyField.getKeyCondition())) {
 
         sql += " IS NULL AND ";
 

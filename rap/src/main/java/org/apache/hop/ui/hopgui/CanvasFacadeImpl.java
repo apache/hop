@@ -30,6 +30,8 @@ import org.eclipse.swt.widgets.Canvas;
 
 public class CanvasFacadeImpl extends CanvasFacade {
 
+  public static final String CONST_SELECTED = "selected";
+
   @Override
   void setDataInternal(Canvas canvas, float magnification, DPoint offset, Object meta) {
     setDataCommon(canvas, magnification, offset, meta);
@@ -65,7 +67,7 @@ public class CanvasFacadeImpl extends CanvasFacade {
                 jsonNote.add("y", note.getLocation().y);
                 jsonNote.add("width", note.getWidth());
                 jsonNote.add("height", note.getHeight());
-                jsonNote.add("selected", note.isSelected());
+                jsonNote.add(CONST_SELECTED, note.isSelected());
                 jsonNote.add("note", note.getNote());
                 jsonNotes.add(jsonNote);
               });
@@ -85,7 +87,7 @@ public class CanvasFacadeImpl extends CanvasFacade {
               JsonObject jsonNode = new JsonObject();
               jsonNode.add("x", actionMeta.getLocation().x);
               jsonNode.add("y", actionMeta.getLocation().y);
-              jsonNode.add("selected", actionMeta.isSelected());
+              jsonNode.add(CONST_SELECTED, actionMeta.isSelected());
 
               jsonNodes.add(actionMeta.getName(), jsonNode);
             });
@@ -112,7 +114,7 @@ public class CanvasFacadeImpl extends CanvasFacade {
               JsonObject jsonNode = new JsonObject();
               jsonNode.add("x", transformMeta.getLocation().x);
               jsonNode.add("y", transformMeta.getLocation().y);
-              jsonNode.add("selected", transformMeta.isSelected());
+              jsonNode.add(CONST_SELECTED, transformMeta.isSelected());
 
               jsonNodes.add(transformMeta.getName(), jsonNode);
             });

@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -51,6 +52,8 @@ import org.eclipse.swt.widgets.Spinner;
 /** Dialog to enter a text. (descriptions etc.) */
 public class NotePadDialog extends Dialog {
   private static final Class<?> PKG = NotePadDialog.class;
+  public static final String CONST_NOTE_PAD_DIALOG_FONT_COLOR_DIALOG_LABEL =
+      "NotePadDialog.Font.Color.Dialog.Label";
 
   private NotePadMeta notePadMeta;
 
@@ -78,9 +81,9 @@ public class NotePadDialog extends Dialog {
 
   private GuiResource guiresource = GuiResource.getInstance();
 
-  public RGB COLOR_RGB_BLACK = guiresource.getColorBlack().getRGB();
-  public RGB COLOR_RGB_YELLOW = guiresource.getColorYellow().getRGB();
-  public RGB COLOR_RGB_GRAY = guiresource.getColorGray().getRGB();
+  public RGB colorRgbBlack = guiresource.getColorBlack().getRGB();
+  public RGB colorRgbYellow = guiresource.getColorYellow().getRGB();
+  public RGB colorRgbGray = guiresource.getColorGray().getRGB();
 
   private Color fontColor;
   private Color bgColor;
@@ -133,7 +136,7 @@ public class NotePadDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     wNoteFolder = new CTabFolder(shell, SWT.BORDER);
-    PropsUi.setLook(wNoteFolder, PropsUi.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wNoteFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF NOTE CONTENT TAB///
@@ -321,7 +324,7 @@ public class NotePadDialog extends Dialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
             ColorDialog cd = new ColorDialog(shell);
-            cd.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Dialog.Label"));
+            cd.setText(BaseMessages.getString(PKG, CONST_NOTE_PAD_DIALOG_FONT_COLOR_DIALOG_LABEL));
             cd.setRGB(wFontColor.getBackground().getRGB());
             RGB newColor = cd.open();
             if (newColor == null) {
@@ -372,7 +375,7 @@ public class NotePadDialog extends Dialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
             ColorDialog cd = new ColorDialog(shell);
-            cd.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Dialog.Label"));
+            cd.setText(BaseMessages.getString(PKG, CONST_NOTE_PAD_DIALOG_FONT_COLOR_DIALOG_LABEL));
             cd.setRGB(wBackGroundColor.getBackground().getRGB());
             RGB newColor = cd.open();
             if (newColor == null) {
@@ -422,7 +425,7 @@ public class NotePadDialog extends Dialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
             ColorDialog cd = new ColorDialog(shell);
-            cd.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Dialog.Label"));
+            cd.setText(BaseMessages.getString(PKG, CONST_NOTE_PAD_DIALOG_FONT_COLOR_DIALOG_LABEL));
             cd.setRGB(wBorderColor.getBackground().getRGB());
             RGB newColor = cd.open();
             if (newColor == null) {

@@ -157,6 +157,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String R_HAS_METADATA = "HAS_METADATA";
   public static final String R_HAS_DATASET = "HAS_DATASET";
   public static final String R_HAS_ROW = "HAS_ROW";
+  public static final String CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J =
+      "Error getting execution from Neo4j";
 
   @HopMetadataProperty protected String pluginId;
 
@@ -528,7 +530,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       try {
         return session.readTransaction(transaction -> getNeo4jExecution(transaction, executionId));
       } catch (Exception e) {
-        throw new HopException("Error getting execution from Neo4j", e);
+        throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
@@ -582,7 +584,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         return session.readTransaction(
             transaction -> getNeo4jExecutionIds(transaction, includeChildren, limit));
       } catch (Exception e) {
-        throw new HopException("Error getting execution from Neo4j", e);
+        throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
@@ -687,7 +689,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         return session.readTransaction(
             transaction -> getNeo4jExecutionState(transaction, executionId, includeLogging));
       } catch (Exception e) {
-        throw new HopException("Error getting execution from Neo4j", e);
+        throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
@@ -787,7 +789,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         return session.readTransaction(
             transaction -> getNeo4jExecutionStateLoggingText(transaction, executionId, sizeLimit));
       } catch (Exception e) {
-        throw new HopException("Error getting execution from Neo4j", e);
+        throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
@@ -828,7 +830,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         return session.readTransaction(
             transaction -> findNeo4jExecutions(transaction, parentExecutionId));
       } catch (Exception e) {
-        throw new HopException("Error getting execution from Neo4j", e);
+        throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
@@ -908,7 +910,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       try {
         return session.readTransaction(transaction -> findNeo4jExecutions(transaction, matcher));
       } catch (Exception e) {
-        throw new HopException("Error getting execution from Neo4j", e);
+        throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
@@ -933,7 +935,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       try {
         session.writeTransaction(transaction -> registerNeo4jData(transaction, data));
       } catch (Exception e) {
-        throw new HopException("Error getting execution from Neo4j", e);
+        throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
@@ -1207,7 +1209,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         return session.readTransaction(
             transaction -> getNeo4jExecutionData(transaction, parentExecutionId, executionId));
       } catch (Exception e) {
-        throw new HopException("Error getting execution from Neo4j", e);
+        throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }

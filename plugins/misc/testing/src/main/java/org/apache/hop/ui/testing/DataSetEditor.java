@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class DataSetEditor extends MetadataEditor<DataSet> {
   private static final Class<?> PKG = DataSetEditor.class;
+  public static final String CONST_ERROR = "Error";
 
   private Text wName;
   private Text wDescription;
@@ -297,7 +298,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
         } catch (Exception e) {
           new ErrorDialog(
               getShell(),
-              "Error",
+              CONST_ERROR,
               "Error writing data to dataset file "
                   + set.getActualDataSetFilename(manager.getVariables()),
               e);
@@ -305,7 +306,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
       }
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error previewing data from dataset table", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error previewing data from dataset table", e);
     }
   }
 
@@ -362,7 +363,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          "Error",
+          CONST_ERROR,
           BaseMessages.getString(PKG, "DataSetDialog.Error.ValidationError"),
           e);
     }
@@ -370,7 +371,6 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     getWidgetsContent(getMetadata());
 
     super.save();
-    ;
   }
 
   private void verifySettings() throws HopException {
@@ -398,7 +398,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
       previewRowsDialog.open();
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error previewing data from dataset table", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error previewing data from dataset table", e);
     }
   }
 

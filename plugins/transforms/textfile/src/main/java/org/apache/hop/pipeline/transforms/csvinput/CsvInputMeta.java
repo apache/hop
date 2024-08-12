@@ -36,6 +36,7 @@ import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -72,6 +73,10 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     implements IInputFileMeta, ICsvInputAwareMeta {
 
   private static final Class<?> PKG = CsvInput.class;
+  public static final String CONST_FIELDS = "fields";
+  public static final String CONST_FIELD = "field";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_SPACES_LONG = "        ";
 
   @Injection(name = "FILENAME")
   private String filename;
@@ -185,15 +190,15 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
       }
       encoding = XmlHandler.getTagValue(transformNode, "encoding");
 
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      Node fields = XmlHandler.getSubNode(transformNode, CONST_FIELDS);
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFields);
 
       for (int i = 0; i < nrFields; i++) {
         inputFields[i] = new TextFileInputField();
 
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         inputFields[i].setName(XmlHandler.getTagValue(fnode, "name"));
         inputFields[i].setType(
@@ -205,7 +210,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
         inputFields[i].setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
         inputFields[i].setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
         inputFields[i].setTrimType(
-            ValueMetaString.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
+            ValueMetaBase.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
       }
     } catch (Exception e) {
       throw new HopXmlException("Unable to load transform info from XML", e);
@@ -237,32 +242,38 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
         .append(XmlHandler.addTagValue("newline_possible", newlinePossibleInFields));
     retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
 
-    retval.append("    ").append(XmlHandler.openTag("fields")).append(Const.CR);
+    retval.append("    ").append(XmlHandler.openTag(CONST_FIELDS)).append(Const.CR);
     for (int i = 0; i < inputFields.length; i++) {
       TextFileInputField field = inputFields[i];
 
-      retval.append("      ").append(XmlHandler.openTag("field")).append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", field.getName()));
+      retval.append(CONST_SPACES).append(XmlHandler.openTag(CONST_FIELD)).append(Const.CR);
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", field.getName()));
       retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
           .append(
               XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(field.getType())));
-      retval.append("        ").append(XmlHandler.addTagValue("format", field.getFormat()));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("format", field.getFormat()));
       retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
           .append(XmlHandler.addTagValue("currency", field.getCurrencySymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("group", field.getGroupSymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("length", field.getLength()));
-      retval.append("        ").append(XmlHandler.addTagValue("precision", field.getPrecision()));
       retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("group", field.getGroupSymbol()));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("length", field.getLength()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("precision", field.getPrecision()));
+      retval
+          .append(CONST_SPACES_LONG)
           .append(
               XmlHandler.addTagValue(
-                  "trim_type", ValueMetaString.getTrimTypeCode(field.getTrimType())));
-      retval.append("      ").append(XmlHandler.closeTag("field")).append(Const.CR);
+                  "trim_type", ValueMetaBase.getTrimTypeCode(field.getTrimType())));
+      retval.append(CONST_SPACES).append(XmlHandler.closeTag(CONST_FIELD)).append(Const.CR);
     }
-    retval.append("    ").append(XmlHandler.closeTag("fields")).append(Const.CR);
+    retval.append("    ").append(XmlHandler.closeTag(CONST_FIELDS)).append(Const.CR);
 
     return retval.toString();
   }
@@ -505,7 +516,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
 
   @Override
   public int getFileFormatTypeNr() {
-    return TextFileInputMeta.FILE_FORMAT_MIXED; // TODO: check this
+    return TextFileInputMeta.FILE_FORMAT_MIXED;
   }
 
   @Override

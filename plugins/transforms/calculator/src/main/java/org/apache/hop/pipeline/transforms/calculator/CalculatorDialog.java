@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class CalculatorDialog extends BaseTransformDialog {
   private static final Class<?> PKG = CalculatorMeta.class;
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private Text wTransformName;
 
@@ -207,7 +208,7 @@ public class CalculatorDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
                 BaseMessages.getString(PKG, "System.Combo.No"),
-                BaseMessages.getString(PKG, "System.Combo.Yes")
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
               }),
           new ColumnInfo(
               BaseMessages.getString(PKG, "CalculatorDialog.ConversionMask.Column"),
@@ -354,7 +355,7 @@ public class CalculatorDialog extends BaseTransformDialog {
       item.setText(
           9,
           fn.isRemovedFromResult()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
+              ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
               : BaseMessages.getString(PKG, "System.Combo.No"));
       item.setText(10, Const.NVL(fn.getConversionMask(), ""));
       item.setText(11, Const.NVL(fn.getDecimalSymbol(), ""));
@@ -398,7 +399,7 @@ public class CalculatorDialog extends BaseTransformDialog {
       int valueLength = Const.toInt(item.getText(7), -1);
       int valuePrecision = Const.toInt(item.getText(8), -1);
       boolean removed =
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(9));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(9));
       String conversionMask = item.getText(10);
       String decimalSymbol = item.getText(11);
       String groupingSymbol = item.getText(12);

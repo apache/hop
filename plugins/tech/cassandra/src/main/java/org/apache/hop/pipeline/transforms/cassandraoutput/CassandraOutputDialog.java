@@ -59,6 +59,16 @@ import org.eclipse.swt.widgets.Text;
 public class CassandraOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = CassandraOutputMeta.class;
+  public static final String CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS =
+      "CassandraOutputData.Message.NoIncomingFields";
+  public static final String
+      CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE =
+          "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Message";
+  public static final String CONST_NEWLINES = ":\n\n";
+  public static final String CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_TITLE =
+      "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Title";
+  public static final String CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS_TITLE =
+      "CassandraOutputData.Message.NoIncomingFields.Title";
 
   private final CassandraOutputMeta input;
 
@@ -615,17 +625,17 @@ public class CassandraOutputDialog extends BaseTransformDialog {
       } catch (Exception e) {
         logError(
             BaseMessages.getString(
-                    PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Message")
-                + ":\n\n"
+                    PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+                + CONST_NEWLINES
                 + e.getLocalizedMessage(),
             e);
         new ErrorDialog(
             shell,
             BaseMessages.getString(
-                PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Title"),
+                PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_TITLE),
             BaseMessages.getString(
-                    PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Message")
-                + ":\n\n"
+                    PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+                + CONST_NEWLINES
                 + e.getLocalizedMessage(),
             e);
         return;
@@ -640,16 +650,17 @@ public class CassandraOutputDialog extends BaseTransformDialog {
     } catch (Exception ex) {
       logError(
           BaseMessages.getString(
-                  PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Message")
-              + ":\n\n"
+                  PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+              + CONST_NEWLINES
               + ex.getMessage(),
           ex);
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Title"),
           BaseMessages.getString(
-                  PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Message")
-              + ":\n\n"
+              PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_TITLE),
+          BaseMessages.getString(
+                  PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+              + CONST_NEWLINES
               + ex.getMessage(),
           ex);
     } finally {
@@ -657,7 +668,6 @@ public class CassandraOutputDialog extends BaseTransformDialog {
         try {
           conn.close();
         } catch (Exception e) {
-          // TODO popup another error dialog
           e.printStackTrace();
         }
       }
@@ -675,8 +685,9 @@ public class CassandraOutputDialog extends BaseTransformDialog {
         if (row.size() == 0) {
           BaseDialog.openMessageBox(
               shell,
-              BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields.Title"),
-              BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"),
+              BaseMessages.getString(
+                  PKG, CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS_TITLE),
+              BaseMessages.getString(PKG, CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS),
               SWT.ICON_ERROR | SWT.OK);
 
           return;
@@ -730,8 +741,9 @@ public class CassandraOutputDialog extends BaseTransformDialog {
       } catch (HopException ex) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields.Title"),
-            BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"),
+            BaseMessages.getString(
+                PKG, CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS_TITLE),
+            BaseMessages.getString(PKG, CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS),
             ex);
       }
     }
@@ -749,8 +761,9 @@ public class CassandraOutputDialog extends BaseTransformDialog {
         if (row.size() == 0) {
           BaseDialog.openMessageBox(
               shell,
-              BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields.Title"),
-              BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"),
+              BaseMessages.getString(
+                  PKG, CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS_TITLE),
+              BaseMessages.getString(PKG, CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS),
               SWT.ICON_ERROR | SWT.OK);
 
           return;
@@ -758,8 +771,9 @@ public class CassandraOutputDialog extends BaseTransformDialog {
       } catch (HopException ex) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields.Title"),
-            BaseMessages.getString(PKG, "CassandraOutputData.Message.NoIncomingFields"),
+            BaseMessages.getString(
+                PKG, CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS_TITLE),
+            BaseMessages.getString(PKG, CONST_CASSANDRA_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS),
             ex);
       }
     }
@@ -817,17 +831,17 @@ public class CassandraOutputDialog extends BaseTransformDialog {
       } catch (Exception e) {
         logError(
             BaseMessages.getString(
-                    PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Message")
-                + ":\n\n"
+                    PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+                + CONST_NEWLINES
                 + e.getLocalizedMessage(),
             e);
         new ErrorDialog(
             shell,
             BaseMessages.getString(
-                PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Title"),
+                PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_TITLE),
             BaseMessages.getString(
-                    PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Message")
-                + ":\n\n"
+                    PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+                + CONST_NEWLINES
                 + e.getLocalizedMessage(),
             e);
         return;
@@ -857,16 +871,17 @@ public class CassandraOutputDialog extends BaseTransformDialog {
     } catch (Exception e1) {
       logError(
           BaseMessages.getString(
-                  PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Message")
-              + ":\n\n"
+                  PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+              + CONST_NEWLINES
               + e1.getMessage(),
           e1);
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Title"),
           BaseMessages.getString(
-                  PKG, "CassandraOutputDialog.Error.ProblemGettingSchemaInfo.Message")
-              + ":\n\n"
+              PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_TITLE),
+          BaseMessages.getString(
+                  PKG, CONST_CASSANDRA_OUTPUT_DIALOG_ERROR_PROBLEM_GETTING_SCHEMA_INFO_MESSAGE)
+              + CONST_NEWLINES
               + e1.getMessage(),
           e1);
     } finally {
@@ -874,7 +889,6 @@ public class CassandraOutputDialog extends BaseTransformDialog {
         try {
           conn.close();
         } catch (Exception e) {
-          // TODO popup another error dialog
           e.printStackTrace();
         }
       }

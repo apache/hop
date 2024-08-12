@@ -64,6 +64,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class AddXmlDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AddXmlMeta.class;
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private Button wOmitXMLHeader;
 
@@ -178,7 +179,9 @@ public class AddXmlDialog extends BaseTransformDialog {
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -359,7 +362,7 @@ public class AddXmlDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "AddXMLDialog.Attribute.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
                 BaseMessages.getString(PKG, "System.Combo.No")
               },
               true),
@@ -538,7 +541,7 @@ public class AddXmlDialog extends BaseTransformDialog {
       item.setText(
           11,
           field.isAttribute()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
+              ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
               : BaseMessages.getString(PKG, "System.Combo.No"));
       if (field.getAttributeParentName() != null) {
         item.setText(12, field.getAttributeParentName());
@@ -590,7 +593,8 @@ public class AddXmlDialog extends BaseTransformDialog {
       field.setDecimalSymbol(item.getText(8));
       field.setGroupingSymbol(item.getText(9));
       field.setNullString(item.getText(10));
-      field.setAttribute(BaseMessages.getString(PKG, "System.Combo.Yes").equals(item.getText(11)));
+      field.setAttribute(
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equals(item.getText(11)));
       field.setAttributeParentName(item.getText(12));
 
       tfoi.getOutputFields()[i] = field;
@@ -622,27 +626,25 @@ public class AddXmlDialog extends BaseTransformDialog {
             5,
             6,
             (tableItem, v) -> {
-              if (v.isNumber()) {
-                if (v.getLength() > 0) {
-                  int le = v.getLength();
-                  int pr = v.getPrecision();
+              if (v.isNumber() && v.getLength() > 0) {
+                int le = v.getLength();
+                int pr = v.getPrecision();
 
-                  if (v.getPrecision() <= 0) {
-                    pr = 0;
-                  }
-
-                  String mask = " ";
-                  for (int m = 0; m < le - pr; m++) {
-                    mask += "0";
-                  }
-                  if (pr > 0) {
-                    mask += ".";
-                  }
-                  for (int m = 0; m < pr; m++) {
-                    mask += "0";
-                  }
-                  tableItem.setText(4, mask);
+                if (v.getPrecision() <= 0) {
+                  pr = 0;
                 }
+
+                String mask = " ";
+                for (int m = 0; m < le - pr; m++) {
+                  mask += "0";
+                }
+                if (pr > 0) {
+                  mask += ".";
+                }
+                for (int m = 0; m < pr; m++) {
+                  mask += "0";
+                }
+                tableItem.setText(4, mask);
               }
               return true;
             });
