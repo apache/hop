@@ -38,6 +38,7 @@ import org.apache.hop.i18n.BaseMessages;
 public class GPG {
 
   private static final Class<?> PKG = ActionPGPEncryptFiles.class;
+  public static final String CONST_BATCH_YES = "--batch --yes";
 
   private ILogChannel log;
 
@@ -300,7 +301,7 @@ public class GPG {
       throws HopException {
     try {
       execGnuPG(
-          "--batch --yes"
+          CONST_BATCH_YES
               + (asciiMode ? " -a" : "")
               + " -r "
               + "\""
@@ -354,7 +355,7 @@ public class GPG {
     try {
 
       execGnuPG(
-          "--batch --yes"
+          CONST_BATCH_YES
               + (asciiMode ? " -a" : "")
               + (Utils.isEmpty(userID) ? "" : " -r " + "\"" + userID + "\"")
               + " "
@@ -386,7 +387,7 @@ public class GPG {
       throws HopException {
     try {
       execGnuPG(
-          "--batch --yes"
+          CONST_BATCH_YES
               + (asciiMode ? " -a" : "")
               + (Utils.isEmpty(userID) ? "" : " -r " + "\"" + userID + "\"")
               + " "

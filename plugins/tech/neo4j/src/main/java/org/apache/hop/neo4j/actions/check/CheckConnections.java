@@ -43,6 +43,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/neo4j-checkconnections.html")
 public class CheckConnections extends ActionBase implements IAction {
 
+  public static final String CONST_CONNECTIONS = "connections";
   private List<String> connectionNames;
 
   public CheckConnections() {
@@ -65,13 +66,13 @@ public class CheckConnections extends ActionBase implements IAction {
     //
     xml.append(super.getXml());
 
-    xml.append(XmlHandler.openTag("connections"));
+    xml.append(XmlHandler.openTag(CONST_CONNECTIONS));
 
     for (String connectionName : connectionNames) {
       xml.append(XmlHandler.addTagValue("connection", connectionName));
     }
 
-    xml.append(XmlHandler.closeTag("connections"));
+    xml.append(XmlHandler.closeTag(CONST_CONNECTIONS));
     return xml.toString();
   }
 
@@ -81,7 +82,7 @@ public class CheckConnections extends ActionBase implements IAction {
     super.loadXml(node);
 
     connectionNames = new ArrayList<>();
-    Node connectionsNode = XmlHandler.getSubNode(node, "connections");
+    Node connectionsNode = XmlHandler.getSubNode(node, CONST_CONNECTIONS);
     List<Node> connectionNodes = XmlHandler.getNodes(connectionsNode, "connection");
     for (Node connectionNode : connectionNodes) {
       String connectionName = XmlHandler.getNodeValue(connectionNode);

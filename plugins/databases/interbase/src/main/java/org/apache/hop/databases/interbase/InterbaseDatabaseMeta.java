@@ -32,6 +32,11 @@ import org.apache.hop.core.row.IValueMeta;
     documentationUrl = "/database/databases/interbase.html")
 @GuiPlugin(id = "GUI-InterbaseDatabaseMeta")
 public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  public static final String CONST_SMALLINT = "SMALLINT";
+  public static final String CONST_INTEGER = "INTEGER";
+  public static final String CONST_VARCHAR = "VARCHAR";
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -164,9 +169,9 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
               retval += ")";
             } else {
               if (length <= 5) {
-                retval += "SMALLINT";
+                retval += CONST_SMALLINT;
               } else {
-                retval += "INTEGER";
+                retval += CONST_INTEGER;
               }
             }
           } else {
@@ -176,7 +181,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
         break;
       case IValueMeta.TYPE_STRING:
         if (length < 32664) {
-          retval += "VARCHAR";
+          retval += CONST_VARCHAR;
           if (length > 0) {
             retval += "(" + length + ")";
           } else {
@@ -363,7 +368,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
       "INSENSITIVE",
       "INSERT",
       "INT",
-      "INTEGER",
+      CONST_INTEGER,
       "INTERSECT",
       "INTERVAL",
       "INTO",
@@ -483,7 +488,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
       "SHOW",
       "SINGULAR",
       "SIZE",
-      "SMALLINT",
+      CONST_SMALLINT,
       "SNAPSHOT",
       "SOME",
       "SORT",
@@ -532,7 +537,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
       "USING",
       "VALUE",
       "VALUES",
-      "VARCHAR",
+      CONST_VARCHAR,
       "VARIABLE",
       "VARYING",
       "VERSION",
@@ -706,7 +711,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
       "INSENSITIVE",
       "INSERT",
       "INT",
-      "INTEGER",
+      CONST_INTEGER,
       "INTERSECT",
       "INTERVAL",
       "INTO",
@@ -826,7 +831,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
       "SHOW",
       "SINGULAR",
       "SIZE",
-      "SMALLINT",
+      CONST_SMALLINT,
       "SNAPSHOT",
       "SOME",
       "SORT",
@@ -875,7 +880,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
       "USING",
       "VALUE",
       "VALUES",
-      "VARCHAR",
+      CONST_VARCHAR,
       "VARIABLE",
       "VARYING",
       "VERSION",

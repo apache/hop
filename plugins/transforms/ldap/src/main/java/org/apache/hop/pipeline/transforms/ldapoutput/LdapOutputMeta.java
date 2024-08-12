@@ -47,6 +47,8 @@ import org.w3c.dom.Node;
 public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData>
     implements ILdapMeta {
   private static final Class<?> PKG = LdapOutputMeta.class;
+  public static final String CONST_SPACES = "        ";
+  public static final String CONST_FIELD = "field";
 
   /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;
@@ -99,9 +101,11 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Rename")
   };
 
+  public static final String CONST_UPDATE = "update";
+
   /** The operations type codes */
   static final String[] operationTypeCode = {
-    "insert", "upsert", "update", "add", "delete", "rename"
+    "insert", "upsert", CONST_UPDATE, "add", "delete", "rename"
   };
 
   public static final int OPERATION_TYPE_INSERT = 0;
@@ -649,9 +653,11 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
 
     for (int i = 0; i < updateLookup.length; i++) {
       retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", updateLookup[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field", updateStream[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("update", update[i].booleanValue()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", updateLookup[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FIELD, updateStream[i]));
+      retval
+          .append(CONST_SPACES)
+          .append(XmlHandler.addTagValue(CONST_UPDATE, update[i].booleanValue()));
       retval.append("      </field>").append(Const.CR);
     }
 
@@ -703,19 +709,19 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
       deleteRDN = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "deleteRDN"));
 
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFields);
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         updateLookup[i] = XmlHandler.getTagValue(fnode, "name");
-        updateStream[i] = XmlHandler.getTagValue(fnode, "field");
+        updateStream[i] = XmlHandler.getTagValue(fnode, CONST_FIELD);
         if (updateStream[i] == null) {
           updateStream[i] = updateLookup[i]; // default: the same name!
         }
-        String updateValue = XmlHandler.getTagValue(fnode, "update");
+        String updateValue = XmlHandler.getTagValue(fnode, CONST_UPDATE);
         if (updateValue == null) {
           // default TRUE
           update[i] = Boolean.TRUE;
@@ -764,7 +770,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
 
     for (int i = 0; i < nrFields; i++) {
       updateLookup[i] = "name" + (i + 1);
-      updateStream[i] = "field" + (i + 1);
+      updateStream[i] = CONST_FIELD + (i + 1);
       update[i] = Boolean.TRUE;
     }
     operationType = OPERATION_TYPE_INSERT;

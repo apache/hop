@@ -59,6 +59,8 @@ public class ActionUnZipDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionUnZip.Filetype.Jar"),
         BaseMessages.getString(PKG, "ActionUnZip.Filetype.All")
       };
+  public static final String CONST_ACTION_UN_ZIP_BROWSE_FOLDERS_LABEL =
+      "ActionUnZip.BrowseFolders.Label";
 
   private Text wName;
 
@@ -251,7 +253,8 @@ public class ActionUnZipDialog extends ActionDialog {
     // Browse Source folders button ...
     wbSourceDirectory = new Button(wSource, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSourceDirectory);
-    wbSourceDirectory.setText(BaseMessages.getString(PKG, "ActionUnZip.BrowseFolders.Label"));
+    wbSourceDirectory.setText(
+        BaseMessages.getString(PKG, CONST_ACTION_UN_ZIP_BROWSE_FOLDERS_LABEL));
     FormData fdbSourceDirectory = new FormData();
     fdbSourceDirectory.right = new FormAttachment(100, 0);
     fdbSourceDirectory.top = new FormAttachment(wlArgsPrevious, 2 * margin);
@@ -378,7 +381,8 @@ public class ActionUnZipDialog extends ActionDialog {
     // Browse folders button ...
     Button wbTargetDirectory = new Button(wUnzippedFiles, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTargetDirectory);
-    wbTargetDirectory.setText(BaseMessages.getString(PKG, "ActionUnZip.BrowseFolders.Label"));
+    wbTargetDirectory.setText(
+        BaseMessages.getString(PKG, CONST_ACTION_UN_ZIP_BROWSE_FOLDERS_LABEL));
     FormData fdbTargetDirectory = new FormData();
     fdbTargetDirectory.right = new FormAttachment(100, 0);
     fdbTargetDirectory.top = new FormAttachment(wlRootZip, 2 * margin);
@@ -705,7 +709,8 @@ public class ActionUnZipDialog extends ActionDialog {
     // Browse folders button ...
     wbMovetoDirectory = new Button(wUnzippedFiles, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbMovetoDirectory);
-    wbMovetoDirectory.setText(BaseMessages.getString(PKG, "ActionUnZip.BrowseFolders.Label"));
+    wbMovetoDirectory.setText(
+        BaseMessages.getString(PKG, CONST_ACTION_UN_ZIP_BROWSE_FOLDERS_LABEL));
     FormData fdbMovetoDirectory = new FormData();
     fdbMovetoDirectory.right = new FormAttachment(100, 0);
     fdbMovetoDirectory.top = new FormAttachment(wAfterUnZip, margin);

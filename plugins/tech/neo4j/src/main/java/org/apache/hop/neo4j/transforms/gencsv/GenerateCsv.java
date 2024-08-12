@@ -21,6 +21,7 @@ package org.apache.hop.neo4j.transforms.gencsv;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,8 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData> {
+
+  public static final String CONST_IMPORT = "import/";
 
   /**
    * This is the base transform that forms that basis for all transform. You can derive from this
@@ -135,7 +138,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
         data.baseFolder += File.separator;
       }
 
-      data.importFolder = data.baseFolder + "import/";
+      data.importFolder = data.baseFolder + CONST_IMPORT;
     }
 
     if (meta.getUniquenessStrategy() != UniquenessStrategy.None) {
@@ -356,7 +359,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
   }
 
   private String calculateNodeShortFilename(String propertySetKey) {
-    return "import/"
+    return CONST_IMPORT
         + Const.NVL(data.filesPrefix + "-", "")
         + "nodes-"
         + propertySetKey
@@ -376,7 +379,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
   }
 
   private String calculateRelatiohshipsShortFilename(String propertySetKey) {
-    return "import/"
+    return CONST_IMPORT
         + Const.NVL(data.filesPrefix + "-", "")
         + "rels-"
         + propertySetKey
@@ -425,7 +428,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
     header.append(Const.CR);
 
     System.out.println("NODES HEADER: '" + header + "'");
-    os.write(header.toString().getBytes("UTF-8"));
+    os.write(header.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   private void writeNodeCsvRows(
@@ -501,7 +504,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
 
       // Write it out
       //
-      os.write(row.toString().getBytes("UTF-8"));
+      os.write(row.toString().getBytes(StandardCharsets.UTF_8));
     }
   }
 
@@ -556,7 +559,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
 
       // Write it out
       //
-      os.write(row.toString().getBytes("UTF-8"));
+      os.write(row.toString().getBytes(StandardCharsets.UTF_8));
     }
   }
 
@@ -585,7 +588,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
 
     header.append(",:END_ID,:TYPE").append(Const.CR);
 
-    os.write(header.toString().getBytes("UTF-8"));
+    os.write(header.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   protected void addRowToBuffer(IRowMeta inputRowMeta, Object[] row) throws HopException {

@@ -51,6 +51,8 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     documentationUrl = "/pipeline/transforms/switchcase.html")
 public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData> {
   private static final Class<?> PKG = SwitchCaseMeta.class;
+  public static final String CONST_SWITCH_CASE_META_TARGET_STREAM_DEFAULT_DESCRIPTION =
+      "SwitchCaseMeta.TargetStream.Default.Description";
 
   /** The field to switch over */
   @HopMetadataProperty(
@@ -327,7 +329,8 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
             new Stream(
                 StreamType.TARGET,
                 null,
-                BaseMessages.getString(PKG, "SwitchCaseMeta.TargetStream.Default.Description"),
+                BaseMessages.getString(
+                    PKG, CONST_SWITCH_CASE_META_TARGET_STREAM_DEFAULT_DESCRIPTION),
                 StreamIcon.TARGET,
                 defaultTargetTransformName));
       }
@@ -367,7 +370,7 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
       new Stream(
           StreamType.TARGET,
           null,
-          BaseMessages.getString(PKG, "SwitchCaseMeta.TargetStream.Default.Description"),
+          BaseMessages.getString(PKG, CONST_SWITCH_CASE_META_TARGET_STREAM_DEFAULT_DESCRIPTION),
           StreamIcon.TARGET,
           null);
   private static final IStream newCaseTargetStream =
@@ -399,7 +402,7 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
           new Stream(
               StreamType.TARGET,
               stream.getTransformMeta(),
-              BaseMessages.getString(PKG, "SwitchCaseMeta.TargetStream.Default.Description"),
+              BaseMessages.getString(PKG, CONST_SWITCH_CASE_META_TARGET_STREAM_DEFAULT_DESCRIPTION),
               StreamIcon.TARGET,
               stream.getTransformMeta().getName());
       getTransformIOMeta().addStream(newStream);

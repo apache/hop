@@ -83,6 +83,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       RedshiftBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+  public static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -1124,7 +1125,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.ConnectionError.DialogMessage"));
-      mb.setText(BaseMessages.getString("System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
       return;
     }
@@ -1169,7 +1170,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
       } catch (Exception e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE),
             BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.ErrorGettingSchemas"),
             e);
       }
@@ -1202,7 +1203,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.ConnectionError2.DialogMessage"));
-      mb.setText(BaseMessages.getString("System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
     }
   }
@@ -1276,7 +1277,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
       } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(sql.getError());
-        mb.setText(BaseMessages.getString("System.Dialog.Error.Title"));
+        mb.setText(BaseMessages.getString(CONST_SYSTEM_DIALOG_ERROR_TITLE));
         mb.open();
       }
     } catch (HopException ke) {
@@ -1294,7 +1295,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
   }
 
   public void toggleAuthSelection() {
-    if (wAwsAuthType.getText().equals("Credentials")) {
+    if (wAwsAuthType.getText().equals(AWS_CREDENTIALS)) {
       wlUseSystemVars.setEnabled(true);
       wUseSystemVars.setEnabled(true);
       wlAccessKeyId.setEnabled(true);
@@ -1305,7 +1306,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
       wlAwsIamRole.setEnabled(false);
       wAwsIamRole.setEnabled(false);
     }
-    if (wAwsAuthType.getText().equals("IAM Role")) {
+    if (wAwsAuthType.getText().equals(AWS_IAM_ROLE)) {
       wlUseSystemVars.setEnabled(false);
       wUseSystemVars.setEnabled(false);
       wlAccessKeyId.setEnabled(false);

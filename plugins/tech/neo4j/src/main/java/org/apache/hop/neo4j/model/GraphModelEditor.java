@@ -90,6 +90,9 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
   private static final Class<?> PKG =
       GraphModelEditor.class; // for i18n purposes, needed by Translator2!!
+  public static final String CONST_ERROR = "ERROR";
+  public static final String CONST_DESCRIPTION = "Description";
+  public static final String CONST_ERROR_IMPORTING_JSON = "Error importing JSON";
 
   private CTabFolder wTabs;
 
@@ -181,14 +184,14 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     wModelDescription.setText(Const.NVL(graphModel.getDescription(), ""));
 
     refreshNodesList();
-    if (graphModel.getNodes().size() > 0) {
+    if (!graphModel.getNodes().isEmpty()) {
       String activeName = graphModel.getNodeNames()[0];
       setActiveNode(activeName);
       wNodesList.setSelection(new String[] {activeName});
       refreshNodeFields();
     }
     refreshRelationshipsList();
-    if (graphModel.getRelationships().size() > 0) {
+    if (!graphModel.getRelationships().isEmpty()) {
       String activeRelationshipName = graphModel.getRelationshipNames()[0];
       setActiveRelationship(activeRelationshipName);
       wRelationshipsList.setSelection(new String[] {activeRelationshipName});
@@ -593,7 +596,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     wNodeName.setLayoutData(fdNodeName);
 
     wlNodeDescription = new Label(wNodesComp, SWT.RIGHT);
-    wlNodeDescription.setText("Description");
+    wlNodeDescription.setText(CONST_DESCRIPTION);
     PropsUi.setLook(wlNodeDescription);
     FormData fdlNodeDescription = new FormData();
     fdlNodeDescription.left = new FormAttachment(middle, margin);
@@ -654,7 +657,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
           new ColumnInfo("Property key", ColumnInfo.COLUMN_TYPE_TEXT, false),
           new ColumnInfo(
               "Property Type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
-          new ColumnInfo("Description", ColumnInfo.COLUMN_TYPE_TEXT, false),
+          new ColumnInfo(CONST_DESCRIPTION, ColumnInfo.COLUMN_TYPE_TEXT, false),
           new ColumnInfo("Primary?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
           new ColumnInfo(
               "Mandatory?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
@@ -777,10 +780,8 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
         TableEditor editor = wNodeLabels.getEditor();
         if (editor != null && editor.getEditor() != null && (editor.getEditor() instanceof Text)) {
           Text text = (Text) editor.getEditor();
-          if (!text.isDisposed()) {
-            if (!labels.contains(text.getText())) {
-              labels.add(text.getText());
-            }
+          if (!text.isDisposed() && !labels.contains(text.getText())) {
+            labels.add(text.getText());
           }
         }
 
@@ -1067,7 +1068,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
         });
 
     wlRelDescription = new Label(wRelComp, SWT.LEFT);
-    wlRelDescription.setText("Description");
+    wlRelDescription.setText(CONST_DESCRIPTION);
     PropsUi.setLook(wlRelDescription);
     FormData fdlRelDescription = new FormData();
     fdlRelDescription.left = new FormAttachment(middle, margin);
@@ -1173,7 +1174,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
           new ColumnInfo("Property key", ColumnInfo.COLUMN_TYPE_TEXT, false),
           new ColumnInfo(
               "Property Type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
-          new ColumnInfo("Description", ColumnInfo.COLUMN_TYPE_TEXT, false),
+          new ColumnInfo(CONST_DESCRIPTION, ColumnInfo.COLUMN_TYPE_TEXT, false),
           new ColumnInfo("Primary?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
           new ColumnInfo(
               "Mandatory?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
@@ -1884,7 +1885,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       setChanged();
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
+      new ErrorDialog(getShell(), CONST_ERROR, CONST_ERROR_IMPORTING_JSON, e);
     }
   }
 
@@ -1901,7 +1902,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
               true);
       dialog.open();
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "ERROR", "Error serializing to JSON", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error serializing to JSON", e);
     }
   }
 
@@ -1930,7 +1931,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       setChanged();
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
+      new ErrorDialog(getShell(), CONST_ERROR, CONST_ERROR_IMPORTING_JSON, e);
     }
   }
 
@@ -1964,7 +1965,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       box.open();
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
+      new ErrorDialog(getShell(), CONST_ERROR, CONST_ERROR_IMPORTING_JSON, e);
     }
   }
 
@@ -2080,7 +2081,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       messageBox.open();
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "ERROR", "Error serializing to JSON", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error serializing to JSON", e);
     }
   }
 

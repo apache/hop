@@ -63,6 +63,9 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/mssqlbulkload.html")
 public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMssqlBulkLoad.class;
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_TABLENAME = "tablename";
+  public static final String CONST_FILENAME = "filename";
 
   private String schemaname;
   private String tableName;
@@ -139,35 +142,39 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     StringBuilder retval = new StringBuilder(500);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("schemaname", schemaname));
-    retval.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("schemaname", schemaname));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_TABLENAME, tableName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FILENAME, filename));
 
-    retval.append("      ").append(XmlHandler.addTagValue("datafiletype", datafiletype));
-    retval.append("      ").append(XmlHandler.addTagValue("fieldterminator", fieldterminator));
-    retval.append("      ").append(XmlHandler.addTagValue("lineterminated", lineterminated));
-    retval.append("      ").append(XmlHandler.addTagValue("codepage", codepage));
-    retval.append("      ").append(XmlHandler.addTagValue("specificcodepage", specificcodepage));
-    retval.append("      ").append(XmlHandler.addTagValue("formatfilename", formatfilename));
-    retval.append("      ").append(XmlHandler.addTagValue("firetriggers", firetriggers));
-    retval.append("      ").append(XmlHandler.addTagValue("checkconstraints", checkconstraints));
-    retval.append("      ").append(XmlHandler.addTagValue("keepnulls", keepnulls));
-    retval.append("      ").append(XmlHandler.addTagValue("keepidentity", keepidentity));
-    retval.append("      ").append(XmlHandler.addTagValue("tablock", tablock));
-    retval.append("      ").append(XmlHandler.addTagValue("startfile", startfile));
-    retval.append("      ").append(XmlHandler.addTagValue("endfile", endfile));
-    retval.append("      ").append(XmlHandler.addTagValue("orderby", orderby));
-    retval.append("      ").append(XmlHandler.addTagValue("orderdirection", orderdirection));
-    retval.append("      ").append(XmlHandler.addTagValue("maxerrors", maxerrors));
-    retval.append("      ").append(XmlHandler.addTagValue("batchsize", batchsize));
-    retval.append("      ").append(XmlHandler.addTagValue("rowsperbatch", rowsperbatch));
-    retval.append("      ").append(XmlHandler.addTagValue("errorfilename", errorfilename));
-    retval.append("      ").append(XmlHandler.addTagValue("adddatetime", adddatetime));
-    retval.append("      ").append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
-    retval.append("      ").append(XmlHandler.addTagValue("truncate", truncate));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("datafiletype", datafiletype));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("fieldterminator", fieldterminator));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("lineterminated", lineterminated));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("codepage", codepage));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("specificcodepage", specificcodepage));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("formatfilename", formatfilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("firetriggers", firetriggers));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("checkconstraints", checkconstraints));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("keepnulls", keepnulls));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("keepidentity", keepidentity));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("tablock", tablock));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("startfile", startfile));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("endfile", endfile));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("orderby", orderby));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("orderdirection", orderdirection));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("maxerrors", maxerrors));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("batchsize", batchsize));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("rowsperbatch", rowsperbatch));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("errorfilename", errorfilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("adddatetime", adddatetime));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("truncate", truncate));
 
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
 
@@ -180,8 +187,8 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     try {
       super.loadXml(entrynode);
       schemaname = XmlHandler.getTagValue(entrynode, "schemaname");
-      tableName = XmlHandler.getTagValue(entrynode, "tablename");
-      filename = XmlHandler.getTagValue(entrynode, "filename");
+      tableName = XmlHandler.getTagValue(entrynode, CONST_TABLENAME);
+      filename = XmlHandler.getTagValue(entrynode, CONST_FILENAME);
       datafiletype = XmlHandler.getTagValue(entrynode, "datafiletype");
       fieldterminator = XmlHandler.getTagValue(entrynode, "fieldterminator");
 
@@ -766,12 +773,12 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
-    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, CONST_FILENAME, remarks, ctx);
 
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "tablename",
+            CONST_TABLENAME,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }

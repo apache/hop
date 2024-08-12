@@ -66,6 +66,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class AvroDecodeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AvroDecodeMeta.class;
+  public static final String CONST_FILENAME = "filename";
 
   private AvroDecodeMeta input;
 
@@ -332,7 +333,9 @@ public class AvroDecodeDialog extends BaseTransformDialog {
           // We'll inject the filename to minimize dependencies
           //
           InjectorMeta injector = new InjectorMeta();
-          injector.getInjectorFields().add(new InjectorField("filename", "String", "500", "-1"));
+          injector
+              .getInjectorFields()
+              .add(new InjectorField(CONST_FILENAME, "String", "500", "-1"));
           TransformMeta injectorMeta = new TransformMeta("Filename", injector);
           injectorMeta.setLocation(50, 50);
           pipelineMeta.addTransform(injectorMeta);
@@ -340,7 +343,7 @@ public class AvroDecodeDialog extends BaseTransformDialog {
           // The Avro File Input transform
           //
           AvroFileInputMeta fileInput = new AvroFileInputMeta();
-          fileInput.setDataFilenameField("filename");
+          fileInput.setDataFilenameField(CONST_FILENAME);
           fileInput.setOutputFieldName("avro");
           fileInput.setRowsLimit("1");
           TransformMeta fileInputMeta = new TransformMeta("Avro", fileInput);
@@ -389,7 +392,7 @@ public class AvroDecodeDialog extends BaseTransformDialog {
 
           pipeline.startThreads();
           rowProducer.putRow(
-              new RowMetaBuilder().addString("filename").build(),
+              new RowMetaBuilder().addString(CONST_FILENAME).build(),
               new Object[] {variables.resolve(filename)});
           rowProducer.finished();
 

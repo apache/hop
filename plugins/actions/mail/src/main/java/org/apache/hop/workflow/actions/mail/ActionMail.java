@@ -78,6 +78,11 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/mail.html")
 public class ActionMail extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMail.class;
+  public static final String CONST_FILETYPE = "filetype";
+  public static final String CONST_MAIL = "mail.";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_SPACES_LONG = "         ";
+  public static final String CONST_SERVER = "server";
 
   private String server;
 
@@ -188,54 +193,56 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
     retval.append(super.getXml());
 
-    retval.append("      ").append(XmlHandler.addTagValue("server", server));
-    retval.append("      ").append(XmlHandler.addTagValue("port", port));
-    retval.append("      ").append(XmlHandler.addTagValue("destination", destination));
-    retval.append("      ").append(XmlHandler.addTagValue("destinationCc", destinationCc));
-    retval.append("      ").append(XmlHandler.addTagValue("destinationBCc", destinationBCc));
-    retval.append("      ").append(XmlHandler.addTagValue("replyto", replyAddress));
-    retval.append("      ").append(XmlHandler.addTagValue("replytoname", replyName));
-    retval.append("      ").append(XmlHandler.addTagValue("subject", subject));
-    retval.append("      ").append(XmlHandler.addTagValue("include_date", includeDate));
-    retval.append("      ").append(XmlHandler.addTagValue("contact_person", contactPerson));
-    retval.append("      ").append(XmlHandler.addTagValue("contact_phone", contactPhone));
-    retval.append("      ").append(XmlHandler.addTagValue("comment", comment));
-    retval.append("      ").append(XmlHandler.addTagValue("include_files", includingFiles));
-    retval.append("      ").append(XmlHandler.addTagValue("zip_files", zipFiles));
-    retval.append("      ").append(XmlHandler.addTagValue("zip_name", zipFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_SERVER, server));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("port", port));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("destination", destination));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("destinationCc", destinationCc));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("destinationBCc", destinationBCc));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("replyto", replyAddress));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("replytoname", replyName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("subject", subject));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("include_date", includeDate));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("contact_person", contactPerson));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("contact_phone", contactPhone));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("comment", comment));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("include_files", includingFiles));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("zip_files", zipFiles));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("zip_name", zipFilename));
 
-    retval.append("      ").append(XmlHandler.addTagValue("use_auth", usingAuthentication));
-    retval.append("      ").append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("use_auth", usingAuthentication));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("use_secure_auth", usingSecureAuthentication));
-    retval.append("      ").append(XmlHandler.addTagValue("auth_user", authenticationUser));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("auth_user", authenticationUser));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 "auth_password", Encr.encryptPasswordIfNotUsingVariables(authenticationPassword)));
 
-    retval.append("      ").append(XmlHandler.addTagValue("only_comment", onlySendComment));
-    retval.append("      ").append(XmlHandler.addTagValue("use_HTML", useHTML));
-    retval.append("      ").append(XmlHandler.addTagValue("use_Priority", usePriority));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("only_comment", onlySendComment));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("use_HTML", useHTML));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("use_Priority", usePriority));
 
-    retval.append("      ").append(XmlHandler.addTagValue("encoding", encoding));
-    retval.append("      ").append(XmlHandler.addTagValue("priority", priority));
-    retval.append("      ").append(XmlHandler.addTagValue("importance", importance));
-    retval.append("      ").append(XmlHandler.addTagValue("sensitivity", sensitivity));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("encoding", encoding));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("priority", priority));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("importance", importance));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("sensitivity", sensitivity));
 
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("secureconnectiontype", secureConnectionType));
-    retval.append("      ").append(XmlHandler.addTagValue("replyToAddresses", replyToAddresses));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("replyToAddresses", replyToAddresses));
 
     retval.append("      <filetypes>");
     if (fileType != null) {
       for (int i = 0; i < fileType.length; i++) {
         retval
             .append("        ")
-            .append(XmlHandler.addTagValue("filetype", ResultFile.getTypeCode(fileType[i])));
+            .append(XmlHandler.addTagValue(CONST_FILETYPE, ResultFile.getTypeCode(fileType[i])));
       }
     }
     retval.append("      </filetypes>");
@@ -259,7 +266,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       throws HopXmlException {
     try {
       super.loadXml(entrynode);
-      setServer(XmlHandler.getTagValue(entrynode, "server"));
+      setServer(XmlHandler.getTagValue(entrynode, CONST_SERVER));
       setPort(XmlHandler.getTagValue(entrynode, "port"));
       setDestination(XmlHandler.getTagValue(entrynode, "destination"));
       setDestinationCc(XmlHandler.getTagValue(entrynode, "destinationCc"));
@@ -293,10 +300,10 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       setSecureConnectionType(XmlHandler.getTagValue(entrynode, "secureconnectiontype"));
 
       Node ftsnode = XmlHandler.getSubNode(entrynode, "filetypes");
-      int nrTypes = XmlHandler.countNodes(ftsnode, "filetype");
+      int nrTypes = XmlHandler.countNodes(ftsnode, CONST_FILETYPE);
       allocate(nrTypes);
       for (int i = 0; i < nrTypes; i++) {
-        Node ftnode = XmlHandler.getSubNodeByNr(ftsnode, "filetype", i);
+        Node ftnode = XmlHandler.getSubNodeByNr(ftsnode, CONST_FILETYPE, i);
         fileType[i] = ResultFile.getType(XmlHandler.getNodeValue(ftnode));
       }
 
@@ -671,9 +678,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    props.put("mail." + protocol + ".host", resolve(server));
+    props.put(CONST_MAIL + protocol + ".host", resolve(server));
     if (!Utils.isEmpty(port)) {
-      props.put("mail." + protocol + ".port", resolve(port));
+      props.put(CONST_MAIL + protocol + ".port", resolve(port));
     }
 
     if (log.isDebug()) {
@@ -681,7 +688,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     }
 
     if (usingAuthentication) {
-      props.put("mail." + protocol + ".auth", "true");
+      props.put(CONST_MAIL + protocol + ".auth", "true");
     }
 
     Session session = Session.getInstance(props);
@@ -1128,7 +1135,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
           if (invalid != null) {
             logError("    ** Invalid Addresses");
             for (int i = 0; i < invalid.length; i++) {
-              logError("         " + invalid[i]);
+              logError(CONST_SPACES_LONG + invalid[i]);
               result.setNrErrors(1);
             }
           }
@@ -1137,7 +1144,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
           if (validUnsent != null) {
             logError("    ** ValidUnsent Addresses");
             for (int i = 0; i < validUnsent.length; i++) {
-              logError("         " + validUnsent[i]);
+              logError(CONST_SPACES_LONG + validUnsent[i]);
               result.setNrErrors(1);
             }
           }
@@ -1145,7 +1152,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
           Address[] validSent = sfex.getValidSentAddresses();
           if (validSent != null) {
             for (int i = 0; i < validSent.length; i++) {
-              logError("         " + validSent[i]);
+              logError(CONST_SPACES_LONG + validSent[i]);
               result.setNrErrors(1);
             }
           }
@@ -1273,7 +1280,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "server",
+            CONST_SERVER,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     ActionValidatorUtils.andValidator()

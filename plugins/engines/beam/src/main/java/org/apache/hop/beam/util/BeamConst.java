@@ -136,26 +136,27 @@ public class BeamConst {
             "n1-ultramem-160", "Memory-optimized machine type with 160 vCPUs and 3.75 TB of memory."
           });
 
+  public static final String CONST_A_B_C = "a, b, c";
   private static List<String[]> gcpRegionCodeZonesDescriptions =
       Arrays.asList(
-          new String[] {"asia-east1", "a, b, c", "Changhua County, Taiwan"},
-          new String[] {"asia-east2", "a, b, c", "Hong Kong"},
-          new String[] {"asia-northeast1", "a, b, c", "Tokyo, Japan"},
-          new String[] {"asia-south1", "a, b, c", "Mumbai, India"},
-          new String[] {"asia-southeast1", "a, b, c", "Jurong West, Singapore"},
-          new String[] {"australia-southeast1", "a, b, c", "Sydney, Australia"},
-          new String[] {"europe-north1", "a, b, c", "Hamina, Finland"},
+          new String[] {"asia-east1", CONST_A_B_C, "Changhua County, Taiwan"},
+          new String[] {"asia-east2", CONST_A_B_C, "Hong Kong"},
+          new String[] {"asia-northeast1", CONST_A_B_C, "Tokyo, Japan"},
+          new String[] {"asia-south1", CONST_A_B_C, "Mumbai, India"},
+          new String[] {"asia-southeast1", CONST_A_B_C, "Jurong West, Singapore"},
+          new String[] {"australia-southeast1", CONST_A_B_C, "Sydney, Australia"},
+          new String[] {"europe-north1", CONST_A_B_C, "Hamina, Finland"},
           new String[] {"europe-west1", "b, c, d", "St. Ghislain, Belgium"},
-          new String[] {"europe-west2", "a, b, c", "London, England, UK"},
-          new String[] {"europe-west3", "a, b, c", "Frankfurt, Germany"},
-          new String[] {"europe-west4", "a, b, c", "Eemshaven, Netherlands"},
-          new String[] {"northamerica-northeast1", "a, b, c", "Montréal, Québec, Canada"},
-          new String[] {"southamerica-east1", "a, b, c", "São Paulo, Brazil"},
+          new String[] {"europe-west2", CONST_A_B_C, "London, England, UK"},
+          new String[] {"europe-west3", CONST_A_B_C, "Frankfurt, Germany"},
+          new String[] {"europe-west4", CONST_A_B_C, "Eemshaven, Netherlands"},
+          new String[] {"northamerica-northeast1", CONST_A_B_C, "Montréal, Québec, Canada"},
+          new String[] {"southamerica-east1", CONST_A_B_C, "São Paulo, Brazil"},
           new String[] {"us-central1", "a, b, c, f", "Council Bluffs, Iowa, USA"},
           new String[] {"us-east1", "b, c, d", "Moncks Corner, South Carolina, USA"},
-          new String[] {"us-east4", "a, b, c", "Ashburn, Northern Virginia, USA"},
-          new String[] {"us-west1", "a, b, c", "The Dalles, Oregon, USA"},
-          new String[] {"us-west2", "a, b, c", "Los Angeles, California, USA"});
+          new String[] {"us-east4", CONST_A_B_C, "Ashburn, Northern Virginia, USA"},
+          new String[] {"us-west1", CONST_A_B_C, "The Dalles, Oregon, USA"},
+          new String[] {"us-west2", CONST_A_B_C, "Los Angeles, California, USA"});
 
   public static final String[] getGcpWorkerMachineTypeCodes() {
     String[] codes = new String[gcpWorkerCodeDescriptions.size()];

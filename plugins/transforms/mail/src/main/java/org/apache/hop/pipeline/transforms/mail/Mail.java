@@ -62,6 +62,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class Mail extends BaseTransform<MailMeta, MailData> {
 
   private static final Class<?> PKG = MailMeta.class;
+  public static final String CONST_MAIL = "mail.";
 
   public Mail(
       TransformMeta transformMeta,
@@ -607,10 +608,10 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
         data.props.put("mail.smtps.quitwait", "false");
       }
     }
-    data.props.put("mail." + protocol + ".host", server);
+    data.props.put(CONST_MAIL + protocol + ".host", server);
     if (port != -1) {
       data.props.put(
-          "mail." + protocol + ".port",
+          CONST_MAIL + protocol + ".port",
           "" + port); // needs to be supplied as a string, not as an integer
     }
 
@@ -619,7 +620,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
     }
 
     if (meta.isUsingAuthentication()) {
-      data.props.put("mail." + protocol + ".auth", "true");
+      data.props.put(CONST_MAIL + protocol + ".auth", "true");
     }
 
     Session session = Session.getInstance(data.props);

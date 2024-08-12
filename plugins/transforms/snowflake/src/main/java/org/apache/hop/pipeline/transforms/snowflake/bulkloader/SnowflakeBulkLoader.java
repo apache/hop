@@ -54,6 +54,8 @@ public class SnowflakeBulkLoader
     extends BaseTransform<SnowflakeBulkLoaderMeta, SnowflakeBulkLoaderData> {
   private static final Class<?> PKG =
       SnowflakeBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+  public static final String CONST_FIELD = "Field [";
+  public static final String CONST_EXECUTING_SQL = "Executing SQL ";
 
   public SnowflakeBulkLoader(
       TransformMeta transformMeta,
@@ -101,7 +103,7 @@ public class SnowflakeBulkLoader
                   meta.getSnowflakeBulkLoaderFields().get(i).getStreamField());
           if (streamFieldLocation < 0) {
             throw new HopTransformException(
-                "Field ["
+                CONST_FIELD
                     + meta.getSnowflakeBulkLoaderFields().get(i).getStreamField()
                     + "] couldn't be found in the input stream!");
           }
@@ -117,7 +119,7 @@ public class SnowflakeBulkLoader
           }
           if (dbFieldLocation < 0) {
             throw new HopException(
-                "Field ["
+                CONST_FIELD
                     + meta.getSnowflakeBulkLoaderFields().get(i).getTableField()
                     + "] couldn't be found in the table!");
           }
@@ -133,7 +135,7 @@ public class SnowflakeBulkLoader
         int streamFieldLocation = data.outputRowMeta.indexOfValue(meta.getJsonField());
         if (streamFieldLocation < 0) {
           throw new HopTransformException(
-              "Field [" + meta.getJsonField() + "] couldn't be found in the input stream!");
+              CONST_FIELD + meta.getJsonField() + "] couldn't be found in the input stream!");
         }
         data.fieldnrs.put("json", streamFieldLocation);
       }
@@ -185,7 +187,7 @@ public class SnowflakeBulkLoader
       sql += resolve(meta.getTargetSchema()) + ".";
     }
     sql += resolve(meta.getTargetTable());
-    logDetailed("Executing SQL " + sql);
+    logDetailed(CONST_EXECUTING_SQL + sql);
     try {
       try (ResultSet resultSet =
           data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
@@ -238,7 +240,7 @@ public class SnowflakeBulkLoader
             + meta.getStage(this)
             + ";";
 
-    logDebug("Executing SQL " + sql);
+    logDebug(CONST_EXECUTING_SQL + sql);
     try (ResultSet putResultSet =
         data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
       IRowMeta putRowMeta = data.db.getReturnRowMeta();
@@ -265,7 +267,7 @@ public class SnowflakeBulkLoader
       throw new HopDatabaseException(exception);
     }
     String copySQL = meta.getCopyStatement(this, data.getPreviouslyOpenedFiles());
-    logDebug("Executing SQL " + copySQL);
+    logDebug(CONST_EXECUTING_SQL + copySQL);
     try (ResultSet resultSet =
         data.db.openQuery(copySQL, null, null, ResultSet.FETCH_FORWARD, false)) {
       IRowMeta rowMeta = data.db.getReturnRowMeta();
@@ -495,11 +497,10 @@ public class SnowflakeBulkLoader
         List<Integer> enclosures = null;
         boolean writeEnclosures = false;
 
-        if (v.isString()) {
-          if (containsSeparatorOrEnclosure(
-              str, data.binarySeparator, data.binaryEnclosure, data.escapeCharacters)) {
-            writeEnclosures = true;
-          }
+        if (v.isString()
+            && containsSeparatorOrEnclosure(
+                str, data.binarySeparator, data.binaryEnclosure, data.escapeCharacters)) {
+          writeEnclosures = true;
         }
 
         if (writeEnclosures) {
@@ -844,18 +845,17 @@ public class SnowflakeBulkLoader
             }
           }
 
-        } else if (escapeExists && source[index] == escape[0]) {
-
+        } else if (escapeExists
+            && source[index] == escape[0]
+            && index + escape.length <= source.length) {
           // Potential match found, make sure there are enough bytes to support a full match
-          if (index + escape.length <= source.length) {
-            // First byte of separator found
-            result = true; // Assume match
-            for (int i = 1; i < escape.length; i++) {
-              if (source[index + i] != escape[i]) {
-                // Separator match is proven false
-                result = false;
-                break;
-              }
+          // First byte of separator found
+          result = true; // Assume match
+          for (int i = 1; i < escape.length; i++) {
+            if (source[index + i] != escape[i]) {
+              // Separator match is proven false
+              result = false;
+              break;
             }
           }
         }

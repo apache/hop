@@ -63,6 +63,12 @@ import org.dom4j.tree.AbstractNode;
  */
 public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   private static final Class<?> PKG = GetXmlDataMeta.class;
+  public static final String CONST_GET_XMLDATA_LOG_UNABLE_CREATE_DOCUMENT =
+      "GetXMLData.Log.UnableCreateDocument";
+  public static final String CONST_GET_XMLDATA_LOG_LOOP_FILE_OCCURENCES =
+      "GetXMLData.Log.LoopFileOccurences";
+  public static final String CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH =
+      "GetXMLData.Log.UnableApplyXPath";
 
   private Object[] prevRow = null; // A pre-allocated spot for the previous row
 
@@ -249,7 +255,8 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       return;
     } else {
       if (!applyXPath()) {
-        throw new HopException(BaseMessages.getString(PKG, "GetXMLData.Log.UnableApplyXPath"));
+        throw new HopException(
+            BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH));
       }
     }
     // main loop through the data until limit is reached or transformation is stopped
@@ -321,7 +328,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
 
   private void handleMissingFiles() throws HopException {
     List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
-    if (nonExistantFiles.size() != 0) {
+    if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
       logError(
           BaseMessages.getString(PKG, "GetXMLData.Log.RequiredFilesTitle"),
@@ -332,7 +339,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     }
 
     List<FileObject> nonAccessibleFiles = data.files.getNonAccessibleFiles();
-    if (nonAccessibleFiles.size() != 0) {
+    if (!nonAccessibleFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonAccessibleFiles);
       logError(
           BaseMessages.getString(PKG, "GetXMLData.Log.RequiredFilesTitle"),
@@ -427,12 +434,12 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
             // Open the XML document
             if (!setDocument(null, file, false, false)) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "GetXMLData.Log.UnableCreateDocument"));
+                  BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_CREATE_DOCUMENT));
             }
 
             if (!applyXPath()) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "GetXMLData.Log.UnableApplyXPath"));
+                  BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH));
             }
 
             addFileToResultFilesname(file);
@@ -441,7 +448,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
-                      "GetXMLData.Log.LoopFileOccurences",
+                      CONST_GET_XMLDATA_LOG_LOOP_FILE_OCCURENCES,
                       "" + data.nodesize,
                       file.getName().getBaseName()));
             }
@@ -468,17 +475,18 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
           // Open the XML document
           if (!setDocument(fieldvalue, null, xmltring, url)) {
             throw new HopException(
-                BaseMessages.getString(PKG, "GetXMLData.Log.UnableCreateDocument"));
+                BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_CREATE_DOCUMENT));
           }
 
           // Apply XPath and set node list
           if (!applyXPath()) {
-            throw new HopException(BaseMessages.getString(PKG, "GetXMLData.Log.UnableApplyXPath"));
+            throw new HopException(
+                BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH));
           }
           if (log.isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
-                    PKG, "GetXMLData.Log.LoopFileOccurences", "" + data.nodesize));
+                    PKG, CONST_GET_XMLDATA_LOG_LOOP_FILE_OCCURENCES, "" + data.nodesize));
           }
         }
       }
@@ -504,7 +512,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   }
 
   public String addNSPrefix(String path, String loopPath) {
-    if (data.NSPath.size() > 0) {
+    if (!data.NSPath.isEmpty()) {
       String fullPath = loopPath;
       if (!path.equals(fullPath)) {
         for (String tmp : path.split(GetXmlDataMeta.N0DE_SEPARATOR)) {
@@ -641,14 +649,14 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
             return false; // ignore error when stopped while pruning
           }
           throw new HopException(
-              BaseMessages.getString(PKG, "GetXMLData.Log.UnableCreateDocument"));
+              BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_CREATE_DOCUMENT));
         }
 
         // Apply XPath and set node list
-        if (data.prunePath == null) { // this was already done in processStreaming()
-          if (!applyXPath()) {
-            throw new HopException(BaseMessages.getString(PKG, "GetXMLData.Log.UnableApplyXPath"));
-          }
+        if (data.prunePath == null
+            && !applyXPath()) { // this was already done in processStreaming()
+          throw new HopException(
+              BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH));
         }
 
         addFileToResultFilesname(data.file);
@@ -659,7 +667,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
           logDetailed(
               BaseMessages.getString(
                   PKG,
-                  "GetXMLData.Log.LoopFileOccurences",
+                  CONST_GET_XMLDATA_LOG_LOOP_FILE_OCCURENCES,
                   "" + data.nodesize,
                   data.file.getName().getBaseName()));
         }
@@ -852,11 +860,11 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
             targetValueMeta.convertData(sourceValueMeta, nodevalue);
 
         // Do we need to repeat this field if it is null?
-        if (meta.getInputFields()[i].isRepeated()) {
-          if (data.previousRow != null && Utils.isEmpty(nodevalue)) {
-            outputRowData[data.totalpreviousfields + i] =
-                data.previousRow[data.totalpreviousfields + i];
-          }
+        if (meta.getInputFields()[i].isRepeated()
+            && data.previousRow != null
+            && Utils.isEmpty(nodevalue)) {
+          outputRowData[data.totalpreviousfields + i] =
+              data.previousRow[data.totalpreviousfields + i];
         }
       } // End of loop over fields...
 

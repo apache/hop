@@ -74,6 +74,10 @@ public class KettleImportDialog extends Dialog {
       "ImportPipelineRunConfiguration";
   public static final String LAST_USED_IMPORT_WORKFLOW_RUN_CONFIGURATION =
       "ImportWorkflowRunConfiguration";
+  public static final String CONST_FALSE = "false";
+  public static final String CONST_ALL_FILES = "All Files (*.*)";
+  public static final String CONST_KETTLE_IMPORT_DIALOG_BUTTON_BROWSE =
+      "KettleImportDialog.Button.Browse";
 
   private final IVariables variables;
 
@@ -147,7 +151,7 @@ public class KettleImportDialog extends Dialog {
 
     Button wbImportFrom = new Button(shell, SWT.PUSH);
     PropsUi.setLook(wbImportFrom);
-    wbImportFrom.setText(BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse"));
+    wbImportFrom.setText(BaseMessages.getString(PKG, CONST_KETTLE_IMPORT_DIALOG_BUTTON_BROWSE));
     FormData fdbImportFrom = new FormData();
     fdbImportFrom.right = new FormAttachment(100, 0);
     fdbImportFrom.top = new FormAttachment(wlImportFrom, 0, SWT.CENTER);
@@ -219,7 +223,7 @@ public class KettleImportDialog extends Dialog {
 
     wbImportPath = new Button(shell, SWT.PUSH);
     PropsUi.setLook(wbImportPath);
-    wbImportPath.setText(BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse"));
+    wbImportPath.setText(BaseMessages.getString(PKG, CONST_KETTLE_IMPORT_DIALOG_BUTTON_BROWSE));
     FormData fdbImportPath = new FormData();
     fdbImportPath.right = new FormAttachment(100, 0);
     fdbImportPath.top = new FormAttachment(wlImportPath, 0, SWT.CENTER);
@@ -250,7 +254,7 @@ public class KettleImportDialog extends Dialog {
 
     Button wbKettleProps = new Button(shell, SWT.PUSH);
     PropsUi.setLook(wbKettleProps);
-    wbKettleProps.setText(BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse"));
+    wbKettleProps.setText(BaseMessages.getString(PKG, CONST_KETTLE_IMPORT_DIALOG_BUTTON_BROWSE));
     FormData fdbKettleProps = new FormData();
     fdbKettleProps.right = new FormAttachment(100, 0);
     fdbKettleProps.top = new FormAttachment(wlKettleProps, 0, SWT.CENTER);
@@ -277,7 +281,7 @@ public class KettleImportDialog extends Dialog {
     wlShared.setLayoutData(fdlShared);
 
     Button wbShared = new Button(shell, SWT.PUSH);
-    wbShared.setText(BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse"));
+    wbShared.setText(BaseMessages.getString(PKG, CONST_KETTLE_IMPORT_DIALOG_BUTTON_BROWSE));
     FormData fdbShared = new FormData();
     fdbShared.right = new FormAttachment(100, 0);
     fdbShared.top = new FormAttachment(wlShared, 0, SWT.CENTER);
@@ -306,7 +310,7 @@ public class KettleImportDialog extends Dialog {
 
     Button wbJdbcProps = new Button(shell, SWT.PUSH);
     PropsUi.setLook(wbJdbcProps);
-    wbJdbcProps.setText(BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse"));
+    wbJdbcProps.setText(BaseMessages.getString(PKG, CONST_KETTLE_IMPORT_DIALOG_BUTTON_BROWSE));
     FormData fdbJdbcProps = new FormData();
     fdbJdbcProps.right = new FormAttachment(100, 0);
     fdbJdbcProps.top = new FormAttachment(wlJdbcProps, 0, SWT.CENTER);
@@ -516,8 +520,8 @@ public class KettleImportDialog extends Dialog {
             AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SOURCE_FOLDER),
             Const.NVL(kettleImport.getInputFolderName(), "")));
     wImportInExisting.setSelection(
-        !"false"
-            .equalsIgnoreCase(AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_INTO_PROJECT)));
+        !CONST_FALSE.equalsIgnoreCase(
+            AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_INTO_PROJECT)));
     wImportProject.setText(
         Const.NVL(AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_TARGET_PROJECT), ""));
     wImportPath.setText(
@@ -541,15 +545,14 @@ public class KettleImportDialog extends Dialog {
             AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_CONFIG_FILE),
             Const.NVL(kettleImport.getTargetConfigFilename(), "")));
     wSkipExisting.setSelection(
-        !"false"
-            .equalsIgnoreCase(
-                AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_EXISTING)));
+        !CONST_FALSE.equalsIgnoreCase(
+            AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_EXISTING)));
     wSkipHidden.setSelection(
-        !"false"
-            .equalsIgnoreCase(AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_HIDDEN)));
+        !CONST_FALSE.equalsIgnoreCase(
+            AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_HIDDEN)));
     wSkipFolders.setSelection(
-        !"false"
-            .equalsIgnoreCase(AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_FOLDERS)));
+        !CONST_FALSE.equalsIgnoreCase(
+            AuditManagerGuiUtil.getLastUsedValue(LAST_USED_IMPORT_SKIP_FOLDERS)));
 
     wImportFrom.setFocus();
 
@@ -560,7 +563,7 @@ public class KettleImportDialog extends Dialog {
     props.setScreen(new WindowProperty(shell));
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_SOURCE_FOLDER, wImportFrom.getText());
     AuditManagerGuiUtil.addLastUsedValue(
-        LAST_USED_IMPORT_INTO_PROJECT, wImportInExisting.getSelection() ? "true" : "false");
+        LAST_USED_IMPORT_INTO_PROJECT, wImportInExisting.getSelection() ? "true" : CONST_FALSE);
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_TARGET_PROJECT, wImportProject.getText());
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_TARGET_FOLDER, wImportPath.getText());
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_PROPS_FILE, wKettleProps.getText());
@@ -572,11 +575,11 @@ public class KettleImportDialog extends Dialog {
     AuditManagerGuiUtil.addLastUsedValue(
         LAST_USED_IMPORT_WORKFLOW_RUN_CONFIGURATION, wWorkflowRunConfiguration.getText());
     AuditManagerGuiUtil.addLastUsedValue(
-        LAST_USED_IMPORT_SKIP_EXISTING, wSkipExisting.getSelection() ? "true" : "false");
+        LAST_USED_IMPORT_SKIP_EXISTING, wSkipExisting.getSelection() ? "true" : CONST_FALSE);
     AuditManagerGuiUtil.addLastUsedValue(
-        LAST_USED_IMPORT_SKIP_HIDDEN, wSkipHidden.getSelection() ? "true" : "false");
+        LAST_USED_IMPORT_SKIP_HIDDEN, wSkipHidden.getSelection() ? "true" : CONST_FALSE);
     AuditManagerGuiUtil.addLastUsedValue(
-        LAST_USED_IMPORT_SKIP_FOLDERS, wSkipFolders.getSelection() ? "true" : "false");
+        LAST_USED_IMPORT_SKIP_FOLDERS, wSkipFolders.getSelection() ? "true" : CONST_FALSE);
     shell.dispose();
   }
 
@@ -594,7 +597,7 @@ public class KettleImportDialog extends Dialog {
         wKettleProps,
         variables,
         new String[] {"*.properties", "*.*"},
-        new String[] {"Properties files (*.properties)", "All Files (*.*)"},
+        new String[] {"Properties files (*.properties)", CONST_ALL_FILES},
         true);
   }
 
@@ -604,7 +607,7 @@ public class KettleImportDialog extends Dialog {
         wJdbcProps,
         variables,
         new String[] {"*.properties", "*.*"},
-        new String[] {"Properties files (*.properties)", "All Files (*.*)"},
+        new String[] {"Properties files (*.properties)", CONST_ALL_FILES},
         true);
   }
 
@@ -614,7 +617,7 @@ public class KettleImportDialog extends Dialog {
         wShared,
         variables,
         new String[] {"*.xml", "*.*"},
-        new String[] {"XML files (*.xml)", "All Files (*.*)"},
+        new String[] {"XML files (*.xml)", CONST_ALL_FILES},
         true);
   }
 

@@ -59,6 +59,15 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/mysqlbulkfile.html")
 public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMysqlBulkFile.class;
+  public static final String CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_1_LABEL =
+      "ActionMysqlBulkFile.FileExists1.Label";
+  public static final String CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_2_LABEL =
+      "ActionMysqlBulkFile.FileExists2.Label";
+  public static final String CONST_ACTION_MYSQL_BULK_FILE_ERROR_LABEL =
+      "ActionMysqlBulkFile.Error.Label";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_TABLENAME = "tablename";
+  public static final String CONST_FILENAME = "filename";
 
   private String tableName;
   private String schemaName;
@@ -108,21 +117,21 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     StringBuilder retval = new StringBuilder(200);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("schemaname", schemaName));
-    retval.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    retval.append("      ").append(XmlHandler.addTagValue("separator", separator));
-    retval.append("      ").append(XmlHandler.addTagValue("enclosed", enclosed));
-    retval.append("      ").append(XmlHandler.addTagValue("optionenclosed", optionEnclosed));
-    retval.append("      ").append(XmlHandler.addTagValue("lineterminated", lineTerminated));
-    retval.append("      ").append(XmlHandler.addTagValue("limitlines", limitLines));
-    retval.append("      ").append(XmlHandler.addTagValue("listcolumn", listColumn));
-    retval.append("      ").append(XmlHandler.addTagValue("highpriority", highPriority));
-    retval.append("      ").append(XmlHandler.addTagValue("outdumpvalue", outDumpValue));
-    retval.append("      ").append(XmlHandler.addTagValue("iffileexists", ifFileExists));
-    retval.append("      ").append(XmlHandler.addTagValue("addfiletoresult", addFileToResult));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("schemaname", schemaName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_TABLENAME, tableName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FILENAME, filename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("separator", separator));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("enclosed", enclosed));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("optionenclosed", optionEnclosed));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("lineterminated", lineTerminated));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("limitlines", limitLines));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("listcolumn", listColumn));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("highpriority", highPriority));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("outdumpvalue", outDumpValue));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("iffileexists", ifFileExists));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("addfiletoresult", addFileToResult));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
 
@@ -135,8 +144,8 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     try {
       super.loadXml(entrynode);
       schemaName = XmlHandler.getTagValue(entrynode, "schemaname");
-      tableName = XmlHandler.getTagValue(entrynode, "tablename");
-      filename = XmlHandler.getTagValue(entrynode, "filename");
+      tableName = XmlHandler.getTagValue(entrynode, CONST_TABLENAME);
+      filename = XmlHandler.getTagValue(entrynode, CONST_FILENAME);
       separator = XmlHandler.getTagValue(entrynode, "separator");
       enclosed = XmlHandler.getTagValue(entrynode, "enclosed");
       lineTerminated = XmlHandler.getTagValue(entrynode, "lineterminated");
@@ -213,18 +222,18 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
         result.setResult(false);
         result.setNrErrors(1);
         logError(
-            BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileExists1.Label")
+            BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_1_LABEL)
                 + realFilename
-                + BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileExists2.Label"));
+                + BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_2_LABEL));
 
       } else if (file.exists() && ifFileExists == 1) {
         // the file exists and user want to do nothing
         result.setResult(true);
         if (log.isDetailed()) {
           logDetailed(
-              BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileExists1.Label")
+              BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_1_LABEL)
                   + realFilename
-                  + BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileExists2.Label"));
+                  + BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_2_LABEL));
         }
 
       } else {
@@ -258,9 +267,9 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
         // User has specified an existing file, We can continue ...
         if (log.isDetailed()) {
           logDetailed(
-              BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileExists1.Label")
+              BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_1_LABEL)
                   + realFilename
-                  + BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileExists2.Label"));
+                  + BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_2_LABEL));
         }
 
         if (connection != null) {
@@ -378,12 +387,12 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
               } catch (SQLException je) {
                 result.setNrErrors(1);
                 logError(
-                    BaseMessages.getString(PKG, "ActionMysqlBulkFile.Error.Label")
+                    BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_ERROR_LABEL)
                         + " "
                         + je.getMessage());
               } catch (HopFileException e) {
                 logError(
-                    BaseMessages.getString(PKG, "ActionMysqlBulkFile.Error.Label")
+                    BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_ERROR_LABEL)
                         + e.getMessage());
                 result.setNrErrors(1);
               }
@@ -403,7 +412,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
           } catch (HopDatabaseException dbe) {
             result.setNrErrors(1);
             logError(
-                BaseMessages.getString(PKG, "ActionMysqlBulkFile.Error.Label")
+                BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_ERROR_LABEL)
                     + " "
                     + dbe.getMessage());
           }
@@ -565,13 +574,13 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "filename",
+            CONST_FILENAME,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "tablename",
+            CONST_TABLENAME,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }

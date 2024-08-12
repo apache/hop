@@ -69,6 +69,7 @@ public class XsltDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xslt"),
         BaseMessages.getString(PKG, "ActionXSLT.Filetype.All")
       };
+  public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
 
   private Text wName;
 
@@ -226,7 +227,7 @@ public class XsltDialog extends ActionDialog {
     wlxmlFilename.setLayoutData(fdlxmlFilename);
     wbxmlFilename = new Button(wFiles, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbxmlFilename);
-    wbxmlFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbxmlFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbxmlFilename = new FormData();
     fdbxmlFilename.right = new FormAttachment(100, 0);
     fdbxmlFilename.top = new FormAttachment(wlPrevious, 2 * margin);
@@ -265,7 +266,7 @@ public class XsltDialog extends ActionDialog {
     wlxslFilename.setLayoutData(fdlxslFilename);
     wbxslFilename = new Button(wFiles, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbxslFilename);
-    wbxslFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbxslFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbxslFilename = new FormData();
     fdbxslFilename.right = new FormAttachment(100, 0);
     fdbxslFilename.top = new FormAttachment(wxmlFilename, 0);
@@ -296,7 +297,7 @@ public class XsltDialog extends ActionDialog {
     // Browse Source folders button ...
     Button wbOutputDirectory = new Button(wFiles, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbOutputDirectory);
-    wbOutputDirectory.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbOutputDirectory.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbOutputDirectory = new FormData();
     fdbOutputDirectory.right = new FormAttachment(100, 0);
     fdbOutputDirectory.top = new FormAttachment(wXSLTFactory, margin);
@@ -317,7 +318,7 @@ public class XsltDialog extends ActionDialog {
     // Browse folders button ...
     wbMovetoDirectory = new Button(wFiles, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbMovetoDirectory);
-    wbMovetoDirectory.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbMovetoDirectory.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbMovetoDirectory = new FormData();
     fdbMovetoDirectory.right = new FormAttachment(100, 0);
     fdbMovetoDirectory.top = new FormAttachment(wxslFilename, margin);

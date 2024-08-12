@@ -58,6 +58,10 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionPGPDecryptFiles.Filetype.All")};
+  public static final String CONST_ACTION_PGPDECRYPT_FILES_BROWSE_FILES_LABEL =
+      "ActionPGPDecryptFiles.BrowseFiles.Label";
+  public static final String CONST_OVERWRITE_FILE = "overwrite_file";
+  public static final String CONST_UNIQUE_NAME = "unique_name";
 
   private Text wName;
 
@@ -254,7 +258,8 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
     // Browse Source files button ...
     Button wbbGpgExe = new Button(wSettings, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbGpgExe);
-    wbbGpgExe.setText(BaseMessages.getString(PKG, "ActionPGPDecryptFiles.BrowseFiles.Label"));
+    wbbGpgExe.setText(
+        BaseMessages.getString(PKG, CONST_ACTION_PGPDECRYPT_FILES_BROWSE_FILES_LABEL));
     FormData fdbbGpgExe = new FormData();
     fdbbGpgExe.right = new FormAttachment(100, -margin);
     fdbbGpgExe.top = new FormAttachment(wName, margin);
@@ -366,7 +371,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
     wbSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSourceFileFolder);
     wbSourceFileFolder.setText(
-        BaseMessages.getString(PKG, "ActionPGPDecryptFiles.BrowseFiles.Label"));
+        BaseMessages.getString(PKG, CONST_ACTION_PGPDECRYPT_FILES_BROWSE_FILES_LABEL));
     FormData fdbSourceFileFolder = new FormData();
     fdbSourceFileFolder.right = new FormAttachment(wbSourceDirectory, -margin);
     fdbSourceFileFolder.top = new FormAttachment(wSettings, margin);
@@ -432,7 +437,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
     wbDestinationFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbDestinationFileFolder);
     wbDestinationFileFolder.setText(
-        BaseMessages.getString(PKG, "ActionPGPDecryptFiles.BrowseFiles.Label"));
+        BaseMessages.getString(PKG, CONST_ACTION_PGPDECRYPT_FILES_BROWSE_FILES_LABEL));
     FormData fdbDestinationFileFolder = new FormData();
     fdbDestinationFileFolder.right = new FormAttachment(wbDestinationDirectory, -margin);
     fdbDestinationFileFolder.top = new FormAttachment(wSourceFileFolder, margin);
@@ -1543,9 +1548,9 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
     }
 
     if (action.getIfFileExists() != null) {
-      if (action.getIfFileExists().equals("overwrite_file")) {
+      if (action.getIfFileExists().equals(CONST_OVERWRITE_FILE)) {
         wIfFileExists.select(1);
-      } else if (action.getIfFileExists().equals("unique_name")) {
+      } else if (action.getIfFileExists().equals(CONST_UNIQUE_NAME)) {
         wIfFileExists.select(2);
       } else if (action.getIfFileExists().equals("delete_file")) {
         wIfFileExists.select(3);
@@ -1566,9 +1571,9 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
     }
 
     if (action.getIfMovedFileExists() != null) {
-      if (action.getIfMovedFileExists().equals("overwrite_file")) {
+      if (action.getIfMovedFileExists().equals(CONST_OVERWRITE_FILE)) {
         wIfMovedFileExists.select(1);
-      } else if (action.getIfMovedFileExists().equals("unique_name")) {
+      } else if (action.getIfMovedFileExists().equals(CONST_UNIQUE_NAME)) {
         wIfMovedFileExists.select(2);
       } else if (action.getIfMovedFileExists().equals("fail")) {
         wIfMovedFileExists.select(3);
@@ -1638,9 +1643,9 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
     }
 
     if (wIfFileExists.getSelectionIndex() == 1) {
-      action.setIfFileExists("overwrite_file");
+      action.setIfFileExists(CONST_OVERWRITE_FILE);
     } else if (wIfFileExists.getSelectionIndex() == 2) {
-      action.setIfFileExists("unique_name");
+      action.setIfFileExists(CONST_UNIQUE_NAME);
     } else if (wIfFileExists.getSelectionIndex() == 3) {
       action.setIfFileExists("delete_file");
     } else if (wIfFileExists.getSelectionIndex() == 4) {
@@ -1656,9 +1661,9 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
     action.setGpgLocation(wGpgExe.getText());
 
     if (wIfMovedFileExists.getSelectionIndex() == 1) {
-      action.setIfMovedFileExists("overwrite_file");
+      action.setIfMovedFileExists(CONST_OVERWRITE_FILE);
     } else if (wIfMovedFileExists.getSelectionIndex() == 2) {
-      action.setIfMovedFileExists("unique_name");
+      action.setIfMovedFileExists(CONST_UNIQUE_NAME);
     } else if (wIfMovedFileExists.getSelectionIndex() == 3) {
       action.setIfMovedFileExists("fail");
     } else {

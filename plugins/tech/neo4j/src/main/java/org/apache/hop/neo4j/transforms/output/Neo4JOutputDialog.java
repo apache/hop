@@ -62,6 +62,9 @@ import org.eclipse.swt.widgets.Text;
 public class Neo4JOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       Neo4JOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  public static final String CONST_NEO_4_JOUTPUT_DIALOG_GET_FIELDS_BUTTON =
+      "Neo4JOutputDialog.GetFields.Button";
+  public static final String CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE = "Neo4JOutputDialog.PropType";
 
   private Neo4JOutputMeta input;
 
@@ -369,7 +372,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wFromLabelGrid);
 
     Button wGetFromLabel = new Button(wFromComp, SWT.PUSH);
-    wGetFromLabel.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wGetFromLabel.setText(
+        BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_GET_FIELDS_BUTTON));
     wGetFromLabel.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -416,7 +420,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
               fieldNames,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.PropType"),
+              BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               GraphPropertyType.getNames(),
               false),
@@ -438,7 +442,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wFromPropsGrid);
 
     Button wGetFromProps = new Button(wFromComp, SWT.PUSH);
-    wGetFromProps.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wGetFromProps.setText(
+        BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_GET_FIELDS_BUTTON));
     wGetFromProps.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -534,7 +539,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wToLabelGrid);
 
     Button wGetToLabel = new Button(wToComp, SWT.PUSH);
-    wGetToLabel.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wGetToLabel.setText(BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_GET_FIELDS_BUTTON));
     wGetToLabel.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -578,7 +583,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.PropType"),
+              BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               GraphPropertyType.getNames(),
               false),
@@ -602,7 +607,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wToPropsGrid);
 
     Button wGetToProps = new Button(wToComp, SWT.PUSH);
-    wGetToProps.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wGetToProps.setText(BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_GET_FIELDS_BUTTON));
     wGetToProps.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -710,7 +715,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.PropType"),
+              BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               GraphPropertyType.getNames(),
               false),
@@ -727,7 +732,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wRelPropsGrid);
 
     Button wbRelProps = new Button(wRelationshipsComp, SWT.PUSH);
-    wbRelProps.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.GetFields.Button"));
+    wbRelProps.setText(BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_GET_FIELDS_BUTTON));
     wbRelProps.addSelectionListener(
         new SelectionAdapter() {
           @Override

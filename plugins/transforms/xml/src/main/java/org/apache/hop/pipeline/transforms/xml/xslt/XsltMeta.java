@@ -61,6 +61,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
         "doctype-system",
         "media-type"
       };
+  public static final String CONST_SPACES = "        ";
 
   private String xslFilename;
   private String fieldName;
@@ -332,8 +333,8 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
 
     for (int i = 0; i < parameterName.length; i++) {
       retval.append("      <parameter>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("field", parameterField[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("name", parameterName[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("field", parameterField[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", parameterName[i]));
       retval.append("      </parameter>").append(Const.CR);
     }
 
@@ -342,8 +343,8 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
 
     for (int i = 0; i < outputPropertyName.length; i++) {
       retval.append("      <outputproperty>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", outputPropertyName[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("value", outputPropertyValue[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", outputPropertyName[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("value", outputPropertyValue[i]));
       retval.append("      </outputproperty>").append(Const.CR);
     }
 

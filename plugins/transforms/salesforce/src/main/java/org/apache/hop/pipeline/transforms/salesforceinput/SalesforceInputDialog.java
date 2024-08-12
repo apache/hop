@@ -91,6 +91,11 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
   private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'.000'XXX";
   private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+  public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
+  public static final String CONST_DATETIME = "datetime";
+  public static final String CONST_BOOLEAN = "boolean";
+  public static final String CONST_SYSTEM_BUTTON_OK = "System.Button.OK";
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private Button wInclURL;
   private Button wInclModule;
@@ -223,7 +228,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // THE BUTTONS at the bottom...
     //
     wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_OK));
     wOk.addListener(SWT.Selection, e -> ok());
     wPreview = new Button(shell, SWT.PUSH);
     wPreview.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.Button.PreviewRows"));
@@ -683,7 +688,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             new Label(dialog, SWT.NONE);
 
             Button ok = new Button(dialog, SWT.PUSH);
-            ok.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+            ok.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_OK));
             ok.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             ok.addSelectionListener(
                 new SelectionAdapter() {
@@ -754,7 +759,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             new Label(dialogto, SWT.NONE);
             new Label(dialogto, SWT.NONE);
             Button okto = new Button(dialogto, SWT.PUSH);
-            okto.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+            okto.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_OK));
             okto.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             okto.addSelectionListener(
                 new SelectionAdapter() {
@@ -1219,8 +1224,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
               BaseMessages.getString(PKG, "SalesforceInputDialog.FieldsTable.IsIdLookup.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
               },
               true),
           new ColumnInfo(
@@ -1261,8 +1266,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
               BaseMessages.getString(PKG, "SalesforceInputDialog.FieldsTable.Repeat.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
               },
               true),
         };
@@ -1510,8 +1515,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
     String fieldLength = null;
     String fieldPrecision = null;
-    if (!fieldType.equals("boolean")
-        && !fieldType.equals("datetime")
+    if (!fieldType.equals(CONST_BOOLEAN)
+        && !fieldType.equals(CONST_DATETIME)
         && !fieldType.equals("date")) {
       fieldLength = Integer.toString(field.getLength());
       fieldPrecision = Integer.toString(field.getPrecision());
@@ -1541,7 +1546,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       fieldType = "string";
     } else {
       if (StringUtil.isDate(firstValue, DEFAULT_DATE_TIME_FORMAT)) {
-        fieldType = "datetime";
+        fieldType = CONST_DATETIME;
       } else if (StringUtil.isDate(firstValue, DEFAULT_DATE_FORMAT)) {
         fieldType = "date";
       } else if (StringUtil.isInteger(firstValue)) {
@@ -1550,7 +1555,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       } else if (StringUtil.isNumber(firstValue)) {
         fieldType = "double";
       } else if (firstValue.equals("true") || firstValue.equals("false")) {
-        fieldType = "boolean";
+        fieldType = CONST_BOOLEAN;
       } else {
         fieldType = "string";
       }
@@ -1571,16 +1576,16 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     item.setText(
         3,
         fieldIdIsLookup
-            ? BaseMessages.getString(PKG, "System.Combo.Yes")
-            : BaseMessages.getString(PKG, "System.Combo.No"));
+            ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+            : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
 
     // Try to get the Type
-    if (fieldType.equals("boolean")) {
+    if (fieldType.equals(CONST_BOOLEAN)) {
       item.setText(4, "Boolean");
     } else if (fieldType.equals("date")) {
       item.setText(4, "Date");
       item.setText(5, DEFAULT_DATE_FORMAT);
-    } else if (fieldType.equals("datetime")) {
+    } else if (fieldType.equals(CONST_DATETIME)) {
       item.setText(4, "Date");
       item.setText(5, DEFAULT_DATE_TIME_FORMAT);
     } else if (fieldType.equals("double")) {
@@ -1682,8 +1687,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         String path = field.getField();
         String isidlookup =
             field.isIdLookup()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No");
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO);
         String type = field.getTypeDesc();
         String format = field.getFormat();
         String length = "" + field.getLength();
@@ -1694,8 +1699,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         String trim = field.getTrimTypeDesc();
         String rep =
             field.isRepeated()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No");
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO);
 
         if (name != null) {
           item.setText(1, name);
@@ -1815,7 +1820,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       field.setName(item.getText(1));
       field.setField(item.getText(2));
       field.setIdLookup(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(3)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(3)));
       field.setType(ValueMetaFactory.getIdForValueMeta(item.getText(4)));
       field.setFormat(item.getText(5));
       field.setLength(Const.toInt(item.getText(6), -1));
@@ -1825,7 +1830,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       field.setGroupSymbol(item.getText(10));
       field.setTrimType(SalesforceInputField.getTrimTypeByDesc(item.getText(11)));
       field.setRepeated(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(12)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(12)));
 
       meta.getInputFields()[i] = field;
     }

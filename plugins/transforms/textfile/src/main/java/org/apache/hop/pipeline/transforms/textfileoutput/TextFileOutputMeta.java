@@ -72,6 +72,10 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
   public static final String[] formatMapperLineTerminator =
       new String[] {"DOS", "UNIX", "CR", "None"};
+  public static final String CONST_FORMAT = "format";
+  public static final String CONST_FIELD = "field";
+  public static final String CONST_SPACES_LONG = "        ";
+  public static final String CONST_SPACES = "      ";
 
   /** Flag: add the transformnr in the filename */
   @Injection(name = "INC_TRANSFORMNR_IN_FILENAME")
@@ -640,7 +644,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
       headerEnabled = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "header"));
       footerEnabled = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "footer"));
-      fileFormat = XmlHandler.getTagValue(transformNode, "format");
+      fileFormat = XmlHandler.getTagValue(transformNode, CONST_FORMAT);
       setFileCompression(XmlHandler.getTagValue(transformNode, "compression"));
       if (getFileCompression() == null) {
         if ("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "zipped"))) {
@@ -697,17 +701,17 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       fileNameField = XmlHandler.getTagValue(transformNode, "fileNameField");
 
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFields);
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         outputFields[i] = new TextFileField();
         outputFields[i].setName(XmlHandler.getTagValue(fnode, "name"));
         outputFields[i].setType(XmlHandler.getTagValue(fnode, "type"));
-        outputFields[i].setFormat(XmlHandler.getTagValue(fnode, "format"));
+        outputFields[i].setFormat(XmlHandler.getTagValue(fnode, CONST_FORMAT));
         outputFields[i].setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
         outputFields[i].setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
         outputFields[i].setGroupingSymbol(XmlHandler.getTagValue(fnode, "group"));
@@ -779,7 +783,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     for (i = 0; i < nrFields; i++) {
       outputFields[i] = new TextFileField();
 
-      outputFields[i].setName("field" + i);
+      outputFields[i].setName(CONST_FIELD + i);
       outputFields[i].setType("Number");
       outputFields[i].setFormat(" 0,000,000.00;-0,000,000.00");
       outputFields[i].setCurrencySymbol("");
@@ -874,7 +878,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         .append(XmlHandler.addTagValue("enclosure_fix_disabled", disableEnclosureFix));
     retval.append("    ").append(XmlHandler.addTagValue("header", headerEnabled));
     retval.append("    ").append(XmlHandler.addTagValue("footer", footerEnabled));
-    retval.append("    ").append(XmlHandler.addTagValue("format", fileFormat));
+    retval.append("    ").append(XmlHandler.addTagValue(CONST_FORMAT, fileFormat));
     retval.append("    ").append(XmlHandler.addTagValue("compression", getFileCompression()));
     retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
     retval.append("    ").append(XmlHandler.addTagValue("endedLine", endedLine));
@@ -891,24 +895,34 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
       if (field.getName() != null && field.getName().length() != 0) {
         retval.append("      <field>").append(Const.CR);
-        retval.append("        ").append(XmlHandler.addTagValue("name", field.getName()));
-        retval.append("        ").append(XmlHandler.addTagValue("type", field.getTypeDesc()));
-        retval.append("        ").append(XmlHandler.addTagValue("format", field.getFormat()));
+        retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", field.getName()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("type", field.getTypeDesc()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue(CONST_FORMAT, field.getFormat()));
+        retval
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("currency", field.getCurrencySymbol()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("group", field.getGroupingSymbol()));
-        retval.append("        ").append(XmlHandler.addTagValue("nullif", field.getNullString()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("nullif", field.getNullString()));
+        retval
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("trim_type", field.getTrimTypeCode()));
-        retval.append("        ").append(XmlHandler.addTagValue("length", field.getLength()));
-        retval.append("        ").append(XmlHandler.addTagValue("precision", field.getPrecision()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("length", field.getLength()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("precision", field.getPrecision()));
         retval.append("      </field>").append(Const.CR);
       }
     }
@@ -919,25 +933,29 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
   protected void saveFileOptions(StringBuilder retval) {
     saveSource(retval, fileName);
-    retval.append("      ").append(XmlHandler.addTagValue("servlet_output", servletOutput));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("servlet_output", servletOutput));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("do_not_open_new_file_init", doNotOpenNewFileInit));
-    retval.append("      ").append(XmlHandler.addTagValue("extention", extension));
-    retval.append("      ").append(XmlHandler.addTagValue("append", fileAppended));
-    retval.append("      ").append(XmlHandler.addTagValue("split", transformNrInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("haspartno", partNrInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", dateInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", timeInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", isSpecifyingFormat()));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_format", getDateTimeFormat()));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("extention", extension));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("append", fileAppended));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("split", transformNrInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("haspartno", partNrInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_date", dateInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_time", timeInFilename));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("SpecifyFormat", isSpecifyingFormat()));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("date_time_format", getDateTimeFormat()));
 
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("add_to_result_filenames", addToResultFilenames));
-    retval.append("      ").append(XmlHandler.addTagValue("pad", padded));
-    retval.append("      ").append(XmlHandler.addTagValue("fast_dump", fastDump));
-    retval.append("      ").append(XmlHandler.addTagValue("splitevery", splitEveryRows));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("pad", padded));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("fast_dump", fastDump));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("splitevery", splitEveryRows));
   }
 
   @Override
@@ -1060,7 +1078,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
   }
 
   protected void saveSource(StringBuilder retVal, String value) {
-    retVal.append("      ").append(XmlHandler.addTagValue("name", fileName));
+    retVal.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fileName));
   }
 
   /** {@inheritDoc} */

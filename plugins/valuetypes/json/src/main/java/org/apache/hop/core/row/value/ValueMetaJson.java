@@ -38,6 +38,9 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
   /** Value type indicating that the value contains a native JSON object */
   public static final int TYPE_JSON = 11;
 
+  public static final String CONST_SPECIFIED = " specified.";
+  public static final String CONST_UNKNOWN_STORAGE_TYPE = " : Unknown storage type ";
+
   /** Do String serialization using pretty printing? */
   private boolean prettyPrinting;
 
@@ -100,7 +103,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             return (JsonNode) index[((Integer) object)];
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_STRING:
         switch (storageType) {
@@ -112,7 +115,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             return convertStringToJson((String) index[(Integer) object]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_NUMBER:
         Double number;
@@ -128,7 +131,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             break;
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
         }
         return new DoubleNode(number);
 
@@ -146,7 +149,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             break;
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
         }
         return new LongNode(integer);
 
@@ -164,7 +167,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             break;
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
         }
         return new DecimalNode(bigDecimal);
 
@@ -182,7 +185,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             break;
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
         }
         return BooleanNode.valueOf(bool);
 
@@ -200,7 +203,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             toString() + " : I don't know how to convert a serializable value to JSON object.");
 
       default:
-        throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+        throw new HopValueException(toString() + " : Unknown type " + type + CONST_SPECIFIED);
     }
   }
 
@@ -228,7 +231,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             convertJsonToString((JsonNode) index[((Integer) object)]));
       default:
         throw new HopValueException(
-            toString() + " : Unknown storage type " + storageType + " specified.");
+            toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
     }
   }
 

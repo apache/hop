@@ -40,6 +40,8 @@ import org.apache.hop.core.util.Utils;
 @GuiPlugin(id = "GUI-ClickhouseDatabaseMeta")
 public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
+
   // TODO: Manage all attributes in plugin when HOP-67 is fixed
   @Override
   public int[] getAccessTypeList() {
@@ -77,7 +79,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    */
   @Override
   public String getSqlDeleteStmt(String tableName) {
-    return "ALTER TABLE " + tableName + " DELETE ";
+    return CONST_ALTER_TABLE + tableName + " DELETE ";
   }
 
   /**
@@ -88,7 +90,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    */
   @Override
   public String getSqlUpdateStmt(String tableName) {
-    return "ALTER TABLE " + tableName + " UPDATE ";
+    return CONST_ALTER_TABLE + tableName + " UPDATE ";
   }
 
   @Override
@@ -114,7 +116,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getAddColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
@@ -123,13 +125,13 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getDropColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
+    return CONST_ALTER_TABLE + tableName + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   @Override
   public String getModifyColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " MODIFY COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);

@@ -68,6 +68,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class GraphOutputDialog extends BaseTransformDialog {
 
+  public static final String CONST_ERROR = "Error";
   private static final Class<?> PKG =
       GraphOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -161,7 +162,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     try {
       wConnection.fillItems();
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting list of connections", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error getting list of connections", e);
     }
     lastControl = wConnection;
 
@@ -183,7 +184,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     try {
       wModel.fillItems();
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting list of models", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error getting list of models", e);
     }
     lastControl = wModel;
 
@@ -536,10 +537,8 @@ public class GraphOutputDialog extends BaseTransformDialog {
     // Map input field names to Node/Property values
     //
     try {
-      if (activeModel == null) {
-        if (!loadActiveModel()) {
-          return;
-        }
+      if (activeModel == null && !loadActiveModel()) {
+        return;
       }
 
       // Input fields
@@ -609,7 +608,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
       }
 
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error mapping input fields to node properties", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error mapping input fields to node properties", e);
     }
   }
 
@@ -674,7 +673,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
 
       wRelMappings.optimizeTableView();
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error listing fields or loading graph model", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error listing fields or loading graph model", e);
     }
   }
 
@@ -757,7 +756,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     try {
       loadActiveModel();
     } catch (HopException e) {
-      new ErrorDialog(shell, "Error", "Error loading specified graph model", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error loading specified graph model", e);
     }
 
     enableFields();

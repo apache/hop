@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class CoalesceDialog extends BaseTransformDialog {
   private static final Class<?> PKG = CoalesceMeta.class;
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private final CoalesceMeta input;
 
@@ -174,7 +175,7 @@ public class CoalesceDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
               BaseMessages.getString(PKG, "System.Combo.No"),
-              BaseMessages.getString(PKG, "System.Combo.Yes")
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
             });
     columns[2].setToolTip(
         BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.RemoveInputFields.Tooltip"));
@@ -311,13 +312,13 @@ public class CoalesceDialog extends BaseTransformDialog {
 
     if (Utils.isEmpty(s)) return false;
 
-    return BaseMessages.getString(PKG, "System.Combo.Yes").equals(s);
+    return BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equals(s);
   }
 
   // TODO: Find a global function
   private static String getStringFromBoolean(final boolean b) {
     return b
-        ? BaseMessages.getString(PKG, "System.Combo.Yes")
+        ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
         : BaseMessages.getString(PKG, "System.Combo.No");
   }
 }

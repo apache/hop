@@ -66,6 +66,11 @@ import org.eclipse.swt.widgets.Text;
 public class MongoDbOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = MongoDbOutputMeta.class;
+  public static final String CONST_MONGO_DB_OUTPUT_DIALOG_FIELDS_NULL_VALUES_INSERT =
+      "MongoDbOutputDialog.Fields.NullValues.Insert";
+  public static final String CONST_MONGO_DB_OUTPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT =
+      "MongoDbOutputDialog.ErrorMessage.UnableToConnect";
+  public static final String CONST_NEWLING = ":\n\n";
 
   protected MongoDbOutputMeta currentMeta;
   protected MongoDbOutputMeta originalMeta;
@@ -471,7 +476,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues.Insert"),
+              BaseMessages.getString(PKG, CONST_MONGO_DB_OUTPUT_DIALOG_FIELDS_NULL_VALUES_INSERT),
               BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues.Ignore")),
           new ColumnInfo(
               BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.JSON"),
@@ -720,7 +725,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
         newField.useIncomingFieldNameAsMongoFieldName =
             ((useIncoming.length() > 0) ? useIncoming.equals("Y") : true); //
         newField.insertNull =
-            BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues.Insert")
+            BaseMessages.getString(PKG, CONST_MONGO_DB_OUTPUT_DIALOG_FIELDS_NULL_VALUES_INSERT)
                 .equals(allowNull);
         newField.inputJson = ((json.length() > 0) ? json.equals("Y") : false); //
         newField.updateMatchField = (updateMatch.equals("Y")); //
@@ -774,7 +779,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
 
     List<MongoDbOutputMeta.MongoField> mongoFields = currentMeta.getMongoFields();
 
-    if (mongoFields != null && mongoFields.size() > 0) {
+    if (mongoFields != null && !mongoFields.isEmpty()) {
       for (MongoDbOutputMeta.MongoField field : mongoFields) {
         TableItem item = new TableItem(wMongoFields.table, SWT.NONE);
 
@@ -784,7 +789,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
         String insertNullString;
         if (field.insertNull) {
           insertNullString =
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues.Insert");
+              BaseMessages.getString(PKG, CONST_MONGO_DB_OUTPUT_DIALOG_FIELDS_NULL_VALUES_INSERT);
         } else {
           insertNullString =
               BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues.Ignore");
@@ -803,7 +808,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
 
     List<MongoDbOutputMeta.MongoIndex> mongoIndexes = currentMeta.getMongoIndexes();
 
-    if (mongoIndexes != null && mongoIndexes.size() > 0) {
+    if (mongoIndexes != null && !mongoIndexes.isEmpty()) {
       for (MongoDbOutputMeta.MongoIndex index : mongoIndexes) {
         TableItem item = new TableItem(wMongoIndexes.table, SWT.None);
 
@@ -857,12 +862,16 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
         }
       } catch (Exception e) {
         logError(
-            BaseMessages.getString(PKG, "MongoDbOutputDialog.ErrorMessage.UnableToConnect"), e); //
+            BaseMessages.getString(
+                PKG, CONST_MONGO_DB_OUTPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT),
+            e); //
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "MongoDbOutputDialog.ErrorMessage.UnableToConnect"),
+            BaseMessages.getString(
+                PKG, CONST_MONGO_DB_OUTPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT),
             //
-            BaseMessages.getString(PKG, "MongoDbOutputDialog.ErrorMessage.UnableToConnect"),
+            BaseMessages.getString(
+                PKG, CONST_MONGO_DB_OUTPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT),
             e); //
       }
     } else {
@@ -1002,7 +1011,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
   private void previewDocStruct() {
     List<MongoDbOutputMeta.MongoField> mongoFields = tableToMongoFieldList();
 
-    if (mongoFields == null || mongoFields.size() == 0) {
+    if (mongoFields == null || mongoFields.isEmpty()) {
       return;
     }
 
@@ -1105,11 +1114,11 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
                 .getModifierUpdateObject(mongoFields, r, dummyRow, vs, topLevelStruct);
         toDisplay =
             BaseMessages.getString(PKG, "MongoDbOutputDialog.PreviewModifierUpdate.Heading1") //
-                + ":\n\n" //
+                + CONST_NEWLING //
                 + prettyPrintDocStructure(query.toString())
                 + BaseMessages.getString(
                     PKG, "MongoDbOutputDialog.PreviewModifierUpdate.Heading2") //
-                + ":\n\n" //
+                + CONST_NEWLING //
                 + prettyPrintDocStructure(modifier.toString());
         windowTitle =
             BaseMessages.getString(PKG, "MongoDbOutputDialog.PreviewModifierUpdate.Title"); //
@@ -1123,7 +1132,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
           BaseMessages.getString(
                   PKG, "MongoDbOutputDialog.ErrorMessage.ProblemPreviewingDocStructure.Message")
               //
-              + ":\n\n"
+              + CONST_NEWLING
               + ex.getMessage(),
           ex); //
       new ErrorDialog(
@@ -1134,7 +1143,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
           BaseMessages.getString(
                   PKG, "MongoDbOutputDialog.ErrorMessage.ProblemPreviewingDocStructure.Message")
               //
-              + ":\n\n"
+              + CONST_NEWLING
               + ex.getMessage(),
           ex); //
     }
@@ -1175,7 +1184,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
       } catch (Exception e) {
         logError(
             BaseMessages.getString(PKG, "MongoDbOutputDialog.ErrorMessage.GeneralError.Message") //
-                + ":\n\n"
+                + CONST_NEWLING
                 + e.getMessage(),
             e); //
         new ErrorDialog(
@@ -1183,7 +1192,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "MongoDbOutputDialog.ErrorMessage.IndexPreview.Title"),
             //
             BaseMessages.getString(PKG, "MongoDbOutputDialog.ErrorMessage.GeneralError.Message") //
-                + ":\n\n"
+                + CONST_NEWLING
                 + e.getMessage(),
             e); //
       } finally {

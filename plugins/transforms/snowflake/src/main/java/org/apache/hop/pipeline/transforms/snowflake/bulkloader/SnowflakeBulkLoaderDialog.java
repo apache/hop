@@ -108,6 +108,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.DataType.JSON")
       };
 
+  public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
+
   /* ********************************************************
    * Loader tab
    * This tab is used to configure information about the
@@ -361,7 +363,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
     Button wbSchema = new Button(wLoaderComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSchema);
-    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbSchema.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
     fdbSchema.right = new FormAttachment(100, 0);
@@ -395,7 +397,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
     Button wbTable = new Button(wLoaderComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
-    wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbTable.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
     fdbTable.top = new FormAttachment(wbSchema, margin);
@@ -529,7 +531,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
     Button wbWorkDirectory = new Button(wLoaderComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbWorkDirectory);
-    wbWorkDirectory.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbWorkDirectory.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbWorkDirectory = new FormData();
     fdbWorkDirectory.right = new FormAttachment(100, 0);
     fdbWorkDirectory.top = new FormAttachment(wStageName, margin);

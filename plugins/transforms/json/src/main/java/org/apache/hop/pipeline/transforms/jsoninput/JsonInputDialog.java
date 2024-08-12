@@ -79,6 +79,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class JsonInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = JsonInputMeta.class;
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private CTabFolder wTabFolder;
 
@@ -442,7 +443,7 @@ public class JsonInputDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "JsonInputDialog.FieldsTable.Repeat.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
                 BaseMessages.getString(PKG, "System.Combo.No")
               },
               true),
@@ -1298,7 +1299,7 @@ public class JsonInputDialog extends BaseTransformDialog {
         String trim = field.getTrimTypeDesc();
         String rep =
             field.isRepeated()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
                 : BaseMessages.getString(PKG, "System.Combo.No");
 
         if (name != null) {
@@ -1436,7 +1437,7 @@ public class JsonInputDialog extends BaseTransformDialog {
       field.setGroupSymbol(item.getText(9));
       field.setTrimType(ValueMetaBase.getTrimTypeByDesc(item.getText(10)));
       field.setRepeated(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(11)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(11)));
 
       in.getInputFields()[i] = field;
     }

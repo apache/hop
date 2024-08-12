@@ -58,6 +58,11 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
 
   // the time to wait till a connection is closed (milliseconds)? -1 is no not close.
   public static final int DEFAULT_CLOSE_CONNECTIONS_TIME = -1;
+  public static final String CONST_HEADER = "header";
+  public static final String CONST_RESULT = "result";
+  public static final String CONST_SPACES_LONG = "        ";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_PARAMETER = "parameter";
 
   private String socketTimeout;
   private String connectionTimeout;
@@ -307,11 +312,11 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
     }
 
     for (i = 0; i < nrquery; i++) {
-      headerField[i] = "header" + i;
-      headerParameter[i] = "header";
+      headerField[i] = CONST_HEADER + i;
+      headerParameter[i] = CONST_HEADER;
     }
 
-    fieldName = "result";
+    fieldName = CONST_RESULT;
     resultCodeFieldName = "";
     responseTimeFieldName = "";
     responseHeaderFieldName = "";
@@ -375,25 +380,30 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
 
     for (int i = 0; i < argumentField.length; i++) {
       retval.append("      <arg>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", argumentField[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("parameter", argumentParameter[i]));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", argumentField[i]));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue(CONST_PARAMETER, argumentParameter[i]));
       retval.append("      </arg>").append(Const.CR);
     }
     for (int i = 0; i < headerField.length; i++) {
       retval.append("      <header>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", headerField[i]));
-      retval.append("        " + XmlHandler.addTagValue("parameter", headerParameter[i]));
+      retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("name", headerField[i]));
+      retval.append(
+          CONST_SPACES_LONG + XmlHandler.addTagValue(CONST_PARAMETER, headerParameter[i]));
       retval.append("      </header>" + Const.CR);
     }
 
     retval.append("    </lookup>").append(Const.CR);
 
     retval.append("    <result>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("name", fieldName));
-    retval.append("      ").append(XmlHandler.addTagValue("code", resultCodeFieldName));
-    retval.append("      ").append(XmlHandler.addTagValue("response_time", responseTimeFieldName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fieldName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("code", resultCodeFieldName));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("response_time", responseTimeFieldName));
+    retval
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("response_header", responseHeaderFieldName));
     retval.append("    </result>").append(Const.CR);
 
@@ -423,26 +433,27 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
       Node lookup = XmlHandler.getSubNode(transformNode, "lookup");
       nrargs = XmlHandler.countNodes(lookup, "arg");
 
-      int nrheaders = XmlHandler.countNodes(lookup, "header");
+      int nrheaders = XmlHandler.countNodes(lookup, CONST_HEADER);
       allocate(nrargs, nrheaders);
 
       for (int i = 0; i < nrargs; i++) {
         Node anode = XmlHandler.getSubNodeByNr(lookup, "arg", i);
 
         argumentField[i] = XmlHandler.getTagValue(anode, "name");
-        argumentParameter[i] = XmlHandler.getTagValue(anode, "parameter");
+        argumentParameter[i] = XmlHandler.getTagValue(anode, CONST_PARAMETER);
       }
 
       for (int i = 0; i < nrheaders; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(lookup, "header", i);
+        Node anode = XmlHandler.getSubNodeByNr(lookup, CONST_HEADER, i);
         headerField[i] = XmlHandler.getTagValue(anode, "name");
-        headerParameter[i] = XmlHandler.getTagValue(anode, "parameter");
+        headerParameter[i] = XmlHandler.getTagValue(anode, CONST_PARAMETER);
       }
 
-      fieldName = XmlHandler.getTagValue(transformNode, "result", "name");
-      resultCodeFieldName = XmlHandler.getTagValue(transformNode, "result", "code");
-      responseTimeFieldName = XmlHandler.getTagValue(transformNode, "result", "response_time");
-      responseHeaderFieldName = XmlHandler.getTagValue(transformNode, "result", "response_header");
+      fieldName = XmlHandler.getTagValue(transformNode, CONST_RESULT, "name");
+      resultCodeFieldName = XmlHandler.getTagValue(transformNode, CONST_RESULT, "code");
+      responseTimeFieldName = XmlHandler.getTagValue(transformNode, CONST_RESULT, "response_time");
+      responseHeaderFieldName =
+          XmlHandler.getTagValue(transformNode, CONST_RESULT, "response_header");
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "HTTPMeta.Exception.UnableToReadTransformMeta"), e);

@@ -37,6 +37,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData> {
 
   private static final Class<?> PKG = AddSequence.class;
+  public static final String CONST_ADD_SEQUENCE_LOG_COULD_NOT_PARSE_COUNTER_VALUE =
+      "AddSequence.Log.CouldNotParseCounterValue";
 
   public AddSequence(
       TransformMeta transformMeta,
@@ -120,10 +122,8 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
                 + " : "
                 + getInputRowMeta().getString(r));
       }
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "AddSequence.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "AddSequence.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       logError(BaseMessages.getString(PKG, "AddSequence.Log.ErrorInTransform") + e.getMessage());
@@ -174,7 +174,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
           logError(
               BaseMessages.getString(
                   PKG,
-                  "AddSequence.Log.CouldNotParseCounterValue",
+                  CONST_ADD_SEQUENCE_LOG_COULD_NOT_PARSE_COUNTER_VALUE,
                   "start",
                   meta.getStartAt(),
                   resolve(meta.getStartAt()),
@@ -188,7 +188,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
           logError(
               BaseMessages.getString(
                   PKG,
-                  "AddSequence.Log.CouldNotParseCounterValue",
+                  CONST_ADD_SEQUENCE_LOG_COULD_NOT_PARSE_COUNTER_VALUE,
                   "increment",
                   meta.getIncrementBy(),
                   resolve(meta.getIncrementBy()),
@@ -202,7 +202,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
           logError(
               BaseMessages.getString(
                   PKG,
-                  "AddSequence.Log.CouldNotParseCounterValue",
+                  CONST_ADD_SEQUENCE_LOG_COULD_NOT_PARSE_COUNTER_VALUE,
                   "increment",
                   meta.getMaxValue(),
                   resolve(meta.getMaxValue()),
@@ -253,10 +253,8 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
       data.counter = null;
     }
 
-    if (meta.isDatabaseUsed()) {
-      if (data.getDb() != null) {
-        data.getDb().disconnect();
-      }
+    if (meta.isDatabaseUsed() && data.getDb() != null) {
+      data.getDb().disconnect();
     }
 
     super.dispose();

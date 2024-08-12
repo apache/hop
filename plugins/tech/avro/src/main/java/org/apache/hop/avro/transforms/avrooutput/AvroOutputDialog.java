@@ -77,6 +77,8 @@ public class AvroOutputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "AvroOutputDialog.OutputType.BinaryField"),
         BaseMessages.getString(PKG, "AvroOutputDialog.OutputType.JsonField")
       };
+  public static final String CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE =
+      "System.Dialog.GetFieldsFailed.Message";
 
   private CCombo wOutputType;
   private TextVar wFilename;
@@ -796,7 +798,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
               }
               setComboBoxes();
             } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+              logError(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE));
             }
           }
         };
@@ -1141,7 +1143,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Title"),
-          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
+          BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE),
           ke);
     }
   }
@@ -1158,7 +1160,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Title"),
-          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
+          BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE),
           ke);
     }
   }

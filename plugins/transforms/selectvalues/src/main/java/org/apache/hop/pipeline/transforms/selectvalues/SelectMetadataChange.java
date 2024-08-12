@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 public class SelectMetadataChange implements Cloneable {
 
   public static final String XML_TAG = "meta";
+  public static final String CONST_SPACES = "        ";
 
   // META-DATA mode
   /** Fields of which we want to change the meta data */
@@ -126,27 +127,27 @@ public class SelectMetadataChange implements Cloneable {
   public String getXml() {
     StringBuilder xml = new StringBuilder();
     xml.append("      ").append(XmlHandler.openTag(XML_TAG));
-    xml.append("        ").append(XmlHandler.addTagValue("name", name));
-    xml.append("        ").append(XmlHandler.addTagValue("rename", rename));
-    xml.append("        ")
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", name));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("rename", rename));
+    xml.append(CONST_SPACES)
         .append(XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(type)));
-    xml.append("        ").append(XmlHandler.addTagValue("length", length));
-    xml.append("        ").append(XmlHandler.addTagValue("precision", precision));
-    xml.append("        ").append(XmlHandler.addTagValue("conversion_mask", conversionMask));
-    xml.append("        ")
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("length", length));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", precision));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("conversion_mask", conversionMask));
+    xml.append(CONST_SPACES)
         .append(XmlHandler.addTagValue("date_format_lenient", Boolean.toString(dateFormatLenient)));
-    xml.append("        ").append(XmlHandler.addTagValue("date_format_locale", dateFormatLocale));
-    xml.append("        ")
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("date_format_locale", dateFormatLocale));
+    xml.append(CONST_SPACES)
         .append(XmlHandler.addTagValue("date_format_timezone", dateFormatTimeZone));
-    xml.append("        ")
+    xml.append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 "lenient_string_to_number", Boolean.toString(lenientStringToNumber)));
-    xml.append("        ").append(XmlHandler.addTagValue("encoding", encoding));
-    xml.append("        ").append(XmlHandler.addTagValue("decimal_symbol", decimalSymbol));
-    xml.append("        ").append(XmlHandler.addTagValue("grouping_symbol", groupingSymbol));
-    xml.append("        ").append(XmlHandler.addTagValue("currency_symbol", currencySymbol));
-    xml.append("        ")
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("encoding", encoding));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("decimal_symbol", decimalSymbol));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("grouping_symbol", groupingSymbol));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("currency_symbol", currencySymbol));
+    xml.append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue("storage_type", ValueMetaBase.getStorageTypeCode(storageType)));
     xml.append("      ").append(XmlHandler.closeTag(XML_TAG));

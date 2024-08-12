@@ -35,6 +35,8 @@ public class TextFileLineUtil {
   public static final int FILE_FORMAT_MIXED = 2;
   public static final int FILE_TYPE_CSV = 0;
   public static final int FILE_TYPE_FIXED = 1;
+  public static final String CONST_TEXT_FILE_LINE_UTIL_LOG_CONVERT_LINE_TO_ROW_TITLE =
+      "TextFileLineUtil.Log.ConvertLineToRowTitle";
 
   public static final String getLine(
       ILogChannel log, InputStreamReader reader, int formatNr, StringBuilder line)
@@ -94,10 +96,8 @@ public class TextFileLineUtil {
 
             if (encodingType.isLinefeed(c)) {
               return line.toString();
-            } else if (!encodingType.isReturn(c)) {
-              if (c >= 0) {
-                line.append((char) c);
-              }
+            } else if (!encodingType.isReturn(c) && c >= 0) {
+              line.append((char) c);
             }
           }
           break;
@@ -107,7 +107,7 @@ public class TextFileLineUtil {
     } catch (HopFileException e) {
       throw e;
     } catch (Exception e) {
-      if (line.length() == 0) {
+      if (line.isEmpty()) {
         throw new HopFileException(
             BaseMessages.getString(
                 PKG, "TextFileLineUtil.Log.Error.ExceptionReadingLine", e.toString()),
@@ -115,7 +115,7 @@ public class TextFileLineUtil {
       }
       return line.toString();
     }
-    if (line.length() > 0) {
+    if (!line.isEmpty()) {
       return line.toString();
     }
 
@@ -167,7 +167,8 @@ public class TextFileLineUtil {
         if (lenEncl > 0 && line.substring(from, from + lenEncl).equalsIgnoreCase(enclosure)) {
           if (log.isRowLevel()) {
             log.logRowlevel(
-                BaseMessages.getString(PKG, "TextFileLineUtil.Log.ConvertLineToRowTitle"),
+                BaseMessages.getString(
+                    PKG, CONST_TEXT_FILE_LINE_UTIL_LOG_CONVERT_LINE_TO_ROW_TITLE),
                 BaseMessages.getString(
                     PKG,
                     "TextFileLineUtil.Log.ConvertLineToRow",
@@ -239,7 +240,8 @@ public class TextFileLineUtil {
 
           if (log.isRowLevel()) {
             log.logRowlevel(
-                BaseMessages.getString(PKG, "TextFileLineUtil.Log.ConvertLineToRowTitle"),
+                BaseMessages.getString(
+                    PKG, CONST_TEXT_FILE_LINE_UTIL_LOG_CONVERT_LINE_TO_ROW_TITLE),
                 BaseMessages.getString(PKG, "TextFileLineUtil.Log.EndOfEnclosure", "" + p));
           }
         } else {
@@ -273,14 +275,16 @@ public class TextFileLineUtil {
           pol = line.substring(from + lenEncl, next - lenEncl);
           if (log.isRowLevel()) {
             log.logRowlevel(
-                BaseMessages.getString(PKG, "TextFileLineUtil.Log.ConvertLineToRowTitle"),
+                BaseMessages.getString(
+                    PKG, CONST_TEXT_FILE_LINE_UTIL_LOG_CONVERT_LINE_TO_ROW_TITLE),
                 BaseMessages.getString(PKG, "TextFileLineUtil.Log.EnclosureFieldFound", "" + pol));
           }
         } else {
           pol = line.substring(from, next);
           if (log.isRowLevel()) {
             log.logRowlevel(
-                BaseMessages.getString(PKG, "TextFileLineUtil.Log.ConvertLineToRowTitle"),
+                BaseMessages.getString(
+                    PKG, CONST_TEXT_FILE_LINE_UTIL_LOG_CONVERT_LINE_TO_ROW_TITLE),
                 BaseMessages.getString(PKG, "TextFileLineUtil.Log.NormalFieldFound", "" + pol));
           }
         }
@@ -315,7 +319,7 @@ public class TextFileLineUtil {
       if (pos == length) {
         if (log.isRowLevel()) {
           log.logRowlevel(
-              BaseMessages.getString(PKG, "TextFileLineUtil.Log.ConvertLineToRowTitle"),
+              BaseMessages.getString(PKG, CONST_TEXT_FILE_LINE_UTIL_LOG_CONVERT_LINE_TO_ROW_TITLE),
               BaseMessages.getString(PKG, "TextFileLineUtil.Log.EndOfEmptyLineFound"));
         }
         strings.add("");

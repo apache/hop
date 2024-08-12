@@ -130,6 +130,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private static final String BROWSER_ITEM_ID_SHOW_HIDDEN = "0200-show-hidden";
   private static final String BROWSER_ITEM_ID_DELETE = "0100-delete";
   private static final String BROWSER_ITEM_ID_RENAME = "0110-rename";
+  public static final String CONST_HOP_VFS_FILE_DIALOG_YES_LABEL = "HopVfsFileDialog.Yes.Label";
+  public static final String CONST_HOP_VFS_FILE_DIALOG_NO_LABEL = "HopVfsFileDialog.No.Label";
 
   private Shell parent;
   private IVariables variables;
@@ -635,8 +637,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     if (selectionIndex < 0) {
       return null;
     }
-    String name = wBookmarks.getItems()[selectionIndex];
-    return name;
+    return wBookmarks.getItems()[selectionIndex];
   }
 
   /**
@@ -692,8 +693,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     }
 
     String path = getTreeItemPath(selection[0]);
-    FileObject fileObject = fileObjectsMap.get(path);
-    return fileObject;
+    return fileObjectsMap.get(path);
   }
 
   /**
@@ -752,24 +752,24 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
                   PKG,
                   "HopVfsFileDialog.FileInfo.Tooltip.Readable",
                   (fileObject.isReadable()
-                      ? BaseMessages.getString(PKG, "HopVfsFileDialog.Yes.Label")
-                      : BaseMessages.getString(PKG, "HopVfsFileDialog.No.Label")))
+                      ? BaseMessages.getString(PKG, CONST_HOP_VFS_FILE_DIALOG_YES_LABEL)
+                      : BaseMessages.getString(PKG, CONST_HOP_VFS_FILE_DIALOG_NO_LABEL)))
               + "  ";
       details +=
           BaseMessages.getString(
                   PKG,
                   "HopVfsFileDialog.FileInfo.Tooltip.Writeable",
                   (fileObject.isWriteable()
-                      ? BaseMessages.getString(PKG, "HopVfsFileDialog.Yes.Label")
-                      : BaseMessages.getString(PKG, "HopVfsFileDialog.No.Label")))
+                      ? BaseMessages.getString(PKG, CONST_HOP_VFS_FILE_DIALOG_YES_LABEL)
+                      : BaseMessages.getString(PKG, CONST_HOP_VFS_FILE_DIALOG_NO_LABEL)))
               + "  ";
       details +=
           BaseMessages.getString(
                   PKG,
                   "HopVfsFileDialog.FileInfo.Tooltip.Executable",
                   (fileObject.isExecutable()
-                      ? BaseMessages.getString(PKG, "HopVfsFileDialog.Yes.Label")
-                      : BaseMessages.getString(PKG, "HopVfsFileDialog.No.Label")))
+                      ? BaseMessages.getString(PKG, CONST_HOP_VFS_FILE_DIALOG_YES_LABEL)
+                      : BaseMessages.getString(PKG, CONST_HOP_VFS_FILE_DIALOG_NO_LABEL)))
               + Const.CR;
       if (fileObject.isSymbolicLink()) {
         details +=

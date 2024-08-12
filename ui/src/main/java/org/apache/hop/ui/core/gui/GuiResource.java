@@ -61,6 +61,8 @@ import org.eclipse.swt.widgets.Display;
  */
 public class GuiResource {
 
+  public static final String CONST_FOR_PLUGIN = "] for plugin ";
+  public static final String CONST_ERROR_OCCURRED_LOADING_IMAGE = "Error occurred loading image [";
   private static ILogChannel log = LogChannel.UI;
 
   private Display display;
@@ -313,7 +315,9 @@ public class GuiResource {
               }
 
               @Override
-              public void pluginChanged(Object serviceObject) {}
+              public void pluginChanged(Object serviceObject) {
+                // Do Nothing
+              }
             });
 
     PluginRegistry.getInstance()
@@ -355,7 +359,6 @@ public class GuiResource {
     // Let's not dispose of all colors etc. since they'll still be in use by the GUI.
     // It's better to leak those few things than to crash the GUI since this is exceptional anyway.
     //
-    // dispose();
 
     // Clear the image map. This forces toolbar icons and so on to be re-created.
     // This again leaks images. This is not meant to be repeated a lot.
@@ -598,10 +601,11 @@ public class GuiResource {
         ClassLoader classLoader = registry.getClassLoader(transform);
         image = SwtSvgImageUtil.getUniversalImage(display, classLoader, filename);
       } catch (Throwable t) {
-        log.logError("Error occurred loading image [" + filename + "] for plugin " + transform, t);
+        log.logError(
+            CONST_ERROR_OCCURRED_LOADING_IMAGE + filename + CONST_FOR_PLUGIN + transform, t);
       } finally {
         if (image == null) {
-          log.logError("Unable to load image file [" + filename + "] for plugin " + transform);
+          log.logError("Unable to load image file [" + filename + CONST_FOR_PLUGIN + transform);
           image = SwtSvgImageUtil.getMissingImage(display);
         }
       }
@@ -892,10 +896,11 @@ public class GuiResource {
         image = SwtSvgImageUtil.getUniversalImage(display, classLoader, filename);
       } catch (Throwable t) {
         log.logError(
-            "Error occurred loading image [" + filename + "] for plugin " + plugin.getIds()[0], t);
+            CONST_ERROR_OCCURRED_LOADING_IMAGE + filename + CONST_FOR_PLUGIN + plugin.getIds()[0],
+            t);
       } finally {
         if (image == null) {
-          log.logError("Unable to load image [" + filename + "] for plugin " + plugin.getIds()[0]);
+          log.logError("Unable to load image [" + filename + CONST_FOR_PLUGIN + plugin.getIds()[0]);
           image = SwtSvgImageUtil.getMissingImage(display);
         }
       }
@@ -922,9 +927,9 @@ public class GuiResource {
                 ConstUi.SMALL_ICON_SIZE);
       } catch (Throwable t) {
         log.logError(
-            "Error occurred loading image ["
+            CONST_ERROR_OCCURRED_LOADING_IMAGE
                 + plugin.getImageFile()
-                + "] for plugin "
+                + CONST_FOR_PLUGIN
                 + plugin.getIds()[0],
             t);
       } finally {
@@ -932,7 +937,7 @@ public class GuiResource {
           log.logError(
               "Unable to load image ["
                   + plugin.getImageFile()
-                  + "] for plugin "
+                  + CONST_FOR_PLUGIN
                   + plugin.getIds()[0]);
           image = this.imageLabel;
         }

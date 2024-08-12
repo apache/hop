@@ -51,6 +51,8 @@ public class SqlStatementsDialog extends Dialog {
 
   public static final ILoggingObject loggingObject =
       new SimpleLoggingObject("SQL Statements Dialog", LoggingObjectType.HOP_GUI, null);
+  public static final String CONST_SQLSTATEMENT_DIALOG_ERROR_TITLE =
+      "SQLStatementDialog.Error.Title";
 
   private final List<SqlStatement> stats;
 
@@ -295,7 +297,7 @@ public class SqlStatementsDialog extends Dialog {
               errors++;
               new ErrorDialog(
                   shell,
-                  BaseMessages.getString(PKG, "SQLStatementDialog.Error.Title"),
+                  BaseMessages.getString(PKG, CONST_SQLSTATEMENT_DIALOG_ERROR_TITLE),
                   BaseMessages.getString(
                       PKG, "SQLStatementDialog.Error.CouldNotExec", stat.getSql()),
                   dbe);
@@ -303,7 +305,7 @@ public class SqlStatementsDialog extends Dialog {
           } catch (HopDatabaseException dbe) {
             new ErrorDialog(
                 shell,
-                BaseMessages.getString(PKG, "SQLStatementDialog.Error.Title"),
+                BaseMessages.getString(PKG, CONST_SQLSTATEMENT_DIALOG_ERROR_TITLE),
                 BaseMessages.getString(
                     PKG,
                     "SQLStatementDialog.Error.CouldNotConnect",
@@ -327,7 +329,7 @@ public class SqlStatementsDialog extends Dialog {
       mb.setMessage(
           BaseMessages.getString(
               PKG, "SQLStatementDialog.Error.Message", Integer.toString(errors)));
-      mb.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Error.Title"));
+      mb.setText(BaseMessages.getString(PKG, CONST_SQLSTATEMENT_DIALOG_ERROR_TITLE));
       mb.open();
     }
   }

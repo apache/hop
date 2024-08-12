@@ -64,6 +64,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class SQLFileOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SQLFileOutputMeta.class;
+  public static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -722,7 +723,9 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -900,7 +903,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "SQLFileOutputDialog.ConnectionError.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
       return;
     }
@@ -932,7 +935,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "SQLFileOutputDialog.ConnectionError2.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
     }
   }
@@ -966,7 +969,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
       } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(sql.getError());
-        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+        mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
         mb.open();
       }
     } catch (HopException ke) {

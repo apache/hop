@@ -50,7 +50,7 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
 
   public static Class<DatabaseMetaData> databaseMetaDataClass;
 
-  private static final Map<Integer, String> OPTIONS_SCOPE = new HashMap<Integer, String>();
+  private static final Map<Integer, String> OPTIONS_SCOPE = new HashMap<>();
 
   static {
     OPTIONS_SCOPE.put(DatabaseMetaData.bestRowSession, "bestRowSession");
@@ -58,8 +58,9 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
     OPTIONS_SCOPE.put(DatabaseMetaData.bestRowTransaction, "bestRowTransaction");
   }
 
+  public static final String CONST_TABLE_CAT = "TABLE_CAT";
   // following list of COL_ static members represent columns of metadata result sets
-  private static final IValueMeta COL_TABLE_CAT = new ValueMetaString("TABLE_CAT");
+  private static final IValueMeta COL_TABLE_CAT = new ValueMetaString(CONST_TABLE_CAT);
   private static final IValueMeta COL_PKTABLE_CAT = new ValueMetaString("PKTABLE_CAT");
   private static final IValueMeta COL_FKTABLE_CAT = new ValueMetaString("FKTABLE_CAT");
   private static final IValueMeta COL_TABLE_CATALOG = new ValueMetaString("TABLE_CATALOG");
@@ -288,14 +289,6 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
         new Object[] {
           "getSchemas", new Object[] {}, new IValueMeta[] {COL_TABLE_SCHEM, COL_TABLE_CATALOG}, null
         },
-        /*  We'd love to use this version of getSchemas, but we found that calling it throws AbstractMethodError in h2 and sqlite (possibly others)
-        new Object[]{
-          "getSchemas",
-          new Object[]{ARG_CATALOG, ARG_SCHEMA_PATTERN},
-          new IValueMeta[]{COL_TABLE_SCHEM, COL_TABLE_CATALOG},
-          null
-        },
-        */
         new Object[] {
           "getTablePrivileges",
           new Object[] {ARG_CATALOG, ARG_SCHEMA_PATTERN, ARG_TABLE_NAME_PATTERN},
@@ -385,7 +378,7 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
     methodName = "getCatalogs";
     argumentSourceFields = false;
     outputFields = new ArrayList<>();
-    outputFields.add(new OutputField("TABLE_CAT", "TABLE_CAT"));
+    outputFields.add(new OutputField(CONST_TABLE_CAT, CONST_TABLE_CAT));
   }
 
   @HopMetadataProperty private String connection;

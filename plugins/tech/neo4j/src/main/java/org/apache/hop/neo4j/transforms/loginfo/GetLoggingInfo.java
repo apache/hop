@@ -44,6 +44,10 @@ import org.neo4j.driver.Result;
 /** Get information from the System or the supervising pipeline. */
 public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLoggingInfoData> {
 
+  public static final String CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE =
+      "Unable to find logging Neo4j connection (variable ";
+  public static final String CONST_STATUS = "status";
+
   public GetLoggingInfo(
       TransformMeta transformMeta,
       GetLoggingInfoMeta meta,
@@ -177,7 +181,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     if (super.init()) {
       data.readsRows = false;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      if (previous != null && previous.size() > 0) {
+      if (previous != null && !previous.isEmpty()) {
         data.readsRows = true;
       }
 
@@ -197,7 +201,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
         LoggingCore.getConnection(getPipeline().getMetadataProvider(), getPipeline());
     if (connection == null) {
       throw new HopException(
-          "Unable to find logging Neo4j connection (variable "
+          CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE
               + Defaults.NEO4J_LOGGING_CONNECTION
               + ")");
     }
@@ -205,7 +209,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("type", "PIPELINE");
     parameters.put("name", pipelineName);
-    parameters.put("status", Pipeline.STRING_FINISHED);
+    parameters.put(CONST_STATUS, Pipeline.STRING_FINISHED);
 
     String cypher =
         "MATCH(e:Execution { type: $type, name : $name }) "
@@ -223,7 +227,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
         LoggingCore.getConnection(getPipeline().getMetadataProvider(), getPipeline());
     if (connection == null) {
       throw new HopException(
-          "Unable to find logging Neo4j connection (variable "
+          CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE
               + Defaults.NEO4J_LOGGING_CONNECTION
               + ")");
     }
@@ -231,7 +235,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("type", "TRANS");
     parameters.put("name", pipelineName);
-    parameters.put("status", Pipeline.STRING_FINISHED);
+    parameters.put(CONST_STATUS, Pipeline.STRING_FINISHED);
 
     String cypher =
         "MATCH(e:Execution { type: $type, name : $name }) "
@@ -250,7 +254,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
         LoggingCore.getConnection(getPipeline().getMetadataProvider(), getPipeline());
     if (connection == null) {
       throw new HopException(
-          "Unable to find logging Neo4j connection (variable "
+          CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE
               + Defaults.NEO4J_LOGGING_CONNECTION
               + ")");
     }
@@ -258,7 +262,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("type", "JOB");
     parameters.put("workflow", jobName);
-    parameters.put("status", Pipeline.STRING_FINISHED);
+    parameters.put(CONST_STATUS, Pipeline.STRING_FINISHED);
 
     String cypher =
         "MATCH(e:Execution { type: $type, name : $job }) "
@@ -276,7 +280,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
         LoggingCore.getConnection(getPipeline().getMetadataProvider(), getPipeline());
     if (connection == null) {
       throw new HopException(
-          "Unable to find logging Neo4j connection (variable "
+          CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE
               + Defaults.NEO4J_LOGGING_CONNECTION
               + ")");
     }
@@ -284,7 +288,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("type", "JOB");
     parameters.put("workflow", jobName);
-    parameters.put("status", Pipeline.STRING_FINISHED);
+    parameters.put(CONST_STATUS, Pipeline.STRING_FINISHED);
 
     String cypher =
         "MATCH(e:Execution { type: $type, name : $job }) "

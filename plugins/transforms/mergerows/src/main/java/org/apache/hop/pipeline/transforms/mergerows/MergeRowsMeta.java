@@ -58,6 +58,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/mergerows.html")
 public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class;
+  public static final String CONST_VALUE = "value";
 
   @Injection(name = "FLAG_FIELD")
   private String flagField;
@@ -148,7 +149,7 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
 
     retval.append("    <values>" + Const.CR);
     for (int i = 0; i < valueFields.length; i++) {
-      retval.append("      " + XmlHandler.addTagValue("value", valueFields[i]));
+      retval.append("      " + XmlHandler.addTagValue(CONST_VALUE, valueFields[i]));
     }
     retval.append("    </values>" + Const.CR);
 
@@ -171,7 +172,7 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
       Node valuesnode = XmlHandler.getSubNode(transformNode, "values");
 
       int nrKeys = XmlHandler.countNodes(keysnode, "key");
-      int nrValues = XmlHandler.countNodes(valuesnode, "value");
+      int nrValues = XmlHandler.countNodes(valuesnode, CONST_VALUE);
 
       allocate(nrKeys, nrValues);
 
@@ -181,7 +182,7 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
       }
 
       for (int i = 0; i < nrValues; i++) {
-        Node valuenode = XmlHandler.getSubNodeByNr(valuesnode, "value", i);
+        Node valuenode = XmlHandler.getSubNodeByNr(valuesnode, CONST_VALUE, i);
         valueFields[i] = XmlHandler.getNodeValue(valuenode);
       }
 
@@ -209,8 +210,7 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
     for (IStream stream : infoStreams) {
-      stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, (String) stream.getSubject()));
+      stream.setTransformMeta(TransformMeta.findTransform(transforms, stream.getSubject()));
     }
   }
 
@@ -362,7 +362,9 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   }
 
   @Override
-  public void resetTransformIoMeta() {}
+  public void resetTransformIoMeta() {
+    // Do Nothing
+  }
 
   @Override
   public PipelineType[] getSupportedPipelineTypes() {

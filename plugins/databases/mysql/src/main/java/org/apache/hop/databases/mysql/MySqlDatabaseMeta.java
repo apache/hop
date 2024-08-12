@@ -47,6 +47,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 @GuiPlugin(id = "GUI-MySQLDatabaseMeta")
 public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final Class<?> PKG = MySqlDatabaseMeta.class;
+  public static final String CONST_MYSQL_8 = "Mysql 8+";
 
   @GuiWidgetElement(
       id = "resultStreaming",
@@ -65,7 +66,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       comboValuesMethod = "getDriverClassNames",
       label = "i18n::MySQLDatabaseMeta.label.MySQLDriverType")
   @HopMetadataProperty(key = "driverClassName")
-  private String driverClassName = "Mysql 8+";
+  private String driverClassName = CONST_MYSQL_8;
 
   /**
    * Gets resultStreaming
@@ -150,7 +151,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     switch (driverClassName) {
       case "Mysql":
         return "org.gjt.mm.mysql.Driver";
-      case "Mysql 8+":
+      case CONST_MYSQL_8:
         return "com.mysql.cj.jdbc.Driver";
       default:
         return "com.mysql.cj.jdbc.Driver";
@@ -789,7 +790,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    */
   public List<String> getDriverClassNames(ILogChannel log, IHopMetadataProvider metadataProvider) {
     List<String> names = new ArrayList<>();
-    names.add("Mysql 8+");
+    names.add(CONST_MYSQL_8);
     names.add("Mysql");
     return names;
   }

@@ -129,6 +129,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       "WorkflowExecutionViewer-Toolbar-12100-ViewMetadata";
 
   public static final String WORKFLOW_EXECUTION_VIEWER_TABS = "WorkflowExecutionViewer.Tabs.ID";
+  public static final String CONST_ERROR = "Error";
 
   protected final WorkflowMeta workflowMeta;
 
@@ -334,7 +335,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error refreshing pipeline status", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error refreshing pipeline status", e);
     }
   }
 
@@ -446,7 +447,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       }
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error showing transform data rows", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error showing transform data rows", e);
     } finally {
       layout(true, true);
       dataSash.setWeights(weights);
@@ -504,7 +505,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         } catch (Exception e) {
           new ErrorDialog(
               hopGui.getActiveShell(),
-              "Error",
+              CONST_ERROR,
               "Hop was unable to invoke @GuiTab method "
                   + tabItem.getMethod().getName()
                   + " with the parent composite as argument",
@@ -683,7 +684,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         viewPort = workflowPainter.getViewPort();
         graphPort = workflowPainter.getGraphPort();
       } catch (Exception e) {
-        new ErrorDialog(hopGui.getActiveShell(), "Error", "Error drawing workflow image", e);
+        new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error drawing workflow image", e);
       }
     } finally {
       gc.dispose();
@@ -749,7 +750,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       }
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error navigating to workflow in Hop GUI", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error navigating to workflow in Hop GUI", e);
     }
   }
 
@@ -871,7 +872,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       }
 
       // Get any execution data for the selected action
-      // TODO: ask the user to select which one...
       //
       selectedExecutionData = executionDataList.get(0);
 
@@ -896,7 +896,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       }
       showDataRows();
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error showing transform data", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error showing transform data", e);
     }
   }
 
@@ -986,7 +986,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       ExecutionState state = iLocation.getExecutionState(child.getId(), false);
       perspective.createExecutionViewer(locationName, child, state);
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error drilling down into selected action", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error drilling down into selected action", e);
     }
   }
 
@@ -1023,7 +1023,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       ExecutionState state = iLocation.getExecutionState(grandParent.getId(), false);
       perspective.createExecutionViewer(locationName, grandParent, state);
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error navigating up to parent execution", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error navigating up to parent execution", e);
     }
   }
 
@@ -1059,7 +1059,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
       p.activate();
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error viewing the executor", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error viewing the executor", e);
     }
   }
 

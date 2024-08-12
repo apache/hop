@@ -72,6 +72,7 @@ public class ActionMailDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionMail.Filetype.Gif"),
         BaseMessages.getString(PKG, "ActionMail.Filetype.All")
       };
+  public static final String CONST_NORMAL = "normal";
 
   private LabelText wName;
 
@@ -1448,7 +1449,7 @@ public class ActionMailDialog extends ActionDialog {
     if (action.getPriority() != null) {
       if (action.getPriority().equals("low")) {
         wPriority.select(0); // Low
-      } else if (action.getPriority().equals("normal")) {
+      } else if (action.getPriority().equals(CONST_NORMAL)) {
         wPriority.select(1); // Normal
 
       } else {
@@ -1462,7 +1463,7 @@ public class ActionMailDialog extends ActionDialog {
     if (action.getImportance() != null) {
       if (action.getImportance().equals("low")) {
         wImportance.select(0); // Low
-      } else if (action.getImportance().equals("normal")) {
+      } else if (action.getImportance().equals(CONST_NORMAL)) {
         wImportance.select(1); // Normal
 
       } else {
@@ -1558,7 +1559,7 @@ public class ActionMailDialog extends ActionDialog {
     if (wPriority.getSelectionIndex() == 0) {
       action.setPriority("low");
     } else if (wPriority.getSelectionIndex() == 1) {
-      action.setPriority("normal");
+      action.setPriority(CONST_NORMAL);
     } else {
       action.setPriority("high");
     }
@@ -1567,7 +1568,7 @@ public class ActionMailDialog extends ActionDialog {
     if (wImportance.getSelectionIndex() == 0) {
       action.setImportance("low");
     } else if (wImportance.getSelectionIndex() == 1) {
-      action.setImportance("normal");
+      action.setImportance(CONST_NORMAL);
     } else {
       action.setImportance("high");
     }
@@ -1580,7 +1581,7 @@ public class ActionMailDialog extends ActionDialog {
     } else if (wSensitivity.getSelectionIndex() == 3) {
       action.setSensitivity("company-confidential");
     } else {
-      action.setSensitivity("normal"); // default is normal
+      action.setSensitivity(CONST_NORMAL); // default is normal
     }
 
     // Secure Connection type

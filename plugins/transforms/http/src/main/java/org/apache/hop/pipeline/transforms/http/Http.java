@@ -58,6 +58,8 @@ import org.json.simple.JSONObject;
 public class Http extends BaseTransform<HttpMeta, HttpData> {
 
   private static final Class<?> PKG = HttpMeta.class;
+  public static final String CONST_HTTP_EXCEPTION_ERROR_FINDING_FIELD =
+      "HTTP.Exception.ErrorFindingField";
 
   public Http(
       TransformMeta transformMeta,
@@ -321,7 +323,8 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
             // The field is unreachable !
             logError(BaseMessages.getString(PKG, "HTTP.Log.ErrorFindingField", realUrlFieldName));
             throw new HopException(
-                BaseMessages.getString(PKG, "HTTP.Exception.ErrorFindingField", realUrlFieldName));
+                BaseMessages.getString(
+                    PKG, CONST_HTTP_EXCEPTION_ERROR_FINDING_FIELD, realUrlFieldName));
           }
         }
       } else {
@@ -342,12 +345,12 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         int fieldIndex = data.inputRowMeta.indexOfValue(meta.getHeaderField()[i]);
         if (fieldIndex < 0) {
           logError(
-              BaseMessages.getString(PKG, "HTTP.Exception.ErrorFindingField")
+              BaseMessages.getString(PKG, CONST_HTTP_EXCEPTION_ERROR_FINDING_FIELD)
                   + meta.getHeaderField()[i]
                   + "]");
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "HTTP.Exception.ErrorFindingField", meta.getHeaderField()[i]));
+                  PKG, CONST_HTTP_EXCEPTION_ERROR_FINDING_FIELD, meta.getHeaderField()[i]));
         }
 
         data.header_parameters_nrs[i] = fieldIndex;
@@ -362,10 +365,8 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       Object[] outputRowData = execHttp(data.inputRowMeta, r); // add new values to the row
       putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesRead())) {
-        if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "HTTP.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "HTTP.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       boolean sendToErrorRow = false;

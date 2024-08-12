@@ -67,6 +67,9 @@ import org.w3c.dom.Node;
 @SuppressWarnings("java:S1104")
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionUnZip.class;
+  public static final String CONST_ACTION_UN_ZIP_ERROR_SUCCESS_CONDITIONBROKEN =
+      "ActionUnZip.Error.SuccessConditionbroken";
+  public static final String CONST_SPACES = "      ";
 
   private String zipFilename;
   public int afterunzip;
@@ -90,9 +93,9 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private boolean addOriginalTimestamp;
   private boolean setOriginalModificationDate;
 
-  public String SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED = "success_when_at_least";
-  public String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
-  public String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
+  public static final String SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED = "success_when_at_least";
+  public static final String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
+  public static final String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
   private String successCondition;
 
   public static final int IF_FILE_EXISTS_SKIP = 0;
@@ -181,34 +184,36 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     StringBuilder retval = new StringBuilder(550); // 450 chars in just spaces and tag names alone
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("zipfilename", zipFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
-    retval.append("      ").append(XmlHandler.addTagValue("targetdirectory", sourcedirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("movetodirectory", movetodirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("afterunzip", afterunzip));
-    retval.append("      ").append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
-    retval.append("      ").append(XmlHandler.addTagValue("isfromprevious", isfromprevious));
-    retval.append("      ").append(XmlHandler.addTagValue("adddate", adddate));
-    retval.append("      ").append(XmlHandler.addTagValue("addtime", addtime));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("zipfilename", zipFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("wildcard", wildcard));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("targetdirectory", sourcedirectory));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("movetodirectory", movetodirectory));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("afterunzip", afterunzip));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("isfromprevious", isfromprevious));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("adddate", adddate));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("addtime", addtime));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("addOriginalTimestamp", addOriginalTimestamp));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("rootzip", rootzip));
-    retval.append("      ").append(XmlHandler.addTagValue("createfolder", createfolder));
-    retval.append("      ").append(XmlHandler.addTagValue("nr_limit", nrLimit));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcardSource", wildcardSource));
-    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("rootzip", rootzip));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("createfolder", createfolder));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("nr_limit", nrLimit));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("wildcardSource", wildcardSource));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("success_condition", successCondition));
+    retval
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("iffileexists", getIfFileExistsCode(iffileexist)));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("create_move_to_directory", createMoveToDirectory));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("setOriginalModificationDate", setOriginalModificationDate));
 
     return retval.toString();
@@ -283,7 +288,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                 (rows != null ? rows.size() : 0) + ""));
       }
 
-      if (rows.size() == 0) {
+      if (rows.isEmpty()) {
         return result;
       }
     } else {
@@ -326,7 +331,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           exitaction = true;
         }
       } else {
-        if (!(targetdir.getType() == FileType.FOLDER)) {
+        if (targetdir.getType() != FileType.FOLDER) {
           log.logError(
               BaseMessages.getString(
                   PKG, "ActionUnZip.TargetFolderNotFolder.Label", realTargetdirectory));
@@ -348,7 +353,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           exitaction = true;
         } else {
           movetodir = HopVfs.getFileObject(realMovetodirectory, getVariables());
-          if (!(movetodir.exists()) || !(movetodir.getType() == FileType.FOLDER)) {
+          if (!(movetodir.exists()) || movetodir.getType() != FileType.FOLDER) {
             if (createMoveToDirectory) {
               movetodir.createFolder();
               if (log.isDetailed()) {
@@ -379,7 +384,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
               if (!successConditionBrokenExit) {
                 logError(
                     BaseMessages.getString(
-                        PKG, "ActionUnZip.Error.SuccessConditionbroken", "" + nrErrors));
+                        PKG, CONST_ACTION_UN_ZIP_ERROR_SUCCESS_CONDITIONBROKEN, "" + nrErrors));
                 successConditionBrokenExit = true;
               }
               result.setNrErrors(nrErrors);
@@ -527,7 +532,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             if (!successConditionBrokenExit) {
               logError(
                   BaseMessages.getString(
-                      PKG, "ActionUnZip.Error.SuccessConditionbroken", "" + nrErrors));
+                      PKG, CONST_ACTION_UN_ZIP_ERROR_SUCCESS_CONDITIONBROKEN, "" + nrErrors));
               successConditionBrokenExit = true;
             }
             return false;
@@ -669,7 +674,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           if (!successConditionBrokenExit) {
             logError(
                 BaseMessages.getString(
-                    PKG, "ActionUnZip.Error.SuccessConditionbroken", "" + nrErrors));
+                    PKG, CONST_ACTION_UN_ZIP_ERROR_SUCCESS_CONDITIONBROKEN, "" + nrErrors));
             successConditionBrokenExit = true;
           }
           return false;

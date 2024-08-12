@@ -58,6 +58,7 @@ import org.eclipse.swt.widgets.Text;
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiCompositeWidgets {
 
+  public static final String CONST_PARENT_ID = ", parent ID: ";
   private IVariables variables;
   private Map<String, Control> labelsMap;
   private Map<String, Control> widgetsMap;
@@ -102,7 +103,7 @@ public class GuiCompositeWidgets {
       System.err.println(
           "Create widgets: no GUI elements found for parent: "
               + key
-              + ", parent ID: "
+              + CONST_PARENT_ID
               + parentGuiElementId);
       return;
     }
@@ -786,7 +787,7 @@ public class GuiCompositeWidgets {
       System.err.println(
           "getWidgetsContents: no GUI elements found for class: "
               + sourceData.getClass().getName()
-              + ", parent ID: "
+              + CONST_PARENT_ID
               + parentGuiElementId);
       return;
     }
@@ -917,7 +918,7 @@ public class GuiCompositeWidgets {
       System.err.println(
           "enableWidgets: no GUI elements found for class: "
               + sourceData.getClass().getName()
-              + ", parent ID: "
+              + CONST_PARENT_ID
               + parentGuiElementId);
       return;
     }

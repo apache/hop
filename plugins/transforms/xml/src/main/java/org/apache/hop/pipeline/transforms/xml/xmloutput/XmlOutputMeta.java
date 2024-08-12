@@ -61,6 +61,8 @@ import org.w3c.dom.Node;
 @InjectionSupported(localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS")
 public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
   private static final Class<?> PKG = XmlOutputMeta.class;
+  public static final String CONST_SPACES_LONG = "        ";
+  public static final String CONST_SPACES = "      ";
 
   /** The base name of the output file */
   @Injection(name = "FILENAME")
@@ -541,23 +543,23 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     retval.append("    ").append(XmlHandler.addTagValue("xml_repeat_element", repeatElement));
 
     retval.append("    <file>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("name", fileName));
-    retval.append("      ").append(XmlHandler.addTagValue("extention", extension));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fileName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("extention", extension));
 
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("do_not_open_newfile_init", doNotOpenNewFileInit));
-    retval.append("      ").append(XmlHandler.addTagValue("split", transformNrInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", dateInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", timeInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("omit_null_values", omitNullValues));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("split", transformNrInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_date", dateInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_time", timeInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("omit_null_values", omitNullValues));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("add_to_result_filenames", addToResultFilenames));
-    retval.append("      ").append(XmlHandler.addTagValue("zipped", zipped));
-    retval.append("      ").append(XmlHandler.addTagValue("splitevery", splitEvery));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("zipped", zipped));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("splitevery", splitEvery));
     retval.append("    </file>").append(Const.CR);
     retval.append("    <fields>").append(Const.CR);
     for (int i = 0; i < outputFields.length; i++) {
@@ -566,24 +568,38 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
       if (field.getFieldName() != null && field.getFieldName().length() != 0) {
         retval.append("      <field>").append(Const.CR);
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("content_type", field.getContentType().name()));
-        retval.append("        ").append(XmlHandler.addTagValue("name", field.getFieldName()));
-        retval.append("        ").append(XmlHandler.addTagValue("element", field.getElementName()));
-        retval.append("        ").append(XmlHandler.addTagValue("type", field.getTypeDesc()));
-        retval.append("        ").append(XmlHandler.addTagValue("format", field.getFormat()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("name", field.getFieldName()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("element", field.getElementName()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("type", field.getTypeDesc()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("format", field.getFormat()));
+        retval
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("currency", field.getCurrencySymbol()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("group", field.getGroupingSymbol()));
-        retval.append("        ").append(XmlHandler.addTagValue("nullif", field.getNullString()));
-        retval.append("        ").append(XmlHandler.addTagValue("length", field.getLength()));
-        retval.append("        ").append(XmlHandler.addTagValue("precision", field.getPrecision()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("nullif", field.getNullString()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("length", field.getLength()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("precision", field.getPrecision()));
         retval.append("      </field>").append(Const.CR);
       }
     }

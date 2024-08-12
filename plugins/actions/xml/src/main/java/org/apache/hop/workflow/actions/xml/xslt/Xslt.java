@@ -72,8 +72,14 @@ import org.w3c.dom.Node;
 public class Xslt extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = Xslt.class;
 
-  public static String FACTORY_JAXP = "JAXP";
-  public static String FACTORY_SAXON = "SAXON";
+  public static final String FACTORY_JAXP = "JAXP";
+  public static final String FACTORY_SAXON = "SAXON";
+  public static final String CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_1_LABEL =
+      "ActionXSLT.OuputFileExists1.Label";
+  public static final String CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_2_LABEL =
+      "ActionXSLT.OuputFileExists2.Label";
+  public static final String CONST_SPACES_LONG = "        ";
+  public static final String CONST_SPACES = "      ";
 
   private String xmlfilename;
   private String xslfilename;
@@ -162,21 +168,21 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     StringBuffer xml = new StringBuffer(50);
 
     xml.append(super.getXml());
-    xml.append("      ").append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
-    xml.append("      ").append(XmlHandler.addTagValue("xslfilename", xslfilename));
-    xml.append("      ").append(XmlHandler.addTagValue("outputfilename", outputfilename));
-    xml.append("      ").append(XmlHandler.addTagValue("iffileexists", ifFileExists));
-    xml.append("      ").append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
-    xml.append("      ")
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xslfilename", xslfilename));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("outputfilename", outputfilename));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("iffileexists", ifFileExists));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
+    xml.append(CONST_SPACES)
         .append(XmlHandler.addTagValue("filenamesfromprevious", filenamesfromprevious));
-    xml.append("      ").append(XmlHandler.addTagValue("xsltfactory", xsltfactory));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xsltfactory", xsltfactory));
 
     xml.append("    <parameters>").append(Const.CR);
 
     for (int i = 0; i < parameterName.length; i++) {
       xml.append("      <parameter>").append(Const.CR);
-      xml.append("        ").append(XmlHandler.addTagValue("field", parameterField[i]));
-      xml.append("        ").append(XmlHandler.addTagValue("name", parameterName[i]));
+      xml.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("field", parameterField[i]));
+      xml.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", parameterName[i]));
       xml.append("      </parameter>").append(Const.CR);
     }
 
@@ -185,8 +191,8 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
 
     for (int i = 0; i < outputPropertyName.length; i++) {
       xml.append("      <outputproperty>").append(Const.CR);
-      xml.append("        ").append(XmlHandler.addTagValue("name", outputPropertyName[i]));
-      xml.append("        ").append(XmlHandler.addTagValue("value", outputPropertyValue[i]));
+      xml.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", outputPropertyName[i]));
+      xml.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("value", outputPropertyValue[i]));
       xml.append("      </outputproperty>").append(Const.CR);
     }
 
@@ -296,14 +302,10 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     }
 
     List<RowMetaAndData> rows = result.getRows();
-    if (isFilenamesFromPrevious()) {
-      if (log.isDetailed()) {
-        logDetailed(
-            BaseMessages.getString(
-                PKG,
-                "ActionXSLT.Log.ArgFromPrevious.Found",
-                (rows != null ? rows.size() : 0) + ""));
-      }
+    if (isFilenamesFromPrevious() && log.isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "ActionXSLT.Log.ArgFromPrevious.Found", (rows != null ? rows.size() : 0) + ""));
     }
 
     if (isFilenamesFromPrevious() && rows != null) {
@@ -384,18 +386,18 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
           // Output file exists
           // User want to fail
           logError(
-              BaseMessages.getString(PKG, "ActionXSLT.OuputFileExists1.Label")
+              BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_1_LABEL)
                   + outputfilename
-                  + BaseMessages.getString(PKG, "ActionXSLT.OuputFileExists2.Label"));
+                  + BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_2_LABEL));
           return retval;
 
         } else if (outputfile.exists() && ifFileExists == 1) {
           // Do nothing
           if (log.isDebug()) {
             logDebug(
-                BaseMessages.getString(PKG, "ActionXSLT.OuputFileExists1.Label")
+                BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_1_LABEL)
                     + outputfilename
-                    + BaseMessages.getString(PKG, "ActionXSLT.OuputFileExists2.Label"));
+                    + BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_2_LABEL));
           }
           retval = true;
           return retval;
@@ -421,9 +423,9 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             }
             if (log.isDebug()) {
               logDebug(
-                  BaseMessages.getString(PKG, "ActionXSLT.OuputFileExists1.Label")
+                  BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_1_LABEL)
                       + outputfilename
-                      + BaseMessages.getString(PKG, "ActionXSLT.OuputFileExists2.Label"));
+                      + BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_2_LABEL));
               logDebug(
                   BaseMessages.getString(PKG, "ActionXSLT.OuputFileNameChange1.Label")
                       + outputfilename

@@ -42,6 +42,16 @@ public class SynchronizeAfterMerge
     extends BaseTransform<SynchronizeAfterMergeMeta, SynchronizeAfterMergeData> {
 
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class;
+  public static final String CONST_IS_NULL = "IS NULL";
+  public static final String CONST_IS_NOT_NULL = "IS NOT NULL";
+  public static final String CONST_SYNCHRONIZE_AFTER_MERGE_EXCEPTION_FIELD_REQUIRED =
+      "SynchronizeAfterMerge.Exception.FieldRequired";
+  public static final String CONST_INSERT = "insert";
+  public static final String CONST_LOOKUP = "lookup";
+  public static final String CONST_UPDATE = "update";
+  public static final String CONST_DELETE = "delete";
+  public static final String CONST_BETWEEN = "BETWEEN";
+  public static final String CONST_BETWEEN_AND = " BETWEEN ? AND ? ";
 
   public SynchronizeAfterMerge(
       TransformMeta transformMeta,
@@ -113,7 +123,7 @@ public class SynchronizeAfterMerge
         }
 
         if (meta.isTableNameInField()) {
-          data.insertStatement = data.preparedStatements.get(data.realSchemaTable + "insert");
+          data.insertStatement = data.preparedStatements.get(data.realSchemaTable + CONST_INSERT);
           if (data.insertStatement == null) {
             String sql =
                 data.db.getInsertStatement(
@@ -124,7 +134,7 @@ public class SynchronizeAfterMerge
             }
 
             data.insertStatement = data.db.prepareSql(sql);
-            data.preparedStatements.put(data.realSchemaTable + "insert", data.insertStatement);
+            data.preparedStatements.put(data.realSchemaTable + CONST_INSERT, data.insertStatement);
           }
         }
 
@@ -167,7 +177,7 @@ public class SynchronizeAfterMerge
 
           if (meta.isTableNameInField()) {
             // Prepare Lookup statement
-            data.lookupStatement = data.preparedStatements.get(data.realSchemaTable + "lookup");
+            data.lookupStatement = data.preparedStatements.get(data.realSchemaTable + CONST_LOOKUP);
             if (data.lookupStatement == null) {
               String sql = getLookupStatement(data.inputRowMeta);
 
@@ -176,7 +186,8 @@ public class SynchronizeAfterMerge
               }
 
               data.lookupStatement = data.db.prepareSql(sql);
-              data.preparedStatements.put(data.realSchemaTable + "lookup", data.lookupStatement);
+              data.preparedStatements.put(
+                  data.realSchemaTable + CONST_LOOKUP, data.lookupStatement);
             }
           }
 
@@ -242,12 +253,14 @@ public class SynchronizeAfterMerge
             // UPDATE :
 
             if (meta.isTableNameInField()) {
-              data.updateStatement = data.preparedStatements.get(data.realSchemaTable + "update");
+              data.updateStatement =
+                  data.preparedStatements.get(data.realSchemaTable + CONST_UPDATE);
               if (data.updateStatement == null) {
                 String sql = getUpdateStatement(data.inputRowMeta);
 
                 data.updateStatement = data.db.prepareSql(sql);
-                data.preparedStatements.put(data.realSchemaTable + "update", data.updateStatement);
+                data.preparedStatements.put(
+                    data.realSchemaTable + CONST_UPDATE, data.updateStatement);
                 if (log.isDebug()) {
                   logDebug("Preparation of the Update SQL statement : " + sql);
                 }
@@ -298,12 +311,13 @@ public class SynchronizeAfterMerge
           // DELETE
 
           if (meta.isTableNameInField()) {
-            data.deleteStatement = data.preparedStatements.get(data.realSchemaTable + "delete");
+            data.deleteStatement = data.preparedStatements.get(data.realSchemaTable + CONST_DELETE);
 
             if (data.deleteStatement == null) {
               String sql = getDeleteStatement(data.inputRowMeta);
               data.deleteStatement = data.db.prepareSql(sql);
-              data.preparedStatements.put(data.realSchemaTable + "delete", data.deleteStatement);
+              data.preparedStatements.put(
+                  data.realSchemaTable + CONST_DELETE, data.deleteStatement);
               if (log.isDebug()) {
                 logDebug("Preparation of the Delete SQL statement : " + sql);
               }
@@ -355,17 +369,17 @@ public class SynchronizeAfterMerge
       if (performInsert
           || performUpdate
           || performDelete
-          || (data.batchBuffer.size() > 0 && lineSkipped)) {
+          || (!data.batchBuffer.isEmpty() && lineSkipped)) {
         // Get a commit counter per prepared statement to keep track of separate tables, etc.
         //
         String tableName = data.realSchemaTable;
         if (performInsert) {
-          tableName += "insert";
+          tableName += CONST_INSERT;
         } else if (performUpdate) {
-          tableName += "update";
+          tableName += CONST_UPDATE;
         }
         if (performDelete) {
-          tableName += "delete";
+          tableName += CONST_DELETE;
         }
 
         Integer commitCounter = data.commitCounterMap.get(tableName);
@@ -376,10 +390,8 @@ public class SynchronizeAfterMerge
 
         // Release the savepoint if needed
         //
-        if (data.specialErrorHandling && data.supportsSavepoints) {
-          if (data.releaseSavepoint) {
-            data.db.releaseSavepoint(data.savepoint);
-          }
+        if (data.specialErrorHandling && data.supportsSavepoints && data.releaseSavepoint) {
+          data.db.releaseSavepoint(data.savepoint);
         }
 
         // Perform a commit if needed
@@ -458,13 +470,13 @@ public class SynchronizeAfterMerge
           logRowlevel("Written row to error handling : " + getInputRowMeta().getString(row));
         }
 
-        if (data.specialErrorHandling && data.supportsSavepoints) {
-          if (data.savepoint != null || !data.lookupFailure) {
-            // do this when savepoint was set, and this is not lookup failure
-            data.db.rollback(data.savepoint);
-            if (data.releaseSavepoint) {
-              data.db.releaseSavepoint(data.savepoint);
-            }
+        if (data.specialErrorHandling
+            && data.supportsSavepoints
+            && (data.savepoint != null || !data.lookupFailure)) {
+          // do this when savepoint was set, and this is not lookup failure
+          data.db.rollback(data.savepoint);
+          if (data.releaseSavepoint) {
+            data.db.releaseSavepoint(data.savepoint);
           }
         }
         sendToErrorRow = true;
@@ -592,13 +604,13 @@ public class SynchronizeAfterMerge
         sql += " AND ";
       }
       sql += data.databaseMeta.quoteField(meta.getKeyLookup()[i]);
-      if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += " BETWEEN ? AND ? ";
+      if (CONST_BETWEEN.equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        sql += CONST_BETWEEN_AND;
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
       } else {
-        if ("IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
-            || "IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        if (CONST_IS_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])
+            || CONST_IS_NOT_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])) {
           sql += " " + meta.getKeyCondition()[i] + " ";
         } else {
           sql += " " + meta.getKeyCondition()[i] + " ? ";
@@ -640,12 +652,12 @@ public class SynchronizeAfterMerge
         sql += "AND   ";
       }
       sql += data.databaseMeta.quoteField(meta.getKeyLookup()[i]);
-      if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += " BETWEEN ? AND ? ";
+      if (CONST_BETWEEN.equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        sql += CONST_BETWEEN_AND;
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
-      } else if ("IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
-          || "IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+      } else if (CONST_IS_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])
+          || CONST_IS_NOT_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])) {
         sql += " " + meta.getKeyCondition()[i] + " ";
       } else {
         sql += " " + meta.getKeyCondition()[i] + " ? ";
@@ -668,12 +680,12 @@ public class SynchronizeAfterMerge
         sql += "AND   ";
       }
       sql += data.databaseMeta.quoteField(meta.getKeyLookup()[i]);
-      if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += " BETWEEN ? AND ? ";
+      if (CONST_BETWEEN.equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        sql += CONST_BETWEEN_AND;
         data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
         data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
-      } else if ("IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
-          || "IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+      } else if (CONST_IS_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])
+          || CONST_IS_NOT_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])) {
         sql += " " + meta.getKeyCondition()[i] + " ";
       } else {
         sql += " " + meta.getKeyCondition()[i] + " ? ";
@@ -756,22 +768,26 @@ public class SynchronizeAfterMerge
         data.keynrs[i] = data.inputRowMeta.indexOfValue(meta.getKeyStream()[i]);
         if (data.keynrs[i] < 0
             && // couldn't find field!
-            !"IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
+            !CONST_IS_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])
             && // No field needed!
-            !"IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i]) // No field needed!
+            !CONST_IS_NOT_NULL.equalsIgnoreCase(meta.getKeyCondition()[i]) // No field needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "SynchronizeAfterMerge.Exception.FieldRequired", meta.getKeyStream()[i]));
+                  PKG,
+                  CONST_SYNCHRONIZE_AFTER_MERGE_EXCEPTION_FIELD_REQUIRED,
+                  meta.getKeyStream()[i]));
         }
         data.keynrs2[i] = data.inputRowMeta.indexOfValue(meta.getKeyStream2()[i]);
         if (data.keynrs2[i] < 0
             && // couldn't find field!
-            "BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i]) // 2 fields needed!
+            CONST_BETWEEN.equalsIgnoreCase(meta.getKeyCondition()[i]) // 2 fields needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "SynchronizeAfterMerge.Exception.FieldRequired", meta.getKeyStream2()[i]));
+                  PKG,
+                  CONST_SYNCHRONIZE_AFTER_MERGE_EXCEPTION_FIELD_REQUIRED,
+                  meta.getKeyStream2()[i]));
         }
 
         if (log.isDebug()) {
@@ -807,7 +823,9 @@ public class SynchronizeAfterMerge
         if (data.valuenrs[i] < 0) { // couldn't find field!
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "SynchronizeAfterMerge.Exception.FieldRequired", meta.getUpdateStream()[i]));
+                  PKG,
+                  CONST_SYNCHRONIZE_AFTER_MERGE_EXCEPTION_FIELD_REQUIRED,
+                  meta.getUpdateStream()[i]));
         }
         if (log.isDebug()) {
           logDebug(
@@ -822,7 +840,7 @@ public class SynchronizeAfterMerge
       if (!meta.isTableNameInField()) {
         // Prepare Lookup statement
         if (meta.isPerformLookup()) {
-          data.lookupStatement = data.preparedStatements.get(data.realSchemaTable + "lookup");
+          data.lookupStatement = data.preparedStatements.get(data.realSchemaTable + CONST_LOOKUP);
           if (data.lookupStatement == null) {
             String sql = getLookupStatement(data.inputRowMeta);
             if (log.isDebug()) {
@@ -830,12 +848,12 @@ public class SynchronizeAfterMerge
             }
 
             data.lookupStatement = data.db.prepareSql(sql);
-            data.preparedStatements.put(data.realSchemaTable + "lookup", data.lookupStatement);
+            data.preparedStatements.put(data.realSchemaTable + CONST_LOOKUP, data.lookupStatement);
           }
         }
 
         // Prepare Insert statement
-        data.insertStatement = data.preparedStatements.get(data.realSchemaTable + "insert");
+        data.insertStatement = data.preparedStatements.get(data.realSchemaTable + CONST_INSERT);
         if (data.insertStatement == null) {
           String sql =
               data.db.getInsertStatement(
@@ -846,29 +864,29 @@ public class SynchronizeAfterMerge
           }
 
           data.insertStatement = data.db.prepareSql(sql);
-          data.preparedStatements.put(data.realSchemaTable + "insert", data.insertStatement);
+          data.preparedStatements.put(data.realSchemaTable + CONST_INSERT, data.insertStatement);
         }
 
         // Prepare Update Statement
 
-        data.updateStatement = data.preparedStatements.get(data.realSchemaTable + "update");
+        data.updateStatement = data.preparedStatements.get(data.realSchemaTable + CONST_UPDATE);
         if (data.updateStatement == null) {
           String sql = getUpdateStatement(data.inputRowMeta);
 
           data.updateStatement = data.db.prepareSql(sql);
-          data.preparedStatements.put(data.realSchemaTable + "update", data.updateStatement);
+          data.preparedStatements.put(data.realSchemaTable + CONST_UPDATE, data.updateStatement);
           if (log.isDebug()) {
             logDebug("Preparation of the Update SQL statement : " + sql);
           }
         }
 
         // Prepare delete statement
-        data.deleteStatement = data.preparedStatements.get(data.realSchemaTable + "delete");
+        data.deleteStatement = data.preparedStatements.get(data.realSchemaTable + CONST_DELETE);
         if (data.deleteStatement == null) {
           String sql = getDeleteStatement(data.inputRowMeta);
 
           data.deleteStatement = data.db.prepareSql(sql);
-          data.preparedStatements.put(data.realSchemaTable + "delete", data.deleteStatement);
+          data.preparedStatements.put(data.realSchemaTable + CONST_DELETE, data.deleteStatement);
           if (log.isDebug()) {
             logDebug("Preparation of the Delete SQL statement : " + sql);
           }
@@ -882,11 +900,9 @@ public class SynchronizeAfterMerge
         putRow(data.outputRowMeta, nextRow); // copy row to output rowset(s)
       }
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(PKG, "SynchronizeAfterMerge.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "SynchronizeAfterMerge.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       logError("Because of an error, this transform can't continue: ", e);
@@ -913,12 +929,10 @@ public class SynchronizeAfterMerge
 
         meta.normalizeAllocationFields();
         data.realSchemaName = resolve(meta.getSchemaName());
-        if (meta.isTableNameInField()) {
-          if (Utils.isEmpty(meta.getTableNameField())) {
-            logError(
-                BaseMessages.getString(PKG, "SynchronizeAfterMerge.Log.Error.TableFieldnameEmpty"));
-            return false;
-          }
+        if (meta.isTableNameInField() && Utils.isEmpty(meta.getTableNameField())) {
+          logError(
+              BaseMessages.getString(PKG, "SynchronizeAfterMerge.Log.Error.TableFieldnameEmpty"));
+          return false;
         }
 
         // if we are using Oracle then set releaseSavepoint to false

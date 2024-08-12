@@ -49,10 +49,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-// TODO correct sizing of window
-
 public class XmlInputStreamDialog extends BaseTransformDialog {
   private static final Class<?> PKG = XmlInputStreamMeta.class;
+  public static final String CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL =
+      "XMLInputStreamDialog.Fieldname.Label";
 
   private TextVar wFilename;
 
@@ -175,7 +175,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     // See if the transform receives input. If so, we don't ask for the filename, but
     // for the filename field.
     //
-    isReceivingInput = pipelineMeta.findPreviousTransforms(transformMeta).size() > 0;
+    isReceivingInput = !pipelineMeta.findPreviousTransforms(transformMeta).isEmpty();
     if (isReceivingInput) {
 
       IRowMeta previousFields;
@@ -449,7 +449,8 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     // FilenameField line
     //
     Label wlFilenameField = new Label(shell, SWT.RIGHT);
-    wlFilenameField.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+    wlFilenameField.setText(
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.top = new FormAttachment(lastControl, margin);
@@ -486,7 +487,8 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     // RowNumberField line
     //
     Label wlRowNumberField = new Label(shell, SWT.RIGHT);
-    wlRowNumberField.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+    wlRowNumberField.setText(
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlRowNumberField);
     FormData fdlRowNumberField = new FormData();
     fdlRowNumberField.top = new FormAttachment(lastControl, margin);
@@ -525,7 +527,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     //
     Label wlXmlDataTypeNumericField = new Label(shell, SWT.RIGHT);
     wlXmlDataTypeNumericField.setText(
-        BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlDataTypeNumericField);
     FormData fdlXmlDataTypeNumericField = new FormData();
     fdlXmlDataTypeNumericField.top = new FormAttachment(lastControl, margin);
@@ -564,7 +566,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     //
     Label wlXmlDataTypeDescriptionField = new Label(shell, SWT.RIGHT);
     wlXmlDataTypeDescriptionField.setText(
-        BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlDataTypeDescriptionField);
     FormData fdlXmlDataTypeDescriptionField = new FormData();
     fdlXmlDataTypeDescriptionField.top = new FormAttachment(lastControl, margin);
@@ -603,7 +605,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     //
     Label wlXmlLocationLineField = new Label(shell, SWT.RIGHT);
     wlXmlLocationLineField.setText(
-        BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlLocationLineField);
     FormData fdlXmlLocationLineField = new FormData();
     fdlXmlLocationLineField.top = new FormAttachment(lastControl, margin);
@@ -641,7 +643,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     //
     Label wlXmlLocationColumnField = new Label(shell, SWT.RIGHT);
     wlXmlLocationColumnField.setText(
-        BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlLocationColumnField);
     FormData fdlXmlLocationColumnField = new FormData();
     fdlXmlLocationColumnField.top = new FormAttachment(lastControl, margin);
@@ -679,7 +681,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     //
     Label wlXmlElementIDField = new Label(shell, SWT.RIGHT);
     wlXmlElementIDField.setText(
-        BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlElementIDField);
     FormData fdlXmlElementIDField = new FormData();
     fdlXmlElementIDField.top = new FormAttachment(lastControl, margin);
@@ -718,7 +720,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     //
     Label wlXmlParentElementIDField = new Label(shell, SWT.RIGHT);
     wlXmlParentElementIDField.setText(
-        BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlParentElementIDField);
     FormData fdlXmlParentElementIDField = new FormData();
     fdlXmlParentElementIDField.top = new FormAttachment(lastControl, margin);
@@ -756,7 +758,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     //
     Label wlXmlElementLevelField = new Label(shell, SWT.RIGHT);
     wlXmlElementLevelField.setText(
-        BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlElementLevelField);
     FormData fdlXmlElementLevelField = new FormData();
     fdlXmlElementLevelField.top = new FormAttachment(lastControl, margin);
@@ -793,7 +795,8 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     // XmlPathField line
     //
     Label wlXmlPathField = new Label(shell, SWT.RIGHT);
-    wlXmlPathField.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+    wlXmlPathField.setText(
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlPathField);
     FormData fdlXmlPathField = new FormData();
     fdlXmlPathField.top = new FormAttachment(lastControl, margin);
@@ -831,7 +834,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     //
     Label wlXmlParentPathField = new Label(shell, SWT.RIGHT);
     wlXmlParentPathField.setText(
-        BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlParentPathField);
     FormData fdlXmlParentPathField = new FormData();
     fdlXmlParentPathField.top = new FormAttachment(lastControl, margin);
@@ -868,7 +871,8 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     // XmlDataNameField line
     //
     Label wlXmlDataNameField = new Label(shell, SWT.RIGHT);
-    wlXmlDataNameField.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+    wlXmlDataNameField.setText(
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlDataNameField);
     FormData fdlXmlDataNameField = new FormData();
     fdlXmlDataNameField.top = new FormAttachment(lastControl, margin);
@@ -906,7 +910,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     //
     Label wlXmlDataValueField = new Label(shell, SWT.RIGHT);
     wlXmlDataValueField.setText(
-        BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
+        BaseMessages.getString(PKG, CONST_XMLINPUT_STREAM_DIALOG_FIELDNAME_LABEL));
     PropsUi.setLook(wlXmlDataValueField);
     FormData fdlXmlDataValueField = new FormData();
     fdlXmlDataValueField.top = new FormAttachment(lastControl, margin);

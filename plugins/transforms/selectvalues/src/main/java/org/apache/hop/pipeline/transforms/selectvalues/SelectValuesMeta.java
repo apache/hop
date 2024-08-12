@@ -63,6 +63,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
   private static final Class<?> PKG = SelectValuesMeta.class;
 
   public static final int UNDEFINED = -2;
+  public static final String CONST_SPACES = "        ";
 
   // SELECT mode
   @InjectionDeep private SelectField[] selectFields = {};
@@ -477,26 +478,26 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     xml.append("    <fields>");
     for (int i = 0; i < selectFields.length; i++) {
       xml.append("      <field>");
-      xml.append("        ").append(XmlHandler.addTagValue("name", selectFields[i].getName()));
+      xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", selectFields[i].getName()));
       if (selectFields[i].getRename() != null) {
-        xml.append("        ")
+        xml.append(CONST_SPACES)
             .append(XmlHandler.addTagValue("rename", selectFields[i].getRename()));
       }
       if (selectFields[i].getPrecision() > 0) {
-        xml.append("        ")
+        xml.append(CONST_SPACES)
             .append(XmlHandler.addTagValue("length", selectFields[i].getLength()));
       }
       if (selectFields[i].getPrecision() > 0) {
-        xml.append("        ")
+        xml.append(CONST_SPACES)
             .append(XmlHandler.addTagValue("precision", selectFields[i].getPrecision()));
       }
       xml.append("      </field>");
     }
-    xml.append("        ")
+    xml.append(CONST_SPACES)
         .append(XmlHandler.addTagValue("select_unspecified", selectingAndSortingUnspecifiedFields));
     for (int i = 0; i < deleteName.length; i++) {
       xml.append("      <remove>");
-      xml.append("        ").append(XmlHandler.addTagValue("name", deleteName[i]));
+      xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", deleteName[i]));
       xml.append("      </remove>");
     }
     for (int i = 0; i < meta.length; i++) {

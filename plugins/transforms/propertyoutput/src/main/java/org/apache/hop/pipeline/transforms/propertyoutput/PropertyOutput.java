@@ -35,6 +35,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOutputData> {
 
   private static final Class<?> PKG = PropertyOutputMeta.class;
+  public static final String CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD =
+      "PropertyOutput.Log.ErrorFindingField";
+  public static final String CONST_PROPERTY_OUTPUT_LOG_CAN_NOT_CREATE_PARENT_FOLDER =
+      "PropertyOutput.Log.CanNotCreateParentFolder";
 
   public PropertyOutput(
       TransformMeta transformMeta,
@@ -68,10 +72,10 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         // The field is unreachable !
         logError(
             BaseMessages.getString(
-                PKG, "PropertyOutput.Log.ErrorFindingField", meta.getKeyField()));
+                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getKeyField()));
         throw new HopException(
             BaseMessages.getString(
-                PKG, "PropertyOutput.Log.ErrorFindingField", meta.getKeyField()));
+                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getKeyField()));
       }
 
       // Let's take the index of Key field ...
@@ -80,10 +84,10 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         // The field is unreachable !
         logError(
             BaseMessages.getString(
-                PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
         throw new HopException(
             BaseMessages.getString(
-                PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
       }
 
       if (meta.isFileNameInField()) {
@@ -98,10 +102,10 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
           // The field is unreachable !
           logError(
               BaseMessages.getString(
-                  PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+                  PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
           throw new HopException(
               BaseMessages.getString(
-                  PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+                  PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
         }
       } else {
         // Let's check for filename...
@@ -144,10 +148,8 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         putRow(data.outputRowMeta, r); // in case we want it to go further...
         incrementLinesOutput();
 
-        if (checkFeedback(getLinesRead())) {
-          if (log.isBasic()) {
-            logBasic("linenr " + getLinesRead());
-          }
+        if (checkFeedback(getLinesRead()) && log.isBasic()) {
+          logBasic("linenr " + getLinesRead());
         }
         data.KeySet.add(propkey);
       }
@@ -173,7 +175,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
     return true;
   }
 
-  public boolean checkSameFile() throws HopException {
+  public boolean checkSameFile() {
     return data.previousFileName.equals(data.filename);
   }
 
@@ -217,7 +219,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
             logDetailed(
                 BaseMessages.getString(
                     PKG,
-                    "PropertyOutput.Log.CanNotCreateParentFolder",
+                    CONST_PROPERTY_OUTPUT_LOG_CAN_NOT_CREATE_PARENT_FOLDER,
                     parentfolder.getName().toString()));
           }
         }
@@ -225,12 +227,12 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         logError(
             BaseMessages.getString(
                 PKG,
-                "PropertyOutput.Log.CanNotCreateParentFolder",
+                CONST_PROPERTY_OUTPUT_LOG_CAN_NOT_CREATE_PARENT_FOLDER,
                 parentfolder.getName().toString()));
         throw new HopException(
             BaseMessages.getString(
                 PKG,
-                "PropertyOutput.Log.CanNotCreateParentFolder",
+                CONST_PROPERTY_OUTPUT_LOG_CAN_NOT_CREATE_PARENT_FOLDER,
                 parentfolder.getName().toString()));
       } finally {
         if (parentfolder != null) {

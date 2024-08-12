@@ -52,6 +52,7 @@ public class StringOperationsMeta
     extends BaseTransformMeta<StringOperations, StringOperationsData> {
 
   private static final Class<?> PKG = StringOperationsMeta.class;
+  public static final String CONST_SPACES = "        ";
 
   /** which field in input stream to compare with? */
   @Injection(name = "SOURCEFIELDS")
@@ -424,10 +425,12 @@ public class StringOperationsMeta
       String lPadLen = (padLen.length == 0 || padLen.length <= i) ? "" : padLen[i];
 
       retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("in_stream_name", fieldInStream[i]));
+      retval
+          .append(CONST_SPACES)
+          .append(XmlHandler.addTagValue("in_stream_name", fieldInStream[i]));
 
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "out_stream_name",
@@ -437,7 +440,7 @@ public class StringOperationsMeta
                       ? ""
                       : !Utils.isEmpty(fieldOutStream[i]) ? fieldOutStream[i] : ""));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "trim_type",
@@ -445,7 +448,7 @@ public class StringOperationsMeta
                       ? ""
                       : getTrimTypeCode(trimType[i])));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "lower_upper",
@@ -453,7 +456,7 @@ public class StringOperationsMeta
                       ? ""
                       : getLowerUpperCode(lowerUpper[i])));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "padding_type",
@@ -461,7 +464,7 @@ public class StringOperationsMeta
                       ? ""
                       : getPaddingCode(paddingType[i])));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "pad_char",
@@ -469,13 +472,13 @@ public class StringOperationsMeta
                       ? ""
                       : padChar[i]));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "pad_len",
                   (padLen == null || padLen.length == 0 || padLen.length <= i) ? "" : padLen[i]));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "init_cap",
@@ -483,7 +486,7 @@ public class StringOperationsMeta
                       ? ""
                       : getInitCapCode(initCap[i])));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "mask_xml",
@@ -491,7 +494,7 @@ public class StringOperationsMeta
                       ? ""
                       : getMaskXMLCode(maskXML[i])));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "digits",
@@ -499,7 +502,7 @@ public class StringOperationsMeta
                       ? ""
                       : getDigitsCode(digits[i])));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "remove_special_characters",
@@ -614,18 +617,16 @@ public class StringOperationsMeta
         String field = fieldInStream[i];
 
         IValueMeta v = prev.searchValueMeta(field);
-        if (v != null) {
-          if (v.getType() != IValueMeta.TYPE_STRING) {
-            if (first) {
-              first = false;
-              errorMessage +=
-                  BaseMessages.getString(
-                          PKG, "StringOperationsMeta.CheckResult.OperationOnNonStringFields")
-                      + Const.CR;
-            }
-            errorFound = true;
-            errorMessage += "\t\t" + field + Const.CR;
+        if (v != null && v.getType() != IValueMeta.TYPE_STRING) {
+          if (first) {
+            first = false;
+            errorMessage +=
+                BaseMessages.getString(
+                        PKG, "StringOperationsMeta.CheckResult.OperationOnNonStringFields")
+                    + Const.CR;
           }
+          errorFound = true;
+          errorMessage += "\t\t" + field + Const.CR;
         }
       }
       if (errorFound) {

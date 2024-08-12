@@ -243,6 +243,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       "workflow-graph-hop-10050-hop-evaluation-failure";
   public static final String ACTION_ID_WORKFLOW_GRAPH_ACTION_VIEW_EXECUTION_INFO =
       "workflow-graph-action-11000-view-execution-info";
+  public static final String CONST_ERROR = "Error";
+  public static final String CONST_WORKFLOW_GRAPH_DIALOG_LOOP_AFTER_HOP_ENABLED_MESSAGE =
+      "WorkflowGraph.Dialog.LoopAfterHopEnabled.Message";
+  public static final String CONST_WORKFLOW_GRAPH_DIALOG_LOOP_AFTER_HOP_ENABLED_TITLE =
+      "WorkflowGraph.Dialog.LoopAfterHopEnabled.Title";
 
   private final HopDataOrchestrationPerspective perspective;
 
@@ -1001,80 +1006,72 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // See if there are transforms selected.
     // If we get a background single click then simply clear selection...
     //
-    if (fSingleClickType == SingleClickType.Workflow) {
-      if (!workflowMeta.getSelectedActions().isEmpty()
-          || !workflowMeta.getSelectedNotes().isEmpty()) {
-        workflowMeta.unselectAll();
-        selectionRegion = null;
-        updateGui();
+    if (fSingleClickType == SingleClickType.Workflow
+        && (!workflowMeta.getSelectedActions().isEmpty()
+            || !workflowMeta.getSelectedNotes().isEmpty())) {
+      workflowMeta.unselectAll();
+      selectionRegion = null;
+      updateGui();
 
-        // Show a short tooltip
-        //
-        toolTip.setVisible(false);
-        toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
-        showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+      // Show a short tooltip
+      //
+      toolTip.setVisible(false);
+      toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
+      showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
 
-        return;
-      }
+      return;
     }
 
-    if (!doubleClick) {
+    // Just a single click on the background:
+    // We have a bunch of possible actions for you...
+    //
+    if (fSingleClick && fSingleClickType != null && !doubleClick) {
+      IGuiContextHandler contextHandler = null;
+      String message = null;
+      switch (fSingleClickType) {
+        case Workflow:
+          message =
+              BaseMessages.getString(
+                  PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Workflow.Header");
+          contextHandler = new HopGuiWorkflowContext(workflowMeta, this, real);
+          break;
+        case Action:
+          message =
+              BaseMessages.getString(
+                  PKG,
+                  "HopGuiWorkflowGraph.ContextualActionDialog.Action.Header",
+                  fSingleClickAction.getName());
+          contextHandler =
+              new HopGuiWorkflowActionContext(workflowMeta, fSingleClickAction, this, real);
+          break;
+        case Note:
+          message =
+              BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Note.Header");
+          contextHandler =
+              new HopGuiWorkflowNoteContext(workflowMeta, fSingleClickNote, this, real);
+          break;
+        case Hop:
+          message =
+              BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Hop.Header");
+          contextHandler = new HopGuiWorkflowHopContext(workflowMeta, fSingleClickHop, this, real);
+          break;
+        default:
+          break;
+      }
+      if (contextHandler != null) {
+        Shell parent = hopShell();
+        org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, event.x, event.y);
 
-      // Just a single click on the background:
-      // We have a bunch of possible actions for you...
-      //
-      if (fSingleClick && fSingleClickType != null) {
-        IGuiContextHandler contextHandler = null;
-        String message = null;
-        switch (fSingleClickType) {
-          case Workflow:
-            message =
-                BaseMessages.getString(
-                    PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Workflow.Header");
-            contextHandler = new HopGuiWorkflowContext(workflowMeta, this, real);
-            break;
-          case Action:
-            message =
-                BaseMessages.getString(
-                    PKG,
-                    "HopGuiWorkflowGraph.ContextualActionDialog.Action.Header",
-                    fSingleClickAction.getName());
-            contextHandler =
-                new HopGuiWorkflowActionContext(workflowMeta, fSingleClickAction, this, real);
-            break;
-          case Note:
-            message =
-                BaseMessages.getString(
-                    PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Note.Header");
-            contextHandler =
-                new HopGuiWorkflowNoteContext(workflowMeta, fSingleClickNote, this, real);
-            break;
-          case Hop:
-            message =
-                BaseMessages.getString(
-                    PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Hop.Header");
-            contextHandler =
-                new HopGuiWorkflowHopContext(workflowMeta, fSingleClickHop, this, real);
-            break;
-          default:
-            break;
-        }
-        if (contextHandler != null) {
-          Shell parent = hopShell();
-          org.eclipse.swt.graphics.Point p =
-              parent.getDisplay().map(canvas, null, event.x, event.y);
+        this.openedContextDialog = true;
+        this.hideToolTips();
 
-          this.openedContextDialog = true;
-          this.hideToolTips();
+        // Show the context dialog
+        //
+        ignoreNextClick =
+            GuiContextUtil.getInstance()
+                .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
 
-          // Show the context dialog
-          //
-          ignoreNextClick =
-              GuiContextUtil.getInstance()
-                  .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
-
-          this.openedContextDialog = false;
-        }
+        this.openedContextDialog = false;
       }
     }
   }
@@ -1522,7 +1519,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       log.logError("Error setting up the navigation toolbar for HopUI", t);
       new ErrorDialog(
           hopShell(),
-          "Error",
+          CONST_ERROR,
           "Error setting up the navigation toolbar for HopGUI",
           new Exception(t));
     }
@@ -2222,8 +2219,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (!originalState && (workflowMeta.hasLoop(hop.getToAction()))) {
       MessageBox mb = new MessageBox(hopShell(), SWT.CANCEL | SWT.OK | SWT.ICON_WARNING);
       mb.setMessage(
-          BaseMessages.getString(PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Message"));
-      mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Title"));
+          BaseMessages.getString(PKG, CONST_WORKFLOW_GRAPH_DIALOG_LOOP_AFTER_HOP_ENABLED_MESSAGE));
+      mb.setText(
+          BaseMessages.getString(PKG, CONST_WORKFLOW_GRAPH_DIALOG_LOOP_AFTER_HOP_ENABLED_TITLE));
       int choice = mb.open();
       if (choice == SWT.CANCEL) {
         hop.setEnabled(originalState);
@@ -2395,8 +2393,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (hasLoop && enabled) {
       MessageBox mb = new MessageBox(hopShell(), SWT.OK | SWT.ICON_WARNING);
       mb.setMessage(
-          BaseMessages.getString(PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Message"));
-      mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Title"));
+          BaseMessages.getString(PKG, CONST_WORKFLOW_GRAPH_DIALOG_LOOP_AFTER_HOP_ENABLED_MESSAGE));
+      mb.setText(
+          BaseMessages.getString(PKG, CONST_WORKFLOW_GRAPH_DIALOG_LOOP_AFTER_HOP_ENABLED_TITLE));
       mb.open();
     }
 
@@ -2510,8 +2509,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (checkedActions.stream().anyMatch(action -> workflowMeta.hasLoop(action))) {
       MessageBox mb = new MessageBox(hopShell(), SWT.OK | SWT.ICON_WARNING);
       mb.setMessage(
-          BaseMessages.getString(PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Message"));
-      mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Title"));
+          BaseMessages.getString(PKG, CONST_WORKFLOW_GRAPH_DIALOG_LOOP_AFTER_HOP_ENABLED_MESSAGE));
+      mb.setText(
+          BaseMessages.getString(PKG, CONST_WORKFLOW_GRAPH_DIALOG_LOOP_AFTER_HOP_ENABLED_TITLE));
       mb.open();
     }
 
@@ -3571,7 +3571,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         return true;
       }
     } catch (Exception e) {
-      new ErrorDialog(hopShell(), "Error", "Error preparing file close", e);
+      new ErrorDialog(hopShell(), CONST_ERROR, "Error preparing file close", e);
     }
     return false;
   }
@@ -4191,7 +4191,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          "Error",
+          CONST_ERROR,
           "Error navigating to the latest execution information for this pipeline",
           e);
     }
@@ -4264,7 +4264,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         executionPerspective.activate();
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error looking up execution information", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error looking up execution information", e);
     }
   }
 

@@ -53,6 +53,11 @@ import org.w3c.dom.Node;
     groups = {"GENERAL", "FIELDS"})
 public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputData> {
   private static final Class<?> PKG = JsonOutputMeta.class;
+  public static final String CONST_SPACES_LONG = "        ";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_OUTPUT_VALUE = "outputValue";
+  public static final String CONST_KEY_FIELD = "key_field";
+  public static final String CONST_FIELD = "field";
 
   /** Operations type */
   @Injection(name = "OPERATION", group = "GENERAL")
@@ -346,7 +351,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
   private void readData(Node transformnode) throws HopXmlException {
     try {
-      outputValue = XmlHandler.getTagValue(transformnode, "outputValue");
+      outputValue = XmlHandler.getTagValue(transformnode, CONST_OUTPUT_VALUE);
       jsonBloc = XmlHandler.getTagValue(transformnode, "jsonBloc");
       operationType =
           getOperationTypeByCode(
@@ -385,12 +390,12 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
                   XmlHandler.getTagValue(transformnode, "file", "doNotOpenNewFileInit"));
 
       Node keyFieldNodes = XmlHandler.getSubNode(transformnode, "key_fields");
-      int nrKeyFields = XmlHandler.countNodes(keyFieldNodes, "key_field");
+      int nrKeyFields = XmlHandler.countNodes(keyFieldNodes, CONST_KEY_FIELD);
 
       allocateKey(nrKeyFields);
 
       for (int i = 0; i < nrKeyFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(keyFieldNodes, "key_field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(keyFieldNodes, CONST_KEY_FIELD, i);
 
         keyFields[i] = new JsonOutputKeyField();
         keyFields[i].setFieldName(XmlHandler.getTagValue(fnode, "key_field_name"));
@@ -398,12 +403,12 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       }
 
       Node fields = XmlHandler.getSubNode(transformnode, "fields");
-      int nrfields = XmlHandler.countNodes(fields, "field");
+      int nrfields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrfields);
 
       for (int i = 0; i < nrfields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         outputFields[i] = new JsonOutputField();
         outputFields[i].setFieldName(XmlHandler.getTagValue(fnode, "name"));
@@ -428,7 +433,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   public void setDefault() {
 
     encoding = Const.XML_ENCODING;
-    outputValue = "outputValue";
+    outputValue = CONST_OUTPUT_VALUE;
     jsonBloc = "result";
     splitOutputAfter = 0;
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
@@ -440,8 +445,8 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
     for (int i = 0; i < nrfields; i++) {
       outputFields[i] = new JsonOutputField();
-      outputFields[i].setFieldName("field" + i);
-      outputFields[i].setElementName("field" + i);
+      outputFields[i].setFieldName(CONST_FIELD + i);
+      outputFields[i].setElementName(CONST_FIELD + i);
       outputFields[i].setJSONFragment(false);
       outputFields[i].setRemoveIfBlank(false);
     }
@@ -452,7 +457,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
     for (int i = 0; i < nrKeyFields; i++) {
       keyFields[i] = new JsonOutputKeyField();
-      keyFields[i].setFieldName("key_field" + i);
+      keyFields[i].setFieldName(CONST_KEY_FIELD + i);
     }
   }
 
@@ -491,7 +496,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   public String getXml() {
     StringBuffer retval = new StringBuffer(500);
 
-    retval.append("    ").append(XmlHandler.addTagValue("outputValue", outputValue));
+    retval.append("    ").append(XmlHandler.addTagValue(CONST_OUTPUT_VALUE, outputValue));
     retval.append("    ").append(XmlHandler.addTagValue("jsonBloc", jsonBloc));
     retval
         .append("    ")
@@ -507,25 +512,27 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
     retval.append("    ").append(XmlHandler.addTagValue("addtoresult", addToResult));
     retval.append("    <file>" + Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("name", fileName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fileName));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("split_output_after", Integer.toString(splitOutputAfter)));
-    retval.append("      ").append(XmlHandler.addTagValue("extention", extension));
-    retval.append("      ").append(XmlHandler.addTagValue("append", fileAppended));
-    retval.append("      ").append(XmlHandler.addTagValue("split", transformNrInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("haspartno", partNrInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", dateInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", timeInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("extention", extension));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("append", fileAppended));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("split", transformNrInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("haspartno", partNrInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_date", dateInFilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_time", timeInFilename));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("create_parent_folder", createparentfolder));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("doNotOpenNewFileInit", doNotOpenNewFileInit));
     retval.append("      </file>" + Const.CR);
     retval.append("     <additional_fields>" + Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("json_size_field", jsonSizeFieldname));
+    retval
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("json_size_field", jsonSizeFieldname));
     retval.append("      </additional_fields>" + Const.CR);
 
     retval.append("    <key_fields>").append(Const.CR);
@@ -535,10 +542,10 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       if (keyField.getFieldName() != null && keyField.getFieldName().length() != 0) {
         retval.append("      <key_field>").append(Const.CR);
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("key_field_name", keyField.getFieldName()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("key_field_element", keyField.getElementName()));
         retval.append("    </key_field>" + Const.CR);
       }
@@ -551,16 +558,20 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
       if (field.getFieldName() != null && field.getFieldName().length() != 0) {
         retval.append("      <field>").append(Const.CR);
-        retval.append("        ").append(XmlHandler.addTagValue("name", field.getFieldName()));
-        retval.append("        ").append(XmlHandler.addTagValue("element", field.getElementName()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("name", field.getFieldName()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("element", field.getElementName()));
+        retval
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("json_fragment", field.isJSONFragment()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("is_without_enclosing", field.isWithoutEnclosing()));
         retval
-            .append("        ")
+            .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("remove_if_blank", field.isRemoveIfBlank()));
         retval.append("    </field>" + Const.CR);
       }
@@ -589,16 +600,15 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       IHopMetadataProvider metadataProvider) {
 
     CheckResult cr;
-    if (getOperationType() != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE) {
+    if (getOperationType() != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE
+        && Utils.isEmpty(variables.resolve(getOutputValue()))) {
       // We need to have output field name
-      if (Utils.isEmpty(variables.resolve(getOutputValue()))) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "JsonOutput.Error.MissingOutputFieldName"),
-                transformMeta);
-        remarks.add(cr);
-      }
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "JsonOutput.Error.MissingOutputFieldName"),
+              transformMeta);
+      remarks.add(cr);
     }
     if (Utils.isEmpty(variables.resolve(getFileName()))) {
       cr =
@@ -609,7 +619,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       remarks.add(cr);
     }
     // Check output fields
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

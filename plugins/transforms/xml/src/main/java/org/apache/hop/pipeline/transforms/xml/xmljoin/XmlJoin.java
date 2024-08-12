@@ -48,6 +48,8 @@ import org.xml.sax.InputSource;
 public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
 
   private static final Class<?> PKG = XmlJoinMeta.class;
+  public static final String CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND =
+      "XmlJoin.Exception.FieldNotFound";
 
   private Transformer transformer;
 
@@ -120,7 +122,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       if (targetFieldId == -1) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "XmlJoin.Exception.FieldNotFound", meta.getTargetXmlField()));
+                PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, meta.getTargetXmlField()));
       }
 
       IRowMeta sourceStreamRowMeta =
@@ -202,7 +204,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
         if (data.iSourceXMLField == -1) {
           throw new HopException(
               BaseMessages.getString(
-                  PKG, "XmlJoin.Exception.FieldNotFound", meta.getSourceXmlField()));
+                  PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, meta.getSourceXmlField()));
         }
       }
 
@@ -218,7 +220,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
         if (data.iCompareFieldID == -1) {
           throw new HopException(
               BaseMessages.getString(
-                  PKG, "XmlJoin.Exception.FieldNotFound", meta.getJoinCompareField()));
+                  PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, meta.getJoinCompareField()));
         }
       }
 

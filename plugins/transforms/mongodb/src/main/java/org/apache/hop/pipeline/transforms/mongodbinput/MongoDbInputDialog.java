@@ -70,6 +70,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class MongoDbInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
+  public static final String CONST_MONGO_DB_INPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT =
+      "MongoDbInputDialog.ErrorMessage.UnableToConnect";
 
   private MetaSelectionLine<MongoDbConnection> wConnection;
 
@@ -313,7 +315,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
     wJsonQuery =
         new StyledTextComp(
             variables, wQueryComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    PropsUi.setLook(wJsonQuery, PropsUi.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wJsonQuery, Props.WIDGET_STYLE_FIXED);
     wJsonQuery.addModifyListener(lsMod);
 
     FormData fdJsonQuery = new FormData();
@@ -644,7 +646,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
       tableItem.setText(3, mongoField.hopType);
     }
 
-    if (mongoField.indexedValues != null && mongoField.indexedValues.size() > 0) {
+    if (mongoField.indexedValues != null && !mongoField.indexedValues.isEmpty()) {
       tableItem.setText(4, MongoDbInputData.indexedValsList(mongoField.indexedValues));
     }
 
@@ -800,18 +802,18 @@ public class MongoDbInputDialog extends BaseTransformDialog {
       Pipeline pipeline = progressDialog.getPipeline();
       String loggingText = progressDialog.getLoggingText();
 
-      if (!progressDialog.isCancelled()) {
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        }
+      if (!progressDialog.isCancelled()
+          && pipeline.getResult() != null
+          && pipeline.getResult().getNrErrors() > 0) {
+        EnterTextDialog etd =
+            new EnterTextDialog(
+                shell,
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                loggingText,
+                true);
+        etd.setReadOnly();
+        etd.open();
       }
 
       PreviewRowsDialog prd =
@@ -857,11 +859,15 @@ public class MongoDbInputDialog extends BaseTransformDialog {
           }
         } catch (Exception e) {
           logError(
-              BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"), e);
+              BaseMessages.getString(
+                  PKG, CONST_MONGO_DB_INPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT),
+              e);
           new ErrorDialog(
               shell,
-              BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
-              BaseMessages.getString(PKG, "MongoDbInputDialog.ErrorMessage.UnableToConnect"),
+              BaseMessages.getString(
+                  PKG, CONST_MONGO_DB_INPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT),
+              BaseMessages.getString(
+                  PKG, CONST_MONGO_DB_INPUT_DIALOG_ERROR_MESSAGE_UNABLE_TO_CONNECT),
               e);
         }
       } else {
@@ -930,7 +936,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
 
       // return true if query resulted in documents being returned and fields
       // getting extracted
-      if (discoveredFields.size() > 0) {
+      if (!discoveredFields.isEmpty()) {
         meta.setMongoFields(discoveredFields);
         return true;
       }

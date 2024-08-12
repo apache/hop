@@ -64,6 +64,8 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
   public static final int EX_SUCC = 0;
 
   public static final int EX_WARN = 2;
+  public static final String CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR =
+      "OraBulkLoader.Log.ExitValueSqlldr";
 
   private Process sqlldrProcess = null;
 
@@ -433,8 +435,6 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       // Quote
       if (databaseName.indexOf('(') >= 0) {
         databaseName = databaseName.replace("=", "\\=");
-        // databaseName = databaseName.replace("(", "\\(");
-        // databaseName = databaseName.replace(")", "\\)");
         databaseName = '"' + databaseName + '"';
       }
 
@@ -485,7 +485,8 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
         // any error???
         int exitVal = sqlldrProcess.waitFor();
         sqlldrProcess = null;
-        logBasic(BaseMessages.getString(PKG, "OraBulkLoader.Log.ExitValueSqlldr", "" + exitVal));
+        logBasic(
+            BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR, "" + exitVal));
         checkExitVal(exitVal);
       }
     } catch (Exception ex) {
@@ -532,7 +533,8 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
                 int exitVal = sqlldrProcess.waitFor();
                 sqlldrProcess = null;
                 logBasic(
-                    BaseMessages.getString(PKG, "OraBulkLoader.Log.ExitValueSqlldr", "" + exitVal));
+                    BaseMessages.getString(
+                        PKG, CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR, "" + exitVal));
                 checkExitVal(exitVal);
               } else if (!first) {
                 throw new HopException("Internal error: no sqlldr process running");
@@ -631,7 +633,8 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       try {
         int exitVal = sqlldrProcess.waitFor();
         sqlldrProcess = null;
-        logBasic(BaseMessages.getString(PKG, "OraBulkLoader.Log.ExitValueSqlldr", "" + exitVal));
+        logBasic(
+            BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR, "" + exitVal));
       } catch (InterruptedException e) {
         /* process should be destroyed */
         e.printStackTrace();

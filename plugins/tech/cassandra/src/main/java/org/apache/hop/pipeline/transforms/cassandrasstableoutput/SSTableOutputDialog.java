@@ -46,6 +46,10 @@ import org.eclipse.swt.widgets.Text;
 public class SSTableOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = SSTableOutputMeta.class;
+  public static final String CONST_SSTABLE_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS =
+      "SSTableOutputData.Message.NoIncomingFields";
+  public static final String CONST_SSTABLE_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS_TITLE =
+      "SSTableOutputData.Message.NoIncomingFields.Title";
 
   private final SSTableOutputMeta input;
 
@@ -308,8 +312,9 @@ public class SSTableOutputDialog extends BaseTransformDialog {
         if (row.size() == 0) {
           BaseDialog.openMessageBox(
               shell,
-              BaseMessages.getString(PKG, "SSTableOutputData.Message.NoIncomingFields.Title"),
-              BaseMessages.getString(PKG, "SSTableOutputData.Message.NoIncomingFields"),
+              BaseMessages.getString(
+                  PKG, CONST_SSTABLE_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS_TITLE),
+              BaseMessages.getString(PKG, CONST_SSTABLE_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS),
               SWT.ICON_ERROR | SWT.OK);
 
           return;
@@ -323,8 +328,8 @@ public class SSTableOutputDialog extends BaseTransformDialog {
       } catch (HopException ex) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "SSTableOutputData.Message.NoIncomingFields.Title"),
-            BaseMessages.getString(PKG, "SSTableOutputData.Message.NoIncomingFields"),
+            BaseMessages.getString(PKG, CONST_SSTABLE_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS_TITLE),
+            BaseMessages.getString(PKG, CONST_SSTABLE_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS),
             ex);
       }
     }
@@ -394,8 +399,9 @@ public class SSTableOutputDialog extends BaseTransformDialog {
         if (row.size() == 0) {
           BaseDialog.openMessageBox(
               shell,
-              BaseMessages.getString(PKG, "SSTableOutputData.Message.NoIncomingFields.Title"),
-              BaseMessages.getString(PKG, "SSTableOutputData.Message.NoIncomingFields"),
+              BaseMessages.getString(
+                  PKG, CONST_SSTABLE_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS_TITLE),
+              BaseMessages.getString(PKG, CONST_SSTABLE_OUTPUT_DATA_MESSAGE_NO_INCOMING_FIELDS),
               SWT.ICON_ERROR | SWT.OK);
 
           return;

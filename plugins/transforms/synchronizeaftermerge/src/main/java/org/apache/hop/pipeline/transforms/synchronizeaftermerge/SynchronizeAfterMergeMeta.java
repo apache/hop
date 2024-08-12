@@ -59,6 +59,8 @@ import org.w3c.dom.Node;
 public class SynchronizeAfterMergeMeta
     extends BaseTransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class;
+  public static final String CONST_LOOKUP = "lookup";
+  public static final String CONST_SPACES = "        ";
 
   /** what's the lookup schema? */
   @Injection(name = "SHEMA_NAME")
@@ -397,8 +399,8 @@ public class SynchronizeAfterMergeMeta
       int nrvalues;
       connection = XmlHandler.getTagValue(transformNode, "connection");
       commitSize = XmlHandler.getTagValue(transformNode, "commit");
-      schemaName = XmlHandler.getTagValue(transformNode, "lookup", "schema");
-      tableName = XmlHandler.getTagValue(transformNode, "lookup", "table");
+      schemaName = XmlHandler.getTagValue(transformNode, CONST_LOOKUP, "schema");
+      tableName = XmlHandler.getTagValue(transformNode, CONST_LOOKUP, "table");
 
       useBatchUpdate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_batch"));
       performLookup = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "perform_lookup"));
@@ -411,7 +413,7 @@ public class SynchronizeAfterMergeMeta
       orderUpdate = XmlHandler.getTagValue(transformNode, "order_update");
       orderDelete = XmlHandler.getTagValue(transformNode, "order_delete");
 
-      Node lookup = XmlHandler.getSubNode(transformNode, "lookup");
+      Node lookup = XmlHandler.getSubNode(transformNode, CONST_LOOKUP);
       nrkeys = XmlHandler.countNodes(lookup, "key");
       nrvalues = XmlHandler.countNodes(lookup, "value");
 
@@ -520,18 +522,20 @@ public class SynchronizeAfterMergeMeta
 
     for (int i = 0; i < keyStream.length; i++) {
       retval.append("      <key>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", keyStream[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field", keyLookup[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("condition", keyCondition[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("name2", keyStream2[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", keyStream[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("field", keyLookup[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("condition", keyCondition[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name2", keyStream2[i]));
       retval.append("      </key>").append(Const.CR);
     }
 
     for (int i = 0; i < updateLookup.length; i++) {
       retval.append("      <value>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", updateLookup[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("rename", updateStream[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("update", update[i].booleanValue()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", updateLookup[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("rename", updateStream[i]));
+      retval
+          .append(CONST_SPACES)
+          .append(XmlHandler.addTagValue("update", update[i].booleanValue()));
       retval.append("      </value>").append(Const.CR);
     }
 

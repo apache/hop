@@ -54,24 +54,29 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       injectionKeyDescription = "JsonOutput.Injection.OPERATION")
   private String operationType;
 
-  /** The operations description */
-  public static final Map<String, String> operationTypeDesc =
-      Map.of(
-          "outputvalue", BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"),
-          "writetofile", BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"),
-          "both", BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both"));
-
-  public static final Map<String, String> operationDescType =
-      Map.of(
-          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"), "outputvalue",
-          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"), "writetofile",
-          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both"), "both");
-
   public static final String OPERATION_TYPE_OUTPUT_VALUE = "outputvalue";
 
   public static final String OPERATION_TYPE_WRITE_TO_FILE = "writetofile";
 
   public static final String OPERATION_TYPE_BOTH = "both";
+
+  /** The operations description */
+  public static final Map<String, String> operationTypeDesc =
+      Map.of(
+          OPERATION_TYPE_OUTPUT_VALUE,
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"),
+          OPERATION_TYPE_WRITE_TO_FILE,
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"),
+          "both",
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both"));
+
+  public static final Map<String, String> operationDescType =
+      Map.of(
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"),
+              OPERATION_TYPE_OUTPUT_VALUE,
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"),
+              OPERATION_TYPE_WRITE_TO_FILE,
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both"), "both");
 
   /** The encoding to use for reading: null or empty string means system default encoding */
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.ENCODING")

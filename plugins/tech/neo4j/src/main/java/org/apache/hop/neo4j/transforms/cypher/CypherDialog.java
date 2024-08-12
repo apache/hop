@@ -81,6 +81,7 @@ public class CypherDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       CypherMeta.class; // for i18n purposes, needed by Translator2!!
+  public static final String CONST_ERROR = "Error";
 
   private CTabFolder wTabFolder;
 
@@ -219,7 +220,7 @@ public class CypherDialog extends BaseTransformDialog {
     try {
       wConnection.fillItems();
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting list of connections", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error getting list of connections", e);
     }
     Control lastControl = wConnection;
 
@@ -488,7 +489,7 @@ public class CypherDialog extends BaseTransformDialog {
                     Neo4JOutputDialog.getPropertyNameTypePrimary(
                         item, valueMeta, new int[] {1}, new int[] {3}, -1));
           } catch (Exception ex) {
-            new ErrorDialog(shell, "Error", "Error getting transform input fields", ex);
+            new ErrorDialog(shell, CONST_ERROR, "Error getting transform input fields", ex);
           }
         });
 
@@ -827,7 +828,7 @@ public class CypherDialog extends BaseTransformDialog {
       wReturns.setRowNums();
       wReturns.optWidth(true);
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting return values from Cypher statement", e);
+      new ErrorDialog(shell, CONST_ERROR, "Error getting return values from Cypher statement", e);
     } finally {
       if (transaction != null) {
         transaction.rollback();

@@ -34,6 +34,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
 
+  public static final String CONST_FALSE = "false";
+
   public Importer(
       TransformMeta transformMeta,
       ImporterMeta meta,
@@ -152,17 +154,20 @@ public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
     arguments.add("--id-type=STRING");
     arguments.add("--report-file=" + data.reportFile);
 
-    arguments.add("--high-io=" + (meta.isHighIo() ? "true" : "false"));
-    arguments.add("--cache-on-heap=" + (meta.isHighIo() ? "true" : "false"));
-    arguments.add("--ignore-empty-strings=" + (meta.isIgnoringEmptyStrings() ? "true" : "false"));
-    arguments.add("--ignore-extra-columns=" + (meta.isIgnoringExtraColumns() ? "true" : "false"));
-    arguments.add("--legacy-style-quoting=" + (meta.isQuotingLegacyStyle() ? "true" : "false"));
-    arguments.add("--multiline-fields=" + (meta.isMultiLine() ? "true" : "false"));
-    arguments.add("--normalize-types=" + (meta.isNormalizingTypes() ? "true" : "false"));
-    arguments.add("--skip-duplicate-nodes=" + (meta.isSkippingDuplicateNodes() ? "true" : "false"));
+    arguments.add("--high-io=" + (meta.isHighIo() ? "true" : CONST_FALSE));
+    arguments.add("--cache-on-heap=" + (meta.isHighIo() ? "true" : CONST_FALSE));
     arguments.add(
-        "--skip-bad-relationships=" + (meta.isSkippingBadRelationships() ? "true" : "false"));
-    arguments.add("--trim-strings=" + (meta.isTrimmingStrings() ? "true" : "false"));
+        "--ignore-empty-strings=" + (meta.isIgnoringEmptyStrings() ? "true" : CONST_FALSE));
+    arguments.add(
+        "--ignore-extra-columns=" + (meta.isIgnoringExtraColumns() ? "true" : CONST_FALSE));
+    arguments.add("--legacy-style-quoting=" + (meta.isQuotingLegacyStyle() ? "true" : CONST_FALSE));
+    arguments.add("--multiline-fields=" + (meta.isMultiLine() ? "true" : CONST_FALSE));
+    arguments.add("--normalize-types=" + (meta.isNormalizingTypes() ? "true" : CONST_FALSE));
+    arguments.add(
+        "--skip-duplicate-nodes=" + (meta.isSkippingDuplicateNodes() ? "true" : CONST_FALSE));
+    arguments.add(
+        "--skip-bad-relationships=" + (meta.isSkippingBadRelationships() ? "true" : CONST_FALSE));
+    arguments.add("--trim-strings=" + (meta.isTrimmingStrings() ? "true" : CONST_FALSE));
 
     if (StringUtils.isNotEmpty(data.badTolerance)) {
       arguments.add("--bad-tolerance=" + data.badTolerance);

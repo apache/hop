@@ -61,6 +61,9 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/mysqlbulkload.html")
 public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMysqlBulkLoad.class;
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_TABLENAME = "tablename";
+  public static final String CONST_FILENAME = "filename";
 
   private String schemaname;
   private String tableName;
@@ -112,27 +115,27 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     StringBuilder retval = new StringBuilder(200);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("schemaname", schemaname));
-    retval.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    retval.append("      ").append(XmlHandler.addTagValue("separator", separator));
-    retval.append("      ").append(XmlHandler.addTagValue("enclosed", enclosed));
-    retval.append("      ").append(XmlHandler.addTagValue("escaped", escaped));
-    retval.append("      ").append(XmlHandler.addTagValue("linestarted", linestarted));
-    retval.append("      ").append(XmlHandler.addTagValue("lineterminated", lineterminated));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("schemaname", schemaname));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_TABLENAME, tableName));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FILENAME, filename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("separator", separator));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("enclosed", enclosed));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("escaped", escaped));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("linestarted", linestarted));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("lineterminated", lineterminated));
 
-    retval.append("      ").append(XmlHandler.addTagValue("replacedata", replacedata));
-    retval.append("      ").append(XmlHandler.addTagValue("ignorelines", ignorelines));
-    retval.append("      ").append(XmlHandler.addTagValue("listattribut", listattribut));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("replacedata", replacedata));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("ignorelines", ignorelines));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("listattribut", listattribut));
 
-    retval.append("      ").append(XmlHandler.addTagValue("localinfile", localinfile));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("localinfile", localinfile));
 
-    retval.append("      ").append(XmlHandler.addTagValue("prorityvalue", prorityvalue));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("prorityvalue", prorityvalue));
 
-    retval.append("      ").append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
 
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
 
@@ -145,8 +148,8 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     try {
       super.loadXml(entrynode);
       schemaname = XmlHandler.getTagValue(entrynode, "schemaname");
-      tableName = XmlHandler.getTagValue(entrynode, "tablename");
-      filename = XmlHandler.getTagValue(entrynode, "filename");
+      tableName = XmlHandler.getTagValue(entrynode, CONST_TABLENAME);
+      filename = XmlHandler.getTagValue(entrynode, CONST_FILENAME);
       separator = XmlHandler.getTagValue(entrynode, "separator");
       enclosed = XmlHandler.getTagValue(entrynode, "enclosed");
       escaped = XmlHandler.getTagValue(entrynode, "escaped");
@@ -600,12 +603,12 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
-    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, CONST_FILENAME, remarks, ctx);
 
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "tablename",
+            CONST_TABLENAME,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }

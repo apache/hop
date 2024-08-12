@@ -48,6 +48,8 @@ import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaCl
 
 public abstract class TransformClassBase {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class;
+  public static final String CONST_TRANSFORM_CLASS_BASE_EXCEPTION_UNABLE_TO_FIND_FIELD_HELPER =
+      "TransformClassBase.Exception.UnableToFindFieldHelper";
 
   protected boolean first = true;
   protected boolean updateRowMeta = true;
@@ -583,6 +585,7 @@ public abstract class TransformClassBase {
   private final Map<String, FieldHelper> infoFieldHelpers = new HashMap<>();
   private final Map<String, FieldHelper> outFieldHelpers = new HashMap<>();
 
+  @SuppressWarnings("java:S115")
   public enum Fields {
     In,
     Out,
@@ -601,7 +604,7 @@ public abstract class TransformClassBase {
             throw new HopTransformException(
                 BaseMessages.getString(
                     PKG,
-                    "TransformClassBase.Exception.UnableToFindFieldHelper",
+                    CONST_TRANSFORM_CLASS_BASE_EXCEPTION_UNABLE_TO_FIND_FIELD_HELPER,
                     type.name(),
                     name));
           }
@@ -617,7 +620,7 @@ public abstract class TransformClassBase {
             throw new HopTransformException(
                 BaseMessages.getString(
                     PKG,
-                    "TransformClassBase.Exception.UnableToFindFieldHelper",
+                    CONST_TRANSFORM_CLASS_BASE_EXCEPTION_UNABLE_TO_FIND_FIELD_HELPER,
                     type.name(),
                     name));
           }
@@ -634,7 +637,7 @@ public abstract class TransformClassBase {
             throw new HopTransformException(
                 BaseMessages.getString(
                     PKG,
-                    "TransformClassBase.Exception.UnableToFindFieldHelper",
+                    CONST_TRANSFORM_CLASS_BASE_EXCEPTION_UNABLE_TO_FIND_FIELD_HELPER,
                     type.name(),
                     name));
           }

@@ -41,6 +41,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData> {
 
   private static final Class<?> PKG = SelectValuesMeta.class;
+  public static final String CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD =
+      "SelectValues.Log.CouldNotFindField";
 
   public SelectValues(
       TransformMeta transformMeta,
@@ -79,7 +81,9 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
         if (data.fieldnrs[i] < 0) {
           logError(
               BaseMessages.getString(
-                  PKG, "SelectValues.Log.CouldNotFindField", meta.getSelectFields()[i].getName()));
+                  PKG,
+                  CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD,
+                  meta.getSelectFields()[i].getName()));
           setErrors(1);
           stopAll();
           return null;
@@ -201,7 +205,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
         if (data.removenrs[i] < 0) {
           logError(
               BaseMessages.getString(
-                  PKG, "SelectValues.Log.CouldNotFindField", meta.getDeleteName()[i]));
+                  PKG, CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD, meta.getDeleteName()[i]));
           setErrors(1);
           stopAll();
           return null;
@@ -264,7 +268,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
         if (data.metanrs[i] < 0) {
           logError(
               BaseMessages.getString(
-                  PKG, "SelectValues.Log.CouldNotFindField", meta.getMeta()[i].getName()));
+                  PKG, CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD, meta.getMeta()[i].getName()));
           setErrors(1);
           stopAll();
           return null;

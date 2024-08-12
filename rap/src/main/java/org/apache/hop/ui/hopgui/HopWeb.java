@@ -54,6 +54,7 @@ import org.eclipse.rap.rwt.service.ResourceLoader;
 public class HopWeb implements ApplicationConfiguration {
 
   public static final String HOP_WEB_THEME = "HOP_WEB_THEME";
+  public static final String CONST_LIGHT = "light";
 
   @Override
   public void configure(Application application) {
@@ -125,15 +126,15 @@ public class HopWeb implements ApplicationConfiguration {
     // Only 2 choices for now
     //
     application.addStyleSheet("dark", "org/apache/hop/ui/hopgui/dark-mode.css");
-    application.addStyleSheet("light", "org/apache/hop/ui/hopgui/light-mode.css");
+    application.addStyleSheet(CONST_LIGHT, "org/apache/hop/ui/hopgui/light-mode.css");
 
-    String themeId = System.getProperty(HOP_WEB_THEME, "light");
+    String themeId = System.getProperty(HOP_WEB_THEME, CONST_LIGHT);
     if ("dark".equalsIgnoreCase(themeId)) {
       themeId = "dark";
       PropsUi.getInstance().setDarkMode(true);
       System.out.println("Hop web: enabled dark mode rendering");
     } else {
-      themeId = "light";
+      themeId = CONST_LIGHT;
       PropsUi.getInstance().setDarkMode(false);
     }
     System.out.println("Hop web: selected theme is: " + themeId);

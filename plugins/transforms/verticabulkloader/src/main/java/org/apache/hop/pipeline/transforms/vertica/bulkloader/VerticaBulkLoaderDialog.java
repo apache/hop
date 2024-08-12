@@ -79,6 +79,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       VerticaBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+  public static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -968,7 +969,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.ConnectionError.DialogMessage"));
-      mb.setText(BaseMessages.getString("System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
       return;
     }
@@ -1002,7 +1003,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.ConnectionError2.DialogMessage"));
-      mb.setText(BaseMessages.getString("System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
     }
   }
@@ -1075,7 +1076,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
       } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(sql.getError());
-        mb.setText(BaseMessages.getString("System.Dialog.Error.Title"));
+        mb.setText(BaseMessages.getString(CONST_SYSTEM_DIALOG_ERROR_TITLE));
         mb.open();
       }
     } catch (HopException ke) {

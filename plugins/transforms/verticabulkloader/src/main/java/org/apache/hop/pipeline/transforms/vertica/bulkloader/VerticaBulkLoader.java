@@ -62,6 +62,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
   private static final SimpleDateFormat SIMPLE_DATE_FORMAT =
       new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+  public static final String CONST_FIELD = "Field ";
+  public static final String CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN =
+      " must be a Date compatible type to match target column ";
   private FileOutputStream exceptionLog;
   private FileOutputStream rejectedLog;
 
@@ -187,10 +190,8 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         incrementLinesOutput();
       }
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic("linenr " + getLinesRead());
-        } //$NON-NLS-1$
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic("linenr " + getLinesRead());
       }
     } catch (HopException e) {
       logError("Because of an error, this transform can't continue: ", e);
@@ -323,9 +324,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     } else if (targetColumnTypeName.equals("DATE")) {
       if (inputValueMeta.isDate() == false) {
         throw new IllegalArgumentException(
-            "Field "
+            CONST_FIELD
                 + inputValueMeta.getName()
-                + " must be a Date compatible type to match target column "
+                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
                 + insertValueMeta.getName());
       } else {
         return new ColumnSpec(ColumnSpec.ConstantWidthType.DATE);
@@ -333,9 +334,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     } else if (targetColumnTypeName.equals("TIME")) {
       if (inputValueMeta.isDate() == false) {
         throw new IllegalArgumentException(
-            "Field "
+            CONST_FIELD
                 + inputValueMeta.getName()
-                + " must be a Date compatible type to match target column "
+                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
                 + insertValueMeta.getName());
       } else {
         return new ColumnSpec(ColumnSpec.ConstantWidthType.TIME);
@@ -343,9 +344,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     } else if (targetColumnTypeName.equals("TIMETZ")) {
       if (inputValueMeta.isDate() == false) {
         throw new IllegalArgumentException(
-            "Field "
+            CONST_FIELD
                 + inputValueMeta.getName()
-                + " must be a Date compatible type to match target column "
+                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
                 + insertValueMeta.getName());
       } else {
         return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMETZ);
@@ -353,9 +354,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     } else if (targetColumnTypeName.equals("TIMESTAMP")) {
       if (inputValueMeta.isDate() == false) {
         throw new IllegalArgumentException(
-            "Field "
+            CONST_FIELD
                 + inputValueMeta.getName()
-                + " must be a Date compatible type to match target column "
+                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
                 + insertValueMeta.getName());
       } else {
         return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMP);
@@ -363,9 +364,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     } else if (targetColumnTypeName.equals("TIMESTAMPTZ")) {
       if (inputValueMeta.isDate() == false) {
         throw new IllegalArgumentException(
-            "Field "
+            CONST_FIELD
                 + inputValueMeta.getName()
-                + " must be a Date compatible type to match target column "
+                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
                 + insertValueMeta.getName());
       } else {
         return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMPTZ);
@@ -374,9 +375,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         || targetColumnTypeName.equals("INTERVAL DAY TO SECOND")) {
       if (inputValueMeta.isDate() == false) {
         throw new IllegalArgumentException(
-            "Field "
+            CONST_FIELD
                 + inputValueMeta.getName()
-                + " must be a Date compatible type to match target column "
+                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
                 + insertValueMeta.getName());
       } else {
         return new ColumnSpec(ColumnSpec.ConstantWidthType.INTERVAL);
@@ -510,7 +511,6 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     // configuration to drive.
     // NO COMMIT does not seem to work even when the pipeline setting 'make the pipeline database
     // transactional' is on
-    // sb.append("NO COMMIT");
 
     logDebug("copy stmt: " + sb.toString());
 

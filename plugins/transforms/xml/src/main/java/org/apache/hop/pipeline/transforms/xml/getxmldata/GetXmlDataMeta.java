@@ -71,6 +71,8 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
 
   public static final String AT = "@";
   public static final String N0DE_SEPARATOR = "/";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_FIELD = "field";
 
   /** Array of filenames */
   private String[] fileName;
@@ -653,14 +655,14 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
 
     retval.append("    <file>").append(Const.CR);
     for (int i = 0; i < fileName.length; i++) {
-      retval.append("      ").append(XmlHandler.addTagValue("name", fileName[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("filemask", fileMask[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fileName[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("filemask", fileMask[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("exclude_filemask", excludeFileMask[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("file_required", fileRequired[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("file_required", fileRequired[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders[i]));
     }
     retval.append("    </file>").append(Const.CR);
@@ -742,7 +744,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       Node filenode = XmlHandler.getSubNode(transformNode, "file");
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
       int nrFiles = XmlHandler.countNodes(filenode, "name");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFiles, nrFields);
 
@@ -760,7 +762,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       }
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
         GetXmlDataField field = new GetXmlDataField(fnode);
         inputFields[i] = field;
       }
@@ -844,7 +846,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     }
 
     for (int i = 0; i < nrFields; i++) {
-      inputFields[i] = new GetXmlDataField("field" + (i + 1));
+      inputFields[i] = new GetXmlDataField(CONST_FIELD + (i + 1));
     }
 
     rowLimit = 0;
@@ -1032,7 +1034,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       }
     } else {
       FileInputList fileInputList = getFiles(variables);
-      if (fileInputList == null || fileInputList.getFiles().size() == 0) {
+      if (fileInputList == null || fileInputList.getFiles().isEmpty()) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
@@ -1086,7 +1088,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
 
       if (!isInFields()) {
         FileInputList fileList = getFiles(variables);
-        if (fileList.getFiles().size() > 0) {
+        if (!fileList.getFiles().isEmpty()) {
           for (FileObject fileObject : fileList.getFiles()) {
             // From : ${Internal.Transformation.Filename.Directory}/../foo/bar.xml
             // To : /home/matt/test/files/foo/bar.xml

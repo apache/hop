@@ -50,6 +50,10 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
   public static final int DEFAULT_TRANSFORM = 1000;
+  public static final String CONST_SPACES = "        ";
+  public static final String CONST_WS_NAME = "wsName";
+  public static final String CONST_XSD_TYPE = "xsdType";
+  public static final String CONST_FIELD = "field";
 
   /** The input web service fields */
   private List<WebServiceField> fieldsIn;
@@ -188,7 +192,7 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               "Not receiving any fields from previous transforms!",
               transformMeta);
       remarks.add(cr);
@@ -256,9 +260,9 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     for (int i = 0; i < getFieldsIn().size(); i++) {
       WebServiceField vField = getFieldsIn().get(i);
       retval.append("    <field>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", vField.getName()));
-      retval.append("        " + XmlHandler.addTagValue("wsName", vField.getWsName()));
-      retval.append("        " + XmlHandler.addTagValue("xsdType", vField.getXsdType()));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue("name", vField.getName()));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue(CONST_WS_NAME, vField.getWsName()));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue(CONST_XSD_TYPE, vField.getXsdType()));
       retval.append("    </field>" + Const.CR);
     }
     retval.append("      </fieldsIn>" + Const.CR);
@@ -269,9 +273,9 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     for (int i = 0; i < getFieldsOut().size(); i++) {
       WebServiceField vField = getFieldsOut().get(i);
       retval.append("    <field>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", vField.getName()));
-      retval.append("        " + XmlHandler.addTagValue("wsName", vField.getWsName()));
-      retval.append("        " + XmlHandler.addTagValue("xsdType", vField.getXsdType()));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue("name", vField.getName()));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue(CONST_WS_NAME, vField.getWsName()));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue(CONST_XSD_TYPE, vField.getXsdType()));
       retval.append("    </field>" + Const.CR);
     }
     retval.append("      </fieldsOut>" + Const.CR);
@@ -313,15 +317,15 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     //
     getFieldsIn().clear();
     Node fields = XmlHandler.getSubNode(transformNode, "fieldsIn");
-    int nrFields = XmlHandler.countNodes(fields, "field");
+    int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
     for (int i = 0; i < nrFields; ++i) {
-      Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+      Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
       WebServiceField field = new WebServiceField();
       field.setName(XmlHandler.getTagValue(fnode, "name"));
-      field.setWsName(XmlHandler.getTagValue(fnode, "wsName"));
-      field.setXsdType(XmlHandler.getTagValue(fnode, "xsdType"));
+      field.setWsName(XmlHandler.getTagValue(fnode, CONST_WS_NAME));
+      field.setXsdType(XmlHandler.getTagValue(fnode, CONST_XSD_TYPE));
       getFieldsIn().add(field);
     }
 
@@ -330,15 +334,15 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     getFieldsOut().clear();
 
     fields = XmlHandler.getSubNode(transformNode, "fieldsOut");
-    nrFields = XmlHandler.countNodes(fields, "field");
+    nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
     for (int i = 0; i < nrFields; ++i) {
-      Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+      Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
       WebServiceField field = new WebServiceField();
       field.setName(XmlHandler.getTagValue(fnode, "name"));
-      field.setWsName(XmlHandler.getTagValue(fnode, "wsName"));
-      field.setXsdType(XmlHandler.getTagValue(fnode, "xsdType"));
+      field.setWsName(XmlHandler.getTagValue(fnode, CONST_WS_NAME));
+      field.setXsdType(XmlHandler.getTagValue(fnode, CONST_XSD_TYPE));
       getFieldsOut().add(field);
     }
   }

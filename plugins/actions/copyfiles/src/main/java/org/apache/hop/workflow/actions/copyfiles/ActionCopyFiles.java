@@ -509,11 +509,10 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 String fileremoventry = iter.next();
                 removeFile = null; // re=null each iteration
                 // Try to get the file relative to the existing connection
-                if (fileremoventry.startsWith(sourceFilefoldername)) {
-                  if (trimPathLength < fileremoventry.length()) {
-                    removeFile =
-                        sourceFileFolder.getChild(fileremoventry.substring(trimPathLength));
-                  }
+                if (fileremoventry.startsWith(sourceFilefoldername)
+                    && trimPathLength < fileremoventry.length()) {
+
+                  removeFile = sourceFileFolder.getChild(fileremoventry.substring(trimPathLength));
                 }
 
                 // Unable to retrieve file through existing connection; Get the file through a new
@@ -558,11 +557,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 addFile = null; // re=null each iteration
 
                 // Try to get the file relative to the existing connection
-                if (fileaddentry.startsWith(destinationFilefoldername)) {
-                  if (trimPathLength < fileaddentry.length()) {
-                    addFile =
-                        destinationFileFolder.getChild(fileaddentry.substring(trimPathLength));
-                  }
+                if (fileaddentry.startsWith(destinationFilefoldername)
+                    && trimPathLength < fileaddentry.length()) {
+                  addFile = destinationFileFolder.getChild(fileaddentry.substring(trimPathLength));
                 }
 
                 // Unable to retrieve file through existing connection; Get the file through a new
@@ -620,7 +617,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       logError(
           BaseMessages.getString(
               PKG,
-              "ActionCopyFiles.Error.Exception.CopyProcess",
+              CONST_COPY_PROCESS,
               HopVfs.getFriendlyURI(realSourceFileFolderName, getVariables()),
               HopVfs.getFriendlyURI(realDestinationFileFolderName, getVariables()),
               e.getMessage()),
@@ -1107,7 +1104,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                     CONST_SPACE_SHORT
                         + BaseMessages.getString(
                             PKG,
-                            "ActionCopyFiles.Log.FileExists",
+                            CONST_FILE_EXISTS,
                             HopVfs.getFriendlyURI(filename, getVariables())));
               }
 

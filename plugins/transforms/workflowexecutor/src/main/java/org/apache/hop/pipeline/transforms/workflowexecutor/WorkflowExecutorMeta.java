@@ -74,6 +74,9 @@ import org.w3c.dom.Node;
 public class WorkflowExecutorMeta
     extends BaseTransformMeta<WorkflowExecutor, WorkflowExecutorData> {
   private static final Class<?> PKG = WorkflowExecutorMeta.class;
+  public static final String CONST_FILENAME = "filename";
+  public static final String CONST_RESULT_ROWS_FIELD = "result_rows_field";
+  public static final String CONST_SPACES = "      ";
 
   /** The name of the workflow run configuration to execute with */
   private String runConfigurationName;
@@ -204,7 +207,7 @@ public class WorkflowExecutorMeta
     // Export a little bit of extra information regarding the reference
     //
     retval.append("    ").append(XmlHandler.addTagValue("run_configuration", runConfigurationName));
-    retval.append("    ").append(XmlHandler.addTagValue("filename", filename));
+    retval.append("    ").append(XmlHandler.addTagValue(CONST_FILENAME, filename));
     retval.append("    ").append(XmlHandler.addTagValue("group_size", groupSize));
     retval.append("    ").append(XmlHandler.addTagValue("group_field", groupField));
     retval.append("    ").append(XmlHandler.addTagValue("group_time", groupTime));
@@ -282,15 +285,17 @@ public class WorkflowExecutorMeta
                     ? null
                     : resultRowsTargetTransformMeta.getName()));
     for (int i = 0; i < resultRowsField.length; i++) {
-      retval.append("    ").append(XmlHandler.openTag("result_rows_field")).append(Const.CR);
-      retval.append("      ").append(XmlHandler.addTagValue("name", resultRowsField[i]));
+      retval.append("    ").append(XmlHandler.openTag(CONST_RESULT_ROWS_FIELD)).append(Const.CR);
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", resultRowsField[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(resultRowsType[i])));
-      retval.append("      ").append(XmlHandler.addTagValue("length", resultRowsLength[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("precision", resultRowsPrecision[i]));
-      retval.append("    ").append(XmlHandler.closeTag("result_rows_field")).append(Const.CR);
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", resultRowsLength[i]));
+      retval
+          .append(CONST_SPACES)
+          .append(XmlHandler.addTagValue("precision", resultRowsPrecision[i]));
+      retval.append("    ").append(XmlHandler.closeTag(CONST_RESULT_ROWS_FIELD)).append(Const.CR);
     }
 
     retval
@@ -313,7 +318,7 @@ public class WorkflowExecutorMeta
       throws HopXmlException {
     try {
       runConfigurationName = XmlHandler.getTagValue(transformNode, "run_configuration");
-      filename = XmlHandler.getTagValue(transformNode, "filename");
+      filename = XmlHandler.getTagValue(transformNode, CONST_FILENAME);
 
       groupSize = XmlHandler.getTagValue(transformNode, "group_size");
       groupField = XmlHandler.getTagValue(transformNode, "group_field");
@@ -356,7 +361,7 @@ public class WorkflowExecutorMeta
       resultRowsTargetTransform =
           XmlHandler.getTagValue(transformNode, "result_rows_target_transform");
 
-      int nrFields = XmlHandler.countNodes(transformNode, "result_rows_field");
+      int nrFields = XmlHandler.countNodes(transformNode, CONST_RESULT_ROWS_FIELD);
       resultRowsField = new String[nrFields];
       resultRowsType = new int[nrFields];
       resultRowsLength = new int[nrFields];
@@ -364,7 +369,7 @@ public class WorkflowExecutorMeta
 
       for (int i = 0; i < nrFields; i++) {
 
-        Node fieldNode = XmlHandler.getSubNodeByNr(transformNode, "result_rows_field", i);
+        Node fieldNode = XmlHandler.getSubNodeByNr(transformNode, CONST_RESULT_ROWS_FIELD, i);
 
         resultRowsField[i] = XmlHandler.getTagValue(fieldNode, "name");
         resultRowsType[i] =
@@ -442,7 +447,7 @@ public class WorkflowExecutorMeta
       }
     } else if (nextTransform != null && nextTransform.equals(resultFilesTargetTransformMeta)) {
       if (!Utils.isEmpty(resultFilesFileNameField)) {
-        IValueMeta value = new ValueMetaString("filename", 255, 0);
+        IValueMeta value = new ValueMetaString(CONST_FILENAME, 255, 0);
         row.addValueMeta(value);
       }
     } else if (nextTransform != null && nextTransform.equals(executionResultTargetTransformMeta)) {
@@ -765,7 +770,9 @@ public class WorkflowExecutorMeta
 
   /** Remove the cached {@link TransformIOMeta} so it is recreated when it is next accessed. */
   @Override
-  public void resetTransformIoMeta() {}
+  public void resetTransformIoMeta() {
+    // Do Nothing
+  }
 
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {

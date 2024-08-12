@@ -51,6 +51,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     documentationUrl = "/workflow/actions/waitforfile.html")
 public class ActionWaitForFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWaitForFile.class;
+  public static final String CONST_TO_STOP_GROWING = "] to stop growing";
 
   @HopMetadataProperty(key = "filename")
   private String filename;
@@ -73,10 +74,10 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
   private boolean addFilenameToResult;
 
   // infinite timeout
-  private static String DEFAULT_MAXIMUM_TIMEOUT = "0";
+  private static final String DEFAULT_MAXIMUM_TIMEOUT = "0";
 
   // 1 minute
-  private static String DEFAULT_CHECK_CYCLE_TIME = "60";
+  private static final String DEFAULT_CHECK_CYCLE_TIME = "60";
 
   public ActionWaitForFile(String n) {
     super(n, "");
@@ -259,7 +260,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
                         + iCycleTime
                         + " seconds, waiting for file ["
                         + realFilename
-                        + "] to stop growing");
+                        + CONST_TO_STOP_GROWING);
               }
               Thread.sleep(iCycleTime * 1000);
             } catch (InterruptedException e) {
@@ -274,7 +275,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
             }
           }
           if (log.isBasic()) {
-            logBasic("Stopped waiting for file [" + realFilename + "] to stop growing");
+            logBasic("Stopped waiting for file [" + realFilename + CONST_TO_STOP_GROWING);
           }
         }
 
@@ -282,7 +283,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
           result.setResult(false);
         }
       } catch (Exception e) {
-        logBasic("Exception while waiting for file [" + realFilename + "] to stop growing", e);
+        logBasic("Exception while waiting for file [" + realFilename + CONST_TO_STOP_GROWING, e);
       } finally {
         if (fileObject != null) {
           try {

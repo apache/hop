@@ -66,6 +66,8 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
   private static final long serialVersionUID = 3834384735363246432L;
 
   public static final String CONTEXT_PATH = "/hop/asyncRun";
+  public static final String CONST_ERROR_RUNNING_ASYNCHRONOUS_WEB_SERVICE =
+      "Error running asynchronous web service";
 
   public AsyncRunServlet() {}
 
@@ -205,7 +207,7 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
           try {
             workflow.setParameterValue(requestParameter, Const.NVL(requestParameterValue, ""));
           } catch (UnknownParamException e) {
-            log.logError("Error running asynchronous web service", e);
+            log.logError(CONST_ERROR_RUNNING_ASYNCHRONOUS_WEB_SERVICE, e);
           }
         }
       }
@@ -256,11 +258,11 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
         outputStream.write("\n".getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       } catch (IOException e) {
-        log.logError("Error running asynchronous web service", e);
+        log.logError(CONST_ERROR_RUNNING_ASYNCHRONOUS_WEB_SERVICE, e);
       }
       response.setStatus(HttpServletResponse.SC_OK);
     } catch (IOException | HopException | InterruptedException e) {
-      log.logError("Error running asynchronous web service", e);
+      log.logError(CONST_ERROR_RUNNING_ASYNCHRONOUS_WEB_SERVICE, e);
     }
   }
 
@@ -269,7 +271,7 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
     try {
       super.doPost(request, response);
     } catch (ServletException | IOException e) {
-      log.logError("Error running asynchronous web service", e);
+      log.logError(CONST_ERROR_RUNNING_ASYNCHRONOUS_WEB_SERVICE, e);
     }
   }
 

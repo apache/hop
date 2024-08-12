@@ -99,6 +99,10 @@ public class HopNeo4jPerspective implements IHopPerspective {
   public static final Class<?> PKG = HopNeo4jPerspective.class;
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "9000-perspective-neo4j";
+  public static final String CONST_SUBJECT_NAME = "subjectName";
+  public static final String CONST_SUBJECT_TYPE = "subjectType";
+  public static final String CONST_SUBJECT_ID = "subjectId";
+  public static final String CONST_SPACES = "--------------------------------------------";
 
   private HopGui hopGui;
   private Composite parent;
@@ -572,9 +576,9 @@ public class HopNeo4jPerspective implements IHopPerspective {
     //
     if (errors > 0) {
       Map<String, Object> errorPathParams = new HashMap<>();
-      errorPathParams.put("subjectName", name);
-      errorPathParams.put("subjectType", type);
-      errorPathParams.put("subjectId", id);
+      errorPathParams.put(CONST_SUBJECT_NAME, name);
+      errorPathParams.put(CONST_SUBJECT_TYPE, type);
+      errorPathParams.put(CONST_SUBJECT_ID, id);
 
       StringBuilder errorPathCypher = new StringBuilder();
       errorPathCypher.append(
@@ -689,20 +693,20 @@ public class HopNeo4jPerspective implements IHopPerspective {
     cypher.append(Const.CR);
 
     cypher.append("Execution info cypher: ").append(Const.CR);
-    cypher.append("--------------------------------------------").append(Const.CR);
+    cypher.append(CONST_SPACES).append(Const.CR);
     cypher.append(result.getExecutionInfoCommand());
     cypher.append(Const.CR);
 
     if (errors > 0) {
       cypher.append("Error path lookup: ").append(Const.CR);
-      cypher.append("--------------------------------------------").append(Const.CR);
+      cypher.append(CONST_SPACES).append(Const.CR);
       String errorCypher = result.getErrorPathCommand();
       cypher.append(errorCypher);
       cypher.append(Const.CR);
 
       if (!shortestPaths.isEmpty()) {
         cypher.append("Error path with metadata: ").append(Const.CR);
-        cypher.append("--------------------------------------------").append(Const.CR);
+        cypher.append(CONST_SPACES).append(Const.CR);
         String allCypher = result.getErrorPathWithMetadataCommand(0);
         cypher.append(allCypher);
         cypher.append(Const.CR);
@@ -948,9 +952,9 @@ public class HopNeo4jPerspective implements IHopPerspective {
     LogChannel.UI.logDetailed("Open transform : " + id + ", name : " + name + ", type: " + type);
 
     Map<String, Object> params = new HashMap<>();
-    params.put("subjectName", name);
-    params.put("subjectType", type);
-    params.put("subjectId", id);
+    params.put(CONST_SUBJECT_NAME, name);
+    params.put(CONST_SUBJECT_TYPE, type);
+    params.put(CONST_SUBJECT_ID, id);
 
     StringBuilder cypher = new StringBuilder();
     cypher.append(
@@ -1023,9 +1027,9 @@ public class HopNeo4jPerspective implements IHopPerspective {
     LogChannel.UI.logDetailed("Open action : " + id + ", name : " + name + ", type: " + type);
 
     Map<String, Object> params = new HashMap<>();
-    params.put("subjectName", name);
-    params.put("subjectType", type);
-    params.put("subjectId", id);
+    params.put(CONST_SUBJECT_NAME, name);
+    params.put(CONST_SUBJECT_TYPE, type);
+    params.put(CONST_SUBJECT_ID, id);
 
     StringBuilder cypher = new StringBuilder();
     cypher.append(
@@ -1090,9 +1094,9 @@ public class HopNeo4jPerspective implements IHopPerspective {
   private void openPipelineOrWorkflow(
       Session session, String name, String type, String id, String nodeLabel, String relationship) {
     Map<String, Object> params = new HashMap<>();
-    params.put("subjectName", name);
-    params.put("subjectType", type);
-    params.put("subjectId", id);
+    params.put(CONST_SUBJECT_NAME, name);
+    params.put(CONST_SUBJECT_TYPE, type);
+    params.put(CONST_SUBJECT_ID, id);
 
     StringBuilder cypher = new StringBuilder();
     cypher.append(

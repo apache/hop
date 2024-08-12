@@ -44,6 +44,10 @@ import org.eclipse.swt.widgets.Text;
 /** Dialog that shows a warning when the Browser Environment is not supported. */
 public class BrowserEnvironmentWarningDialog extends Dialog {
   private static final Class<?> PKG = BrowserEnvironmentWarningDialog.class;
+  public static final String CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_TITLE =
+      "BrowserEnvironmentWarningDialog.Title";
+  public static final String CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_HELP_LINK =
+      "BrowserEnvironmentWarningDialog.HelpLink";
 
   private Shell shell;
   private PropsUi props;
@@ -53,9 +57,9 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
   private Button closeButton;
   private final int margin = PropsUi.getFormMargin() * 3; // 15
   private final int padding = margin * 2; // 30
-  private final int MAX_TEXT_WIDTH_UBUNTU = 418;
-  private final int MAX_TEXT_WIDTH_WINDOWS = 286;
-  private final int MAX_TEXT_WIDTH_MAC = 326;
+  private static final int MAX_TEXT_WIDTH_UBUNTU = 418;
+  private static final int MAX_TEXT_WIDTH_WINDOWS = 286;
+  private static final int MAX_TEXT_WIDTH_MAC = 326;
   private final ILogChannel log = new LogChannel(this);
   private static final String URI_PATH = "Setup/Components_Reference";
 
@@ -90,9 +94,9 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
 
   private void showMacWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.Title"),
+        BaseMessages.getString(PKG, CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_TITLE),
         BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.Message.Mac"),
-        BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.HelpLink"),
+        BaseMessages.getString(PKG, CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_HELP_LINK),
         EnvironmentCase.MAC_OS_X,
         MAX_TEXT_WIDTH_MAC);
   }
@@ -108,18 +112,18 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
 
   private void showWindowsWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.Title"),
+        BaseMessages.getString(PKG, CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_TITLE),
         BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.Message.Windows"),
-        BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.HelpLink"),
+        BaseMessages.getString(PKG, CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_HELP_LINK),
         EnvironmentCase.WINDOWS,
         MAX_TEXT_WIDTH_WINDOWS);
   }
 
   private void showMacThinWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.Title"),
+        BaseMessages.getString(PKG, CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_TITLE),
         BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.Message.Mac.Thin"),
-        BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.HelpLink"),
+        BaseMessages.getString(PKG, CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_HELP_LINK),
         EnvironmentCase.MAC_OS_X_THIN,
         MAX_TEXT_WIDTH_MAC);
   }
@@ -135,9 +139,9 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
 
   private void showWindowsThinWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.Title"),
+        BaseMessages.getString(PKG, CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_TITLE),
         BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.Message.Windows.Thin"),
-        BaseMessages.getString(PKG, "BrowserEnvironmentWarningDialog.HelpLink"),
+        BaseMessages.getString(PKG, CONST_BROWSER_ENVIRONMENT_WARNING_DIALOG_HELP_LINK),
         EnvironmentCase.WINDOWS_THIN,
         MAX_TEXT_WIDTH_WINDOWS);
   }

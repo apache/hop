@@ -34,6 +34,9 @@ import org.apache.hop.core.row.IValueMeta;
     documentationUrl = "/database/databases/exasol.html")
 @GuiPlugin(id = "GUI-ExasolDatabaseMeta")
 public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -150,7 +153,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getAddColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ADD ( "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false)
@@ -171,7 +174,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDropColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
+    return CONST_ALTER_TABLE + tableName + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   /**
@@ -189,7 +192,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public String getModifyColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
 
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " MODIFY COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);

@@ -24,15 +24,17 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 public class DateDetector {
 
-  private static final String LOCALE_en_US = "en_US";
+  private static final String LOCALE_EN_US = "en_US";
+  private static final String DEFAULT_DATE_FORMAT = "dd/MM/yy";
+  private static final String DEFAULT_DATE_FORMAT_2 = "dd/MM/yyyy";
 
   static final BidiMap<String, String> DATE_FORMAT_TO_REGEXPS_US =
       new DualHashBidiMap<String, String>() {
         {
           put("MM-dd-yyyy", "^[0-1]?[0-9]-[0-3]?[0-9]-\\d{4}$");
-          put("dd/MM/yyyy", "^[0-3]?[0-9]/[0-1]?[0-9]/\\d{4}$");
+          put(DEFAULT_DATE_FORMAT_2, "^[0-3]?[0-9]/[0-1]?[0-9]/\\d{4}$");
           put("MM-dd-yy", "^[0-1]?[0-9]-[0-3]?[0-9]-\\d{2}$");
-          put("dd/MM/yy", "^[0-3]?[0-9]/[0-1]?[0-9]/\\d{2}$");
+          put(DEFAULT_DATE_FORMAT, "^[0-3]?[0-9]/[0-1]?[0-9]/\\d{2}$");
           put("yyyyMMdd", "^\\d{8}$");
           put("dd-MM-yy", "^\\d{1,2}-\\d{1,2}-\\d{2}$");
           put("dd-MM-yyyy", "^\\d{1,2}-\\d{1,2}-\\d{4}$");
@@ -111,16 +113,16 @@ public class DateDetector {
       new DualHashBidiMap() {
         {
           put("MM-dd-yyyy", "^[0-1]?[0-9]-[0-3]?[0-9]-\\d{4}$");
-          put("dd/MM/yyyy", "^[0-3]?[0-9]/[0-1]?[0-9]/\\d{4}$");
+          put(DEFAULT_DATE_FORMAT_2, "^[0-3]?[0-9]/[0-1]?[0-9]/\\d{4}$");
           put("MM-dd-yy", "^[0-1]?[0-9]-[0-3]?[0-9]-\\d{2}$");
-          put("dd/MM/yy", "^[0-3]?[0-9]/[0-1]?[0-9]/\\d{2}$");
+          put(DEFAULT_DATE_FORMAT, "^[0-3]?[0-9]/[0-1]?[0-9]/\\d{2}$");
           put("yyyyMMdd", "^\\d{8}$");
           put("dd-MM-yy", "^\\d{1,2}-\\d{1,2}-\\d{2}$");
           put("dd-MM-yyyy", "^\\d{1,2}-\\d{1,2}-\\d{4}$");
           put("dd.MM.yy", "^\\d{1,2}\\.\\d{1,2}\\.\\d{2}$");
           put("dd.MM.yyyy", "^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$");
-          put("dd/MM/yy", "^\\d{1,2}/\\d{1,2}/\\d{2}$");
-          put("dd/MM/yyyy", "^\\d{1,2}/\\d{1,2}/\\d{4}$");
+          put(DEFAULT_DATE_FORMAT, "^\\d{1,2}/\\d{1,2}/\\d{2}$");
+          put(DEFAULT_DATE_FORMAT_2, "^\\d{1,2}/\\d{1,2}/\\d{4}$");
           put("yyyy-MM-dd", "^\\d{4}-\\d{1,2}-\\d{1,2}$");
           put("yyyy.MM.dd", "^\\d{4}\\.\\d{1,2}\\.\\d{1,2}$");
           put("yyyy/MM/dd", "^\\d{4}/\\d{1,2}/\\d{1,2}$");
@@ -204,7 +206,7 @@ public class DateDetector {
    * @return regexp for given date format
    */
   public static String getRegexpByDateFormat(String dateFormat, String locale) {
-    if (LOCALE_en_US.equalsIgnoreCase(locale)) {
+    if (LOCALE_EN_US.equalsIgnoreCase(locale)) {
       return DATE_FORMAT_TO_REGEXPS_US.get(dateFormat);
     }
     return (String) DATE_FORMAT_TO_REGEXPS.get(dateFormat);
@@ -226,7 +228,7 @@ public class DateDetector {
    * @return {@link java.lang.String} string wich represented Date Format
    */
   public static String getDateFormatByRegex(String regex, String locale) {
-    if (LOCALE_en_US.equalsIgnoreCase(locale)) {
+    if (LOCALE_EN_US.equalsIgnoreCase(locale)) {
       return DATE_FORMAT_TO_REGEXPS_US.getKey(regex);
     }
     return (String) DATE_FORMAT_TO_REGEXPS.getKey(regex);
@@ -325,7 +327,7 @@ public class DateDetector {
   }
 
   public static BidiMap getDateFormatToRegExps(String locale) {
-    if (locale == null || LOCALE_en_US.equalsIgnoreCase(locale)) {
+    if (locale == null || LOCALE_EN_US.equalsIgnoreCase(locale)) {
       return DATE_FORMAT_TO_REGEXPS_US;
     } else {
       return DATE_FORMAT_TO_REGEXPS;

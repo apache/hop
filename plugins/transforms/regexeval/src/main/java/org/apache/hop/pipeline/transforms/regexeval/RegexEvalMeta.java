@@ -50,6 +50,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/regexeval.html")
 public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
   private static final Class<?> PKG = RegexEvalMeta.class;
+  public static final String CONST_SPACES = "        ";
 
   private String script;
   private String matcher;
@@ -435,7 +436,7 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
         }
       }
 
-      if (allowcapturegroups == true) {
+      if (allowcapturegroups) {
         for (int i = 0; i < fieldName.length; i++) {
           if (Utils.isEmpty(fieldName[i])) {
             continue;
@@ -512,24 +513,24 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
     for (int i = 0; i < fieldName.length; i++) {
       if (fieldName[i] != null && fieldName[i].length() != 0) {
         retval.append("      <field>").append(Const.CR);
-        retval.append("        ").append(XmlHandler.addTagValue("name", fieldName[i]));
+        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fieldName[i]));
         retval
-            .append("        ")
+            .append(CONST_SPACES)
             .append(
                 XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(fieldType[i])));
-        retval.append("        ").append(XmlHandler.addTagValue("format", fieldFormat[i]));
-        retval.append("        ").append(XmlHandler.addTagValue("group", fieldGroup[i]));
-        retval.append("        ").append(XmlHandler.addTagValue("decimal", fieldDecimal[i]));
-        retval.append("        ").append(XmlHandler.addTagValue("length", fieldLength[i]));
-        retval.append("        ").append(XmlHandler.addTagValue("precision", fieldPrecision[i]));
-        retval.append("        ").append(XmlHandler.addTagValue("nullif", fieldNullIf[i]));
-        retval.append("        ").append(XmlHandler.addTagValue("ifnull", fieldIfNull[i]));
+        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("format", fieldFormat[i]));
+        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("group", fieldGroup[i]));
+        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("decimal", fieldDecimal[i]));
+        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", fieldLength[i]));
+        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", fieldPrecision[i]));
+        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("nullif", fieldNullIf[i]));
+        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("ifnull", fieldIfNull[i]));
         retval
-            .append("        ")
+            .append(CONST_SPACES)
             .append(
                 XmlHandler.addTagValue(
                     "trimtype", ValueMetaString.getTrimTypeCode(fieldTrimType[i])));
-        retval.append("        ").append(XmlHandler.addTagValue("currency", fieldCurrency[i]));
+        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("currency", fieldCurrency[i]));
         retval.append("      </field>").append(Const.CR);
       }
     }

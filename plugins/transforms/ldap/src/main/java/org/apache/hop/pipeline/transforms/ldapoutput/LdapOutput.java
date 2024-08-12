@@ -31,6 +31,8 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 
 /** Write to LDAP. */
 public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
+  public static final String CONST_LDAP_OUTPUT_ERROR_CAN_NOT_FIND_FIELD =
+      "LdapOutput.Error.CanNotFindField";
   private static Class<?> classFromResourcesPackage = LdapOutputMeta.class;
 
   public LdapOutput(
@@ -134,7 +136,9 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
           // the field is unreachable!
           throw new HopException(
               BaseMessages.getString(
-                  classFromResourcesPackage, "LdapOutput.Error.CanNotFindField", oldDnField));
+                  classFromResourcesPackage,
+                  CONST_LDAP_OUTPUT_ERROR_CAN_NOT_FIND_FIELD,
+                  oldDnField));
         }
         // return the index of the field in the input stream
         data.indexOfNewDNField = getInputRowMeta().indexOfValue(newDnField);
@@ -143,7 +147,9 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
           // the field is unreachable!
           throw new HopException(
               BaseMessages.getString(
-                  classFromResourcesPackage, "LdapOutput.Error.CanNotFindField", newDnField));
+                  classFromResourcesPackage,
+                  CONST_LDAP_OUTPUT_ERROR_CAN_NOT_FIND_FIELD,
+                  newDnField));
         }
 
       } else {
@@ -161,7 +167,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
           // the field is unreachable!
           throw new HopException(
               BaseMessages.getString(
-                  classFromResourcesPackage, "LdapOutput.Error.CanNotFindField", dnField));
+                  classFromResourcesPackage, CONST_LDAP_OUTPUT_ERROR_CAN_NOT_FIND_FIELD, dnField));
         }
       }
     }

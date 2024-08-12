@@ -56,6 +56,9 @@ public class XmlInputFieldsImportProgressDialog {
   private static final String VALUE_RESULT = "result";
   private static final String VALUE_TYPE = "Type";
   private static final String VALUE_FORMAT = "Format";
+  public static final String CONST_GET_XMLDATE_LOOP_NODES_IMPORT_PROGRESS_DIALOG_TASK_FETCH_NODES =
+      "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes";
+  public static final String CONST_YYYY_MM_DD = "yyyy/MM/dd";
 
   private Shell shell;
 
@@ -197,7 +200,8 @@ public class XmlInputFieldsImportProgressDialog {
       List<Node> nodes = document.selectNodes(this.loopXPath);
       monitor.worked(1);
       monitor.subTask(
-          BaseMessages.getString(PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes"));
+          BaseMessages.getString(
+              PKG, CONST_GET_XMLDATE_LOOP_NODES_IMPORT_PROGRESS_DIALOG_TASK_FETCH_NODES));
 
       if (monitor.isCanceled()) {
         return null;
@@ -211,11 +215,13 @@ public class XmlInputFieldsImportProgressDialog {
         monitor.subTask(
             BaseMessages.getString(
                 PKG,
-                "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes",
+                CONST_GET_XMLDATE_LOOP_NODES_IMPORT_PROGRESS_DIALOG_TASK_FETCH_NODES,
                 String.valueOf(nr)));
         monitor.subTask(
             BaseMessages.getString(
-                PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes", node.getPath()));
+                PKG,
+                CONST_GET_XMLDATE_LOOP_NODES_IMPORT_PROGRESS_DIALOG_TASK_FETCH_NODES,
+                node.getPath()));
         setNodeField(node, monitor);
         childNode(node, monitor);
       }
@@ -276,7 +282,7 @@ public class XmlInputFieldsImportProgressDialog {
 
       if (isDate(valueNode)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Date");
-        row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, "yyyy/MM/dd");
+        row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, CONST_YYYY_MM_DD);
       } else if (isInteger(valueNode)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Integer");
         row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, null);
@@ -320,7 +326,7 @@ public class XmlInputFieldsImportProgressDialog {
 
       if (isDate(valueAttr)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Date");
-        row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, "yyyy/MM/dd");
+        row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, CONST_YYYY_MM_DD);
       } else if (isInteger(valueAttr)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Integer");
         row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, null);
@@ -346,9 +352,8 @@ public class XmlInputFieldsImportProgressDialog {
   }
 
   private boolean isDate(String str) {
-    // TODO: What about other dates? Maybe something for a CRQ
     try {
-      SimpleDateFormat fdate = new SimpleDateFormat("yyyy/MM/dd");
+      SimpleDateFormat fdate = new SimpleDateFormat(CONST_YYYY_MM_DD);
       fdate.setLenient(false);
       fdate.parse(str);
     } catch (Exception e) {

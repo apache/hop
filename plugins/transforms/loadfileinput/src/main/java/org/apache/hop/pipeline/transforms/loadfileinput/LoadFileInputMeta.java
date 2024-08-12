@@ -61,13 +61,13 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
   private static final String INCLUDE = "include";
   private static final String INCLUDE_FIELD = "include_field";
   private static final String ROWNUM = "rownum";
-  private static final String ADDRESULTFILE = "addresultfile";
+  private static final String CONST_ADDRESULTFILE = "addresultfile";
   private static final String IS_IGNORE_EMPTY_FILE = "IsIgnoreEmptyFile";
   private static final String IS_IGNORE_MISSING_PATH = "IsIgnoreMissingPath";
   private static final String ROWNUM_FIELD = "rownum_field";
-  private static final String ENCODING = "encoding";
+  private static final String CONST_ENCODING = "encoding";
   private static final String NAME = "name";
-  private static final String FILEMASK = "filemask";
+  private static final String CONST_FILEMASK = "filemask";
   private static final String EXCLUDE_FILEMASK = "exclude_filemask";
   private static final String FILE_REQUIRED = "file_required";
   private static final String INCLUDE_SUBFOLDERS = "include_subfolders";
@@ -94,6 +94,8 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
   public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
 
   private static final String YES = "Y";
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_FIELD = "field";
 
   /** Array of filenames */
   private String[] fileName;
@@ -537,20 +539,23 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     retval.append("    " + XmlHandler.addTagValue(INCLUDE, includeFilename));
     retval.append("    " + XmlHandler.addTagValue(INCLUDE_FIELD, filenameField));
     retval.append("    " + XmlHandler.addTagValue(ROWNUM, includeRowNumber));
-    retval.append("    " + XmlHandler.addTagValue(ADDRESULTFILE, addresultfile));
+    retval.append("    " + XmlHandler.addTagValue(CONST_ADDRESULTFILE, addresultfile));
     retval.append("    " + XmlHandler.addTagValue(IS_IGNORE_EMPTY_FILE, ignoreEmptyFile));
     retval.append("    " + XmlHandler.addTagValue(IS_IGNORE_MISSING_PATH, ignoreMissingPath));
 
     retval.append("    " + XmlHandler.addTagValue(ROWNUM_FIELD, rowNumberField));
-    retval.append("    " + XmlHandler.addTagValue(ENCODING, encoding));
+    retval.append("    " + XmlHandler.addTagValue(CONST_ENCODING, encoding));
 
     retval.append("    <" + FILE + ">" + Const.CR);
     for (int i = 0; i < fileName.length; i++) {
-      retval.append("      " + XmlHandler.addTagValue(NAME, fileName[i]));
-      retval.append("      " + XmlHandler.addTagValue(FILEMASK, fileMask[i]));
-      retval.append("      ").append(XmlHandler.addTagValue(EXCLUDE_FILEMASK, excludeFileMask[i]));
-      retval.append("      ").append(XmlHandler.addTagValue(FILE_REQUIRED, fileRequired[i]));
-      retval.append("      " + XmlHandler.addTagValue(INCLUDE_SUBFOLDERS, includeSubFolders[i]));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue(NAME, fileName[i]));
+      retval.append(CONST_SPACES + XmlHandler.addTagValue(CONST_FILEMASK, fileMask[i]));
+      retval
+          .append(CONST_SPACES)
+          .append(XmlHandler.addTagValue(EXCLUDE_FILEMASK, excludeFileMask[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue(FILE_REQUIRED, fileRequired[i]));
+      retval.append(
+          CONST_SPACES + XmlHandler.addTagValue(INCLUDE_SUBFOLDERS, includeSubFolders[i]));
     }
     retval.append("      </" + FILE + ">" + Const.CR);
 
@@ -585,7 +590,8 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
       includeFilename = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, INCLUDE));
       filenameField = XmlHandler.getTagValue(transformNode, INCLUDE_FIELD);
 
-      addresultfile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, ADDRESULTFILE));
+      addresultfile =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CONST_ADDRESULTFILE));
       ignoreEmptyFile =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, IS_IGNORE_EMPTY_FILE));
       ignoreMissingPath =
@@ -593,18 +599,18 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
 
       includeRowNumber = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, ROWNUM));
       rowNumberField = XmlHandler.getTagValue(transformNode, ROWNUM_FIELD);
-      encoding = XmlHandler.getTagValue(transformNode, ENCODING);
+      encoding = XmlHandler.getTagValue(transformNode, CONST_ENCODING);
 
       Node filenode = XmlHandler.getSubNode(transformNode, FILE);
       Node fields = XmlHandler.getSubNode(transformNode, FIELDS);
       int nrFiles = XmlHandler.countNodes(filenode, NAME);
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFiles, nrFields);
 
       for (int i = 0; i < nrFiles; i++) {
         Node filenamenode = XmlHandler.getSubNodeByNr(filenode, NAME, i);
-        Node filemasknode = XmlHandler.getSubNodeByNr(filenode, FILEMASK, i);
+        Node filemasknode = XmlHandler.getSubNodeByNr(filenode, CONST_FILEMASK, i);
         Node excludefilemasknode = XmlHandler.getSubNodeByNr(filenode, EXCLUDE_FILEMASK, i);
         Node fileRequirednode = XmlHandler.getSubNodeByNr(filenode, FILE_REQUIRED, i);
         Node includeSubFoldersnode = XmlHandler.getSubNodeByNr(filenode, INCLUDE_SUBFOLDERS, i);
@@ -616,7 +622,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
       }
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
         LoadFileInputField field = new LoadFileInputField(fnode);
         inputFields[i] = field;
       }
@@ -684,7 +690,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     }
 
     for (int i = 0; i < nrFields; i++) {
-      inputFields[i] = new LoadFileInputField("field" + (i + 1));
+      inputFields[i] = new LoadFileInputField(CONST_FIELD + (i + 1));
     }
 
     rowLimit = 0;
@@ -863,7 +869,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     } else {
       FileInputList fileInputList = getFiles(variables);
 
-      if (fileInputList == null || fileInputList.getFiles().size() == 0) {
+      if (fileInputList == null || fileInputList.getFiles().isEmpty()) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,

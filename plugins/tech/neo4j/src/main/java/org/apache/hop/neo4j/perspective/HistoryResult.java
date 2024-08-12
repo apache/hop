@@ -24,6 +24,8 @@ import org.apache.hop.core.Const;
 
 public class HistoryResult {
 
+  public static final String CONST_TYPE = "\", type : \"";
+  public static final String CONST_ID = "\", id : \"";
   private String id;
   private String name;
   private String type;
@@ -283,9 +285,9 @@ public class HistoryResult {
     cmd.append(
             "MATCH(ex:Execution { name : \""
                 + getName()
-                + "\", type : \""
+                + CONST_TYPE
                 + getType()
-                + "\", id : \""
+                + CONST_ID
                 + getId()
                 + "\"}) ")
         .append(Const.CR);
@@ -300,9 +302,9 @@ public class HistoryResult {
     cmd.append(
             "MATCH(top:Execution { name : \""
                 + getName()
-                + "\", type : \""
+                + CONST_TYPE
                 + getType()
-                + "\", id : \""
+                + CONST_ID
                 + getId()
                 + "\"})-[rel:EXECUTES*]-(err:Execution) ")
         .append(Const.CR);
@@ -323,9 +325,9 @@ public class HistoryResult {
     cmd.append(
             "MATCH(top:Execution { name : \""
                 + getName()
-                + "\", type : \""
+                + CONST_TYPE
                 + getType()
-                + "\", id : \""
+                + CONST_ID
                 + getId()
                 + "\"})-[rel:EXECUTES*]-(err:Execution) ")
         .append(Const.CR);
@@ -356,7 +358,7 @@ public class HistoryResult {
         cmd.append(
                 "MATCH (:Execution { type : \""
                     + result.getType()
-                    + "\", id : \""
+                    + CONST_ID
                     + result.getId()
                     + "\"})-[metaRel"
                     + matchIndex

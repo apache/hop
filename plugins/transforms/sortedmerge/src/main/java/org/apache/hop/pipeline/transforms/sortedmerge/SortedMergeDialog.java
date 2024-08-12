@@ -51,6 +51,7 @@ public class SortedMergeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SortedMergeMeta.class;
 
   public static final String STRING_SORT_WARNING_PARAMETER = "SortedMergeSortWarning";
+  public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
 
   private TableView wFields;
 
@@ -143,7 +144,7 @@ public class SortedMergeDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
               BaseMessages.getString(PKG, "System.Combo.Yes"),
-              BaseMessages.getString(PKG, "System.Combo.No")
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
             });
 
     wFields =
@@ -219,7 +220,7 @@ public class SortedMergeDialog extends BaseTransformDialog {
           2,
           input.getAscending()[i]
               ? BaseMessages.getString(PKG, "System.Combo.Yes")
-              : BaseMessages.getString(PKG, "System.Combo.No"));
+              : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
     }
 
     wFields.setRowNums();
@@ -250,7 +251,7 @@ public class SortedMergeDialog extends BaseTransformDialog {
       TableItem ti = wFields.getNonEmpty(i);
       input.getFieldName()[i] = ti.getText(1);
       input.getAscending()[i] =
-          !BaseMessages.getString(PKG, "System.Combo.No").equalsIgnoreCase(ti.getText(2));
+          !BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO).equalsIgnoreCase(ti.getText(2));
     }
 
     // Show a warning (optional)

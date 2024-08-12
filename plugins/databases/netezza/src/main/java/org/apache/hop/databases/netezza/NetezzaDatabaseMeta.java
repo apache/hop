@@ -33,6 +33,7 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-NetezzaDatabaseMeta")
 public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public static final int MAX_CHAR_LEN = 32767;
+  public static final String CONST_TIMESTAMP = "TIMESTAMP";
 
   /**
    * @return The extra option separator in database URL for this platform
@@ -466,7 +467,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       "THEN",
       "TIES",
       "TIME",
-      "TIMESTAMP",
+      CONST_TIMESTAMP,
       "TO",
       "TRAILING",
       "TRANSACTION",
@@ -547,7 +548,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       "CURRENT_ROLE",
       "CURRENT_TIME",
       "CURRENT_",
-      "TIMESTAMP",
+      CONST_TIMESTAMP,
       "CURRENT_USER",
       "CURSOR",
       "CYCLE",
@@ -752,7 +753,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       "THAN",
       "THEN",
       "TIME",
-      "TIMESTAMP",
+      CONST_TIMESTAMP,
       "TIMEZONE_HOUR",
       "TIMEZONE_MINUTE",
       "TO",

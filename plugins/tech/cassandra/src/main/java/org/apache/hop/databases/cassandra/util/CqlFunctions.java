@@ -18,12 +18,12 @@
 package org.apache.hop.databases.cassandra.util;
 
 public enum CqlFunctions {
-  TOKEN(false, "org.apache.cassandra.db.marshal.LongType"),
-  COUNT(false, "org.apache.cassandra.db.marshal.LongType"),
-  WRITETIME(false, "org.apache.cassandra.db.marshal.LongType"),
+  TOKEN(false, Constants.CONST_ORG_APACHE_CASSANDRA_DB_MARSHAL_LONG_TYPE),
+  COUNT(false, Constants.CONST_ORG_APACHE_CASSANDRA_DB_MARSHAL_LONG_TYPE),
+  WRITETIME(false, Constants.CONST_ORG_APACHE_CASSANDRA_DB_MARSHAL_LONG_TYPE),
   TTL(false, "org.apache.cassandra.db.marshal.Int32Type"),
   DATEOF(true, "org.apache.cassandra.db.marshal.TimestampType"),
-  UNIXTIMESTAMPOF(true, "org.apache.cassandra.db.marshal.LongType");
+  UNIXTIMESTAMPOF(true, Constants.CONST_ORG_APACHE_CASSANDRA_DB_MARSHAL_LONG_TYPE);
 
   private final boolean isCaseSensitive;
   private final String validator;
@@ -72,5 +72,10 @@ public enum CqlFunctions {
 
   private static boolean isFunction(CqlFunctions fs, String input) {
     return input.equals(fs.name());
+  }
+
+  private static class Constants {
+    public static final String CONST_ORG_APACHE_CASSANDRA_DB_MARSHAL_LONG_TYPE =
+        "org.apache.cassandra.db.marshal.LongType";
   }
 }

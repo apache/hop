@@ -35,6 +35,9 @@ import org.apache.hop.core.util.Utils;
     documentationUrl = "/database/databases/teradata.html")
 @GuiPlugin(id = "GUI-TeradataDatabaseMeta")
 public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  public static final String CONST_INTEGER = "INTEGER";
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -180,14 +183,14 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
             || // Technical key
             fieldname.equalsIgnoreCase(pk) // Primary key
         ) {
-          retval += "INTEGER"; // TERADATA has no Auto-increment functionality nor Sequences!
+          retval += CONST_INTEGER; // TERADATA has no Auto-increment functionality nor Sequences!
         } else {
           if (length > 0) {
             if (precision > 0 || length > 9) {
               retval += "DECIMAL(" + length + ", " + precision + ")";
             } else {
               if (length > 5) {
-                retval += "INTEGER";
+                retval += CONST_INTEGER;
               } else {
                 if (length < 3) {
                   retval += "BYTEINT";
@@ -443,7 +446,7 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "INSTANCE",
       "INSTEAD",
       "INT",
-      "INTEGER",
+      CONST_INTEGER,
       "INTEGERDATE",
       "INTERSECT",
       "INTERVAL",

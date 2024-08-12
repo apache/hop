@@ -33,6 +33,8 @@ import org.apache.hop.core.exception.HopException;
  */
 public class HopGuiEventsHandler {
 
+  public static final String CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY =
+      "Please only use event IDs which are not null or empty";
   private Map<String, Map<String, IHopGuiEventListener>> guiEventListenerMap;
 
   public HopGuiEventsHandler() {
@@ -51,7 +53,7 @@ public class HopGuiEventsHandler {
     }
     for (String eventId : eventIds) {
       if (StringUtils.isEmpty(eventId)) {
-        throw new RuntimeException("Please only use event IDs which are not null or empty");
+        throw new RuntimeException(CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY);
       }
     }
 
@@ -86,7 +88,7 @@ public class HopGuiEventsHandler {
     }
     for (String eventId : eventIds) {
       if (StringUtils.isEmpty(eventId)) {
-        throw new RuntimeException("Please only use event IDs which are not null or empty");
+        throw new RuntimeException(CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY);
       }
     }
 
@@ -142,7 +144,7 @@ public class HopGuiEventsHandler {
     }
     for (String eventId : eventIds) {
       if (StringUtils.isEmpty(eventId)) {
-        throw new RuntimeException("Please only use event IDs which are not null or empty");
+        throw new RuntimeException(CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY);
       }
     }
 

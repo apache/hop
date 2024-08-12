@@ -352,7 +352,7 @@ public class LdapInputField implements Cloneable {
     binaryAttributes.add("certificateRevocationList");
     binaryAttributes.add("crossCertificatePair");
     binaryAttributes.add("x500UniqueIdentifier");
-    binaryAttributes.add("objectSid");
+    binaryAttributes.add(ATTRIBUTE_OBJECT_SID);
     binaryAttributes.add("objectGUID");
     binaryAttributes.add("GUID");
   }

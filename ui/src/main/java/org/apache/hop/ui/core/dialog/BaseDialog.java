@@ -88,11 +88,17 @@ public abstract class BaseDialog extends Dialog {
   public static final int SMALL_FIELD = 50;
   public static final int SHELL_WIDTH_OFFSET = 16;
 
-  @Deprecated
+  /**
+   * @deprecated
+   */
+  @Deprecated(since = "2.10")
   public static final int VAR_ICON_WIDTH =
       GuiResource.getInstance().getImageVariableMini().getBounds().width;
 
-  @Deprecated
+  /**
+   * @deprecated
+   */
+  @Deprecated(since = "2.10")
   public static final int VAR_ICON_HEIGHT =
       GuiResource.getInstance().getImageVariableMini().getBounds().height;
 

@@ -54,6 +54,8 @@ import org.w3c.dom.Node;
     groups = {"OUTPUT_FIELDS"})
 public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
   private static final Class<?> PKG = AddXmlMeta.class;
+  public static final String CONST_FIELD = "field";
+  public static final String CONST_SPACES = "        ";
 
   /** The base name of the output file */
 
@@ -156,12 +158,12 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "omitNullValues"));
 
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFields);
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         outputFields[i] = new XmlField();
         outputFields[i].setFieldName(XmlHandler.getTagValue(fnode, "name"));
@@ -200,8 +202,8 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     for (int i = 0; i < nrFields; i++) {
       outputFields[i] = new XmlField();
 
-      outputFields[i].setFieldName("field" + i);
-      outputFields[i].setElementName("field" + i);
+      outputFields[i].setFieldName(CONST_FIELD + i);
+      outputFields[i].setElementName(CONST_FIELD + i);
       outputFields[i].setType("Number");
       outputFields[i].setFormat(" 0,000,000.00;-0,000,000.00");
       outputFields[i].setCurrencySymbol("");
@@ -211,7 +213,7 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
       outputFields[i].setLength(-1);
       outputFields[i].setPrecision(-1);
       outputFields[i].setAttribute(false);
-      outputFields[i].setElementName("field" + i);
+      outputFields[i].setElementName(CONST_FIELD + i);
     }
   }
 
@@ -248,19 +250,20 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
 
       if (field.getFieldName() != null && field.getFieldName().length() != 0) {
         xml.append("      <field>").append(Const.CR);
-        xml.append("        ").append(XmlHandler.addTagValue("name", field.getFieldName()));
-        xml.append("        ").append(XmlHandler.addTagValue("element", field.getElementName()));
-        xml.append("        ").append(XmlHandler.addTagValue("type", field.getTypeDesc()));
-        xml.append("        ").append(XmlHandler.addTagValue("format", field.getFormat()));
-        xml.append("        ")
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", field.getFieldName()));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("element", field.getElementName()));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("type", field.getTypeDesc()));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("format", field.getFormat()));
+        xml.append(CONST_SPACES)
             .append(XmlHandler.addTagValue("currency", field.getCurrencySymbol()));
-        xml.append("        ").append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
-        xml.append("        ").append(XmlHandler.addTagValue("group", field.getGroupingSymbol()));
-        xml.append("        ").append(XmlHandler.addTagValue("nullif", field.getNullString()));
-        xml.append("        ").append(XmlHandler.addTagValue("length", field.getLength()));
-        xml.append("        ").append(XmlHandler.addTagValue("precision", field.getPrecision()));
-        xml.append("        ").append(XmlHandler.addTagValue("attribute", field.isAttribute()));
-        xml.append("        ")
+        xml.append(CONST_SPACES)
+            .append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("group", field.getGroupingSymbol()));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("nullif", field.getNullString()));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("length", field.getLength()));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", field.getPrecision()));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("attribute", field.isAttribute()));
+        xml.append(CONST_SPACES)
             .append(XmlHandler.addTagValue("attributeParentName", field.getAttributeParentName()));
         xml.append("        </field>").append(Const.CR);
       }
@@ -283,7 +286,6 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
       IHopMetadataProvider metadataProvider) {
 
     CheckResult cr;
-    // TODO - add checks for empty fieldnames
 
     // Check output fields
     if (prev != null && prev.size() > 0) {
@@ -340,7 +342,7 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
 
     cr =
         new CheckResult(
-            CheckResult.TYPE_RESULT_COMMENT,
+            ICheckResult.TYPE_RESULT_COMMENT,
             BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.FilesNotChecked"),
             transformMeta);
     remarks.add(cr);

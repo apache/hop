@@ -42,6 +42,8 @@ import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 /** Read data from POP3/IMAP server and input data to the next transforms. */
 public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
   private static final Class<?> PKG = MailInputMeta.class;
+  public static final String CONST_MAIL_INPUT_LOG_FINISHED_PROCESSING =
+      "MailInput.Log.FinishedProcessing";
 
   private MessageParser instance = new MessageParser();
 
@@ -247,7 +249,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
         if (data.folderenr >= data.folders.length) {
           // We have fetched all folders
           if (isDetailed()) {
-            logDetailed(BaseMessages.getString(PKG, "MailInput.Log.FinishedProcessing"));
+            logDetailed(BaseMessages.getString(PKG, CONST_MAIL_INPUT_LOG_FINISHED_PROCESSING));
           }
           return false;
         }
@@ -259,7 +261,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
           data.readrow = getRow(); // Get row from input rowset & set row busy!
           if (data.readrow == null) {
             if (isDetailed()) {
-              logDetailed(BaseMessages.getString(PKG, "MailInput.Log.FinishedProcessing"));
+              logDetailed(BaseMessages.getString(PKG, CONST_MAIL_INPUT_LOG_FINISHED_PROCESSING));
             }
             return false;
           }
@@ -305,7 +307,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
           data.readrow = getRow(); // Get row from input rowset & set row busy!
           if (data.readrow == null) {
             if (isDetailed()) {
-              logDetailed(BaseMessages.getString(PKG, "MailInput.Log.FinishedProcessing"));
+              logDetailed(BaseMessages.getString(PKG, CONST_MAIL_INPUT_LOG_FINISHED_PROCESSING));
             }
             return false;
           }

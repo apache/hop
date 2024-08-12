@@ -68,6 +68,7 @@ public class TeraFastDialog extends BaseTransformDialog {
   private static final int FORM_ATTACHMENT_OFFSET = 100;
 
   private static final int FORM_ATTACHMENT_FACTOR = -15;
+  public static final String CONST_TERA_FAST_DIALOG_BROWSE_BUTTON = "TeraFastDialog.Browse.Button";
 
   private final TeraFastMeta meta;
 
@@ -497,7 +498,7 @@ public class TeraFastDialog extends BaseTransformDialog {
     wlControlFile.setLayoutData(factory.createLabelLayoutData(topControl));
 
     this.wbControlFile =
-        factory.createPushButton(BaseMessages.getString(PKG, "TeraFastDialog.Browse.Button"));
+        factory.createPushButton(BaseMessages.getString(PKG, CONST_TERA_FAST_DIALOG_BROWSE_BUTTON));
     PropsUi.setLook(this.wbControlFile);
     FormData formData = factory.createControlLayoutData(topControl);
     formData.left = null;
@@ -522,7 +523,7 @@ public class TeraFastDialog extends BaseTransformDialog {
     wlFastLoadPath.setLayoutData(factory.createLabelLayoutData(topControl));
 
     this.wbFastLoadPath =
-        factory.createPushButton(BaseMessages.getString(PKG, "TeraFastDialog.Browse.Button"));
+        factory.createPushButton(BaseMessages.getString(PKG, CONST_TERA_FAST_DIALOG_BROWSE_BUTTON));
     PropsUi.setLook(this.wbFastLoadPath);
     FormData formData = factory.createControlLayoutData(topControl);
     formData.left = null;
@@ -590,7 +591,7 @@ public class TeraFastDialog extends BaseTransformDialog {
     wlLogFile.setLayoutData(factory.createLabelLayoutData(topControl));
 
     this.wbLogFile =
-        factory.createPushButton(BaseMessages.getString(PKG, "TeraFastDialog.Browse.Button"));
+        factory.createPushButton(BaseMessages.getString(PKG, CONST_TERA_FAST_DIALOG_BROWSE_BUTTON));
     PropsUi.setLook(this.wbLogFile);
     FormData formData = factory.createControlLayoutData(topControl);
     formData.left = null;
@@ -673,7 +674,7 @@ public class TeraFastDialog extends BaseTransformDialog {
     wlDataFile.setLayoutData(factory.createLabelLayoutData(topControl));
 
     this.wbDataFile =
-        factory.createPushButton(BaseMessages.getString(PKG, "TeraFastDialog.Browse.Button"));
+        factory.createPushButton(BaseMessages.getString(PKG, CONST_TERA_FAST_DIALOG_BROWSE_BUTTON));
     PropsUi.setLook(this.wbDataFile);
     FormData formData = factory.createControlLayoutData(topControl);
     formData.left = null;

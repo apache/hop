@@ -76,6 +76,7 @@ public class GetXmlDataField implements Cloneable {
     BaseMessages.getString(PKG, "GetXMLDataField.ElementType.Node"),
     BaseMessages.getString(PKG, "GetXMLDataField.ElementType.Attribute")
   };
+  public static final String CONST_SPACES = "        ";
 
   private String name;
   private String xpath;
@@ -117,19 +118,19 @@ public class GetXmlDataField implements Cloneable {
     StringBuffer xml = new StringBuffer(400);
 
     xml.append("      <field>").append(Const.CR);
-    xml.append("        ").append(XmlHandler.addTagValue("name", getName()));
-    xml.append("        ").append(XmlHandler.addTagValue("xpath", getXPath()));
-    xml.append("        ").append(XmlHandler.addTagValue("element_type", getElementTypeCode()));
-    xml.append("        ").append(XmlHandler.addTagValue("result_type", getResultTypeCode()));
-    xml.append("        ").append(XmlHandler.addTagValue("type", getTypeDesc()));
-    xml.append("        ").append(XmlHandler.addTagValue("format", getFormat()));
-    xml.append("        ").append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
-    xml.append("        ").append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
-    xml.append("        ").append(XmlHandler.addTagValue("group", getGroupSymbol()));
-    xml.append("        ").append(XmlHandler.addTagValue("length", getLength()));
-    xml.append("        ").append(XmlHandler.addTagValue("precision", getPrecision()));
-    xml.append("        ").append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
-    xml.append("        ").append(XmlHandler.addTagValue("repeat", isRepeated()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getName()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xpath", getXPath()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("element_type", getElementTypeCode()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("result_type", getResultTypeCode()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("type", getTypeDesc()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("format", getFormat()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("group", getGroupSymbol()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("length", getLength()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", getPrecision()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
+    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("repeat", isRepeated()));
 
     xml.append("      </field>").append(Const.CR);
 

@@ -51,6 +51,9 @@ import org.w3c.dom.Node;
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
 public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData> {
   protected static final Class<?> PKG = MongoDbInputMeta.class;
+  public static final String CONST_FIELDS = "mongo_fields";
+  public static final String CONST_SPACES = "\n        ";
+  public static final String CONST_FIELD = "mongo_field";
 
   @Injection(name = "JSON_OUTPUT_FIELD")
   private String jsonFieldName;
@@ -113,13 +116,13 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
         executeForEachIncomingRow = executeForEachR.equalsIgnoreCase("Y");
       }
 
-      Node mongoFields = XmlHandler.getSubNode(node, "mongo_fields");
-      if (mongoFields != null && XmlHandler.countNodes(mongoFields, "mongo_field") > 0) {
-        int nrFields = XmlHandler.countNodes(mongoFields, "mongo_field");
+      Node mongoFields = XmlHandler.getSubNode(node, CONST_FIELDS);
+      if (mongoFields != null && XmlHandler.countNodes(mongoFields, CONST_FIELD) > 0) {
+        int nrFields = XmlHandler.countNodes(mongoFields, CONST_FIELD);
 
         fields = new ArrayList<>();
         for (int i = 0; i < nrFields; i++) {
-          Node fieldNode = XmlHandler.getSubNodeByNr(mongoFields, "mongo_field", i);
+          Node fieldNode = XmlHandler.getSubNodeByNr(mongoFields, CONST_FIELD, i);
 
           MongoField newField = new MongoField();
           newField.fieldName = XmlHandler.getTagValue(fieldNode, "field_name");
@@ -160,7 +163,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
       throws HopTransformException {
 
     try {
-      if (outputJson || fields == null || fields.size() == 0) {
+      if (outputJson || fields == null || fields.isEmpty()) {
         IValueMeta jsonValueMeta =
             ValueMetaFactory.createValueMeta(jsonFieldName, IValueMeta.TYPE_STRING);
         jsonValueMeta.setOrigin(origin);
@@ -195,25 +198,25 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
     xml.append("    ")
         .append(XmlHandler.addTagValue("execute_for_each_row", executeForEachIncomingRow));
 
-    if (fields != null && fields.size() > 0) {
-      xml.append("\n    ").append(XmlHandler.openTag("mongo_fields"));
+    if (fields != null && !fields.isEmpty()) {
+      xml.append("\n    ").append(XmlHandler.openTag(CONST_FIELDS));
 
       for (MongoField f : fields) {
-        xml.append("\n      ").append(XmlHandler.openTag("mongo_field"));
+        xml.append("\n      ").append(XmlHandler.openTag(CONST_FIELD));
 
-        xml.append("\n        ").append(XmlHandler.addTagValue("field_name", f.fieldName));
-        xml.append("\n        ").append(XmlHandler.addTagValue("field_path", f.fieldPath));
-        xml.append("\n        ").append(XmlHandler.addTagValue("field_type", f.hopType));
-        if (f.indexedValues != null && f.indexedValues.size() > 0) {
-          xml.append("\n        ")
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("field_name", f.fieldName));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("field_path", f.fieldPath));
+        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("field_type", f.hopType));
+        if (f.indexedValues != null && !f.indexedValues.isEmpty()) {
+          xml.append(CONST_SPACES)
               .append(
                   XmlHandler.addTagValue(
                       "indexed_vals", MongoDbInputData.indexedValsList(f.indexedValues)));
         }
-        xml.append("\n      ").append(XmlHandler.closeTag("mongo_field"));
+        xml.append("\n      ").append(XmlHandler.closeTag(CONST_FIELD));
       }
 
-      xml.append("\n    ").append(XmlHandler.closeTag("mongo_fields"));
+      xml.append("\n    ").append(XmlHandler.closeTag(CONST_FIELDS));
     }
     return xml.toString();
   }

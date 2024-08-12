@@ -36,6 +36,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData> {
 
   private static final Class<?> PKG = SetVariableMeta.class;
+  public static final String CONST_WARNING_CAN_T_SET_VARIABLE = "WARNING: Can't set variable [";
 
   public SetVariable(
       TransformMeta transformMeta,
@@ -179,7 +180,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
           parentWorkflow.setVariable(varname, value);
         } else {
           log.logBasic(
-              "WARNING: Can't set variable ["
+              CONST_WARNING_CAN_T_SET_VARIABLE
                   + varname
                   + "] on parent workflow: the parent workflow is not available");
         }
@@ -191,7 +192,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
           gpJob.setVariable(varname, value);
         } else {
           log.logBasic(
-              "WARNING: Can't set variable ["
+              CONST_WARNING_CAN_T_SET_VARIABLE
                   + varname
                   + "] on grand parent workflow: the grand parent workflow is not available");
         }
@@ -205,7 +206,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
           parentWorkflow.setVariable(varname, value);
         } else {
           log.logBasic(
-              "WARNING: Can't set variable ["
+              CONST_WARNING_CAN_T_SET_VARIABLE
                   + varname
                   + "] on parent workflow: the parent workflow is not available");
         }

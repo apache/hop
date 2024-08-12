@@ -53,6 +53,9 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   public static final String REPL_SET_SETTINGS = "settings";
   public static final String REPL_SET_LAST_ERROR_MODES = "getLastErrorModes";
   public static final String REPL_SET_MEMBERS = "members";
+  public static final String
+      CONST_MONGO_NO_AUTH_WRAPPER_MESSAGE_WARNING_NO_REPLICA_SET_MEMBERS_DEFINED =
+          "MongoNoAuthWrapper.Message.Warning.NoReplicaSetMembersDefined";
 
   static MongoClientFactory clientFactory = new DefaultMongoClientFactory();
 
@@ -149,7 +152,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
     List<MongoCredential> credList = getCredentialList();
     List<ServerAddress> serverAddressList = getServerAddressList();
 
-    if (serverAddressList.size() == 0) {
+    if (serverAddressList.isEmpty()) {
       // There should be minimally one server defined.  Default is localhost, so
       // this can only happen if it's been explicitly set to NULL.
       throw new MongoDbException(
@@ -275,7 +278,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
 
       List<DBObject> collInfo = coll.getIndexInfo();
       List<String> result = new ArrayList<>();
-      if (collInfo == null || collInfo.size() == 0) {
+      if (collInfo == null || collInfo.isEmpty()) {
         throw new MongoDbException(
             BaseMessages.getString(
                 PKG, "MongoNoAuthWrapper.ErrorMessage.UnableToGetInfoForCollection", collection));
@@ -319,11 +322,12 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
             Object members = config.get(REPL_SET_MEMBERS);
 
             if (members instanceof BasicDBList) {
-              if (((BasicDBList) members).size() == 0) {
+              if (((BasicDBList) members).isEmpty()) {
                 // log that there are no replica set members defined
                 logInfo(
                     BaseMessages.getString(
-                        PKG, "MongoNoAuthWrapper.Message.Warning.NoReplicaSetMembersDefined"));
+                        PKG,
+                        CONST_MONGO_NO_AUTH_WRAPPER_MESSAGE_WARNING_NO_REPLICA_SET_MEMBERS_DEFINED));
               } else {
                 setMembers = (BasicDBList) members;
               }
@@ -332,13 +336,15 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
               // log that there are no replica set members defined
               logInfo(
                   BaseMessages.getString(
-                      PKG, "MongoNoAuthWrapper.Message.Warning.NoReplicaSetMembersDefined"));
+                      PKG,
+                      CONST_MONGO_NO_AUTH_WRAPPER_MESSAGE_WARNING_NO_REPLICA_SET_MEMBERS_DEFINED));
             }
           } else {
             // log that there are no replica set members defined
             logInfo(
                 BaseMessages.getString(
-                    PKG, "MongoNoAuthWrapper.Message.Warning.NoReplicaSetMembersDefined"));
+                    PKG,
+                    CONST_MONGO_NO_AUTH_WRAPPER_MESSAGE_WARNING_NO_REPLICA_SET_MEMBERS_DEFINED));
           }
         } else {
           // log that the replica set collection is not available
@@ -371,7 +377,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   protected List<String> setupAllTags(BasicDBList members) {
     HashSet<String> tempTags = new HashSet<>();
 
-    if (members != null && members.size() > 0) {
+    if (members != null && !members.isEmpty()) {
       for (Object member : members) {
         if (member != null) {
           DBObject tags = (DBObject) ((DBObject) member).get("tags");
@@ -393,10 +399,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
 
   protected static String quote(String string) {
     if (string.indexOf('"') >= 0) {
-
-      if (string.indexOf('"') >= 0) {
-        string = string.replace("\"", "\\\"");
-      }
+      string = string.replace("\"", "\\\"");
     }
 
     string = ("\"" + string + "\"");
@@ -438,7 +441,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   protected List<DBObject> checkForReplicaSetMembersThatSatisfyTagSets(
       List<DBObject> tagSets, BasicDBList members) {
     List<DBObject> satisfy = new ArrayList<>();
-    if (members != null && members.size() > 0) {
+    if (members != null && !members.isEmpty()) {
       for (Object m : members) {
         if (m != null) {
           DBObject tags = (DBObject) ((DBObject) m).get("tags");
@@ -471,12 +474,10 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
               }
             }
 
-            if (match) {
+            if (match && !satisfy.contains(m)) {
               // all tag/values present and match - add this member (only if its
               // not already there)
-              if (!satisfy.contains(m)) {
-                satisfy.add((DBObject) m);
-              }
+              satisfy.add((DBObject) m);
             }
           }
         }

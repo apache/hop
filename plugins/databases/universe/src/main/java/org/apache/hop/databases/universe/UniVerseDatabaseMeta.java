@@ -33,6 +33,7 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-UniVerseDatabaseMeta")
 public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final int MAX_VARCHAR_LENGTH = 65535;
+  public static final String CONST_INTEGER = "INTEGER";
 
   @Override
   public int[] getAccessTypeList() {
@@ -160,13 +161,13 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
             || // Technical key
             fieldname.equalsIgnoreCase(pk) // Primary key
         ) {
-          retval += "INTEGER";
+          retval += CONST_INTEGER;
         } else {
           if (length > 0) {
             if (precision > 0 || length > 18) {
               retval += "DECIMAL(" + length + ", " + precision + ")";
             } else {
-              retval += "INTEGER";
+              retval += CONST_INTEGER;
             }
 
           } else {
@@ -305,7 +306,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       "INQUIRING",
       "INSERT",
       "INT",
-      "INTEGER",
+      CONST_INTEGER,
       "INTO",
       "IS",
       "JOIN",

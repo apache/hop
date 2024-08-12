@@ -34,6 +34,7 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-PostgreSQLDatabaseMeta")
 public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final int GB_LIMIT = 1_073_741_824;
+  public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
   @Override
   public boolean isPostgresVariant() {
@@ -203,7 +204,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getAddColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
         + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
@@ -223,7 +224,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getDropColumnStatement(
       String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
-    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName();
+    return CONST_ALTER_TABLE + tableName + " DROP COLUMN " + v.getName();
   }
 
   /**
@@ -271,7 +272,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     retval += getDropColumnStatement(tableName, v, tk, useAutoinc, pk, semicolon) + ";" + Const.CR;
     // rename the temp column to replace the removed column
     retval +=
-        "ALTER TABLE "
+        CONST_ALTER_TABLE
             + tableName
             + " RENAME "
             + tmpColumn.getName()

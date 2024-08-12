@@ -58,6 +58,8 @@ import org.json.simple.JSONObject;
 
 public class Rest extends BaseTransform<RestMeta, RestData> {
   private static final Class<?> PKG = RestMeta.class;
+  public static final String CONST_REST_EXCEPTION_ERROR_FINDING_FIELD =
+      "Rest.Exception.ErrorFindingField";
 
   public Rest(
       TransformMeta transformMeta,
@@ -395,7 +397,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           if (data.indexOfUrlField < 0) {
             // The field is unreachable !
             throw new HopException(
-                BaseMessages.getString(PKG, "Rest.Exception.ErrorFindingField", realUrlfieldName));
+                BaseMessages.getString(
+                    PKG, CONST_REST_EXCEPTION_ERROR_FINDING_FIELD, realUrlfieldName));
           }
         }
       } else {
@@ -412,7 +415,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         if (data.indexOfMethod < 0) {
           // The field is unreachable !
           throw new HopException(
-              BaseMessages.getString(PKG, "Rest.Exception.ErrorFindingField", field));
+              BaseMessages.getString(PKG, CONST_REST_EXCEPTION_ERROR_FINDING_FIELD, field));
         }
       }
       // set Headers
@@ -431,7 +434,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           data.indexOfHeaderFields[i] = data.inputRowMeta.indexOfValue(field);
           if (data.indexOfHeaderFields[i] < 0) {
             throw new HopException(
-                BaseMessages.getString(PKG, "Rest.Exception.ErrorFindingField", field));
+                BaseMessages.getString(PKG, CONST_REST_EXCEPTION_ERROR_FINDING_FIELD, field));
           }
         }
         data.useHeaders = true;
@@ -452,7 +455,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             data.indexOfParamFields[i] = data.inputRowMeta.indexOfValue(field);
             if (data.indexOfParamFields[i] < 0) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "Rest.Exception.ErrorFindingField", field));
+                  BaseMessages.getString(PKG, CONST_REST_EXCEPTION_ERROR_FINDING_FIELD, field));
             }
           }
           data.useParams = true;
@@ -473,7 +476,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             data.indexOfMatrixParamFields[i] = data.inputRowMeta.indexOfValue(field);
             if (data.indexOfMatrixParamFields[i] < 0) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "Rest.Exception.ErrorFindingField", field));
+                  BaseMessages.getString(PKG, CONST_REST_EXCEPTION_ERROR_FINDING_FIELD, field));
             }
           }
           data.useMatrixParams = true;
@@ -487,7 +490,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           data.indexOfBodyField = data.inputRowMeta.indexOfValue(field);
           if (data.indexOfBodyField < 0) {
             throw new HopException(
-                BaseMessages.getString(PKG, "Rest.Exception.ErrorFindingField", field));
+                BaseMessages.getString(PKG, CONST_REST_EXCEPTION_ERROR_FINDING_FIELD, field));
           }
           data.useBody = true;
         }

@@ -76,6 +76,8 @@ import org.eclipse.swt.widgets.Text;
 public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     implements IExplorerFileTypeHandler, Listener {
 
+  public static final String CONST_GIT = "git: ";
+  public static final String CONST_S_S_S = "%s (%s -> %s)";
   private String id;
 
   private Composite parentComposite;
@@ -364,14 +366,14 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       pipelineMetaNew = HopDiff.compareTransforms(pipelineMetaNew, pipelineMetaOld, false);
       pipelineMetaNew = HopDiff.comparePipelineHops(pipelineMetaNew, pipelineMetaOld, false);
 
-      pipelineMetaOld.setPipelineVersion("git: " + commitIdOld);
-      pipelineMetaNew.setPipelineVersion("git: " + commitIdNew);
+      pipelineMetaOld.setPipelineVersion(CONST_GIT + commitIdOld);
+      pipelineMetaNew.setPipelineVersion(CONST_GIT + commitIdNew);
 
       // Change the name to indicate the git revisions of the file
       //
       pipelineMetaOld.setName(
           String.format(
-              "%s (%s -> %s)",
+              CONST_S_S_S,
               pipelineMetaOld.getName(),
               git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT),
               git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT)));
@@ -379,7 +381,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
       pipelineMetaNew.setName(
           String.format(
-              "%s (%s -> %s)",
+              CONST_S_S_S,
               pipelineMetaNew.getName(),
               git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT),
               git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT)));
@@ -427,14 +429,14 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       workflowMetaNew = HopDiff.compareActions(workflowMetaNew, workflowMetaOld, false);
       workflowMetaNew = HopDiff.compareWorkflowHops(workflowMetaNew, workflowMetaOld, false);
 
-      workflowMetaOld.setWorkflowVersion("git: " + commitIdOld);
-      workflowMetaNew.setWorkflowVersion("git: " + commitIdNew);
+      workflowMetaOld.setWorkflowVersion(CONST_GIT + commitIdOld);
+      workflowMetaNew.setWorkflowVersion(CONST_GIT + commitIdNew);
 
       // Change the name to indicate the git revisions of the file
       //
       workflowMetaOld.setName(
           String.format(
-              "%s (%s -> %s)",
+              CONST_S_S_S,
               workflowMetaOld.getName(),
               git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT),
               git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT)));
@@ -442,7 +444,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
       workflowMetaNew.setName(
           String.format(
-              "%s (%s -> %s)",
+              CONST_S_S_S,
               workflowMetaNew.getName(),
               git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT),
               git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT)));

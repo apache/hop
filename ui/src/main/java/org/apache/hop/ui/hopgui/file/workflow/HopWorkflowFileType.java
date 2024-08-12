@@ -60,8 +60,11 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
   public static final Class<?> PKG = HopWorkflowFileType.class; // i18n
 
   public static final String WORKFLOW_FILE_TYPE_DESCRIPTION = "Workflow";
+  public static final String CONST_FALSE = "false";
 
-  public HopWorkflowFileType() {}
+  public HopWorkflowFileType() {
+    // Do Nothing
+  }
 
   @Override
   public String getName() {
@@ -93,9 +96,9 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     capabilities.setProperty(IHopFileType.CAPABILITY_SAVE, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_SAVE_AS, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_EXPORT_TO_SVG, "true");
-    capabilities.setProperty(IHopFileType.CAPABILITY_PAUSE, "false");
-    capabilities.setProperty(IHopFileType.CAPABILITY_PREVIEW, "false");
-    capabilities.setProperty(IHopFileType.CAPABILITY_DEBUG, "false");
+    capabilities.setProperty(IHopFileType.CAPABILITY_PAUSE, CONST_FALSE);
+    capabilities.setProperty(IHopFileType.CAPABILITY_PREVIEW, CONST_FALSE);
+    capabilities.setProperty(IHopFileType.CAPABILITY_DEBUG, CONST_FALSE);
 
     capabilities.setProperty(IHopFileType.CAPABILITY_SELECT, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_COPY, "true");

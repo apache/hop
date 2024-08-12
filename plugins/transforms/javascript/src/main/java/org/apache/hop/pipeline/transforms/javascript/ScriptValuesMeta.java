@@ -77,6 +77,7 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
   private static final String JSSCRIPT_TAG_SCRIPT = "jsScript_script";
 
   public static final String OPTIMIZATION_LEVEL_DEFAULT = "9";
+  public static final String CONST_SPACES = "        ";
 
   private ScriptValuesAddClasses[] additionalClasses;
 
@@ -460,13 +461,13 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     for (int i = 0; i < jsScripts.length; i++) {
       retval.append("      <jsScript>");
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue(JSSCRIPT_TAG_TYPE, jsScripts[i].getScriptType()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue(JSSCRIPT_TAG_NAME, jsScripts[i].getScriptName()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue(JSSCRIPT_TAG_SCRIPT, jsScripts[i].getScript()));
       retval.append("      </jsScript>");
     }
@@ -475,14 +476,14 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     retval.append("    <fields>");
     for (int i = 0; i < fieldname.length; i++) {
       retval.append("      <field>");
-      retval.append("        ").append(XmlHandler.addTagValue("name", fieldname[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("rename", rename[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fieldname[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("rename", rename[i]));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(type[i])));
-      retval.append("        ").append(XmlHandler.addTagValue("length", length[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("precision", precision[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("replace", replace[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", length[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", precision[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("replace", replace[i]));
       retval.append("      </field>");
     }
     retval.append("    </fields>");

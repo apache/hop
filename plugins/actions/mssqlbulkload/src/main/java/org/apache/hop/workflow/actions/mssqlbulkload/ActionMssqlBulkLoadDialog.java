@@ -68,6 +68,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.Csv"),
         BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.All")
       };
+  public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
 
   private Text wName;
 
@@ -259,7 +260,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
 
     Button wbTable = new Button(wConnectionGroup, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
-    wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbTable.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
     fdbTable.top = new FormAttachment(wSchemaname, margin / 2);
@@ -343,7 +344,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
 
     Button wbFilename = new Button(wDataFileGroup, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFilename);
-    wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
     fdbFilename.top = new FormAttachment(wConnectionGroup, 0);
@@ -554,7 +555,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
 
     Button wbFormatFilename = new Button(wAdvancedComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFormatFilename);
-    wbFormatFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbFormatFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbFormatFilename = new FormData();
     fdbFormatFilename.right = new FormAttachment(100, 0);
     fdbFormatFilename.top = new FormAttachment(wSpecificCodePage, 0);
@@ -834,7 +835,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
 
     Button wbErrorFilename = new Button(wAdvancedComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbErrorFilename);
-    wbErrorFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbErrorFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbErrorFilename = new FormData();
     fdbErrorFilename.right = new FormAttachment(100, 0);
     fdbErrorFilename.top = new FormAttachment(wOrderDirection, 0);

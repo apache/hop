@@ -41,6 +41,7 @@ import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.Calc
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
   private static final Class<?> PKG = CalculatorMeta.class;
+  public static final String CONST_FOR_CALCULATION = " for calculation #";
 
   public class FieldIndexes {
     public int indexName;
@@ -114,7 +115,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
               throw new HopTransformException(
                   "Unable to find the first argument field '"
                       + function.getFieldName()
-                      + " for calculation #"
+                      + CONST_FOR_CALCULATION
                       + (i + 1));
             }
           } else {
@@ -133,7 +134,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             throw new HopTransformException(
                 "Unable to find the second argument field '"
                     + function.getFieldName()
-                    + " for calculation #"
+                    + CONST_FOR_CALCULATION
                     + (i + 1));
           }
         }
@@ -146,7 +147,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             throw new HopTransformException(
                 "Unable to find the third argument field '"
                     + function.getFieldName()
-                    + " for calculation #"
+                    + CONST_FOR_CALCULATION
                     + (i + 1));
           }
         }
@@ -178,10 +179,8 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
       if (log.isRowLevel()) {
         logRowlevel("Wrote row #" + getLinesWritten() + " : " + getInputRowMeta().getString(r));
       }
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "Calculator.Log.Linenr", "" + getLinesRead()));
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "Calculator.Log.Linenr", "" + getLinesRead()));
       }
     } catch (HopFileNotFoundException e) {
       if (meta.isFailIfNoFile()) {
@@ -668,26 +667,24 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
         // Convert the data to the correct target data type.
         //
-        if (calcData[index] != null) {
-          if (targetMeta.getType() != resultType) {
-            IValueMeta resultMeta;
-            try {
-              // clone() is not necessary as one data instance belongs to one transform instance and
-              // no race condition occurs
-              resultMeta = data.getValueMetaFor(resultType, "result");
-            } catch (Exception exception) {
-              throw new HopValueException("Error creating value");
-            }
-            resultMeta.setConversionMask(fn.getConversionMask());
-            resultMeta.setGroupingSymbol(fn.getGroupingSymbol());
-            resultMeta.setDecimalSymbol(fn.getDecimalSymbol());
-            resultMeta.setCurrencySymbol(fn.getCurrencySymbol());
-            try {
-              calcData[index] = targetMeta.convertData(resultMeta, calcData[index]);
-            } catch (Exception ex) {
-              throw new HopValueException(
-                  "resultType: " + resultType + "; targetMeta: " + targetMeta.getType(), ex);
-            }
+        if (calcData[index] != null && targetMeta.getType() != resultType) {
+          IValueMeta resultMeta;
+          try {
+            // clone() is not necessary as one data instance belongs to one transform instance and
+            // no race condition occurs
+            resultMeta = data.getValueMetaFor(resultType, "result");
+          } catch (Exception exception) {
+            throw new HopValueException("Error creating value");
+          }
+          resultMeta.setConversionMask(fn.getConversionMask());
+          resultMeta.setGroupingSymbol(fn.getGroupingSymbol());
+          resultMeta.setDecimalSymbol(fn.getDecimalSymbol());
+          resultMeta.setCurrencySymbol(fn.getCurrencySymbol());
+          try {
+            calcData[index] = targetMeta.convertData(resultMeta, calcData[index]);
+          } catch (Exception ex) {
+            throw new HopValueException(
+                "resultType: " + resultType + "; targetMeta: " + targetMeta.getType(), ex);
           }
         }
       }

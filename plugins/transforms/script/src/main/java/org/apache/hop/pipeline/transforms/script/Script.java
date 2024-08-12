@@ -56,6 +56,13 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
   public static final int ERROR_PIPELINE = -2;
   public static final int CONTINUE_PIPELINE = 0;
   public static final int SKIP_PIPELINE = 1;
+  public static final String CONST_ORG_MOZILLA_JAVASCRIPT_UNDEFINED =
+      "org.mozilla.javascript.Undefined";
+  public static final String CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_NUMBER =
+      "org.mozilla.javascript.NativeNumber";
+  public static final String CONST_JAVA_LANG_DOUBLE = "java.lang.Double";
+  public static final String CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_JAVA_OBJECT =
+      "org.mozilla.javascript.NativeJavaObject";
 
   private boolean bWithPipelineStat = false;
 
@@ -437,9 +444,9 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
           String classType = result.getClass().getName();
           switch (field.getHopType()) {
             case IValueMeta.TYPE_NUMBER:
-              if (classType.equalsIgnoreCase("org.mozilla.javascript.Undefined")) {
+              if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_UNDEFINED)) {
                 return null;
-              } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeNumber")
+              } else if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_NUMBER)
                   || Number.class.isAssignableFrom(result.getClass())) {
                 Number nb = (Number) result;
                 return nb.doubleValue();
@@ -457,16 +464,17 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
                 return ((Integer) result).longValue();
               } else if (classType.equalsIgnoreCase("java.lang.Long")) {
                 return result;
-              } else if (classType.equalsIgnoreCase("java.lang.Double")) {
+              } else if (classType.equalsIgnoreCase(CONST_JAVA_LANG_DOUBLE)) {
                 return ((Double) result).longValue();
               } else if (classType.equalsIgnoreCase("java.lang.String")) {
                 return Long.parseLong((String) result);
-              } else if (classType.equalsIgnoreCase("org.mozilla.javascript.Undefined")) {
+              } else if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_UNDEFINED)) {
                 return null;
-              } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeNumber")) {
+              } else if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_NUMBER)) {
                 Number nb = (Number) result;
                 return nb.longValue();
-              } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeJavaObject")) {
+              } else if (classType.equalsIgnoreCase(
+                  CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_JAVA_OBJECT)) {
                 try {
                   return Long.parseLong(result.toString());
                 } catch (Exception e2) {
@@ -478,8 +486,8 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               }
 
             case IValueMeta.TYPE_STRING:
-              if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeJavaObject")
-                  || classType.equalsIgnoreCase("org.mozilla.javascript.Undefined")) {
+              if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_JAVA_OBJECT)
+                  || classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_UNDEFINED)) {
                 // Is it a java Value class ?
                 try {
                   return result.toString();
@@ -496,12 +504,13 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
 
             case IValueMeta.TYPE_DATE:
               double dbl = 0;
-              if (classType.equalsIgnoreCase("org.mozilla.javascript.Undefined")) {
+              if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_UNDEFINED)) {
                 return null;
               } else {
                 if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeDate")) {
                   dbl = (Double) result;
-                } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeJavaObject")
+                } else if (classType.equalsIgnoreCase(
+                        CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_JAVA_OBJECT)
                     || classType.equalsIgnoreCase("java.util.Date")) {
                   // Is it a java Date() class ?
                   try {
@@ -517,7 +526,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
                       throw new HopValueException("Can't convert a string to a date");
                     }
                   }
-                } else if (classType.equalsIgnoreCase("java.lang.Double")) {
+                } else if (classType.equalsIgnoreCase(CONST_JAVA_LANG_DOUBLE)) {
                   dbl = (Double) result;
                 } else {
                   String string = (String) result;
@@ -531,13 +540,14 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               return result;
 
             case IValueMeta.TYPE_BIGNUMBER:
-              if (classType.equalsIgnoreCase("org.mozilla.javascript.Undefined")) {
+              if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_UNDEFINED)) {
                 return null;
-              } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeNumber")) {
+              } else if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_NUMBER)) {
                 Number nb = (Number) result;
                 // sure
                 return new BigDecimal(nb.longValue());
-              } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeJavaObject")) {
+              } else if (classType.equalsIgnoreCase(
+                  CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_JAVA_OBJECT)) {
                 // Is it a BigDecimal class ?
                 try {
                   BigDecimal bd = (BigDecimal) result;
@@ -554,7 +564,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
                 return new BigDecimal(((Integer) result).longValue());
               } else if (classType.equalsIgnoreCase("java.lang.Long")) {
                 return new BigDecimal((Long) result);
-              } else if (classType.equalsIgnoreCase("java.lang.Double")) {
+              } else if (classType.equalsIgnoreCase(CONST_JAVA_LANG_DOUBLE)) {
                 return new BigDecimal(((Double) result).longValue());
               } else if (classType.equalsIgnoreCase("java.lang.String")) {
                 return new BigDecimal(Long.parseLong((String) result));

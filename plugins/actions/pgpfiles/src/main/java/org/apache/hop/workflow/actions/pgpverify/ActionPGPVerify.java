@@ -55,6 +55,8 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/pgpverify.html")
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPVerify.class;
+  public static final String CONST_SPACES = "      ";
+  public static final String CONST_GPGLOCATION = "gpglocation";
 
   private String gpgLocation;
   private String filename;
@@ -84,11 +86,13 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     StringBuilder retval = new StringBuilder(100);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("gpglocation", gpgLocation));
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    retval.append("      ").append(XmlHandler.addTagValue("detachedfilename", detachedfilename));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_GPGLOCATION, gpgLocation));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("filename", filename));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
+        .append(XmlHandler.addTagValue("detachedfilename", detachedfilename));
+    retval
+        .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("useDetachedSignature", useDetachedSignature));
     return retval.toString();
   }
@@ -98,7 +102,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
       throws HopXmlException {
     try {
       super.loadXml(entrynode);
-      gpgLocation = XmlHandler.getTagValue(entrynode, "gpglocation");
+      gpgLocation = XmlHandler.getTagValue(entrynode, CONST_GPGLOCATION);
       filename = XmlHandler.getTagValue(entrynode, "filename");
       detachedfilename = XmlHandler.getTagValue(entrynode, "detachedfilename");
       useDetachedSignature =
@@ -226,7 +230,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "gpglocation",
+            CONST_GPGLOCATION,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }

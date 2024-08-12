@@ -44,6 +44,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/webserviceavailable.html")
 public class ActionWebServiceAvailable extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWebServiceAvailable.class;
+  public static final String CONST_SPACES = "      ";
 
   private String url;
   private String connectTimeOut;
@@ -71,9 +72,9 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     StringBuilder retval = new StringBuilder(50);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("url", url));
-    retval.append("      ").append(XmlHandler.addTagValue("connectTimeOut", connectTimeOut));
-    retval.append("      ").append(XmlHandler.addTagValue("readTimeOut", readTimeOut));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("url", url));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("connectTimeOut", connectTimeOut));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("readTimeOut", readTimeOut));
     return retval.toString();
   }
 

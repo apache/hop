@@ -73,10 +73,11 @@ import org.glassfish.jersey.servlet.ServletContainer;
 
 public class WebServer {
 
-  public static final int PORT = 80;
+  public static final int CONST_PORT = 80;
   public static final int SHUTDOWN_PORT = 8079;
   private static final int DEFAULT_DETECTION_TIMER = 20000;
   private static final Class<?> PKG = WebServer.class;
+  public static final String CONST_WEB_SERVER_LOG_CONFIG_OPTIONS = "WebServer.Log.ConfigOptions";
   private ILogChannel log;
   private IVariables variables;
   private Server server;
@@ -410,7 +411,7 @@ public class WebServer {
               Integer.parseInt(System.getProperty(Const.HOP_SERVER_JETTY_ACCEPTORS))));
       log.logBasic(
           BaseMessages.getString(
-              PKG, "WebServer.Log.ConfigOptions", "acceptors", connector.getAcceptors()));
+              PKG, CONST_WEB_SERVER_LOG_CONFIG_OPTIONS, "acceptors", connector.getAcceptors()));
     }
 
     if (validProperty(Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE)) {
@@ -419,7 +420,7 @@ public class WebServer {
       log.logBasic(
           BaseMessages.getString(
               PKG,
-              "WebServer.Log.ConfigOptions",
+              CONST_WEB_SERVER_LOG_CONFIG_OPTIONS,
               "acceptQueueSize",
               connector.getAcceptQueueSize()));
     }
@@ -430,7 +431,7 @@ public class WebServer {
       log.logBasic(
           BaseMessages.getString(
               PKG,
-              "WebServer.Log.ConfigOptions",
+              CONST_WEB_SERVER_LOG_CONFIG_OPTIONS,
               "lowResourcesMaxIdleTime",
               connector.getIdleTimeout()));
     }

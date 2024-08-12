@@ -50,6 +50,8 @@ import org.w3c.dom.Node;
 public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     implements ILdapMeta {
   private static final Class<?> PKG = LdapInputMeta.class;
+  public static final String CONST_SPACES = "        ";
+  public static final String CONST_FIELD = "field";
 
   /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;
@@ -521,44 +523,44 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     retval.append("    <fields>").append(Const.CR);
     for (int i = 0; i < inputFields.length; i++) {
       retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", inputFields[i].getName()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", inputFields[i].getName()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("attribute", inputFields[i].getAttribute()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(
               XmlHandler.addTagValue(
                   "attribute_fetch_as", inputFields[i].getFetchAttributeAsCode()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("sorted_key", inputFields[i].isSortedKey()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("type", inputFields[i].getTypeDesc()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("format", inputFields[i].getFormat()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("length", inputFields[i].getLength()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("precision", inputFields[i].getPrecision()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("currency", inputFields[i].getCurrencySymbol()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("decimal", inputFields[i].getDecimalSymbol()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("group", inputFields[i].getGroupSymbol()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("trim_type", inputFields[i].getTrimTypeCode()));
       retval
-          .append("        ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("repeat", inputFields[i].isRepeated()));
 
       retval.append("      </field>").append(Const.CR);
@@ -624,12 +626,12 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
       searchBase = XmlHandler.getTagValue(transformNode, "searchbase");
 
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFields);
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
         inputFields[i] = new LdapInputField();
 
         inputFields[i].setName(XmlHandler.getTagValue(fnode, "name"));
@@ -733,7 +735,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     allocate(nrFields);
 
     for (int i = 0; i < nrFields; i++) {
-      this.inputFields[i] = new LdapInputField("field" + (i + 1));
+      this.inputFields[i] = new LdapInputField(CONST_FIELD + (i + 1));
     }
 
     this.rowLimit = 0;

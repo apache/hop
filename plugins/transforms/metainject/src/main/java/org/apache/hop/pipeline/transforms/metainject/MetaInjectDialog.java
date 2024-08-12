@@ -96,6 +96,10 @@ public class MetaInjectDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MetaInjectMeta.class;
 
   public static final String CONST_VALUE = "<const>";
+  public static final String CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_TITLE =
+      "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title";
+  public static final String CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE =
+      "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message";
 
   private final MetaInjectMeta metaInjectMeta;
 
@@ -374,8 +378,10 @@ public class MetaInjectDialog extends BaseTransformDialog {
   private void showErrorOnLoadTransformationDialog(HopException e) {
     new ErrorDialog(
         shell,
-        BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"),
-        BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
+        BaseMessages.getString(
+            PKG, CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_TITLE),
+        BaseMessages.getString(
+            PKG, CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE),
         e);
   }
 
@@ -612,7 +618,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
 
     // Add a search bar at the top...
     ToolBar treeTb = new ToolBar(wInjectComp, SWT.HORIZONTAL | SWT.FLAT);
-    PropsUi.setLook(treeTb, PropsUi.WIDGET_STYLE_DEFAULT);
+    PropsUi.setLook(treeTb, Props.WIDGET_STYLE_DEFAULT);
     ToolItem wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
     wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
     wSearchText.setData(BaseDialog.NO_DEFAULT_HANDLER, true);
@@ -826,9 +832,11 @@ public class MetaInjectDialog extends BaseTransformDialog {
     } catch (HopXmlException e) {
       MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
       box.setText(
-          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"));
+          BaseMessages.getString(
+              PKG, CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_TITLE));
       box.setMessage(
-          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"));
+          BaseMessages.getString(
+              PKG, CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE));
       box.open();
     }
   }
@@ -1079,8 +1087,10 @@ public class MetaInjectDialog extends BaseTransformDialog {
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"),
-          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
+          BaseMessages.getString(
+              PKG, CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_TITLE),
+          BaseMessages.getString(
+              PKG, CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE),
           e);
     }
 
@@ -1176,8 +1186,10 @@ public class MetaInjectDialog extends BaseTransformDialog {
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"),
-          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
+          BaseMessages.getString(
+              PKG, CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_TITLE),
+          BaseMessages.getString(
+              PKG, CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE),
           e);
       return;
     }

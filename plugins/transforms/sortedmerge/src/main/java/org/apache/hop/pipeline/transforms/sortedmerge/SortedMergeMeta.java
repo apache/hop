@@ -53,6 +53,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/sortedmerge.html")
 public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeData> {
   private static final Class<?> PKG = SortedMergeMeta.class;
+  public static final String CONST_FIELD = "field";
 
   /** order by which fields? */
   @Injection(name = "FIELD_NAME", group = "FIELDS")
@@ -80,7 +81,7 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
     allocate(nrFields);
 
     for (int i = 0; i < nrFields; i++) {
-      fieldName[i] = "field" + i;
+      fieldName[i] = CONST_FIELD + i;
     }
   }
 
@@ -100,12 +101,12 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
   private void readData(Node transformNode) throws HopXmlException {
     try {
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFields);
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         fieldName[i] = XmlHandler.getTagValue(fnode, "name");
         String asc = XmlHandler.getTagValue(fnode, "ascending");

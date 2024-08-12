@@ -44,6 +44,8 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class LoopNodesImportProgressDialog {
   private static final Class<?> PKG = GetXmlDataMeta.class;
+  public static final String CONST_GET_XMLDATE_LOOP_NODES_IMPORT_PROGRESS_DIALOG_TASK_FETCH_NODES =
+      "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes";
 
   private Shell shell;
 
@@ -184,7 +186,8 @@ public class LoopNodesImportProgressDialog {
       List<Node> nodes = document.selectNodes(document.getRootElement().getName());
       monitor.worked(1);
       monitor.subTask(
-          BaseMessages.getString(PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes"));
+          BaseMessages.getString(
+              PKG, CONST_GET_XMLDATE_LOOP_NODES_IMPORT_PROGRESS_DIALOG_TASK_FETCH_NODES));
 
       if (monitor.isCanceled()) {
         return null;
@@ -198,7 +201,7 @@ public class LoopNodesImportProgressDialog {
           monitor.subTask(
               BaseMessages.getString(
                   PKG,
-                  "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes",
+                  CONST_GET_XMLDATE_LOOP_NODES_IMPORT_PROGRESS_DIALOG_TASK_FETCH_NODES,
                   String.valueOf(nr)));
           monitor.subTask(
               BaseMessages.getString(
@@ -244,7 +247,7 @@ public class LoopNodesImportProgressDialog {
           monitor.subTask(
               BaseMessages.getString(
                   PKG,
-                  "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes",
+                  CONST_GET_XMLDATE_LOOP_NODES_IMPORT_PROGRESS_DIALOG_TASK_FETCH_NODES,
                   String.valueOf(nr)));
           monitor.subTask(
               BaseMessages.getString(

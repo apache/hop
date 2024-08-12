@@ -49,6 +49,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class SetValueConstantDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SetValueConstantMeta.class;
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private final SetValueConstantMeta input;
 
@@ -174,7 +175,7 @@ public class SetValueConstantDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "SetValueConstantDialog.Value.SetEmptyString"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
-              BaseMessages.getString(PKG, "System.Combo.Yes"),
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
               BaseMessages.getString(PKG, "System.Combo.No")
             });
 
@@ -255,7 +256,7 @@ public class SetValueConstantDialog extends BaseTransformDialog {
   public void getData() {
     wUseVars.setSelection(input.isUseVars());
     Table table = wFields.table;
-    if (input.getFields().size() > 0) {
+    if (!input.getFields().isEmpty()) {
       table.removeAll();
     }
     for (int i = 0; i < input.getFields().size(); i++) {
@@ -274,7 +275,7 @@ public class SetValueConstantDialog extends BaseTransformDialog {
       ti.setText(
           4,
           field.isEmptyString()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
+              ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
               : BaseMessages.getString(PKG, "System.Combo.No"));
     }
 
@@ -307,7 +308,7 @@ public class SetValueConstantDialog extends BaseTransformDialog {
       SetValueConstantMeta.Field field = new SetValueConstantMeta.Field();
       field.setFieldName(ti.getText(1));
       field.setEmptyString(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(ti.getText(4)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(ti.getText(4)));
       field.setReplaceValue(field.isEmptyString() ? "" : ti.getText(2));
       field.setReplaceMask(field.isEmptyString() ? "" : ti.getText(3));
       fields.add(field);
