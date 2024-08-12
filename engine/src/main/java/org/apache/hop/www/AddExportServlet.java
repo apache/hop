@@ -25,6 +25,7 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -89,8 +90,11 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
       logDetailed("Encoding: " + request.getCharacterEncoding());
     }
 
-    boolean isWorkflow = TYPE_WORKFLOW.equalsIgnoreCase(request.getParameter(PARAMETER_TYPE));
-    String load = request.getParameter(PARAMETER_LOAD); // the resource to load
+    boolean isWorkflow =
+        TYPE_WORKFLOW.equalsIgnoreCase(
+            StringEscapeUtils.escapeHtml(request.getParameter(PARAMETER_TYPE)));
+    String load =
+        StringEscapeUtils.escapeHtml(request.getParameter(PARAMETER_LOAD)); // the resource to load
 
     response.setContentType("text/xml");
     out.print(XmlHandler.getXmlHeader());

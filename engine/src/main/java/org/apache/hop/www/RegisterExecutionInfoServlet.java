@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -71,7 +72,7 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
 
     // The name of the location is also in a parameter
     //
-    String locationName = request.getParameter(PARAMETER_LOCATION);
+    String locationName = StringEscapeUtils.escapeHtml(request.getParameter(PARAMETER_LOCATION));
 
     PrintWriter out = response.getWriter();
     BufferedReader in = request.getReader();

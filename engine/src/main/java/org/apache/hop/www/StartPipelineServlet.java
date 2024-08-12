@@ -26,6 +26,7 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -66,8 +67,8 @@ public class StartPipelineServlet extends BaseHttpServlet implements IHopServerP
       logDebug(BaseMessages.getString(PKG, "StartPipelineServlet.Log.PipelineStartRequested"));
     }
 
-    String pipelineName = request.getParameter("name");
-    String id = request.getParameter("id");
+    String pipelineName = StringEscapeUtils.escapeHtml(request.getParameter("name"));
+    String id = StringEscapeUtils.escapeHtml(request.getParameter("id"));
     if (StringUtils.isEmpty(pipelineName)) {
       pipelineName = "";
     }

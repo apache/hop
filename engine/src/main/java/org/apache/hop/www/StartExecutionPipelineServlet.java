@@ -25,6 +25,7 @@ import java.net.URLEncoder;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
@@ -61,7 +62,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     }
     response.setStatus(HttpServletResponse.SC_OK);
 
-    String pipelineName = request.getParameter("name");
+    String pipelineName = StringEscapeUtils.escapeHtml(request.getParameter("name"));
     String id = request.getParameter("id");
     boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
 
