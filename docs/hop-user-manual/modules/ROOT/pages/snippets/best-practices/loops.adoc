@@ -18,10 +18,15 @@ under the License.
 [[Loops]]
 :imagesdir: ../../assets/images
 
-Avoid looping in workflows.
 The easiest way to loop over a set of values, rows, files, ... is to use an Executor transform.
 
 * xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor] : run a pipeline for each input row
 * xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor] : run a workflow for each input row
+* xref:workflow/actions/repeat.adoc[Repeat]: run a workflow or pipeline from a workflow action until a variable (value) is set.
+* xref:workflow/actions/repeat-end.adoc[End Repeat]: break out of a loop that was started by a Repeat action.
 
-You can nicely map field values to parameters of the pipeline or workflow making loops a breeze.
+Each of these options allows you to map field values to parameters for the child pipeline or workflow, making loops a breeze.
+
+TIP: Avoid the "old" way of looping in workflows through the xref:pipeline/transforms/copyrowstoresult.adoc[Copy rows to result] transform. This mostly still exists for historical reasons. It makes it hard to see what is going on inside your loop, and this way of looping won't be around in Apache Hop forever.
+
+The xref:how-to-guides/loops-in-apache-hop.adoc[Looping how-to guide] provides more detailed information on the topic.

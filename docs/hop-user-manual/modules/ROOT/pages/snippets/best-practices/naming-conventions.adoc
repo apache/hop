@@ -17,36 +17,40 @@ under the License.
 [[NamingConventions]]
 :imagesdir: ../../assets/images
 
-=== Transforms and actions
+=== Naming conventions
 
-When looking at a pipeline or workflow it's so much easier to see what's going on if you give meaningful names to the transforms and workflows.
+As your project grows, the importance of keeping things organized grows.
+A clearly organized project makes it easier to find the workflows, pipelines and other project artefacts, and makes your project easier to maintain overall.
 
-image::best-practices-naming.png[Showing the differences when giving transforms a descriptive name,width="65%"]
+Your naming convention should not only cover all aspects of your projects. For Apache Hop, that means conventions for your workflows, pipelines, transforms, actions and metadata items.
+There's more to your project than just Apache Hop, and other areas of your project are no exception. Input and output files, database tables etc will be a lot easier to manage if named clearly, cleanly and consistently.
 
-For input and output files, why not use the filename you're using?
+For larger projects, a formal naming conventions document helps to centrally manage the naming conventions, and helps to avoid confusion when different team members use their own naming conventions interchangeably.
 
-TIP: You can use any unicode character in the name of a transform or action and even newlines are allowed.
+A naming convention should be maintained, updated, enforced and verified periodically. Automated naming convention checks (e.g. through scripts in commit hooks) could be considered to automate the validation of your naming conventions.
+
+=== Transform and action names
+
+Clearly named transforms and actions make your pipelines and workflows a lot easier to understand.
+
+The default action and transform names use the action or transform name. This makes it easy to understand what the transform does, but tell you nothing about the purpose it has in your workflow or pipeline.
+
+`Filter rows` (or god forbid, `Filter rows 2 2` or similar names you get after copy/pasting transforms) doesn't tell you anything. A short but concise transform name like `start_date < today` tells you exactly what is going on in a filter transform.
+
+image::best-practices-naming.png[Showing the differences when giving transforms a descriptive name, width="45%"]
+
+For example, for input and output files, you could use the filename you're reading from or writing to.
+
+TIP: You can use (copy/paste) any unicode character in the name of a transform or action and even newlines are allowed.
 
 === Metadata
 
-When giving names to metadata objects like relational database connections, avoid environment specific words like a country, region, lifecycle environments:
+Metadata item names like relational database connections should immediately tell you what data they contain or what their purpose is.
 
-Here are some examples to avoid and possible alternatives:
+Metadata item names shouldn't contain technical or environment details.
 
-* Test Database -> CRM
-* France MySQL -> WWW
-* East Coast Cluster -> Fraud
+For example, if your CRM system runs in a Postgresql database, `CRM` is fine as a name. Your connection is configured for an Oracle database, so that doesn't need to be repeated in the name. Environment information should be configured in your project lifecycle environments, so there's no need to include `dev`, `test` or `prod` in your connection names.
 
-=== Naming standard
+=== Project folders and subfolders
 
-What you can see in larger projects is that projects can become quite cluttered after a while.
-Here is some advice on how to keep things tidy and clean...
-
-* Folders can have sub-folders: organize your work with sub-folders in a project.
-It's just hard to work with hundreds of pipelines and workflows in a single folder.
-* Use a naming convention for any object that you need to give a name: pipelines, workflows, folders, names, tables, fields, ...
-* For larger projects you should consider setting up a naming standard.
-It's just a document in which you specify how you want to name things.
-* Make sure to adjust, verify and enforce your naming standard periodically.
-If you don't plan to do this you might was well not set up a corporate standard.
-* Consider scripts and commit hooks or a nightly run on your build server (Jenkins) to validate your naming standard.
+Organizing your project in clearly named folders and subfolders makes everything easier to find, to organize and to maintain. Avoid keeping tens or hundreds of workflow files in a single folder.

@@ -18,15 +18,11 @@ under the License.
 [[Governance]]
 :imagesdir: ../../assets/images
 
-
-Here are some self-evident pieces of advice:
+The items below will make your Apache Hop project easier to manage, to monitor and to maintain.
 
 * Version control your project folder.
-Please consider using git.
-* Reference cases in commits
-* Make sure to have backups
+* Reference cases (e.g. JIRA or GitHub issue tickets) in commits
+* Make sure to have a backup and restore strategy, and test it.
 * Run continuous integration
-* Set up lifecycle environments (development, test, acceptance, production) as needed
-* Test your pipelines with unit tests
-* Run all unit tests regularly
-* Validate the results & take action if needed
+* Set up lifecycle environments (development, test, acceptance, production)
+* Test your pipelines with xref:pipeline/pipeline-unit-testing.adoc[unit tests]. Run all your unit tests regularly, validate the results & take action if needed
