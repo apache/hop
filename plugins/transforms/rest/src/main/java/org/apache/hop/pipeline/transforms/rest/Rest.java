@@ -307,7 +307,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             ClientProperties.PROXY_URI, "http://" + data.realProxyHost + ":" + data.realProxyPort);
       }
       // HTTP BASIC AUTHENTICATION
-      if (!Utils.isEmpty(data.realHttpLogin)) {
+      if (!Utils.isEmpty(data.realHttpLogin) || !Utils.isEmpty(data.realHttpPassword)) {
         data.basicAuthentication =
             HttpAuthenticationFeature.basicBuilder()
                 .credentials(data.realHttpLogin, data.realHttpPassword)
