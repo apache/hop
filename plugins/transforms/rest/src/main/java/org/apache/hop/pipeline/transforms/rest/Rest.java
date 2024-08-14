@@ -301,22 +301,17 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.config.property(ClientProperties.READ_TIMEOUT, data.realReadTimeout);
       data.config.property(ClientProperties.CONNECT_TIMEOUT, data.realConnectionTimeout);
 
+      // PROXY CONFIGURATION
       if (!Utils.isEmpty(data.realProxyHost)) {
-        // PROXY CONFIGURATION
         data.config.property(
             ClientProperties.PROXY_URI, "http://" + data.realProxyHost + ":" + data.realProxyPort);
-        if (!Utils.isEmpty(data.realHttpLogin) && !Utils.isEmpty(data.realHttpPassword)) {
-          data.config.property(ClientProperties.PROXY_USERNAME, data.realHttpLogin);
-          data.config.property(ClientProperties.PROXY_PASSWORD, data.realHttpPassword);
-        }
-      } else {
-        if (!Utils.isEmpty(data.realHttpLogin)) {
-          // Basic authentication
-          data.basicAuthentication =
-              HttpAuthenticationFeature.basicBuilder()
-                  .credentials(data.realHttpLogin, data.realHttpPassword)
-                  .build();
-        }
+      }
+      // HTTP BASIC AUTHENTICATION
+      if (!Utils.isEmpty(data.realHttpLogin)) {
+        data.basicAuthentication =
+            HttpAuthenticationFeature.basicBuilder()
+                .credentials(data.realHttpLogin, data.realHttpPassword)
+                .build();
       }
       // SSL TRUST STORE CONFIGURATION
       if (!Utils.isEmpty(data.trustStoreFile) && !meta.isIgnoreSsl()) {
