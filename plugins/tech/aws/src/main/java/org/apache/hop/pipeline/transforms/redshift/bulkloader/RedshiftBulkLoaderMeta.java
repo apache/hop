@@ -196,6 +196,7 @@ public class RedshiftBulkLoaderMeta
     fields = new ArrayList<>();
   }
 
+  @Override
   public Object clone() {
     return super.clone();
   }
@@ -228,6 +229,7 @@ public class RedshiftBulkLoaderMeta
   /**
    * @deprecated use {@link #getTableName()}
    */
+  @Deprecated(since = "2.10")
   public String getTablename() {
     return getTableName();
   }
@@ -445,6 +447,7 @@ public class RedshiftBulkLoaderMeta
     this.useSystemEnvVars = useSystemEnvVars;
   }
 
+  @Override
   public void setDefault() {
     tablename = "";
 
@@ -739,6 +742,7 @@ public class RedshiftBulkLoaderMeta
     }
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
@@ -780,6 +784,7 @@ public class RedshiftBulkLoaderMeta
     }
   }
 
+  @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
       PipelineMeta pipelineMeta,
@@ -829,6 +834,7 @@ public class RedshiftBulkLoaderMeta
     return retval;
   }
 
+  @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tablename);
     String realSchemaName = variables.resolve(schemaName);
@@ -897,6 +903,7 @@ public class RedshiftBulkLoaderMeta
     this.schemaName = schemaName;
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

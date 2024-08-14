@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -188,7 +189,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     // Toolbar for default actions
     //
     wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL);
-    PropsUi.setLook(wToolBar, PropsUi.WIDGET_STYLE_DEFAULT);
+    PropsUi.setLook(wToolBar, Props.WIDGET_STYLE_DEFAULT);
     FormData fdToolBar = new FormData();
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.top = new FormAttachment(0, 0);
@@ -199,7 +200,6 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
     toolbarWidgets.registerGuiPluginObject(this);
     // Removed for Windows dark mode
-    // toolbarWidgets.setItemBackgroundColor(GuiResource.getInstance().getColorBackground());
     toolbarWidgets.createToolbarWidgets(wToolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
 
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
@@ -279,7 +279,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     return managedClass.getAnnotation(HopMetadata.class).name();
   }
 
-  protected void manageMetadata() {}
+  protected void manageMetadata() {
+    // Do nothing
+  }
 
   /**
    * We look at the managed class name, add Dialog to it and then simply us that class to edit the

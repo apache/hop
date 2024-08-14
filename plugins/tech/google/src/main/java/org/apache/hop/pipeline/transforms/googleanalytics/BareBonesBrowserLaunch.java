@@ -32,7 +32,6 @@ public class BareBonesBrowserLaunch {
     "kazehakase",
     "mozilla"
   };
-  static final String errMsg = "Error attempting to launch web browser";
 
   /**
    * Opens the specified web page in the user's default browser
@@ -71,7 +70,6 @@ public class BareBonesBrowserLaunch {
         }
       } catch (Exception e) {
         // silently fail
-        // JOptionPane.showMessageDialog(null, errMsg + "\n" + e.toString());
         e.printStackTrace();
       }
     }

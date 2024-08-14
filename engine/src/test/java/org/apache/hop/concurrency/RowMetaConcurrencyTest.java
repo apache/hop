@@ -38,7 +38,7 @@ import org.junit.Test;
 
 public class RowMetaConcurrencyTest {
 
-  private static final int cycles = 50;
+  private static final int CYCLES = 50;
 
   @Test
   public void fiveAddersAgainstTenReaders() throws Exception {
@@ -50,7 +50,7 @@ public class RowMetaConcurrencyTest {
 
     List<Adder> adders = new ArrayList<>(addersAmount);
     for (int i = 0; i < addersAmount; i++) {
-      adders.add(new Adder(condition, rowMeta, cycles, "adder" + i));
+      adders.add(new Adder(condition, rowMeta, CYCLES, "adder" + i));
     }
 
     List<Getter> getters = new ArrayList<>(readersAmount);
@@ -64,14 +64,14 @@ public class RowMetaConcurrencyTest {
 
     runner.checkNoExceptionRaised();
 
-    Set<IValueMeta> results = new HashSet<>(cycles * addersAmount);
+    Set<IValueMeta> results = new HashSet<>(CYCLES * addersAmount);
     for (List<IValueMeta> list : runner.getMonitoredTasksResults()) {
       results.addAll(list);
     }
     List<IValueMeta> metas = rowMeta.getValueMetaList();
 
-    assertEquals(cycles * addersAmount, metas.size());
-    assertEquals(cycles * addersAmount, results.size());
+    assertEquals(CYCLES * addersAmount, metas.size());
+    assertEquals(CYCLES * addersAmount, results.size());
     for (IValueMeta meta : metas) {
       assertTrue(meta.getName(), results.remove(meta));
     }
@@ -93,7 +93,7 @@ public class RowMetaConcurrencyTest {
 
     List<Shuffler> shufflers = new ArrayList<>(shufflersAmount);
     for (int i = 0; i < shufflersAmount; i++) {
-      shufflers.add(new Shuffler(condition, rowMeta, cycles));
+      shufflers.add(new Shuffler(condition, rowMeta, CYCLES));
     }
 
     List<Searcher> searchers = new ArrayList<>(searchersAmount);
@@ -133,7 +133,7 @@ public class RowMetaConcurrencyTest {
 
     List<Adder> adders = new ArrayList<>(addersAmount);
     for (int i = 0; i < addersAmount; i++) {
-      adders.add(new Adder(condition, rowMeta, cycles, "adder" + i));
+      adders.add(new Adder(condition, rowMeta, CYCLES, "adder" + i));
     }
 
     List<Callable<?>> monitored = new ArrayList<>();

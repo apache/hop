@@ -590,7 +590,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           }
 
           @Override
-          public void dragLeave(DropTargetEvent event) {}
+          public void dragLeave(DropTargetEvent event) {
+            // Do nothing
+          }
 
           @Override
           public void dropAccept(final DropTargetEvent event) {

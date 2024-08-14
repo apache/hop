@@ -59,10 +59,14 @@ public class RowsToResultMeta extends BaseTransformMeta<RowsToResult, RowsToResu
     return retval;
   }
 
-  private void readData(Node transformNode) {}
+  private void readData(Node transformNode) {
+    // Do nothing
+  }
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Do nothing
+  }
 
   @Override
   public void getFields(

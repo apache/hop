@@ -28,7 +28,7 @@ import org.junit.Test;
 /** Unit tests for the SvgSupport class */
 public class SvgSupportTest {
 
-  public static final String svgImage =
+  public static final String SVG_IMAGE =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
           + "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.0\"\n"
           + "\twidth=\"38\" height=\"32\"  viewBox=\"0 0 39.875 33.6667\">\n"
@@ -52,7 +52,7 @@ public class SvgSupportTest {
 
   @Test
   public void testLoadSvgImage() throws Exception {
-    SvgImage image = SvgSupport.loadSvgImage(new ByteArrayInputStream(svgImage.getBytes()));
+    SvgImage image = SvgSupport.loadSvgImage(new ByteArrayInputStream(SVG_IMAGE.getBytes()));
     assertNotNull(image);
   }
 

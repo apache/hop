@@ -160,7 +160,9 @@ public class SalesforceDeleteMeta
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider)
-      throws HopTransformException {}
+      throws HopTransformException {
+    // Do nothing
+  }
 
   @Override
   public void check(

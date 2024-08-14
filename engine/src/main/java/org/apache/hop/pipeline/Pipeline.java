@@ -1307,8 +1307,7 @@ public abstract class Pipeline
   }
 
   /**
-   * Make attempt to fire all registered finished listeners if possible.
-   *
+   * @deprecated Make attempt to fire all registered finished listeners if possible.
    * @throws HopException if any errors occur during notification
    */
   @Override
@@ -1359,8 +1358,7 @@ public abstract class Pipeline
   }
 
   /**
-   * Fires the start-event listeners (if any are registered).
-   *
+   * @deprecated Fires the start-event listeners (if any are registered).
    * @throws HopException if any errors occur during notification
    */
   @Override
@@ -1651,6 +1649,9 @@ public abstract class Pipeline
     }
   }
 
+  /**
+   * @deprecated
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStoppedListeners() {
@@ -2551,8 +2552,7 @@ public abstract class Pipeline
   }
 
   /**
-   * Sets the list of stop-event listeners for the pipeline.
-   *
+   * @deprecated Sets the list of stop-event listeners for the pipeline.
    * @param executionStoppedListeners the list of stop-event listeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -2562,9 +2562,8 @@ public abstract class Pipeline
   }
 
   /**
-   * Gets the list of stop-event listeners for the pipeline. This is not concurrent safe. Please
-   * note this is mutable implementation only for backward compatibility reasons.
-   *
+   * @deprecated Gets the list of stop-event listeners for the pipeline. This is not concurrent
+   *     safe. Please note this is mutable implementation only for backward compatibility reasons.
    * @return the list of stop-event listeners
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -3572,8 +3571,7 @@ public abstract class Pipeline
   }
 
   /**
-   * Gets executionStartedListeners
-   *
+   * @deprecated Gets executionStartedListeners
    * @return value of executionStartedListeners
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -3583,6 +3581,7 @@ public abstract class Pipeline
   }
 
   /**
+   * @deprecated
    * @param executionStartedListeners The executionStartedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -3592,8 +3591,7 @@ public abstract class Pipeline
   }
 
   /**
-   * Gets executionFinishedListeners
-   *
+   * @deprecated Gets executionFinishedListeners
    * @return value of executionFinishedListeners
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -3603,6 +3601,7 @@ public abstract class Pipeline
   }
 
   /**
+   * @deprecated
    * @param executionFinishedListeners The executionFinishedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)

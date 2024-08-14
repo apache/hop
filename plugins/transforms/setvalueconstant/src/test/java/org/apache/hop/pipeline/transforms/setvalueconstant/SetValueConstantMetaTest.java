@@ -78,7 +78,9 @@ public class SetValueConstantMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Override
-  public void modify(ITransformMeta someMeta) {}
+  public void modify(ITransformMeta someMeta) {
+    // Do nothing
+  }
 
   @Test
   public void testSerialization() throws HopException {

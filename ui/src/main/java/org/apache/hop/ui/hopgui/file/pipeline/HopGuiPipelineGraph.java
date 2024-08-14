@@ -991,10 +991,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // We moved around some items: store undo info...
           //
           boolean also = false;
-          if (selectedNotes != null && selectedNotes.size() > 0 && previousNoteLocations != null) {
+          if (selectedNotes != null && !selectedNotes.isEmpty() && previousNoteLocations != null) {
             int[] indexes = pipelineMeta.getNoteIndexes(selectedNotes);
 
-            also = selectedTransforms != null && selectedTransforms.size() > 0;
+            also = selectedTransforms != null && !selectedTransforms.isEmpty();
             hopGui.undoDelegate.addUndoPosition(
                 pipelineMeta,
                 selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
@@ -1061,7 +1061,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
             boolean also = false;
             if (selectedNotes != null
-                && selectedNotes.size() > 0
+                && !selectedNotes.isEmpty()
                 && previousNoteLocations != null) {
               int[] indexes = pipelineMeta.getNoteIndexes(selectedNotes);
               hopGui.undoDelegate.addUndoPosition(
@@ -1071,10 +1071,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   previousNoteLocations,
                   pipelineMeta.getSelectedNoteLocations(),
                   also);
-              also = selectedTransforms != null && selectedTransforms.size() > 0;
+              also = selectedTransforms != null && !selectedTransforms.isEmpty();
             }
             if (selectedTransforms != null
-                && selectedTransforms.size() > 0
+                && !selectedTransforms.isEmpty()
                 && previousTransformLocations != null) {
               int[] indexes = pipelineMeta.getTransformIndexes(selectedTransforms);
               hopGui.undoDelegate.addUndoPosition(
@@ -1268,8 +1268,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // If we get a background single click then simply clear selection...
     //
     if (fSingleClickType == SingleClickType.Pipeline) {
-      if (pipelineMeta.getSelectedTransforms().size() > 0
-          || pipelineMeta.getSelectedNotes().size() > 0) {
+      if (!pipelineMeta.getSelectedTransforms().isEmpty()
+          || !pipelineMeta.getSelectedNotes().isEmpty()) {
         pipelineMeta.unselectAll();
         selectionRegion = null;
         updateGui();
@@ -1834,10 +1834,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @Override
-  public void mouseEnter(MouseEvent arg0) {}
+  public void mouseEnter(MouseEvent arg0) {
+    // Do nothing
+  }
 
   @Override
-  public void mouseExit(MouseEvent arg0) {}
+  public void mouseExit(MouseEvent arg0) {
+    // Do nothing
+  }
 
   protected void asyncRedraw() {
     hopDisplay()
@@ -3189,7 +3193,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         && pipelineMeta.getSelectedNotes().isEmpty()) {
       return; // nothing to do
     }
-    if (transformMeta != null && selection.size() == 0) {
+    if (transformMeta != null && selection.isEmpty()) {
       pipelineTransformDelegate.delTransform(pipelineMeta, transformMeta);
       return;
     }
@@ -3201,10 +3205,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (selection.size() > 0) {
+    if (!selection.isEmpty()) {
       pipelineTransformDelegate.delTransforms(pipelineMeta, selection);
     }
-    if (pipelineMeta.getSelectedNotes().size() > 0) {
+    if (!pipelineMeta.getSelectedNotes().isEmpty()) {
       notePadDelegate.deleteNotes(pipelineMeta, pipelineMeta.getSelectedNotes());
     }
   }
@@ -3666,8 +3670,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return pipelineMeta;
   }
 
-  /** Use method hasChanged() */
-  @Deprecated
+  /**
+   * @deprecated Use method hasChanged()
+   */
+  @Deprecated(since = "2.10")
   public boolean hasContentChanged() {
     return pipelineMeta.hasChanged();
   }

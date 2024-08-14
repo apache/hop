@@ -36,8 +36,8 @@ import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -189,7 +189,7 @@ public class CsvInputDialog extends BaseTransformDialog
     // See if the transform receives input. If so, we don't ask for the filename, but
     // for the filename field.
     //
-    isReceivingInput = pipelineMeta.findPreviousTransforms(transformMeta).size() > 0;
+    isReceivingInput = !pipelineMeta.findPreviousTransforms(transformMeta).isEmpty();
     if (isReceivingInput) {
 
       IRowMeta previousFields;
@@ -499,7 +499,9 @@ public class CsvInputDialog extends BaseTransformDialog
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -591,7 +593,7 @@ public class CsvInputDialog extends BaseTransformDialog
           new ColumnInfo(
               BaseMessages.getString(PKG, "CsvInputDialog.TrimTypeColumn.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaString.trimTypeDesc),
+              ValueMetaBase.trimTypeDesc),
         };
 
     wFields =
@@ -695,51 +697,49 @@ public class CsvInputDialog extends BaseTransformDialog
       mb.setText(BaseMessages.getString(PKG, "CsvInputDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
-      if (answer == SWT.YES) {
-        if (!Utils.isEmpty(schemaName)) {
-          try {
-            SchemaDefinition schemaDefinition =
-                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
-            if (schemaDefinition != null) {
-              IRowMeta r = schemaDefinition.getRowMeta();
-              if (r != null) {
-                String[] fieldNames = r.getFieldNames();
-                if (fieldNames != null) {
-                  wFields.clearAll();
-                  for (int i = 0; i < fieldNames.length; i++) {
-                    IValueMeta valueMeta = r.getValueMeta(i);
-                    final TableItem item = getTableItem(valueMeta.getName(), true);
-                    int colnr = 1;
-                    item.setText(colnr++, valueMeta.getName());
-                    item.setText(colnr++, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
-                    item.setText(colnr++, Const.NVL(valueMeta.getConversionMask(), ""));
-                    item.setText(
-                        colnr++,
-                        valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
-                    item.setText(
-                        colnr++,
-                        valueMeta.getPrecision() >= 0
-                            ? Integer.toString(valueMeta.getPrecision())
-                            : "");
-                    item.setText(colnr++, Const.NVL(valueMeta.getCurrencySymbol(), ""));
-                    item.setText(colnr++, Const.NVL(valueMeta.getDecimalSymbol(), ""));
-                    item.setText(colnr++, Const.NVL(valueMeta.getGroupingSymbol(), ""));
-                    item.setText(
-                        colnr++,
-                        Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
-                  }
+      if (answer == SWT.YES && !Utils.isEmpty(schemaName)) {
+        try {
+          SchemaDefinition schemaDefinition =
+              (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+          if (schemaDefinition != null) {
+            IRowMeta r = schemaDefinition.getRowMeta();
+            if (r != null) {
+              String[] fieldNames = r.getFieldNames();
+              if (fieldNames != null) {
+                wFields.clearAll();
+                for (int i = 0; i < fieldNames.length; i++) {
+                  IValueMeta valueMeta = r.getValueMeta(i);
+                  final TableItem item = getTableItem(valueMeta.getName(), true);
+                  int colnr = 1;
+                  item.setText(colnr++, valueMeta.getName());
+                  item.setText(colnr++, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                  item.setText(colnr++, Const.NVL(valueMeta.getConversionMask(), ""));
+                  item.setText(
+                      colnr++,
+                      valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                  item.setText(
+                      colnr++,
+                      valueMeta.getPrecision() >= 0
+                          ? Integer.toString(valueMeta.getPrecision())
+                          : "");
+                  item.setText(colnr++, Const.NVL(valueMeta.getCurrencySymbol(), ""));
+                  item.setText(colnr++, Const.NVL(valueMeta.getDecimalSymbol(), ""));
+                  item.setText(colnr++, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                  item.setText(
+                      colnr++,
+                      Const.NVL(ValueMetaBase.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                 }
               }
             }
-          } catch (HopTransformException | HopPluginException e) {
-
-            // ignore any errors here.
           }
+        } catch (HopTransformException | HopPluginException e) {
 
-          wFields.removeEmptyRows();
-          wFields.setRowNums();
-          wFields.optWidth(true);
+          // ignore any errors here.
         }
+
+        wFields.removeEmptyRows();
+        wFields.setRowNums();
+        wFields.optWidth(true);
       }
     }
   }
@@ -897,7 +897,7 @@ public class CsvInputDialog extends BaseTransformDialog
       inputMeta.getInputFields()[i].setDecimalSymbol(item.getText(colnr++));
       inputMeta.getInputFields()[i].setGroupSymbol(item.getText(colnr++));
       inputMeta.getInputFields()[i].setTrimType(
-          ValueMetaString.getTrimTypeByDesc(item.getText(colnr++)));
+          ValueMetaBase.getTrimTypeByDesc(item.getText(colnr++)));
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -1023,18 +1023,18 @@ public class CsvInputDialog extends BaseTransformDialog
       Pipeline pipeline = progressDialog.getPipeline();
       String loggingText = progressDialog.getLoggingText();
 
-      if (!progressDialog.isCancelled()) {
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        }
+      if (!progressDialog.isCancelled()
+          && pipeline.getResult() != null
+          && pipeline.getResult().getNrErrors() > 0) {
+        EnterTextDialog etd =
+            new EnterTextDialog(
+                shell,
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                loggingText,
+                true);
+        etd.setReadOnly();
+        etd.open();
       }
 
       PreviewRowsDialog prd =

@@ -23,7 +23,9 @@ import org.eclipse.swt.widgets.Listener;
 
 public class SvgLabelListenerImpl implements ISingletonProvider, Listener {
 
-  public SvgLabelListenerImpl() {}
+  public SvgLabelListenerImpl() {
+    // Do nothing
+  }
 
   @Override
   public Object getInstanceInternal() {

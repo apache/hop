@@ -108,7 +108,9 @@ public class TextFileOutputTest {
     }
 
     @Override
-    public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {}
+    public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+      // Do Nothing
+    }
 
     @Override
     public void logError(String message) {

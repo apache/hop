@@ -66,7 +66,9 @@ public class WelcomeDialog {
   private List wTopics;
   private Composite wPluginsComp;
 
-  public WelcomeDialog() {}
+  public WelcomeDialog() {
+    // Do nothing
+  }
 
   public void open() {
     Shell parent = HopGui.getInstance().getShell();

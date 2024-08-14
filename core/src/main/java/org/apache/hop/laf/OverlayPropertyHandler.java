@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import org.apache.hop.core.Const;
 
 public class OverlayPropertyHandler implements IPropertyHandler {
-  protected static final String propFile = "ui/laf.properties";
+  protected static final String LAF_PROPERTIES = "ui/laf.properties";
 
   private static IPropertyHandler instance = null;
 
@@ -53,7 +53,7 @@ public class OverlayPropertyHandler implements IPropertyHandler {
   }
 
   private boolean initProps() {
-    boolean flag = loadProps(propFile);
+    boolean flag = loadProps(LAF_PROPERTIES);
     return (loadAltProps() || flag);
   }
 

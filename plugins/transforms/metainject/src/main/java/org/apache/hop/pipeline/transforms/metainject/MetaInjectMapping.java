@@ -33,7 +33,9 @@ public class MetaInjectMapping {
   @Injection(name = "MAPPING_TARGET_FIELD", group = "MAPPING_FIELDS")
   private String targetField;
 
-  public MetaInjectMapping() {}
+  public MetaInjectMapping() {
+    // Do nothing
+  }
 
   public String getSourceTransform() {
     return sourceTransform;

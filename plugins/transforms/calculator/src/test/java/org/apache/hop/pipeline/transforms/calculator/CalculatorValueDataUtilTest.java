@@ -54,7 +54,7 @@ import org.mockito.stubbing.Answer;
 
 public class CalculatorValueDataUtilTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  private static final String yyyy_MM_dd = "yyyy-MM-dd";
+  private static final String YYYY_MM_DD = "yyyy-MM-dd";
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -1532,7 +1532,7 @@ public class CalculatorValueDataUtilTest {
         calculate("", "", IValueMeta.TYPE_BOOLEAN, CalculatorMetaFunction.CalculationType.NVL));
 
     // Test Hop date
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(yyyy_MM_dd);
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(YYYY_MM_DD);
 
     try {
       assertEquals(
@@ -1744,7 +1744,7 @@ public class CalculatorValueDataUtilTest {
     Object returnValue = ValueDataUtil.sum(metaA, null, metaB, valueB);
     verify(metaA).convertData(metaB, valueB);
     assertEquals(2L, returnValue);
-    assertEquals(metaA.getStorageType(), IValueMeta.STORAGE_TYPE_NORMAL);
+    assertEquals(IValueMeta.STORAGE_TYPE_NORMAL, metaA.getStorageType());
   }
 
   @Test
@@ -1778,17 +1778,17 @@ public class CalculatorValueDataUtilTest {
   }
 
   private Object calculate(
-      String string_dataA, int valueMetaInterfaceType, CalculationType calculatorMetaFunction) {
-    return calculate(string_dataA, null, null, valueMetaInterfaceType, calculatorMetaFunction);
+      String stringDataA, int valueMetaInterfaceType, CalculationType calculatorMetaFunction) {
+    return calculate(stringDataA, null, null, valueMetaInterfaceType, calculatorMetaFunction);
   }
 
   private Object calculate(
-      String string_dataA,
-      String string_dataB,
+      String stringDataA,
+      String stringDataB,
       int valueMetaInterfaceType,
       CalculationType calculatorMetaFunction) {
     return calculate(
-        string_dataA, string_dataB, null, valueMetaInterfaceType, calculatorMetaFunction);
+        stringDataA, stringDataB, null, valueMetaInterfaceType, calculatorMetaFunction);
   }
 
   private Object createObject(
@@ -1799,7 +1799,7 @@ public class CalculatorValueDataUtilTest {
     } else if (valueMetaInterfaceType == IValueMeta.TYPE_INTEGER) {
       return (!Utils.isEmpty(stringValue) ? Long.valueOf(stringValue) : null);
     } else if (valueMetaInterfaceType == IValueMeta.TYPE_DATE) {
-      SimpleDateFormat simpleDateFormat = new SimpleDateFormat(yyyy_MM_dd);
+      SimpleDateFormat simpleDateFormat = new SimpleDateFormat(YYYY_MM_DD);
       try {
         return (!Utils.isEmpty(stringValue) ? simpleDateFormat.parse(stringValue) : null);
       } catch (ParseException pe) {
@@ -1828,15 +1828,15 @@ public class CalculatorValueDataUtilTest {
   }
 
   private Object calculate(
-      String string_dataA,
-      String string_dataB,
-      String string_dataC,
+      String stringDataA,
+      String stringDataB,
+      String stringDataC,
       int valueMetaInterfaceTypeABC,
       CalculationType calculatorMetaFunction) {
     return calculate(
-        string_dataA,
-        string_dataB,
-        string_dataC,
+        stringDataA,
+        stringDataB,
+        stringDataC,
         valueMetaInterfaceTypeABC,
         valueMetaInterfaceTypeABC,
         valueMetaInterfaceTypeABC,
@@ -1844,9 +1844,9 @@ public class CalculatorValueDataUtilTest {
   }
 
   private Object calculate(
-      String string_dataA,
-      String string_dataB,
-      String string_dataC,
+      String stringDataA,
+      String stringDataB,
+      String stringDataC,
       int valueMetaInterfaceTypeA,
       int valueMetaInterfaceTypeB,
       int valueMetaInterfaceTypeC,
@@ -1862,9 +1862,9 @@ public class CalculatorValueDataUtilTest {
       IValueMeta valueMetaB = createValueMeta("data_B", valueMetaInterfaceTypeB);
       IValueMeta valueMetaC = createValueMeta("data_C", valueMetaInterfaceTypeC);
 
-      Object dataA = createObject(string_dataA, valueMetaInterfaceTypeA, parameterValueMeta);
-      Object dataB = createObject(string_dataB, valueMetaInterfaceTypeB, parameterValueMeta);
-      Object dataC = createObject(string_dataC, valueMetaInterfaceTypeC, parameterValueMeta);
+      Object dataA = createObject(stringDataA, valueMetaInterfaceTypeA, parameterValueMeta);
+      Object dataB = createObject(stringDataB, valueMetaInterfaceTypeB, parameterValueMeta);
+      Object dataC = createObject(stringDataC, valueMetaInterfaceTypeC, parameterValueMeta);
 
       if (calculatorMetaFunction == CalculatorMetaFunction.CalculationType.ADD) {
         return ValueDataUtil.plus(valueMetaA, dataA, valueMetaB, dataB);

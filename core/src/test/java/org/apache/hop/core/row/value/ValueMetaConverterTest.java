@@ -37,10 +37,10 @@ import org.junit.Test;
 public class ValueMetaConverterTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-  private static final int startSource = 1;
-  private static final int endSource = 10;
-  private static final int startTarget = 1;
-  private static final int endTarget = 10;
+  private static final int START_SOURCE = 1;
+  private static final int END_SOURCE = 10;
+  private static final int START_TARGET = 1;
+  private static final int END_TARGET = 10;
   private static final boolean IS_VERBOSE = false; // Change to true to display information
 
   @Test
@@ -146,8 +146,8 @@ public class ValueMetaConverterTest {
     }
 
     ValueMetaConverter converter = new ValueMetaConverter();
-    for (int sourceType = startSource; sourceType <= endSource; sourceType++) {
-      for (int targetType = startTarget; targetType <= endTarget; targetType++) {
+    for (int sourceType = START_SOURCE; sourceType <= END_SOURCE; sourceType++) {
+      for (int targetType = START_TARGET; targetType <= END_TARGET; targetType++) {
         Object[] testSpec = testMap.get(getKey(sourceType, targetType));
         if (testSpec != null) {
           Object targetValue =

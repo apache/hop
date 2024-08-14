@@ -27,7 +27,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.injection.InjectionTypeConverter;
 
 public class GroupTypeConverter extends InjectionTypeConverter {
-  public GroupTypeConverter() {}
+  public GroupTypeConverter() {
+    // Do nothing
+  }
 
   @Override
   public Enum<?> string2enum(Class<?> enumClass, String value) {

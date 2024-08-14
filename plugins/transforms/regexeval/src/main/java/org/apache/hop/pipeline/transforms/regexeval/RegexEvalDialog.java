@@ -21,8 +21,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -208,7 +208,9 @@ public class RegexEvalDialog extends BaseTransformDialog {
     wFieldEvaluate.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -425,7 +427,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.TrimType"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaString.trimTypeDesc,
+              ValueMetaBase.trimTypeDesc,
               true),
         };
 
@@ -766,7 +768,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
       if (input.getFieldIfNull()[i] != null) {
         ti.setText(10, input.getFieldIfNull()[i]);
       }
-      ti.setText(11, ValueMetaString.getTrimTypeDesc(input.getFieldTrimType()[i]));
+      ti.setText(11, ValueMetaBase.getTrimTypeDesc(input.getFieldTrimType()[i]));
     }
     wFields.setRowNums();
     wFields.optWidth(true);
@@ -806,7 +808,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
       input.getFieldCurrency()[i] = ti.getText(8);
       input.getFieldNullIf()[i] = ti.getText(9);
       input.getFieldIfNull()[i] = ti.getText(10);
-      input.getFieldTrimType()[i] = ValueMetaString.getTrimTypeByDesc(ti.getText(11));
+      input.getFieldTrimType()[i] = ValueMetaBase.getTrimTypeByDesc(ti.getText(11));
     }
 
     dispose();

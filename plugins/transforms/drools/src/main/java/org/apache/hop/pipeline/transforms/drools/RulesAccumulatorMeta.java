@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/rulesaccumulator.html")
 public class RulesAccumulatorMeta
     extends BaseTransformMeta<RulesAccumulator, RulesAccumulatorData> {
-  private static Class<?> PKG = Rules.class; // for i18n purposes
+  private static final Class<?> PKG = Rules.class; // for i18n purposes
 
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<RuleResultItem> ruleResultColumns = new ArrayList<>();
@@ -87,7 +87,9 @@ public class RulesAccumulatorMeta
   }
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Do nothing
+  }
 
   @Override
   public void getFields(

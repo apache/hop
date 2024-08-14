@@ -138,7 +138,9 @@ public class WebServiceMetaTest {
       }
 
       @Override
-      public void describeTo(Description description) {}
+      public void describeTo(Description description) {
+        // Do nothing
+      }
     };
   }
 

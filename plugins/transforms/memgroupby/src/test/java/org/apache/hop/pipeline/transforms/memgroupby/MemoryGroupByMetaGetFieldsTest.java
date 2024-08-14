@@ -31,7 +31,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -40,7 +39,6 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -62,17 +60,17 @@ public class MemoryGroupByMetaGetFieldsTest {
   private IHopMetadataProvider mockIHopMetadataProvider;
 
   @BeforeClass
-  public static void setUpBeforeClass() throws HopPluginException {
+  public static void setUpBeforeClass() {
     mockedValueMetaFactory = mockStatic(ValueMetaFactory.class);
   }
 
   @AfterClass
-  public static void tearDownAfterClass() throws HopPluginException {
+  public static void tearDownAfterClass() {
     mockedValueMetaFactory.close();
   }
 
   @Before
-  public void setup() throws HopPluginException {
+  public void setup() {
     mockSpace = mock(IVariables.class);
 
     doReturn("N").when(mockSpace).getVariable(any(), anyString());
@@ -97,9 +95,6 @@ public class MemoryGroupByMetaGetFieldsTest {
     mockedValueMetaFactory.when(() -> ValueMetaFactory.getValueMetaName(3)).thenReturn("Date");
     mockedValueMetaFactory.when(() -> ValueMetaFactory.getValueMetaName(5)).thenReturn("Integer");
   }
-
-  @After
-  public void cleanup() {}
 
   @BeforeEach
   void setUpStaticMocks() {

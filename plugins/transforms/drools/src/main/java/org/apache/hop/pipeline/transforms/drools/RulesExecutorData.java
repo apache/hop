@@ -37,7 +37,7 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.utils.KieHelper;
 
 public class RulesExecutorData extends BaseTransformData implements ITransformData {
-  private static Class<?> PKG = RulesExecutor.class; // for i18n purposes
+  private static final Class<?> PKG = RulesExecutor.class; // for i18n purposes
 
   private IRowMeta outputRowMeta;
 
@@ -161,20 +161,17 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
 
   protected Collection<Object> fetchColumns(KieSession session) {
 
-    Collection<Object> oList =
-        (Collection<Object>)
-            session.getObjects(
-                new ObjectFilter() {
-                  @Override
-                  public boolean accept(Object o) {
-                    if (o instanceof Rules.Column && !((Rules.Column) o).isExternalSource()) {
-                      return true;
-                    }
-                    return false;
-                  }
-                });
-
-    return oList;
+    return (Collection<Object>)
+        session.getObjects(
+            new ObjectFilter() {
+              @Override
+              public boolean accept(Object o) {
+                if (o instanceof Rules.Column && !((Rules.Column) o).isExternalSource()) {
+                  return true;
+                }
+                return false;
+              }
+            });
   }
 
   /**
@@ -185,5 +182,7 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
     return resultMap.get(columnName);
   }
 
-  public void shutdown() {}
+  public void shutdown() {
+    // Do nothing
+  }
 }

@@ -35,32 +35,32 @@ public class DateDetectorTest {
 
   private static final String SAMPLE_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
-  private static Date SAMPLE_DATE;
+  private static Date sampleDate;
 
-  private static String SAMPLE_DATE_STRING;
+  private static String sampleDateString;
 
-  private static final String LOCALE_en_US = "en_US";
+  private static final String LOCALE_EN_US = "en_US";
 
-  private static final String LOCALE_es = "es";
+  private static final String LOCALE_ES = "es";
 
   private static final String SAMPLE_REGEXP_US =
       "^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$";
 
   private static final String SAMPLE_DATE_FORMAT_US = "MM/dd/yyyy HH:mm:ss";
 
-  private static Date SAMPLE_DATE_US;
+  private static Date sampleDateUs;
 
-  private static String SAMPLE_DATE_STRING_US;
+  private static String sampleDateStringUs;
 
   @BeforeClass
   public static void setUpClass() {
     SimpleDateFormat format = new SimpleDateFormat(SAMPLE_DATE_FORMAT);
-    SAMPLE_DATE = new Date(0);
-    SAMPLE_DATE_STRING = format.format(SAMPLE_DATE);
+    sampleDate = new Date(0);
+    sampleDateString = format.format(sampleDate);
 
-    SimpleDateFormat format_US = new SimpleDateFormat(SAMPLE_DATE_FORMAT_US);
-    SAMPLE_DATE_US = new Date(0);
-    SAMPLE_DATE_STRING_US = format_US.format(SAMPLE_DATE_US);
+    SimpleDateFormat formatUs = new SimpleDateFormat(SAMPLE_DATE_FORMAT_US);
+    sampleDateUs = new Date(0);
+    sampleDateStringUs = formatUs.format(sampleDateUs);
   }
 
   @Test
@@ -72,11 +72,11 @@ public class DateDetectorTest {
   @Test
   public void testGetRegexpByDateFormatLocale() {
     assertNull(DateDetector.getRegexpByDateFormat(null, null));
-    assertNull(DateDetector.getRegexpByDateFormat(null, LOCALE_en_US));
+    assertNull(DateDetector.getRegexpByDateFormat(null, LOCALE_EN_US));
     // return null if we pass US dateformat without locale
     assertNull(DateDetector.getRegexpByDateFormat(SAMPLE_DATE_FORMAT_US));
     assertEquals(
-        SAMPLE_REGEXP_US, DateDetector.getRegexpByDateFormat(SAMPLE_DATE_FORMAT_US, LOCALE_en_US));
+        SAMPLE_REGEXP_US, DateDetector.getRegexpByDateFormat(SAMPLE_DATE_FORMAT_US, LOCALE_EN_US));
   }
 
   @Test
@@ -88,16 +88,16 @@ public class DateDetectorTest {
   @Test
   public void testGetDateFormatByRegexLocale() {
     assertNull(DateDetector.getDateFormatByRegex(null, null));
-    assertNull(DateDetector.getDateFormatByRegex(null, LOCALE_en_US));
+    assertNull(DateDetector.getDateFormatByRegex(null, LOCALE_EN_US));
     // return eu if we pass en_US regexp without locale
     assertEquals(SAMPLE_DATE_FORMAT, DateDetector.getDateFormatByRegex(SAMPLE_REGEXP_US));
     assertEquals(
-        SAMPLE_DATE_FORMAT_US, DateDetector.getDateFormatByRegex(SAMPLE_REGEXP_US, LOCALE_en_US));
+        SAMPLE_DATE_FORMAT_US, DateDetector.getDateFormatByRegex(SAMPLE_REGEXP_US, LOCALE_EN_US));
   }
 
   @Test
   public void testGetDateFromString() throws ParseException {
-    assertEquals(SAMPLE_DATE_US, DateDetector.getDateFromString(SAMPLE_DATE_STRING_US));
+    assertEquals(sampleDateUs, DateDetector.getDateFromString(sampleDateStringUs));
     try {
       DateDetector.getDateFromString(null);
     } catch (ParseException e) {
@@ -107,8 +107,7 @@ public class DateDetectorTest {
 
   @Test
   public void testGetDateFromStringLocale() throws ParseException {
-    assertEquals(
-        SAMPLE_DATE_US, DateDetector.getDateFromString(SAMPLE_DATE_STRING_US, LOCALE_en_US));
+    assertEquals(sampleDateUs, DateDetector.getDateFromString(sampleDateStringUs, LOCALE_EN_US));
     try {
       DateDetector.getDateFromString(null);
     } catch (ParseException e) {
@@ -124,10 +123,9 @@ public class DateDetectorTest {
   @Test
   public void testGetDateFromStringByFormat() throws ParseException {
     assertEquals(
-        SAMPLE_DATE,
-        DateDetector.getDateFromStringByFormat(SAMPLE_DATE_STRING, SAMPLE_DATE_FORMAT));
+        sampleDate, DateDetector.getDateFromStringByFormat(sampleDateString, SAMPLE_DATE_FORMAT));
     try {
-      DateDetector.getDateFromStringByFormat(SAMPLE_DATE_STRING, null);
+      DateDetector.getDateFromStringByFormat(sampleDateString, null);
     } catch (ParseException e) {
       // expected exception
     }
@@ -140,23 +138,23 @@ public class DateDetectorTest {
 
   @Test
   public void testDetectDateFormat() {
-    assertEquals(SAMPLE_DATE_FORMAT, DateDetector.detectDateFormat(SAMPLE_DATE_STRING, LOCALE_es));
+    assertEquals(SAMPLE_DATE_FORMAT, DateDetector.detectDateFormat(sampleDateString, LOCALE_ES));
     assertNull(DateDetector.detectDateFormat(null));
   }
 
   @Test
   public void testIsValidDate() {
-    assertTrue(DateDetector.isValidDate(SAMPLE_DATE_STRING_US));
+    assertTrue(DateDetector.isValidDate(sampleDateStringUs));
     assertFalse(DateDetector.isValidDate(null));
-    assertTrue(DateDetector.isValidDate(SAMPLE_DATE_STRING, SAMPLE_DATE_FORMAT));
-    assertFalse(DateDetector.isValidDate(SAMPLE_DATE_STRING, null));
+    assertTrue(DateDetector.isValidDate(sampleDateString, SAMPLE_DATE_FORMAT));
+    assertFalse(DateDetector.isValidDate(sampleDateString, null));
   }
 
   @Test
   public void testIsValidDateFormatToStringDate() {
     assertTrue(
-        DateDetector.isValidDateFormatToStringDate(SAMPLE_DATE_FORMAT_US, SAMPLE_DATE_STRING_US));
-    assertFalse(DateDetector.isValidDateFormatToStringDate(null, SAMPLE_DATE_STRING_US));
+        DateDetector.isValidDateFormatToStringDate(SAMPLE_DATE_FORMAT_US, sampleDateStringUs));
+    assertFalse(DateDetector.isValidDateFormatToStringDate(null, sampleDateStringUs));
     assertFalse(DateDetector.isValidDateFormatToStringDate(SAMPLE_DATE_FORMAT_US, null));
   }
 
@@ -164,19 +162,19 @@ public class DateDetectorTest {
   public void testIsValidDateFormatToStringDateLocale() {
     assertTrue(
         DateDetector.isValidDateFormatToStringDate(
-            SAMPLE_DATE_FORMAT_US, SAMPLE_DATE_STRING_US, LOCALE_en_US));
-    assertFalse(DateDetector.isValidDateFormatToStringDate(null, SAMPLE_DATE_STRING, LOCALE_en_US));
+            SAMPLE_DATE_FORMAT_US, sampleDateStringUs, LOCALE_EN_US));
+    assertFalse(DateDetector.isValidDateFormatToStringDate(null, sampleDateString, LOCALE_EN_US));
     assertFalse(
-        DateDetector.isValidDateFormatToStringDate(SAMPLE_DATE_FORMAT_US, null, LOCALE_en_US));
+        DateDetector.isValidDateFormatToStringDate(SAMPLE_DATE_FORMAT_US, null, LOCALE_EN_US));
     assertTrue(
         DateDetector.isValidDateFormatToStringDate(
-            SAMPLE_DATE_FORMAT_US, SAMPLE_DATE_STRING_US, null));
+            SAMPLE_DATE_FORMAT_US, sampleDateStringUs, null));
   }
 
   @Test
   public void testAllPatterns() {
-    testPatternsFrom(DateDetector.DATE_FORMAT_TO_REGEXPS_US, LOCALE_en_US);
-    testPatternsFrom(DateDetector.DATE_FORMAT_TO_REGEXPS, LOCALE_es);
+    testPatternsFrom(DateDetector.DATE_FORMAT_TO_REGEXPS_US, LOCALE_EN_US);
+    testPatternsFrom(DateDetector.DATE_FORMAT_TO_REGEXPS, LOCALE_ES);
   }
 
   private void testPatternsFrom(BidiMap formatToRegExps, String locale) {
@@ -192,18 +190,16 @@ public class DateDetectorTest {
   }
 
   private String buildTestDate(String pattern) {
-    String dateString =
-        pattern
-            .replace("dd", "31")
-            .replace("yyyy", "2015")
-            .replace("MMMM", "Decr")
-            .replace("MMM", "Dec")
-            .replace("MM", "12")
-            .replace("yy", "15")
-            .replace("HH", "12")
-            .replace("mm", "00")
-            .replace("ss", "00")
-            .replace("SSS", "123");
-    return dateString;
+    return pattern
+        .replace("dd", "31")
+        .replace("yyyy", "2015")
+        .replace("MMMM", "Decr")
+        .replace("MMM", "Dec")
+        .replace("MM", "12")
+        .replace("yy", "15")
+        .replace("HH", "12")
+        .replace("mm", "00")
+        .replace("ss", "00")
+        .replace("SSS", "123");
   }
 }

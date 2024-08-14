@@ -638,7 +638,9 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
   }
 
   @Override
-  public void startBundle() throws HopException {}
+  public void startBundle() throws HopException {
+    // Do nothing
+  }
 
   /**
    * Calling this method will alert the transform that we finished passing records to the transform.
@@ -663,7 +665,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
   }
 
   private void preSortBeforeFlush() throws HopException {
-    if (data.files.size() > 0) {
+    if (!data.files.isEmpty()) {
       // dump to dist and then read from disk
       sortExternalRows();
     } else {

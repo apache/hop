@@ -18,6 +18,7 @@
 
 package org.apache.hop.neo4j.transforms.gencsv;
 
+@SuppressWarnings("java:S115")
 public enum UniquenessStrategy {
   None, // Don't calculate unique nore or relationship values
   First, // Take the first version of the node or relationship

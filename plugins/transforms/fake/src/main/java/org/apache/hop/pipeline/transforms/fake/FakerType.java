@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.fake;
 
+@SuppressWarnings("java:S115")
 public enum FakerType {
   Ancient(com.github.javafaker.Ancient.class, "ancient", "Ancient"),
   App(com.github.javafaker.App.class, "app", "App"),

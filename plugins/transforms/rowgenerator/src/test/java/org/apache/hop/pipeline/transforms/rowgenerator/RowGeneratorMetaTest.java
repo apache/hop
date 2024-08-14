@@ -48,9 +48,6 @@ public class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
   private Class<RowGeneratorMeta> testMetaClass = RowGeneratorMeta.class;
 
   @Before
-  public void setUp() throws HopException {}
-
-  @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();

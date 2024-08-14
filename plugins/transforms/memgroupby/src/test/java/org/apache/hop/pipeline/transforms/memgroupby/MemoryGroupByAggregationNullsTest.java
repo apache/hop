@@ -39,8 +39,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 public class MemoryGroupByAggregationNullsTest {
@@ -103,12 +101,6 @@ public class MemoryGroupByAggregationNullsTest {
   HashEntry getHashEntry() {
     return data.getHashEntry(new Object[data.groupMeta.size()]);
   }
-
-  @BeforeEach
-  void setUpStaticMocks() {}
-
-  @AfterEach
-  void tearDownStaticMocks() {}
 
   /**
    * "Group by" transform - Minimum aggregation doesn't work
@@ -200,7 +192,6 @@ public class MemoryGroupByAggregationNullsTest {
     vmi.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
     vmi.setStorageMetadata(new ValueMetaString());
     aggregate.counts = new long[] {0L};
-    // Mockito.doReturn(new String[] {"test"}).when(memoryGroupByMeta).getSubjectField();
     aggregate.agg = new Object[] {new byte[0]};
     transform =
         new MemoryGroupBy(

@@ -258,7 +258,9 @@ public class TikaDialog extends BaseTransformDialog {
     wFilenameField.setLayoutData(fdFilenameField);
     wFilenameField.addFocusListener(
         new FocusListener() {
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do nothing
+          }
 
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             setDynamicFilenameField();
@@ -498,7 +500,9 @@ public class TikaDialog extends BaseTransformDialog {
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do nothing
+          }
 
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             setEncodings();
