@@ -26,9 +26,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultMeta;
 
 /**
- * @Deprecated Use RowsFromResultMeta
+ * @deprecated Use RowsFromResultMeta
  */
-@Deprecated
+@Deprecated(since = "2.10")
 @Transform(
     id = "RecordsFromStream",
     image = "recordsfromstream.svg",

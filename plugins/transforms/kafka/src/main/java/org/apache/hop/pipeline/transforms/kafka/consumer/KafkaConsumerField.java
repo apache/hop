@@ -82,6 +82,7 @@ public class KafkaConsumerField {
     this.outputType = outputType;
   }
 
+  @SuppressWarnings("java:S1104")
   public enum Type {
     String(
         "String",
@@ -241,7 +242,7 @@ public class KafkaConsumerField {
 
     @Override
     public String toString() {
-      return name.toString();
+      return name;
     }
 
     boolean isEqual(String name) {

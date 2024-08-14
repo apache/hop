@@ -48,7 +48,7 @@ import org.w3c.dom.Node;
 public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
   private static final Class<?> PKG = SasInputMeta.class; // for i18n purposes,
 
-  public static final String Xml_TAG_FIELD = "field";
+  public static final String XML_TAG_FIELD = "field";
 
   /** The field in which the filename is placed */
   private String acceptingField;
@@ -69,10 +69,10 @@ public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
       throws HopXmlException {
     try {
       acceptingField = XmlHandler.getTagValue(transformNode, "accept_field");
-      int nrFields = XmlHandler.countNodes(transformNode, Xml_TAG_FIELD);
+      int nrFields = XmlHandler.countNodes(transformNode, XML_TAG_FIELD);
       outputFields = new ArrayList<>();
       for (int i = 0; i < nrFields; i++) {
-        Node fieldNode = XmlHandler.getSubNodeByNr(transformNode, Xml_TAG_FIELD, i);
+        Node fieldNode = XmlHandler.getSubNodeByNr(transformNode, XML_TAG_FIELD, i);
         outputFields.add(new SasInputField(fieldNode));
       }
     } catch (Exception e) {
@@ -126,9 +126,9 @@ public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
 
     retval.append("    " + XmlHandler.addTagValue("accept_field", acceptingField));
     for (SasInputField field : outputFields) {
-      retval.append(XmlHandler.openTag(Xml_TAG_FIELD));
+      retval.append(XmlHandler.openTag(XML_TAG_FIELD));
       retval.append(field.getXml());
-      retval.append(XmlHandler.closeTag(Xml_TAG_FIELD));
+      retval.append(XmlHandler.closeTag(XML_TAG_FIELD));
     }
 
     return retval.toString();

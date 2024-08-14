@@ -2649,7 +2649,7 @@ public class TextFileInputDialog extends BaseTransformDialog
       field.setGroupSymbol(item.getText(9));
       field.setNullString(item.getText(10));
       field.setIfNullValue(item.getText(11));
-      field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(12)));
+      field.setTrimType(ValueMetaBase.getTrimTypeByDesc(item.getText(12)));
       field.setRepeated(
           BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(13)));
 

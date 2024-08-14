@@ -468,6 +468,10 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     }
   }
 
+  /**
+   * @deprecated
+   * @param finishedListener
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void addWorkflowFinishedListener(
@@ -477,6 +481,10 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     }
   }
 
+  /**
+   * @deprecated
+   * @throws HopException
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void fireWorkflowFinishListeners() throws HopException {
@@ -488,6 +496,10 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     }
   }
 
+  /**
+   * @deprecated
+   * @param finishedListener
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void addWorkflowStartedListener(
@@ -497,6 +509,10 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     }
   }
 
+  /**
+   * @deprecated
+   * @throws HopException
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void fireWorkflowStartedListeners() throws HopException {
@@ -1164,8 +1180,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * Gets workflowFinishedListeners
-   *
+   * @deprecated Gets workflowFinishedListeners
    * @return value of workflowFinishedListeners
    */
   @Override
@@ -1176,6 +1191,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
+   * @deprecated
    * @param workflowFinishedListeners The workflowFinishedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -1185,8 +1201,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * Gets workflowStartedListeners
-   *
+   * @deprecated Gets workflowStartedListeners
    * @return value of workflowStartedListeners
    */
   @Override
@@ -1197,6 +1212,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
+   * @deprecated
    * @param workflowStartedListeners The workflowStartedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)

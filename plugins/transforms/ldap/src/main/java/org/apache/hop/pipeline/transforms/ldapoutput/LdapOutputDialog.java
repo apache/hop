@@ -736,7 +736,9 @@ public class LdapOutputDialog extends BaseTransformDialog {
     wDnField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -788,7 +790,9 @@ public class LdapOutputDialog extends BaseTransformDialog {
     wOldDnField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -817,7 +821,9 @@ public class LdapOutputDialog extends BaseTransformDialog {
     wNewDnField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -1203,7 +1209,7 @@ public class LdapOutputDialog extends BaseTransformDialog {
     transformName = wTransformName.getText();
     try {
       getInfo(input);
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "LdapOutputDialog.ErrorParsingData.DialogTitle"),
@@ -1213,7 +1219,7 @@ public class LdapOutputDialog extends BaseTransformDialog {
     dispose();
   }
 
-  private void getInfo(LdapOutputMeta in) throws HopException {
+  private void getInfo(LdapOutputMeta in) {
     transformName = wTransformName.getText(); // return value
     in.setProtocol(wProtocol.getText());
     in.setUseCertificate(wSetTrustStore.getSelection());

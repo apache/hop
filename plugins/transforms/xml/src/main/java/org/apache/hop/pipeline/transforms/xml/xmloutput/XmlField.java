@@ -24,6 +24,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 /** Describes a single field in an XML output file */
 public class XmlField implements Cloneable {
 
+  @SuppressWarnings("java:S115")
   public enum ContentType {
     Element,
     Attribute;
@@ -169,24 +170,24 @@ public class XmlField implements Cloneable {
     return groupingSymbol;
   }
 
-  public void setGroupingSymbol(String group_symbol) {
-    this.groupingSymbol = group_symbol;
+  public void setGroupingSymbol(String groupSymbol) {
+    this.groupingSymbol = groupSymbol;
   }
 
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol(String decimal_symbol) {
-    this.decimalSymbol = decimal_symbol;
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
   }
 
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol(String currency_symbol) {
-    this.currencySymbol = currency_symbol;
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
   }
 
   public int getPrecision() {

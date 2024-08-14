@@ -55,6 +55,7 @@ import org.eclipse.swt.widgets.Shell;
  *
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
+@Deprecated
 public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProgressDialog {
   private static final Class<?> PKG = TextFileInputMeta.class;
 

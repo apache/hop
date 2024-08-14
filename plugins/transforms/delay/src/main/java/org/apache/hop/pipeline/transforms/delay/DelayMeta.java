@@ -51,7 +51,9 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
 
   private static final String DEFAULT_SCALE_TIME = "seconds";
 
-  private static final String[] SCALE_TIME_CODE = {"milliseconds", "seconds", "minutes", "hours"};
+  private static final String[] SCALE_TIME_CODE = {
+    "milliseconds", DEFAULT_SCALE_TIME, "minutes", "hours"
+  };
 
   public DelayMeta() {
     super(); // allocate BaseTransformMeta

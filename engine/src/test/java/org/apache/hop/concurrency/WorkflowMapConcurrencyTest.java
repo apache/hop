@@ -41,10 +41,10 @@ public class WorkflowMapConcurrencyTest {
   public static final String WORKFLOW_ID_STRING = "workflow";
   public static final int INITIAL_WORKFLOW_MAP_SIZE = 100;
 
-  private static final int gettersAmount = 20;
-  private static final int replaceAmount = 20;
-  private static final int updatersAmount = 20;
-  private static final int updatersCycles = 100;
+  private static final int GETTERS_AMOUNT = 20;
+  private static final int REPLACE_AMOUNT = 20;
+  private static final int UPDATERS_AMOUNT = 20;
+  private static final int UPDATERS_CYCLES = 100;
 
   private static WorkflowMap workflowMap;
 
@@ -73,18 +73,18 @@ public class WorkflowMapConcurrencyTest {
     AtomicInteger generator = new AtomicInteger(10);
 
     List<Updater> updaters = new ArrayList<>();
-    for (int i = 0; i < updatersAmount; i++) {
-      Updater updater = new Updater(workflowMap, generator, updatersCycles);
+    for (int i = 0; i < UPDATERS_AMOUNT; i++) {
+      Updater updater = new Updater(workflowMap, generator, UPDATERS_CYCLES);
       updaters.add(updater);
     }
 
     List<Getter> getters = new ArrayList<>();
-    for (int i = 0; i < gettersAmount; i++) {
+    for (int i = 0; i < GETTERS_AMOUNT; i++) {
       getters.add(new Getter(workflowMap, condition));
     }
 
     List<Replacer> replacers = new ArrayList<>();
-    for (int i = 0; i < replaceAmount; i++) {
+    for (int i = 0; i < REPLACE_AMOUNT; i++) {
       replacers.add(new Replacer(workflowMap, condition));
     }
 

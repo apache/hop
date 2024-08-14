@@ -50,29 +50,29 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class WorkflowTrackerConcurrencyTest {
 
-  private static final int gettersAmount = 10;
+  private static final int GETTERS_AMOUNT = 10;
 
-  private static final int searchersAmount = 20;
+  private static final int SEARCHERS_AMOUNT = 20;
 
-  private static final int updatersAmount = 5;
-  private static final int updatersCycles = 10;
+  private static final int UPDATERS_AMOUNT = 5;
+  private static final int UPDATERS_CYCLES = 10;
 
-  private static final int jobsLimit = 20;
+  private static final int JOBS_LIMIT = 20;
 
   @BeforeClass
   public static void setUp() {
     // a guarding check for tests' parameters
-    int jobsToBeAdded = updatersAmount * updatersCycles;
+    int jobsToBeAdded = UPDATERS_AMOUNT * UPDATERS_CYCLES;
     assertTrue(
         "The limit of stored workflows must be less than the amount of children to be added",
-        jobsLimit < jobsToBeAdded);
+        JOBS_LIMIT < jobsToBeAdded);
   }
 
   @Parameterized.Parameters
   public static List<Object[]> getData() {
     return Arrays.asList(
         new Object[] {new WorkflowTracker(mockWorkflowMeta("parent"))},
-        new Object[] {new WorkflowTracker(mockWorkflowMeta("parent"), jobsLimit)});
+        new Object[] {new WorkflowTracker(mockWorkflowMeta("parent"), JOBS_LIMIT)});
   }
 
   private static WorkflowMeta mockWorkflowMeta(String name) {
@@ -91,30 +91,30 @@ public class WorkflowTrackerConcurrencyTest {
   public void readAndUpdateTrackerConcurrently() throws Exception {
     final AtomicBoolean condition = new AtomicBoolean(true);
 
-    List<Getter> getters = new ArrayList<>(gettersAmount);
-    for (int i = 0; i < gettersAmount; i++) {
+    List<Getter> getters = new ArrayList<>(GETTERS_AMOUNT);
+    for (int i = 0; i < GETTERS_AMOUNT; i++) {
       getters.add(new Getter(condition, tracker));
     }
 
-    List<Searcher> searchers = new ArrayList<>(searchersAmount);
-    for (int i = 0; i < searchersAmount; i++) {
-      int lookingFor = updatersAmount * updatersCycles / 2 + i;
+    List<Searcher> searchers = new ArrayList<>(SEARCHERS_AMOUNT);
+    for (int i = 0; i < SEARCHERS_AMOUNT; i++) {
+      int lookingFor = UPDATERS_AMOUNT * UPDATERS_CYCLES / 2 + i;
       assertTrue(
-          "We are looking for reachable index", lookingFor < updatersAmount * updatersCycles);
+          "We are looking for reachable index", lookingFor < UPDATERS_AMOUNT * UPDATERS_CYCLES);
       searchers.add(
           new Searcher(condition, tracker, mockActionMeta("workflow-action-" + lookingFor)));
     }
 
     final AtomicInteger generator = new AtomicInteger(0);
-    List<Updater> updaters = new ArrayList<>(updatersAmount);
-    for (int i = 0; i < updatersAmount; i++) {
-      updaters.add(new Updater(tracker, updatersCycles, generator, "workflow-action-%d"));
+    List<Updater> updaters = new ArrayList<>(UPDATERS_AMOUNT);
+    for (int i = 0; i < UPDATERS_AMOUNT; i++) {
+      updaters.add(new Updater(tracker, UPDATERS_CYCLES, generator, "workflow-action-%d"));
     }
 
     //noinspection unchecked
     ConcurrencyTestRunner.runAndCheckNoExceptionRaised(
         updaters, ListUtils.union(getters, searchers), condition);
-    assertEquals(updatersAmount * updatersCycles, generator.get());
+    assertEquals(UPDATERS_AMOUNT * UPDATERS_CYCLES, generator.get());
   }
 
   static ActionMeta mockActionMeta(String name) {

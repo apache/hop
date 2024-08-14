@@ -152,6 +152,7 @@ public class VerticaBulkLoaderMeta
     fields = new ArrayList<>();
   }
 
+  @Override
   public Object clone() {
     return super.clone();
   }
@@ -184,6 +185,7 @@ public class VerticaBulkLoaderMeta
   /**
    * @deprecated use {@link #getTableName()}
    */
+  @Deprecated(since = "2.10")
   public String getTablename() {
     return getTableName();
   }
@@ -200,6 +202,7 @@ public class VerticaBulkLoaderMeta
   /**
    * @deprecated use {@link #setTableName()}
    */
+  @Deprecated(since = "2.10")
   public void setTablename(String name) {
     setTableName(name);
   }
@@ -297,6 +300,7 @@ public class VerticaBulkLoaderMeta
     return specifyFields;
   }
 
+  @Override
   public void setDefault() {
     tablename = "";
 
@@ -590,6 +594,7 @@ public class VerticaBulkLoaderMeta
     }
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
@@ -631,6 +636,7 @@ public class VerticaBulkLoaderMeta
     }
   }
 
+  @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
       PipelineMeta pipelineMeta,
@@ -680,6 +686,7 @@ public class VerticaBulkLoaderMeta
     return retval;
   }
 
+  @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tablename);
     String realSchemaName = variables.resolve(schemaName);
@@ -750,6 +757,7 @@ public class VerticaBulkLoaderMeta
     this.schemaName = schemaName;
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

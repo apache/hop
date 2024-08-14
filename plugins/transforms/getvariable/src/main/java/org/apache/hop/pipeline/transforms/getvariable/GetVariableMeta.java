@@ -127,7 +127,9 @@ public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableD
   }
 
   public static final class IntTypeConverter implements IIntCodeConverter {
-    public IntTypeConverter() {}
+    public IntTypeConverter() {
+      // Do nothing
+    }
 
     @Override
     public String getCode(int type) {

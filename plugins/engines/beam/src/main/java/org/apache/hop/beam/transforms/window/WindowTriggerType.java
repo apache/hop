@@ -18,6 +18,7 @@
 
 package org.apache.hop.beam.transforms.window;
 
+@SuppressWarnings("java:S115")
 public enum WindowTriggerType {
   None("No triggering"),
   RepeatedlyForeverAfterWatermarkPastEndOfWindow(

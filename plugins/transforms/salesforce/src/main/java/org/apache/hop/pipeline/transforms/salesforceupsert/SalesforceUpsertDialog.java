@@ -389,7 +389,9 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wModule.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -428,7 +430,9 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wUpsertField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -545,7 +549,9 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
               }
 
               @Override
-              public void focusLost(FocusEvent e) {}
+              public void focusLost(FocusEvent e) {
+                // Do nothing
+              }
             });
 
     Button wDoMapping = new Button(wGeneralComp, SWT.PUSH);

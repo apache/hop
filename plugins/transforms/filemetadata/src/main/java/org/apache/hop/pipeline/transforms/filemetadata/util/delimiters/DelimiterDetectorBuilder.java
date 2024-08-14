@@ -34,7 +34,9 @@ public class DelimiterDetectorBuilder {
 
   private long rowLimit = 0;
 
-  public DelimiterDetectorBuilder() {}
+  public DelimiterDetectorBuilder() {
+    // Do nothing
+  }
 
   public DelimiterDetectorBuilder withDelimiterCandidates(char... candidates) {
     delimiterCandidates.clear();

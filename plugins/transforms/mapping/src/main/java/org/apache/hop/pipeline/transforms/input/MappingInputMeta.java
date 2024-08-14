@@ -73,7 +73,9 @@ public class MappingInputMeta extends BaseTransformMeta<MappingInput, MappingInp
   }
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Do nothing
+  }
 
   @Override
   public void getFields(

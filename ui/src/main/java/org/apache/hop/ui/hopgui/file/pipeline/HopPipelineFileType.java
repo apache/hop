@@ -59,7 +59,9 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
   public static final Class<?> PKG = HopPipelineFileType.class; // i18n
   public static final String PIPELINE_FILE_TYPE_DESCRIPTION = "Pipeline";
 
-  public HopPipelineFileType() {}
+  public HopPipelineFileType() {
+    // Do nothing
+  }
 
   @Override
   public String getName() {

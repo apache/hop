@@ -17,6 +17,7 @@
 
 package org.apache.hop.testing;
 
+@SuppressWarnings("java:S115")
 public enum DataSetType {
   Input,
   Golden,

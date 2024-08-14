@@ -87,7 +87,9 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
   }
 
   @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {}
+  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
+    // Do nothing
+  }
 
   @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
@@ -102,13 +104,19 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
   }
 
   @Override
-  public void perspectiveActivated() {}
+  public void perspectiveActivated() {
+    // Do nothing
+  }
 
   @Override
-  public void navigateToPreviousFile() {}
+  public void navigateToPreviousFile() {
+    // Do nothing
+  }
 
   @Override
-  public void navigateToNextFile() {}
+  public void navigateToNextFile() {
+    // Do nothing
+  }
 
   @Override
   public boolean isActive() {
@@ -190,7 +198,9 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
   }
 
   @Override
-  public void closeTab(CTabFolderEvent event, CTabItem tabItem) {}
+  public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
+    // Do nothing
+  }
 
   @Override
   public List<CTabItem> getTabsToRight(CTabItem selectedTabItem) {

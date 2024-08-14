@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.NotePadMeta;
@@ -84,7 +85,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -291,9 +291,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   protected org.apache.hop.core.gui.Rectangle selectionRegion;
 
-  protected static final double theta = Math.toRadians(10); // arrowhead sharpness
+  protected static final double THETA = Math.toRadians(10); // arrowhead sharpness
 
-  protected static final int size = 30; // arrowhead length
+  protected static final int SIZE = 30; // arrowhead length
 
   protected int currentMouseX = 0;
 
@@ -1262,37 +1262,35 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // Move around notes & transforms
     //
-    if (selectedNote != null) {
-      if (lastButton == 1 && !shift) {
-        /*
-         * One or more notes are selected and moved around...
-         *
-         * new : new position of the note (not the mouse pointer) dx : difference with previous position
-         */
-        int dx = note.x - selectedNote.getLocation().x;
-        int dy = note.y - selectedNote.getLocation().y;
+    if (selectedNote != null && lastButton == 1 && !shift) {
+      /*
+       * One or more notes are selected and moved around...
+       *
+       * new : new position of the note (not the mouse pointer) dx : difference with previous position
+       */
+      int dx = note.x - selectedNote.getLocation().x;
+      int dy = note.y - selectedNote.getLocation().y;
 
-        selectedNotes = workflowMeta.getSelectedNotes();
-        selectedActions = workflowMeta.getSelectedActions();
+      selectedNotes = workflowMeta.getSelectedNotes();
+      selectedActions = workflowMeta.getSelectedActions();
 
-        // Adjust location of selected transforms...
-        if (selectedActions != null) {
-          for (int i = 0; i < selectedActions.size(); i++) {
-            ActionMeta actionCopy = selectedActions.get(i);
-            PropsUi.setLocation(
-                actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y + dy);
-          }
+      // Adjust location of selected transforms...
+      if (selectedActions != null) {
+        for (int i = 0; i < selectedActions.size(); i++) {
+          ActionMeta actionCopy = selectedActions.get(i);
+          PropsUi.setLocation(
+              actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y + dy);
         }
-        // Adjust location of selected hops...
-        if (selectedNotes != null) {
-          for (int i = 0; i < selectedNotes.size(); i++) {
-            NotePadMeta ni = selectedNotes.get(i);
-            PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
-          }
-        }
-
-        doRedraw = true;
       }
+      // Adjust location of selected hops...
+      if (selectedNotes != null) {
+        for (int i = 0; i < selectedNotes.size(); i++) {
+          NotePadMeta ni = selectedNotes.get(i);
+          PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
+        }
+      }
+
+      doRedraw = true;
     }
 
     Cursor cursor = null;
@@ -1897,34 +1895,32 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         new int[] {workflowMeta.indexOfAction(jeNew)});
     workflowMeta.setChanged();
 
-    if (action.isLaunchingInParallel()) {
+    if (action.isLaunchingInParallel()
+        && "Y"
+            .equalsIgnoreCase(
+                hopGui.getProps().getCustomParameter(STRING_PARALLEL_WARNING_PARAMETER, "Y"))) {
       // Show a warning (optional)
-      //
-      if ("Y"
-          .equalsIgnoreCase(
-              hopGui.getProps().getCustomParameter(STRING_PARALLEL_WARNING_PARAMETER, "Y"))) {
-        MessageDialogWithToggle md =
-            new MessageDialogWithToggle(
-                hopShell(),
-                BaseMessages.getString(PKG, "WorkflowGraph.ParallelActionsWarning.DialogTitle"),
-                BaseMessages.getString(
-                        PKG, "WorkflowGraph.ParallelActionsWarning.DialogMessage", Const.CR)
-                    + Const.CR,
-                SWT.ICON_WARNING,
-                new String[] {
-                  BaseMessages.getString(PKG, "WorkflowGraph.ParallelActionsWarning.Option1")
-                },
-                BaseMessages.getString(PKG, "WorkflowGraph.ParallelActionsWarning.Option2"),
-                "N"
-                    .equalsIgnoreCase(
-                        hopGui
-                            .getProps()
-                            .getCustomParameter(STRING_PARALLEL_WARNING_PARAMETER, "Y")));
-        md.open();
-        hopGui
-            .getProps()
-            .setCustomParameter(STRING_PARALLEL_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y");
-      }
+      MessageDialogWithToggle md =
+          new MessageDialogWithToggle(
+              hopShell(),
+              BaseMessages.getString(PKG, "WorkflowGraph.ParallelActionsWarning.DialogTitle"),
+              BaseMessages.getString(
+                      PKG, "WorkflowGraph.ParallelActionsWarning.DialogMessage", Const.CR)
+                  + Const.CR,
+              SWT.ICON_WARNING,
+              new String[] {
+                BaseMessages.getString(PKG, "WorkflowGraph.ParallelActionsWarning.Option1")
+              },
+              BaseMessages.getString(PKG, "WorkflowGraph.ParallelActionsWarning.Option2"),
+              "N"
+                  .equalsIgnoreCase(
+                      hopGui
+                          .getProps()
+                          .getCustomParameter(STRING_PARALLEL_WARNING_PARAMETER, "Y")));
+      md.open();
+      hopGui
+          .getProps()
+          .setCustomParameter(STRING_PARALLEL_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y");
     }
     redraw();
   }
@@ -3795,7 +3791,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void addUndoPosition(
       Object[] obj, int[] pos, Point[] prev, Point[] curr, boolean nextAlso) {
     // It's better to store the indexes of the objects, not the objects itself!
-    workflowMeta.addUndo(obj, null, pos, prev, curr, PipelineMeta.TYPE_UNDO_POSITION, nextAlso);
+    workflowMeta.addUndo(obj, null, pos, prev, curr, AbstractMeta.TYPE_UNDO_POSITION, nextAlso);
     hopGui.setUndoMenu(workflowMeta);
   }
 

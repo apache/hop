@@ -20,8 +20,8 @@ package org.apache.hop.core;
 import org.apache.hop.core.database.DatabaseMeta;
 
 /**
- * An interface for pipeline transforms that connect to a database table. For example a table output
- * transform or a bulk loader.
+ * @deprecated An interface for pipeline transforms that connect to a database table. For example a
+ *     table output transform or a bulk loader.
  */
 @Deprecated(since = "2.10", forRemoval = true)
 public interface IProvidesDatabaseConnectionInformation {

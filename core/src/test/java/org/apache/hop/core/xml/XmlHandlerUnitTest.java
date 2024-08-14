@@ -62,7 +62,7 @@ public class XmlHandlerUnitTest {
           + "]>\n"
           + "<lolz>&lol9;</lolz>";
 
-  private static final String cr = Const.CR;
+  private static final String CR = Const.CR;
 
   @Test
   public void openTagWithNotNull() {
@@ -131,9 +131,9 @@ public class XmlHandlerUnitTest {
   public void addTagValueBigDecimal() {
     BigDecimal input = new BigDecimal("1234567890123456789.01");
     assertEquals(
-        "<bigdec>1234567890123456789.01</bigdec>" + cr, XmlHandler.addTagValue("bigdec", input));
+        "<bigdec>1234567890123456789.01</bigdec>" + CR, XmlHandler.addTagValue("bigdec", input));
     assertEquals(
-        "<bigdec>1234567890123456789.01</bigdec>" + cr,
+        "<bigdec>1234567890123456789.01</bigdec>" + CR,
         XmlHandler.addTagValue("bigdec", input, true));
     assertEquals(
         "<bigdec>1234567890123456789.01</bigdec>", XmlHandler.addTagValue("bigdec", input, false));
@@ -141,11 +141,11 @@ public class XmlHandlerUnitTest {
 
   @Test
   public void addTagValueBoolean() {
-    assertEquals("<abool>Y</abool>" + cr, XmlHandler.addTagValue("abool", true));
-    assertEquals("<abool>Y</abool>" + cr, XmlHandler.addTagValue("abool", true, true));
+    assertEquals("<abool>Y</abool>" + CR, XmlHandler.addTagValue("abool", true));
+    assertEquals("<abool>Y</abool>" + CR, XmlHandler.addTagValue("abool", true, true));
     assertEquals("<abool>Y</abool>", XmlHandler.addTagValue("abool", true, false));
-    assertEquals("<abool>N</abool>" + cr, XmlHandler.addTagValue("abool", false));
-    assertEquals("<abool>N</abool>" + cr, XmlHandler.addTagValue("abool", false, true));
+    assertEquals("<abool>N</abool>" + CR, XmlHandler.addTagValue("abool", false));
+    assertEquals("<abool>N</abool>" + CR, XmlHandler.addTagValue("abool", false, true));
     assertEquals("<abool>N</abool>", XmlHandler.addTagValue("abool", false, false));
   }
 
@@ -157,9 +157,9 @@ public class XmlHandlerUnitTest {
     aDate.set(Calendar.MILLISECOND, 789);
 
     assertEquals(
-        "<adate>" + result + "</adate>" + cr, XmlHandler.addTagValue("adate", aDate.getTime()));
+        "<adate>" + result + "</adate>" + CR, XmlHandler.addTagValue("adate", aDate.getTime()));
     assertEquals(
-        "<adate>" + result + "</adate>" + cr,
+        "<adate>" + result + "</adate>" + CR,
         XmlHandler.addTagValue("adate", aDate.getTime(), true));
     assertEquals(
         "<adate>" + result + "</adate>", XmlHandler.addTagValue("adate", aDate.getTime(), false));
@@ -168,8 +168,8 @@ public class XmlHandlerUnitTest {
   @Test
   public void addTagValueLong() {
     long input = 123;
-    assertEquals("<along>123</along>" + cr, XmlHandler.addTagValue("along", input));
-    assertEquals("<along>123</along>" + cr, XmlHandler.addTagValue("along", input, true));
+    assertEquals("<along>123</along>" + CR, XmlHandler.addTagValue("along", input));
+    assertEquals("<along>123</along>" + CR, XmlHandler.addTagValue("along", input, true));
     assertEquals("<along>123</along>", XmlHandler.addTagValue("along", input, false));
 
     assertEquals(
@@ -183,8 +183,8 @@ public class XmlHandlerUnitTest {
   @Test
   public void addTagValueInt() {
     int input = 456;
-    assertEquals("<anint>456</anint>" + cr, XmlHandler.addTagValue("anint", input));
-    assertEquals("<anint>456</anint>" + cr, XmlHandler.addTagValue("anint", input, true));
+    assertEquals("<anint>456</anint>" + CR, XmlHandler.addTagValue("anint", input));
+    assertEquals("<anint>456</anint>" + CR, XmlHandler.addTagValue("anint", input, true));
     assertEquals("<anint>456</anint>", XmlHandler.addTagValue("anint", input, false));
 
     assertEquals(
@@ -198,8 +198,8 @@ public class XmlHandlerUnitTest {
   @Test
   public void addTagValueDouble() {
     double input = 123.45;
-    assertEquals("<adouble>123.45</adouble>" + cr, XmlHandler.addTagValue("adouble", input));
-    assertEquals("<adouble>123.45</adouble>" + cr, XmlHandler.addTagValue("adouble", input, true));
+    assertEquals("<adouble>123.45</adouble>" + CR, XmlHandler.addTagValue("adouble", input));
+    assertEquals("<adouble>123.45</adouble>" + CR, XmlHandler.addTagValue("adouble", input, true));
     assertEquals("<adouble>123.45</adouble>", XmlHandler.addTagValue("adouble", input, false));
 
     assertEquals(
@@ -220,9 +220,9 @@ public class XmlHandlerUnitTest {
     String result = "H4sIAAAAAAAAAAtJLS5RcEksSQQAL4PL8QkAAAA=";
 
     assertEquals(
-        "<bytedata>" + result + "</bytedata>" + cr, XmlHandler.addTagValue("bytedata", input));
+        "<bytedata>" + result + "</bytedata>" + CR, XmlHandler.addTagValue("bytedata", input));
     assertEquals(
-        "<bytedata>" + result + "</bytedata>" + cr,
+        "<bytedata>" + result + "</bytedata>" + CR,
         XmlHandler.addTagValue("bytedata", input, true));
     assertEquals(
         "<bytedata>" + result + "</bytedata>", XmlHandler.addTagValue("bytedata", input, false));

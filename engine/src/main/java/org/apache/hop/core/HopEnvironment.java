@@ -196,7 +196,9 @@ public class HopEnvironment {
   }
 
   // Shutdown the Hop environment programmatically
-  public static void shutdown() {}
+  public static void shutdown() {
+    // Do Nothing
+  }
 
   /**
    * Checks if the Hop environment has been initialized.
@@ -217,7 +219,9 @@ public class HopEnvironment {
    *
    * @throws HopPluginException if any errors are encountered while loading the plugin registry.
    */
-  public void loadPluginRegistry() throws HopPluginException {}
+  public void loadPluginRegistry() {
+    // Do Nothing
+  }
 
   /** Sets the executor's user and Server information */
   public static void setExecutionInformation(IExecutor executor) {

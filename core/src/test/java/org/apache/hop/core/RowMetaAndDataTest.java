@@ -41,6 +41,7 @@ public class RowMetaAndDataTest {
 
   DefaultInjectionTypeConverter converter = new DefaultInjectionTypeConverter();
 
+  @SuppressWarnings("java:S115")
   enum TestEnum {
     ONE,
     Two,

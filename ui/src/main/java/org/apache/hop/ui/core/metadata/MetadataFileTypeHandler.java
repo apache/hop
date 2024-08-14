@@ -74,55 +74,89 @@ public class MetadataFileTypeHandler<T extends IHopMetadata> implements IHopFile
   }
 
   @Override
-  public void setFilename(String filename) {}
+  public void setFilename(String filename) {
+    // Do nothing
+  }
 
   @Override
-  public void save() throws HopException {}
+  public void save() throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void saveAs(String filename) throws HopException {}
+  public void saveAs(String filename) throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void start() {}
+  public void start() {
+    // Do nothing
+  }
 
   @Override
-  public void stop() {}
+  public void stop() {
+    // Do nothing
+  }
 
   @Override
-  public void pause() {}
+  public void pause() {
+    // Do nothing
+  }
 
   @Override
-  public void resume() {}
+  public void resume() {
+    // Do nothing
+  }
 
   @Override
-  public void preview() {}
+  public void preview() {
+    // Do nothing
+  }
 
   @Override
-  public void debug() {}
+  public void debug() {
+    // Do nothing
+  }
 
   @Override
-  public void redraw() {}
+  public void redraw() {
+    // Do nothing
+  }
 
   @Override
-  public void updateGui() {}
+  public void updateGui() {
+    // Do nothing
+  }
 
   @Override
-  public void selectAll() {}
+  public void selectAll() {
+    // Do nothing
+  }
 
   @Override
-  public void unselectAll() {}
+  public void unselectAll() {
+    // Do nothing
+  }
 
   @Override
-  public void copySelectedToClipboard() {}
+  public void copySelectedToClipboard() {
+    // Do nothing
+  }
 
   @Override
-  public void cutSelectedToClipboard() {}
+  public void cutSelectedToClipboard() {
+    // Do nothing
+  }
 
   @Override
-  public void deleteSelected() {}
+  public void deleteSelected() {
+    // Do nothing
+  }
 
   @Override
-  public void pasteFromClipboard() {}
+  public void pasteFromClipboard() {
+    // Do nothing
+  }
 
   private TabItemHandler findTabItemHandler() {
     if (metadata == null) {
@@ -162,10 +196,14 @@ public class MetadataFileTypeHandler<T extends IHopMetadata> implements IHopFile
   }
 
   @Override
-  public void undo() {}
+  public void undo() {
+    // Do nothing
+  }
 
   @Override
-  public void redo() {}
+  public void redo() {
+    // Do nothing
+  }
 
   @Override
   public Map<String, Object> getStateProperties() {
@@ -173,7 +211,9 @@ public class MetadataFileTypeHandler<T extends IHopMetadata> implements IHopFile
   }
 
   @Override
-  public void applyStateProperties(Map<String, Object> stateProperties) {}
+  public void applyStateProperties(Map<String, Object> stateProperties) {
+    // Do nothing
+  }
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {

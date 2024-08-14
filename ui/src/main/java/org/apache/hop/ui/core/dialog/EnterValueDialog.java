@@ -210,7 +210,9 @@ public class EnterValueDialog extends Dialog {
     wInputString.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusGained(FocusEvent focusEvent) {}
+          public void focusGained(FocusEvent focusEvent) {
+            // Do nothing
+          }
 
           @Override
           public void focusLost(FocusEvent focusEvent) {

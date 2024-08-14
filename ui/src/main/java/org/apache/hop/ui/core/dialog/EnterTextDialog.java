@@ -278,7 +278,9 @@ public class EnterTextDialog extends Dialog {
   }
 
   // An enrich method is provided for enrich the shell. By default, it does nothing.
-  public void enrich(EnterTextDialog enterTextDialog) {}
+  public void enrich(EnterTextDialog enterTextDialog) {
+    // Do nothing
+  }
 
   public Label getWlDesc() {
     return wlDesc;

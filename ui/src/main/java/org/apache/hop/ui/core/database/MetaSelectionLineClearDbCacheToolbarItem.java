@@ -29,7 +29,9 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 public class MetaSelectionLineClearDbCacheToolbarItem {
   public static final String TOOLBAR_ITEM_CLEAR_CACHE = "10100-metadata-clear-cache";
 
-  public MetaSelectionLineClearDbCacheToolbarItem() {}
+  public MetaSelectionLineClearDbCacheToolbarItem() {
+    // Do nothing
+  }
 
   @GuiToolbarElement(
       root = MetaSelectionLine.GUI_PLUGIN_TOOLBAR_PARENT_ID,

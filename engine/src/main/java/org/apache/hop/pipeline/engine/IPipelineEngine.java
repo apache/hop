@@ -209,8 +209,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
   void removeExecutionStartedListener(IExecutionStartedListener<IPipelineEngine<T>> listener);
 
   /**
-   * Use the {@link #fireExecutionStartedListeners} method.
-   *
+   * @deprecated Use the {@link #fireExecutionStartedListeners} method.
    * @throws HopException
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -238,8 +237,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
   void removeExecutionFinishedListener(IExecutionFinishedListener<IPipelineEngine<T>> listener);
 
   /**
-   * Use the {@link #fireExecutionFinishedListeners} method.
-   *
+   * @deprecated Use the {@link #fireExecutionFinishedListeners} method.
    * @throws HopException
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -267,8 +265,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
   void removeExecutionStoppedListener(IExecutionStoppedListener<IPipelineEngine<T>> listener);
 
   /**
-   * Use the {@link #fireExecutionStoppedListeners} method.
-   *
+   * @deprecated Use the {@link #fireExecutionStoppedListeners} method.
    * @throws HopException
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -381,16 +378,14 @@ public interface IPipelineEngine<T extends PipelineMeta>
   LogLevel getLogLevel();
 
   /**
-   * Temporary until we find a better way to preview/debug
-   *
+   * @deprecated Temporary until we find a better way to preview/debug
    * @param preview
    */
   @Deprecated(since = "2.0")
   void setPreview(boolean preview);
 
   /**
-   * Temporary until we find a better way to preview/debug
-   *
+   * @deprecated Temporary until we find a better way to preview/debug
    * @return
    */
   @Deprecated(since = "2.0")
@@ -451,16 +446,14 @@ public interface IPipelineEngine<T extends PipelineMeta>
       String fromTransformName, int fromTransformCopy, String toTransformName, int toTransformCopy);
 
   /**
-   * True if feedback need to be given every X rows
-   *
+   * @deprecated True if feedback need to be given every X rows
    * @return True if feedback needs to be given
    */
   @Deprecated(since = "2.0") // TODO: move this to the run configuration API
   boolean isFeedbackShown();
 
   /**
-   * The feedback size in rows
-   *
+   * @deprecated The feedback size in rows
    * @return The feedback size in rows
    */
   @Deprecated(since = "2.0") // TODO: move the run configuration API

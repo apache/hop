@@ -53,19 +53,21 @@ public class HopGuiFileRefreshDelegate {
                 String fileName = arg0.getFileObject().getName().getURI();
                 if (fileName != null) {
                   IHopFileTypeHandler fileHandler = fileHandlerMap.get(fileName);
-                  if (fileHandler != null) {
-                    if (!hopGui.getDisplay().isDisposed()) {
-                      hopGui.getDisplay().asyncExec(fileHandler::reload);
-                    }
+                  if (fileHandler != null && !hopGui.getDisplay().isDisposed()) {
+                    hopGui.getDisplay().asyncExec(fileHandler::reload);
                   }
                 }
               }
 
               @Override
-              public void fileCreated(FileChangeEvent arg0) throws Exception {}
+              public void fileCreated(FileChangeEvent arg0) throws Exception {
+                // Do nothing
+              }
 
               @Override
-              public void fileDeleted(FileChangeEvent arg0) throws Exception {}
+              public void fileDeleted(FileChangeEvent arg0) throws Exception {
+                // Do nothing
+              }
             });
     fileMonitor.setDelay(DELAY);
     fileMonitor.start();

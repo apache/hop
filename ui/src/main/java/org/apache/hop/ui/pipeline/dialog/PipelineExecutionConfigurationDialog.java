@@ -67,7 +67,9 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     super(parent, configuration, pipelineMeta);
   }
 
-  protected void serverOptionsComposite(Class<?> PKG, String prefix) {}
+  protected void serverOptionsComposite(Class<?> pkg, String prefix) {
+    // Do nothing
+  }
 
   @Override
   protected void optionsSectionControls() {

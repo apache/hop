@@ -48,7 +48,9 @@ public class EmptyHopPerspective implements IHopPerspective {
   }
 
   @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {}
+  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
+    // Do nothing
+  }
 
   @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
@@ -56,16 +58,24 @@ public class EmptyHopPerspective implements IHopPerspective {
   }
 
   @Override
-  public void activate() {}
+  public void activate() {
+    // Do nothing
+  }
 
   @Override
-  public void perspectiveActivated() {}
+  public void perspectiveActivated() {
+    // Do nothing
+  }
 
   @Override
-  public void navigateToPreviousFile() {}
+  public void navigateToPreviousFile() {
+    // Do nothing
+  }
 
   @Override
-  public void navigateToNextFile() {}
+  public void navigateToNextFile() {
+    // Do nothing
+  }
 
   @Override
   public boolean hasNavigationPreviousFile() {
@@ -83,7 +93,9 @@ public class EmptyHopPerspective implements IHopPerspective {
   }
 
   @Override
-  public void initialize(HopGui hopGui, Composite parent) {}
+  public void initialize(HopGui hopGui, Composite parent) {
+    // Do nothing
+  }
 
   @Override
   public Control getControl() {

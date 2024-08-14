@@ -28,8 +28,8 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -406,7 +406,9 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wFileNameField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -917,7 +919,9 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1148,7 +1152,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
         new ColumnInfo(
             BaseMessages.getString(PKG, "TextFileOutputDialog.TrimTypeColumn.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            ValueMetaString.trimTypeDesc,
+            ValueMetaBase.trimTypeDesc,
             true);
     colinf[9] =
         new ColumnInfo(
@@ -1276,50 +1280,47 @@ public class TextFileOutputDialog extends BaseTransformDialog {
       mb.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
-      if (answer == SWT.YES) {
-        if (!Utils.isEmpty(schemaName)) {
-          try {
-            SchemaDefinition schemaDefinition =
-                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
-            if (schemaDefinition != null) {
-              IRowMeta r = schemaDefinition.getRowMeta();
-              if (r != null) {
-                String[] fieldNames = r.getFieldNames();
-                if (fieldNames != null) {
-                  wFields.clearAll();
-                  for (int i = 0; i < fieldNames.length; i++) {
-                    IValueMeta valueMeta = r.getValueMeta(i);
-                    TableItem item = new TableItem(wFields.table, SWT.NONE);
+      if (answer == SWT.YES && !Utils.isEmpty(schemaName)) {
+        try {
+          SchemaDefinition schemaDefinition =
+              (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+          if (schemaDefinition != null) {
+            IRowMeta r = schemaDefinition.getRowMeta();
+            if (r != null) {
+              String[] fieldNames = r.getFieldNames();
+              if (fieldNames != null) {
+                wFields.clearAll();
+                for (int i = 0; i < fieldNames.length; i++) {
+                  IValueMeta valueMeta = r.getValueMeta(i);
+                  TableItem item = new TableItem(wFields.table, SWT.NONE);
 
-                    item.setText(1, valueMeta.getName());
-                    item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
-                    item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
-                    item.setText(
-                        4,
-                        valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
-                    item.setText(
-                        5,
-                        valueMeta.getPrecision() >= 0
-                            ? Integer.toString(valueMeta.getPrecision())
-                            : "");
-                    item.setText(6, Const.NVL(valueMeta.getCurrencySymbol(), ""));
-                    item.setText(7, Const.NVL(valueMeta.getDecimalSymbol(), ""));
-                    item.setText(8, Const.NVL(valueMeta.getGroupingSymbol(), ""));
-                    item.setText(
-                        9, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
-                  }
+                  item.setText(1, valueMeta.getName());
+                  item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                  item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
+                  item.setText(
+                      4, valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                  item.setText(
+                      5,
+                      valueMeta.getPrecision() >= 0
+                          ? Integer.toString(valueMeta.getPrecision())
+                          : "");
+                  item.setText(6, Const.NVL(valueMeta.getCurrencySymbol(), ""));
+                  item.setText(7, Const.NVL(valueMeta.getDecimalSymbol(), ""));
+                  item.setText(8, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                  item.setText(
+                      9, Const.NVL(ValueMetaBase.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                 }
               }
             }
-          } catch (HopTransformException | HopPluginException e) {
-
-            // ignore any errors here.
           }
+        } catch (HopTransformException | HopPluginException e) {
 
-          wFields.removeEmptyRows();
-          wFields.setRowNums();
-          wFields.optWidth(true);
+          // ignore any errors here.
         }
+
+        wFields.removeEmptyRows();
+        wFields.setRowNums();
+        wFields.optWidth(true);
       }
     }
   }
@@ -1629,7 +1630,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
       field.setCurrencySymbol(item.getText(6));
       field.setDecimalSymbol(item.getText(7));
       field.setGroupingSymbol(item.getText(8));
-      field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(9)));
+      field.setTrimType(ValueMetaBase.getTrimTypeByDesc(item.getText(9)));
       field.setNullString(item.getText(10));
 
       tfoi.getOutputFields()[i] = field;
@@ -1664,33 +1665,31 @@ public class TextFileOutputDialog extends BaseTransformDialog {
               }
 
               // trim type
-              tableItem.setText(9, Const.NVL(ValueMetaString.getTrimTypeDesc(v.getTrimType()), ""));
+              tableItem.setText(9, Const.NVL(ValueMetaBase.getTrimTypeDesc(v.getTrimType()), ""));
 
               // conversion mask
               if (!Utils.isEmpty(v.getConversionMask())) {
                 tableItem.setText(3, v.getConversionMask());
               } else {
-                if (v.isNumber()) {
-                  if (v.getLength() > 0) {
-                    int le = v.getLength();
-                    int pr = v.getPrecision();
+                if (v.isNumber() && v.getLength() > 0) {
+                  int le = v.getLength();
+                  int pr = v.getPrecision();
 
-                    if (v.getPrecision() <= 0) {
-                      pr = 0;
-                    }
-
-                    String mask = "";
-                    for (int m = 0; m < le - pr; m++) {
-                      mask += "0";
-                    }
-                    if (pr > 0) {
-                      mask += ".";
-                    }
-                    for (int m = 0; m < pr; m++) {
-                      mask += "0";
-                    }
-                    tableItem.setText(3, mask);
+                  if (v.getPrecision() <= 0) {
+                    pr = 0;
                   }
+
+                  String mask = "";
+                  for (int m = 0; m < le - pr; m++) {
+                    mask += "0";
+                  }
+                  if (pr > 0) {
+                    mask += ".";
+                  }
+                  for (int m = 0; m < pr; m++) {
+                    mask += "0";
+                  }
+                  tableItem.setText(3, mask);
                 }
               }
 
@@ -1716,7 +1715,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
       item.setText(4, "");
       item.setText(5, "");
-      item.setText(9, ValueMetaString.getTrimTypeDesc(IValueMeta.TRIM_TYPE_BOTH));
+      item.setText(9, ValueMetaBase.getTrimTypeDesc(IValueMeta.TRIM_TYPE_BOTH));
 
       int type = ValueMetaFactory.getIdForValueMeta(item.getText(2));
       switch (type) {

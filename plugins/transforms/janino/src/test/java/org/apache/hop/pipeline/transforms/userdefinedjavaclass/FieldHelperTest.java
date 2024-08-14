@@ -47,10 +47,14 @@ import org.junit.jupiter.api.BeforeEach;
 public class FieldHelperTest {
 
   @BeforeEach
-  void setUpStaticMocks() {}
+  void setUpStaticMocks() {
+    // Do nothing
+  }
 
   @AfterEach
-  void tearDownStaticMocks() {}
+  void tearDownStaticMocks() {
+    // Do nothing
+  }
 
   @Test
   public void getNativeDataTypeSimpleName_Unknown() throws Exception {

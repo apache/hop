@@ -174,5 +174,7 @@ public class RulesAccumulatorData extends BaseTransformData implements ITransfor
     return results;
   }
 
-  public void shutdown() {}
+  public void shutdown() {
+    // Do nothing
+  }
 }

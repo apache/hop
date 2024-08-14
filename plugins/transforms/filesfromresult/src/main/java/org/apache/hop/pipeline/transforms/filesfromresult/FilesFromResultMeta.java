@@ -63,10 +63,14 @@ public class FilesFromResultMeta extends BaseTransformMeta<FilesFromResult, File
     return retval;
   }
 
-  private void readData(Node transformNode) {}
+  private void readData(Node transformNode) {
+    // Do nothing
+  }
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Do nothing
+  }
 
   @Override
   public void getFields(

@@ -75,17 +75,29 @@ public interface IWorkflowEngine<T extends WorkflowMeta>
 
   Date getExecutionEndDate();
 
-  /** Use the {@link #addExecutionStartedListener} method. */
+  /**
+   * @deprecated Use the {@link #addExecutionStartedListener} method.
+   */
   @Deprecated(since = "2.9", forRemoval = true)
   void addWorkflowStartedListener(IExecutionStartedListener<IWorkflowEngine<T>> listener);
 
+  /**
+   * @deprecated
+   * @return
+   */
   @Deprecated(since = "2.9", forRemoval = true)
   List<IExecutionFinishedListener<IWorkflowEngine<T>>> getWorkflowFinishedListeners();
 
-  /** Use the {@link #addExecutionFinishedListener} method. */
+  /**
+   * @deprecated Use the {@link #addExecutionFinishedListener} method.
+   */
   @Deprecated(since = "2.9", forRemoval = true)
   void addWorkflowFinishedListener(IExecutionFinishedListener<IWorkflowEngine<T>> listener);
 
+  /**
+   * @deprecated
+   * @return
+   */
   @Deprecated(since = "2.9", forRemoval = true)
   List<IExecutionStartedListener<IWorkflowEngine<T>>> getWorkflowStartedListeners();
 
@@ -175,16 +187,14 @@ public interface IWorkflowEngine<T extends WorkflowMeta>
   void setSourceRows(List<RowMetaAndData> sourceRows);
 
   /**
-   * Use the {@link #fireExecutionFinishedListeners} method.
-   *
+   * @deprecated Use the {@link #fireExecutionFinishedListeners} method.
    * @throws HopException
    */
   @Deprecated(since = "2.9", forRemoval = true)
   void fireWorkflowFinishListeners() throws HopException;
 
   /**
-   * Use the {@link #fireExecutionStartedListeners} method.
-   *
+   * @deprecated Use the {@link #fireExecutionStartedListeners} method.
    * @throws HopException
    */
   @Deprecated(since = "2.9", forRemoval = true)

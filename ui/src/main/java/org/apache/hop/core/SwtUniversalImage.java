@@ -34,6 +34,11 @@ public abstract class SwtUniversalImage {
 
   private Map<String, Image> cache = new TreeMap<>();
 
+  /**
+   * @deprecated
+   * @param device
+   * @return
+   */
   @Deprecated(since = "2.0")
   protected abstract Image renderSimple(Device device);
 

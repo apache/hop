@@ -28,6 +28,7 @@ import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+@SuppressWarnings("java:S115")
 public enum SerializerType {
   String(
       "String",

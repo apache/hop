@@ -22,7 +22,9 @@ import org.eclipse.swt.widgets.Listener;
 
 public class CanvasListenerImpl implements ISingletonProvider, Listener {
 
-  public CanvasListenerImpl() {}
+  public CanvasListenerImpl() {
+    // Do nothing
+  }
 
   @Override
   public Object getInstanceInternal() {

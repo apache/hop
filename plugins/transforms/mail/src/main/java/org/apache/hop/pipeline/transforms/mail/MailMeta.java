@@ -254,7 +254,9 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
   }
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Do nothing
+  }
 
   @Override
   public String getXml() throws HopException {

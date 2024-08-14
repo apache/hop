@@ -43,8 +43,6 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 public class MetaInjectTest {
@@ -114,12 +112,6 @@ public class MetaInjectTest {
     doReturn(iTransformMeta).when(transformMeta).getTransform();
     doReturn(internalPipelineMeta).when(metaInject).loadPipelineMeta();
   }
-
-  @BeforeEach
-  void setUpStaticMocks() {}
-
-  @AfterEach
-  void tearDownStaticMocks() {}
 
   @Test
   public void getUnavailableSourceTransforms() {
@@ -272,8 +264,5 @@ public class MetaInjectTest {
 
     @Injection(name = "THERE")
     private String there;
-
-    @Override
-    public void setDefault() {}
   }
 }
