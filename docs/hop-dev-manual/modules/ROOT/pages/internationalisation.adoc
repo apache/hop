@@ -128,6 +128,10 @@ To make i18n easy and translating fun we created a tool called Hop Translator.
 Translator allows you to provide strings for the keys that you use in your source code.
 It will create the message bundles in the right location, in the right format (in UTF-8) and with the right Apache license header.
 
+*Please note*
+
+*Warning: hop-translator.sh tool has been deleted. For specific information, please check this https://github.com/apache/hop/pull/4181[pr]*
+
 To run translator simply build the code and then:
 
 [source]
@@ -155,6 +159,24 @@ As much as possible, define the PKG variable to the same class as the one you're
 This will prevent message bundles from becoming too large and perhaps difficult to merge later on.
 
 == Using Translator
+
+=== Use Weblate as a Translation Tool
+
+Weblate official website: https://weblate.org
+
+Weblate documentation: https://docs.weblate.org
+
+Weblate source code: https://github.com/WeblateOrg/weblate
+
+Apache Hop project translation address: https://translate.project-hop.org
+
+You can go to the Apache Hop project translation page and participate in the translation work of the project. Thank you for your participation.
+
+=== Please note
+
+The following content is outdated
+
+*Warning: hop-translator.sh tool has been deleted. For specific information, please check this https://github.com/apache/hop/pull/4181[pr]*
 
 To use Translator you need 2 things: the Hop source code and a recent build of Hop.
 With the latter you can start Translator like this:
