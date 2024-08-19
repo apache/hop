@@ -30,7 +30,7 @@ TIP: Take a look at the xref:installation-configuration.adoc[Installation] page 
 
 == Supported JVMs
 
-Apache Hop works well with these 64-bit java runtimes for version 11.
+Apache Hop works well with these 64-bit java runtimes for version 17.
 
 * https://www.java.com/[Oracle Java Runtime]
 * https://www.microsoft.com/openjdk[Microsoft OpenJDK] (OpenJDK builds for Windows, MacOS and Linux).
