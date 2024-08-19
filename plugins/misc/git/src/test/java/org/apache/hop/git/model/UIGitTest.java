@@ -22,8 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -50,6 +50,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,6 +73,21 @@ public class UIGitTest extends RepositoryTestCase {
 
     // create another repository
     db2 = createWorkRepository();
+  }
+
+  @Override
+  @After
+  public void tearDown() throws Exception {
+    this.db.close();
+    if (!System.getProperty("os.name").contains("Windows")) {
+      super.tearDown();
+    } else {
+      int lastBackslashIndex = uiGit.getDirectory().lastIndexOf('\\');
+      String updatedPath = uiGit.getDirectory().substring(0, lastBackslashIndex);
+
+      File f = new File(updatedPath);
+      FileUtils.forceDeleteOnExit(f);
+    }
   }
 
   @Test
