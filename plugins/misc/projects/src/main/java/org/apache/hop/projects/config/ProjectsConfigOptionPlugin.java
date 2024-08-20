@@ -107,7 +107,7 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.DefaultProject.Message")
   @CommandLine.Option(
       names = {"-dp", "--default-project"},
-      description = "i18n::ProjectConfig.DefaultProject.Description")
+      description = "The default project to use when none is specified")
   private String defaultProject;
 
   @GuiWidgetElement(
@@ -118,7 +118,7 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.DefaultEnvironment.Message")
   @CommandLine.Option(
       names = {"-de", "--default-environment"},
-      description = "i18n::ProjectConfig.DefaultEnvironment.Description")
+      description = "The name of the default environment to use when none is specified")
   private String defaultEnvironment;
 
   @GuiWidgetElement(
@@ -142,7 +142,7 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.StdProjectFolder.Message")
   @CommandLine.Option(
       names = {"-sj", "--standard-projects-folder"},
-      description = "i18n::ProjectConfig.StdProjectFolder.Description")
+      description = "The standard projects folder for new projects")
   private String standardProjectsFolder;
 
   @GuiWidgetElement(
@@ -153,7 +153,7 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.StdProjectFilename.Message")
   @CommandLine.Option(
       names = {"-dc", "--default-projects-folder"},
-      description = "i18n::ProjectConfig.StdProjectFilename.Message")
+      description = "The project configuration filename for new projects")
   private String defaultProjectConfigFile;
 
   @GuiWidgetElement(
@@ -164,7 +164,7 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message")
   @CommandLine.Option(
       names = {"-eap", "--environments-for-active-project"},
-      description = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message")
+      description = "Restrict environment list to active project")
   private Boolean environmentsForActiveProject;
 
   /**
