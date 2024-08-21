@@ -268,7 +268,7 @@ public class MonetDBDatabaseMetaTest {
             false,
             false)); // should end up with (100) if "safeMode = true"
 
-    MonetDBDatabaseMeta.safeModeLocal.set(new Boolean(true));
+    MonetDBDatabaseMeta.safeModeLocal.set(Boolean.valueOf(true));
     assertEquals(
         "VARCHAR(100)",
         nativeMeta.getFieldDefinition(

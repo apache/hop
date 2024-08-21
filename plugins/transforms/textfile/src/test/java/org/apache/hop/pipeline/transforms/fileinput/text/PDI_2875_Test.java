@@ -36,8 +36,8 @@ import org.junit.Test;
 
 public class PDI_2875_Test {
   private static TransformMockHelper<TextFileInputMeta, TextFileInputData> smh;
-  private final String VAR_NAME = "VAR";
-  private final String EXPRESSION = "${" + VAR_NAME + "}";
+  private static final String VAR_NAME = "VAR";
+  private static final String EXPRESSION = "${" + VAR_NAME + "}";
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass

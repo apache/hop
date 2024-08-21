@@ -266,7 +266,7 @@ public class SelectValuesTest {
             helper.pipelineMeta,
             helper.pipeline);
     transform2 = spy(transform2);
-    inputRow2 = new Object[] {new Long("589")}; // Starting with a Long
+    inputRow2 = new Object[] {Long.valueOf("589")}; // Starting with a Long
     doReturn(inputRow2).when(transform2).getRow();
     doNothing()
         .when(transform2)

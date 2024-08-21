@@ -472,7 +472,7 @@ public class ValueMetaFactoryTest {
     assertEquals(null, ValueMetaFactory.guessValueMetaInterface(null));
     assertEquals(null, ValueMetaFactory.guessValueMetaInterface(Short.valueOf((short) 1)));
     assertEquals(null, ValueMetaFactory.guessValueMetaInterface(Byte.valueOf((byte) 1)));
-    assertEquals(null, ValueMetaFactory.guessValueMetaInterface(new Float(1.0)));
+    assertEquals(null, ValueMetaFactory.guessValueMetaInterface(Float.valueOf(1.0F)));
     assertEquals(null, ValueMetaFactory.guessValueMetaInterface(new StringBuilder()));
     assertEquals(null, ValueMetaFactory.guessValueMetaInterface((byte) 1));
   }

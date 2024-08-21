@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.calculator;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,7 +33,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Assert;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
@@ -64,7 +64,6 @@ import org.junit.Test;
  * @see Calculator
  */
 public class CalculatorUnitTest {
-  private static final Class<?> PKG = CalculatorUnitTest.class;
   private TransformMockHelper<CalculatorMeta, CalculatorData> smh;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -144,11 +143,11 @@ public class CalculatorUnitTest {
               new Object[][] {
                 {
                   new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-01-01 00:00:00"),
-                  new Long(10)
+                  Long.valueOf(10)
                 },
                 {
                   new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-10-31 23:59:50"),
-                  new Long(30)
+                  Long.valueOf(30)
                 }
               });
     } catch (ParseException pe) {
@@ -191,7 +190,7 @@ public class CalculatorUnitTest {
             public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                 throws HopTransformException {
               try {
-                assertEquals(
+                customAssertEquals(
                     new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-01-01 00:00:10"),
                     row[2]);
               } catch (ParseException pe) {
@@ -251,7 +250,7 @@ public class CalculatorUnitTest {
             @Override
             public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                 throws HopTransformException {
-              assertEquals("123456", row[2]);
+              customAssertEquals("123456", row[2]);
             }
           });
       calculator.processRow();
@@ -739,13 +738,10 @@ public class CalculatorUnitTest {
             @Override
             public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                 throws HopTransformException {
-              assertEquals(msg + " resultRowSize", expectedResultRowSize, rowMeta.size());
+              customAssertEquals(expectedResultRowSize, rowMeta.size());
               final int fieldResultIndex = rowMeta.size() - 1;
-              assertEquals(
-                  msg + " fieldResult",
-                  fieldResult,
-                  rowMeta.getValueMeta(fieldResultIndex).getName());
-              assertEquals(msg, expectedResult, row[fieldResultIndex]);
+              customAssertEquals(fieldResult, rowMeta.getValueMeta(fieldResultIndex).getName());
+              customAssertEquals(expectedResult, row[fieldResultIndex]);
             }
           });
       calculator.processRow();
@@ -957,37 +953,33 @@ public class CalculatorUnitTest {
     return kettleNumberDataTypeName;
   }
 
-  public static void assertEquals(Object expected, Object actual) {
-    assertEquals(null, expected, actual);
-  }
-
-  public static void assertEquals(String msg, Object expected, Object actual) {
+  public static void customAssertEquals(Object expected, Object actual) {
     if (expected instanceof BigDecimal && actual instanceof BigDecimal) {
       if (((BigDecimal) expected).compareTo((BigDecimal) actual) != 0) {
-        Assert.assertEquals(msg, expected, actual);
+        assertEquals(expected, actual);
       }
     } else {
-      Assert.assertEquals(msg, expected, actual);
+      assertEquals(expected, actual);
     }
   }
 
   @Test
   public void calculatorReminder() throws Exception {
     assertCalculatorReminder(
-        new Double("0.10000000000000053"),
-        new Object[] {new Long("10"), new Double("3.3")},
+        Double.valueOf("0.10000000000000053"),
+        new Object[] {Long.valueOf("10"), Double.valueOf("3.3")},
         new int[] {IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER});
     assertCalculatorReminder(
-        new Double("1.0"),
-        new Object[] {new Long("10"), new Double("4.5")},
+        Double.valueOf("1.0"),
+        new Object[] {Long.valueOf("10"), Double.valueOf("4.5")},
         new int[] {IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER});
     assertCalculatorReminder(
-        new Double("4.0"),
-        new Object[] {new Double("12.5"), new Double("4.25")},
+        Double.valueOf("4.0"),
+        new Object[] {Double.valueOf("12.5"), Double.valueOf("4.25")},
         new int[] {IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_NUMBER});
     assertCalculatorReminder(
-        new Double("2.6000000000000005"),
-        new Object[] {new Double("12.5"), new Double("3.3")},
+        Double.valueOf("2.6000000000000005"),
+        new Object[] {Double.valueOf("12.5"), Double.valueOf("3.3")},
         new int[] {IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_NUMBER});
   }
 
@@ -1054,7 +1046,7 @@ public class CalculatorUnitTest {
             public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                 throws HopTransformException {
               try {
-                assertEquals(expectedResult, row[2]);
+                customAssertEquals(expectedResult, row[2]);
               } catch (Exception pe) {
                 throw new HopTransformException(pe);
               }

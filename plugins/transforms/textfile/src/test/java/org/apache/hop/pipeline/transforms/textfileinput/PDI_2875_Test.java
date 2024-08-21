@@ -36,10 +36,11 @@ import org.junit.ClassRule;
  *
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
+@Deprecated(since = "2.10")
 public class PDI_2875_Test {
   private static TransformMockHelper<TextFileInputMeta, TextFileInputData> smh;
-  private final String VAR_NAME = "VAR";
-  private final String EXPRESSION = "${" + VAR_NAME + "}";
+  private static final String VAR_NAME = "VAR";
+  private static final String EXPRESSION = "${" + VAR_NAME + "}";
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass

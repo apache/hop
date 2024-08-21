@@ -832,7 +832,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     if (info.isErrorIgnored()
         && info.getErrorCountField() != null
         && info.getErrorCountField().length() > 0) {
-      errorCount = new Long(0L);
+      errorCount = Long.valueOf(0L);
     }
     String errorFields = null;
     if (info.isErrorIgnored()
@@ -897,7 +897,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                 value = null;
 
                 if (errorCount != null) {
-                  errorCount = new Long(errorCount.longValue() + 1L);
+                  errorCount = Long.valueOf(errorCount.longValue() + 1L);
                 }
                 if (errorFields != null) {
                   StringBuilder sb = new StringBuilder(errorFields);
@@ -974,7 +974,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
         // Possibly add a row number...
         if (info.includeRowNumber()) {
-          r[index] = new Long(rowNr);
+          r[index] = Long.valueOf(rowNr);
           index++;
         }
 
@@ -995,7 +995,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         }
         // Add Size
         if (addSize) {
-          r[index] = new Long(size);
+          r[index] = Long.valueOf(size);
           index++;
         }
         // add Hidden
@@ -1624,7 +1624,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         data.rootUriName = data.file.getName().getRootURI();
       }
       if (data.addSize) {
-        data.size = new Long(data.file.getContent().getSize());
+        data.size = Long.valueOf(data.file.getContent().getSize());
       }
       data.lineInFile = 0;
       if (meta.isPassingThruFields()) {

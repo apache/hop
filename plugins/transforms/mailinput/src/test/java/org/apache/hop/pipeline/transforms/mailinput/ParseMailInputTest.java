@@ -71,11 +71,11 @@ public class ParseMailInputTest {
   public static final Date DATE1 = new Date(0);
   public static final Date DATE2 = new Date(60000);
   public static final String CNTNT_TYPE_EMAIL = "application/acad";
-  public static int CNTNT_SIZE = 23;
-  public static String HDR_EX1 = "header_ex1";
-  public static String HDR_EX1V = "header_ex1_value";
-  public static String HDR_EX2 = "header_ex2";
-  public static String HDR_EX2V = "header_ex2_value";
+  public static final int CNTNT_SIZE = 23;
+  public static final String HDR_EX1 = "header_ex1";
+  public static final String HDR_EX1V = "header_ex1_value";
+  public static final String HDR_EX2 = "header_ex2";
+  public static final String HDR_EX2V = "header_ex2_value";
 
   // this objects re-created for every test method
   private Message message;
@@ -238,7 +238,7 @@ public class ParseMailInputTest {
     MessageParser underTest = mailInput.new MessageParser();
     Object[] r = RowDataUtil.allocateRowData(data.nrFields);
     underTest.parseToArray(r, message);
-    Assert.assertEquals("Message number is correct", new Long(MSG_NUMB), Long.class.cast(r[0]));
+    Assert.assertEquals("Message number is correct", Long.valueOf(MSG_NUMB), Long.class.cast(r[0]));
   }
 
   /**
@@ -451,7 +451,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData(data.nrFields);
     underTest.parseToArray(r, message);
 
-    Assert.assertEquals("Message Size is correct", new Long(CNTNT_SIZE), Long.class.cast(r[0]));
+    Assert.assertEquals("Message Size is correct", Long.valueOf(CNTNT_SIZE), Long.class.cast(r[0]));
   }
 
   /**
@@ -521,7 +521,9 @@ public class ParseMailInputTest {
     underTest.parseToArray(r, message);
 
     Assert.assertEquals(
-        "Message Attached files count is correct", new Long(ATTCH_COUNT), Long.class.cast(r[0]));
+        "Message Attached files count is correct",
+        Long.valueOf(ATTCH_COUNT),
+        Long.class.cast(r[0]));
   }
 
   /**
