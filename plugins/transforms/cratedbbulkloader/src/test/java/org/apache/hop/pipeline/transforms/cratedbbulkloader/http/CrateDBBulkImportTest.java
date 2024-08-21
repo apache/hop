@@ -40,7 +40,6 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.databases.cratedb.CrateDBDatabaseMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -60,18 +59,13 @@ import org.testcontainers.cratedb.CrateDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 public class CrateDBBulkImportTest {
-  //
-  //    @ClassRule
-  //    public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Container
   public static CrateDBContainer crateDBContainer = new CrateDBContainer("crate").withReuse(true);
 
   private static Connection connection;
-
-  private CrateDBDatabaseMeta nativeMeta = new CrateDBDatabaseMeta();
 
   @BeforeAll
   public static void init() throws Exception {
