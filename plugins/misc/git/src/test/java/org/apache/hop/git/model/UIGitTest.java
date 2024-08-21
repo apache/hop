@@ -20,6 +20,7 @@ package org.apache.hop.git.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,7 +39,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -52,9 +52,7 @@ import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class UIGitTest extends RepositoryTestCase {
   private Git git;
@@ -145,8 +143,7 @@ public class UIGitTest extends RepositoryTestCase {
     writeTrashFile("Test.txt", "Hello world");
     uiGit.add("Test.txt");
 
-    thrown.expect(NullPointerException.class);
-    uiGit.commit("random author", "Initial commit");
+    assertThrows(NullPointerException.class, () -> uiGit.commit("random author", "Initial commit"));
   }
 
   @Test
@@ -235,7 +232,7 @@ public class UIGitTest extends RepositoryTestCase {
     FileUtils.writeStringToFile(sourceFile, "Hello world", "UTF-8");
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Initial commit for source").call();
-    PullResult pullResult = git.pull().call();
+    git.pull().call();
 
     // change the source file
     FileUtils.writeStringToFile(sourceFile, "Another change", "UTF-8");
@@ -344,8 +341,6 @@ public class UIGitTest extends RepositoryTestCase {
     assertEquals("refs/remotes/origin/master", uiGit.getExpandedName("origin/master", "branch"));
   }
 
-  @Rule public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void testShouldPushOnlyToOrigin() throws Exception {
     // origin for db2
@@ -376,9 +371,9 @@ public class UIGitTest extends RepositoryTestCase {
 
     uiGit.push();
 
-    // The followings should throw MissingObjectException
-    thrown.expect(MissingObjectException.class);
-    db3.resolve(commit.getId().getName() + "^{commit}");
+    assertThrows(
+        MissingObjectException.class, () -> db3.resolve(commit.getId().getName() + "^{commit}"));
+
     db3.resolve(tagRef.getObjectId().getName());
   }
 
@@ -449,7 +444,7 @@ public class UIGitTest extends RepositoryTestCase {
     // commit something
     File file = writeTrashFile("Test.txt", "Hello world");
     git.add().addFilepattern("Test.txt").call();
-    RevCommit commit = git.commit().setMessage("initial commit").call();
+    git.commit().setMessage("initial commit").call();
 
     // Add some change
     FileUtils.writeStringToFile(file, "Change", "UTF-8");
