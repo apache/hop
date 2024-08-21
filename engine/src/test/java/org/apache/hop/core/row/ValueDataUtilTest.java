@@ -44,7 +44,6 @@ import org.mockito.stubbing.Answer;
 
 public class ValueDataUtilTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  private static String yyyy_MM_dd = "yyyy-MM-dd";
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -78,33 +77,10 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void checksumNullPathTest() throws Exception {
-    String nonExistingFile = "nonExistingFile";
-    String checksum =
-        ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
-    assertNull(checksum);
-  }
-
-  @Test
   public void checksumWithFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
     String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), path, "MD5", true);
     assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
-  }
-
-  @Test
-  public void checksumWithoutFailIfNoFileTest() throws Exception {
-    String path = getClass().getResource("txt-sample.txt").getPath();
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), path, "MD5", false);
-    assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
-  }
-
-  @Test
-  public void checksumNoFailIfNoFileTest() throws HopFileNotFoundException {
-    String nonExistingFile = "nonExistingFile";
-    String checksum =
-        ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
-    assertNull(checksum);
   }
 
   @Test(expected = HopFileNotFoundException.class)
@@ -135,20 +111,6 @@ public class ValueDataUtilTest {
     String nonExistingFile = "nonExistingFile";
     long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingFile, false);
     assertEquals(0, checksum);
-  }
-
-  @Test
-  public void checksumCRC32NullPathTest() throws Exception {
-    String nonExistingFile = "nonExistingFile";
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingFile, false);
-    assertEquals(0, checksum);
-  }
-
-  @Test
-  public void checksumCRC32WithoutFailIfNoFileTest() throws Exception {
-    String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), path, false);
-    assertEquals(3632233996l, checksum);
   }
 
   @Test
@@ -232,27 +194,11 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void xmlFileWellFormedWithFailIfNoFileTest() throws HopFileNotFoundException {
-    String xmlFilePath = getClass().getResource("xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), xmlFilePath, true);
-    assertTrue(wellFormed);
-  }
-
-  @Test
   public void xmlFileWellFormedWithoutFailIfNoFileTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource("xml-sample.xml").getPath();
     boolean wellFormed =
         ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), xmlFilePath, false);
     assertTrue(wellFormed);
-  }
-
-  @Test
-  public void xmlFileBadlyFormedWithFailIfNoFileTest() throws HopFileNotFoundException {
-    String invalidXmlFilePath = getClass().getResource("invalid-xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), invalidXmlFilePath, true);
-    assertFalse(wellFormed);
   }
 
   @Test
@@ -428,7 +374,7 @@ public class ValueDataUtilTest {
 
     assertNull(ValueDataUtil.sum(metaA, null, metaB, null));
 
-    Long valueB = new Long(2);
+    Long valueB = Long.valueOf(2);
     ValueDataUtil.sum(metaA, null, metaB, valueB);
   }
 
