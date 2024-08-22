@@ -35,6 +35,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.util.ProjectsUtil;
@@ -136,6 +137,25 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
           "Export project metadata to a single JSON file which you can specify with this option. Also specify the -p option.")
   private String metadataJsonFilename;
 
+  @CommandLine.Option(
+          names = {"-ltt", "--list-transform-types-in-project"},
+          description = "List transform types used in this project"
+  )
+  private boolean projectTransformTypes;
+
+  @CommandLine.Option(
+          names = {"-lat", "--list-action-types-in-project"},
+          description = "List action types used in this project"
+  )
+  private boolean projectActionTypes;
+
+  @CommandLine.Option(
+          names = {"-lmt", "--list-transform-types-in-project"},
+          description = "List metadata types used in this project"
+  )
+  private boolean projectMetadataTypes;
+
+
   @Override
   public boolean handleOption(
       ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
@@ -154,6 +174,15 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
         changed = true;
       } else if (listProjects) {
         listProjects(log, config, variables);
+        changed = true;
+      }else if (projectTransformTypes) {
+        listTransformTypes(log, config, variables, hasHopMetadataProvider);
+        changed = true;
+      }else if(projectActionTypes) {
+        listActionTypes(log, config, variables, hasHopMetadataProvider);
+        changed = true;
+      }else if(projectMetadataTypes) {
+        listMetadataTypes(log, config, variables, hasHopMetadataProvider);
         changed = true;
       } else if (StringUtils.isNotEmpty(metadataJsonFilename)) {
         exportMetadataToJson(log, config, variables, hasHopMetadataProvider);
@@ -414,6 +443,21 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     } catch (Exception e) {
       throw new HopException("There was an error exporting metadata to file: " + realFilename, e);
     }
+  }
+
+  public void listActionTypes(ILogChannel log, ProjectsConfig config, IVariables variables, IHasHopMetadataProvider hasHopMetadataProvider) throws HopException{
+  }
+
+  public void listTransformTypes(ILogChannel log, ProjectsConfig config, IVariables variables, IHasHopMetadataProvider hasHopMetadataProvider){
+
+  }
+
+  public void listMetadataTypes(ILogChannel log, ProjectsConfig config, IVariables variables, IHasHopMetadataProvider hasHopMetadataProvider) throws HopException {
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    Project project = projectConfig.loadProject(variables);
+    ProjectsUtil.enableProject(log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);
+    List<Class<IHopMetadata>> metadataClasses =  hasHopMetadataProvider.getMetadataProvider().getMetadataClasses();
+
   }
 
   /**
