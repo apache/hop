@@ -1,0 +1,75 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[SpecifyCopies]]
+:imagesdir: ../assets/images
+:description: The Specify Copies allows transforms in a pipeline to run with multiple copies (threads). This can be used to improve performance when applied correctly.
+
+= Specify Copies
+
+The `Specify copies` option in the xref:hop-gui/hop-gui-popup-dialog.adoc[Hop Gui pop-up dialog] is a powerful option that allows pipeline developers to run transforms in multiple copies.
+
+Having multiple copies of a transform results in multiple threads for this transform, and can improve a pipeline's performance if used correctly.
+
+WARNING: increasing the number of copies for your transforms is not a silver bullet or a `performance=fast` option. Excessive use of the `specify copies` option can easily make your pipelines performance worse instead of better.
+
+== Changing the number of copies for a transform
+
+Click on a transform's icon and click on the `Specify copies` icon in the pop-up dialog.
+
+image::hop-gui/pipeline/specify-copies.png[Specify copies, width="30%", align="left"]
+
+
+Change the number of copies for the selected transform in the dialog that will pop up:
+
+image::hop-gui/pipeline/specify-copies-dialog.png[Specify copies dialog, width="30%", align="left"]
+
+Your transform will now show the number of copies you specified in the upper left corner of the transform's icon.
+
+image::hop-gui/pipeline/specify-copies-four.png[Specify 4 copies, width="50%", align="left"]
+
+When your pipeline starts, Apache Hop will create the specified number of copies for this transform in the background. The pipeline in the example above will look like the image below when executed.
+
+image::hop-gui/pipeline/specify-copies-expanded.png[Specify copies expanded, width="50%", align="left"]
+
+== Use cases
+
+Increasing the number of copies for a limited number of transforms in your pipelines can help to improve your pipeline's performance, but the option should be used with great care.
+
+the number of threads your CPUs or cores can handle is finite. Increasing the number of copies (and thus threads) can easily exceed what your system can handle, resulting in the opposite effect of what you want to achieve.
+
+There are no hard rules, use common sense to decided when (not) to increase the number of copies for your transforms.
+
+A number of guidelines to decide if using multiple copies for your transforms makes sense:
+
+* is there a performance problem? If your pipeline is fast enough, there's no need for multiple copies on any of your transforms.
+* Identify the slowest transforms in your pipeline. Transforms that are a bottleneck get a dotted border during execution in Hop Gui. Are these bottleneck transforms CPU bound? +
+If the CPU is not the bottleneck, increasing the number of copies won't help.
+* Increasing the number of copies for e.g. relational databases transforms like xref:pipeline/transforms/tableoutput.adoc[Table output] depends on the technology you use. Some databases can handle multiple threads (transactions). Check the documentation for the technology in your data architecture.
+* Some of the following transforms can be CPU heavy and may perform better with multiple copies. Once again: there's no need to increase the number of copies if there are no performance problems or if these transforms are not the bottleneck in your pipeline.
+** xref:pipeline/transforms/calculator.adoc[Calculator]
+** xref:pipeline/transforms/formula.adoc[Formula]
+** xref:pipeline/transforms/javascript.adoc[Javascript]
+** xref:pipeline/transforms/script.adoc[Script]
+** xref:pipeline/transforms/sort.adoc[Sort rows]
+** xref:pipeline/transforms/userdefinedjavaclass.adoc[User defined Java class]
+** xref:pipeline/transforms/userdefinedjavaexpression.adoc[User defined java expression]
+
+TIP: As with any performance optimization exercises, make tiny changes and measure performance before and after applying any changes.
+
+A special word of caution: when using multiple copies on a xref:pipeline/transforms/sort.adoc[Sort rows] transform, you **need** to add a xref:pipeline/transforms/sortedmerge.adoc[Sorted merge] transform, like in the screenshot below. The multiple copies of your `Sort rows` transform will each sort a subset of your stream. The `Sorted merge` transform will merge the (sorted) outputs of each of the `Sort rows` copies into a fully sorted output stream.
+
+image::hop-gui/pipeline/specify-copies-sort-rows.png[Specify copies with sort rows, width="65%", align="left"]
