@@ -137,7 +137,7 @@ When clicking on a transform icon, the popup contains a number of actions to wor
 ** **Edit description**: opens the description dialog for this transform
 ** **Delete**: delete this transform from the pipeline. No new hops will be created if this transform was connected to other transforms.
 * Data Routing
-** **Specify copies**: set the number of transform copies to use during execution
+** xref:pipeline/specify-copies.adoc[**Specify copies**]: set the number of transform copies to use during execution
 ** **Copy/distribute rows**: make the transform copy/distribute rows during execution. The option is contextual: if the transform is copying rows, only the distribute option will be shown and vice versa.
 ** **Set xref:pipeline/partitioning.adoc[partitioning]**: specify how rows of data need to be grouped in partitions allowing parallel execution where similar rows need to end up on the same transform copy.
 ** **Error handling**: configure error handling for this transform (for supported transforms)

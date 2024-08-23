@@ -58,6 +58,7 @@ under the License.
 *** xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Native Remote]
 ** xref:pipeline/pipeline-unit-testing.adoc[Pipeline Unit Tests]
 ** xref:pipeline/metadata-injection.adoc[Metadata Injection]
+** xref:pipeline/specify-copies.adoc[Specify copies]
 ** xref:pipeline/partitioning.adoc[Partitioning]
 ** xref:pipeline/transforms.adoc[Transforms]
 *** xref:pipeline/transforms/abort.adoc[Abort]
