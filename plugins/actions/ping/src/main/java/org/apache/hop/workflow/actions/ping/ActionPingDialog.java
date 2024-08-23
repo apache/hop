@@ -247,8 +247,8 @@ public class ActionPingDialog extends ActionDialog {
       wNbrPackets.setText("2");
     }
 
-    if (action.getTimeOut() != null) {
-      wTimeOut.setText(action.getTimeOut());
+    if (action.getTimeout() != null) {
+      wTimeOut.setText(action.getTimeout());
     } else {
       wTimeOut.setText("3000");
     }
@@ -276,7 +276,7 @@ public class ActionPingDialog extends ActionDialog {
     action.setName(wName.getText());
     action.setHostname(wHostname.getText());
     action.setNbrPackets(wNbrPackets.getText());
-    action.setTimeOut(wTimeOut.getText());
+    action.setTimeout(wTimeOut.getText());
     action.ipingtype = wPingType.getSelectionIndex();
     if (wPingType.getSelectionIndex() == action.isystemPing) {
       action.pingtype = action.systemPing;
