@@ -28,9 +28,11 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -257,11 +259,27 @@ public class JaninoDialog extends BaseTransformDialog {
       return;
     }
 
+    int nrNonEmptyFields = wFields.nrNonEmpty();
+
+    // Check if code contains content that is not allowed
+    JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
+
+    for (int i = 0; i < nrNonEmptyFields; i++) {
+      TableItem item = wFields.getNonEmpty(i);
+      List<String> codeCheck = janinoCheckerUtil.checkCode(item.getText(2));
+      if (!codeCheck.isEmpty()) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setText("Invalid Code");
+        mb.setMessage("Script contains code that is not allowed : " + codeCheck);
+        mb.open();
+        return;
+      }
+    }
+
     transformName = wTransformName.getText(); // return value
 
     currentMeta.allocate(wFields.nrNonEmpty());
 
-    int nrNonEmptyFields = wFields.nrNonEmpty();
     for (int i = 0; i < nrNonEmptyFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
 

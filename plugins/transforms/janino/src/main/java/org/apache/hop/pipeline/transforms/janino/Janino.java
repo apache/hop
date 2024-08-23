@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.codehaus.janino.ExpressionEvaluator;
 
 /** Calculate new field values using pre-defined functions. */
@@ -163,6 +164,14 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
                 parameterTypes.toArray(new Class<?>[parameterTypes.size()]));
             data.expressionEvaluators[m].setReturnType(Object.class);
             data.expressionEvaluators[m].setThrownExceptions(new Class<?>[] {Exception.class});
+
+            // Validate Formula
+            JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
+            List<String> codeCheck = janinoCheckerUtil.checkCode(fn.getFormula());
+            if (!codeCheck.isEmpty()) {
+              throw new HopException("Script contains code that is not allowed : " + codeCheck);
+            }
+
             data.expressionEvaluators[m].cook(fn.getFormula());
           } else {
             throw new HopException(
@@ -194,9 +203,9 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
           IValueMeta valueMeta = data.returnType[i];
           if (valueMeta.getNativeDataTypeClass().isAssignableFrom(formulaResult.getClass())) {
             value = formulaResult;
-          } else if (formulaResult instanceof Integer
+          } else if (formulaResult instanceof Integer integer
               && valueMeta.getType() == IValueMeta.TYPE_INTEGER) {
-            value = ((Integer) formulaResult).longValue();
+            value = integer.longValue();
           } else {
             throw new HopValueException(
                 BaseMessages.getString(

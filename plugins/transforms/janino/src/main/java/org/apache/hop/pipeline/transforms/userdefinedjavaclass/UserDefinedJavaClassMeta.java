@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -52,6 +51,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.ClassBodyEvaluator;
 import org.codehaus.janino.Scanner;
@@ -240,12 +240,18 @@ public class UserDefinedJavaClassMeta
     return rtn;
   }
 
-  public void cookClasses() {
+  public void cookClasses() throws HopException {
     cookErrors.clear();
     ClassLoader clsloader = UserDefinedJavaClass.class.getClassLoader();
     for (UserDefinedJavaClassDef def : getDefinitions()) {
       if (def.isActive()) {
         try {
+          // Validate Formula
+          JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
+          List<String> codeCheck = janinoCheckerUtil.checkCode(def.getSource());
+          if (!codeCheck.isEmpty()) {
+            throw new HopException("Script contains code that is not allowed : " + codeCheck);
+          }
           Class<?> cookedClass = cookClass(def, clsloader);
           clsloader = cookedClass.getClassLoader();
           if (def.isTransformClass()) {
@@ -321,13 +327,13 @@ public class UserDefinedJavaClassMeta
         definitions.stream()
             .filter(def -> def.isTransformClass() && def.isActive())
             .sorted((p1, p2) -> p1.getClassName().compareTo(p2.getClassName()))
-            .collect(Collectors.toList());
+            .toList();
 
     List<UserDefinedJavaClassDef> normalClasses =
         definitions.stream()
             .filter(def -> !def.isTransformClass())
             .sorted((p1, p2) -> p1.getClassName().compareTo(p2.getClassName()))
-            .collect(Collectors.toList());
+            .toList();
 
     orderedDefinitions.addAll(normalClasses);
     orderedDefinitions.addAll(transactions);
@@ -508,7 +514,12 @@ public class UserDefinedJavaClassMeta
   private boolean checkClassCookings(ILogChannel logChannel) {
     boolean ok = cookedTransformClass != null && cookErrors.isEmpty();
     if (changed) {
-      cookClasses();
+      try {
+        cookClasses();
+      } catch (HopException e) {
+        throw new RuntimeException(e);
+      }
+
       if (cookedTransformClass == null) {
         if (!cookErrors.isEmpty()) {
           logChannel.logDebug(

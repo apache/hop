@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -115,7 +114,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
       logRowlevel("Read row #" + getLinesRead() + " : " + getInputRowMeta().getString(r));
     }
 
-    boolean keep = calcFields(getInputRowMeta(), r);
+    boolean keep = calcFields(r);
 
     if (!data.chosesTargetTransforms) {
       if (keep) {
@@ -147,16 +146,14 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
       }
     }
 
-    if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "JavaFilter.Log.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "JavaFilter.Log.LineNumber") + getLinesRead());
     }
 
     return true;
   }
 
-  private boolean calcFields(IRowMeta rowMeta, Object[] r) throws HopValueException {
+  private boolean calcFields(Object[] r) throws HopValueException {
     try {
       // Initialize evaluators etc. Only do it once.
       //
@@ -234,8 +231,8 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
 
       Object formulaResult = data.expressionEvaluator.evaluate(data.argumentData);
 
-      if (formulaResult instanceof Boolean) {
-        return (Boolean) formulaResult;
+      if (formulaResult instanceof Boolean bool) {
+        return bool;
       } else {
         throw new HopException(
             "The result of the filter expression must be a boolean and we got back : "

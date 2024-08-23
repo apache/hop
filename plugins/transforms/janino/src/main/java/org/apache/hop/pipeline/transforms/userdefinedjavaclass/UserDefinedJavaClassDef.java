@@ -77,7 +77,7 @@ public class UserDefinedJavaClassDef implements Cloneable {
     return super.clone();
   }
 
-  public String getTransformedSource() throws HopTransformException {
+  public String getTransformedSource() {
     StringBuilder sb = new StringBuilder(getSource());
     appendConstructor(sb);
     return sb.toString();

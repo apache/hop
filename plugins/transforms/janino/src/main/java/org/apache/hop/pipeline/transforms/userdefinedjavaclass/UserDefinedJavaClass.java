@@ -50,12 +50,16 @@ public class UserDefinedJavaClass
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
 
     if (copyNr == 0) {
-      meta.cookClasses();
+      try {
+        meta.cookClasses();
+      } catch (HopException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     child = meta.newChildInstance(this, meta, data);
 
-    if (meta.cookErrors.size() > 0) {
+    if (!meta.cookErrors.isEmpty()) {
       for (Exception e : meta.cookErrors) {
         logErrorImpl("Error initializing UserDefinedJavaClass:", e);
       }
@@ -659,7 +663,7 @@ public class UserDefinedJavaClass
 
   @Override
   public boolean init() {
-    if (meta.cookErrors.size() > 0) {
+    if (!meta.cookErrors.isEmpty()) {
       return false;
     }
 

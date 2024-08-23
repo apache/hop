@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,7 +55,12 @@ public class UserDefinedJavaClassMetaTest {
     Mockito.when(userDefinedJavaClassMetaSpy.getDefinitions())
         .thenReturn(Collections.singletonList(userDefinedJavaClassDef));
 
-    userDefinedJavaClassMetaSpy.cookClasses();
+    try {
+      userDefinedJavaClassMetaSpy.cookClasses();
+    } catch (HopException e) {
+      throw new RuntimeException(e);
+    }
+
     Assert.assertEquals(1, userDefinedJavaClassMeta.cookErrors.size());
   }
 
