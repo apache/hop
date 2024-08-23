@@ -38,7 +38,7 @@ Check xref:database/databases.adoc#_options[Options] in the Relational Database 
 
 == Creating connections
 
-There are 3 ways to create a connection to an Oracle database in Apache Hop:
+There are 4 ways to create a connection to an Oracle database in Apache Hop:
 
 * If you have a SID, use this (old) format: `jdbc:oracle:thin:@hostname:PORT:SID`. +
 Put the SID with `:` prefix in the database name
@@ -48,3 +48,6 @@ Put the service name with `/` prefix in the database name
 
 * If you want to use TNS format: `jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=host) (PORT=port)) (CONNECT_DATA=(SERVICE_NAME=service_name))`. +
 Put the TNS description in the database name and leave the hostname and port empty.
+
+* If you want to use a specific TNS_ADMIN, you providing the path for tnsnames.ora through TNS_ADMIN property: `jdbc:oracle:thin:@mydb.mydomain?TNS_ADMIN=C:\\Temp\\tns` +
+Use manual connection url (not the options tab because Apache Hop does not pass options in the url for Oracle). 
