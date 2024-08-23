@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@SuppressWarnings("java:S1104")
 public class TransformDefinition implements Cloneable {
   public String tag;
   public String transformName;

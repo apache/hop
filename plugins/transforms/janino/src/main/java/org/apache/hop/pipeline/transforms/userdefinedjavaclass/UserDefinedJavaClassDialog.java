@@ -50,6 +50,7 @@ import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaCl
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
+import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -1187,6 +1188,20 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
     CTabItem[] cTabs = folder.getItems();
     if (cTabs.length > 0) {
+      for (int i = 0; i < cTabs.length; i++) {
+        JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
+        List<String> codeCheck = janinoCheckerUtil.checkCode(getStyledTextComp(cTabs[i]).getText());
+        if (!codeCheck.isEmpty()) {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setText("Invalid Code");
+          mb.setMessage("Script contains code that is not allowed : " + codeCheck);
+          mb.open();
+          return;
+        }
+      }
+    }
+
+    if (cTabs.length > 0) {
       List<UserDefinedJavaClassDef> definitions = new ArrayList<>(cTabs.length);
       for (int i = 0; i < cTabs.length; i++) {
         UserDefinedJavaClassDef def =
@@ -1297,7 +1312,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     try {
       // First, before we get into the trial run, just see if the classes
       // all compile.
-      udjcMeta.cookClasses();
+      try {
+        udjcMeta.cookClasses();
+      } catch (HopException e) {
+        new ErrorDialog(shell, "Error during class compilation", e.toString(), e);
+      }
+
       if (udjcMeta.cookErrors.size() == 1) {
         Exception e = udjcMeta.cookErrors.get(0);
         new ErrorDialog(shell, "Error during class compilation", e.toString(), e);
@@ -1498,7 +1518,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
   }
 
-  public boolean TreeItemExist(TreeItem itemToCheck, String strItemName) {
+  public boolean treeItemExist(TreeItem itemToCheck, String strItemName) {
     boolean bRC = false;
     if (itemToCheck.getItemCount() > 0) {
       TreeItem[] items = itemToCheck.getItems();

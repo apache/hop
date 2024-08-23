@@ -84,7 +84,7 @@ public class FieldHelper {
     return ((ValueMetaInternetAddress) meta).getInternetAddress(dataRow[index]);
   }
 
-  public Serializable getSerializable(Object[] dataRow) throws HopValueException {
+  public Serializable getSerializable(Object[] dataRow) {
     return (Serializable) dataRow[index];
   }
 

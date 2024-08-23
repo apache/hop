@@ -200,7 +200,7 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "JaninoMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);

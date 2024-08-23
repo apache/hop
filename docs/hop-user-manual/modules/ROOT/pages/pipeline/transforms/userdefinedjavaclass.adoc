@@ -252,7 +252,16 @@ Long year = get(Fields.In, "year").getInteger(r);
 
 This method also takes into account the index-based optimization mentioned above.
 
-== Metadata Injection Support
+== Blocking specific code
 
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+As a simple security measure you can block the execution of code containing specific strings.
+This can be done by adding exclusions to the `codeExclusions.xml` file located at <Hop Installation>/plugins/transforms/janino
+
+Example:
+[source,xml]
+----
+    <exclusions>
+        <exclusion>System.</exclusion>
+        <exclusion>HopVfs.</exclusion>
+    </exclusions>
+----

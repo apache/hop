@@ -181,3 +181,17 @@ If you prefer the return values to be of value type Integer, use "new Long(1)" a
 ----
 samplestr != null && samplestr.indexOf("abc")>-1 ? 1 : 2
 ----
+
+== Blocking specific code
+
+As a simple security measure you can block the execution of code containing specific strings.
+This can be done by adding exclusions to the `codeExclusions.xml` file located at <Hop Installation>/plugins/transforms/janino
+
+Example:
+[source,xml]
+----
+    <exclusions>
+        <exclusion>System.</exclusion>
+        <exclusion>HopVfs.</exclusion>
+    </exclusions>
+----
