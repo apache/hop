@@ -972,34 +972,36 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     if (isCandidate) {
       color = EColor.BLUE;
       arrow = EImage.ARROW_CANDIDATE;
-    } else {
-      if (hop.isEnabled()) {
-        if (from.isSendingErrorRowsToTransform(to)) {
-          color = EColor.RED;
-          linestyle = ELineStyle.DASH;
-          arrow = EImage.ARROW_ERROR;
-        } else {
-          color = EColor.HOP_DEFAULT;
-          arrow = EImage.ARROW_DEFAULT;
-        }
-
-        ITransformIOMeta ioMeta = from.getTransform().getTransformIOMeta();
-        IStream targetStream = ioMeta.findTargetStream(to);
-
-        if (targetStream != null) {
-          if (targetStream.getStreamIcon() == StreamIcon.TRUE) {
-            color = EColor.HOP_TRUE;
-            arrow = EImage.ARROW_TRUE;
-          } else if (targetStream.getStreamIcon() == StreamIcon.FALSE) {
-            color = EColor.HOP_FALSE;
-            arrow = EImage.ARROW_FALSE;
-          }
-        }
+    } else if (hop.isEnabled()) {
+      if (from.isSendingErrorRowsToTransform(to)) {
+        color = EColor.RED;
+        linestyle = ELineStyle.DASH;
+        arrow = EImage.ARROW_ERROR;
       } else {
-        color = EColor.GRAY;
-        arrow = EImage.ARROW_DISABLED;
+        color = EColor.HOP_DEFAULT;
+        arrow = EImage.ARROW_DEFAULT;
+      }
+
+      ITransformIOMeta ioMeta = from.getTransform().getTransformIOMeta();
+      IStream targetStream = ioMeta.findTargetStream(to);
+
+      if (targetStream != null) {
+        if (targetStream.getStreamIcon() == StreamIcon.TRUE) {
+          color = EColor.HOP_TRUE;
+          arrow = EImage.ARROW_TRUE;
+        } else if (targetStream.getStreamIcon() == StreamIcon.FALSE) {
+          color = EColor.HOP_FALSE;
+          arrow = EImage.ARROW_FALSE;
+        }
+      }
+    } else {
+      color = EColor.GRAY;
+      arrow = EImage.ARROW_DISABLED;
+      if (from.isSendingErrorRowsToTransform(to)) {
+        linestyle = ELineStyle.DASH;
       }
     }
+
     if (hop.isSplit()) {
       activeLinewidth = lineWidth + 2;
     }

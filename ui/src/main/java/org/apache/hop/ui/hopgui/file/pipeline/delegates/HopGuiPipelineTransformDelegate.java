@@ -650,7 +650,7 @@ public class HopGuiPipelineTransformDelegate {
       if (transformErrorMeta == null) {
         transformErrorMeta = new TransformErrorMeta(transformMeta);
       }
-      List<TransformMeta> targetTransforms = pipelineMeta.findNextTransforms(transformMeta);
+      List<TransformMeta> targetTransforms = pipelineMeta.findNextTransforms(transformMeta, true);
 
       // now edit this transformErrorMeta object:
       TransformErrorMetaDialog dialog =
