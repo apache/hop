@@ -106,7 +106,7 @@
         <cyclonedx-maven-plugin.version>2.8.1</cyclonedx-maven-plugin.version>
         <hadoop.version>3.1.0</hadoop.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <jandex.version>3.1.8</jandex.version>
+        <jandex.version>3.2.2</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
         <junit.version>5.10.2</junit.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
