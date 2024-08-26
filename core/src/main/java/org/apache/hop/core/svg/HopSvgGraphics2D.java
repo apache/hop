@@ -23,6 +23,8 @@ import static org.apache.batik.svggen.DOMGroupManager.FILL;
 import java.awt.font.TextLayout;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -44,8 +46,12 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
 
   private static final String W3_URL = "http://www.w3.org/2000/xmlns/";
 
+  private final DecimalFormat formater;
+
   public HopSvgGraphics2D(Document domFactory) {
     super(domFactory);
+
+    formater = new DecimalFormat("0.###", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
   }
 
   public DOMGroupManager getDomGroupManager() {
@@ -92,7 +98,7 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
   }
 
   private String format(double d) {
-    return new DecimalFormat("0.###").format(d);
+    return formater.format(d);
   }
 
   /**
