@@ -77,10 +77,10 @@ TIP: Hop allows using NULL parameters/variables for both the HTTP Login and HTTP
 |===
 |Option|Description
 |HTTP Login|Indicates the username required to access a resource
-|HTTP Password|Indicates the password associated with the provided HTTP Login user name
-|Preemptive|Option to send the authentication credentials before a server gives an unauthorized response
-|Proxy Host|Indicates the name of a proxy host, if proxy authentication is required
-|Proxy Port|Indicates the port number of a proxy host, if proxy authentication is required
+|HTTP Password|Indicates the password associated with the provided HTTP Login username
+|Preemptive|Option to send the authentication credentials before a server gives an unauthorized response. Currently always true, due to https://github.com/apache/hop/issues/4196[bug #4196].
+|Proxy Host|Indicates the name of a proxy host
+|Proxy Port|Indicates the port number of a proxy host
 |===
 
 === SSL Tab
