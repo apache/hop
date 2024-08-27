@@ -35,7 +35,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.util.ProjectsUtil;
@@ -138,23 +137,19 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   private String metadataJsonFilename;
 
   @CommandLine.Option(
-          names = {"-ltt", "--list-transform-types-in-project"},
-          description = "List transform types used in this project"
-  )
+      names = {"-plt", "--list-transform-types-in-project"},
+      description = "List transform types used in this project")
   private boolean projectTransformTypes;
 
   @CommandLine.Option(
-          names = {"-lat", "--list-action-types-in-project"},
-          description = "List action types used in this project"
-  )
+      names = {"-pla", "--list-action-types-in-project"},
+      description = "List action types used in this project")
   private boolean projectActionTypes;
 
   @CommandLine.Option(
-          names = {"-lmt", "--list-transform-types-in-project"},
-          description = "List metadata types used in this project"
-  )
+      names = {"-plm", "--list-metadata-types-in-project"},
+      description = "List metadata types used in this project")
   private boolean projectMetadataTypes;
-
 
   @Override
   public boolean handleOption(
@@ -175,13 +170,13 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       } else if (listProjects) {
         listProjects(log, config, variables);
         changed = true;
-      }else if (projectTransformTypes) {
+      } else if (projectTransformTypes) {
         listTransformTypes(log, config, variables, hasHopMetadataProvider);
         changed = true;
-      }else if(projectActionTypes) {
+      } else if (projectActionTypes) {
         listActionTypes(log, config, variables, hasHopMetadataProvider);
         changed = true;
-      }else if(projectMetadataTypes) {
+      } else if (projectMetadataTypes) {
         listMetadataTypes(log, config, variables, hasHopMetadataProvider);
         changed = true;
       } else if (StringUtils.isNotEmpty(metadataJsonFilename)) {
@@ -445,19 +440,87 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     }
   }
 
-  public void listActionTypes(ILogChannel log, ProjectsConfig config, IVariables variables, IHasHopMetadataProvider hasHopMetadataProvider) throws HopException{
-  }
-
-  public void listTransformTypes(ILogChannel log, ProjectsConfig config, IVariables variables, IHasHopMetadataProvider hasHopMetadataProvider){
-
-  }
-
-  public void listMetadataTypes(ILogChannel log, ProjectsConfig config, IVariables variables, IHasHopMetadataProvider hasHopMetadataProvider) throws HopException {
+  public void listActionTypes(
+      ILogChannel log,
+      ProjectsConfig config,
+      IVariables variables,
+      IHasHopMetadataProvider hasHopMetadataProvider)
+      throws HopException {
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     Project project = projectConfig.loadProject(variables);
-    ProjectsUtil.enableProject(log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);
-    List<Class<IHopMetadata>> metadataClasses =  hasHopMetadataProvider.getMetadataProvider().getMetadataClasses();
+    ProjectsUtil.enableProject(
+        log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);
+    try {
+      List<String> actionTypes = project.getActionTypes(variables);
+      if (actionTypes.isEmpty()) {
+        log.logBasic("No action types found for project " + projectName);
+      } else {
+        log.logBasic("This project contains " + actionTypes.size() + " action type(s)");
+        for (String actionType : actionTypes) {
+          log.logBasic("   " + actionType);
+        }
+      }
+    } catch (Exception e) {
+      log.logError("Error listing action types for " + projectName);
+      e.printStackTrace();
+    }
+  }
 
+  public void listTransformTypes(
+      ILogChannel log,
+      ProjectsConfig config,
+      IVariables variables,
+      IHasHopMetadataProvider hasHopMetadataProvider)
+      throws HopException {
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    Project project = projectConfig.loadProject(variables);
+    ProjectsUtil.enableProject(
+        log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);
+    log.logBasic("Enabled project " + projectName);
+    try {
+      List<String> transformTypes = project.getTransformTypes(variables);
+      if (transformTypes.isEmpty()) {
+        log.logBasic("No transform types found for project " + projectName);
+      } else {
+        log.logBasic("This project contains " + transformTypes.size() + " transform type(s)");
+        for (String transformType : transformTypes) {
+          log.logBasic("   " + transformType);
+        }
+      }
+    } catch (Exception e) {
+      log.logError("Error getting transform types from project " + projectName);
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * List the metadata types used in this project.
+   *
+   * @param log
+   * @param config
+   * @param variables
+   * @param hasHopMetadataProvider
+   * @throws HopException
+   */
+  public void listMetadataTypes(
+      ILogChannel log,
+      ProjectsConfig config,
+      IVariables variables,
+      IHasHopMetadataProvider hasHopMetadataProvider)
+      throws HopException {
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    Project project = projectConfig.loadProject(variables);
+    ProjectsUtil.enableProject(
+        log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);
+    List<String> metadataTypeNames = project.getMetadataTypes();
+    if (metadataTypeNames.isEmpty()) {
+      log.logBasic("This project doesn't contain any metadata types");
+    } else {
+      log.logBasic("This project uses " + metadataTypeNames.size() + " metadata types");
+      for (String metadataTypeName : metadataTypeNames) {
+        log.logBasic("   " + metadataTypeName);
+      }
+    }
   }
 
   /**

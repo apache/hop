@@ -21,10 +21,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -32,20 +41,24 @@ import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.IConfigFile;
 import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectsUtil;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
 
 public class Project extends ConfigFile implements IConfigFile {
 
@@ -66,6 +79,16 @@ public class Project extends ConfigFile implements IConfigFile {
   private boolean enforcingExecutionInHome;
 
   private String parentProjectName;
+
+  private MultiMetadataProvider metadataProvider;
+
+  private List<Path> pipelinePaths;
+
+  private List<Path> workflowPaths;
+
+  private Map<PipelineMeta, List<TransformMeta>> pipelineTransformsMap;
+
+  private Map<WorkflowMeta, List<ActionMeta>> workflowActionsMap;
 
   public Project() {
     super();
@@ -301,6 +324,137 @@ public class Project extends ConfigFile implements IConfigFile {
   }
 
   /**
+   * List all of the metadata types used in the current project
+   *
+   * @return the list of metadata type names used in this project
+   * @throws HopException if the metadata classes can't be retrieved
+   */
+  public List<String> getMetadataTypes() throws HopException {
+    List<String> metadataTypeNames = new ArrayList<>();
+    List<Class<IHopMetadata>> metadataClasses = metadataProvider.getMetadataClasses();
+    for (Class<IHopMetadata> metadataClass : metadataClasses) {
+      IHopMetadataSerializer<IHopMetadata> metadataSerializer =
+          metadataProvider.getSerializer(metadataClass);
+      List<String> names = metadataSerializer.listObjectNames();
+      Collections.sort(names);
+
+      if (!names.isEmpty()) {
+        metadataTypeNames.add(metadataClass.getName());
+      }
+    }
+
+    return metadataTypeNames;
+  }
+
+  /**
+   * Build a map of all of the pipelines in the project.
+   *
+   * @throws IOException
+   */
+  private void buildPipelineMap(IVariables variables) throws IOException, HopFileException {
+    pipelineTransformsMap = new HashMap<>();
+    pipelinePaths = new ArrayList<>();
+    File projectFolder =
+        new File(String.valueOf(HopVfs.getFileObject(configFilename).getParent().getPath()));
+    if (projectFolder.isDirectory()) {
+      try (Stream<Path> walk = Files.walk(projectFolder.toPath())) {
+        pipelinePaths =
+            walk.filter(p -> !Files.isDirectory(p))
+                .filter(f -> f.getFileName().toString().toLowerCase().endsWith("hpl"))
+                .collect(Collectors.toList());
+      }
+    }
+  }
+
+  /**
+   * Build a map of all of the workflows in the project.
+   *
+   * @throws IOException
+   */
+  private void buildWorkflowMap() throws IOException, HopFileException {
+    workflowActionsMap = new HashMap<>();
+    workflowPaths = new ArrayList<>();
+    File projectFolder =
+        new File(String.valueOf(HopVfs.getFileObject(configFilename).getParent().getPath()));
+    if (projectFolder.isDirectory()) {
+      try (Stream<Path> walk = Files.walk(projectFolder.toPath())) {
+        workflowPaths =
+            walk.filter(p -> !Files.isDirectory(p))
+                .filter(f -> f.getFileName().toString().toLowerCase().endsWith("hwf"))
+                .collect(Collectors.toList());
+      }
+    }
+  }
+
+  /**
+   * Return a list of ll of the transform types that are used in the current project
+   *
+   * @param variables
+   * @return
+   * @throws IOException
+   * @throws HopFileException
+   */
+  public List<String> getTransformTypes(IVariables variables) throws IOException, HopFileException {
+    // build a map of all pipelines and transforms in the project.
+    buildPipelineMap(variables);
+    for (Path pipelinePath : pipelinePaths) {
+      try {
+        PipelineMeta pipelineMeta =
+            new PipelineMeta(pipelinePath.toAbsolutePath().toString(), metadataProvider, variables);
+        List<TransformMeta> transformMetas = pipelineMeta.getTransforms();
+        pipelineTransformsMap.put(pipelineMeta, transformMetas);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    List<String> transformTypes = new ArrayList<>();
+    for (PipelineMeta pipelineMeta : pipelineTransformsMap.keySet()) {
+      for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
+        if (!transformTypes.contains(transformMeta.getTypeId())) {
+          transformTypes.add(transformMeta.getPluginId());
+        }
+      }
+    }
+    Collections.sort(transformTypes);
+    return transformTypes;
+  }
+
+  /**
+   * Return a list of ll of the action types that are used in the current project
+   *
+   * @param variables
+   * @return
+   * @throws IOException
+   * @throws HopFileException
+   */
+  public List<String> getActionTypes(IVariables variables) throws HopException, IOException {
+    buildWorkflowMap();
+    for (Path workflowPath : workflowPaths) {
+      try {
+        WorkflowMeta workflowMeta =
+            new WorkflowMeta(variables, workflowPath.toAbsolutePath().toString(), metadataProvider);
+        List<ActionMeta> actionMetas = workflowMeta.getActions();
+        workflowActionsMap.put(workflowMeta, actionMetas);
+      } catch (Exception e) {
+        System.err.println("error getting workflow actions");
+        e.printStackTrace();
+      }
+    }
+
+    List<String> actionTypes = new ArrayList<>();
+    for (WorkflowMeta workflowMeta : workflowActionsMap.keySet()) {
+      for (ActionMeta actionMeta : workflowMeta.getActions()) {
+        if (!actionTypes.contains(actionMeta.getAction().getPluginId())) {
+          actionTypes.add(actionMeta.getAction().getPluginId());
+        }
+      }
+    }
+    Collections.sort(actionTypes);
+    return actionTypes;
+  }
+
+  /**
    * Gets configFilename
    *
    * @return value of configFilename
@@ -444,5 +598,13 @@ public class Project extends ConfigFile implements IConfigFile {
    */
   public void setParentProjectName(String parentProjectName) {
     this.parentProjectName = parentProjectName;
+  }
+
+  public MultiMetadataProvider getMetadataProvider() {
+    return metadataProvider;
+  }
+
+  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
+    this.metadataProvider = metadataProvider;
   }
 }
