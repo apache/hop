@@ -824,9 +824,17 @@ public class TestingGuiPlugin {
     }
 
     try {
+      IHopMetadataSerializer<PipelineUnitTest> testSerializer =
+          hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class);
+
       PipelineMeta pipelineMeta = getActivePipelineMeta();
       if (pipelineMeta == null) {
         return;
+      }
+
+      PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
+      if (unitTest != null) {
+        unitTest.setPipelineFilename("");
       }
 
       // Remove
@@ -848,9 +856,24 @@ public class TestingGuiPlugin {
       pipelineGraph.getVariables().setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "N");
       pipelineGraph.getVariables().setVariable(DataSetConst.VAR_UNIT_TEST_NAME, null);
 
+      MetadataManager<PipelineUnitTest> manager =
+          new MetadataManager<>(
+              hopGui.getVariables(),
+              hopGui.getMetadataProvider(),
+              PipelineUnitTest.class,
+              hopGui.getShell());
+      if (manager.editMetadata(unitTest.getName())) {
+        // Activate the test
+        refreshUnitTestsList();
+        //        selectUnitTest(pipelineMeta, unitTest);
+      }
+      testSerializer.save(unitTest);
+
       // Update the GUI
       //
+      pipelineGraph.setChanged();
       pipelineGraph.updateGui();
+
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),
