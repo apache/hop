@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.codehaus.janino.ExpressionEvaluator;
 
 /** Calculate new field values using pre-defined functions. */
@@ -214,6 +215,14 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
             parameterTypes.toArray(new Class<?>[parameterTypes.size()]));
         data.expressionEvaluator.setReturnType(Object.class);
         data.expressionEvaluator.setThrownExceptions(new Class<?>[] {Exception.class});
+
+        // Validate Formula
+        JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
+        List<String> codeCheck = janinoCheckerUtil.checkCode(realCondition);
+        if (!codeCheck.isEmpty()) {
+          throw new HopException("Script contains code that is not allowed : " + codeCheck);
+        }
+
         data.expressionEvaluator.cook(realCondition);
 
         // Also create the argument data structure once...
