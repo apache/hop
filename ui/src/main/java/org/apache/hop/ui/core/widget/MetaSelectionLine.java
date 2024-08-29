@@ -52,6 +52,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolBar;
 
 /**
@@ -184,7 +185,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
             metadata.image(),
             (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()),
             (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()));
-    addListener(SWT.Dispose, e -> editImage.dispose());
+    super.addListener(SWT.Dispose, e -> editImage.dispose());
 
     // Toolbar for default actions
     //
@@ -382,6 +383,11 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       fdConnection.top = new FormAttachment(0, PropsUi.getMargin());
     }
     setLayoutData(fdConnection);
+  }
+
+  @Override
+  public void addListener(int eventTYpe, Listener listener) {
+    wCombo.addListener(eventTYpe, listener);
   }
 
   public void addModifyListener(ModifyListener lsMod) {
