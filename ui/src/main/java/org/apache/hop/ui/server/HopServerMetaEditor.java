@@ -48,8 +48,8 @@ import org.eclipse.swt.widgets.Text;
  *
  * @see HopServerMeta
  */
-public class HopServerEditor extends MetadataEditor<HopServerMeta> {
-  private static final Class<?> PKG = HopServerEditor.class;
+public class HopServerMetaEditor extends MetadataEditor<HopServerMeta> {
+  private static final Class<?> PKG = HopServerMetaEditor.class;
 
   private CTabFolder wTabFolder;
 
@@ -70,7 +70,7 @@ public class HopServerEditor extends MetadataEditor<HopServerMeta> {
   private int middle;
   private int margin;
 
-  public HopServerEditor(
+  public HopServerMetaEditor(
       HopGui hopGui, MetadataManager<HopServerMeta> manager, HopServerMeta metadata) {
     super(hopGui, manager, metadata);
   }
