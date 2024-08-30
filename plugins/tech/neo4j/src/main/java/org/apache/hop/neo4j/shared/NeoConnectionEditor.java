@@ -169,7 +169,8 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
       wMaxConnectionPoolSize,
       wConnectionAcquisitionTimeout,
       wConnectionTimeout,
-      wMaxTransactionRetryTime
+      wMaxTransactionRetryTime,
+      wProtocol
     };
     for (Control control : controls) {
       control.addListener(SWT.Modify, e -> setChanged());
