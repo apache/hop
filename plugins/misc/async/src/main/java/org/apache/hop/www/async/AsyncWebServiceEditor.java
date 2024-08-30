@@ -36,13 +36,13 @@ import org.apache.hop.ui.www.service.WebServiceEditor;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
 /**
@@ -227,12 +227,13 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     setWidgetsContent();
 
     // Add listener to detect change after loading data
-    ModifyListener lsMod = e -> setChanged();
-    wName.addModifyListener(lsMod);
-    wEnabled.addListener(SWT.Selection, e -> setChanged());
-    wFilename.addModifyListener(lsMod);
-    wStatusVars.addModifyListener(lsMod);
-    wContentVar.addModifyListener(lsMod);
+    Listener lsMod = e -> setChanged();
+    wName.addListener(SWT.Modify, lsMod);
+    wEnabled.addListener(SWT.Selection, lsMod);
+    wFilename.addListener(SWT.Modify, lsMod);
+    wRunConfiguration.addListener(SWT.Modify, lsMod);
+    wStatusVars.addListener(SWT.Modify, lsMod);
+    wContentVar.addListener(SWT.Modify, lsMod);
   }
 
   /**
