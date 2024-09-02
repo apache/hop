@@ -147,11 +147,13 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     addSamplersItem.setToolTipText(
         BaseMessages.getString(PKG, "ExecutionDataProfileEditor.Button.AddSamplers"));
     addSamplersItem.addListener(SWT.Selection, e -> addSamplers());
+    addSamplersItem.addListener(SWT.Selection, e -> setChanged());
     ToolItem deleteSamplerItem = new ToolItem(wSamplersToolBar, SWT.PUSH);
     deleteSamplerItem.setImage(GuiResource.getInstance().getImageDelete());
     deleteSamplerItem.setToolTipText(
         BaseMessages.getString(PKG, "ExecutionDataProfileEditor.Button.DeleteSampler"));
     deleteSamplerItem.addListener(SWT.Selection, e -> deleteSampler());
+    deleteSamplerItem.addListener(SWT.Selection, e -> setChanged());
     FormData fdSamplersToolBar = new FormData();
     fdSamplersToolBar.left = new FormAttachment(0, 0);
     fdSamplersToolBar.right = new FormAttachment(middle, 0);

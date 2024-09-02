@@ -315,6 +315,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wContentType.addListener(SWT.Modify, modifyListener);
     wListStatus.addListener(SWT.Selection, modifyListener);
     wBodyContentVariable.addListener(SWT.Modify, modifyListener);
+    wRunConfiguration.addListener(SWT.Selection, modifyListener);
   }
 
   /**
