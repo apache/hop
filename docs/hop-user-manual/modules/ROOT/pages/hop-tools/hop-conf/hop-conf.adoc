@@ -132,6 +132,12 @@ Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
       -ph, --project-home=<projectHome>
                             The home directory of the project
       -pl, --projects-list   List the defined projects
+      -pla, --list-action-types-in-project
+                             List action types used in this project
+      -plm, --list-metadata-types-in-project
+                             List metadata types used in this project
+      -plt, --list-transform-types-in-project
+                             List transform types used in this project
       -pm, --project-modify Modify a project
       -pn, --projects-enabled
                             Enable or disable the projects plugin
@@ -186,7 +192,10 @@ Also specify the name and its home
 |-pc|--project-create|Create a new project.
 Also specify the name and its home
 |-pd|--prject-delete|Delete a project
-|-pl|--project-list|List the defined projects
+|-pl|--projects-list|List the defined projects
+|-pla|--list-action-types-in-project|List action types used in this project
+|-plm|--list-metadata-types-in-project|List metadata types used in this project
+|-plt|--list-transform-types-in-project|List transform types used in this project
 |-pm|--project-modify|Modify a project
 |-dv|--describe-variable=<describeVariable>|Describe a variable
 |-e|-environment=<environmentName>|The name of the environment to manage
