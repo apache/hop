@@ -186,8 +186,9 @@ TIP: Only integer values for B are supported. If you need non-integer calculatio
 |ROUND_CUSTOM( A , B , C )|ROUND_CUSTOM_2|(... not implemented...?)
 |Date A + B seconds|ADD_SECONDS|Add B seconds to date field A
 |Remainder of A / B|REMAINDER|Remainder of integer division between A and B (A modulo B)
-|Base64 Encode|BASE64_ENCODE|Encode a string in Base64 encoding
-|Base64 Decode|BASE64_DECODE|Decode a Base64 encoded string
+|Base64 Encode|BASE64_ENCODE|Encode a string in Base64 encoding without padding at the end
+|Base64 Encode (padded)|BASE64_ENCODE_PADDED|Encode a string in Base64 encoding with padding at the end, cf. https://doi.org/10.17487/RFC4648[section 3.2 of RFC 4648]
+|Base64 Decode|BASE64_DECODE|Decode a Base64 encoded string. Supports both padded or non-padded input.
 |===
 
 == Metadata Injection support
