@@ -205,8 +205,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   }
 
   protected void createTree(Composite parent) {
-    PropsUi props = PropsUi.getInstance();
-
     // Create composite
     //
     Composite composite = new Composite(parent, SWT.BORDER);
@@ -313,7 +311,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   }
 
   protected void createTabFolder(Composite parent) {
-    PropsUi props = PropsUi.getInstance();
 
     tabFolder = new CTabFolder(parent, SWT.MULTI | SWT.BORDER);
     tabFolder.addCTabFolder2Listener(
@@ -328,8 +325,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
     // Show/Hide tree
     //
-    ToolBar toolBar = new ToolBar(tabFolder, SWT.FLAT);
-    final ToolItem item = new ToolItem(toolBar, SWT.PUSH);
+    ToolBar tabToolBar = new ToolBar(tabFolder, SWT.FLAT);
+    final ToolItem item = new ToolItem(tabToolBar, SWT.PUSH);
     item.setImage(GuiResource.getInstance().getImageMinimizePanel());
     item.addListener(
         SWT.Selection,
@@ -342,7 +339,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             item.setImage(GuiResource.getInstance().getImageMinimizePanel());
           }
         });
-    tabFolder.setTopRight(toolBar, SWT.RIGHT);
+    tabFolder.setTopRight(tabToolBar, SWT.RIGHT);
 
     new TabCloseHandler(this);
 
@@ -352,7 +349,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   }
 
   public void addEditor(MetadataEditor<?> editor) {
-    PropsUi props = PropsUi.getInstance();
 
     // Create tab item
     //
@@ -405,6 +401,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     tabItem.setData(editor);
 
     editors.add(editor);
+
+    // Add listeners
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(this);
+    replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
 
     // Activate perspective
     //
@@ -775,10 +776,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
           TreeItem item = new TreeItem(classItem, SWT.NONE);
           item.setText(0, Const.NVL(name, ""));
           MetadataEditor<?> editor = this.findEditor(annotation.key(), name);
-          if (editor != null) {
-            if (editor.hasChanged()) {
-              item.setFont(GuiResource.getInstance().getFontBold());
-            }
+          if (editor != null && editor.hasChanged()) {
+            item.setFont(GuiResource.getInstance().getFontBold());
           }
         }
       }
@@ -800,16 +799,13 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   protected void updateSelection() {
 
-    String objectKey = null;
     String objectName = null;
 
     if (tree.getSelectionCount() > 0) {
       TreeItem selectedItem = tree.getSelection()[0];
       if (selectedItem.getParentItem() == null) {
-        objectKey = selectedItem.getText();
         objectName = null;
       } else {
-        objectKey = (String) selectedItem.getParentItem().getData();
         objectName = selectedItem.getText(0);
       }
     }
@@ -896,14 +892,12 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>();
-    return handlers;
+    return new ArrayList<>();
   }
 
   @Override
   public List<ISearchable> getSearchables() {
-    List<ISearchable> searchables = new ArrayList<>();
-    return searchables;
+    return new ArrayList<>();
   }
 
   @Override
@@ -967,6 +961,24 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
           }
         }
         goToType(managedClass);
+      }
+    }
+  }
+
+  public void replaceKeyboardShortcutListeners(Control control, HopGuiKeyHandler keyHandler) {
+    // Something closing in the background perhaps...
+    //
+    if (control == null || control.isDisposed()) {
+      return;
+    }
+    control.removeKeyListener(keyHandler);
+    control.addKeyListener(keyHandler);
+
+    // Add it to all the children as well so we don't have any focus issues
+    //
+    if (control instanceof Composite composite) {
+      for (Control child : composite.getChildren()) {
+        replaceKeyboardShortcutListeners(child, keyHandler);
       }
     }
   }
