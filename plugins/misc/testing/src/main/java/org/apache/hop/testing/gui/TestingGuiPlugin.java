@@ -865,7 +865,6 @@ public class TestingGuiPlugin {
       if (manager.editMetadata(unitTest.getName())) {
         // Activate the test
         refreshUnitTestsList();
-        //        selectUnitTest(pipelineMeta, unitTest);
       }
       testSerializer.save(unitTest);
 
