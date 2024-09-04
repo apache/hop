@@ -151,13 +151,7 @@ public class EnterSelectionDialog extends Dialog {
     Shell parent = getParent();
 
     shell =
-        new Shell(
-            parent,
-            SWT.DIALOG_TRIM
-                | (modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE)
-                | SWT.RESIZE
-                | SWT.MIN
-                | SWT.MAX);
+        new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL);
     PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
@@ -560,7 +554,10 @@ public class EnterSelectionDialog extends Dialog {
           }
         } else {
           if (filterString != null) {
-            if (choices[i].toUpperCase().contains(filterString)) {
+            if (choices[i]
+                .replaceAll("\\s+", "")
+                .toUpperCase()
+                .contains(filterString.replaceAll("\\s+", ""))) {
               wSelection.add(choices[i]);
             }
           } else {
