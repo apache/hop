@@ -29,16 +29,14 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
 
 @Action(
     id = "SnowflakeWarehouseManager",
@@ -91,48 +89,63 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   public static final String CONST_COMMIT = ";\ncommit;";
 
   /** The database to connect to. */
+  @HopMetadataProperty(key = CONNECTION, storeWithName = true)
   private DatabaseMeta databaseMeta;
 
   /** The management action to perform. */
+  @HopMetadataProperty(key = MANAGEMENT_ACTION)
   private String managementAction;
 
   /** The name of the warehouse. */
+  @HopMetadataProperty(key = WAREHOUSE_NAME)
   private String warehouseName;
 
   /** CREATE: If the warehouse exists, should it be replaced */
+  @HopMetadataProperty(key = REPLACE)
   private boolean replace;
 
   /** CREATE: Fail if the warehouse exists */
+  @HopMetadataProperty(key = FAIL_IF_EXISTS)
   private boolean failIfExists;
 
   /** DROP: Fail if the warehouse does not exist */
+  @HopMetadataProperty(key = FAIL_IF_NOT_EXISTS)
   private boolean failIfNotExists;
 
   /** CREATE: The warehouse size to use */
+  @HopMetadataProperty(key = WAREHOUSE_SIZE)
   private String warehouseSize;
 
   /** CREATE: The warehouse type to use */
+  @HopMetadataProperty(key = WAREHOUSE_TYPE)
   private String warehouseType;
 
   /** CREATE: The maximum cluster size */
+  @HopMetadataProperty(key = MAX_CLUSTER_COUNT)
   private String maxClusterCount;
 
   /** CREATE: The minimum cluster size */
+  @HopMetadataProperty(key = MIN_CLUSTER_COUNT)
   private String minClusterCount;
 
   /** CREATE: Should the warehouse automatically suspend */
+  @HopMetadataProperty(key = AUTO_SUSPEND)
   private String autoSuspend;
 
   /** CREATE: Should the warehouse automatically resume when it receives a statement */
+  @HopMetadataProperty(key = AUTO_RESUME)
   private boolean autoResume;
 
   /** CREATE: Should the warehouse start in a suspended state */
+  @HopMetadataProperty(key = INITIALLY_SUSPENDED)
   private boolean initiallySuspended;
 
   /** CREATE: The resource monitor to control the warehouse for billing */
+  @HopMetadataProperty(key = RESOURCE_MONITOR)
   private String resourceMonitor;
 
   /** CREATE: The comment to associate with the statement */
+  @HopMetadataProperty(key = COMMENT)
   private String comment;
 
   public WarehouseManager(String name) {
@@ -333,111 +346,6 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXml() {
-    StringBuffer returnValue = new StringBuffer(300);
-
-    returnValue.append(super.getXml());
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                CONNECTION, databaseMeta == null ? null : databaseMeta.getName()));
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                MANAGEMENT_ACTION, getManagementAction())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue(REPLACE, isReplace())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(FAIL_IF_EXISTS, isFailIfExists())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                WAREHOUSE_NAME, getWarehouseName())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                WAREHOUSE_SIZE, getWarehouseSize())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                WAREHOUSE_TYPE, getWarehouseType())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                MAX_CLUSTER_COUNT, getMaxClusterCount())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                MIN_CLUSTER_COUNT, getMinClusterCount())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(AUTO_SUSPEND, getAutoSuspend())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue(AUTO_RESUME, isAutoResume())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                INITIALLY_SUSPENDED, isInitiallySuspended())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                RESOURCE_MONITOR, getResourceMonitor())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue(COMMENT, getComment())); // $NON-NLS-1$ //$NON-NLS-2$
-    returnValue
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue(FAIL_IF_NOT_EXISTS, isFailIfNotExists()));
-
-    return returnValue.toString();
-  }
-
-  @Override
-  public void loadXml(Node entryNode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entryNode);
-      String dbname = XmlHandler.getTagValue(entryNode, CONNECTION);
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, dbname);
-
-      setManagementAction(XmlHandler.getTagValue(entryNode, MANAGEMENT_ACTION));
-      setReplace("Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, REPLACE)));
-      setFailIfExists("Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, FAIL_IF_EXISTS)));
-      setWarehouseName(XmlHandler.getTagValue(entryNode, WAREHOUSE_NAME));
-      setWarehouseSize(XmlHandler.getTagValue(entryNode, WAREHOUSE_SIZE));
-      setWarehouseType(XmlHandler.getTagValue(entryNode, WAREHOUSE_TYPE));
-      setMaxClusterCount(XmlHandler.getTagValue(entryNode, MAX_CLUSTER_COUNT));
-      setMinClusterCount(XmlHandler.getTagValue(entryNode, MIN_CLUSTER_COUNT));
-      setAutoSuspend(XmlHandler.getTagValue(entryNode, AUTO_SUSPEND));
-      setAutoResume("Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, AUTO_RESUME)));
-      setInitiallySuspended(
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, INITIALLY_SUSPENDED)));
-      setResourceMonitor(XmlHandler.getTagValue(entryNode, RESOURCE_MONITOR));
-      setComment(XmlHandler.getTagValue(entryNode, COMMENT));
-      setFailIfNotExists(
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, FAIL_IF_NOT_EXISTS)));
-    } catch (HopXmlException dbe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Error.Exception.UnableLoadXML"),
-          dbe);
-    }
-  }
-
-  @Override
   public void clear() {
     super.clear();
 
@@ -507,9 +415,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
       return result;
     }
 
-    Database db = null;
-    try {
-      db = new Database(this, this, databaseMeta);
+    try (Database db = new Database(this, this, databaseMeta)) {
       String sql = null;
       String successMessage = null;
 
@@ -545,14 +451,6 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     } catch (Exception ex) {
       logError("Error managing warehouse", ex);
       result.setResult(false);
-    } finally {
-      try {
-        if (db != null) {
-          db.disconnect();
-        }
-      } catch (Exception ex) {
-        logError("Unable to disconnect from database", ex);
-      }
     }
 
     return result;
