@@ -368,9 +368,9 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
         PipelineRunConfiguration local =
             new PipelineRunConfiguration(
                 "local",
-                "",
                 BaseMessages.getString(
                     PKG, "PipelineExecutionConfigurationDialog.LocalRunConfiguration.Description"),
+                null,
                 new ArrayList<>(),
                 localPipelineRunConfiguration,
                 null,
