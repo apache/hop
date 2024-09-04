@@ -28,16 +28,20 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.janino.editor.FormulaEditor;
 import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -195,6 +199,39 @@ public class JaninoDialog extends BaseTransformDialog {
           }
         };
     new Thread(runnable).start();
+
+    colinf[1].setSelectionAdapter(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            if (inputFields == null) {
+              return;
+            }
+
+            TableView tv = (TableView) e.widget;
+            TableItem item = tv.table.getItem(e.y);
+            String formula = item.getText(e.x);
+
+            try {
+              if (!shell.isDisposed()) {
+                FormulaEditor libFormulaEditor =
+                    new FormulaEditor(
+                        variables,
+                        shell,
+                        SWT.APPLICATION_MODAL | SWT.SHEET,
+                        Const.NVL(formula, ""),
+                        inputFields);
+                formula = libFormulaEditor.open();
+                if (formula != null && !tv.isDisposed()) {
+                  tv.setText(formula, e.x, e.y);
+                }
+              }
+            } catch (Exception ex) {
+              new ErrorDialog(
+                  shell, "Error", "There was an unexpected error in the formula editor", ex);
+            }
+          }
+        });
 
     wFields.addModifyListener(
         arg0 ->

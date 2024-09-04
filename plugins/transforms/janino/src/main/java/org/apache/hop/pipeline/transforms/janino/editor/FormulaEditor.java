@@ -15,13 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.formula.editor;
+package org.apache.hop.pipeline.transforms.janino.editor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transforms.formula.FormulaMeta;
-import org.apache.hop.pipeline.transforms.formula.function.FunctionDescription;
-import org.apache.hop.pipeline.transforms.formula.function.FunctionLib;
+import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
+import org.apache.hop.pipeline.transforms.janino.function.FunctionDescription;
+import org.apache.hop.pipeline.transforms.janino.function.FunctionLib;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -47,8 +51,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class FormulaEditor extends Dialog implements KeyListener {
-  public static final Class<?> PKG = FormulaMeta.class;
-  public static final String FUNCTIONS_FILE = "functions.xml";
+  public static final Class<?> PKG = JaninoMeta.class;
 
   private Shell shell;
   private Tree tree;
@@ -56,10 +59,11 @@ public class FormulaEditor extends Dialog implements KeyListener {
   private StyledTextComp expressionEditor;
   private String formula;
   private Browser message;
+  private FunctionLib functionLib;
 
   private Button ok;
   private Button cancel;
-  private String[] inputFields;
+  private List<String> inputFields;
 
   private Color blue;
   private Color red;
@@ -70,16 +74,13 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
   Menu helperMenu;
 
-  private FunctionLib functionLib;
-  private String[] functions;
   private String[] categories;
-
   private SashForm rightSash;
   private IVariables variables;
 
   public FormulaEditor(
-      IVariables variables, Shell parent, int style, String formula, String[] inputFields)
-      throws Exception {
+      IVariables variables, Shell parent, int style, String formula, List<String> inputFields)
+      throws HopException {
     super(parent, style);
     this.variables = variables;
     this.formula = formula;
@@ -103,9 +104,9 @@ public class FormulaEditor extends Dialog implements KeyListener {
     bcLayout.spacing = 5;
     buttonsComposite.setLayout(bcLayout);
     ok = new Button(buttonsComposite, SWT.PUSH);
-    ok.setText("  OK  "); // TODO i18n
+    ok.setText("  OK  ");
     cancel = new Button(buttonsComposite, SWT.PUSH);
-    cancel.setText(" Cancel "); // TODO i18n
+    cancel.setText(" Cancel ");
 
     ok.addSelectionListener(
         new SelectionAdapter() {
@@ -172,7 +173,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
         fitem.setText(fname);
       }
     }
-    /**
+    /*
      * If someone clicks on a function, we display the description of the function in the message
      * box...
      */
@@ -261,15 +262,8 @@ public class FormulaEditor extends Dialog implements KeyListener {
     fdMessage.bottom = new FormAttachment(0, 100);
     message.setLayoutData(fdMessage);
 
-    rightSash.setWeights(
-        new int[] {
-          10, 80,
-        });
-
-    sashForm.setWeights(
-        new int[] {
-          15, 85,
-        });
+    rightSash.setWeights(10, 80);
+    sashForm.setWeights(15, 85);
 
     red = new Color(shell.getDisplay(), 255, 0, 0);
     green = new Color(shell.getDisplay(), 0, 220, 0);
@@ -322,22 +316,18 @@ public class FormulaEditor extends Dialog implements KeyListener {
     shell.dispose();
   }
 
-  public void readFunctions() throws Exception {
-    functionLib = new FunctionLib(FUNCTIONS_FILE);
-    functions = functionLib.getFunctionNames();
+  public void readFunctions() throws HopException {
+    functionLib = new FunctionLib();
     categories = functionLib.getFunctionCategories();
   }
 
-  // TODO
   public void setStyles() {
     // implement later
   }
 
   public static void main(String[] args) throws Exception {
     Display display = new Display();
-    String[] inputFields = {
-      "firstname", "name",
-    };
+    List<String> inputFields = new ArrayList<>(Arrays.asList("firstname", "name"));
     FormulaEditor lbe =
         new FormulaEditor(
             null,

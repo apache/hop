@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -32,6 +35,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.janino.function.FunctionLib;
 import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.codehaus.janino.ExpressionEvaluator;
 
@@ -158,12 +162,18 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
             // Create the expression evaluator: is relatively slow so we do it only for the first
             // row...
             //
+            PluginRegistry registry = PluginRegistry.getInstance();
+            IPlugin plugin = registry.getPlugin(TransformPluginType.class, "Janino");
+            ClassLoader loader = registry.getClassLoader(plugin);
+            FunctionLib functionLib = new FunctionLib();
             data.expressionEvaluators[m] = new ExpressionEvaluator();
             data.expressionEvaluators[m].setParameters(
                 parameterNames.toArray(new String[parameterNames.size()]),
                 parameterTypes.toArray(new Class<?>[parameterTypes.size()]));
             data.expressionEvaluators[m].setReturnType(Object.class);
             data.expressionEvaluators[m].setThrownExceptions(new Class<?>[] {Exception.class});
+            data.expressionEvaluators[m].setParentClassLoader(loader);
+            data.expressionEvaluators[m].setDefaultImports(functionLib.getImportPackages());
 
             // Validate Formula
             JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();

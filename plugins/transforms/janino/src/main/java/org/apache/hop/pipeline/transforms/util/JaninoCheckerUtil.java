@@ -31,15 +31,7 @@ public class JaninoCheckerUtil {
     String path = "";
 
     try {
-      String jarPath =
-          new File(
-                  JaninoCheckerUtil.class
-                      .getProtectionDomain()
-                      .getCodeSource()
-                      .getLocation()
-                      .getPath())
-              .getParent();
-      path = jarPath + File.separator + "codeExclusions.xml";
+      path = getJarPath() + File.separator + "codeExclusions.xml";
 
       Document document = XmlHandler.loadXmlFile(path);
       Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
@@ -61,5 +53,11 @@ public class JaninoCheckerUtil {
       }
     }
     return foundBlocks;
+  }
+
+  public String getJarPath() {
+    return new File(
+            JaninoCheckerUtil.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+        .getParent();
   }
 }
