@@ -331,18 +331,19 @@ public class Project extends ConfigFile implements IConfigFile {
    */
   public List<String> getMetadataTypes() throws HopException {
     List<String> metadataTypeNames = new ArrayList<>();
-    List<Class<IHopMetadata>> metadataClasses = metadataProvider.getMetadataClasses();
-    for (Class<IHopMetadata> metadataClass : metadataClasses) {
-      IHopMetadataSerializer<IHopMetadata> metadataSerializer =
-          metadataProvider.getSerializer(metadataClass);
-      List<String> names = metadataSerializer.listObjectNames();
-      Collections.sort(names);
+    if (metadataProvider != null) {
+      List<Class<IHopMetadata>> metadataClasses = metadataProvider.getMetadataClasses();
+      for (Class<IHopMetadata> metadataClass : metadataClasses) {
+        IHopMetadataSerializer<IHopMetadata> metadataSerializer =
+            metadataProvider.getSerializer(metadataClass);
+        List<String> names = metadataSerializer.listObjectNames();
+        Collections.sort(names);
 
-      if (!names.isEmpty()) {
-        metadataTypeNames.add(metadataClass.getName());
+        if (!names.isEmpty()) {
+          metadataTypeNames.add(metadataClass.getName());
+        }
       }
     }
-
     return metadataTypeNames;
   }
 
