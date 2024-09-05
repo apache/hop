@@ -150,7 +150,7 @@ public interface IValueMeta extends Cloneable {
   /** Value type indicating that the value has no type set */
   int TYPE_NONE = 0;
 
-  /** Value type indicating that the value contains a floating point double precision number. */
+  /** Value type indicating that the value contains a floating point number, commonly double. */
   int TYPE_NUMBER = 1;
 
   /** Value type indicating that the value contains a text String. */
@@ -162,12 +162,12 @@ public interface IValueMeta extends Cloneable {
   /** Value type indicating that the value contains a boolean. */
   int TYPE_BOOLEAN = 4;
 
-  /** Value type indicating that the value contains a long integer. */
+  /** Value type indicating that the value contains an integer, commonly long. */
   int TYPE_INTEGER = 5;
 
   /**
-   * Value type indicating that the value contains a floating point precision number with arbitrary
-   * precision.
+   * Value type indicating that the value contains a fixed point precision number with variable
+   * precision, commonly decimal.
    */
   int TYPE_BIGNUMBER = 6;
 
