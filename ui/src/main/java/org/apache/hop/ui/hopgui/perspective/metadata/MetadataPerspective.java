@@ -405,7 +405,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     // Add listeners
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     keyHandler.addParentObjectToHandle(this);
-    replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
+    HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
 
     // Activate perspective
     //
@@ -961,24 +961,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
           }
         }
         goToType(managedClass);
-      }
-    }
-  }
-
-  public void replaceKeyboardShortcutListeners(Control control, HopGuiKeyHandler keyHandler) {
-    // Something closing in the background perhaps...
-    //
-    if (control == null || control.isDisposed()) {
-      return;
-    }
-    control.removeKeyListener(keyHandler);
-    control.addKeyListener(keyHandler);
-
-    // Add it to all the children as well so we don't have any focus issues
-    //
-    if (control instanceof Composite composite) {
-      for (Control child : composite.getChildren()) {
-        replaceKeyboardShortcutListeners(child, keyHandler);
       }
     }
   }

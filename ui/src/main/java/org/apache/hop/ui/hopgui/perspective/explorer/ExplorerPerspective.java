@@ -697,21 +697,19 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     //
     TreeItem item = (TreeItem) event.item;
     TreeItemFolder treeItemFolder = (TreeItemFolder) item.getData();
-    if (treeItemFolder != null) {
-      if (!treeItemFolder.loaded) {
-        BusyIndicator.showWhile(
-            hopGui.getDisplay(),
-            () -> {
-              refreshFolder(item, treeItemFolder.path, treeItemFolder.depth + 1);
-              treeItemFolder.loaded = true;
-            });
-      }
+    if (treeItemFolder != null && !treeItemFolder.loaded) {
+      BusyIndicator.showWhile(
+          hopGui.getDisplay(),
+          () -> {
+            refreshFolder(item, treeItemFolder.path, treeItemFolder.depth + 1);
+            treeItemFolder.loaded = true;
+          });
     }
   }
 
   private void openFile(Event event) {
-    if (event.item instanceof TreeItem) {
-      TreeItem item = (TreeItem) event.item;
+    if (event.item instanceof TreeItem treeItem) {
+      TreeItem item = treeItem;
 
       TreeItemFolder tif = (TreeItemFolder) item.getData();
       if (tif.folder) {
@@ -853,8 +851,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     // Show/Hide tree
     //
-    ToolBar toolBar = new ToolBar(tabFolder, SWT.FLAT);
-    final ToolItem item = new ToolItem(toolBar, SWT.PUSH);
+    ToolBar secondToolBar = new ToolBar(tabFolder, SWT.FLAT);
+    final ToolItem item = new ToolItem(secondToolBar, SWT.PUSH);
     item.setImage(GuiResource.getInstance().getImageMinimizePanel());
     item.addListener(
         SWT.Selection,
@@ -867,7 +865,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             item.setImage(GuiResource.getInstance().getImageMinimizePanel());
           }
         });
-    tabFolder.setTopRight(toolBar, SWT.RIGHT);
+    tabFolder.setTopRight(secondToolBar, SWT.RIGHT);
 
     new TabCloseHandler(this);
 
@@ -922,8 +920,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
    * @param event The selection event
    */
   private void handleTabSelectionEvent(Event event) {
-    if (event.item instanceof CTabItem) {
-      CTabItem tabItem = (CTabItem) event.item;
+    if (event.item instanceof CTabItem cTabItem) {
+      CTabItem tabItem = cTabItem;
       ExplorerFile explorerFile = (ExplorerFile) tabItem.getData();
       selectInTree(explorerFile.getFilename());
       updateGui();
@@ -999,6 +997,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     files.add(explorerFile);
     hopGui.fileRefreshDelegate.register(explorerFile.getFilename(), renderer);
+
+    // Add listeners
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(this);
+    HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
 
     // Activate perspective
     //
@@ -1095,8 +1098,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void setActiveFileTypeHandler(IHopFileTypeHandler fileTypeHandler) {
-    if (fileTypeHandler instanceof ExplorerFile) {
-      this.setActiveFile((ExplorerFile) fileTypeHandler);
+    if (fileTypeHandler instanceof ExplorerFile explorerFile) {
+      this.setActiveFile(explorerFile);
     }
   }
 
@@ -1490,8 +1493,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
 
-    if (typeHandler instanceof BaseExplorerFileTypeHandler) {
-      BaseExplorerFileTypeHandler fileTypeHandler = (BaseExplorerFileTypeHandler) typeHandler;
+    if (typeHandler instanceof BaseExplorerFileTypeHandler baseExplorerFileTypeHandler) {
+      BaseExplorerFileTypeHandler fileTypeHandler = baseExplorerFileTypeHandler;
 
       if (fileTypeHandler.isCloseable()) {
         ExplorerFile file = fileTypeHandler.getExplorerFile();
