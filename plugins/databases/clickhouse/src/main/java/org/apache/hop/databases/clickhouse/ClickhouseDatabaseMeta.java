@@ -104,10 +104,8 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       url = url + ":" + port;
     }
 
-    boolean isFirstQueryParam = true;
     if (!Utils.isEmpty(databaseName)) {
-      if (isFirstQueryParam) url = url + "/" + databaseName;
-      else url = url + databaseName;
+      url = url + "/" + databaseName;
     }
 
     return url;
@@ -145,7 +143,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       boolean useAutoinc,
       boolean addFieldName,
       boolean addCr) {
-    String fieldDefinitionDdl = "";
+    String retval = "";
 
     String newline = addCr ? Const.CR : "";
 
@@ -158,7 +156,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         fieldname.equalsIgnoreCase(surrogateKey) || fieldname.equalsIgnoreCase(primaryKey);
 
     if (addFieldName) {
-      fieldDefinitionDdl += fieldname + " ";
+      retval += fieldname + " ";
     }
     if (isKeyField) {
       Validate.isTrue(
@@ -170,57 +168,49 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     switch (type) {
       case IValueMeta.TYPE_TIMESTAMP:
         // timestamp w/ local timezone
-        fieldDefinitionDdl += "DATETIME";
+        retval += "DATETIME";
         break;
       case IValueMeta.TYPE_DATE:
-        fieldDefinitionDdl += "DATE";
+        retval += "DATE";
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        fieldDefinitionDdl += "UINT8";
+        retval += "UINT8";
         break;
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
-        if (precision == 0) {
-          fieldDefinitionDdl += ddlForIntegerValue(length);
+        if (type == IValueMeta.TYPE_INTEGER) {
+          // Integer values...
+          if (length > 18) {
+            retval += "INT128";
+          } else if (length > 9) {
+            retval += "INT64";
+          } else {
+            retval += "INT32";
+          }
+        } else if (type == IValueMeta.TYPE_BIGNUMBER) {
+          // Fixed point value...
+          if (length < 1) { // user configured no value for length. Use 16 digits, which is comparable to mantissa 2^53 of IEEE 754 binary64 "double".
+            length = 16;
+          }
+          if (precision < 1) { // user configured no value for precision. Use 16 digits, which is comparable to IEEE 754 binary64 "double".
+            precision = 16;
+          }
+          retval += "DECIMAL(" + length + "," + precision + ")";
         } else {
-          fieldDefinitionDdl += ddlForFloatValue(length, precision);
+          // Floating point value with double precision...
+          retval += "FLOAT64";
         }
         break;
       case IValueMeta.TYPE_STRING:
-        fieldDefinitionDdl += "STRING";
+        retval += "STRING";
         break;
       case IValueMeta.TYPE_BINARY:
-        fieldDefinitionDdl += "UNSUPPORTED";
+        retval += "UNSUPPORTED";
         break;
       default:
-        fieldDefinitionDdl += " UNKNOWN";
+        retval += "UNKNOWN";
         break;
     }
-    return fieldDefinitionDdl + newline;
-  }
-
-  private String ddlForIntegerValue(int length) {
-    if (length > 9) {
-      if (length < 19) {
-        // can hold signed values between -9223372036854775808 and 9223372036854775807
-        // 18 significant digits
-        return "INT64";
-      } else {
-        // can hold signed values between -170141183460469231731687303715884105728 and
-        // 170141183460469231731687303715884105727
-        // 36 significant digits
-        return "INT128";
-      }
-    } else {
-      return "INT32";
-    }
-  }
-
-  private String ddlForFloatValue(int length, int precision) {
-    if (length > 15) {
-      return "DECIMAL(" + length + ", " + precision + ")";
-    } else {
-      return "FLOAT32";
-    }
+    return retval + newline;
   }
 
   private String ddlForPrimaryKey() {
