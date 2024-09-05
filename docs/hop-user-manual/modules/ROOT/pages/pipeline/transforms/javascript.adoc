@@ -240,3 +240,24 @@ The `this` keyword is required. Without it, Javascript will use `field name with
 ----
 var new_field = replace(this["field name with spaces"], " ", "_");
 ----
+
+=== Produce a custom JSON including nested arrays
+You can create your own custom json structure with a javascript similar to this one.
+For this example you need to create two input fields `short_filename` and `myField1` i.e. by using a data grid transform.
+The resulting JSON "myBodyJson" can then be used i.e. in a REST Client transform. For a POST request just map this "myBodyJson" to "Body field".
+
+[source, javascript]
+----
+var json = {};
+json.sourceProperties = {};
+json.sourceProperties.properties = [];
+
+json.filename = short_filename;
+json.sourceCategory = "CategoryABC";
+
+json.sourceProperties.properties.push({"key": "exampleArr", "values": [1000]})
+json.sourceProperties.properties.push({"key": "exampleString", "values": "Some Testingtext"})
+json.sourceProperties.properties.push({"key": "exampleUsingInputField", "values": myField1})
+
+var myBodyJson = JSON.stringify(json);
+----
