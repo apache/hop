@@ -41,6 +41,7 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     implements IExplorerFileTypeHandler {
 
   private Text wText;
+  boolean reloadListener = false;
 
   public BaseTextExplorerFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
@@ -68,13 +69,14 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     //
 
     reload();
-
     // If the widget changes after this it's been changed by the user
     //
     wText.addModifyListener(
         e -> {
-          explorerFile.setChanged();
-          perspective.updateGui();
+          if (reloadListener) {
+            explorerFile.setChanged();
+            perspective.updateGui();
+          }
         });
   }
 
@@ -94,8 +96,8 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       }
 
       explorerFile.clearChanged();
-      perspective.refresh(); // refresh the explorer perspective tree
       perspective.updateGui(); // Update menu options
+      perspective.refresh(); // refresh the explorer perspective tree
     } catch (Exception e) {
       throw new HopException("Unable to save file '" + explorerFile.getFilename() + "'", e);
     }
@@ -104,8 +106,13 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   @Override
   public void reload() {
     try {
+      // Disable the Modifylistener temporary
+      reloadListener = false;
       String contents = readTextFileContent("UTF-8");
       wText.setText(Const.NVL(contents, ""));
+
+      // enable the Modifylistener temporary
+      reloadListener = true;
     } catch (Exception e) {
       LogChannel.UI.logError(
           "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
