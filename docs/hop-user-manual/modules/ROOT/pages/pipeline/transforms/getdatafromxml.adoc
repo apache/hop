@@ -135,7 +135,3 @@ A unique list is being kept in memory that can be used in the next workflow acti
 |Trim type|The type of trimming to use during data type conversion
 |Repeat|Repeat the column value of the previous row if the column value is empty (null)
 |===
-
-== Metadata Injection Support
-
-This transform does not support metadata injection.

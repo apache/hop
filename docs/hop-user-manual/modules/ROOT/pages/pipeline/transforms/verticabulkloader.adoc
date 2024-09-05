@@ -72,7 +72,3 @@ This is typically significantly faster than loading data through e.g. a Table Ou
 === Database fields tab
 
 Map table columns to stream fields using 'Get Fields' and/or 'Enter Field Mapping'.
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

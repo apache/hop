@@ -114,8 +114,3 @@ You want to turn the raw data into the database layout below.
 |2|8|8|<SHAPE type="rectangle"><COLOUR>blue</COLOUR><WIDTH> 4</WIDTH><LENGTH>6</LENGTH></SHAPE>
 |5|5|2|<SHAPE type="circle"><COLOUR>blue</COLOUR><RADIUS> 5</RADIUS></SHAPE>
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

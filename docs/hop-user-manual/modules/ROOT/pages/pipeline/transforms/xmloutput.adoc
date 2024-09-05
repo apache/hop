@@ -100,8 +100,3 @@ This encoding is specified in the header of the XML file.
 |Minimal width|Alter the options in the fields tab in such a way that the resulting width of lines in the text file is minimal; for example instead of save 0000001, "1" is written, and so on.
 String fields are not padded to their specified length.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

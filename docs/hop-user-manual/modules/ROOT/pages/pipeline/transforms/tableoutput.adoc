@@ -92,11 +92,3 @@ There is an option to exclude the field containing the tablename from being inse
 |Name of auto-generated key field|Specifies the name of the new field in the output rows that contains the auto-generated key
 |SQL|Generates the SQL to create the output table automatically
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
-
-* **Options**: Target Schema, Target Table, Commit Size, Truncate Table, Specify Database Fields, Partition Data over Table, Use Batch Update for Inserts, Is the Name of Table Defined in a Field?, Store the Tablename Field, and Return Auto-Generated Key
-* **Values**: Table and Stream

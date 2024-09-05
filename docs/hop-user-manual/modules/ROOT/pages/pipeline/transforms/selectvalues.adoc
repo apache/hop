@@ -116,8 +116,3 @@ To use Unicode, specify UTF-8 or UTF-16. On first use, Spoon searches your syste
 This is either a dot or a comma.
 |Currency|Symbol used to represent currencies
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

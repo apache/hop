@@ -51,8 +51,3 @@ The Set Field Value To A Constant transform replaces the value of a field with a
 See Common Formats for information on common valid date formats you can use in this transform.
 |Set empty string?|Specify Y to allow an empty string when the value is empty; otherwise, a null value is used.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

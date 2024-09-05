@@ -40,8 +40,3 @@ You can add all fields from the input stream(s) using Get Fields.
 !Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

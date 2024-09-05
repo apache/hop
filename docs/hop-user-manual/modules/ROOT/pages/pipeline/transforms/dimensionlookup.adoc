@@ -195,8 +195,3 @@ The result can be one of the following situations:
 ** Stream date field" cannot be before the earliest start date of the currently valid rows.
 ** select min(date_from) from dim_table where date_to = "2199-12-31 23:59:59.999"
 ** It is important to ensure that the incoming rows are sorted by the "Stream date field"
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

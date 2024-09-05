@@ -62,8 +62,3 @@ This is important for data sources that allow for table names with periods in th
 |Target table|Name of the table in which you want to do the update.
 |Update Fields|Allows you to specify all fields in the table you want to update.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

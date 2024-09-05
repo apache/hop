@@ -81,11 +81,6 @@ If you want to overwrite an existing field, you need to define the field here an
 |Replace value|Select this identical to the "New field" name when you want to replace
 |===
 
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
-
 == Examples
 
 **Add 2 integers, A and B**

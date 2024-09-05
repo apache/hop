@@ -1150,7 +1150,7 @@ NOT(ISTEXT(X))
 
 |===
 |*description*|Use the AND function, one of the logical functions, to determine if all conditions in a test are TRUE.
-|*syntax*|AND( { Logical|NumberSequenceList L }+ )
+|*syntax*|AND( { Logical\|NumberSequenceList L }+ )
 |*returns*|Logical
 |*semantics*|Computes the logical AND of the parameters. If all parameters are True, returns True; if any are False, returns False. When given one parameter, this has the effect of converting that one parameter into a logical value. When given zero parameters, applications may return a Logical value or an error.
 Also in array context a logical AND of all arguments is computed, range or array parameters are not evaluated as a matrix and no array is returned. This behavior is consistent with functions like SUM. To compute a logical AND of arrays per element use the * operator in array context.
@@ -1282,7 +1282,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 
 |===
 |*description*|Compute logical OR of all parameters.
-|*syntax*|OR( { Logical|NumberSequenceList L }+ )
+|*syntax*|OR( { Logical\|NumberSequenceList L }+ )
 |*returns*|Logical
 |*semantics*|Computes the logical OR of the parameters. If all parameters are False, it shall return False; if any are True, it shall returns True. When given one parameter, this has the effect of converting that one parameter into a logical value. When given zero parameters, applications may return a Logical value or an error.
 Also in array context a logical OR of all arguments is computed, range or array parameters are not evaluated as a matrix and no array is returned. This behavior is consistent with functions like SUM. To compute a logical OR of arrays per element use the + operator in array context.

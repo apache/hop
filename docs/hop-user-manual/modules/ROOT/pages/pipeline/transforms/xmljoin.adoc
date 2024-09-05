@@ -64,8 +64,3 @@ The encoding of the target XML will be preserved
 When this option is checked, these tags are completely omitted in the output.
 This is useful to save space in the output file (for high volume transactions) and to create special needed output.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

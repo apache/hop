@@ -48,7 +48,3 @@ The Set Field Value transform replaces the value of a field with the value of an
 |Replace by value from field|Select the field to copy from
 |===
 
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

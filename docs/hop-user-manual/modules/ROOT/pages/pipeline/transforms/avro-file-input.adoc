@@ -61,6 +61,3 @@ Note: This name has to be unique in a single pipeline.
 
 |===
 
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.

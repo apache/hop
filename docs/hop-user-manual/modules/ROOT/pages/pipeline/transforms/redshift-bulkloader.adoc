@@ -79,8 +79,3 @@ IMPORTANT: The Redshift Bulk Loader is linked to the database type. It will fetc
 == Database fields
 
 Map the current stream fields to the Redshift table's columns.
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

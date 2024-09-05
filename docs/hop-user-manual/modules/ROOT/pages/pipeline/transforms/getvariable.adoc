@@ -100,7 +100,3 @@ For example, $10,000.00 or E5.000,00.
 |TrimType|Type trim this field before processing: select either none, left, right, or both (left and right).
 |===
 
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

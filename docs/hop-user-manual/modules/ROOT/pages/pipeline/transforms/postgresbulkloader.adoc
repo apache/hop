@@ -68,7 +68,3 @@ Insert inserts, truncate first truncates the table.
 
 |===
 
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

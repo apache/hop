@@ -53,8 +53,3 @@ This value is 0-based, thus the first character in a string is 0.
 This value is exclusive (1-based), so using a 1 includes the first character.
 The maximum length of the new string is Cut to minus Cut from.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

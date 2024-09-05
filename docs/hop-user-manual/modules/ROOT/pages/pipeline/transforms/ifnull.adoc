@@ -42,8 +42,3 @@ The If Null transform replaces nulls by a given value either by:
 !Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

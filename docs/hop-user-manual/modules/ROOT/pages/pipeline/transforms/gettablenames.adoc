@@ -58,8 +58,3 @@ The Get Table Names transform gets table names from a database connection.
 |Is system object fieldname|Output field containing boolean: is object a system object
 |Creation SQL fieldname|Output field containing create statement for object
 |===
-
-== Metadata injection
-
-All fields of this transform support metadata injection.
-You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

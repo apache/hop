@@ -254,8 +254,3 @@ HOP_JSON_INPUT_INCLUDE_NULLS = N
 ```
 
 After restaring Hop, when we run the pipeline once again you will have 3 rows resulting because the the null values will be omitted.
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

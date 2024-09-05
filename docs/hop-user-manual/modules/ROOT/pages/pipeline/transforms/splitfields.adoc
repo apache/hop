@@ -55,11 +55,6 @@ For example with a comma (,) delimiter: ```aaaa,123\\,456,ccc``` can be resolved
 For each new field, you must define the field name, data type, and other properties.
 |===
 
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
-
 == Examples
 
 Below are examples of split fields:

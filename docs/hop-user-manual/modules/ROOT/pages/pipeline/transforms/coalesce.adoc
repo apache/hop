@@ -60,4 +60,3 @@ Pick a list of fields to evaluate and specify a field name and type for the fiel
 |Input fields|The order of the input fields listed in the columns determines the order in which they are evaluated.
 |===
 
-NOTE: Support MetaData Injection (MDI)

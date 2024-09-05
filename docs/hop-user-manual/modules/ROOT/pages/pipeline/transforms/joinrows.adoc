@@ -49,8 +49,3 @@ The Join Rows (cartesian product) transform allows you to combine/join multiple 
 |Main transform to read from|Specifies the transform from which to read most of the data; while the data from other transforms are cached or spooled to disk, the data from this transform is not.
 |The Condition(s)|You can enter a complex condition to limit the number of output row.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

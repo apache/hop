@@ -58,8 +58,3 @@ TIP: You use can use multiple copies of the Sort Rows transform to speed up larg
 You can specify whether to perform a case sensitive sort (optional)
 |Get Fields|Click to retrieve a list of all fields coming in on the stream(s).
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
