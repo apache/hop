@@ -323,4 +323,8 @@ public class StyledTextComp extends Composite {
 
     return columnNumber;
   }
+
+  public int getCaretPosition() {
+    return textWidget.getCaretPosition();
+  }
 }

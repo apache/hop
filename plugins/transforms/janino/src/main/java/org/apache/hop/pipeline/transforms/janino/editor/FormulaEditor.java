@@ -15,14 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.formula.editor;
+package org.apache.hop.pipeline.transforms.janino.editor;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transforms.formula.FormulaMeta;
-import org.apache.hop.pipeline.transforms.formula.function.FunctionDescription;
-import org.apache.hop.pipeline.transforms.formula.function.FunctionLib;
+import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
+import org.apache.hop.pipeline.transforms.janino.function.FunctionDescription;
+import org.apache.hop.pipeline.transforms.janino.function.FunctionLib;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -47,8 +48,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class FormulaEditor extends Dialog implements KeyListener {
-  public static final Class<?> PKG = FormulaMeta.class;
-  public static final String FUNCTIONS_FILE = "functions.xml";
+  public static final Class<?> PKG = JaninoMeta.class;
 
   private Shell shell;
   private Tree tree;
@@ -56,6 +56,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
   private StyledTextComp expressionEditor;
   private String formula;
   private Browser message;
+  private FunctionLib functionLib;
 
   private Button ok;
   private Button cancel;
@@ -69,13 +70,11 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
   Menu helperMenu;
 
-  private FunctionLib functionLib;
   private String[] categories;
-
   private SashForm rightSash;
 
   public FormulaEditor(
-      IVariables variables, Shell parent, int style, String formula, String[] inputFields)
+      IVariables variables, Shell parent, int style, String formula, List<String> inputFields)
       throws HopException {
     super(parent, style);
     this.formula = formula;
@@ -168,7 +167,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
         fitem.setText(fname);
       }
     }
-    /**
+    /*
      * If someone clicks on a function, we display the description of the function in the message
      * box...
      */
@@ -205,7 +204,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
               // If it's a field we need the fieldname if it's a formula we take the syntax for that
               // formula
               if (item.getParentItem().getText().equals("Fields")) {
-                partToInsert = "[" + item.getText() + "]";
+                partToInsert = item.getText();
               } else {
                 partToInsert =
                     (functionLib.getFunctionDescription(item.getText()).getSyntax() == null)
@@ -258,7 +257,6 @@ public class FormulaEditor extends Dialog implements KeyListener {
     message.setLayoutData(fdMessage);
 
     rightSash.setWeights(10, 80);
-
     sashForm.setWeights(15, 85);
 
     red = new Color(shell.getDisplay(), 255, 0, 0);
@@ -313,7 +311,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
   }
 
   public void readFunctions() throws HopException {
-    functionLib = new FunctionLib(FUNCTIONS_FILE);
+    functionLib = new FunctionLib();
     categories = functionLib.getFunctionCategories();
   }
 

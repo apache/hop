@@ -18,19 +18,20 @@
 package org.apache.hop.pipeline.transforms.javafilter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.janino.editor.FormulaEditor;
 import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -54,10 +55,11 @@ public class JavaFilterDialog extends BaseTransformDialog {
   private CCombo wTrueTo;
   private CCombo wFalseTo;
   private StyledTextComp wCondition;
+  private Button wEditor;
 
   private final JavaFilterMeta input;
 
-  private Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
   private ColumnInfo[] colinf;
 
   public JavaFilterDialog(
@@ -116,10 +118,6 @@ public class JavaFilterDialog extends BaseTransformDialog {
 
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
-    // /////////////////////////////////
-    // START OF Settings GROUP
-    // /////////////////////////////////
-
     Group wSettingsGroup = new Group(shell, SWT.SHADOW_NONE);
     PropsUi.setLook(wSettingsGroup);
     wSettingsGroup.setText(BaseMessages.getString(PKG, "JavaFIlterDialog.Settings.Label"));
@@ -177,13 +175,12 @@ public class JavaFilterDialog extends BaseTransformDialog {
 
     wFalseTo.addModifyListener(lsMod);
     FormData fdFalseFrom = new FormData();
-    fdFalseFrom.left = new FormAttachment(middle, 0);
     fdFalseFrom.top = new FormAttachment(wTrueTo, margin);
+    fdFalseFrom.left = new FormAttachment(middle, 0);
     fdFalseFrom.right = new FormAttachment(100, 0);
     wFalseTo.setLayoutData(fdFalseFrom);
 
-    // bufferSize
-    //
+    // Condition field
     Label wlCondition = new Label(wSettingsGroup, SWT.RIGHT);
     wlCondition.setText(BaseMessages.getString(PKG, "JavaFIlterDialog.Condition.Label"));
     PropsUi.setLook(wlCondition);
@@ -203,8 +200,15 @@ public class JavaFilterDialog extends BaseTransformDialog {
     fdCondition.top = new FormAttachment(wFalseTo, margin);
     fdCondition.left = new FormAttachment(middle, 0);
     fdCondition.right = new FormAttachment(100, 0);
-    fdCondition.bottom = new FormAttachment(100, -margin);
     wCondition.setLayoutData(fdCondition);
+
+    wEditor = new Button(wSettingsGroup, SWT.PUSH | SWT.CENTER);
+    wEditor.setText(BaseMessages.getString(PKG, "JavaFilterDialog.Editor.Button"));
+    PropsUi.setLook(wEditor);
+    FormData fdEditor = new FormData();
+    fdEditor.top = new FormAttachment(wCondition, margin);
+    fdEditor.left = new FormAttachment(middle, 0);
+    wEditor.setLayoutData(fdEditor);
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment(0, margin);
@@ -213,13 +217,31 @@ public class JavaFilterDialog extends BaseTransformDialog {
     fdSettingsGroup.bottom = new FormAttachment(wOk, -margin);
     wSettingsGroup.setLayoutData(fdSettingsGroup);
 
-    // ///////////////////////////////////////////////////////////
-    // / END OF Settings GROUP
-    // ///////////////////////////////////////////////////////////
+    //
+    // Search the fields in the background
+    //
+    final Runnable runnable =
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+
+              // Remember these fields...
+              for (int i = 0; i < row.size(); i++) {
+                inputFields.add(row.getValueMeta(i).getName());
+              }
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "JaninoDialog.Log.UnableToFindInput"));
+            }
+          }
+        };
+    new Thread(runnable).start();
 
     // Add listeners
     wCancel.addListener(SWT.Selection, e -> cancel());
     wOk.addListener(SWT.Selection, e -> ok());
+    wEditor.addListener(SWT.Selection, e -> editorDialog());
 
     getData();
     input.setChanged(changed);
@@ -227,31 +249,6 @@ public class JavaFilterDialog extends BaseTransformDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
-  }
-
-  protected void setComboBoxes() {
-    // Something was changed in the row.
-    //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    shell
-        .getDisplay()
-        .syncExec(
-            () -> {
-              // Add the newly create fields.
-
-              Set<String> keySet = fields.keySet();
-              List<String> entries = new ArrayList<>(keySet);
-
-              String[] fieldNames = entries.toArray(new String[entries.size()]);
-
-              Const.sortStrings(fieldNames);
-
-              colinf[5].setComboValues(fieldNames);
-            });
   }
 
   /** Copy information from the meta-data currentMeta to the dialog fields. */
@@ -294,5 +291,25 @@ public class JavaFilterDialog extends BaseTransformDialog {
     input.setFalseTransform(Const.NVL(wFalseTo.getText(), null));
 
     dispose();
+  }
+
+  private void editorDialog() {
+    try {
+      if (!shell.isDisposed()) {
+        FormulaEditor libFormulaEditor =
+            new FormulaEditor(
+                variables,
+                shell,
+                SWT.APPLICATION_MODAL | SWT.SHEET,
+                Const.NVL(wCondition.getText(), ""),
+                inputFields);
+        String formula = libFormulaEditor.open();
+        if (formula != null) {
+          wCondition.setText(formula);
+        }
+      }
+    } catch (Exception ex) {
+      new ErrorDialog(shell, "Error", "There was an unexpected error in the formula editor", ex);
+    }
   }
 }

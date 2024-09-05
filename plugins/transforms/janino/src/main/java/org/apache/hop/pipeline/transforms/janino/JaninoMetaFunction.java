@@ -84,8 +84,7 @@ public class JaninoMetaFunction implements Cloneable {
   @Override
   public Object clone() {
     try {
-      JaninoMetaFunction retval = (JaninoMetaFunction) super.clone();
-      return retval;
+      return super.clone();
     } catch (CloneNotSupportedException e) {
       return null;
     }
