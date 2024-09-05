@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.janino.editor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -44,7 +42,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
@@ -63,7 +60,6 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
   private Button ok;
   private Button cancel;
-  private List<String> inputFields;
 
   private Color blue;
   private Color red;
@@ -76,19 +72,17 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
   private String[] categories;
   private SashForm rightSash;
-  private IVariables variables;
 
   public FormulaEditor(
       IVariables variables, Shell parent, int style, String formula, List<String> inputFields)
       throws HopException {
     super(parent, style);
-    this.variables = variables;
     this.formula = formula;
-    this.inputFields = inputFields;
 
     // Run it in a new shell:
     //
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    shell =
+        new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL);
 
     // The layout...
     //
@@ -104,9 +98,9 @@ public class FormulaEditor extends Dialog implements KeyListener {
     bcLayout.spacing = 5;
     buttonsComposite.setLayout(bcLayout);
     ok = new Button(buttonsComposite, SWT.PUSH);
-    ok.setText("  OK  ");
+    ok.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     cancel = new Button(buttonsComposite, SWT.PUSH);
-    cancel.setText(" Cancel ");
+    cancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     ok.addSelectionListener(
         new SelectionAdapter() {
@@ -323,19 +317,6 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
   public void setStyles() {
     // implement later
-  }
-
-  public static void main(String[] args) throws Exception {
-    Display display = new Display();
-    List<String> inputFields = new ArrayList<>(Arrays.asList("firstname", "name"));
-    FormulaEditor lbe =
-        new FormulaEditor(
-            null,
-            new Shell(display, SWT.NONE),
-            SWT.NONE,
-            "MID(UPPER([name] & \" \" & [firstname]);5;10)",
-            inputFields);
-    lbe.open();
   }
 
   public void keyPressed(KeyEvent e) {

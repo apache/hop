@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.formula.editor;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.formula.FormulaMeta;
@@ -40,7 +41,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
@@ -59,7 +59,6 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
   private Button ok;
   private Button cancel;
-  private String[] inputFields;
 
   private Color blue;
   private Color red;
@@ -71,23 +70,20 @@ public class FormulaEditor extends Dialog implements KeyListener {
   Menu helperMenu;
 
   private FunctionLib functionLib;
-  private String[] functions;
   private String[] categories;
 
   private SashForm rightSash;
-  private IVariables variables;
 
   public FormulaEditor(
       IVariables variables, Shell parent, int style, String formula, String[] inputFields)
-      throws Exception {
+      throws HopException {
     super(parent, style);
-    this.variables = variables;
     this.formula = formula;
-    this.inputFields = inputFields;
 
     // Run it in a new shell:
     //
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    shell =
+        new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL);
 
     // The layout...
     //
@@ -103,9 +99,9 @@ public class FormulaEditor extends Dialog implements KeyListener {
     bcLayout.spacing = 5;
     buttonsComposite.setLayout(bcLayout);
     ok = new Button(buttonsComposite, SWT.PUSH);
-    ok.setText("  OK  "); // TODO i18n
+    ok.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     cancel = new Button(buttonsComposite, SWT.PUSH);
-    cancel.setText(" Cancel "); // TODO i18n
+    cancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     ok.addSelectionListener(
         new SelectionAdapter() {
@@ -209,7 +205,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
               // If it's a field we need the fieldname if it's a formula we take the syntax for that
               // formula
               if (item.getParentItem().getText().equals("Fields")) {
-                partToInsert = item.getText();
+                partToInsert = "[" + item.getText() + "]";
               } else {
                 partToInsert =
                     (functionLib.getFunctionDescription(item.getText()).getSyntax() == null)
@@ -261,15 +257,9 @@ public class FormulaEditor extends Dialog implements KeyListener {
     fdMessage.bottom = new FormAttachment(0, 100);
     message.setLayoutData(fdMessage);
 
-    rightSash.setWeights(
-        new int[] {
-          10, 80,
-        });
+    rightSash.setWeights(10, 80);
 
-    sashForm.setWeights(
-        new int[] {
-          15, 85,
-        });
+    sashForm.setWeights(15, 85);
 
     red = new Color(shell.getDisplay(), 255, 0, 0);
     green = new Color(shell.getDisplay(), 0, 220, 0);
@@ -322,30 +312,13 @@ public class FormulaEditor extends Dialog implements KeyListener {
     shell.dispose();
   }
 
-  public void readFunctions() throws Exception {
+  public void readFunctions() throws HopException {
     functionLib = new FunctionLib(FUNCTIONS_FILE);
-    functions = functionLib.getFunctionNames();
     categories = functionLib.getFunctionCategories();
   }
 
-  // TODO
   public void setStyles() {
     // implement later
-  }
-
-  public static void main(String[] args) throws Exception {
-    Display display = new Display();
-    String[] inputFields = {
-      "firstname", "name",
-    };
-    FormulaEditor lbe =
-        new FormulaEditor(
-            null,
-            new Shell(display, SWT.NONE),
-            SWT.NONE,
-            "MID(UPPER([name] & \" \" & [firstname]);5;10)",
-            inputFields);
-    lbe.open();
   }
 
   public void keyPressed(KeyEvent e) {
