@@ -78,8 +78,3 @@ This field is used by the transform to obtain an operation flag for the current 
 If the lookup field is not found, then an exception is thrown.
 This option can be used as an extra check if you wish to check updates/deletes prior to their execution.|Not applicable
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

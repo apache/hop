@@ -105,11 +105,6 @@ For example "A":"B" - A is a element name, B is actual input value mapped for th
 Use 'Get Fields' button to discover available input fields
 |===
 
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
-
 [[compat-mode]]
 == Compatibility mode
 This part of the documentation will explain the differences when turning on compatibility mode. For all new development this mode is **not** recommended.

@@ -73,8 +73,3 @@ Options include:
 |Precision|For a field with the type of 'Number', enter the number of floating point digits.
 Otherwise, leave blank.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

@@ -51,7 +51,3 @@ Note: This name has to be unique in a single pipeline.
 |Head hop|The name of the transform from which will be read the first stream.
 |Tail hop|The name of the transform from which will be read the second stream.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.

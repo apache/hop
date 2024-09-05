@@ -71,8 +71,3 @@ You could parse out sections of a string as follows
 * replace with = $2
 
 This will replace any 11 digit numbers with the last 7 digits.
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

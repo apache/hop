@@ -141,10 +141,3 @@ The supported targets are Link to other cells, http, ftp, email, and local docum
 |Cell Comment / Cell Author|The xlsx format allows to put comments on cells.
 If you'd like to generate comments, you may specify fields holding the comment and author for a given column.
 |===
-
-== Metadata Injection Support
-
-You can use the Metadata Injection supported fields with ETL Metadata Injection transform to pass metadata to your pipeline at runtime.
-The following Value fields of the Microsoft Excel Writer transform support metadata injection:
-
-* Name, Type, Format, Style from Cell, Field Title, Header/Footer Style from Cell, Field Contains Formula, Hyperlink, Cell Comment (XLSX), and Cell Comment Author (XLSX).

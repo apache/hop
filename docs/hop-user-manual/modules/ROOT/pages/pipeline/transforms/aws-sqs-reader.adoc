@@ -81,7 +81,3 @@ On the Output Definition Tab you can define the output fields for the informatio
 |MD5 Hash|MD5 hash of the message body
 |Message Node from SNS|if the message was sent from SNS this field will contain the content of the JSON node "Message" within the Message body.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.

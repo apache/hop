@@ -46,8 +46,3 @@ The Multiway Merge Join transform joins input data from multiple streams.
 |Transform name|Name of the transform.
 |Join Type|Type of join (INNER or FULL OUTER).
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

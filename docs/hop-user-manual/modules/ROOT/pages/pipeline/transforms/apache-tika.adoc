@@ -62,7 +62,3 @@ For example, you can specify the file encoding, output format and so on.
 |On this tab you can simply type in the names of the fields you want in the output.
 
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.

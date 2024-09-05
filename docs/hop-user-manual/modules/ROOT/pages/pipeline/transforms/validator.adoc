@@ -138,9 +138,3 @@ Use the Add and Remove buttons on the right to edit this list.
 |The name of the field to read the allowed values for this field from.
 
 |===
-
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

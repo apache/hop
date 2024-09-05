@@ -58,8 +58,3 @@ To specify a null value, simply leave the value column blank while entering a ta
 Please note that it is possible to specify the same target transform more than once.
 |Default target transform|All the rows that don't match any of the case values above are sent to this target transform.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

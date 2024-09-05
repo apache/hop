@@ -79,7 +79,3 @@ All rows can be specified either from a field (`Field` column) or as a static va
 ** Message: the message you want to send
 
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.

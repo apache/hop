@@ -75,8 +75,3 @@ This transform allows you to bulk load data to an Oracle database. It will write
 * Stream field: Field to be taken from the incoming rows;
 * Date mask: Either "Pass through, "Date" or "DateTime", determines how date/timestamps will be loaded in Oracle.
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

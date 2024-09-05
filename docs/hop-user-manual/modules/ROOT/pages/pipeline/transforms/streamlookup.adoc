@@ -64,8 +64,3 @@ Cannot be combined with the "Key and value are exactly one integer field" option
 |Get lookup fields|Automatically inserts the names of all the available fields on the lookup side (B).
 You can then delete the fields you don't want to retrieve
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
-You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

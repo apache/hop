@@ -82,11 +82,3 @@ WARNING: For technical reasons, parallel reading of CSV files is only supported 
 |Get Fields button|Click to return a list of fields from the target file based on the current settings (i.e. Delimiter, Enclosure, etc.).
 All fields identified will be added to the Fields Table.
 |===
-
-== Metadata Injection Support
-
-You can use the Metadata Injection supported fields with ETL Metadata Injection transform to pass metadata to your pipeline at runtime.
-The following Option and Value fields of the CSV File Input transform support metadata injection:
-
-* *Options*: Filename, Delimiter, Enclosure, NIO Buffer Size, Lazy Conversion, Header Row Present?, Add Filename to Result, The Row Number Field Name, Running in Parallel?, and File Encoding
-* *Values*: Name, Length, Decimal, Type, Precision, Group, Format, Currency, and Trim Type

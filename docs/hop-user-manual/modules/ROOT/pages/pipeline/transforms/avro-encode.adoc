@@ -70,6 +70,3 @@ Optionally you can store the values under a different name (key) in the Avro rec
 
 |===
 
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.

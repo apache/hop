@@ -62,7 +62,3 @@ It's not used at runtime.
 |You can use the "Get fields" button to retrieve the fields from the schema present in the metadata of the specified Avro Record source field.  If there's no metadata in this field, in case of sourcing from a Kafka consumer for example, you can opt to read from an Avro file.
 
 |===
-
-== Metadata Injection Support
-
-All fields of this transform support metadata injection.
