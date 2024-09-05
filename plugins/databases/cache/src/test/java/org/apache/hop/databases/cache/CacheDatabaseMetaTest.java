@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -71,12 +72,11 @@ public class CacheDatabaseMetaTest {
         "ALTER TABLE FOO ADD COLUMN ( BAR CHAR(1) ) ",
         cdm.getAddColumnStatement("FOO", new ValueMetaBoolean("BAR"), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN ( BAR INT ) ",
+        "ALTER TABLE FOO ADD COLUMN ( BAR DOUBLE ) ",
         cdm.getAddColumnStatement("FOO", new ValueMetaNumber("BAR", 0, 0), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN ( BAR DOUBLE ) ",
-        cdm.getAddColumnStatement(
-            "FOO", new ValueMetaInteger("BAR"), "", false, "", false)); // I believe this is a bug!
+        "ALTER TABLE FOO ADD COLUMN ( BAR INT ) ",
+        cdm.getAddColumnStatement("FOO", new ValueMetaInteger("BAR"), "", false, "", false));
     assertEquals(
         "ALTER TABLE FOO ADD COLUMN ( BAR DOUBLE ) ",
         cdm.getAddColumnStatement("FOO", new ValueMetaNumber("BAR", 10, -7), "", false, "", false));
@@ -84,13 +84,14 @@ public class CacheDatabaseMetaTest {
         "ALTER TABLE FOO ADD COLUMN ( BAR DOUBLE ) ",
         cdm.getAddColumnStatement("FOO", new ValueMetaNumber("BAR", -10, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN ( BAR DECIMAL(5, 7) ) ",
-        cdm.getAddColumnStatement("FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
+        "ALTER TABLE FOO ADD COLUMN ( BAR DECIMAL(5,7) ) ",
+        cdm.getAddColumnStatement(
+            "FOO", new ValueMetaBigNumber("BAR", 5, 7), "", false, "", false));
     assertEquals(
         "ALTER TABLE FOO ADD COLUMN ( BAR  UNKNOWN ) ",
         cdm.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
-    String lineSep = System.getProperty("line.separator");
+    String lineSep = System.lineSeparator();
     assertEquals(
         "ALTER TABLE FOO DROP COLUMN BAR" + lineSep,
         cdm.getDropColumnStatement("FOO", new ValueMetaString("BAR", 15, 0), "", false, "", true));
