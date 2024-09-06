@@ -207,12 +207,12 @@ public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
   public String getFieldDefinition(
       IValueMeta v, String tk, String pk, boolean useAutoinc, boolean addFieldName, boolean addCr) {
 
-    switch (v.getType()) {
+    int type = v.getType();
+    switch (type) {
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_INTEGER:
         String retval = "";
         String fieldname = v.getName();
         int length = v.getLength();
-        int precision = v.getPrecision();
 
         if (addFieldName) {
           retval += fieldname + " ";
@@ -223,23 +223,22 @@ public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
         ) {
           retval += "BIGSERIAL";
         } else {
-          if (length > 0) {
-            if (precision > 0 || length > 18) {
-              // CrateDB doesn't support NUMERIC type
-              retval += "DOUBLE PRECISION";
+          if (type == IValueMeta.TYPE_INTEGER) {
+            // Integer values...
+            if (length > 9) {
+              retval += "BIGINT";
+            } else if (length > 4) {
+              retval += "INTEGER";
             } else {
-              if (length > 9) {
-                retval += "BIGINT";
-              } else {
-                if (length < 5) {
-                  retval += "SMALLINT";
-                } else {
-                  retval += "INTEGER";
-                }
-              }
+              retval += "SMALLINT";
             }
-
+          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
+            // Fixed point value...
+            // CrateDB doesn't support NUMERIC type for columns (only in expressions...)
+            // as a work-around we use a double, which can be cast to NUMERIC via SQL by the user
+            retval += "DOUBLE PRECISION";
           } else {
+            // Floating point value with double precision...
             retval += "DOUBLE PRECISION";
           }
         }

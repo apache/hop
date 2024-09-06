@@ -199,12 +199,12 @@ public class CrateDBDatabaseMetaTest {
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaBoolean("BAR"), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR BIGINT",
+        "ALTER TABLE FOO ADD COLUMN BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR BIGINT",
+        "ALTER TABLE FOO ADD COLUMN BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 0), "", false, "", false));
 
@@ -219,7 +219,7 @@ public class CrateDBDatabaseMetaTest {
             "FOO", new ValueMetaNumber("BAR", 0, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR INTEGER",
+        "ALTER TABLE FOO ADD COLUMN BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 0), "", false, "", false));
 
@@ -254,14 +254,9 @@ public class CrateDBDatabaseMetaTest {
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR BIGINT",
+        "ALTER TABLE FOO ADD COLUMN BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
-            "FOO",
-            new ValueMetaNumber("BAR", 10, -7),
-            "",
-            false,
-            "",
-            false)); // Bug here - invalid SQL
+            "FOO", new ValueMetaNumber("BAR", 10, -7), "", false, "", false));
 
     assertEquals(
         "ALTER TABLE FOO ADD COLUMN BAR DOUBLE PRECISION",
