@@ -564,7 +564,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
   @VisibleForTesting
   PipelineMeta loadExecutorPipelineMeta() throws HopException {
-    return PipelineExecutorMeta.loadMappingMeta(meta, metadataProvider, this);
+    return TransformWithMappingMeta.loadMappingMeta(meta, metadataProvider, this);
   }
 
   @Override

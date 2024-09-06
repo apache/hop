@@ -25,6 +25,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import javax.swing.JPanel;
+import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.Transcoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
@@ -39,8 +40,8 @@ public class SvgLoader {
     Transcoder t = new PNGTranscoder();
 
     // Set the transcoding hints.
-    t.addTranscodingHint(PNGTranscoder.KEY_WIDTH, Float.valueOf(width));
-    t.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, Float.valueOf(height));
+    t.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, Float.valueOf(width));
+    t.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, Float.valueOf(height));
 
     // Create the transcoder input.
     //

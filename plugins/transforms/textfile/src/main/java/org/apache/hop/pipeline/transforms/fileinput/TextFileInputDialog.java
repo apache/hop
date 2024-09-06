@@ -38,8 +38,8 @@ import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -98,11 +98,15 @@ import org.eclipse.swt.widgets.Text;
 public class TextFileInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = TextFileInputMeta.class;
 
+  public static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
+  public static final String SYSTEM_COMBO_NO = "System.Combo.No";
   private static final String[] YES_NO_COMBO =
       new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
+        BaseMessages.getString(PKG, SYSTEM_COMBO_NO), BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
       };
+  public static final String SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
+  public static final String SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
+  public static final String SYSTEM_LABEL_EXTENSION = "System.Label.Extension";
 
   private CTabFolder wTabFolder;
 
@@ -514,7 +518,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "TextFileInputDialog.NoFilesFound.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(PKG, SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
     }
   }
@@ -551,7 +555,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
 
     wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbFilename);
-    wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbbFilename.setText(BaseMessages.getString(PKG, SYSTEM_BUTTON_BROWSE));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
     FormData fdbFilename = new FormData();
@@ -1298,7 +1302,9 @@ public class TextFileInputDialog extends BaseTransformDialog {
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1366,7 +1372,9 @@ public class TextFileInputDialog extends BaseTransformDialog {
     wDateLocale.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1632,7 +1640,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
 
     wbbWarnDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbWarnDestDir);
-    wbbWarnDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbbWarnDestDir.setText(BaseMessages.getString(PKG, SYSTEM_BUTTON_BROWSE));
     wbbWarnDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
     FormData fdbBadDestDir = new FormData();
     fdbBadDestDir.right = new FormAttachment(100, 0);
@@ -1649,7 +1657,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
     wWarnExt.setLayoutData(fdWarnDestExt);
 
     wlWarnExt = new Label(wErrorComp, SWT.RIGHT);
-    wlWarnExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
+    wlWarnExt.setText(BaseMessages.getString(PKG, SYSTEM_LABEL_EXTENSION));
     PropsUi.setLook(wlWarnExt);
     FormData fdlWarnDestExt = new FormData();
     fdlWarnDestExt.top = new FormAttachment(previous, margin * 4);
@@ -1687,7 +1695,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
 
     wbbErrorDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbErrorDestDir);
-    wbbErrorDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbbErrorDestDir.setText(BaseMessages.getString(PKG, SYSTEM_BUTTON_BROWSE));
     wbbErrorDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
     FormData fdbErrorDestDir = new FormData();
     fdbErrorDestDir.right = new FormAttachment(100, 0);
@@ -1704,7 +1712,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
     wErrorExt.setLayoutData(fdErrorDestExt);
 
     wlErrorExt = new Label(wErrorComp, SWT.RIGHT);
-    wlErrorExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
+    wlErrorExt.setText(BaseMessages.getString(PKG, SYSTEM_LABEL_EXTENSION));
     PropsUi.setLook(wlErrorExt);
     FormData fdlErrorDestExt = new FormData();
     fdlErrorDestExt.top = new FormAttachment(previous, margin);
@@ -1742,7 +1750,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
 
     wbbLineNrDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbLineNrDestDir);
-    wbbLineNrDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbbLineNrDestDir.setText(BaseMessages.getString(PKG, SYSTEM_BUTTON_BROWSE));
     wbbLineNrDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Browse"));
     FormData fdbLineNrDestDir = new FormData();
     fdbLineNrDestDir.right = new FormAttachment(100, 0);
@@ -1759,7 +1767,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
     wLineNrExt.setLayoutData(fdLineNrDestExt);
 
     wlLineNrExt = new Label(wErrorComp, SWT.RIGHT);
-    wlLineNrExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
+    wlLineNrExt.setText(BaseMessages.getString(PKG, SYSTEM_LABEL_EXTENSION));
     PropsUi.setLook(wlLineNrExt);
     FormData fdlLineNrDestExt = new FormData();
     fdlLineNrDestExt.top = new FormAttachment(previous, margin);
@@ -1963,14 +1971,14 @@ public class TextFileInputDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileInputDialog.TrimTypeColumn.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaString.trimTypeDesc,
+              ValueMetaBase.trimTypeDesc,
               true),
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileInputDialog.RepeatColumn.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, SYSTEM_COMBO_NO)
               },
               true)
         };
@@ -2219,13 +2227,13 @@ public class TextFileInputDialog extends BaseTransformDialog {
       item.setText(
           3,
           filter.isFilterLastLine()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
-              : BaseMessages.getString(PKG, "System.Combo.No"));
+              ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
+              : BaseMessages.getString(PKG, SYSTEM_COMBO_NO));
       item.setText(
           4,
           filter.isFilterPositive()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
-              : BaseMessages.getString(PKG, "System.Combo.No"));
+              ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
+              : BaseMessages.getString(PKG, SYSTEM_COMBO_NO));
     }
 
     // Date locale
@@ -2300,8 +2308,8 @@ public class TextFileInputDialog extends BaseTransformDialog {
       String trim = field.getTrimTypeDesc();
       String rep =
           field.isRepeated()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
-              : BaseMessages.getString(PKG, "System.Combo.No");
+              ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
+              : BaseMessages.getString(PKG, SYSTEM_COMBO_NO);
 
       if (type != null) {
         item.setText(2, type);
@@ -2440,9 +2448,9 @@ public class TextFileInputDialog extends BaseTransformDialog {
       field.setGroupSymbol(item.getText(9));
       field.setNullString(item.getText(10));
       field.setIfNullValue(item.getText(11));
-      field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(12)));
+      field.setTrimType(ValueMetaBase.getTrimTypeByDesc(item.getText(12)));
       field.setRepeated(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
+          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(13)));
 
       meta.getInputFields()[i] = field;
     }
@@ -2456,9 +2464,9 @@ public class TextFileInputDialog extends BaseTransformDialog {
       filter.setFilterString(item.getText(1));
       filter.setFilterPosition(Const.toInt(item.getText(2), -1));
       filter.setFilterLastLine(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(3)));
+          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(3)));
       filter.setFilterPositive(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(4)));
+          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(4)));
     }
     // Error handling fields...
     meta.setErrorIgnored(wErrorIgnored.getSelection());
@@ -2642,7 +2650,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
           mb.setMessage(
               BaseMessages.getString(
                   PKG, "TextFileInputDialog.UnableToReadHeaderLine.DialogMessage"));
-          mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+          mb.setText(BaseMessages.getString(PKG, SYSTEM_DIALOG_ERROR_TITLE));
           mb.open();
         }
       } catch (IOException e) {
@@ -2654,7 +2662,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
       } catch (HopException e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, SYSTEM_DIALOG_ERROR_TITLE),
             BaseMessages.getString(PKG, "TextFileInputDialog.ErrorGettingFileDesc.DialogMessage"),
             e);
       } finally {
@@ -2670,7 +2678,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "TextFileInputDialog.NoValidFileFound.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(PKG, SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
     }
   }
@@ -2788,7 +2796,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
         int nrLines = end.open();
         if (nrLines >= 0) {
           List<String> linesList = getFirst(nrLines, skipHeaders);
-          if (linesList != null && linesList.size() > 0) {
+          if (linesList != null && !linesList.isEmpty()) {
             String firstlines = "";
             for (String aLinesList : linesList) {
               firstlines += aLinesList + Const.CR;
@@ -2821,13 +2829,13 @@ public class TextFileInputDialog extends BaseTransformDialog {
       } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(BaseMessages.getString(PKG, "TextFileInputDialog.NoValidFile.DialogMessage"));
-        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+        mb.setText(BaseMessages.getString(PKG, SYSTEM_DIALOG_ERROR_TITLE));
         mb.open();
       }
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+          BaseMessages.getString(PKG, SYSTEM_DIALOG_ERROR_TITLE),
           BaseMessages.getString(PKG, "TextFileInputDialog.ErrorGettingData.DialogMessage"),
           e);
     }
@@ -3001,7 +3009,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
 
       item.setText(5, "");
       item.setText(6, "");
-      item.setText(12, ValueMetaString.getTrimTypeDesc(IValueMeta.TRIM_TYPE_BOTH));
+      item.setText(12, ValueMetaBase.getTrimTypeDesc(IValueMeta.TRIM_TYPE_BOTH));
 
       int type = ValueMetaFactory.getIdForValueMeta(item.getText(2));
       switch (type) {

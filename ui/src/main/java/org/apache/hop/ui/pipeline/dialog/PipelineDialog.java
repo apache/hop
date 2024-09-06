@@ -19,6 +19,7 @@ package org.apache.hop.ui.pipeline.dialog;
 
 import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -484,7 +485,7 @@ public class PipelineDialog extends Dialog {
     boolean sync = wNameFilenameSync.getSelection();
 
     String actualName =
-        PipelineMeta.extractNameFromFilename(sync, name, filename, PipelineMeta.PIPELINE_EXTENSION);
+        AbstractMeta.extractNameFromFilename(sync, name, filename, PipelineMeta.PIPELINE_EXTENSION);
     wPipelineName.setEnabled(!sync);
     wPipelineName.setEditable(!sync);
 

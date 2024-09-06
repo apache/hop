@@ -135,7 +135,7 @@ public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.NotReceivingFields"),
               transformMeta);
     } else {

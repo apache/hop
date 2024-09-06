@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
@@ -144,7 +145,7 @@ public class HopGuiPipelineClipboardDelegate {
 
       // Load the hops...
       Node hopsNode = XmlHandler.getSubNode(pipelineNode, PipelineMeta.XML_TAG_ORDER);
-      nr = XmlHandler.countNodes(hopsNode, PipelineHopMeta.XML_HOP_TAG);
+      nr = XmlHandler.countNodes(hopsNode, BaseHopMeta.XML_HOP_TAG);
       if (log.isDebug()) {
         // "I found "+nr+" hops to paste."
         log.logDebug(BaseMessages.getString(PKG, "HopGui.Log.FoundHops", "" + nr));
@@ -152,7 +153,7 @@ public class HopGuiPipelineClipboardDelegate {
       PipelineHopMeta[] hops = new PipelineHopMeta[nr];
 
       for (int i = 0; i < nr; i++) {
-        Node hopNode = XmlHandler.getSubNodeByNr(hopsNode, PipelineHopMeta.XML_HOP_TAG, i);
+        Node hopNode = XmlHandler.getSubNodeByNr(hopsNode, BaseHopMeta.XML_HOP_TAG, i);
         hops[i] = new PipelineHopMeta(hopNode, Arrays.asList(transforms));
       }
 

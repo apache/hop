@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.Date;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -206,7 +207,7 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
   }
 
   public String getTrimTypeDesc() {
-    return ValueMetaString.getTrimTypeDesc(trimType);
+    return ValueMetaBase.getTrimTypeDesc(trimType);
   }
 
   public void setTrimType(int trimtype) {

@@ -49,7 +49,7 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
    * localized keys is expected to reside in {the package of the class
    * specified}/messages/messages_{locale}.properties
    */
-  private static Class<?> PKG = SnsNotifyMeta.class; // for i18n purposes
+  private static final Class<?> PKG = SnsNotifyMeta.class; // for i18n purposes
 
   @HopMetadataProperty(key = "AwsCredChain", injectionKey = "AWS_CRED_CHAIN")
   private String awsCredChain;
@@ -104,15 +104,6 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
     super();
   }
 
-  /**
-   * This method is called every time a new transform is created and should allocate/set the
-   * transform configuration to sensible defaults. The values set here will be used by Hop Gui when
-   * a new transform is created.
-   */
-  public void setDefault() {
-    // outputField = "demo_field";
-  }
-
   public String getAwsCredChain() {
     return awsCredChain == null ? "N" : awsCredChain;
   }
@@ -125,8 +116,8 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
     return awsKey == null ? "" : awsKey;
   }
 
-  public void setAwsKey(String aws_key) {
-    this.awsKey = aws_key;
+  public void setAwsKey(String awsKey) {
+    this.awsKey = awsKey;
   }
 
   public String getAwsKeySecret() {
@@ -151,14 +142,11 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
 
   public String[] getNotifyPointValues() {
 
-    String[] values =
-        new String[] {
-          "Send once with first row",
-          // "Send once with last row",
-          "Send for each row (be careful!)"
-        };
-
-    return values;
+    return new String[] {
+      "Send once with first row",
+      // "Send once with last row",
+      "Send for each row (be careful!)"
+    };
   }
 
   public String getNotifyPointShort() {
@@ -265,6 +253,7 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
    *
    * @return a deep copy of this
    */
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
@@ -334,13 +323,14 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
    * @param info fields coming in from info transform
    * @param metaStore metaStore to optionally read from
    */
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta transMeta,
       TransformMeta transformMeta,
       IRowMeta prev,
-      String input[],
-      String output[],
+      String[] input,
+      String[] output,
       IRowMeta info,
       IVariables space,
       IHopMetadataProvider metaStore) {
@@ -351,14 +341,14 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.ReceivingRows.OK"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.ReceivingRows.ERROR"),
               transformMeta);
       remarks.add(cr);
@@ -369,14 +359,14 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
         && (getAwsKey().isEmpty() || getAwsKeySecret().isEmpty() || getAwsRegion().isEmpty())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.AWSCredentials.ERROR"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.AWSCredentials.OK"),
               transformMeta);
       remarks.add(cr);
@@ -386,14 +376,14 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
     if (getNotifyPoint().isEmpty()) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.NotifyPoint.ERROR"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.NotifyPoint.OK"),
               transformMeta);
       remarks.add(cr);
@@ -406,7 +396,7 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
       notifyPropsError = true;
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.NotifyProps.topicARN.ERROR"),
               transformMeta);
       remarks.add(cr);
@@ -416,7 +406,7 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
       notifyPropsError = true;
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.NotifyProps.Subject.ERROR"),
               transformMeta);
       remarks.add(cr);
@@ -426,7 +416,7 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
       notifyPropsError = true;
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.NotifyProps.Message.ERROR"),
               transformMeta);
       remarks.add(cr);
@@ -435,13 +425,14 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
     if (!notifyPropsError) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SNSNotify.CheckResult.NotifyProps.OK"),
               transformMeta);
       remarks.add(cr);
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

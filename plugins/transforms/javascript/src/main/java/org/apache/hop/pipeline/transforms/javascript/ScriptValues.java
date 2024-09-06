@@ -347,7 +347,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         bFirstRun = false;
         // Check if we had a Pipeline Status
         Object pipelineStatus = data.scope.get("pipeline_Status", data.scope);
-        if (pipelineStatus != ScriptableObject.NOT_FOUND) {
+        if (pipelineStatus != Scriptable.NOT_FOUND) {
           bWithPipelineStat = true;
           if (log.isDetailed()) {
             logDetailed(("tran_Status found. Checking pipeline status while script execution."));

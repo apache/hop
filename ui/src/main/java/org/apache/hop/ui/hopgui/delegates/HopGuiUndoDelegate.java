@@ -17,12 +17,11 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.IAddUndoPosition;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.workflow.WorkflowMeta;
 
 public class HopGuiUndoDelegate implements IAddUndoPosition {
   private HopGui hopGui;
@@ -36,7 +35,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
   }
 
   public void addUndoNew(IUndo undoInterface, Object[] obj, int[] position, boolean nextAlso) {
-    undoInterface.addUndo(obj, null, position, null, null, PipelineMeta.TYPE_UNDO_NEW, nextAlso);
+    undoInterface.addUndo(obj, null, position, null, null, AbstractMeta.TYPE_UNDO_NEW, nextAlso);
     hopGui.setUndoMenu(undoInterface);
   }
 
@@ -47,7 +46,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
 
   // Undo delete object
   public void addUndoDelete(IUndo undoInterface, Object[] obj, int[] position, boolean nextAlso) {
-    undoInterface.addUndo(obj, null, position, null, null, PipelineMeta.TYPE_UNDO_DELETE, nextAlso);
+    undoInterface.addUndo(obj, null, position, null, null, AbstractMeta.TYPE_UNDO_DELETE, nextAlso);
     hopGui.setUndoMenu(undoInterface);
   }
 
@@ -63,7 +62,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
       IUndo undoInterface, Object[] obj, int[] pos, Point[] prev, Point[] curr, boolean nextAlso) {
     // It's better to store the indexes of the objects, not the objects
     // itself!
-    undoInterface.addUndo(obj, null, pos, prev, curr, WorkflowMeta.TYPE_UNDO_POSITION, false);
+    undoInterface.addUndo(obj, null, pos, prev, curr, AbstractMeta.TYPE_UNDO_POSITION, false);
     hopGui.setUndoMenu(undoInterface);
   }
 
@@ -75,7 +74,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
   // Change of transform, connection, hop or note...
   public void addUndoChange(
       IUndo undoInterface, Object[] from, Object[] to, int[] pos, boolean nextAlso) {
-    undoInterface.addUndo(from, to, pos, null, null, WorkflowMeta.TYPE_UNDO_CHANGE, nextAlso);
+    undoInterface.addUndo(from, to, pos, null, null, AbstractMeta.TYPE_UNDO_CHANGE, nextAlso);
     hopGui.setUndoMenu(undoInterface);
   }
 

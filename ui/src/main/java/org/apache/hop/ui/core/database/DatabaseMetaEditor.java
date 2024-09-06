@@ -264,7 +264,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.top = new FormAttachment(0, 0);
     wToolBar.setLayoutData(fdToolBar);
-    PropsUi.setLook(wToolBar, PropsUi.WIDGET_STYLE_DEFAULT);
+    PropsUi.setLook(wToolBar, Props.WIDGET_STYLE_DEFAULT);
 
     ToolItem item = new ToolItem(wToolBar, SWT.PUSH);
     item.setImage(GuiResource.getInstance().getImageHelpWeb());

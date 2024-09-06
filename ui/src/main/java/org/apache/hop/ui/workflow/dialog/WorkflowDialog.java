@@ -19,6 +19,7 @@ package org.apache.hop.ui.workflow.dialog;
 
 import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.parameters.DuplicateParamException;
@@ -201,10 +202,8 @@ public class WorkflowDialog extends Dialog {
     for (int i = 0; i < count; i++) {
       TableItem item = wParamFields.getNonEmpty(i);
       String parameterName = item.getText(1);
-      if (!Utils.isEmpty(parameterName)) {
-        if (!list.contains(parameterName)) {
-          list.add(parameterName);
-        }
+      if (!Utils.isEmpty(parameterName) && !list.contains(parameterName)) {
+        list.add(parameterName);
       }
     }
     return list.toArray(new String[list.size()]);
@@ -463,7 +462,7 @@ public class WorkflowDialog extends Dialog {
     boolean sync = wNameFilenameSync.getSelection();
 
     String actualName =
-        WorkflowMeta.extractNameFromFilename(sync, name, filename, WorkflowMeta.WORKFLOW_EXTENSION);
+        AbstractMeta.extractNameFromFilename(sync, name, filename, WorkflowMeta.WORKFLOW_EXTENSION);
     wWorkflowName.setEnabled(!sync);
     wWorkflowName.setEditable(!sync);
 
@@ -566,14 +565,14 @@ public class WorkflowDialog extends Dialog {
     if (workflowMeta.getCreatedUser() != null) {
       wCreateUser.setText(workflowMeta.getCreatedUser());
     }
-    if (workflowMeta.getCreatedDate() != null && workflowMeta.getCreatedDate() != null) {
+    if (workflowMeta.getCreatedDate() != null) {
       wCreateDate.setText(workflowMeta.getCreatedDate().toString());
     }
 
     if (workflowMeta.getModifiedUser() != null) {
       wModUser.setText(workflowMeta.getModifiedUser());
     }
-    if (workflowMeta.getModifiedDate() != null && workflowMeta.getModifiedDate() != null) {
+    if (workflowMeta.getModifiedDate() != null) {
       wModDate.setText(workflowMeta.getModifiedDate().toString());
     }
 

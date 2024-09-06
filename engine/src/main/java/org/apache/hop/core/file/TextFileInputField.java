@@ -29,7 +29,6 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 
 /** Describes a single field in a text file */
 public class TextFileInputField implements Cloneable, ITextFileInputField {
@@ -234,7 +233,7 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
 
   @Injection(name = "FIELD_TRIM_TYPE", group = "INPUT_FIELDS")
   public void setTrimType(String value) {
-    this.trimtype = ValueMetaString.getTrimTypeByCode(value);
+    this.trimtype = ValueMetaBase.getTrimTypeByCode(value);
   }
 
   public String getGroupSymbol() {

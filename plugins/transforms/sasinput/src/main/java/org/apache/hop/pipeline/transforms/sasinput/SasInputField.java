@@ -19,8 +19,8 @@ package org.apache.hop.pipeline.transforms.sasinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
@@ -93,7 +93,7 @@ public class SasInputField implements Cloneable {
             + "    "
             + XmlHandler.addTagValue("grouping", groupingSymbol)
             + "    "
-            + XmlHandler.addTagValue("trim_type", ValueMetaString.getTrimTypeCode(trimType));
+            + XmlHandler.addTagValue("trim_type", ValueMetaBase.getTrimTypeCode(trimType));
     return xml;
   }
 
@@ -106,7 +106,7 @@ public class SasInputField implements Cloneable {
     conversionMask = XmlHandler.getTagValue(node, "conversion_mask");
     decimalSymbol = XmlHandler.getTagValue(node, "decimal");
     groupingSymbol = XmlHandler.getTagValue(node, "grouping");
-    trimType = ValueMetaString.getTrimTypeByCode(XmlHandler.getTagValue(node, "trim_type"));
+    trimType = ValueMetaBase.getTrimTypeByCode(XmlHandler.getTagValue(node, "trim_type"));
   }
 
   /**
@@ -236,6 +236,6 @@ public class SasInputField implements Cloneable {
   }
 
   public String getTrimTypeDesc() {
-    return ValueMetaString.getTrimTypeDesc(trimType);
+    return ValueMetaBase.getTrimTypeDesc(trimType);
   }
 }

@@ -528,7 +528,7 @@ public class KafkaConsumerInputMeta
   @Override
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
-    return PipelineExecutorMeta.loadMappingMeta(this, metadataProvider, variables);
+    return TransformWithMappingMeta.loadMappingMeta(this, metadataProvider, variables);
   }
 
   /**

@@ -80,7 +80,7 @@ import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -700,7 +700,7 @@ public abstract class Pipeline
                 // amounts of rows.
                 //
                 Boolean batchingRowSet =
-                    ValueMetaString.convertStringToBoolean(
+                    ValueMetaBase.convertStringToBoolean(
                         System.getProperty(Const.HOP_BATCHING_ROWSET));
                 if (batchingRowSet != null && batchingRowSet.booleanValue()) {
                   rowSet = new BlockingBatchingRowSet(rowSetSize);
@@ -2379,7 +2379,7 @@ public abstract class Pipeline
     if (!Utils.isEmpty(variableName)) {
       String value = resolve(variableName);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return defaultValue;

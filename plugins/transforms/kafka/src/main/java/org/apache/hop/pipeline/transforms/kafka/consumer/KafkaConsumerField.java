@@ -82,7 +82,7 @@ public class KafkaConsumerField {
     this.outputType = outputType;
   }
 
-  @SuppressWarnings("java:S1104")
+  @SuppressWarnings("java:S115")
   public enum Type {
     String(
         "String",

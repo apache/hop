@@ -27,9 +27,9 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -377,7 +377,7 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
         fieldType[i] = ValueMetaFactory.getIdForValueMeta(stype);
         fieldLength[i] = Const.toInt(slen, -1);
         fieldPrecision[i] = Const.toInt(sprc, -1);
-        fieldTrimType[i] = ValueMetaString.getTrimTypeByCode(trim);
+        fieldTrimType[i] = ValueMetaBase.getTrimTypeByCode(trim);
       }
     } catch (Exception e) {
       throw new HopXmlException(
@@ -529,7 +529,7 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
             .append(CONST_SPACES)
             .append(
                 XmlHandler.addTagValue(
-                    "trimtype", ValueMetaString.getTrimTypeCode(fieldTrimType[i])));
+                    "trimtype", ValueMetaBase.getTrimTypeCode(fieldTrimType[i])));
         retval.append(CONST_SPACES).append(XmlHandler.addTagValue("currency", fieldCurrency[i]));
         retval.append("      </field>").append(Const.CR);
       }
