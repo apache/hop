@@ -203,6 +203,8 @@ Save the DAG we just created in your dags folder as apache-hop-dag-simple.py. Af
 
 If there are any syntax errors in your DAG, Airflow will let you know. Expand the error dialog for more details about the error.
 
+Note: If you're using `DockerOperator` and need to access a database or service running on your host machine, be sure to set the host as `host.docker.internal` in the Hop connection configuration to allow the container to access the host services.
+
 image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-error.png[Apache Airflow - DAG error, width="45%"]
 
 image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-available.png[Apache Airflow - DAG available, width="75%"]
