@@ -80,7 +80,7 @@ import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -700,7 +700,7 @@ public abstract class Pipeline
                 // amounts of rows.
                 //
                 Boolean batchingRowSet =
-                    ValueMetaString.convertStringToBoolean(
+                    ValueMetaBase.convertStringToBoolean(
                         System.getProperty(Const.HOP_BATCHING_ROWSET));
                 if (batchingRowSet != null && batchingRowSet.booleanValue()) {
                   rowSet = new BlockingBatchingRowSet(rowSetSize);
@@ -842,7 +842,7 @@ public abstract class Pipeline
                     .getTransformPartitioningMeta()
                     .getPartitionSchema()
                     .calculatePartitionIds(this);
-            if (partitionIDs != null && partitionIDs.size() > 0) {
+            if (partitionIDs != null && !partitionIDs.isEmpty()) {
               transform.setPartitionId(partitionIDs.get(c)); // Pass the partition ID
               // to the transform
             }
@@ -1319,7 +1319,7 @@ public abstract class Pipeline
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
     synchronized (executionFinishedListeners) {
-      if (executionFinishedListeners.size() == 0) {
+      if (executionFinishedListeners.isEmpty()) {
         return;
       }
       // prevent Exception from one listener to block others execution
@@ -1612,7 +1612,7 @@ public abstract class Pipeline
 
   private boolean isInputTransform(TransformMetaDataCombi combi) {
     checkNotNull(combi);
-    return pipelineMeta.findPreviousTransforms(combi.transformMeta, true).size() == 0;
+    return pipelineMeta.findPreviousTransforms(combi.transformMeta, true).isEmpty();
   }
 
   /** Stops all transforms from running, and alerts any registered listeners. */
@@ -2379,7 +2379,7 @@ public abstract class Pipeline
     if (!Utils.isEmpty(variableName)) {
       String value = resolve(variableName);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return defaultValue;

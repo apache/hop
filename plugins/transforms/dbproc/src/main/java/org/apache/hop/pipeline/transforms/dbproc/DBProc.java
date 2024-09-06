@@ -160,10 +160,8 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
           runProc(data.inputRowMeta, r); // add new values to the row in rowset[0].
       putRow(data.outputMeta, outputRowData); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "DBProc.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "DBProc.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
 
@@ -203,7 +201,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
 
     if (super.init()) {
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      if (previous != null && previous.size() > 0) {
+      if (previous != null && !previous.isEmpty()) {
         data.readsRows = true;
       }
 

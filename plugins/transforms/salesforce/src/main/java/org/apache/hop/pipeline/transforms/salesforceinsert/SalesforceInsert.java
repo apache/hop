@@ -152,12 +152,12 @@ public class SalesforceInsert
         SObject sobjPass = new SObject();
         sobjPass.setType(data.connection.getModule());
 
-        if (insertfields.size() > 0) {
+        if (!insertfields.isEmpty()) {
           for (XmlObject element : insertfields) {
             sobjPass.setSObjectField(element.getName().getLocalPart(), element.getValue());
           }
         }
-        if (fieldsToNull.size() > 0) {
+        if (!fieldsToNull.isEmpty()) {
           // Set Null to fields
           sobjPass.setFieldsToNull(fieldsToNull.toArray(new String[fieldsToNull.size()]));
         }

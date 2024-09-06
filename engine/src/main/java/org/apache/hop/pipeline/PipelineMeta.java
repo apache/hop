@@ -3676,7 +3676,7 @@ public class PipelineMeta extends AbstractMeta
       }
       if (indexListenerRemove >= 0) {
         transformChangeListeners.add(indexListenerRemove, list);
-      } else if (transformChangeListeners.size() == 0 && p == 0) {
+      } else if (transformChangeListeners.isEmpty() && p == 0) {
         transformChangeListeners.add(list);
       }
     }

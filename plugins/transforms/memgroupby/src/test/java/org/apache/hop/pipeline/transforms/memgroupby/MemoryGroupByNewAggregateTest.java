@@ -106,7 +106,7 @@ public class MemoryGroupByNewAggregateTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testNewAggregate() throws HopException {
     Object[] r = new Object[16];
     Arrays.fill(r, null);

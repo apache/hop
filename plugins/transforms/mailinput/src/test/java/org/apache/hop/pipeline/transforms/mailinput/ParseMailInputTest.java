@@ -171,7 +171,7 @@ public class ParseMailInputTest {
    * @throws HopException
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testHeadersParsedPositive() throws Exception {
     // add expected fields:
     int[] fields = {MailInputField.COLUMN_HEADER};
@@ -199,7 +199,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testHeadersParsedNegative() throws Exception {
     int[] fields = {MailInputField.COLUMN_HEADER};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -225,7 +225,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageNumberIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_MESSAGE_NR};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -247,7 +247,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageSubjectIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_SUBJECT};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -269,7 +269,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageFromIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_SENDER};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -294,7 +294,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageReplayToIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_REPLY_TO};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -319,7 +319,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageRecipientsIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_RECIPIENTS};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -344,7 +344,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageDescriptionIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_DESCRIPTION};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -367,7 +367,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageRecivedDateIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_RECEIVED_DATE};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -390,7 +390,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageSentDateIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_SENT_DATE};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -413,7 +413,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageContentTypeIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_CONTENT_TYPE};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -437,7 +437,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageSizeIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_SIZE};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -460,7 +460,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageBodyIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_BODY};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -483,7 +483,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageFolderNameIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_FOLDER_NAME};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -506,7 +506,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageAttachedFilesCountNameIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_ATTACHED_FILES_COUNT};
     MailInputField[] farr = this.getDefaultInputFields(fields);
@@ -532,7 +532,7 @@ public class ParseMailInputTest {
    * @throws Exception
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testMessageBodyContentTypeIsParsed() throws Exception {
     int[] fields = {MailInputField.COLUMN_BODY_CONTENT_TYPE};
     MailInputField[] farr = this.getDefaultInputFields(fields);

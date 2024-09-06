@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -86,7 +85,7 @@ public class SystemDataDialog extends BaseTransformDialog {
 
     // See if the transform receives input.
     //
-    boolean isReceivingInput = pipelineMeta.findPreviousTransforms(transformMeta).size() > 0;
+    boolean isReceivingInput = !pipelineMeta.findPreviousTransforms(transformMeta).isEmpty();
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -228,7 +227,7 @@ public class SystemDataDialog extends BaseTransformDialog {
 
     try {
       getInfo(input);
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "SystemDataDialog.ErrorParsingData.DialogTitle"),
@@ -238,7 +237,7 @@ public class SystemDataDialog extends BaseTransformDialog {
     dispose();
   }
 
-  private void getInfo(SystemDataMeta in) throws HopException {
+  private void getInfo(SystemDataMeta in) {
 
     transformName = wTransformName.getText(); // return value
     int count = wFields.nrNonEmpty();
@@ -307,7 +306,7 @@ public class SystemDataDialog extends BaseTransformDialog {
           prd.open();
         }
       }
-    } catch (HopException e) {
+    } catch (Exception e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "SystemDataDialog.ErrorPreviewingData.DialogTitle"),

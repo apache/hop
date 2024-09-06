@@ -1209,7 +1209,7 @@ public class HopGui
     mainHopGuiComposite.setLayoutData(formData);
 
     perspectivesToolbar = new ToolBar(mainHopGuiComposite, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
-    PropsUi.setLook(perspectivesToolbar, PropsUi.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(perspectivesToolbar, Props.WIDGET_STYLE_TOOLBAR);
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);

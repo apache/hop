@@ -80,7 +80,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       // no more output
 
       // check any remaining buffered objects
-      if (batch != null && batch.size() > 0) {
+      if (batch != null && !batch.isEmpty()) {
         try {
           doBatch();
         } catch (MongoDbException e) {
@@ -98,7 +98,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       // indexes can only have a single field
 
       List<MongoDbOutputMeta.MongoIndex> indexes = meta.getMongoIndexes();
-      if (indexes != null && indexes.size() > 0) {
+      if (indexes != null && !indexes.isEmpty()) {
         logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.ApplyingIndexOpps"));
         try {
           data.applyIndexes(indexes, log, meta.getTruncate());
@@ -290,7 +290,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
             Thread.sleep(writeRetryDelay * 1000);
 
           } catch (InterruptedException e) {
-
+            // Do nothing
           }
         }
       }
@@ -395,7 +395,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
             Thread.sleep(writeRetryDelay * 1000);
 
           } catch (InterruptedException e) {
-
+            // Do nothing
           }
         }
       }

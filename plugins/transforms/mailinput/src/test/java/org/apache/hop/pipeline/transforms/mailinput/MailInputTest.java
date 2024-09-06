@@ -49,7 +49,7 @@ public class MailInputTest {
 
   /** Check that imap retrieve ... first will be applied. */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testInitSetGetFirstForIMAP() {
     MailInput transform =
         new MailInput(
@@ -73,7 +73,7 @@ public class MailInputTest {
 
   /** Check that pop3 retrieve ... first will be applied. */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testInitSetGetFirstForPOP3() {
     MailInput transform =
         new MailInput(
@@ -97,7 +97,7 @@ public class MailInputTest {
 
   /** Check that Limit value overrides retrieve ... first if any. */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testInitSetGetFirstLimitOverride() {
     MailInput transform =
         new MailInput(
@@ -124,7 +124,7 @@ public class MailInputTest {
 
   /** We do not use any of retrieve ... first if protocol is MBOX */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testInitSetGetFirstForMBOXIgnored() {
     MailInput transform =
         new MailInput(

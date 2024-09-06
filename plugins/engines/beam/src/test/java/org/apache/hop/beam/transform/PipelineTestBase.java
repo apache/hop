@@ -200,7 +200,7 @@ public class PipelineTestBase {
         new File("src/test/resources/customers/state-data.txt"), new File(INPUT_STATES_FILE));
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void createRunPipeline(IVariables variables, PipelineMeta pipelineMeta) throws Exception {
 
     IPipelineEngine<PipelineMeta> hopPipeline =

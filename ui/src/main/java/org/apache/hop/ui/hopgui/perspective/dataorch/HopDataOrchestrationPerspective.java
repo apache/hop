@@ -179,7 +179,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
             handleTabCloseEvent(event);
           }
         });
-    tabFolder.addListener(SWT.Selection, event -> handleTabSelectionEvent(event));
+    tabFolder.addListener(SWT.Selection, this::handleTabSelectionEvent);
 
     // Create tab item context menu
     new TabCloseHandler(this);
@@ -585,13 +585,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
     // given ID
     //
     for (TabItemHandler item : items) {
-      if (item.getTypeHandler() instanceof HopGuiPipelineGraph) {
-        HopGuiPipelineGraph graph = (HopGuiPipelineGraph) item.getTypeHandler();
+      if (item.getTypeHandler() instanceof HopGuiPipelineGraph hopGuiPipelineGraph) {
+        HopGuiPipelineGraph graph = hopGuiPipelineGraph;
         IPipelineEngine<PipelineMeta> pipeline = graph.getPipeline();
-        if (pipeline != null) {
-          if (logChannelId.equals(pipeline.getLogChannelId())) {
-            return item;
-          }
+        if (pipeline != null && logChannelId.equals(pipeline.getLogChannelId())) {
+          return item;
         }
       }
     }
@@ -602,13 +600,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
     // Go over all the workflow graphs and see if there's one that has a IWorkflow with the given ID
     //
     for (TabItemHandler item : items) {
-      if (item.getTypeHandler() instanceof HopGuiWorkflowGraph) {
-        HopGuiWorkflowGraph graph = (HopGuiWorkflowGraph) item.getTypeHandler();
+      if (item.getTypeHandler() instanceof HopGuiWorkflowGraph hopGuiWorkflowGraph) {
+        HopGuiWorkflowGraph graph = hopGuiWorkflowGraph;
         IWorkflowEngine<WorkflowMeta> workflow = graph.getWorkflow();
-        if (workflow != null) {
-          if (logChannelId.equals(workflow.getLogChannelId())) {
-            return item;
-          }
+        if (workflow != null && logChannelId.equals(workflow.getLogChannelId())) {
+          return item;
         }
       }
     }

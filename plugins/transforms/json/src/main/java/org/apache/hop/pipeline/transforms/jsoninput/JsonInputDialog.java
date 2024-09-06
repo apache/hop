@@ -44,6 +44,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
+import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -239,8 +240,8 @@ public class JsonInputDialog extends BaseTransformDialog {
                 wFilename.getText(),
                 wFilemask.getText(),
                 wExcludeFilemask.getText(),
-                JsonInputMeta.RequiredFilesCode[0],
-                JsonInputMeta.RequiredFilesCode[0]);
+                BaseFileInputMeta.RequiredFilesCode[0],
+                BaseFileInputMeta.RequiredFilesCode[0]);
             wFilename.setText("");
             wFilemask.setText("");
             wExcludeFilemask.setText("");

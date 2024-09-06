@@ -17,7 +17,6 @@
 
 package org.apache.hop.git.model;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -35,7 +34,6 @@ public abstract class VCS {
 
   protected String directory;
 
-  @VisibleForTesting
   void showMessageBox(String title, String message) {
     MessageBox messageBox = new MessageBox(HopGui.getInstance().getShell(), SWT.OK);
     messageBox.setText(title);

@@ -235,7 +235,7 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
-        if (fields.size() > 0) {
+        if (!fields.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,

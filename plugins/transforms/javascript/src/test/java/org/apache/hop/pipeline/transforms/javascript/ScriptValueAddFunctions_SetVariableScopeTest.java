@@ -117,7 +117,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void setRootScopeVariable_TwoLevelHierarchy() {
     Pipeline parent = createPipeline();
     Pipeline child = createPipeline(parent);

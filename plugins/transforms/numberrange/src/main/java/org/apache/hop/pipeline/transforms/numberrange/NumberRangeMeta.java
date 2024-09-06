@@ -128,7 +128,7 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(
                   PKG, "NumberRangeMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform"),
               transforminfo);

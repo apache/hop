@@ -116,7 +116,7 @@ public class StringOperationsTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testProcessBinaryInput() throws HopException {
     StringOperations transform =
         new StringOperations(

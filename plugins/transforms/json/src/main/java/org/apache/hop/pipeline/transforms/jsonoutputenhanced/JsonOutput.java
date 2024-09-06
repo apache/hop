@@ -146,7 +146,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       itemNode = new ObjectNode(nc);
     }
 
-    if (!sameGroup && data.jsonKeyGroupItems.size() > 0) {
+    if (!sameGroup && !data.jsonKeyGroupItems.isEmpty()) {
       // Output the new row
       logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
       outputRow(prevRow);
@@ -272,7 +272,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
      * single JSON object for a group of rows, if no item node was added yet. This happens for the
      * first new row of a group only.
      */
-    if (!meta.isUseSingleItemPerGroup() || data.jsonKeyGroupItems.size() == 0) {
+    if (!meta.isUseSingleItemPerGroup() || data.jsonKeyGroupItems.isEmpty()) {
       data.jsonKeyGroupItems.add(itemNode);
     }
 
@@ -302,9 +302,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     // We can now output an object
     ObjectNode globalItemNode = null;
 
-    if (data.jsonKeyGroupItems == null || data.jsonKeyGroupItems.size() == 0) return;
+    if (data.jsonKeyGroupItems == null || data.jsonKeyGroupItems.isEmpty()) return;
 
-    if (data.jsonKeyGroupItems != null && data.jsonKeyGroupItems.size() > 0) {
+    if (data.jsonKeyGroupItems != null && !data.jsonKeyGroupItems.isEmpty()) {
       serializeJson(data.jsonKeyGroupItems);
     }
 

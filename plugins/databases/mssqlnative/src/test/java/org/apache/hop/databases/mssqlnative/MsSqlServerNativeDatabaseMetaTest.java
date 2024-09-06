@@ -79,7 +79,7 @@ public class MsSqlServerNativeDatabaseMetaTest {
     assertEquals("instance1", dbmeta.getSqlServerInstance());
   }
 
-  /*  @Ignore
+  /*  @Ignore("This test needs to be reviewed")
   @Test
   public void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_2LevelHierarchy() {
     IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();

@@ -43,7 +43,7 @@ import org.junit.After;
 import org.junit.Ignore;
 
 /** Base class for test metadata injection. */
-@Ignore
+@Ignore("This test needs to be reviewed")
 public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta> {
   protected BeanInjectionInfo<Meta> info;
   protected BeanInjector<Meta> injector;

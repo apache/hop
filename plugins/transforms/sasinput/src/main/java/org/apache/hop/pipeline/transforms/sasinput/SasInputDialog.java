@@ -28,8 +28,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -203,7 +203,7 @@ public class SasInputDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "SASInputDialog.OutputFieldColumn.TrimType"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaString.trimTypeDesc),
+              ValueMetaBase.trimTypeDesc),
         };
 
     wFields =
@@ -282,7 +282,7 @@ public class SasInputDialog extends BaseTransformDialog {
       field.setPrecision(Const.toInt(item.getText(colnr++), -1));
       field.setDecimalSymbol(item.getText(colnr++));
       field.setGroupingSymbol(item.getText(colnr++));
-      field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(colnr++)));
+      field.setTrimType(ValueMetaBase.getTrimTypeByDesc(item.getText(colnr++)));
 
       meta.getOutputFields().add(field);
     }

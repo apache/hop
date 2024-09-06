@@ -20,7 +20,6 @@ package org.apache.hop.mongo.wrapper.field;
 import com.mongodb.AggregationOptions;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.Cursor;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -36,7 +35,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
@@ -203,7 +201,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       if (m.disparateTypes) {
         // force type to string if we've seen this path more than once
         // with incompatible types
-        m.hopType = IValueMeta.getTypeDescription(ValueMetaInteger.TYPE_STRING);
+        m.hopType = IValueMeta.getTypeDescription(IValueMeta.TYPE_STRING);
       }
       discoveredFields.add(m);
     }
@@ -275,10 +273,10 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     String root = "$";
     String name = "$";
 
-    if (doc instanceof BasicDBObject) {
-      processRecord((BasicDBObject) doc, root, name, lookup);
-    } else if (doc instanceof BasicDBList) {
-      processList((BasicDBList) doc, root, name, lookup);
+    if (doc instanceof BasicDBObject basicDBObject) {
+      processRecord(basicDBObject, root, name, lookup);
+    } else if (doc instanceof BasicDBList basicDBList) {
+      processList(basicDBList, root, name, lookup);
     }
   }
 
@@ -287,10 +285,10 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     for (String key : rec.keySet()) {
       Object fieldValue = rec.get(key);
 
-      if (fieldValue instanceof BasicDBObject) {
-        processRecord((BasicDBObject) fieldValue, path + "." + key, name + "." + key, lookup);
-      } else if (fieldValue instanceof BasicDBList) {
-        processList((BasicDBList) fieldValue, path + "." + key, name + "." + key, lookup);
+      if (fieldValue instanceof BasicDBObject basicDBObject) {
+        processRecord(basicDBObject, path + "." + key, name + "." + key, lookup);
+      } else if (fieldValue instanceof BasicDBList basicDBList) {
+        processList(basicDBList, path + "." + key, name + "." + key, lookup);
       } else {
         // some sort of primitive
         String finalPath = path + "." + key;
@@ -329,7 +327,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
   private static void processList(
       BasicDBList list, String path, String name, Map<String, MongoField> lookup) {
 
-    if (list.size() == 0) {
+    if (list.isEmpty()) {
       return; // can't infer anything about an empty list
     }
 
@@ -339,12 +337,10 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     for (int i = 0; i < list.size(); i++) {
       Object element = list.get(i);
 
-      if (element instanceof BasicDBObject) {
-        processRecord(
-            (BasicDBObject) element, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
-      } else if (element instanceof BasicDBList) {
-        processList(
-            (BasicDBList) element, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
+      if (element instanceof BasicDBObject basicDBObject) {
+        processRecord(basicDBObject, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
+      } else if (element instanceof BasicDBList basicDBList) {
+        processList(basicDBList, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
       } else {
         // some sort of primitive
         String finalPath = primitivePath + "[" + i + "]";
@@ -478,8 +474,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
 
     query = query + ", {$limit : " + numDocsToSample + "}";
     List<DBObject> samplePipe = jsonPipelineToDBObjectList(query);
-    Cursor cursor = collection.aggregate(samplePipe, AggregationOptions.builder().build());
-    return cursor;
+    return collection.aggregate(samplePipe, AggregationOptions.builder().build());
   }
 
   public static List<DBObject> jsonPipelineToDBObjectList(String jsonPipeline) throws HopException {
@@ -525,7 +520,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       }
     }
 
-    if (pipeline.size() == 0) {
+    if (pipeline.isEmpty()) {
       throw new HopException(
           BaseMessages.getString(
               PKG, "MongoNoAuthWrapper.ErrorMessage.UnableToParsePipelineOperators"));

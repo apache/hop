@@ -155,8 +155,8 @@ public class HopGuiPipelineLogDelegate {
    */
   public static HopGuiPipelineLogDelegate getInstance() {
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if (fileTypeHandler instanceof HopGuiPipelineGraph) {
-      HopGuiPipelineGraph graph = (HopGuiPipelineGraph) fileTypeHandler;
+    if (fileTypeHandler instanceof HopGuiPipelineGraph hopGuiPipelineGraph) {
+      HopGuiPipelineGraph graph = hopGuiPipelineGraph;
       return graph.pipelineLogDelegate;
     }
     return null;
@@ -262,7 +262,7 @@ public class HopGuiPipelineLogDelegate {
       err.add(line);
     }
 
-    if (err.size() > 0) {
+    if (!err.isEmpty()) {
       String[] errLines = new String[err.size()];
       for (i = 0; i < errLines.length; i++) {
         errLines[i] = err.get(i);

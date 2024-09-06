@@ -538,7 +538,7 @@ public class XmlMetadataUtil {
       //
       List<Object> list = new ArrayList<>();
       List<Node> itemNodes = XmlHandler.getNodes(groupNode, tag);
-      if (inlineListTags.length > 0 && itemNodes.size() > 0) {
+      if (inlineListTags.length > 0 && !itemNodes.isEmpty()) {
         // Old XML serialization format where everything is just dumped into the same tag.
         // See also HopMetadataProperty.inlineListTags
         //

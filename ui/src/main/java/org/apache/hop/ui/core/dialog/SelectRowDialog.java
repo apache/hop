@@ -96,7 +96,7 @@ public class SelectRowDialog extends Dialog {
 
     // Simply exit and close in case we don't have anything to edit or show
     //
-    if (buffer == null || buffer.size() == 0) {
+    if (buffer == null || buffer.isEmpty()) {
       return null;
     }
 

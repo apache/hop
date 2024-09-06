@@ -72,15 +72,13 @@ public class AzureWrite extends BaseTransform<AzureWriterMeta, AzureWriterData> 
 
       // See if we have data left in the message buffer
       //
-      if (data.batchSize > 1) {
-        if (data.list.size() > 0) {
-          try {
-            data.eventHubClient.sendSync(data.list);
-          } catch (EventHubException e) {
-            throw new HopTransformException("Unable to send messages", e);
-          }
-          data.list = null;
+      if (data.batchSize > 1 && !data.list.isEmpty()) {
+        try {
+          data.eventHubClient.sendSync(data.list);
+        } catch (EventHubException e) {
+          throw new HopTransformException("Unable to send messages", e);
         }
+        data.list = null;
       }
 
       setOutputDone();

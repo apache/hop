@@ -156,7 +156,7 @@ public class PreviewSelectDialog extends Dialog {
     List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
     List<TransformMeta> usedTransforms = pipelineMeta.getUsedTransforms();
 
-    if (selectedTransforms.size() == 0) {
+    if (selectedTransforms.isEmpty()) {
 
       int line = 0;
       for (TransformMeta transformMeta : usedTransforms) {

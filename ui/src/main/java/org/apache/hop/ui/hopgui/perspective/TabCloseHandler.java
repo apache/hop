@@ -39,7 +39,7 @@ public class TabCloseHandler {
 
     Menu menu = new Menu(tabFolder);
     tabFolder.setMenu(menu);
-    tabFolder.addListener(SWT.MenuDetect, event -> handleTabMenuDetectEvent(event));
+    tabFolder.addListener(SWT.MenuDetect, this::handleTabMenuDetectEvent);
     tabFolder.addListener(SWT.MouseUp, event -> handleMouseUp(event, tabClosablePerspective));
 
     // Create menu item

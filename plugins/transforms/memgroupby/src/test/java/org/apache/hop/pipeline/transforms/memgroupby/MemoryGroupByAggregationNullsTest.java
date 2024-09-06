@@ -114,7 +114,7 @@ public class MemoryGroupByAggregationNullsTest {
    * @throws HopException
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void calcAggregateResulTestMin_1_Test() throws HopException {
     transform.setMinNullIsValued(true);
     transform.addToAggregate(new Object[] {null});
@@ -126,7 +126,7 @@ public class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void calcAggregateResulTestMin_5_Test() throws HopException {
     transform.setMinNullIsValued(false);
     transform.addToAggregate(new Object[] {null});
@@ -144,7 +144,7 @@ public class MemoryGroupByAggregationNullsTest {
    * @throws HopValueException
    */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void getAggregateResulTestMin_0_Test() throws HopValueException {
     // data.agg[0] is not null - this is the default behavior
     transform.setAllNullsAreZero(true);
@@ -153,7 +153,7 @@ public class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void getAggregateResulTestMin_1_Test() throws HopValueException {
     aggregate.agg[0] = null;
     transform.setAllNullsAreZero(true);
@@ -162,7 +162,7 @@ public class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void getAggregateResulTestMin_3_Test() throws HopValueException {
     aggregate.agg[0] = null;
     transform.setAllNullsAreZero(false);
@@ -171,7 +171,7 @@ public class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void addToAggregateLazyConversionMinTest() throws Exception {
     vmi.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     vmi.setStorageMetadata(new ValueMetaString());
@@ -183,7 +183,7 @@ public class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void addToAggregateBinaryData() throws Exception {
     MemoryGroupByMeta memoryGroupByMeta = spy(meta);
     memoryGroupByMeta.setAggregates(

@@ -159,7 +159,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
   // helper method for writing tag indexes to the stream
   public void appendIndexes() {
 
-    if (tagIndexes.size() == 0) {
+    if (tagIndexes.isEmpty()) {
       return;
     }
 

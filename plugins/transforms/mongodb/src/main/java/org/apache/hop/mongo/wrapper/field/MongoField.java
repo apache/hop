@@ -35,7 +35,7 @@ import org.bson.BsonUndefined;
 import org.bson.types.Binary;
 
 public class MongoField implements Comparable<MongoField> {
-  protected static Class<?> PKG = MongoField.class;
+  protected static final Class<?> PKG = MongoField.class;
 
   /** The name the the field will take in the outputted Hop stream */
   @Injection(name = "FIELD_NAME", group = "FIELDS")
@@ -173,17 +173,17 @@ public class MongoField implements Comparable<MongoField> {
 
     switch (tempValueMeta.getType()) {
       case IValueMeta.TYPE_BIGNUMBER:
-        if (fieldValue instanceof Number) {
-          fieldValue = BigDecimal.valueOf(((Number) fieldValue).doubleValue());
-        } else if (fieldValue instanceof Date) {
-          fieldValue = new BigDecimal(((Date) fieldValue).getTime());
+        if (fieldValue instanceof Number number) {
+          fieldValue = BigDecimal.valueOf(number.doubleValue());
+        } else if (fieldValue instanceof Date date) {
+          fieldValue = new BigDecimal(date.getTime());
         } else {
           fieldValue = new BigDecimal(fieldValue.toString());
         }
         return tempValueMeta.getBigNumber(fieldValue);
       case IValueMeta.TYPE_BINARY:
-        if (fieldValue instanceof Binary) {
-          fieldValue = ((Binary) fieldValue).getData();
+        if (fieldValue instanceof Binary binary) {
+          fieldValue = binary.getData();
         } else if (fieldValue instanceof byte[]) {
           // Leave fieldValue alone if it is a byte[], or defensively copy uncommenting
         } else {
@@ -191,10 +191,10 @@ public class MongoField implements Comparable<MongoField> {
         }
         return tempValueMeta.getBinary(fieldValue);
       case IValueMeta.TYPE_BOOLEAN:
-        if (fieldValue instanceof Number) {
-          fieldValue = Boolean.valueOf(((Number) fieldValue).intValue() != 0);
-        } else if (fieldValue instanceof Date) {
-          fieldValue = Boolean.valueOf(((Date) fieldValue).getTime() != 0);
+        if (fieldValue instanceof Number number) {
+          fieldValue = Boolean.valueOf(number.intValue() != 0);
+        } else if (fieldValue instanceof Date date) {
+          fieldValue = Boolean.valueOf(date.getTime() != 0);
         } else if (!(fieldValue instanceof Boolean)) {
           fieldValue =
               Boolean.valueOf(
@@ -204,8 +204,8 @@ public class MongoField implements Comparable<MongoField> {
         }
         return tempValueMeta.getBoolean(fieldValue);
       case IValueMeta.TYPE_DATE:
-        if (fieldValue instanceof Number) {
-          fieldValue = new Date(((Number) fieldValue).longValue());
+        if (fieldValue instanceof Number number) {
+          fieldValue = new Date(number.longValue());
         } else if (!(fieldValue instanceof Date)) {
           throw new HopException(
               BaseMessages.getString(
@@ -213,10 +213,10 @@ public class MongoField implements Comparable<MongoField> {
         }
         return tempValueMeta.getDate(fieldValue);
       case IValueMeta.TYPE_INTEGER:
-        if (fieldValue instanceof Number) {
-          fieldValue = Long.valueOf(((Number) fieldValue).intValue());
-        } else if (fieldValue instanceof Binary) {
-          byte[] b = ((Binary) fieldValue).getData();
+        if (fieldValue instanceof Number number) {
+          fieldValue = Long.valueOf(number.intValue());
+        } else if (fieldValue instanceof Binary binary) {
+          byte[] b = binary.getData();
           String s = new String(b);
           fieldValue = Long.valueOf(s);
         } else {
@@ -224,10 +224,10 @@ public class MongoField implements Comparable<MongoField> {
         }
         return tempValueMeta.getInteger(fieldValue);
       case IValueMeta.TYPE_NUMBER:
-        if (fieldValue instanceof Number) {
-          fieldValue = Double.valueOf(((Number) fieldValue).doubleValue());
-        } else if (fieldValue instanceof Binary) {
-          byte[] b = ((Binary) fieldValue).getData();
+        if (fieldValue instanceof Number number) {
+          fieldValue = Double.valueOf(number.doubleValue());
+        } else if (fieldValue instanceof Binary binary) {
+          byte[] b = binary.getData();
           String s = new String(b);
           fieldValue = Double.valueOf(s);
         } else {
@@ -254,7 +254,7 @@ public class MongoField implements Comparable<MongoField> {
       return null;
     }
 
-    if (tempParts.size() == 0) {
+    if (tempParts.isEmpty()) {
       throw new HopException(
           BaseMessages.getString(PKG, "MongoDbInput.ErrorMessage.MalformedPathRecord"));
     }
@@ -282,18 +282,18 @@ public class MongoField implements Comparable<MongoField> {
     }
 
     // what have we got
-    if (tempParts.size() == 0) {
+    if (tempParts.isEmpty()) {
       // we're expecting a leaf primitive - lets see if that's what we have
       // here...
       return getHopValue(fieldValue);
     }
 
-    if (fieldValue instanceof BasicDBObject) {
-      return convertToHopValue(((BasicDBObject) fieldValue));
+    if (fieldValue instanceof BasicDBObject basicDBObject) {
+      return convertToHopValue(basicDBObject);
     }
 
-    if (fieldValue instanceof BasicDBList) {
-      return convertToHopValue(((BasicDBList) fieldValue));
+    if (fieldValue instanceof BasicDBList basicDBList) {
+      return convertToHopValue(basicDBList);
     }
 
     // must mean we have a primitive here, but we're expecting to process more
@@ -314,13 +314,13 @@ public class MongoField implements Comparable<MongoField> {
       return null;
     }
 
-    if (tempParts.size() == 0) {
+    if (tempParts.isEmpty()) {
       throw new HopException(
           BaseMessages.getString(PKG, "MongoDbInput.ErrorMessage.MalformedPathArray"));
     }
 
     String part = tempParts.remove(0);
-    if (!(part.charAt(0) == '[')) {
+    if (part.charAt(0) != '[') {
       // we're expecting an array at this point - this document does not
       // contain our field
       return null;
@@ -351,18 +351,18 @@ public class MongoField implements Comparable<MongoField> {
       return null;
     }
 
-    if (tempParts.size() == 0) {
+    if (tempParts.isEmpty()) {
       // we're expecting a leaf primitive - let's see if that's what we have
       // here...
       return getHopValue(element);
     }
 
-    if (element instanceof BasicDBObject) {
-      return convertToHopValue(((BasicDBObject) element));
+    if (element instanceof BasicDBObject basicDBObject) {
+      return convertToHopValue(basicDBObject);
     }
 
-    if (element instanceof BasicDBList) {
-      return convertToHopValue(((BasicDBList) element));
+    if (element instanceof BasicDBList basicDBList) {
+      return convertToHopValue(basicDBList);
     }
 
     // must mean we have a primitive here, but we're expecting to process more

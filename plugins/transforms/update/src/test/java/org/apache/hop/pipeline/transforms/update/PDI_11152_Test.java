@@ -56,7 +56,7 @@ public class PDI_11152_Test {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testInputLazyConversion() throws HopException {
     Database db = mock(Database.class);
     RowMeta returnRowMeta = new RowMeta();

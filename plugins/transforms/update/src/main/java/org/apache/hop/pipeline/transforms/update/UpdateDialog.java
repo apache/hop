@@ -625,7 +625,7 @@ public class UpdateDialog extends BaseTransformDialog {
 
     wKey.table.clearAll();
     if (input.getLookupField().getLookupKeys() != null
-        && input.getLookupField().getLookupKeys().size() > 0) {
+        && !input.getLookupField().getLookupKeys().isEmpty()) {
       for (int i = 0; i < input.getLookupField().getLookupKeys().size(); i++) {
         UpdateKeyField keyField = input.getLookupField().getLookupKeys().get(i);
         TableItem item = wKey.table.getItem(i);
@@ -645,7 +645,7 @@ public class UpdateDialog extends BaseTransformDialog {
     }
 
     if (input.getLookupField().getUpdateFields() != null
-        && input.getLookupField().getUpdateFields().size() > 0) {
+        && !input.getLookupField().getUpdateFields().isEmpty()) {
       wReturn.table.clearAll();
       for (int i = 0; i < input.getLookupField().getUpdateFields().size(); i++) {
         UpdateField fieldItem = input.getLookupField().getUpdateFields().get(i);

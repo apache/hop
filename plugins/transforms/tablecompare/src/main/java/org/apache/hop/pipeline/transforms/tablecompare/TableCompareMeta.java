@@ -475,7 +475,7 @@ public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompa
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "IfNullMeta.CheckResult.NotReceivingFields"),
               transformMeta);
       remarks.add(cr);

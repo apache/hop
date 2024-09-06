@@ -184,7 +184,7 @@ public class EnterPreviewRowsDialog extends Dialog {
   }
 
   private void show() {
-    if (rowDatas.size() == 0) {
+    if (rowDatas.isEmpty()) {
       return;
     }
 
@@ -194,7 +194,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     IRowMeta rowMeta = rowMetas.get(nr);
     String name = transformNames.get(nr);
 
-    if (rowMeta != null && buffer != null && buffer.size() > 0) {
+    if (rowMeta != null && buffer != null && !buffer.isEmpty()) {
       PreviewRowsDialog prd =
           new PreviewRowsDialog(
               shell, Variables.getADefaultVariableSpace(), SWT.NONE, name, rowMeta, buffer);

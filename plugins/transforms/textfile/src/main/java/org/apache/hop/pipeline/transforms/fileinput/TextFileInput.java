@@ -1152,7 +1152,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     /*
      * If the buffer is empty: open the next file. (if nothing in there, open the next, etc.)
      */
-    while (data.lineBuffer.size() == 0) {
+    while (data.lineBuffer.isEmpty()) {
       if (!openNextFile()) {
         // Open fails: done processing unless set to skip bad files
         if (failAfterBadFile(null)) {
@@ -1193,7 +1193,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           if (meta.isLineWrapped()) {
             for (int i = 0; i < meta.getNrWraps(); i++) {
               String extra = "";
-              if (data.lineBuffer.size() > 0) {
+              if (!data.lineBuffer.isEmpty()) {
                 extra = data.lineBuffer.get(0).line;
                 data.lineBuffer.remove(0);
               }
@@ -1308,7 +1308,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           if (meta.isLineWrapped()) {
             for (int i = 0; i < meta.getNrWraps(); i++) {
               String extra = "";
-              if (data.lineBuffer.size() > 0) {
+              if (!data.lineBuffer.isEmpty()) {
                 extra = data.lineBuffer.get(0).line;
                 data.lineBuffer.remove(0);
               } else {
@@ -1521,7 +1521,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
   private void handleMissingFiles() throws HopException {
     List<FileObject> nonExistantFiles = data.getFiles().getNonExistentFiles();
 
-    if (nonExistantFiles.size() != 0) {
+    if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
       if (log.isBasic()) {
         log.logBasic("Required files", "WARNING: Missing " + message);
@@ -1536,7 +1536,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     }
 
     List<FileObject> nonAccessibleFiles = data.getFiles().getNonAccessibleFiles();
-    if (nonAccessibleFiles.size() != 0) {
+    if (!nonAccessibleFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonAccessibleFiles);
       if (log.isBasic()) {
         log.logBasic("Required files", "WARNING: Not accessible " + message);

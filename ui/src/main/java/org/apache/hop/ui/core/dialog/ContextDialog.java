@@ -496,11 +496,11 @@ public class ContextDialog extends Dialog {
 
     // If the shell is re-sized we need to recalculate things...
     //
-    shell.addListener(SWT.Resize, event -> onResize(event));
+    shell.addListener(SWT.Resize, this::onResize);
     shell.addListener(SWT.Deactivate, event -> onFocusLost());
     shell.addListener(SWT.Close, event -> storeDialogSettings());
 
-    wSearch.addListener(SWT.KeyDown, event -> onKeyPressed(event));
+    wSearch.addListener(SWT.KeyDown, this::onKeyPressed);
     wSearch.addListener(SWT.Modify, event -> onModifySearch());
     wSearch.addListener(
         SWT.DefaultSelection,
@@ -520,11 +520,11 @@ public class ContextDialog extends Dialog {
           dispose();
         });
 
-    wCanvas.addListener(SWT.KeyDown, event -> onKeyPressed(event));
-    wCanvas.addListener(SWT.Paint, event -> onPaint(event));
-    wCanvas.addListener(SWT.MouseUp, event -> onMouseUp(event));
+    wCanvas.addListener(SWT.KeyDown, this::onKeyPressed);
+    wCanvas.addListener(SWT.Paint, this::onPaint);
+    wCanvas.addListener(SWT.MouseUp, this::onMouseUp);
     if (!EnvironmentUtils.getInstance().isWeb()) {
-      wCanvas.addListener(SWT.MouseMove, event -> onMouseMove(event));
+      wCanvas.addListener(SWT.MouseMove, this::onMouseMove);
     }
 
     // OS Specific listeners...

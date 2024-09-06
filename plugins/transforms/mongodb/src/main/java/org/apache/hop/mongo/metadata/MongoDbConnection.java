@@ -248,7 +248,7 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
   }
 
   private static MongoWrapperClientFactory mongoWrapperClientFactory =
-      (props, log) -> MongoClientWrapperFactory.createMongoClientWrapper(props, log);
+      MongoClientWrapperFactory::createMongoClientWrapper;
 
   /**
    * Test this connection

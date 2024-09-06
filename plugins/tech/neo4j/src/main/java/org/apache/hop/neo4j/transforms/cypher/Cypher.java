@@ -65,7 +65,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     // Is the transform getting input?
     //
     List<TransformMeta> transform = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-    data.hasInput = transform != null && transform.size() > 0;
+    data.hasInput = transform != null && !transform.isEmpty();
 
     // Connect to Neo4j
     //
@@ -634,13 +634,13 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     if (!isStopped()) {
       try {
         if (meta.isUsingUnwind() && data.unwindList != null) {
-          if (data.unwindList.size() > 0) {
+          if (!data.unwindList.isEmpty()) {
             writeUnwindList();
           }
         } else {
           // See if there are statements left to execute...
           //
-          if (data.cypherStatements != null && data.cypherStatements.size() > 0) {
+          if (data.cypherStatements != null && !data.cypherStatements.isEmpty()) {
             runCypherStatementsBatch();
           }
         }

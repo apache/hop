@@ -174,10 +174,9 @@ public abstract class HopImportBase implements IHopImport {
 
     // only add new connection names to the list
     if (connectionsList.stream()
-            .filter(dbMeta -> dbMeta.getName().equals(databaseMeta.getName()))
-            .collect(Collectors.toList())
-            .size()
-        == 0) {
+        .filter(dbMeta -> dbMeta.getName().equals(databaseMeta.getName()))
+        .collect(Collectors.toList())
+        .isEmpty()) {
       connectionsList.add(databaseMeta);
       connectionCounter++;
     }

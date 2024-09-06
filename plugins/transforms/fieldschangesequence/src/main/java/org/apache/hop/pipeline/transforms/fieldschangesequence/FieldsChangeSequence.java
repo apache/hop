@@ -60,7 +60,7 @@ public class FieldsChangeSequence
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      if (meta.getFields() == null || meta.getFields().size() > 0) {
+      if (meta.getFields() == null || !meta.getFields().isEmpty()) {
         data.fieldnr = meta.getFields().size();
         data.fieldnrs = new int[data.fieldnr];
         data.previousValues = new Object[data.fieldnr];
@@ -97,10 +97,9 @@ public class FieldsChangeSequence
 
       // Loop through fields
       for (int i = 0; i < data.fieldnr; i++) {
-        if (!first) {
-          if (data.fieldnrsMeta[i].compare(data.previousValues[i], r[data.fieldnrs[i]]) != 0) {
-            change = true;
-          }
+        if (!first
+            && data.fieldnrsMeta[i].compare(data.previousValues[i], r[data.fieldnrs[i]]) != 0) {
+          change = true;
         }
         data.previousValues[i] = r[data.fieldnrs[i]];
       }

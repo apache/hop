@@ -654,7 +654,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     } else {
       String revisionId = wRevisions.table.getSelection()[0].getText(1);
 
-      if (UIGit.WORKINGTREE.equals(revisionId)) {
+      if (VCS.WORKINGTREE.equals(revisionId)) {
         changedFiles = new ArrayList<>();
         for (UIFile changedFile : guiPlugin.getChangedFiles().values()) {
           if (isFilteredPath(rootFolder, changedFile.getName(), selectedFile)) {

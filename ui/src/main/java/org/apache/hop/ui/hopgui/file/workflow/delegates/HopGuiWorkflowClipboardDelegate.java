@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
@@ -143,11 +144,11 @@ public class HopGuiWorkflowClipboardDelegate {
 
       // Load the hops...
       Node hopsNode = XmlHandler.getSubNode(workflowNode, WorkflowMeta.XML_TAG_HOPS);
-      nr = XmlHandler.countNodes(hopsNode, WorkflowHopMeta.XML_HOP_TAG);
+      nr = XmlHandler.countNodes(hopsNode, BaseHopMeta.XML_HOP_TAG);
       WorkflowHopMeta[] hops = new WorkflowHopMeta[nr];
 
       for (int i = 0; i < nr; i++) {
-        Node hopNode = XmlHandler.getSubNodeByNr(hopsNode, WorkflowHopMeta.XML_HOP_TAG, i);
+        Node hopNode = XmlHandler.getSubNodeByNr(hopsNode, BaseHopMeta.XML_HOP_TAG, i);
         hops[i] = new WorkflowHopMeta(hopNode, Arrays.asList(actions));
       }
 
@@ -344,7 +345,7 @@ public class HopGuiWorkflowClipboardDelegate {
   }
 
   public static final void copyActionsToClipboard(List<ActionMeta> actions) throws HopException {
-    if (actions == null || actions.size() == 0) {
+    if (actions == null || actions.isEmpty()) {
       return;
     }
 

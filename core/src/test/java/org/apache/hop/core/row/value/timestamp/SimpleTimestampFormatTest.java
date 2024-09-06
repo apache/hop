@@ -68,7 +68,7 @@ public class SimpleTimestampFormatTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testFormat() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
@@ -221,7 +221,7 @@ public class SimpleTimestampFormatTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testToPattern() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
@@ -239,7 +239,7 @@ public class SimpleTimestampFormatTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testToLocalizedPattern() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
@@ -261,7 +261,7 @@ public class SimpleTimestampFormatTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testApplyPattern() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);

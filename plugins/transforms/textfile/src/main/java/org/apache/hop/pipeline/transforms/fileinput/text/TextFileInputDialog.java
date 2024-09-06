@@ -45,7 +45,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -57,6 +56,7 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
+import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.PropsUi;
@@ -393,8 +393,8 @@ public class TextFileInputDialog extends BaseTransformDialog
                 wFilename.getText(),
                 wFilemask.getText(),
                 wExcludeFilemask.getText(),
-                TextFileInputMeta.RequiredFilesCode[0],
-                TextFileInputMeta.RequiredFilesCode[0]);
+                BaseFileInputMeta.RequiredFilesCode[0],
+                BaseFileInputMeta.RequiredFilesCode[0]);
             wFilename.setText("");
             wFilemask.setText("");
             wExcludeFilemask.setText("");
@@ -2067,7 +2067,7 @@ public class TextFileInputDialog extends BaseTransformDialog
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileInputDialog.TrimTypeColumn.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaString.trimTypeDesc,
+              ValueMetaBase.trimTypeDesc,
               true),
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileInputDialog.RepeatColumn.Column"),
@@ -3060,7 +3060,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
       item.setText(5, "");
       item.setText(6, "");
-      item.setText(12, ValueMetaString.getTrimTypeDesc(IValueMeta.TRIM_TYPE_BOTH));
+      item.setText(12, ValueMetaBase.getTrimTypeDesc(IValueMeta.TRIM_TYPE_BOTH));
 
       int type = ValueMetaFactory.getIdForValueMeta(item.getText(2));
       switch (type) {

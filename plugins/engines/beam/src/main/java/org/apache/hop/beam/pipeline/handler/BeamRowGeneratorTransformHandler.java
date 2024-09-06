@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.Read;
 import org.apache.beam.sdk.io.synthetic.SyntheticBoundedSource;
+import org.apache.beam.sdk.io.synthetic.SyntheticOptions;
 import org.apache.beam.sdk.io.synthetic.SyntheticSourceOptions;
 import org.apache.beam.sdk.io.synthetic.SyntheticUnboundedSource;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -127,7 +128,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
               + "}";
 
       try {
-        options = SyntheticSourceOptions.fromJsonString(json, SyntheticSourceOptions.class);
+        options = SyntheticOptions.fromJsonString(json, SyntheticSourceOptions.class);
       } catch (Exception e) {
         throw new HopException(
             "Unable to parse options for the Beam unbounded synthetic source, JSON: " + json, e);
@@ -174,7 +175,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
 
       SyntheticSourceOptions options;
       try {
-        options = SyntheticSourceOptions.fromJsonString(json, SyntheticSourceOptions.class);
+        options = SyntheticOptions.fromJsonString(json, SyntheticSourceOptions.class);
       } catch (Exception e) {
         throw new HopException(
             "Unable to parse options for the Beam unbounded synthetic source, JSON: " + json, e);

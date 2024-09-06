@@ -304,7 +304,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
   private void saveConnectionsReport() throws HopException {
     // only create connections csv if we have connections
-    if (connectionsList.size() > 0) {
+    if (!connectionsList.isEmpty()) {
       this.connectionsReportFileName = getOutputFolderName() + "/connections.csv";
       try (OutputStream outputStream =
           HopVfs.getOutputStream(this.connectionsReportFileName, false)) {

@@ -722,7 +722,7 @@ public class UIGit extends VCS {
     try {
       // Revert files to HEAD state
       Status status = git.status().addPath(path).call();
-      if (status.getUntracked().size() != 0 || status.getAdded().size() != 0) {
+      if (!status.getUntracked().isEmpty() || !status.getAdded().isEmpty()) {
         resetPath(path);
         org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, path));
       }

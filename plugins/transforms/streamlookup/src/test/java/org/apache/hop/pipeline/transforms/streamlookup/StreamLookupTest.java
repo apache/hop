@@ -214,25 +214,25 @@ public class StreamLookupTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testWithNormalStreams() throws HopException {
     doTest(false, false, false);
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testWithBinaryLookupStream() throws HopException {
     doTest(false, true, false);
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testWithBinaryDateStream() throws HopException {
     doTest(false, false, true);
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testWithBinaryStreams() throws HopException {
     doTest(false, false, true);
   }

@@ -164,7 +164,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(
                   PKG, "ValueMapperMeta.CheckResult.NotReceivingFieldsFromPreviousTransforms"),
               transformMeta);

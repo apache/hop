@@ -142,7 +142,7 @@ public class SalesforceUpsert
           // (Issue #2820)
           if (meta.getUpsertField() != null
               && valueMeta.isNull(object)
-                  & meta.getUpsertField().equals(meta.getUpdateLookup()[i])) {
+              && meta.getUpsertField().equals(meta.getUpdateLookup()[i])) {
             continue;
           }
 
@@ -167,12 +167,12 @@ public class SalesforceUpsert
         // build the SObject
         SObject sobjPass = new SObject();
         sobjPass.setType(data.connection.getModule());
-        if (upsertfields.size() > 0) {
+        if (!upsertfields.isEmpty()) {
           for (XmlObject element : upsertfields) {
             setFieldInSObject(sobjPass, element);
           }
         }
-        if (fieldsToNull.size() > 0) {
+        if (!fieldsToNull.isEmpty()) {
           // Set Null to fields
           sobjPass.setFieldsToNull(fieldsToNull.toArray(new String[fieldsToNull.size()]));
         }

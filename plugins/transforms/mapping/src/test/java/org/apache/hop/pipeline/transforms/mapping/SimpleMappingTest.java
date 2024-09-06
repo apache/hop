@@ -111,7 +111,7 @@ public class SimpleMappingTest {
     transformMockHelper.cleanUp();
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testTransformSetUpAsWasStarted_AtProcessingFirstRow() throws HopException {
 
     smp =
@@ -130,7 +130,7 @@ public class SimpleMappingTest {
     assertTrue("The transform was started", smp.getData().wasStarted);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testTransformShouldProcessError_WhenMappingPipelineHasError() throws HopException {
 
     // Set Up TransMock to return the error
@@ -207,7 +207,7 @@ public class SimpleMappingTest {
     transformMockHelper.cleanUp();
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testDispose() throws HopException {
 
     // Set Up TransMock to return the error

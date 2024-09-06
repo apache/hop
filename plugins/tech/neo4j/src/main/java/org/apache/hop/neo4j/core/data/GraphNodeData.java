@@ -183,7 +183,7 @@ public class GraphNodeData {
     if (typeProperty != null && typeProperty.getValue() != null) {
       nodeText += typeProperty.getValue().toString();
     }
-    if (labels.size() > 0) {
+    if (!labels.isEmpty()) {
       nodeText += " (:" + labels.get(0) + ")";
     }
 

@@ -51,7 +51,7 @@ public class HopServerTest {
     mockedClient.closeOnDemand();
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void callStopHopServerRestService() throws Exception {
     WebTarget target = mock(WebTarget.class);

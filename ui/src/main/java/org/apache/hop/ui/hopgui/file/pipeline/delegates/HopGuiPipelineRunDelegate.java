@@ -120,7 +120,7 @@ public class HopGuiPipelineRunDelegate {
       // Set the default number of rows to retrieve on all selected transforms...
       //
       List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
-      if (selectedTransforms != null && selectedTransforms.size() > 0) {
+      if (selectedTransforms != null && !selectedTransforms.isEmpty()) {
         pipelineDebugMeta.getTransformDebugMetaMap().clear();
         for (TransformMeta transformMeta : pipelineMeta.getSelectedTransforms()) {
           TransformDebugMeta transformDebugMeta = new TransformDebugMeta(transformMeta);
@@ -144,7 +144,7 @@ public class HopGuiPipelineRunDelegate {
       // Set the default number of preview rows on all selected transforms...
       //
       List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
-      if (selectedTransforms != null && selectedTransforms.size() > 0) {
+      if (selectedTransforms != null && !selectedTransforms.isEmpty()) {
         pipelineDebugMeta.getTransformDebugMetaMap().clear();
         for (TransformMeta transformMeta : pipelineMeta.getSelectedTransforms()) {
           TransformDebugMeta transformDebugMeta = new TransformDebugMeta(transformMeta);

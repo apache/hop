@@ -1080,7 +1080,7 @@ public class ValidatorDialog extends BaseTransformDialog {
 
     // Select the first available field...
     //
-    if (input.getValidations().size() > 0) {
+    if (!input.getValidations().isEmpty()) {
       Validation validatorField = input.getValidations().get(0);
       String description = validatorField.getName();
       int index = wValidationsList.indexOf(description);
@@ -1213,7 +1213,7 @@ public class ValidatorDialog extends BaseTransformDialog {
       wValidationsList.remove(index);
       enableFields();
 
-      if (selectionList.size() > 0) {
+      if (!selectionList.isEmpty()) {
         wValidationsList.select(selectionList.size() - 1);
       }
     }

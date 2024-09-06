@@ -187,7 +187,7 @@ public class HopGuiLogBrowser {
 
     // Make sure the timer goes down when the Display is disposed
     // Lambda expression cannot be used here as it causes SecurityException in RAP.
-    text.getDisplay().disposeExec(() -> logRefreshTimer.cancel());
+    text.getDisplay().disposeExec(logRefreshTimer::cancel);
 
     final Menu menu = new Menu(text);
     MenuItem item = new MenuItem(menu, SWT.NONE);

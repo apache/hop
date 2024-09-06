@@ -20,6 +20,7 @@ package org.apache.hop.neo4j.model.validation;
 
 import java.util.List;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.Value;
 
 public class IndexDetails {
   private int id;
@@ -43,8 +44,8 @@ public class IndexDetails {
     this.uniqueness = record.get("uniqueness").asString();
     this.type = record.get("type").asString();
     this.entityType = record.get("entityType").asString();
-    this.labelsOrTypes = record.get("labelsOrTypes").asList(value -> value.asString());
-    this.properties = record.get("properties").asList(value -> value.asString());
+    this.labelsOrTypes = record.get("labelsOrTypes").asList(Value::asString);
+    this.properties = record.get("properties").asList(Value::asString);
     this.provider = record.get("provider").asString();
   }
 

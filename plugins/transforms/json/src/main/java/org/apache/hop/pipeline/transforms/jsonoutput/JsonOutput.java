@@ -298,7 +298,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     if (data.ja != null) {
       // Is there some left-over data to be written to disk?
       //
-      if (data.ja.size() > 0) {
+      if (!data.ja.isEmpty()) {
         try {
           outputRow(null);
         } catch (Exception e) {

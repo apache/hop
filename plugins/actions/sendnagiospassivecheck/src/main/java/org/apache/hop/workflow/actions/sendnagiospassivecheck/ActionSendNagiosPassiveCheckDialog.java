@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.sendnagiospassivecheck;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.util.SocketUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -136,7 +137,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
     wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    PropsUi.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///

@@ -82,7 +82,7 @@ public class BlockUntilTransformsFinishMeta
                   PKG, "BlockUntilTransformsFinishMeta.CheckResult.NotReceivingFields"),
               transformMeta);
     } else {
-      if (blockingTransforms.size() > 0) {
+      if (!blockingTransforms.isEmpty()) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_OK,

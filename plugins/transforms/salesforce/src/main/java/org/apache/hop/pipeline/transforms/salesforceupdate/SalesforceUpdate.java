@@ -148,12 +148,12 @@ public class SalesforceUpdate
         // build the SObject
         SObject sobjPass = new SObject();
         sobjPass.setType(data.connection.getModule());
-        if (updatefields.size() > 0) {
+        if (!updatefields.isEmpty()) {
           for (XmlObject element : updatefields) {
             sobjPass.setSObjectField(element.getName().getLocalPart(), element.getValue());
           }
         }
-        if (fieldsToNull.size() > 0) {
+        if (!fieldsToNull.isEmpty()) {
           // Set Null to fields
           sobjPass.setFieldsToNull(fieldsToNull.toArray(new String[fieldsToNull.size()]));
         }

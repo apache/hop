@@ -247,7 +247,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
-        if (sortFields.size() > 0) {
+        if (!sortFields.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,

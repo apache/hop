@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-@Ignore
+@Ignore("This test needs to be reviewed")
 public class LogChannelTest {
 
   private MockedStatic<Utils> mockedUtils;

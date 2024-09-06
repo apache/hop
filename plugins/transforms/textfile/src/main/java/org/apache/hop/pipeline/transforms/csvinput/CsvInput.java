@@ -127,11 +127,9 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
 
     // If we are running in parallel, make sure we don't read too much in this transform copy...
     //
-    if (data.parallel) {
-      if (data.totalBytesRead >= data.blockToRead) {
-        setOutputDone(); // stop reading
-        return false;
-      }
+    if (data.parallel && data.totalBytesRead >= data.blockToRead) {
+      setOutputDone(); // stop reading
+      return false;
     }
 
     try {
@@ -146,12 +144,10 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         }
       } else {
         putRow(data.outputRowMeta, outputRowData); // copy row to possible alternate rowset(s).
-        if (checkFeedback(getLinesInput())) {
-          if (log.isBasic()) {
-            logBasic(
-                BaseMessages.getString(
-                    PKG, "CsvInput.Log.LineNumber", Long.toString(getLinesInput())));
-          }
+        if (checkFeedback(getLinesInput()) && log.isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "CsvInput.Log.LineNumber", Long.toString(getLinesInput())));
         }
       }
     } catch (HopConversionException e) {
@@ -359,33 +355,31 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       // If we are running in parallel and we need to skip bytes in the first file, let's do so
       // here.
       //
-      if (data.parallel) {
-        if (data.bytesToSkipInFirstFile > 0) {
-          data.fc.position(data.bytesToSkipInFirstFile);
+      if (data.parallel && data.bytesToSkipInFirstFile > 0) {
+        data.fc.position(data.bytesToSkipInFirstFile);
 
-          // evaluate whether there is a need to skip a row
-          if (needToSkipRow()) {
-            // when reading in parallel, the previous code would introduce additional rows and / or
-            // invalid data in the output.
-            // in parallel mode we don't support new lines inside field data so it's safe to fast
-            // forward until we find a new line.
-            // when a newline is found we need to check for an additional new line character, while
-            // in unix systems it's just a single '\n',
-            // on windows systems, it's a sequence of '\r' and '\n'. finally we set the start of the
-            // buffer to the end buffer position.
-            while (!data.newLineFound()) {
-              data.moveEndBufferPointer();
-            }
-
+        // evaluate whether there is a need to skip a row
+        if (needToSkipRow()) {
+          // when reading in parallel, the previous code would introduce additional rows and / or
+          // invalid data in the output.
+          // in parallel mode we don't support new lines inside field data so it's safe to fast
+          // forward until we find a new line.
+          // when a newline is found we need to check for an additional new line character, while
+          // in unix systems it's just a single '\n',
+          // on windows systems, it's a sequence of '\r' and '\n'. finally we set the start of the
+          // buffer to the end buffer position.
+          while (!data.newLineFound()) {
             data.moveEndBufferPointer();
-
-            if (data.newLineFound()) {
-              data.moveEndBufferPointer();
-            }
           }
 
-          data.setStartBuffer(data.getEndBuffer());
+          data.moveEndBufferPointer();
+
+          if (data.newLineFound()) {
+            data.moveEndBufferPointer();
+          }
         }
+
+        data.setStartBuffer(data.getEndBuffer());
       }
 
       // Add filename to result filenames ?
@@ -614,27 +608,25 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         if (data.resizeBufferIfNeeded()) {
           // Last row was being discarded if the last item is null and
           // there is no end of line delimiter
-          if (outputRowData != null) {
+          if (outputRowData != null && outputIndex > 0) {
             // Make certain that at least one record exists before
             // filling the rest of them with null
-            if (outputIndex > 0) {
-              // Optionally add the current filename to the mix as well...
-              //
-              if (meta.isIncludingFilename() && !Utils.isEmpty(meta.getFilenameField())) {
-                if (meta.isLazyConversionActive()) {
-                  outputRowData[data.filenameFieldIndex] = data.binaryFilename;
-                } else {
-                  outputRowData[data.filenameFieldIndex] = data.filenames[data.filenr - 1];
-                }
+            // Optionally add the current filename to the mix as well...
+            //
+            if (meta.isIncludingFilename() && !Utils.isEmpty(meta.getFilenameField())) {
+              if (meta.isLazyConversionActive()) {
+                outputRowData[data.filenameFieldIndex] = data.binaryFilename;
+              } else {
+                outputRowData[data.filenameFieldIndex] = data.filenames[data.filenr - 1];
               }
-
-              if (data.isAddingRowNumber) {
-                outputRowData[data.rownumFieldIndex] = data.rowNumber++;
-              }
-
-              incrementLinesInput();
-              return outputRowData;
             }
+
+            if (data.isAddingRowNumber) {
+              outputRowData[data.rownumFieldIndex] = data.rowNumber++;
+            }
+
+            incrementLinesInput();
+            return outputRowData;
           }
 
           return null; // nothing more to read, call it a day.
@@ -862,7 +854,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         incrementLinesInput();
       }
 
-      if (conversionExceptions != null && conversionExceptions.size() > 0) {
+      if (conversionExceptions != null && !conversionExceptions.isEmpty()) {
         // Forward the first exception
         //
         throw new HopConversionException(
@@ -894,7 +886,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       // If the transform doesn't have any previous transforms, we just get the filename.
       // Otherwise, we'll grab the list of file names later...
       //
-      if (getPipelineMeta().findPreviousTransforms(getTransformMeta()).size() == 0) {
+      if (getPipelineMeta().findPreviousTransforms(getTransformMeta()).isEmpty()) {
         String filename = resolve(meta.getFilename());
 
         if (Utils.isEmpty(filename)) {

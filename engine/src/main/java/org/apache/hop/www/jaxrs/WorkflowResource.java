@@ -141,7 +141,7 @@ public class WorkflowResource {
     // Simply start the workflow in the background in a new thread.
     // This will allow us to work asynchronously
     //
-    new Thread(() -> finalWorkflow.startExecution()).start();
+    new Thread(finalWorkflow::startExecution).start();
 
     return getWorkflowStatus(id);
   }

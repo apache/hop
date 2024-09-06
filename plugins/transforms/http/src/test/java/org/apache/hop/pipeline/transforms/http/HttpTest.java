@@ -103,14 +103,14 @@ public class HttpTest {
     mockedHttpClientManager.close();
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void callHttpServiceWithUTF8Encoding() throws Exception {
     doReturn("UTF-8").when(meta).getEncoding();
     assertEquals(DATA, http.callHttpService(rmi, new Object[] {0})[0]);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void callHttpServiceWithoutEncoding() throws Exception {
     doReturn(null).when(meta).getEncoding();
