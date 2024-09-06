@@ -564,7 +564,7 @@ public class DB2DatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", false));
 
-    String lineSep = System.getProperty("line.separator");
+    String lineSep = System.lineSeparator();
 
     assertEquals(
         "ALTER TABLE FOO DROP COLUMN BAR" + lineSep,
@@ -625,30 +625,25 @@ public class DB2DatabaseMetaTest {
         nativeMeta.getFieldDefinition(
             new ValueMetaNumber("FOO", 12, 0), "FOO", "", true, false, false));
     assertEquals(
-        "INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1, NOCACHE)",
+        "BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1, NOCACHE)",
         nativeMeta.getFieldDefinition(
             new ValueMetaInteger("FOO", 12, 0), "FOO", "", true, false, false));
 
     assertEquals(
-        "FLOAT",
+        "DOUBLE",
         nativeMeta.getFieldDefinition(
             new ValueMetaNumber("FOO", 0, 0), "", "", false, false, false));
     assertEquals(
-        "DECIMAL(12)",
+        "DECIMAL(12,16)",
         nativeMeta.getFieldDefinition(
-            new ValueMetaBigNumber("FOO", 12, 0),
-            "",
-            "",
-            false,
-            false,
-            false)); // Pretty sure this is a bug - should be an Integer here.
+            new ValueMetaBigNumber("FOO", 12, 0), "", "", false, false, false));
     assertEquals(
-        "DECIMAL(12, 4)",
+        "DECIMAL(12,4)",
         nativeMeta.getFieldDefinition(
             new ValueMetaBigNumber("FOO", 12, 4), "", "", false, false, false));
 
     assertEquals(
-        "INTEGER",
+        "BIGINT",
         nativeMeta.getFieldDefinition(
             new ValueMetaInteger("FOO", 10, 0), "", "", false, false, false));
 
@@ -701,7 +696,7 @@ public class DB2DatabaseMetaTest {
             new ValueMetaInternetAddress("FOO"), "", "", false, false, false));
 
     assertEquals(
-        " UNKNOWN" + System.getProperty("line.separator"),
+        " UNKNOWN" + System.lineSeparator(),
         nativeMeta.getFieldDefinition(
             new ValueMetaInternetAddress("FOO"), "", "", false, false, true));
   }
