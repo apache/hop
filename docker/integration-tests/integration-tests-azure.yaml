@@ -20,18 +20,3 @@ services:
         extends:
             file: integration-tests-base.yaml
             service: integration_test
-        depends_on:
-            azurite-blob:
-                condition: service_healthy
-        links:
-            - azurite-blob
-
-    azurite-blob:
-        ports:
-            - "10000"
-        image: mcr.microsoft.com/azure-storage/azurite:3.29.0
-        command: azurite-blob --blobHost 0.0.0.0
-        healthcheck:
-            test: nc 127.0.0.1 10000 -z
-            interval: 1s
-            retries: 30

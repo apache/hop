@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "short_filename",
+          "data_set_field": "short_filename"
+        }
+      ],
+      "field_order": [
+        "short_filename"
+      ],
+      "data_set_name": "Get File Names",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0007-get-file-names UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0007-get-file-names.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "azit",
+  "description": "Azure Integration Tests",
+  "storageAccountEndpoint": "",
+  "storageAccountName": "${AZURE_ACCOUNT}",
+  "storageAccountKey": "${AZURE_KEY}"
+}

@@ -18,39 +18,38 @@
 
 package org.apache.hop.vfs.azure;
 
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlob;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlobDirectory;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.core.util.Context;
+import com.azure.storage.file.datalake.DataLakeDirectoryClient;
+import com.azure.storage.file.datalake.DataLakeFileClient;
+import com.azure.storage.file.datalake.DataLakeFileSystemClient;
+import com.azure.storage.file.datalake.DataLakeServiceClient;
+import com.azure.storage.file.datalake.models.ListFileSystemsOptions;
+import com.azure.storage.file.datalake.models.ListPathsOptions;
+import com.azure.storage.file.datalake.models.PathItem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
-import org.apache.commons.vfs2.provider.UriParser;
+import org.apache.hop.core.exception.HopException;
 
 public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   public class BlockBlobOutputStream extends OutputStream {
 
-    private final CloudBlockBlob bb;
     private final OutputStream outputStream;
     long written = 0;
 
-    public BlockBlobOutputStream(CloudBlockBlob bb, OutputStream outputStream) {
-      this.bb = bb;
+    public BlockBlobOutputStream(OutputStream outputStream) {
       this.outputStream = outputStream;
     }
 
@@ -88,138 +87,151 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     }
   }
 
-  private final CloudBlobClient service;
+  private final DataLakeServiceClient service;
   private boolean attached = false;
   private long size;
   private long lastModified;
   private FileType type;
   private List<String> children = null;
-  private CloudBlobContainer container;
-  private String containerPath;
-  private CloudBlob cloudBlob;
-  private CloudBlobDirectory cloudDir;
+  private DataLakeFileClient dataLakeFileClient;
+  private String currentFilePath;
+  private PathItem pathItem;
+  private PathItem dirPathItem;
   private final String markerFileName = ".cvfs.temp";
   private OutputStream blobOutputStream;
+  private String containerName;
 
   public AzureFileObject(
-      AbstractFileName fileName, AzureFileSystem fileSystem, CloudBlobClient service)
+      AbstractFileName fileName, AzureFileSystem fileSystem, DataLakeServiceClient service)
       throws FileSystemException {
     super(fileName, fileSystem);
     this.service = service;
   }
 
   @Override
-  protected void doAttach() throws URISyntaxException, StorageException {
-    if (!attached) {
-      if (getName().getPath().equals("/")) {
-        children = new ArrayList<>();
-        for (CloudBlobContainer container : service.listContainers()) {
-          children.add(container.getName());
-        }
-        size = children.size();
-        lastModified = 0;
+  protected void doAttach() throws HopException {
+    if (attached) {
+      return;
+    }
+    containerName = ((AzureFileName) getName()).getContainer();
+    String fullPath = ((AzureFileName) getName()).getPath();
+    DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+    ListPathsOptions lpo = new ListPathsOptions();
+    children = new ArrayList<>();
+    if (isFileSystemRoot(fullPath)) {
+      service
+          .listFileSystems()
+          .iterator()
+          .forEachRemaining(
+              item -> {
+                children.add(StringUtils.substringAfterLast(item.getName(), "/"));
+              });
+
+      size = children.size();
+      lastModified = 0;
+      type = FileType.FOLDER;
+      dataLakeFileClient = null;
+      currentFilePath = "";
+    } else if (isContainer(fullPath)) {
+      if (containerExists()) {
         type = FileType.FOLDER;
-        container = null;
-        containerPath = "";
+        fileSystemClient.listPaths().forEach(pi -> children.add(pi.getName()));
       } else {
-        String containerName = ((AzureFileName) getName()).getContainer();
-        container = service.getContainerReference(containerName);
-        containerPath = ((AzureFileName) getName()).getPathAfterContainer();
-        String thisPath = "/" + containerName + containerPath;
-        if (container.exists()) {
+        type = FileType.IMAGINARY;
+        throw new HopException("Container does not exist: " + fullPath);
+      }
+    } else {
+      // this is a subdirectory or file or a container/file system
+      currentFilePath = ((AzureFileName) getName()).getPathAfterContainer();
+      if (StringUtils.isEmpty(currentFilePath)) {
+        type = FileType.FOLDER;
+        fileSystemClient.listPaths().forEach(pi -> children.add(pi.getName()));
+      } else {
+        lpo.setPath(currentFilePath);
+        DataLakeDirectoryClient directoryClient =
+            fileSystemClient.getDirectoryClient(currentFilePath);
+        final Boolean exists = directoryClient.exists();
+
+        final Boolean isDirectory =
+            exists
+                && fileSystemClient
+                    .getDirectoryClient(currentFilePath)
+                    .getProperties()
+                    .isDirectory();
+        final Boolean isFile = !isDirectory;
+        if (exists && isDirectory) {
           children = new ArrayList<>();
-          if (containerPath.equals("")) {
-            if (container.exists()) {
-              for (ListBlobItem item : container.listBlobs()) {
-                StringBuilder path = new StringBuilder(item.getUri().getPath());
-                UriParser.extractFirstElement(path);
-                children.add(path.substring(1));
-              }
-              type = FileType.FOLDER;
-            } else {
-              type = FileType.IMAGINARY;
-            }
-            lastModified = 0;
-            size = children.size();
-          } else {
-            /*
-             * Look in the parent path for this filename AND and
-             * direct descendents
-             */
-            cloudBlob = null;
-            cloudDir = null;
-            String relpath =
-                removeLeadingSlash(
-                    ((AzureFileName) (getName().getParent())).getPathAfterContainer());
-            for (ListBlobItem item :
-                relpath.equals("") ? container.listBlobs() : container.listBlobs(relpath + "/")) {
-              String itemPath = removeTrailingSlash(item.getUri().getPath());
-              if (pathsMatch(itemPath, thisPath)) {
-                if (item instanceof CloudBlob) {
-                  cloudBlob = (CloudBlob) item;
-                } else {
-                  cloudDir = (CloudBlobDirectory) item;
-                  for (ListBlobItem blob : cloudDir.listBlobs()) {
-                    URI blobUri = blob.getUri();
-                    String path = blobUri.getPath();
-                    while (path.endsWith("/")) path = path.substring(0, path.length() - 1);
-                    int idx = path.lastIndexOf('/');
-                    if (idx != -1) path = path.substring(idx + 1);
-                    children.add(path);
-                  }
-                }
-                break;
-              }
-            }
-            if (cloudBlob != null) {
-              type = FileType.FILE;
-              size = cloudBlob.getProperties().getLength();
-              if (cloudBlob.getMetadata().containsKey("ActualLength")) {
-                size = Long.parseLong(cloudBlob.getMetadata().get("ActualLength"));
-              }
-              String disp = cloudBlob.getProperties().getContentDisposition();
-              if (disp != null && disp.startsWith("vfs ; length=\"")) {
-                size = Long.parseLong(disp.substring(14, disp.length() - 1));
-              }
-              Date lastModified2 = cloudBlob.getProperties().getLastModified();
-              lastModified = lastModified2 == null ? 0 : lastModified2.getTime();
-            } else if (cloudDir != null) {
-              type = FileType.FOLDER;
-              size = children.size();
-              lastModified = 0;
-            } else {
-              lastModified = 0;
-              type = FileType.IMAGINARY;
-              size = 0;
-            }
-          }
+          PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
+          pathItems.forEach(
+              item -> {
+                children.add(
+                    StringUtils.removeStart(
+                        item.getName().replace(StringUtils.removeStart(currentFilePath, "/"), ""),
+                        "/"));
+              });
+          size = children.size();
+          type = FileType.FOLDER;
+          lastModified = directoryClient.getProperties().getLastModified().toEpochSecond();
+        } else if (exists && isFile) {
+          dataLakeFileClient = fileSystemClient.getFileClient(currentFilePath);
+          size = dataLakeFileClient.getProperties().getFileSize();
+          type = FileType.FILE;
+          lastModified = dataLakeFileClient.getProperties().getLastModified().toEpochSecond();
         } else {
           lastModified = 0;
           type = FileType.IMAGINARY;
           size = 0;
-          cloudBlob = null;
-          cloudDir = null;
+          pathItem = null;
+          dirPathItem = null;
         }
       }
     }
   }
 
-  private boolean pathsMatch(String path, String currentPath) {
-    return path.replace("/" + ((AzureFileSystem) getFileSystem()).getAccount(), "")
-        .equals(currentPath);
+  private boolean containerExists() {
+    String containerName = ((AzureFileName) getName()).getContainer();
+    ListFileSystemsOptions fileSystemsOptions = new ListFileSystemsOptions();
+    fileSystemsOptions.setPrefix(containerName);
+
+    final DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+
+    try {
+      return fileSystemClient.existsWithResponse(Duration.ofSeconds(5), Context.NONE).getValue();
+    } catch (IllegalStateException e) {
+      return false;
+    }
+  }
+
+  private boolean isContainer(String fullPath) {
+    final String container = ((AzureFileName) getName()).getContainer();
+    final String fullPathWithoutTralilingSlash = StringUtils.removeStart(fullPath, "/");
+    if (StringUtils.equals(container, fullPathWithoutTralilingSlash)
+        && !StringUtils.isEmpty(fullPathWithoutTralilingSlash)) {
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean isFileSystemRoot(String fullPath) {
+    return "/".equals(fullPath);
+  }
+
+  private String getFilePath(String filename) {
+    String filePath = filename.substring(filename.indexOf('/'), filename.length());
+    return filePath;
   }
 
   @Override
-  protected void doDetach() throws Exception {
+  protected void doDetach() {
     if (this.attached) {
       this.attached = false;
       this.children = null;
       this.size = 0;
       this.type = null;
-      this.container = null;
-      this.containerPath = null;
-      this.cloudBlob = null;
-      this.cloudDir = null;
+      this.dataLakeFileClient = null;
+      this.currentFilePath = null;
+      this.pathItem = null;
+      this.dirPathItem = null;
     }
   }
 
@@ -233,30 +245,48 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     return getName().getBaseName().equals(markerFileName);
   }
 
+  /**
+   * Check if the file can be renamed to the new file This is not a feature supported by Azure SDK,
+   * but we can implement renaming by copying the file to the new location and deleting the old one.
+   * So renaming a file is possible
+   *
+   * @param newfile the new file
+   * @return
+   */
   public boolean canRenameTo(FileObject newfile) {
-    throw new UnsupportedOperationException();
+    return true;
   }
 
   @Override
   protected void doDelete() throws Exception {
-    if (container == null) {
+    DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+    DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath.substring(1));
+    if (fileClient == null) {
       throw new UnsupportedOperationException();
     } else {
       FileObject parent = getParent();
       boolean lastFile = ((AzureFileObject) parent).doListChildren().length == 1;
       try {
-        if (containerPath.equals("")) {
-          container.delete();
+        if (currentFilePath.equals("")) {
+          fileClient.delete();
         } else {
-          if (cloudBlob != null) cloudBlob.delete();
-          else if (cloudDir != null) {
-            for (ListBlobItem item :
-                container.listBlobs(((AzureFileName) getName()).getPathAfterContainer(), true)) {
-              String path = item.getUri().getPath();
-              if (item instanceof CloudBlob && path.startsWith(getName().getPath())) {
-                ((CloudBlob) item).delete();
-              }
-            }
+          if (StringUtils.isNotEmpty(currentFilePath) && fileClient.exists()) {
+            fileClient.delete();
+          } else if (dirPathItem != null) {
+            ListPathsOptions lpo = new ListPathsOptions();
+            lpo.setPath(((AzureFileName) getName()).getPathAfterContainer());
+
+            fileSystemClient
+                .listPaths(lpo, null)
+                .forEach(
+                    pi -> {
+                      if (!pi.isDirectory()
+                          && getFilePath(pi.getName()).startsWith(getName().getPath())) {
+                        DataLakeFileClient dataLakeFileClient =
+                            fileSystemClient.getFileClient(pathItem.getName());
+                        dataLakeFileClient.delete();
+                      }
+                    });
           } else {
             throw new UnsupportedOperationException();
           }
@@ -283,46 +313,31 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected void doRename(FileObject newfile) throws Exception {
-    if (cloudBlob != null) {
-      // Get the new blob reference
-      CloudBlobContainer newContainer =
-          service.getContainerReference(((AzureFileName) newfile.getName()).getContainer());
-      CloudBlob newBlob =
-          newContainer.getBlobReferenceFromServer(
-              ((AzureFileName) newfile.getName()).getPathAfterContainer().substring(1));
+    if (!StringUtils.isEmpty(currentFilePath)) {
+      DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+      DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath.substring(1));
 
+      // Get the new blob reference
+      //      CloudBlobContainer newContainer =
+      //          service.getContainerReference(((AzureFileName) newfile.getName()).getContainer());
+      //      CloudBlob newBlob =
+      //          newContainer.getBlobReferenceFromServer(
+      //              ((AzureFileName) newfile.getName()).getPathAfterContainer().substring(1));
       // Start the copy operation
-      newBlob.startCopy(cloudBlob.getUri());
+      fileClient.rename(
+          containerName, ((AzureFileName) newfile.getName()).getPathAfterContainer().substring(1));
+      //      newBlob.startCopy(cloudBlob.getUri());
       // Delete the original blob
-      doDelete();
+      // doDelete();
     } else {
       throw new FileSystemException("Renaming of directories not supported on this file.");
     }
   }
 
   @Override
-  protected void doCreateFolder() throws StorageException, URISyntaxException, IOException {
-    if (container == null) {
-      throw new UnsupportedOperationException();
-    } else if (containerPath.equals("")) {
-      container.create();
-      type = FileType.FOLDER;
-      children = new ArrayList<>();
-    } else {
-      /*
-       * Azure doesn't actually have folders, so we create a temporary
-       * 'file' in the 'folder'
-       */
-      CloudBlockBlob blob =
-          container.getBlockBlobReference(containerPath.substring(1) + "/" + markerFileName);
-      byte[] buf =
-          ("This is a temporary blob created by a Commons VFS application to simulate a folder. It "
-                  + "may be safely deleted, but this will hide the folder in the application if it is empty.")
-              .getBytes(StandardCharsets.UTF_8);
-      blob.uploadFromByteArray(buf, 0, buf.length);
-      type = FileType.FOLDER;
-      children = new ArrayList<>();
-    }
+  protected void doCreateFolder() {
+    // create a folder, we already know the path
+    service.getFileSystemClient(containerName).createDirectory(currentFilePath.substring(1));
   }
 
   @Override
@@ -332,13 +347,17 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected OutputStream doGetOutputStream(boolean bAppend) throws Exception {
-    if (container != null && !containerPath.equals("")) {
-      if (bAppend) throw new UnsupportedOperationException();
-      final CloudBlockBlob cbb = container.getBlockBlobReference(removeLeadingSlash(containerPath));
+    if (StringUtils.isEmpty(currentFilePath)) {
+      throw new UnsupportedOperationException();
+    }
+    DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+    DataLakeFileClient dataLakeFileClient = fileSystemClient.getFileClient(currentFilePath);
+    if (dataLakeFileClient != null) {
+      if (bAppend) {
+        throw new UnsupportedOperationException();
+      }
       type = FileType.FILE;
-      blobOutputStream =
-          container.getBlockBlobReference(removeLeadingSlash(containerPath)).openOutputStream();
-      return new BlockBlobOutputStream(cbb, blobOutputStream);
+      return new BlockBlobOutputStream(dataLakeFileClient.getOutputStream());
     } else {
       throw new UnsupportedOperationException();
     }
@@ -346,8 +365,13 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected InputStream doGetInputStream() throws Exception {
-    if (container != null && !containerPath.equals("") && type == FileType.FILE) {
-      return new BlobInputStream(cloudBlob.openInputStream(), size);
+    if (!currentFilePath.equals("") && type == FileType.FILE) {
+      DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+      DataLakeFileClient fileClient = fileSystemClient.getFileClient(currentFilePath);
+      if (!fileSystemClient.exists() || !fileClient.exists()) {
+        throw new FileSystemException("File not found: " + currentFilePath);
+      }
+      return new BlobInputStream(fileClient.openInputStream(), size);
     } else {
       throw new UnsupportedOperationException();
     }
@@ -360,7 +384,9 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected String[] doListChildren() throws Exception {
-    return children == null ? null : children.toArray(new String[0]);
+    return children == null
+        ? ArrayUtils.toStringArray(getChildren())
+        : children.toArray(new String[0]);
   }
 
   @Override
@@ -371,6 +397,20 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   @Override
   protected long doGetContentSize() throws Exception {
     return size;
+  }
+
+  @Override
+  public boolean delete() throws FileSystemException {
+    if (dataLakeFileClient.exists()) {
+      try {
+        doDelete();
+        return true;
+      } catch (Exception e) {
+        return false;
+        // TODO log an error
+      }
+    }
+    return false;
   }
 
   private static String removeTrailingSlash(String itemPath) {

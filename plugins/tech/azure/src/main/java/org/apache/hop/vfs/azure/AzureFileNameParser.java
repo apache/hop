@@ -18,7 +18,7 @@
 
 package org.apache.hop.vfs.azure;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
@@ -73,10 +73,7 @@ public class AzureFileNameParser extends HostFileNameParser {
         String path =
             normalizedUri.substring(normalizedUri.indexOf('/', 1), normalizedUri.length());
         AzureConfig azureConfig = AzureConfigSingleton.getConfig();
-        absPath =
-            StringUtils.isNotBlank(azureConfig.getAccount())
-                ? path.replace("/" + azureConfig.getAccount(), "")
-                : path;
+        absPath = stripFirstFolder(path);
       }
     }
     return new AzureFileName(scheme, absPath, fileType);
@@ -87,6 +84,26 @@ public class AzureFileNameParser extends HostFileNameParser {
       return FileType.FOLDER;
     } else {
       return FileType.FILE;
+    }
+  }
+
+  public static String stripFirstFolder(String path) {
+    // Normalize the path to ensure correct separators
+    String normalizedPath = FilenameUtils.normalizeNoEndSeparator(path, true);
+
+    // Remove the leading '/'
+    String withoutLeadingSlash =
+        normalizedPath.startsWith("/") ? normalizedPath.substring(1) : normalizedPath;
+
+    // Find the index of the first '/'
+    int index = withoutLeadingSlash.indexOf("/");
+
+    // If '/' is found, return the substring after the first folder
+    if (index != -1) {
+      return "/" + withoutLeadingSlash.substring(index + 1);
+    } else {
+      // If there's no '/', return an empty string or the original path
+      return "";
     }
   }
 }

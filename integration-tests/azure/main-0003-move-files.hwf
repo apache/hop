@@ -79,13 +79,13 @@ limitations under the License.
       <simulate>N</simulate>
       <fields>
         <field>
-          <source_filefolder>azure:///mycontainer/azure-scheme.parquet</source_filefolder>
-          <destination_filefolder>azure:///mycontainer/azure-scheme-mod.parquet</destination_filefolder>
+          <source_filefolder>azfs://${AZURE_ACCOUNT}/mycontainer/azfs-scheme.parquet</source_filefolder>
+          <destination_filefolder>azfs://${AZURE_ACCOUNT}/mycontainer/azfs-scheme-mod.parquet</destination_filefolder>
           <wildcard/>
         </field>
         <field>
-          <source_filefolder>azfs:///devstoreaccount1/mycontainer/azfs-scheme.parquet</source_filefolder>
-          <destination_filefolder>azfs:///devstoreaccount1/mycontainer/azfs-scheme-mod.parquet</destination_filefolder>
+          <source_filefolder>azure:///mycontainer/azure-scheme.parquet</source_filefolder>
+          <destination_filefolder>azure:///mycontainer/azure-scheme-mod.parquet</destination_filefolder>
           <wildcard/>
         </field>
       </fields>
@@ -115,7 +115,7 @@ limitations under the License.
           <name>azure:///mycontainer/azure-scheme-mod.parquet</name>
         </field>
         <field>
-          <name>azfs:///devstoreaccount1/mycontainer/azfs-scheme-mod.parquet</name>
+          <name>azfs:///${AZURE_ACCOUNT}/mycontainer/azfs-scheme-mod.parquet</name>
         </field>
       </fields>
       <parallel>N</parallel>
@@ -134,7 +134,7 @@ limitations under the License.
           <name>azure:///mycontainer/azure-scheme.parquet</name>
         </field>
         <field>
-          <name>azfs:///devstoreaccount1/mycontainer/azfs-scheme.parquet</name>
+          <name>azfs:///${AZURE_ACCOUNT}/mycontainer/azfs-scheme.parquet</name>
         </field>
       </fields>
       <parallel>N</parallel>
@@ -155,7 +155,7 @@ limitations under the License.
           <filemask/>
         </field>
         <field>
-          <name>azfs:///devstoreaccount1/mycontainer/azfs-scheme-mod.parquet</name>
+          <name>azfs:///${AZURE_ACCOUNT}/mycontainer/azfs-scheme-mod.parquet</name>
           <filemask/>
         </field>
       </fields>
