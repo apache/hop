@@ -318,7 +318,7 @@ public abstract class BaseDialog extends Dialog {
     boolean useNativeFileDialog =
         "Y"
             .equalsIgnoreCase(
-                HopGui.getInstance().getVariables().getVariable("HOP_USE_NATIVE_FILE_DIALOG", "N"));
+                HopGui.getInstance().getVariables().getVariable(HOP_USE_NATIVE_FILE_DIALOG, "N"));
 
     IDirectoryDialog directoryDialog;
     if (useNativeFileDialog) {
@@ -539,8 +539,8 @@ public abstract class BaseDialog extends Dialog {
     for (Control control : composite.getChildren()) {
       // Some of these are composites so check first
       //
-      if (control instanceof CTabFolder) {
-        CTabFolder tabFolder = (CTabFolder) control;
+      if (control instanceof CTabFolder cTabFolder) {
+        CTabFolder tabFolder = cTabFolder;
         for (CTabItem item : tabFolder.getItems()) {
           if (item.getImage() == null) {
             item.setImage(GuiResource.getInstance().getImageHop());
@@ -568,10 +568,10 @@ public abstract class BaseDialog extends Dialog {
           || (control instanceof ComboVar)
           || (control instanceof List)) {
         control.addListener(SWT.DefaultSelection, e -> okConsumer.accept(null));
-      } else if (control instanceof Composite) {
+      } else if (control instanceof Composite composite1) {
         // Check all children
         //
-        addDefaultListeners((Composite) control, okConsumer);
+        addDefaultListeners(composite1, okConsumer);
       }
     }
   }

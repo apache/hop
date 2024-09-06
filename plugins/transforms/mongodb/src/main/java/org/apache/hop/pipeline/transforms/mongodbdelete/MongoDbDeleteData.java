@@ -173,7 +173,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
 
       // post process arrays to fit the dot notation (if not already done
       // by the user)
-      if (path.indexOf('[') > 0) {
+      if (path.contains("[")) {
         path = path.replace("[", ".").replace("]", "");
       }
 

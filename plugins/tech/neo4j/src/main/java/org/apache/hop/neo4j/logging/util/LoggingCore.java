@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -63,8 +64,7 @@ public class LoggingCore {
     }
     IHopMetadataSerializer<NeoConnection> serializer =
         metadataProvider.getSerializer(NeoConnection.class);
-    NeoConnection connection = serializer.load(connectionName);
-    return connection;
+    return serializer.load(connectionName);
   }
 
   public static final void writeHierarchies(
@@ -192,6 +192,7 @@ public class LoggingCore {
     return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
   }
 
+  @Nullable
   public static Boolean getBooleanValue(Record record, int i) {
     if (i >= record.size()) {
       return null;
@@ -227,6 +228,7 @@ public class LoggingCore {
     return value.asInt();
   }
 
+  @Nullable
   public static Boolean getBooleanValue(Node node, String name) {
     Value value = node.get(name);
     if (value == null || value.isNull()) {
@@ -248,9 +250,8 @@ public class LoggingCore {
   }
 
   public static double calculateRadius(Rectangle bounds) {
-    double radius =
-        (double) (Math.min(bounds.width, bounds.height)) * 0.8 / 2; // 20% margin around circle
-    return radius;
+    // 20% margin around circle
+    return (double) (Math.min(bounds.width, bounds.height)) * 0.8 / 2;
   }
 
   public static double calculateOptDistance(Rectangle bounds, int nrNodes) {
@@ -274,9 +275,7 @@ public class LoggingCore {
     // 25% margin between segments
     // Only put half of the nodes on the circle, the rest not.
     //
-    double optDistance = 0.75 * circleLength / (nrNodes * 2);
-
-    return optDistance;
+    return 0.75 * circleLength / (nrNodes * 2);
   }
 
   /**

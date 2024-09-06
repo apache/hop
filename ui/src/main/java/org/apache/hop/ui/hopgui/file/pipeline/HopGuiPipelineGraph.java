@@ -272,6 +272,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       "pipeline-graph-transform-10800-error-handling";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO =
       "pipeline-graph-transform-11000-view-execution-info";
+  public static final String CONST_ERROR = "Error";
+  public static final String CONST_ERROR_PREVIEWING_PIPELINE = "Error previewing pipeline";
 
   private final ILogChannel log;
 
@@ -1242,7 +1244,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             previewRowsDialog.setTitleMessage(title, prefix + message);
             previewRowsDialog.open();
           } catch (Exception ex) {
-            new ErrorDialog(hopGui.getActiveShell(), "Error", "Error showing preview dialog", ex);
+            new ErrorDialog(
+                hopGui.getActiveShell(), CONST_ERROR, "Error showing preview dialog", ex);
           }
         }
       }
@@ -1938,7 +1941,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       log.logError("Error setting up the navigation toolbar for HopUI", t);
       new ErrorDialog(
           hopShell(),
-          "Error",
+          CONST_ERROR,
           "Error setting up the navigation toolbar for HopGUI",
           new Exception(t));
     }
@@ -2310,7 +2313,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       try {
         return (IRowDistribution) PluginRegistry.getInstance().loadClass(plugin);
       } catch (Exception e) {
-        new ErrorDialog(hopShell(), "Error", "Error loading row distribution plugin class", e);
+        new ErrorDialog(hopShell(), CONST_ERROR, "Error loading row distribution plugin class", e);
         return null;
       }
     } else {
@@ -3404,7 +3407,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
 
       } catch (Exception e) {
-        new ErrorDialog(hopGui.getActiveShell(), "Error", "Error drawing pipeline image", e);
+        new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error drawing pipeline image", e);
       }
     } finally {
       gc.dispose();
@@ -3548,7 +3551,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           false,
           pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel());
     } catch (Exception e) {
-      new ErrorDialog(hopShell(), "Error", "Error previewing pipeline", e);
+      new ErrorDialog(hopShell(), CONST_ERROR, CONST_ERROR_PREVIEWING_PIPELINE, e);
     }
   }
 
@@ -3573,7 +3576,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           false,
           pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel());
     } catch (Exception e) {
-      new ErrorDialog(hopShell(), "Error", "Error previewing pipeline", e);
+      new ErrorDialog(hopShell(), CONST_ERROR, CONST_ERROR_PREVIEWING_PIPELINE, e);
     }
   }
 
@@ -3593,7 +3596,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           true,
           pipelineRunDelegate.getPipelineDebugExecutionConfiguration().getLogLevel());
     } catch (Exception e) {
-      new ErrorDialog(hopShell(), "Error", "Error debugging pipeline", e);
+      new ErrorDialog(hopShell(), CONST_ERROR, "Error debugging pipeline", e);
     }
   }
 
@@ -3618,7 +3621,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           debug,
           pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel());
     } catch (Exception e) {
-      new ErrorDialog(hopShell(), "Error", "Error previewing pipeline", e);
+      new ErrorDialog(hopShell(), CONST_ERROR, CONST_ERROR_PREVIEWING_PIPELINE, e);
     }
   }
 
@@ -3878,7 +3881,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         return true;
       }
     } catch (Exception e) {
-      new ErrorDialog(hopShell(), "Error", "Error preparing file close", e);
+      new ErrorDialog(hopShell(), CONST_ERROR, "Error preparing file close", e);
     }
     return false;
   }
@@ -3960,7 +3963,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error verifying pipeline", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error verifying pipeline", e);
     }
   }
 
@@ -4235,7 +4238,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } catch (HopException e) {
       new ErrorDialog(
           getShell(),
-          "Error",
+          CONST_ERROR,
           "Hop GUI encountered an error with an extension point at the end of a pipeline",
           e);
     }
@@ -4876,7 +4879,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                           dialog.open();
                         })));
       } catch (HopException e) {
-        new ErrorDialog(hopShell(), "Error", "Error sniffing rows", e);
+        new ErrorDialog(hopShell(), CONST_ERROR, "Error sniffing rows", e);
       }
     }
   }
@@ -5435,7 +5438,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          "Error",
+          CONST_ERROR,
           "Error navigating to the latest execution information for this pipeline",
           e);
     }
@@ -5529,7 +5532,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         executionPerspective.activate();
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error looking up execution information", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error looking up execution information", e);
     }
   }
 }

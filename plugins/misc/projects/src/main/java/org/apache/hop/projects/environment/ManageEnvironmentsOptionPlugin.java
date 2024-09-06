@@ -42,6 +42,9 @@ import picocli.CommandLine;
     description = "Allows command line editing of the lifecycle environments")
 public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
 
+  public static final String CONST_LIFECYCLE_ENVIRONMENT = "Lifecycle environment '";
+  public static final String CONST_ENVIRONMENT = "Environment '";
+
   @CommandLine.Option(
       names = {"-ec", "--environment-create"},
       description =
@@ -137,12 +140,12 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     LifecycleEnvironment environment = config.findEnvironment(environmentName);
     if (environment == null) {
       throw new HopException(
-          "Lifecycle environment '" + environmentName + "' doesn't exist, it can't be deleted");
+          CONST_LIFECYCLE_ENVIRONMENT + environmentName + "' doesn't exist, it can't be deleted");
     }
     config.removeEnvironment(environmentName);
     ProjectsConfigSingleton.saveConfig();
     log.logBasic(
-        "Lifecycle environment '"
+        CONST_LIFECYCLE_ENVIRONMENT
             + environmentName
             + "' was deleted from Hop configuration file "
             + HopConfig.getInstance().getConfigFilename());
@@ -158,20 +161,20 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     LifecycleEnvironment environment = config.findEnvironment(environmentName);
     if (environment == null) {
       throw new HopException(
-          "Environment '" + environmentName + "' doesn't exist, it can't be modified");
+          CONST_ENVIRONMENT + environmentName + "' doesn't exist, it can't be modified");
     }
 
     if (updateEnvironmentDetails(environment)) {
       config.addEnvironment(environment);
       log.logBasic(
-          "Lifecycle environment '"
+          CONST_LIFECYCLE_ENVIRONMENT
               + environmentName
               + "' was modified in Hop configuration file "
               + HopConfig.getInstance().getConfigFilename());
       logEnvironmentDetails(log, environment);
       ProjectsConfigSingleton.saveConfig();
     } else {
-      log.logBasic("Environment '" + environmentName + "' was not modified.");
+      log.logBasic(CONST_ENVIRONMENT + environmentName + "' was not modified.");
     }
 
     enableProject(log, environment, variables, hasHopMetadataProvider, config);
@@ -189,7 +192,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     LifecycleEnvironment environment = config.findEnvironment(environmentName);
     log.logBasic("Creating environment '" + environmentName + "'");
     if (environment != null) {
-      throw new HopException("Environment '" + environmentName + "' already exists.");
+      throw new HopException(CONST_ENVIRONMENT + environmentName + "' already exists.");
     }
     environment = new LifecycleEnvironment();
     environment.setName(environmentName);
@@ -200,7 +203,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     ProjectsConfigSingleton.saveConfig();
 
     log.logBasic(
-        "Environment '"
+        CONST_ENVIRONMENT
             + environmentName
             + "' was created in Hop configuration file "
             + HopConfig.getInstance().getConfigFilename());

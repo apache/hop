@@ -181,12 +181,12 @@ public class CqlUtils {
 
   private static boolean isPartOfFunction(String element) {
     // there is at least one left or right bracket
-    return element.indexOf(OPEN_BRACKET) > 0 || element.indexOf(CLOSE_BRACKET) > 0;
+    return element.contains(OPEN_BRACKET) || element.contains(CLOSE_BRACKET);
   }
 
   private static boolean isFunction(String element) {
     // there are both brackets
-    return element.indexOf(OPEN_BRACKET) > 0 && element.indexOf(CLOSE_BRACKET) > 0;
+    return element.contains(OPEN_BRACKET) && element.contains(CLOSE_BRACKET);
   }
 
   private static final String getColumnName(String element, boolean isCql3) {

@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.annotation.Nullable;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
@@ -422,6 +423,7 @@ public class RowMeta implements IRowMeta {
    * @throws HopValueException in case there was a problem converting the data.
    */
   @Override
+  @Nullable
   public Boolean getBoolean(Object[] dataRow, int index) throws HopValueException {
     if (dataRow == null) {
       return null;

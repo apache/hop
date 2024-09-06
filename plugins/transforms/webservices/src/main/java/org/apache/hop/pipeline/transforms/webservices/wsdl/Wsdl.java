@@ -48,6 +48,7 @@ import org.w3c.dom.Document;
 /** Wsdl abstraction. */
 public final class Wsdl implements java.io.Serializable {
   private static final long serialVersionUID = 1L;
+  public static final String CONST_COULD_NOT_LOAD_WSDL_FILE = "Could not load WSDL file: ";
   private Port _port;
   private final Definition _wsdlDefinition;
   private final Service _service;
@@ -76,9 +77,9 @@ public final class Wsdl implements java.io.Serializable {
       // throw this again since HopException is catching it
       throw ae;
     } catch (WSDLException e) {
-      throw new RuntimeException("Could not load WSDL file: " + e.getMessage(), e);
+      throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
     } catch (HopException e) {
-      throw new RuntimeException("Could not load WSDL file: " + e.getMessage(), e);
+      throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
     }
     if (serviceQName == null) {
       _service = (Service) _wsdlDefinition.getServices().values().iterator().next();
@@ -152,9 +153,9 @@ public final class Wsdl implements java.io.Serializable {
       // throw it again or HopException will catch it
       throw ae;
     } catch (WSDLException e) {
-      throw new RuntimeException("Could not load WSDL file: " + e.getMessage(), e);
+      throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
     } catch (HopException e) {
-      throw new RuntimeException("Could not load WSDL file: " + e.getMessage(), e);
+      throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
     }
 
     _service = _wsdlDefinition.getService(serviceQName);

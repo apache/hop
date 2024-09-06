@@ -49,6 +49,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
+import javax.annotation.Nullable;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
@@ -1594,6 +1595,7 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
+  @Nullable
   public static Boolean convertStringToBoolean(String string) {
     if (Utils.isEmpty(string)) {
       return null;
@@ -1613,6 +1615,7 @@ public class ValueMetaBase implements IValueMeta {
     return Double.valueOf(bool.booleanValue() ? 1.0 : 0.0);
   }
 
+  @Nullable
   protected Boolean convertNumberToBoolean(Double number) {
     if (number == null) {
       return null;
@@ -1629,6 +1632,7 @@ public class ValueMetaBase implements IValueMeta {
     return Long.valueOf(bool.booleanValue() ? 1L : 0L);
   }
 
+  @Nullable
   protected Boolean convertIntegerToBoolean(Long number) {
     if (number == null) {
       return null;
@@ -1645,6 +1649,7 @@ public class ValueMetaBase implements IValueMeta {
     return bool.booleanValue() ? BigDecimal.ONE : BigDecimal.ZERO;
   }
 
+  @Nullable
   public Boolean convertBigNumberToBoolean(BigDecimal number) {
     if (number == null) {
       return null;
@@ -2479,6 +2484,7 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
+  @Nullable
   @Override
   public Boolean getBoolean(Object object) throws HopValueException {
     if (object == null) {

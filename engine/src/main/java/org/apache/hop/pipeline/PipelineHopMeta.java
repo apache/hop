@@ -31,6 +31,7 @@ import org.w3c.dom.Node;
 public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
     implements Comparable<PipelineHopMeta>, Cloneable {
   private static final Class<?> PKG = Pipeline.class;
+  public static final String CONST_SPACES = "      ";
 
   public PipelineHopMeta(TransformMeta from, TransformMeta to, boolean en) {
     this.from = from;
@@ -135,9 +136,9 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
 
     if (this.from != null && this.to != null) {
       xml.append("    ").append(XmlHandler.openTag(XML_HOP_TAG)).append(Const.CR);
-      xml.append("      ").append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
-      xml.append("      ").append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
-      xml.append("      ").append(XmlHandler.addTagValue(XML_ENABLED_TAG, enabled));
+      xml.append(CONST_SPACES).append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
+      xml.append(CONST_SPACES).append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
+      xml.append(CONST_SPACES).append(XmlHandler.addTagValue(XML_ENABLED_TAG, enabled));
       xml.append("    ").append(XmlHandler.closeTag(XML_HOP_TAG)).append(Const.CR);
     }
 

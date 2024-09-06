@@ -458,7 +458,7 @@ public class LdapConnection {
       if (!Utils.isEmpty(values[i])) {
         // We have a value
         String value = values[i].trim();
-        if (multValuedSeparator != null && value.indexOf(multValuedSeparator) > 0) {
+        if (multValuedSeparator != null && value.contains(multValuedSeparator)) {
           Attribute attr = new BasicAttribute(attributes[i]);
           for (String attribute : value.split(multValuedSeparator)) {
             attr.add(attribute);

@@ -54,6 +54,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class IfNullDialog extends BaseTransformDialog {
   private static final Class<?> PKG = IfNullMeta.class;
+  public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
+  public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
 
   private final IfNullMeta input;
 
@@ -301,8 +303,8 @@ public class IfNullDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "IfNullDialog.Value.SetEmptyString"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
               })
         };
     colval[1].setUsingVariables(true);
@@ -390,8 +392,8 @@ public class IfNullDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "IfNullDialog.Value.SetEmptyString"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
-              BaseMessages.getString(PKG, "System.Combo.Yes"),
-              BaseMessages.getString(PKG, "System.Combo.No")
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
             });
 
     wFields =
@@ -530,8 +532,8 @@ public class IfNullDialog extends BaseTransformDialog {
       ti.setText(
           4,
           valueType.isSetEmptyString()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
-              : BaseMessages.getString(PKG, "System.Combo.No"));
+              ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+              : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
     }
 
     wValueTypes.setRowNums();
@@ -558,8 +560,8 @@ public class IfNullDialog extends BaseTransformDialog {
       ti.setText(
           4,
           field.isSetEmptyString()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
-              : BaseMessages.getString(PKG, "System.Combo.No"));
+              ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+              : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
     }
 
     wFields.setRowNums();
@@ -609,7 +611,7 @@ public class IfNullDialog extends BaseTransformDialog {
       ValueType valueType = new ValueType();
       valueType.setName(ti.getText(1));
       valueType.setSetEmptyString(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(ti.getText(4)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(ti.getText(4)));
       if (valueType.isSetEmptyString()) {
         valueType.setValue("");
         valueType.setMask("");
@@ -626,7 +628,7 @@ public class IfNullDialog extends BaseTransformDialog {
       Field field = new Field();
       field.setName(ti.getText(1));
       field.setSetEmptyString(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(ti.getText(4)));
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(ti.getText(4)));
       if (field.isSetEmptyString()) {
         field.setValue("");
         field.setMask("");
