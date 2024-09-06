@@ -63,6 +63,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
   public static final String CONST_JAVA_LANG_DOUBLE = "java.lang.Double";
   public static final String CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_JAVA_OBJECT =
       "org.mozilla.javascript.NativeJavaObject";
+  public static final String CONST_PREVIOUS_ROW = "previousRow";
 
   private boolean bWithPipelineStat = false;
 
@@ -275,10 +276,11 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
 
         // Try to add the last row's data (null or not)
         try {
-          bindings.put("previousRow", previousRow);
+          bindings.put(CONST_PREVIOUS_ROW, previousRow);
         } catch (Exception t) {
           logError(
-              BaseMessages.getString(PKG, "Script.Exception.ErrorSettingVariable", "previousRow"),
+              BaseMessages.getString(
+                  PKG, "Script.Exception.ErrorSettingVariable", CONST_PREVIOUS_ROW),
               t);
         }
 
@@ -374,7 +376,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
   private void addRowBindings(IRowMeta rowMeta, Object[] row) {
     try {
       bindings.put("row", row);
-      bindings.put("previousRow", previousRow);
+      bindings.put(CONST_PREVIOUS_ROW, previousRow);
 
       // also add the meta information for the whole row
       //

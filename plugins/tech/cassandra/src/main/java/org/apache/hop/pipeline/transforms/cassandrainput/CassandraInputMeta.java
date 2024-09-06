@@ -146,7 +146,7 @@ public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, Cassan
       }
 
       // is there a LIMIT clause?
-      if (subQ.toLowerCase().indexOf("limit") > 0) {
+      if (subQ.toLowerCase().contains("limit")) {
         String limitS =
             subQ.toLowerCase()
                 .substring(subQ.toLowerCase().indexOf("limit") + 5, subQ.length())
@@ -187,7 +187,7 @@ public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, Cassan
       }
 
       tableName = subQ.substring(fromIndex + 4).trim();
-      if (tableName.indexOf(' ') > 0) {
+      if (tableName.contains(" ")) {
         tableName = tableName.substring(0, tableName.indexOf(' '));
       } else {
         tableName = tableName.replace(";", "");
@@ -202,7 +202,7 @@ public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, Cassan
       tableName = tableName.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "");
 
       // is there a FIRST clause?
-      if (subQ.toLowerCase().indexOf("first ") > 0) {
+      if (subQ.toLowerCase().contains("first ")) {
         String firstS = subQ.substring(subQ.toLowerCase().indexOf("first") + 5).trim();
 
         // Strip FIRST part from query

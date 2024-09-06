@@ -267,7 +267,7 @@ public class MongoField implements Comparable<MongoField> {
       return null;
     }
 
-    if (part.indexOf('[') > 0) {
+    if (part.contains("[")) {
       String arrayPart = part.substring(part.indexOf('['));
       part = part.substring(0, part.indexOf('['));
 

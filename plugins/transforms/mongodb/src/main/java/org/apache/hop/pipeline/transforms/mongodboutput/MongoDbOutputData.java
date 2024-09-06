@@ -276,7 +276,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
         // strip off brackets to get actual object name if terminal object
         // is an array
-        if (name.indexOf('[') > 0) {
+        if (name.contains("[")) {
           name = name.substring(name.indexOf('[') + 1, name.length());
         }
 
@@ -434,8 +434,8 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
           // check for array creation
           if (modifierUpdateOpp.equals("$set")
-              && path.indexOf('[') > 0
-              && path.indexOf(mongoOperatorUpdateAllArray) < 0) {
+              && path.contains("[")
+              && !path.contains(mongoOperatorUpdateAllArray)) {
             String arrayPath = path.substring(0, path.indexOf('['));
             String arraySpec = path.substring(path.indexOf('['), path.length());
             MongoDbOutputMeta.MongoField a = new MongoDbOutputMeta.MongoField();
@@ -454,8 +454,8 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             }
             fds.add(a);
           } else if (modifierUpdateOpp.equals(CONST_PUSH)
-              && path.indexOf('[') > 0
-              && path.indexOf(mongoOperatorUpdateAllArray) < 0) {
+              && path.contains("[")
+              && !path.contains(mongoOperatorUpdateAllArray)) {
             // we ignore any index that might have been specified as $push
             // always appends to the end of the array.
             String arrayPath = path.substring(0, path.indexOf('['));
@@ -652,7 +652,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
         // post process arrays to fit the dot notation (if not already done
         // by the user)
-        if (path.indexOf('[') > 0) {
+        if (path.contains("[")) {
           path = path.replace("[", ".").replace("]", ""); //   // //
         }
 

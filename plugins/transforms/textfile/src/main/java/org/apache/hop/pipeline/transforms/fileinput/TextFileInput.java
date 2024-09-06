@@ -71,6 +71,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
   private static final Class<?> PKG = TextFileInputMeta.class;
 
   private static final int BUFFER_SIZE_INPUT_STREAM = 500;
+  public static final String CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE =
+      "TextFileInput.Log.ConvertLineToRowTitle";
 
   private long lineNumberInFile;
 
@@ -225,7 +227,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           if (lenEncl > 0 && line.substring(from, from + lenEncl).equalsIgnoreCase(enclosure)) {
             if (log.isRowLevel()) {
               log.logRowlevel(
-                  BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                  BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                   BaseMessages.getString(
                       PKG,
                       "TextFileInput.Log.ConvertLineToRow",
@@ -298,7 +300,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
             if (log.isRowLevel()) {
               log.logRowlevel(
-                  BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                  BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                   BaseMessages.getString(PKG, "TextFileInput.Log.EndOfEnclosure", "" + p));
             }
           } else {
@@ -332,14 +334,14 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             pol = line.substring(from + lenEncl, next - lenEncl);
             if (log.isRowLevel()) {
               log.logRowlevel(
-                  BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                  BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                   BaseMessages.getString(PKG, "TextFileInput.Log.EnclosureFieldFound", "" + pol));
             }
           } else {
             pol = line.substring(from, next);
             if (log.isRowLevel()) {
               log.logRowlevel(
-                  BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                  BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                   BaseMessages.getString(PKG, "TextFileInput.Log.NormalFieldFound", "" + pol));
             }
           }
@@ -378,7 +380,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         if (pos == length) {
           if (log.isRowLevel()) {
             log.logRowlevel(
-                BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                 BaseMessages.getString(PKG, "TextFileInput.Log.EndOfEmptyLineFound"));
           }
           strings.add("");
@@ -453,7 +455,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           if (lenEncl > 0 && line.substring(from, from + lenEncl).equalsIgnoreCase(enclosure)) {
             if (log.isRowLevel()) {
               log.logRowlevel(
-                  BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                  BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                   BaseMessages.getString(
                       PKG, "TextFileInput.Log.Encloruse", line.substring(from, from + lenEncl)));
             }
@@ -524,7 +526,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
             if (log.isRowLevel()) {
               log.logRowlevel(
-                  BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                  BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                   BaseMessages.getString(PKG, "TextFileInput.Log.EndOfEnclosure", "" + p));
             }
           } else {
@@ -558,14 +560,14 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             pol = line.substring(from + lenEncl, next - lenEncl);
             if (log.isRowLevel()) {
               log.logRowlevel(
-                  BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                  BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                   BaseMessages.getString(PKG, "TextFileInput.Log.EnclosureFieldFound", "" + pol));
             }
           } else {
             pol = line.substring(from, next);
             if (log.isRowLevel()) {
               log.logRowlevel(
-                  BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                  BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                   BaseMessages.getString(PKG, "TextFileInput.Log.NormalFieldFound", "" + pol));
             }
           }
@@ -618,7 +620,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         if (pos == length) {
           if (log.isRowLevel()) {
             log.logRowlevel(
-                BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
+                BaseMessages.getString(PKG, CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE),
                 BaseMessages.getString(PKG, "TextFileInput.Log.EndOfEmptyLineFound"));
           }
           if (fieldnr < strings.length) {

@@ -83,6 +83,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   public static final String CONST_SPACES = "      ";
   public static final String CONST_SPACES_LONG = "         ";
   public static final String CONST_SERVER = "server";
+  public static final String CONST_DESTINATION = "destination";
 
   private String server;
 
@@ -195,7 +196,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_SERVER, server));
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("port", port));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("destination", destination));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_DESTINATION, destination));
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("destinationCc", destinationCc));
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("destinationBCc", destinationBCc));
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("replyto", replyAddress));
@@ -268,7 +269,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       super.loadXml(entrynode);
       setServer(XmlHandler.getTagValue(entrynode, CONST_SERVER));
       setPort(XmlHandler.getTagValue(entrynode, "port"));
-      setDestination(XmlHandler.getTagValue(entrynode, "destination"));
+      setDestination(XmlHandler.getTagValue(entrynode, CONST_DESTINATION));
       setDestinationCc(XmlHandler.getTagValue(entrynode, "destinationCc"));
       setDestinationBCc(XmlHandler.getTagValue(entrynode, "destinationBCc"));
       setReplyAddress(XmlHandler.getTagValue(entrynode, "replyto"));
@@ -1294,7 +1295,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "destination",
+            CONST_DESTINATION,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
 

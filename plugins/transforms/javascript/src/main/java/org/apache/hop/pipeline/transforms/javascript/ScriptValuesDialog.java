@@ -1638,8 +1638,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     for (Class<?> aClass : clsParamType) {
       strParam = aClass.getName();
-      if (strParam.toLowerCase().indexOf("javascript") <= 0) {
-        if (strParam.toLowerCase().indexOf("object") > 0) {
+      if (!strParam.toLowerCase().contains("javascript")) {
+        if (strParam.toLowerCase().contains("object")) {
           sbRC.append("var");
           sbRC.append(", ");
         } else if (strParam.equals("java.lang.String")) {

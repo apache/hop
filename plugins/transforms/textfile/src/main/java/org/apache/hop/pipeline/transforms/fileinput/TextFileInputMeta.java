@@ -36,6 +36,7 @@ import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -94,6 +95,15 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
 
   public static final int FILE_TYPE_CSV = 0;
   public static final int FILE_TYPE_FIXED = 1;
+  public static final String CONST_FILTER_POSITION = "filter_position";
+  public static final String CONST_FILTER_IS_LAST_LINE = "filter_is_last_line";
+  public static final String CONST_FILTER_IS_POSITIVE = "filter_is_positive";
+  public static final String CONST_FORMAT = "format";
+  public static final String CONST_FIELD = "field";
+  public static final String CONST_FILTER = "filter";
+  public static final String CONST_FILTER_STRING = "filter_string";
+  public static final String CONST_SPACES_LONG = "        ";
+  public static final String CONST_SPACES = "      ";
 
   /** Array of filenames */
   private String[] fileName;
@@ -789,15 +799,15 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
       includeRowNumber = YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownum"));
       rowNumberByFile = YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownumByFile"));
       rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      fileFormat = XmlHandler.getTagValue(transformNode, "format");
+      fileFormat = XmlHandler.getTagValue(transformNode, CONST_FORMAT);
       encoding = XmlHandler.getTagValue(transformNode, "encoding");
 
       Node filenode = XmlHandler.getSubNode(transformNode, "file");
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
       Node filtersNode = XmlHandler.getSubNode(transformNode, "filters");
       int nrfiles = XmlHandler.countNodes(filenode, "name");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      int nrfilters = XmlHandler.countNodes(filtersNode, "filter");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
+      int nrfilters = XmlHandler.countNodes(filtersNode, CONST_FILTER);
 
       allocate(nrfiles, nrFields, nrfilters);
 
@@ -824,26 +834,26 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
       }
 
       // Backward compatibility : just one filter
-      if (XmlHandler.getTagValue(transformNode, "filter") != null) {
+      if (XmlHandler.getTagValue(transformNode, CONST_FILTER) != null) {
         filter = new TextFileFilter[1];
         filter[0] = new TextFileFilter();
 
         filter[0].setFilterPosition(
-            Const.toInt(XmlHandler.getTagValue(transformNode, "filter_position"), -1));
-        filter[0].setFilterString(XmlHandler.getTagValue(transformNode, "filter_string"));
+            Const.toInt(XmlHandler.getTagValue(transformNode, CONST_FILTER_POSITION), -1));
+        filter[0].setFilterString(XmlHandler.getTagValue(transformNode, CONST_FILTER_STRING));
         filter[0].setFilterLastLine(
-            YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "filter_is_last_line")));
+            YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CONST_FILTER_IS_LAST_LINE)));
         filter[0].setFilterPositive(
-            YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "filter_is_positive")));
+            YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CONST_FILTER_IS_POSITIVE)));
       } else {
         for (int i = 0; i < nrfilters; i++) {
-          Node fnode = XmlHandler.getSubNodeByNr(filtersNode, "filter", i);
+          Node fnode = XmlHandler.getSubNodeByNr(filtersNode, CONST_FILTER, i);
           filter[i] = new TextFileFilter();
 
           filter[i].setFilterPosition(
-              Const.toInt(XmlHandler.getTagValue(fnode, "filter_position"), -1));
+              Const.toInt(XmlHandler.getTagValue(fnode, CONST_FILTER_POSITION), -1));
 
-          String filterString = XmlHandler.getTagValue(fnode, "filter_string");
+          String filterString = XmlHandler.getTagValue(fnode, CONST_FILTER_STRING);
           if (filterString != null && filterString.startsWith(STRING_BASE64_PREFIX)) {
             filter[i].setFilterString(
                 new String(
@@ -854,19 +864,19 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
           }
 
           filter[i].setFilterLastLine(
-              YES.equalsIgnoreCase(XmlHandler.getTagValue(fnode, "filter_is_last_line")));
+              YES.equalsIgnoreCase(XmlHandler.getTagValue(fnode, CONST_FILTER_IS_LAST_LINE)));
           filter[i].setFilterPositive(
-              YES.equalsIgnoreCase(XmlHandler.getTagValue(fnode, "filter_is_positive")));
+              YES.equalsIgnoreCase(XmlHandler.getTagValue(fnode, CONST_FILTER_IS_POSITIVE)));
         }
       }
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
         TextFileInputField field = new TextFileInputField();
 
         field.setName(XmlHandler.getTagValue(fnode, "name"));
         field.setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
-        field.setFormat(XmlHandler.getTagValue(fnode, "format"));
+        field.setFormat(XmlHandler.getTagValue(fnode, CONST_FORMAT));
         field.setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
         field.setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
         field.setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
@@ -876,7 +886,7 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
         field.setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
         field.setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
         field.setTrimType(
-            ValueMetaString.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
+            ValueMetaBase.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
         field.setRepeated(YES.equalsIgnoreCase(XmlHandler.getTagValue(fnode, "repeat")));
 
         inputFields[i] = field;
@@ -1033,7 +1043,7 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
     }
 
     for (int i = 0; i < nrFields; i++) {
-      inputFields[i] = new TextFileInputField("field" + (i + 1), 1, -1);
+      inputFields[i] = new TextFileInputField(CONST_FIELD + (i + 1), 1, -1);
     }
 
     dateFormatLocale = Locale.getDefault();
@@ -1211,25 +1221,25 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
     retval.append("    ").append(XmlHandler.addTagValue("rownum", includeRowNumber));
     retval.append("    ").append(XmlHandler.addTagValue("rownumByFile", rowNumberByFile));
     retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumberField));
-    retval.append("    ").append(XmlHandler.addTagValue("format", fileFormat));
+    retval.append("    ").append(XmlHandler.addTagValue(CONST_FORMAT, fileFormat));
     retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
     retval.append("    " + XmlHandler.addTagValue("add_to_result_filenames", isaddresult));
 
     retval.append("    <file>").append(Const.CR);
     for (int i = 0; i < fileName.length; i++) {
       saveSource(retval, fileName[i]);
-      retval.append("      ").append(XmlHandler.addTagValue("filemask", fileMask[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("filemask", fileMask[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("exclude_filemask", excludeFileMask[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("file_required", fileRequired[i]));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("file_required", fileRequired[i]));
       retval
-          .append("      ")
+          .append(CONST_SPACES)
           .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders[i]));
     }
-    retval.append("      ").append(XmlHandler.addTagValue("type", fileType));
+    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("type", fileType));
     retval
-        .append("      ")
+        .append(CONST_SPACES)
         .append(
             XmlHandler.addTagValue(
                 "compression", (fileCompression == null) ? "None" : fileCompression));
@@ -1248,19 +1258,22 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
 
       retval.append("      <filter>").append(Const.CR);
       retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("filter_string", filterEncoded, false));
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue(CONST_FILTER_STRING, filterEncoded, false));
       retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("filter_position", filter[i].getFilterPosition(), false));
-      retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
           .append(
-              XmlHandler.addTagValue("filter_is_last_line", filter[i].isFilterLastLine(), false));
+              XmlHandler.addTagValue(CONST_FILTER_POSITION, filter[i].getFilterPosition(), false));
       retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
           .append(
-              XmlHandler.addTagValue("filter_is_positive", filter[i].isFilterPositive(), false));
+              XmlHandler.addTagValue(
+                  CONST_FILTER_IS_LAST_LINE, filter[i].isFilterLastLine(), false));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(
+              XmlHandler.addTagValue(
+                  CONST_FILTER_IS_POSITIVE, filter[i].isFilterPositive(), false));
       retval.append("      </filter>").append(Const.CR);
     }
     retval.append("    </filters>").append(Const.CR);
@@ -1270,23 +1283,37 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
       TextFileInputField field = inputFields[i];
 
       retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", field.getName()));
-      retval.append("        ").append(XmlHandler.addTagValue("type", field.getTypeDesc()));
-      retval.append("        ").append(XmlHandler.addTagValue("format", field.getFormat()));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", field.getName()));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("type", field.getTypeDesc()));
       retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue(CONST_FORMAT, field.getFormat()));
+      retval
+          .append(CONST_SPACES_LONG)
           .append(XmlHandler.addTagValue("currency", field.getCurrencySymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("group", field.getGroupSymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("nullif", field.getNullString()));
-      retval.append("        ").append(XmlHandler.addTagValue("ifnull", field.getIfNullValue()));
-      retval.append("        ").append(XmlHandler.addTagValue("position", field.getPosition()));
-      retval.append("        ").append(XmlHandler.addTagValue("length", field.getLength()));
-      retval.append("        ").append(XmlHandler.addTagValue("precision", field.getPrecision()));
       retval
-          .append("        ")
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("group", field.getGroupSymbol()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("nullif", field.getNullString()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("ifnull", field.getIfNullValue()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("position", field.getPosition()));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("length", field.getLength()));
+      retval
+          .append(CONST_SPACES_LONG)
+          .append(XmlHandler.addTagValue("precision", field.getPrecision()));
+      retval
+          .append(CONST_SPACES_LONG)
           .append(XmlHandler.addTagValue("trim_type", field.getTrimTypeCode()));
-      retval.append("        ").append(XmlHandler.addTagValue("repeat", field.isRepeated()));
+      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("repeat", field.isRepeated()));
       retval.append("      </field>").append(Const.CR);
     }
     retval.append("    </fields>").append(Const.CR);
@@ -1868,6 +1895,6 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
   }
 
   protected void saveSource(StringBuilder retVal, String source) {
-    retVal.append("      ").append(XmlHandler.addTagValue("name", source));
+    retVal.append(CONST_SPACES).append(XmlHandler.addTagValue("name", source));
   }
 }

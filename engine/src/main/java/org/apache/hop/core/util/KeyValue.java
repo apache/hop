@@ -20,6 +20,7 @@ package org.apache.hop.core.util;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -143,6 +144,7 @@ public class KeyValue<T> implements Serializable {
    * @param ignoreCase ignore case?
    * @return boolean value, null if value is null.
    */
+  @Nullable
   public Boolean booleanValue(final List<String> trueValues, final boolean ignoreCase) {
     if (this.value == null) {
       return null;

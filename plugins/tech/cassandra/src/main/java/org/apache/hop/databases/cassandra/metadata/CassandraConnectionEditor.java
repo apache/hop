@@ -46,9 +46,8 @@ import org.eclipse.swt.widgets.Text;
 public class CassandraConnectionEditor extends MetadataEditor<CassandraConnection>
     implements IMetadataEditor<CassandraConnection> {
 
-  private static final Class<?> PKG = CassandraConnectionEditor.class;
-
   public static final String PARENT_WIDGET_ID = "CassandraConnectionEditor.Widgets.ParentId";
+  public static final String CONST_ERROR = "Error";
 
   private Composite parent;
   private Text wName;
@@ -163,7 +162,8 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
       box.open();
 
     } catch (Exception e) {
-      new ErrorDialog(parent.getShell(), "Error", "We couldn't connect using this information", e);
+      new ErrorDialog(
+          parent.getShell(), CONST_ERROR, "We couldn't connect using this information", e);
     }
   }
 
@@ -185,7 +185,7 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error selecting keyspace", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error selecting keyspace", e);
     }
   }
 
@@ -220,7 +220,7 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     } catch (Exception e) {
       new ErrorDialog(
           parent.getShell(),
-          "Error",
+          CONST_ERROR,
           "There was an error executing CQL on this Cassandra cluster",
           e);
     }

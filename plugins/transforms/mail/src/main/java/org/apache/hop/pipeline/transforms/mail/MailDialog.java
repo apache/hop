@@ -71,6 +71,7 @@ public class MailDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "MailDialog.Filetype.Gif"),
         BaseMessages.getString(PKG, "MailDialog.Filetype.All")
       };
+  public static final String CONST_NORMAL = "normal";
 
   private boolean gotEncodings = false;
 
@@ -2531,7 +2532,7 @@ public class MailDialog extends BaseTransformDialog {
     if (input.getPriority() != null) {
       if (input.getPriority().equals("low")) {
         wPriority.select(0); // Low
-      } else if (input.getPriority().equals("normal")) {
+      } else if (input.getPriority().equals(CONST_NORMAL)) {
         wPriority.select(1); // Normal
       } else {
         wPriority.select(2); // Default High
@@ -2544,7 +2545,7 @@ public class MailDialog extends BaseTransformDialog {
     if (input.getImportance() != null) {
       if (input.getImportance().equals("low")) {
         wImportance.select(0); // Low
-      } else if (input.getImportance().equals("normal")) {
+      } else if (input.getImportance().equals(CONST_NORMAL)) {
         wImportance.select(1); // Normal
       } else {
         wImportance.select(2); // Default High
@@ -2651,7 +2652,7 @@ public class MailDialog extends BaseTransformDialog {
     if (wPriority.getSelectionIndex() == 0) {
       input.setPriority("low");
     } else if (wPriority.getSelectionIndex() == 1) {
-      input.setPriority("normal");
+      input.setPriority(CONST_NORMAL);
     } else {
       input.setPriority("high");
     }
@@ -2660,7 +2661,7 @@ public class MailDialog extends BaseTransformDialog {
     if (wImportance.getSelectionIndex() == 0) {
       input.setImportance("low");
     } else if (wImportance.getSelectionIndex() == 1) {
-      input.setImportance("normal");
+      input.setImportance(CONST_NORMAL);
     } else {
       input.setImportance("high");
     }
@@ -2673,7 +2674,7 @@ public class MailDialog extends BaseTransformDialog {
     } else if (wSensitivity.getSelectionIndex() == 3) {
       input.setSensitivity("company-confidential");
     } else {
-      input.setSensitivity("normal"); // default is normal
+      input.setSensitivity(CONST_NORMAL); // default is normal
     }
 
     // Secure Connection type
