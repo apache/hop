@@ -205,7 +205,7 @@ public class HopGuiPipelineHopDelegate {
     ArrayList<String> labels = new ArrayList<>();
     labels.add(BaseMessages.getString(PKG, "HopGui.Dialog.CopyOrDistribute.Distribute"));
     labels.add(BaseMessages.getString(PKG, "HopGui.Dialog.CopyOrDistribute.Copy"));
-    if (PluginRegistry.getInstance().getPlugins(RowDistributionPluginType.class).size() > 0) {
+    if (!PluginRegistry.getInstance().getPlugins(RowDistributionPluginType.class).isEmpty()) {
       labels.add(
           BaseMessages.getString(PKG, "HopGui.Dialog.CopyOrDistribute.CustomRowDistribution"));
     }

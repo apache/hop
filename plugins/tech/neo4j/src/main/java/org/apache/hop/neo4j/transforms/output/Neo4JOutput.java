@@ -981,7 +981,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
         }
       }
 
-      if (label != null && primaryProperties.size() > 0) {
+      if (label != null && !primaryProperties.isEmpty()) {
         NeoConnectionUtils.createNodeIndex(
             log, data.session, Collections.singletonList(label), primaryProperties);
       }
@@ -996,7 +996,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
   private void wrapUpTransaction() throws HopException {
 
     if (!isStopped()) {
-      if (data.unwindList != null && data.unwindList.size() > 0) {
+      if (data.unwindList != null && !data.unwindList.isEmpty()) {
         emptyUnwindList(); // force write!
       }
     }

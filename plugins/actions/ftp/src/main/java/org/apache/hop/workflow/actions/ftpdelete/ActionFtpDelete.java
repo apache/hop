@@ -540,7 +540,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
       logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.Start"));
     }
 
-    if (copyPrevious && rows.size() == 0) {
+    if (copyPrevious && rows.isEmpty()) {
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ActionFTPDelete.ArgsFromPreviousNothing"));
       }

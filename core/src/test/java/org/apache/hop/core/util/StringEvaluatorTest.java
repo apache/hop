@@ -163,13 +163,13 @@ public class StringEvaluatorTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testNumberWithGroupAndPoint() {
     testNumber("#,###,###.#", "1,111,111.1");
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testNumbers() {
     testNumber("#,###,###.#", "1,111,111.1", "1,111");
   }

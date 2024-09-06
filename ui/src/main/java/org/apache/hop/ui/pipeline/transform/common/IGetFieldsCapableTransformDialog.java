@@ -112,7 +112,7 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
     final String[] incomingFieldNames = getFieldNames(meta);
     final List<String> newFieldNames = getNewFieldNames(incomingFieldNames);
 
-    if (newFieldNames != null && newFieldNames.size() > 0) {
+    if (newFieldNames != null && !newFieldNames.isEmpty()) {
       // we have new incoming fields
       final int nrNonEmptyFields = getFieldsTable().nrNonEmpty();
       // are any fields already populated in the fields table?

@@ -36,7 +36,7 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore // TODO replace by integration tests
+@Ignore("This test needs to be reviewed") // TODO replace by integration tests
 public class WebServerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

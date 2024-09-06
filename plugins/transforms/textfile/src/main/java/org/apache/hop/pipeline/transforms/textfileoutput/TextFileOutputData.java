@@ -218,12 +218,12 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
 
     @Override
     public String getLastFileName() {
-      return namesList.size() > 0 ? namesList.get(namesList.size() - 1) : null;
+      return !namesList.isEmpty() ? namesList.get(namesList.size() - 1) : null;
     }
 
     @Override
     public FileStream getLastStream() {
-      return streamsList.size() > 0 ? streamsList.get(streamsList.size() - 1) : null;
+      return !streamsList.isEmpty() ? streamsList.get(streamsList.size() - 1) : null;
     }
 
     @Override

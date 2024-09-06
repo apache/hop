@@ -520,28 +520,28 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
           String[] updateLookup = null;
           String[] updateStream = null;
 
-          if (lookupField.getLookupKeys().size() > 0) {
+          if (!lookupField.getLookupKeys().isEmpty()) {
             keyLookup = new String[lookupField.getLookupKeys().size()];
             for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
               keyLookup[i] = lookupField.getLookupKeys().get(i).getKeyLookup();
             }
           }
 
-          if (lookupField.getLookupKeys().size() > 0) {
+          if (!lookupField.getLookupKeys().isEmpty()) {
             keyStream = new String[lookupField.getLookupKeys().size()];
             for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
               keyStream[i] = lookupField.getLookupKeys().get(i).getKeyStream();
             }
           }
 
-          if (lookupField.getLookupKeys().size() > 0) {
+          if (!lookupField.getLookupKeys().isEmpty()) {
             updateLookup = new String[lookupField.getUpdateFields().size()];
             for (int i = 0; i < lookupField.getUpdateFields().size(); i++) {
               updateLookup[i] = lookupField.getUpdateFields().get(i).getUpdateLookup();
             }
           }
 
-          if (lookupField.getLookupKeys().size() > 0) {
+          if (!lookupField.getLookupKeys().isEmpty()) {
             updateStream = new String[lookupField.getUpdateFields().size()];
             for (int i = 0; i < lookupField.getUpdateFields().size(); i++) {
               updateStream[i] = lookupField.getUpdateFields().get(i).getUpdateStream();
@@ -569,7 +569,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
               String crIndex = "";
               String[] idxFields = null;
 
-              if (lookupField.getLookupKeys().size() > 0) {
+              if (!lookupField.getLookupKeys().isEmpty()) {
                 idxFields = new String[lookupField.getLookupKeys().size()];
                 for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
                   idxFields[i] = lookupField.getLookupKeys().get(i).getKeyLookup();

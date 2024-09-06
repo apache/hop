@@ -93,7 +93,7 @@ public class CassandraOutputTest {
     verify(co, times(0)).logDebug(any());
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionNone() {
     String ttlResolveValue = "1"; // none option, this value is ignored default will be -1
@@ -110,7 +110,7 @@ public class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionSeconds() {
     String ttlResolveValue = "1"; // 1 second
@@ -128,7 +128,7 @@ public class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionMinutes() {
     String ttlResolveValue = "1"; // 1 minute
@@ -146,7 +146,7 @@ public class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionHours() {
     String ttlResolveValue = "1"; // 1 hour
@@ -164,7 +164,7 @@ public class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionDays() {
     String ttlResolveValue = "1"; // 1 day

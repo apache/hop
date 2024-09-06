@@ -65,7 +65,7 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
 
     // Fields
     List<StandardizePhoneField> standardizes = input.getFields();
-    if (standardizes.size() > 0) {
+    if (!standardizes.isEmpty()) {
       Table table = wFields.getTable();
       for (int i = 0; i < standardizes.size(); i++) {
         StandardizePhoneField standardize = standardizes.get(i);

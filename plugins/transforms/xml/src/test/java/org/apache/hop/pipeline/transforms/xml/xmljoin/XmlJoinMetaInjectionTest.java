@@ -38,7 +38,7 @@ public class XmlJoinMetaInjectionTest extends BaseMetadataInjectionTest<XmlJoinM
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void test() throws Exception {
 
     check("COMPLEX_JOIN", () -> meta.isComplexJoin());

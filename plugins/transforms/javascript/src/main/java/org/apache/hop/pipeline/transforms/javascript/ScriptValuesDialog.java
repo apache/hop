@@ -447,7 +447,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     wSash.setWeights(75, 25);
 
     // Add listeners
-    wTree.addListener(SWT.MouseDoubleClick, e -> treeDblClick(e));
+    wTree.addListener(SWT.MouseDoubleClick, this::treeDblClick);
 
     folder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {

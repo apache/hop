@@ -108,7 +108,7 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
 
         if (meta.isOutputJson()
             || meta.getMongoFields() == null
-            || meta.getMongoFields().size() == 0) {
+            || meta.getMongoFields().isEmpty()) {
           String json = JSON.serialize(nextDoc);
           row = RowDataUtil.allocateRowData(data.outputRowMeta.size());
           int index = 0;

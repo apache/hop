@@ -82,7 +82,7 @@ public class RestTest {
     assertTrue(val1.contains("%7D"));
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void testCallEndpointWithDeleteVerb() throws HopException {
     MultivaluedMap<String, String> headers = null;

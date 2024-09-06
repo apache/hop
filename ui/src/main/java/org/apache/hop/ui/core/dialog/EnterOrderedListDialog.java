@@ -393,7 +393,7 @@ public class EnterOrderedListDialog extends Dialog {
     wButtonAddAll.setEnabled(wListSource.getItemCount() > 0);
 
     wButtonRemove.setEnabled(index >= 0);
-    wButtonRemoveAll.setEnabled(selection.size() > 0);
+    wButtonRemoveAll.setEnabled(!selection.isEmpty());
 
     wButtonUp.setEnabled(selection.size() > 1 && index > 0);
     wDuttonDown.setEnabled(selection.size() > 1 && index >= 0 && index < selection.size() - 1);

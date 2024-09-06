@@ -70,7 +70,7 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
 
       if (meta.isSelectFields()) {
         // Consider only selected fields
-        if (meta.getFields() != null && meta.getFields().size() > 0) {
+        if (meta.getFields() != null && !meta.getFields().isEmpty()) {
           int fieldsLength = meta.getFields().size();
           data.fieldnrs = new int[fieldsLength];
           data.defaultValues = new String[fieldsLength];
@@ -94,7 +94,7 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
         }
       } else if (meta.isSelectValuesType()) {
         // Consider only select value types
-        if (meta.getValueTypes() != null && meta.getValueTypes().size() > 0) {
+        if (meta.getValueTypes() != null && !meta.getValueTypes().isEmpty()) {
           // return the real default values
           int typeLength = meta.getValueTypes().size();
           data.defaultValues = new String[typeLength];

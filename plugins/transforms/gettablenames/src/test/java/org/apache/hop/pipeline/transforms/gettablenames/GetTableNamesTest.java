@@ -72,7 +72,7 @@ public class GetTableNamesTest {
     mockHelper.cleanUp();
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void processIncludeTableIncludeSchemaTest() throws HopException {
     prepareIncludeTableTest(true);
@@ -92,7 +92,7 @@ public class GetTableNamesTest {
     verify(database, times(1)).getTablenames("schema", true);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void processIncludeTableDontIncludeSchemaTest() throws HopException {
     prepareIncludeTableTest(false);
@@ -113,7 +113,7 @@ public class GetTableNamesTest {
     verify(database, times(0)).getTablenames("schema", true);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void processIncludeViewIncludesSchemaTest() throws HopException {
     prepareIncludeViewTest(true);
@@ -130,7 +130,7 @@ public class GetTableNamesTest {
     verify(database, times(1)).getViews("schema", true);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void processIncludeViewDontIncludeSchemaTest() throws HopException {
     prepareIncludeViewTest(false);

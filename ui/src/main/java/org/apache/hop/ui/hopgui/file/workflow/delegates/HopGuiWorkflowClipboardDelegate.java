@@ -344,7 +344,7 @@ public class HopGuiWorkflowClipboardDelegate {
   }
 
   public static final void copyActionsToClipboard(List<ActionMeta> actions) throws HopException {
-    if (actions == null || actions.size() == 0) {
+    if (actions == null || actions.isEmpty()) {
       return;
     }
 

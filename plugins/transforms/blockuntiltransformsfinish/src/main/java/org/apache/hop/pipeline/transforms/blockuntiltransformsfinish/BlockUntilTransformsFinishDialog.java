@@ -205,7 +205,7 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     Table table = wFields.table;
-    if (input.getBlockingTransforms().size() > 0) {
+    if (!input.getBlockingTransforms().isEmpty()) {
       table.removeAll();
     }
     for (int i = 0; i < input.getBlockingTransforms().size(); i++) {

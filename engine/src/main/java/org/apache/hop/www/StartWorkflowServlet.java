@@ -230,7 +230,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
   }
 
   protected void runWorkflow(final IWorkflowEngine workflow) {
-    new Thread(() -> workflow.startExecution()).start();
+    new Thread(workflow::startExecution).start();
   }
 
   @Override

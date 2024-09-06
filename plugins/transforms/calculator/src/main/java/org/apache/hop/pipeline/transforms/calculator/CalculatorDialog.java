@@ -297,7 +297,7 @@ public class CalculatorDialog extends BaseTransformDialog {
     wFields.addModifyListener(
         arg0 ->
             // Now set the combo's
-            shell.getDisplay().asyncExec(() -> setComboBoxes()));
+            shell.getDisplay().asyncExec(this::setComboBoxes));
 
     getData();
 

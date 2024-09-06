@@ -42,7 +42,7 @@ public class ScriptValuesTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void bigNumberAreNotTrimmedToInt() throws Exception {
     ScriptValues transform =
         TransformMockUtil.getTransform(
@@ -79,7 +79,7 @@ public class ScriptValuesTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void variableIsSetInScopeOfTransform() throws Exception {
     ScriptValues transform =
         TransformMockUtil.getTransform(

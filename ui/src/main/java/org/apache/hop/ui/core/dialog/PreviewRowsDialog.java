@@ -272,7 +272,7 @@ public class PreviewRowsDialog {
     }
     if (!dynamic) {
       // Mmm, if we don't get any rows in the buffer: show a dialog box.
-      if (buffer == null || buffer.size() == 0) {
+      if (buffer == null || buffer.isEmpty()) {
         ShowMessageDialog dialog =
             new ShowMessageDialog(
                 shell,

@@ -71,7 +71,7 @@ public class MongoDbDeleteField implements Cloneable {
   }
 
   public void reset() {
-    if (tempPathList != null && tempPathList.size() > 0) {
+    if (tempPathList != null && !tempPathList.isEmpty()) {
       tempPathList.clear();
     }
     if (tempPathList != null) {

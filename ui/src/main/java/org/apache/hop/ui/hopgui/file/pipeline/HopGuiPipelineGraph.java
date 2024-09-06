@@ -4450,9 +4450,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // What method should we call back when a break-point is hit?
 
-        pipelineDebugMeta.addBreakPointListers(
-            (pipelineDebugMeta1, transformDebugMeta, rowBufferMeta, rowBuffer) ->
-                showPreview(pipelineDebugMeta1, transformDebugMeta, rowBufferMeta, rowBuffer));
+        pipelineDebugMeta.addBreakPointListers(this::showPreview);
 
         // Start the threads for the transforms...
         //

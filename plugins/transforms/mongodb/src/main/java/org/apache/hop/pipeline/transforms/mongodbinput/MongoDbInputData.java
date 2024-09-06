@@ -107,7 +107,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
       normalFields.add(f);
     }
 
-    if (expansionList.size() > 0) {
+    if (!expansionList.isEmpty()) {
 
       List<MongoField> subFields = new ArrayList<>();
 
@@ -184,8 +184,8 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     if (expansionHandler != null) {
       expansionHandler.reset(variables);
 
-      if (mongoObj instanceof BasicDBObject) {
-        result = expansionHandler.convertToHopValue((BasicDBObject) mongoObj, variables);
+      if (mongoObj instanceof BasicDBObject basicDBObject) {
+        result = expansionHandler.convertToHopValue(basicDBObject, variables);
       } else {
         result = expansionHandler.convertToHopValue((BasicDBList) mongoObj, variables);
       }
@@ -200,10 +200,10 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
       value = null;
       f.reset(variables);
 
-      if (mongoObj instanceof BasicDBObject) {
-        value = f.convertToHopValue((BasicDBObject) mongoObj);
-      } else if (mongoObj instanceof BasicDBList) {
-        value = f.convertToHopValue((BasicDBList) mongoObj);
+      if (mongoObj instanceof BasicDBObject basicDBObject) {
+        value = f.convertToHopValue(basicDBObject);
+      } else if (mongoObj instanceof BasicDBList basicDBList) {
+        value = f.convertToHopValue(basicDBList);
       }
 
       normalData[f.outputIndex] = value;

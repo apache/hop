@@ -232,7 +232,7 @@ public class GenericDatabaseMetaTest {
         nativeMeta.getSqlInsertAutoIncUnknownDimensionRow("FOO", "FOOKEY", "FOOVERSION"));
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void testSettingDialect() {
     String dialect = "testDialect";

@@ -34,7 +34,7 @@ import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.Ignore;
 
-@Ignore
+@Ignore("This test needs to be reviewed")
 public class MetadataTestBase extends TestCase {
   protected MultiMetadataProvider multiMetadataProvider;
   protected MemoryMetadataProvider provider1;

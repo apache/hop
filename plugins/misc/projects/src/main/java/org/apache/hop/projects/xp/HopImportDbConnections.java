@@ -88,7 +88,7 @@ public class HopImportDbConnections implements IExtensionPoint<Object[]> {
     String eol = System.getProperty("line.separator");
 
     // only create connections csv if we have connections
-    if (connectionList.size() > 0) {
+    if (!connectionList.isEmpty()) {
       String connectionsFileName =
           projectConfig.getProjectHome() + System.getProperty("file.separator") + "connections.csv";
       try (OutputStream outputStream = HopVfs.getOutputStream(connectionsFileName, false)) {

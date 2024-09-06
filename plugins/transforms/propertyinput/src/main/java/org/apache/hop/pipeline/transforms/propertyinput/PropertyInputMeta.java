@@ -400,7 +400,7 @@ public class PropertyInputMeta extends BaseTransformMeta<PropertyInput, Property
 
     FileInputList fileInputList = getFiles(variables);
 
-    if (fileInputList == null || fileInputList.getFiles().size() == 0) {
+    if (fileInputList == null || fileInputList.getFiles().isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,

@@ -51,7 +51,7 @@ public class SelectValuesMetaTest {
     selectValuesMeta = new SelectValuesMeta();
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void loadSaveTest() throws HopException {
     List<String> attributes = Arrays.asList("selectFields", "deleteName");

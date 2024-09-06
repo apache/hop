@@ -1018,7 +1018,7 @@ public class SalesforceConnection {
       }
       children.add(child);
     }
-    if (children.size() == 0) {
+    if (children.isEmpty()) {
       return null;
     }
     return children.toArray(new XmlObject[children.size()]);

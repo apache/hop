@@ -205,7 +205,7 @@ public class SftpClient {
           }
         }
       }
-      if (o.size() > 0) {
+      if (!o.isEmpty()) {
         fileList = new String[o.size()];
         o.copyInto(fileList);
       }

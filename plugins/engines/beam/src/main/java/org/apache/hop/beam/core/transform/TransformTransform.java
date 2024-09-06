@@ -152,7 +152,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
       // Add optional side inputs...
       //
-      if (infoCollectionViews.size() > 0) {
+      if (!infoCollectionViews.isEmpty()) {
         parDoTransformFn = parDoTransformFn.withSideInputs(infoCollectionViews);
       }
 

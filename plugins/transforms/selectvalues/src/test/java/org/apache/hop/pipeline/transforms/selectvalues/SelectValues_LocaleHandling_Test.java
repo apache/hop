@@ -65,7 +65,7 @@ public class SelectValues_LocaleHandling_Test {
     when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   private void configureTransform(SelectValuesMeta meta, SelectValuesData data)
       throws HopException {
     transform =

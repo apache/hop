@@ -198,7 +198,7 @@ public class StringCutMeta extends BaseTransformMeta<StringCut, StringCutData> {
       }
       remarks.add(cr);
 
-      if (fields.size() > 0) {
+      if (!fields.isEmpty()) {
         int idx = 0;
         for (StringCutField scf : fields) {
           if (Utils.isEmpty(scf.getFieldInStream())) {

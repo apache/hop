@@ -154,8 +154,8 @@ public class HopGuiWorkflowLogDelegate {
    */
   public static HopGuiWorkflowLogDelegate getInstance() {
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if (fileTypeHandler instanceof HopGuiWorkflowGraph) {
-      HopGuiWorkflowGraph graph = (HopGuiWorkflowGraph) fileTypeHandler;
+    if (fileTypeHandler instanceof HopGuiWorkflowGraph hopGuiWorkflowGraph) {
+      HopGuiWorkflowGraph graph = hopGuiWorkflowGraph;
       return graph.workflowLogDelegate;
     }
     return null;
@@ -234,7 +234,7 @@ public class HopGuiWorkflowLogDelegate {
       err.add(line);
     }
 
-    if (err.size() > 0) {
+    if (!err.isEmpty()) {
       String[] errLines = new String[err.size()];
       for (i = 0; i < errLines.length; i++) {
         errLines[i] = err.get(i);

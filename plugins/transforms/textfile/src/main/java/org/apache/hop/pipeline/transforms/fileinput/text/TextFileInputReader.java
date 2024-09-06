@@ -203,7 +203,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
           if (meta.content.lineWrapped) {
             for (int i = 0; i < meta.content.nrWraps; i++) {
               String extra = "";
-              if (data.lineBuffer.size() > 0) {
+              if (!data.lineBuffer.isEmpty()) {
                 extra = data.lineBuffer.get(0).line;
                 data.lineBuffer.remove(0);
               }
@@ -312,7 +312,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
           if (meta.content.lineWrapped) {
             for (int i = 0; i < meta.content.nrWraps; i++) {
               String extra = "";
-              if (data.lineBuffer.size() > 0) {
+              if (!data.lineBuffer.isEmpty()) {
                 extra = data.lineBuffer.get(0).line;
                 data.lineBuffer.remove(0);
               } else {
@@ -400,10 +400,8 @@ public class TextFileInputReader implements IBaseFileInputReader {
       }
     }
 
-    if (transform.checkFeedback(transform.getLinesInput())) {
-      if (log.isBasic()) {
-        log.logBasic("linenr " + transform.getLinesInput());
-      }
+    if (transform.checkFeedback(transform.getLinesInput()) && log.isBasic()) {
+      log.logBasic("linenr " + transform.getLinesInput());
     }
 
     return retval;
@@ -495,10 +493,8 @@ public class TextFileInputReader implements IBaseFileInputReader {
     } else {
       // check the filters
       filterOK = data.filterProcessor.doFilters(line);
-      if (!filterOK) {
-        if (data.filterProcessor.isStopProcessing()) {
-          data.doneReading = true;
-        }
+      if (!filterOK && data.filterProcessor.isStopProcessing()) {
+        data.doneReading = true;
       }
     }
 

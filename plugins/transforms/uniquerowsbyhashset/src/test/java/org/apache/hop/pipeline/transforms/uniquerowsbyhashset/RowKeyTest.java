@@ -31,7 +31,8 @@ import org.junit.Test;
 public class RowKeyTest {
 
   @Test
-  @Ignore // TODO see what the problem is with the hash code, new commons API somewhere?
+  @Ignore("This test needs to be reviewed") // TODO see what the problem is with the hash code, new
+  // commons API somewhere?
   public void testHashCodeCalculationsandEquals() throws Exception {
     Object[] arr1 = new Object[9];
     arr1[0] = true;

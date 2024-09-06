@@ -60,7 +60,7 @@ public class LoggingBuffer {
   public int getLastBufferLineNr() {
     lock.readLock().lock();
     try {
-      if (buffer.size() > 0) {
+      if (!buffer.isEmpty()) {
         return buffer.get(buffer.size() - 1).getNr();
       } else {
         return 0;

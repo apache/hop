@@ -844,7 +844,7 @@ public class PipelineDialog extends Dialog {
         wTabFolder.setSelection(wMonitorTab);
         break;
       case EXTRA_TAB:
-        if (extraTabs.size() > 0) {
+        if (!extraTabs.isEmpty()) {
           wTabFolder.setSelection(extraTabs.get(0).getTab());
         }
         break;

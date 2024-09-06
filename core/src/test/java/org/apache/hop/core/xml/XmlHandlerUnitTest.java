@@ -213,7 +213,7 @@ public class XmlHandlerUnitTest {
         XmlHandler.addTagValue("adouble", Double.MIN_NORMAL, false));
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void addTagValueBinary() throws IOException {
     byte[] input = "Test Data".getBytes();

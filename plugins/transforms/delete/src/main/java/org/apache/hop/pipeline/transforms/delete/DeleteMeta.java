@@ -368,7 +368,7 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
             String crIndex = "";
             String[] idxFields = null;
             List<DeleteKeyField> keyFields = lookup.getFields();
-            if (keyFields.size() > 0) {
+            if (!keyFields.isEmpty()) {
               idxFields = new String[keyFields.size()];
               for (int i = 0; i < keyFields.size(); i++) {
                 idxFields[i] = keyFields.get(i).getKeyLookup();

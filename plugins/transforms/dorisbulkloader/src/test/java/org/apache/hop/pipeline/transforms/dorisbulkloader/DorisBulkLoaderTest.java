@@ -37,7 +37,7 @@ public class DorisBulkLoaderTest {
 
   private static boolean canWrite = true;
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void testCallProcessStreamLoadWithOneBatch() throws Exception {
     DorisBulkLoaderMeta meta = mock(DorisBulkLoaderMeta.class);
@@ -66,7 +66,7 @@ public class DorisBulkLoaderTest {
     verify(data.dorisStreamLoad, times(1)).executeDorisStreamLoad();
   }
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void testCallProcessStreamLoadWithTwoBatch() throws Exception {
     DorisBulkLoaderMeta meta = mock(DorisBulkLoaderMeta.class);

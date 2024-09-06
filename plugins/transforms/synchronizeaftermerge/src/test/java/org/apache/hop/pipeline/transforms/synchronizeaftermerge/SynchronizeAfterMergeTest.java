@@ -35,7 +35,7 @@ public class SynchronizeAfterMergeTest {
 
   private static final String TRANSFORM_NAME = "Sync";
 
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   @Test
   public void initWithCommitSizeVariable() {
     TransformMeta transformMeta = mock(TransformMeta.class);

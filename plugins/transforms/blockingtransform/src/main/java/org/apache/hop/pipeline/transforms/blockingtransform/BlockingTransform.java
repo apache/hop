@@ -67,9 +67,9 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
 
     // Time to write to disk: buffer in core is full!
     if (data.buffer.size() == meta.getCacheSize() // Buffer is full: dump to disk
-        || (data.files.size() > 0
+        || (!data.files.isEmpty()
             && r == null
-            && data.buffer.size() > 0) // No more records: join from disk
+            && !data.buffer.isEmpty()) // No more records: join from disk
     ) {
       // Then write them to disk...
       DataOutputStream dos;
@@ -118,7 +118,7 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
     Object[] retval;
 
     // Open all files at once and read one row from each file...
-    if (data.files.size() > 0 && (data.dis.size() == 0 || data.fis.size() == 0)) {
+    if (!data.files.isEmpty() && (data.dis.isEmpty() || data.fis.isEmpty())) {
       if (log.isBasic()) {
         logBasic(BaseMessages.getString(PKG, "BlockingTransform.Log.Openfiles"));
       }
@@ -168,15 +168,15 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
       }
     }
 
-    if (data.files.size() == 0) {
-      if (data.buffer.size() > 0) {
+    if (data.files.isEmpty()) {
+      if (!data.buffer.isEmpty()) {
         retval = data.buffer.get(0);
         data.buffer.remove(0);
       } else {
         retval = null;
       }
     } else {
-      if (data.rowbuffer.size() == 0) {
+      if (data.rowbuffer.isEmpty()) {
         retval = null;
       } else {
         retval = data.rowbuffer.get(0);
@@ -229,7 +229,7 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
 
   @Override
   public void dispose() {
-    if ((data.dis != null) && (data.dis.size() > 0)) {
+    if ((data.dis != null) && (!data.dis.isEmpty())) {
       for (DataInputStream is : data.dis) {
         BaseTransform.closeQuietly(is);
       }

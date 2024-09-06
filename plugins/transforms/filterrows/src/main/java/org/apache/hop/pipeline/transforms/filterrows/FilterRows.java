@@ -149,10 +149,8 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
       }
     }
 
-    if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "FilterRows.Log.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "FilterRows.Log.LineNumber") + getLinesRead());
     }
 
     return true;
@@ -180,7 +178,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
 
   protected void checkNonExistingFields() throws HopException {
     List<String> orphanFields = meta.getOrphanFields(meta.getCondition(), getInputRowMeta());
-    if (orphanFields != null && orphanFields.size() > 0) {
+    if (orphanFields != null && !orphanFields.isEmpty()) {
       String fields = "";
       boolean first = true;
       for (String field : orphanFields) {

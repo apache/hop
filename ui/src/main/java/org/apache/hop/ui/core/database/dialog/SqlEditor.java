@@ -300,7 +300,7 @@ public class SqlEditor {
           try {
             List<Object[]> rows = db.getRows(sql.getStatement(), 1000);
             IRowMeta rowMeta = db.getReturnRowMeta();
-            if (rows.size() > 0) {
+            if (!rows.isEmpty()) {
               PreviewRowsDialog prd =
                   new PreviewRowsDialog(
                       shell,

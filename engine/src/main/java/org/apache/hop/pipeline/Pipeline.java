@@ -842,7 +842,7 @@ public abstract class Pipeline
                     .getTransformPartitioningMeta()
                     .getPartitionSchema()
                     .calculatePartitionIds(this);
-            if (partitionIDs != null && partitionIDs.size() > 0) {
+            if (partitionIDs != null && !partitionIDs.isEmpty()) {
               transform.setPartitionId(partitionIDs.get(c)); // Pass the partition ID
               // to the transform
             }
@@ -1319,7 +1319,7 @@ public abstract class Pipeline
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
     synchronized (executionFinishedListeners) {
-      if (executionFinishedListeners.size() == 0) {
+      if (executionFinishedListeners.isEmpty()) {
         return;
       }
       // prevent Exception from one listener to block others execution
@@ -1612,7 +1612,7 @@ public abstract class Pipeline
 
   private boolean isInputTransform(TransformMetaDataCombi combi) {
     checkNotNull(combi);
-    return pipelineMeta.findPreviousTransforms(combi.transformMeta, true).size() == 0;
+    return pipelineMeta.findPreviousTransforms(combi.transformMeta, true).isEmpty();
   }
 
   /** Stops all transforms from running, and alerts any registered listeners. */

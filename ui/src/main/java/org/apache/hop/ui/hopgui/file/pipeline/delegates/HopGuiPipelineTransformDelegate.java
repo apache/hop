@@ -669,7 +669,7 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   public void delTransforms(PipelineMeta pipelineMeta, List<TransformMeta> transforms) {
-    if (transforms == null || transforms.size() == 0) {
+    if (transforms == null || transforms.isEmpty()) {
       return; // nothing to do
     }
     try {

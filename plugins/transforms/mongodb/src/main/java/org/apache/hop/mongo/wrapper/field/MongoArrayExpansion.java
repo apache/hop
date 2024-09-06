@@ -30,7 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputData;
 
 public class MongoArrayExpansion {
-  protected static Class<?> PKG = MongoArrayExpansion.class;
+  protected static final Class<?> PKG = MongoArrayExpansion.class;
 
   /** The prefix of the full path that defines the expansion */
   public String expansionPath;
@@ -107,9 +107,7 @@ public class MongoArrayExpansion {
   }
 
   protected Object[][] nullResult() {
-    Object[][] result = new Object[1][outputRowMeta.size() + RowDataUtil.OVER_ALLOCATE_SIZE];
-
-    return result;
+    return new Object[1][outputRowMeta.size() + RowDataUtil.OVER_ALLOCATE_SIZE];
   }
 
   public Object[][] convertToHopValue(BasicDBObject mongoObject, IVariables variables)
@@ -119,7 +117,7 @@ public class MongoArrayExpansion {
       return nullResult();
     }
 
-    if (tempParts.size() == 0) {
+    if (tempParts.isEmpty()) {
       throw new HopException(
           BaseMessages.getString(PKG, "MongoDbInput.ErrorMessage.MalformedPathRecord"));
     }
@@ -146,12 +144,12 @@ public class MongoArrayExpansion {
       return nullResult();
     }
 
-    if (fieldValue instanceof BasicDBObject) {
-      return convertToHopValue(((BasicDBObject) fieldValue), variables);
+    if (fieldValue instanceof BasicDBObject basicDBObject) {
+      return convertToHopValue(basicDBObject, variables);
     }
 
-    if (fieldValue instanceof BasicDBList) {
-      return convertToHopValue(((BasicDBList) fieldValue), variables);
+    if (fieldValue instanceof BasicDBList basicDBList) {
+      return convertToHopValue(basicDBList, variables);
     }
 
     // must mean we have a primitive here, but we're expecting to process more
@@ -166,13 +164,13 @@ public class MongoArrayExpansion {
       return nullResult();
     }
 
-    if (tempParts.size() == 0) {
+    if (tempParts.isEmpty()) {
       throw new HopException(
           BaseMessages.getString(PKG, "MongoDbInput.ErrorMessage.MalformedPathArray"));
     }
 
     String part = tempParts.remove(0);
-    if (!(part.charAt(0) == '[')) {
+    if (part.charAt(0) != '[') {
       // we're expecting an array at this point - this document does not
       // contain our field
       return nullResult();
@@ -199,10 +197,10 @@ public class MongoArrayExpansion {
           sf.reset(variables);
 
           // what have we got?
-          if (element instanceof BasicDBObject) {
-            result[i][sf.outputIndex] = sf.convertToHopValue((BasicDBObject) element);
-          } else if (element instanceof BasicDBList) {
-            result[i][sf.outputIndex] = sf.convertToHopValue((BasicDBList) element);
+          if (element instanceof BasicDBObject basicDBObject) {
+            result[i][sf.outputIndex] = sf.convertToHopValue(basicDBObject);
+          } else if (element instanceof BasicDBList basicDBList) {
+            result[i][sf.outputIndex] = sf.convertToHopValue(basicDBList);
           } else {
             // assume a primitive
             result[i][sf.outputIndex] = sf.getHopValue(element);
@@ -232,12 +230,12 @@ public class MongoArrayExpansion {
         return nullResult();
       }
 
-      if (element instanceof BasicDBObject) {
-        return convertToHopValue(((BasicDBObject) element), variables);
+      if (element instanceof BasicDBObject basicDBObject) {
+        return convertToHopValue(basicDBObject, variables);
       }
 
-      if (element instanceof BasicDBList) {
-        return convertToHopValue(((BasicDBList) element), variables);
+      if (element instanceof BasicDBList basicDBList) {
+        return convertToHopValue(basicDBList, variables);
       }
 
       // must mean we have a primitive here, but we're expecting to process

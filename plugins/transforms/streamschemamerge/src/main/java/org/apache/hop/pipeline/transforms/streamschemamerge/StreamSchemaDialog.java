@@ -254,7 +254,7 @@ public class StreamSchemaDialog extends BaseTransformDialog {
   private void getMeta(String[] inputTransforms) {
     List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
 
-    if (infoStreams.size() == 0 || inputTransforms.length < infoStreams.size()) {
+    if (infoStreams.isEmpty() || inputTransforms.length < infoStreams.size()) {
       if (inputTransforms.length != 0) {
         for (String inputTransform : inputTransforms) {
           meta.getTransformIOMeta()

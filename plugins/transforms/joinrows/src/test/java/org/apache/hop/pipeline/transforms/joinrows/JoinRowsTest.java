@@ -76,13 +76,13 @@ public class JoinRowsTest {
 
   /** BACKLOG-8520 Check that method call does't throw an error NullPointerException. */
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void checkThatMethodPerformedWithoutError() throws Exception {
     getJoinRows().dispose();
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void disposeDataFiles() throws Exception {
     File mockFile1 = mock(File.class);
     File mockFile2 = mock(File.class);
@@ -109,7 +109,7 @@ public class JoinRowsTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testJoinRowsTransform() throws Exception {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
     joinRowsMeta.setMainTransformName("main transform name");

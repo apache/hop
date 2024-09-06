@@ -226,7 +226,7 @@ public class FastJsonReader implements IJsonReader {
         }
         rowData = new Object[results.size()];
         for (int col = 0; col < results.size(); col++) {
-          if (results.get(col).size() == 0) {
+          if (results.get(col).isEmpty()) {
             rowData[col] = null;
             continue;
           }
@@ -263,7 +263,7 @@ public class FastJsonReader implements IJsonReader {
     int i = 0;
     for (JsonPath path : paths) {
       List<Object> result = getReadContext().read(path);
-      if (result.size() != lastSize && lastSize > 0 && result.size() != 0) {
+      if (result.size() != lastSize && lastSize > 0 && !result.isEmpty()) {
         throw new JsonInputException(
             BaseMessages.getString(
                 PKG,
@@ -273,7 +273,7 @@ public class FastJsonReader implements IJsonReader {
                 prevPath,
                 lastSize));
       }
-      if (!isIgnoreMissingPath() && (isAllNull(result) || result.size() == 0)) {
+      if (!isIgnoreMissingPath() && (isAllNull(result) || result.isEmpty())) {
         throw new JsonInputException(
             BaseMessages.getString(PKG, "JsonReader.Error.CanNotFindPath", fields[i].getPath()));
       }

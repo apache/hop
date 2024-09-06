@@ -88,7 +88,9 @@ public class AuditManagerTest {
     assertEquals("Not getting unique events", 2, uniqueEvents.size());
   }
 
-  @Ignore // TODO Race condition with other test data, works fine when run stand-alone
+  @Ignore(
+      "This test needs to be reviewed") // TODO Race condition with other test data, works fine when
+  // run stand-alone
   @Test
   public void testFindAllEventsWithDefaultAuditManager() throws HopException {
     AuditManager.getInstance()
@@ -139,7 +141,7 @@ public class AuditManagerTest {
   // Figure out why this sometimes fails in windows and to a lesser extent Linux.
   // It's likely an initialization issue which occurs for this testing scenario.
   //
-  @Ignore
+  @Ignore("This test needs to be reviewed")
   public void testClearEvents() throws HopException {
     AuditManager.getInstance()
         .setActiveAuditManager(new LocalAuditManager(testFolder.getRoot().getAbsolutePath()));

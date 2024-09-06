@@ -455,28 +455,28 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
       String[] updateLookup = null;
       String[] updateStream = null;
 
-      if (insertUpdateLookupField.getLookupKeys().size() > 0) {
+      if (!insertUpdateLookupField.getLookupKeys().isEmpty()) {
         keyLookup = new String[insertUpdateLookupField.getLookupKeys().size()];
         for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
           keyLookup[i] = insertUpdateLookupField.getLookupKeys().get(i).getKeyLookup();
         }
       }
 
-      if (insertUpdateLookupField.getLookupKeys().size() > 0) {
+      if (!insertUpdateLookupField.getLookupKeys().isEmpty()) {
         keyStream = new String[insertUpdateLookupField.getLookupKeys().size()];
         for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
           keyStream[i] = insertUpdateLookupField.getLookupKeys().get(i).getKeyStream();
         }
       }
 
-      if (insertUpdateLookupField.getValueFields().size() > 0) {
+      if (!insertUpdateLookupField.getValueFields().isEmpty()) {
         updateLookup = new String[insertUpdateLookupField.getValueFields().size()];
         for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
           updateLookup[i] = insertUpdateLookupField.getValueFields().get(i).getUpdateLookup();
         }
       }
 
-      if (insertUpdateLookupField.getValueFields().size() > 0) {
+      if (!insertUpdateLookupField.getValueFields().isEmpty()) {
         updateStream = new String[insertUpdateLookupField.getValueFields().size()];
         for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
           updateStream[i] = insertUpdateLookupField.getValueFields().get(i).getUpdateStream();
