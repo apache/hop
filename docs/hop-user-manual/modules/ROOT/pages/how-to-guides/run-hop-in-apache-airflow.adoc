@@ -201,8 +201,10 @@ All it takes to deploy your dag is to put it in Airflow's dags folder. Our docke
 
 Save the DAG we just created in your dags folder as apache-hop-dag-simple.py. After a short wait, your DAG will show up in the list of dags.
 
-If there are any syntax errors in your DAG, Airflow will let you know. Expand the error dialog for more details about the error, as shown in the image below. Don't worry, you shouldn't have any errors with the DAG we just created. 
- 
+If there are any syntax errors in your DAG, Airflow will let you know. Expand the error dialog for more details about the error, as shown in the image below. Don't worry, you shouldn't have any errors with the DAG we just created.
+
+NOTE: If you're using `DockerOperator` and need to access a database or service running on your host machine, be sure to set the host as `host.docker.internal` in the Hop connection configuration to allow the container to access the host services.
+
 image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-error.png[Apache Airflow - DAG error, width="45%"]
 
 If your DAG is deployed correctly (it should), you'll see it show up in the list of available DAGs. 
