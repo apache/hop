@@ -137,6 +137,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     wlTestNameInputField.setLayoutData(fdlTestNameInputField);
     wTestNameInputField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTestNameInputField.setItems(inputFieldNames);
+    PropsUi.setLook(wTestNameInputField);
     FormData fdTestNameInputField = new FormData();
     fdTestNameInputField.left = new FormAttachment(middle, 0);
     fdTestNameInputField.top = new FormAttachment(lastControl, margin);
@@ -157,6 +158,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     wlTypeToExecute.setLayoutData(fdlTypeToExecute);
     wTypeToExecute = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTypeToExecute.setItems(DataSetConst.getTestTypeDescriptions());
+    PropsUi.setLook(wTypeToExecute);
     FormData fdTypeToExecute = new FormData();
     fdTypeToExecute.left = new FormAttachment(middle, 0);
     fdTypeToExecute.top = new FormAttachment(lastControl, margin);

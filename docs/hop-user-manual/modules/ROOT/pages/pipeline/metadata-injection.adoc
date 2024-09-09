@@ -168,7 +168,7 @@ The goal is to add Metadata Injection support to all transforms, The current sta
 |Execute a process|Y
 |Execute row SQL script|Y
 |Execute SQL script|Y
-|Execute Unit Tests|N
+|Execute Unit Tests|Y
 |Execution Information|Y
 |Fake data|Y
 |File exists|Y
