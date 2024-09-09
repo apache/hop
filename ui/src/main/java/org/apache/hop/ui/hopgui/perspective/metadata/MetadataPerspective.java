@@ -29,6 +29,8 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.i18n.BaseMessages;
@@ -36,6 +38,7 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -62,6 +65,7 @@ import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -266,8 +270,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             menuItem.setText("New");
             menuItem.addListener(SWT.Selection, e -> onNewMetadata());
 
+            new MenuItem(menu, SWT.SEPARATOR);
+
             if (treeItem.getParentItem() != null) {
-              new MenuItem(menu, SWT.SEPARATOR);
 
               menuItem = new MenuItem(menu, SWT.POP_UP);
               menuItem.setText("Edit");
@@ -286,7 +291,13 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
               menuItem = new MenuItem(menu, SWT.POP_UP);
               menuItem.setText("Delete");
               menuItem.addListener(SWT.Selection, e -> onDeleteMetadata());
+
+              new MenuItem(menu, SWT.SEPARATOR);
             }
+
+            menuItem = new MenuItem(menu, SWT.POP_UP);
+            menuItem.setText("Help");
+            menuItem.addListener(SWT.Selection, e -> onHelpMetadata());
 
             tree.setMenu(menu);
             menu.setVisible(true);
@@ -692,6 +703,33 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     }
   }
 
+  public void onHelpMetadata() {
+
+    if (tree.getSelectionCount() != 1) {
+      return;
+    }
+    String objectKey = null;
+    TreeItem treeItem = tree.getSelection()[0];
+    if (treeItem != null) {
+      if (treeItem.getParentItem() != null) {
+        treeItem = treeItem.getParentItem();
+      }
+      objectKey = (String) treeItem.getData();
+    }
+
+    if (objectKey != null) {
+      try {
+        MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
+        HopMetadata annotation = manager.getManagedClass().getAnnotation(HopMetadata.class);
+        IPlugin plugin =
+            PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());
+        HelpUtils.openHelp(getShell(), plugin);
+      } catch (Exception ex) {
+        new ErrorDialog(getShell(), "Error", "Error opening URL", ex);
+      }
+    }
+  }
+
   public void updateEditor(MetadataEditor<?> editor) {
 
     if (editor == null) return;
@@ -817,9 +855,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
-    if (typeHandler instanceof MetadataEditor) {
-      MetadataEditor<?> editor = (MetadataEditor<?>) typeHandler;
-
+    if (typeHandler instanceof MetadataEditor editor) {
       if (editor.isCloseable()) {
 
         editors.remove(editor);
