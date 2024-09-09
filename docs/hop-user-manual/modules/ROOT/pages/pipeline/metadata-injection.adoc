@@ -260,7 +260,7 @@ The goal is to add Metadata Injection support to all transforms, The current sta
 |Set field value|Y
 |Set field value to a constant|Y
 |Set files in result|Y
-|Set variables|N
+|Set variables|Y
 |Simple Mapping|Y
 |Snowflake Bulk Loader|Y
 |Sort rows|Y
