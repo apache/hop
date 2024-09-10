@@ -58,6 +58,7 @@ import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -2153,9 +2154,12 @@ public class TextFileInputDialog extends BaseTransformDialog
                         valueMeta.getPrecision() >= 0
                             ? Integer.toString(valueMeta.getPrecision())
                             : "");
-                    item.setText(7, Const.NVL(valueMeta.getCurrencySymbol(), ""));
-                    item.setText(8, Const.NVL(valueMeta.getDecimalSymbol(), ""));
-                    item.setText(9, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                    final SchemaFieldDefinition schemaFieldDefinition =
+                        schemaDefinition.getFieldDefinitions().get(i);
+                    item.setText(7, Const.NVL(schemaFieldDefinition.getCurrencySymbol(), ""));
+                    item.setText(8, Const.NVL(schemaFieldDefinition.getDecimalSymbol(), ""));
+                    item.setText(9, Const.NVL(schemaFieldDefinition.getGroupingSymbol(), ""));
+                    item.setText(10, Const.NVL(schemaFieldDefinition.getIfNullValue(), ""));
                     item.setText(
                         12, Const.NVL(ValueMetaBase.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                   }

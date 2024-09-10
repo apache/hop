@@ -49,6 +49,7 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.fileinput.text.DirectoryDialogButtonListenerFactory;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -1154,9 +1155,11 @@ public class ExcelInputDialog extends BaseTransformDialog {
                   item.setText(
                       5, Const.NVL(ValueMetaBase.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                   item.setText(7, Const.NVL(valueMeta.getConversionMask(), ""));
-                  item.setText(8, Const.NVL(valueMeta.getCurrencySymbol(), ""));
-                  item.setText(9, Const.NVL(valueMeta.getDecimalSymbol(), ""));
-                  item.setText(10, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                  final SchemaFieldDefinition schemaFieldDefinition =
+                      schemaDefinition.getFieldDefinitions().get(i);
+                  item.setText(8, Const.NVL(schemaFieldDefinition.getCurrencySymbol(), ""));
+                  item.setText(9, Const.NVL(schemaFieldDefinition.getDecimalSymbol(), ""));
+                  item.setText(10, Const.NVL(schemaFieldDefinition.getGroupingSymbol(), ""));
                 }
               }
             }

@@ -51,6 +51,7 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -722,9 +723,11 @@ public class CsvInputDialog extends BaseTransformDialog
                       valueMeta.getPrecision() >= 0
                           ? Integer.toString(valueMeta.getPrecision())
                           : "");
-                  item.setText(colnr++, Const.NVL(valueMeta.getCurrencySymbol(), ""));
-                  item.setText(colnr++, Const.NVL(valueMeta.getDecimalSymbol(), ""));
-                  item.setText(colnr++, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                  final SchemaFieldDefinition schemaFieldDefinition =
+                      schemaDefinition.getFieldDefinitions().get(i);
+                  item.setText(colnr++, Const.NVL(schemaFieldDefinition.getCurrencySymbol(), ""));
+                  item.setText(colnr++, Const.NVL(schemaFieldDefinition.getDecimalSymbol(), ""));
+                  item.setText(colnr++, Const.NVL(schemaFieldDefinition.getGroupingSymbol(), ""));
                   item.setText(
                       colnr++,
                       Const.NVL(ValueMetaBase.getTrimTypeDesc(valueMeta.getTrimType()), ""));
