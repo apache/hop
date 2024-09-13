@@ -274,7 +274,7 @@ public class UIGit extends VCS {
 
   public void removeRemote() {
     RemoteRemoveCommand cmd = git.remoteRemove();
-    cmd.setName(Constants.DEFAULT_REMOTE_NAME);
+    cmd.setRemoteName(Constants.DEFAULT_REMOTE_NAME);
     try {
       cmd.call();
     } catch (GitAPIException e) {

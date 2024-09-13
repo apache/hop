@@ -39,6 +39,7 @@ import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -107,9 +108,15 @@ public class GitGuiPlugin
       git = null;
     }
 
-    colorIgnored = new Color(HopGui.getInstance().getDisplay(), 125, 125, 125);
-    colorStaged = GuiResource.getInstance().getColorBlue();
-    colorUnstaged = GuiResource.getInstance().getColorRed();
+    // Adjust color for dark mode
+    if (PropsUi.getInstance().isDarkMode()) {
+      colorStaged = GuiResource.getInstance().getColorLightBlue();
+      colorIgnored = GuiResource.getInstance().getColorGray();
+    } else {
+      colorStaged = GuiResource.getInstance().getColorBlue();
+      colorIgnored = GuiResource.getInstance().getColorDarkGray();
+    }
+    colorUnstaged = GuiResource.getInstance().getColor(225, 30, 70);
 
     refreshChangedFiles();
   }
@@ -411,11 +418,31 @@ public class GitGuiPlugin
     enableButtons();
   }
 
-  private String getAbsoluteFilename(String root, String relativePath) {
-    String path = root + "/" + relativePath;
+  /**
+   * Normalize absolute filename.
+   *
+   * @param path
+   * @return
+   */
+  private String getAbsoluteFilename(String path) {
     try {
-      // Get absolute filename
-      //
+      path = HopVfs.getFileObject(path).getName().getPath();
+    } catch (Exception e) {
+      // Ignore, keep simple path
+    }
+    return path;
+  }
+
+  /**
+   * Normalize absolute filename
+   *
+   * @param root
+   * @param relativePath
+   * @return
+   */
+  private String getAbsoluteFilename(String root, String relativePath) {
+    String path = root + File.separator + relativePath;
+    try {
       path = HopVfs.getFileObject(path).getName().getPath();
     } catch (Exception e) {
       // Ignore, keep simple path
@@ -439,9 +466,9 @@ public class GitGuiPlugin
       }
 
       Set<String> ignored = git.getIgnored(null);
-      for (String ignore : ignored) {
-        String filename = getAbsoluteFilename(git.getDirectory(), ignore);
-        ignoredFiles.put(filename, ignore);
+      for (String file : ignored) {
+        String path = getAbsoluteFilename(git.getDirectory(), file);
+        ignoredFiles.put(path, file);
       }
     }
   }
@@ -486,16 +513,11 @@ public class GitGuiPlugin
    */
   @Override
   public void filePainted(Tree tree, TreeItem treeItem, String path, String name) {
+    // Normalize path
+    String absolutePath = getAbsoluteFilename(path);
 
-    GuiResource guiResource = GuiResource.getInstance();
-    UIFile file = null;
     // Changed git file colored blue
-    try {
-      file = changedFiles.get(HopVfs.getFileObject(path).getName().getPath());
-    } catch (HopFileException e) {
-      // do nothing
-    }
-
+    UIFile file = changedFiles.get(absolutePath);
     if (file != null) {
       switch (file.getChangeType()) {
         case DELETE, MODIFY, RENAME, COPY:
@@ -510,7 +532,7 @@ public class GitGuiPlugin
           break;
       }
     }
-    String ignored = ignoredFiles.get(path);
+    String ignored = ignoredFiles.get(absolutePath);
     if (ignored != null) {
       treeItem.setForeground(colorIgnored);
     }
@@ -563,18 +585,18 @@ public class GitGuiPlugin
   }
 
   /**
-   * Gets changedFiles
+   * Gets changed files
    *
-   * @return value of changedFiles
+   * @return map of changed files
    */
   public Map<String, UIFile> getChangedFiles() {
     return changedFiles;
   }
 
   /**
-   * Gets ignoredFiles
+   * Gets ignored files
    *
-   * @return value of ignoredFiles
+   * @return map of ignored files
    */
   public Map<String, String> getIgnoredFiles() {
     return ignoredFiles;

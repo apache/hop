@@ -199,11 +199,12 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       new ColumnInfo("Comment", ColumnInfo.COLUMN_TYPE_TEXT),
     };
     wRevisions =
-        new TableView(hopGui.getVariables(), composite, SWT.NONE, revisionColumns, 1, null, props);
+        new TableView(
+            hopGui.getVariables(), composite, SWT.BORDER, revisionColumns, 1, null, props);
     wRevisions.setReadonly(true);
     PropsUi.setLook(wRevisions);
     FormData fdRevisions = new FormData();
-    fdRevisions.left = new FormAttachment(0, margin);
+    fdRevisions.left = new FormAttachment(0, 0);
     fdRevisions.top = new FormAttachment(lastControl, margin);
     fdRevisions.right = new FormAttachment(100, 0);
     fdRevisions.bottom = new FormAttachment(40, 0);
@@ -235,9 +236,10 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     ColumnInfo[] filesColumns = {
       new ColumnInfo("Filename", ColumnInfo.COLUMN_TYPE_TEXT),
       new ColumnInfo("Status", ColumnInfo.COLUMN_TYPE_TEXT),
-      new ColumnInfo("Staged?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}),
+      new ColumnInfo("Staged", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}),
     };
-    wFiles = new TableView(hopGui.getVariables(), sashForm, SWT.NONE, filesColumns, 1, null, props);
+    wFiles =
+        new TableView(hopGui.getVariables(), sashForm, SWT.BORDER, filesColumns, 1, null, props);
     wFiles.setReadonly(true);
     PropsUi.setLook(wFiles);
     wFiles.table.addListener(SWT.Selection, e -> fileSelected());
