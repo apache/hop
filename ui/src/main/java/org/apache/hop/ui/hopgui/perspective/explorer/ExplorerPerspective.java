@@ -1305,7 +1305,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_SHOW_HIDDEN,
-      toolTip = "i18n::HopVfsFileDialog.ShowHiddenFiles.Tooltip.Message",
+      toolTip = "i18n:org.apache.hop.ui.core.vfs:HopVfsFileDialog.ShowHiddenFiles.Tooltip.Message",
       image = "ui/images/hide.svg")
   public void showHideHidden() {
     showingHiddenFiles = !showingHiddenFiles;
