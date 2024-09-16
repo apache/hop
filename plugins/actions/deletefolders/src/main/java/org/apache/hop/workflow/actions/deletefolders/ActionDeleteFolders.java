@@ -277,7 +277,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     FileObject filefolder = null;
 
     try {
-      filefolder = HopVfs.getFileObject(folderName);
+      filefolder = HopVfs.getFileObject(folderName, getVariables());
 
       if (filefolder.exists()) {
         // the file or folder exists
