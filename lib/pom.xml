@@ -80,7 +80,7 @@
         <httpclient.version>4.5.13</httpclient.version>
         <httpclient5.version>5.3.1</httpclient5.version>
         <jackcess.version>4.0.4</jackcess.version>
-        <jackson.version>2.15.0</jackson.version>
+        <jackson.version>2.17.2</jackson.version>
         <jakarta-mail.version>2.0.1</jakarta-mail.version>
         <jakarta.version>3.1.0</jakarta.version>
         <javassist.version>3.28.0-GA</javassist.version>
