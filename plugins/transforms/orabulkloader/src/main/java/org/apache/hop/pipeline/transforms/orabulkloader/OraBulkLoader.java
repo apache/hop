@@ -438,7 +438,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
         databaseName = '"' + databaseName + '"';
       }
 
-      sb.append(databaseName);
+      sb.append("/" + databaseName);
     } else {
       throw new HopException("No connection specified");
     }
