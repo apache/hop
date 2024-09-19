@@ -31,6 +31,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -43,6 +44,7 @@ import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -268,6 +270,22 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
 
   private void ok() {
     transformName = wTransformName.getText();
+    if (Utils.isEmpty(wFilename.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.FilenameMissing.Header"));
+      mb.setMessage(
+          BaseMessages.getString(PKG, "KafkaConsumerInputDialog.FilenameMissing.Message"));
+      mb.open();
+      return;
+    }
+    if (isSelfReferencing()) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.SelfReference.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.SelfReference.Message"));
+      mb.open();
+      return;
+    }
+
     updateMeta(meta);
     dispose();
   }
@@ -947,5 +965,14 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     } catch (HopException e) {
       log.logError("Error getting transform names from Kafka pipeline", e);
     }
+  }
+
+  private boolean isSelfReferencing() {
+    if (variables
+        .resolve(wFilename.getText())
+        .equals(variables.resolve(pipelineMeta.getFilename()))) {
+      return true;
+    }
+    return false;
   }
 }
