@@ -106,7 +106,7 @@ The available constants are:
 * SKIP_PIPELINE: Excludes the current row from the output row set and continues processing on the next row.
 * ERROR_PIPELINE: Excludes the current row from the output row set, generates an error, and any remaining rows are not processed.
 * CONTINUE_PIPELINE: Includes the current row in the output row set.
-* ABORT_PIPELINE: Excludes the current row from the output row set, and any remaining rows are not processed, but does not generate an error. (This constant does not display in the transform dialog, but can be used in your script)
+* ABORT_PIPELINE: Excludes the current row from the output row set, and any remaining rows are not processed, but does not generate an error.
 
 Transform Functions::
 String, numeric, date, logic, special, and file functions you can use in scripts. These included functions are implemented in Java and execute faster than JavaScript functions. Each function has a sample script demonstrating its use. Double-click the function to add it to the Javascript pane. Right-click and choose Sample to add the sample to the Javascript pane.

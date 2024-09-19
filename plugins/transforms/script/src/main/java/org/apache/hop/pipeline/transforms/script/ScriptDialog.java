@@ -295,6 +295,7 @@ public class ScriptDialog extends BaseTransformDialog {
     wlScript.setLayoutData(fdlScript);
 
     folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE);
+    PropsUi.setLook(folder, Props.WIDGET_STYLE_TAB);
 
     // This function does not allowed in the web that will lead to error
     // folder.setSimple(false);

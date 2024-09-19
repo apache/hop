@@ -115,6 +115,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       "ScriptValuesDialogMod.TestFailed.DialogMessage";
   public static final String CONST_SKIP_PIPELINE = "SKIP_PIPELINE";
   public static final String CONST_ERROR_PIPELINE = "ERROR_PIPELINE";
+  public static final String CONST_ABORT_PIPELINE = "ABORT_PIPELINE";
   public static final String CONST_CONTINUE_PIPELINE = "CONTINUE_PIPELINE";
   public static final String CONST_FUNCTION = "Function";
   public static final String CONST_JS_FUNCTION = "jsFunction";
@@ -156,11 +157,6 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   private String strActiveEndScript;
 
   private static final String[] jsFunctionList = ScriptValuesAddedFunctions.jsFunctionList;
-
-  public static final int SKIP_PIPELINE = 1;
-  private static final int ABORT_PIPELINE = -1;
-  private static final int ERROR_PIPELINE = -2;
-  private static final int CONTINUE_PIPELINE = 0;
 
   private final ScriptValuesMeta input;
   private ScriptValuesHelp scVHelp;
@@ -344,6 +340,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     wlPosition.setLayoutData(fdlPosition);
 
     folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE);
+    PropsUi.setLook(folder, Props.WIDGET_STYLE_TAB);
     folder.setUnselectedImageVisible(true);
     folder.setUnselectedCloseVisible(true);
     FormData fdScript = new FormData();
@@ -1206,10 +1203,10 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
         // Adding some Constants to the JavaScript
         try {
-          jsscope.put(CONST_SKIP_PIPELINE, jsscope, SKIP_PIPELINE);
-          jsscope.put("ABORT_PIPELINE", jsscope, ABORT_PIPELINE);
-          jsscope.put(CONST_ERROR_PIPELINE, jsscope, ERROR_PIPELINE);
-          jsscope.put(CONST_CONTINUE_PIPELINE, jsscope, CONTINUE_PIPELINE);
+          jsscope.put(CONST_SKIP_PIPELINE, jsscope, ScriptValues.SKIP_PIPELINE);
+          jsscope.put(CONST_ABORT_PIPELINE, jsscope, ScriptValues.ABORT_PIPELINE);
+          jsscope.put(CONST_ERROR_PIPELINE, jsscope, ScriptValues.ERROR_PIPELINE);
+          jsscope.put(CONST_CONTINUE_PIPELINE, jsscope, ScriptValues.CONTINUE_PIPELINE);
         } catch (Exception ex) {
           testException =
               new HopException(
@@ -1441,6 +1438,10 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     itemT.setImage(GuiResource.getInstance().getImageLabel());
     itemT.setText(CONST_CONTINUE_PIPELINE);
     itemT.setData(CONST_CONTINUE_PIPELINE);
+    itemT = new TreeItem(item, SWT.NULL);
+    itemT.setImage(GuiResource.getInstance().getImageLabel());
+    itemT.setText(CONST_ABORT_PIPELINE);
+    itemT.setData(CONST_ABORT_PIPELINE);
 
     item = new TreeItem(wTree, SWT.NULL);
     item.setImage(guiresource.getImageFolder());
