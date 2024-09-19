@@ -601,6 +601,21 @@ public class RepeatDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
+
+    if (Utils.isEmpty(wFilename.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "Repeat.Dialog.FilenameMissing.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "Repeat.Dialog.FilenameMissing.Message"));
+      mb.open();
+      return;
+    }
+    if (isSelfReferencing()) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "Repeat.Dialog.SelfReference.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "Repeat.Dialog.SelfReference.Message"));
+      mb.open();
+      return;
+    }
     action.setFilename(wFilename.getText());
     action.setVariableName(wVariableName.getText());
     action.setVariableValue(wVariableValue.getText());
@@ -640,5 +655,14 @@ public class RepeatDialog extends ActionDialog {
     action.setChanged();
 
     dispose();
+  }
+
+  private boolean isSelfReferencing() {
+    if (variables
+        .resolve(wFilename.getText())
+        .equals(variables.resolve(workflowMeta.getFilename()))) {
+      return true;
+    }
+    return false;
   }
 }

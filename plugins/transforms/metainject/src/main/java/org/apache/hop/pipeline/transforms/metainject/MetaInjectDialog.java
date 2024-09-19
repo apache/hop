@@ -1093,6 +1093,20 @@ public class MetaInjectDialog extends BaseTransformDialog {
               PKG, CONST_META_INJECT_DIALOG_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE),
           e);
     }
+    if (Utils.isEmpty(wPath.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "MetaInjectDialog.FilenameMissing.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "MetaInjectDialog.FilenameMissing.Message"));
+      mb.open();
+      return;
+    }
+    if (isSelfReferencing()) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "MetaInjectDialog.SelfReference.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "MetaInjectDialog.SelfReference.Message"));
+      mb.open();
+      return;
+    }
 
     getInfo(metaInjectMeta);
     dispose();
@@ -1326,5 +1340,12 @@ public class MetaInjectDialog extends BaseTransformDialog {
         refreshTree();
       }
     }
+  }
+
+  private boolean isSelfReferencing() {
+    if (variables.resolve(wPath.getText()).equals(variables.resolve(pipelineMeta.getFilename()))) {
+      return true;
+    }
+    return false;
   }
 }

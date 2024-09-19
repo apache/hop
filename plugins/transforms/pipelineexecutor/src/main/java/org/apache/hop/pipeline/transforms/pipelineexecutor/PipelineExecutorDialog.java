@@ -40,6 +40,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
@@ -1231,6 +1232,21 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
     transformName = wTransformName.getText(); // return value
 
+    if (Utils.isEmpty(wPath.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.FilenameMissing.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "PipelineExecutorDialog.FilenameMissing.Message"));
+      mb.open();
+      return;
+    }
+    if (isSelfReferencing()) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.SelfReference.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "PipelineExecutorDialog.SelfReference.Message"));
+      mb.open();
+      return;
+    }
+
     try {
       loadPipeline();
     } catch (HopException e) {
@@ -1343,5 +1359,12 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       pipelineExecutorMeta.getOutputRowsLength()[i] = Const.toInt(item.getText(3), -1);
       pipelineExecutorMeta.getOutputRowsPrecision()[i] = Const.toInt(item.getText(4), -1);
     }
+  }
+
+  private boolean isSelfReferencing() {
+    if (variables.resolve(wPath.getText()).equals(variables.resolve(pipelineMeta.getFilename()))) {
+      return true;
+    }
+    return false;
   }
 }
