@@ -18,17 +18,14 @@
 package org.apache.hop.testing.transforms.exectests;
 
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.TestType;
 import org.apache.hop.testing.UnitTestResult;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "ExecuteTests",
@@ -49,13 +46,28 @@ public class ExecuteTestsMeta extends BaseTransformMeta<ExecuteTests, ExecuteTes
   public static final String TAG_ERROR_FIELD = "error_field";
   public static final String TAG_COMMENT_FIELD = "comment_field";
 
+  @HopMetadataProperty(key = TAG_TEST_NAME_INPUT_FIELD)
   private String testNameInputField;
+
+  @HopMetadataProperty(key = TAG_TYPE_TO_EXECUTE)
   private TestType typeToExecute;
+
+  @HopMetadataProperty(key = TAG_PIPELINE_NAME_FIELD)
   private String pipelineNameField;
+
+  @HopMetadataProperty(key = TAG_UNIT_TEST_NAME_FIELD)
   private String unitTestNameField;
+
+  @HopMetadataProperty(key = TAG_DATASET_NAME_FIELD)
   private String dataSetNameField;
+
+  @HopMetadataProperty(key = TAG_TRANSFORM_NAME_FIELD)
   private String transformNameField;
+
+  @HopMetadataProperty(key = TAG_ERROR_FIELD)
   private String errorField;
+
+  @HopMetadataProperty(key = TAG_COMMENT_FIELD)
   private String commentField;
 
   public ExecuteTestsMeta() {
@@ -81,53 +93,6 @@ public class ExecuteTestsMeta extends BaseTransformMeta<ExecuteTests, ExecuteTes
 
     inputRowMeta.clear();
     inputRowMeta.addRowMeta(rowMeta);
-  }
-
-  @Override
-  public String getXml() throws HopException {
-    StringBuilder xml = new StringBuilder();
-    xml.append(XmlHandler.addTagValue(TAG_TEST_NAME_INPUT_FIELD, testNameInputField));
-    xml.append(
-        XmlHandler.addTagValue(
-            TAG_TYPE_TO_EXECUTE,
-            typeToExecute == null ? TestType.DEVELOPMENT.name() : typeToExecute.name()));
-    xml.append(XmlHandler.addTagValue(TAG_PIPELINE_NAME_FIELD, pipelineNameField));
-    xml.append(XmlHandler.addTagValue(TAG_UNIT_TEST_NAME_FIELD, unitTestNameField));
-    xml.append(XmlHandler.addTagValue(TAG_DATASET_NAME_FIELD, dataSetNameField));
-    xml.append(XmlHandler.addTagValue(TAG_TRANSFORM_NAME_FIELD, transformNameField));
-    xml.append(XmlHandler.addTagValue(TAG_ERROR_FIELD, errorField));
-    xml.append(XmlHandler.addTagValue(TAG_COMMENT_FIELD, commentField));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-
-      testNameInputField = XmlHandler.getTagValue(transformNode, TAG_TEST_NAME_INPUT_FIELD);
-      String typeDesc = XmlHandler.getTagValue(transformNode, TAG_TYPE_TO_EXECUTE);
-      try {
-        typeToExecute = TestType.valueOf(typeDesc);
-      } catch (Exception e) {
-        typeToExecute = TestType.DEVELOPMENT;
-      }
-      pipelineNameField = XmlHandler.getTagValue(transformNode, TAG_PIPELINE_NAME_FIELD);
-      unitTestNameField = XmlHandler.getTagValue(transformNode, TAG_UNIT_TEST_NAME_FIELD);
-      dataSetNameField = XmlHandler.getTagValue(transformNode, TAG_DATASET_NAME_FIELD);
-      transformNameField = XmlHandler.getTagValue(transformNode, TAG_TRANSFORM_NAME_FIELD);
-      errorField = XmlHandler.getTagValue(transformNode, TAG_ERROR_FIELD);
-      commentField = XmlHandler.getTagValue(transformNode, TAG_COMMENT_FIELD);
-
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load execute test transform details", e);
-    }
-  }
-
-  @Override
-  public String getDialogClassName() {
-    return ExecuteTestsDialog.class.getName();
   }
 
   @Override
