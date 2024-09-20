@@ -71,6 +71,22 @@ image::hop-gui/perspective-explorer-git-visual-diff-example.png[Git visual diff 
 
 Small information icons will be added to the various transforms, actions and hops to indicate if they were changes, deleted or added.
 
+=== Right-click menu options
+The right-click menu in Apache Hop Git integration offers several useful options to help manage your files and Git operations directly from the interface. Here’s a breakdown of each option:
+
+* Create folder: Create a new folder within the selected directory. This is useful for organizing workflows, pipelines, and other project resources.
+* Open: Opens the selected file or folder. For workflows and pipelines, it launches them in the Data Orchestration perspective, while other file types will open in a new tab.
+* Rename: Allows you to change the name of the selected file or folder, helping you keep your project files organized and clearly labeled.
+* Copy name: Copies the name of the selected file or folder to your clipboard, making it easy to paste and reference elsewhere.
+* Copy path: Copies the full path of the selected file or folder to your clipboard, useful for quick navigation or sharing the location with others.
+* Git Info: Displays detailed information about the Git status of the selected file, including any recent changes.
+* Git Add: Stages the selected file(s) for commit, meaning the changes are prepared for inclusion in your next Git commit.
+* Git Revert: Reverts any changes made to the selected file, restoring it to the last committed state. This is helpful when you need to undo accidental modifications.
+* Git Commit: Opens a dialog for committing staged changes to your local Git repository. You can add a descriptive commit message summarizing your updates.
+* Delete: Removes the selected file or folder from your project. Make sure to use this carefully, as it permanently deletes the item from your directory.
+
+image::hop-gui/hop-gui-file-explorer-right-menu.png[git right-click menu options in the explorer perspective]
+
 ==== Git operations
 
 Here are the basic git operations that are supported:
@@ -84,3 +100,4 @@ Here are the basic git operations that are supported:
 You can access these operations from the toolbar above the file explorer tree:
 
 image::hop-gui/perspective-explorer-git-toolbar-operations.png[git toolbar items in the explorer perspective]
+
