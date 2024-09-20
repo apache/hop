@@ -27,8 +27,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
     key = "pipeline-probe",
-    name = "Pipeline Probe",
-    description = "This allows you to stream output rows of a transform to another pipeline",
+    name = "i18n::PipelineProbe.name",
+    description = "i18n::PipelineProbe.desciption",
     image = "probe.svg",
     documentationUrl = "/metadata-types/pipeline-probe.html")
 public class PipelineProbe extends HopMetadataBase implements IHopMetadata {

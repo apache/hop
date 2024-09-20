@@ -58,8 +58,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
  */
 @HopMetadata(
     key = "rdbms",
-    name = "Relational Database Connection",
-    description = "This contains all the metadata needed to connect to a relational database",
+    name = "i18n::DatabaseMeta.name",
+    description = "i18n::DatabaseMeta.Description",
     image = "ui/images/database.svg",
     documentationUrl = "/metadata-types/rdbms-connection.html")
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {

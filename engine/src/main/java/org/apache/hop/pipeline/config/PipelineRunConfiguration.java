@@ -32,8 +32,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 @HopMetadata(
     key = "pipeline-run-configuration",
-    name = "Pipeline Run Configuration",
-    description = "Describes how and with which engine a pipeline is to be executed",
+    name = "i18n::PipelineRunConfiguration.name",
+    description = "i18n::PipelineRunConfiguration.description",
     image = "ui/images/pipeline_run_config.svg",
     documentationUrl = "/metadata-types/pipeline-run-config.html")
 public class PipelineRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {

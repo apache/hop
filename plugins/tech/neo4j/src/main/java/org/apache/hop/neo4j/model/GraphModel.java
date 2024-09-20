@@ -36,8 +36,8 @@ import org.json.simple.parser.JSONParser;
 
 @HopMetadata(
     key = "neo4j-graph-model",
-    name = "Neo4j Graph Model",
-    description = "Description of the nodes, relationships, indexes... of a Neo4j graph",
+    name = "i18n::GraphModel.name",
+    description = "i18n::GraphModel.description",
     image = "neo4j_logo.svg",
     documentationUrl = "/metadata-types/neo4j/neo4j-graphmodel.html")
 public class GraphModel extends HopMetadataBase implements IHopMetadata {

@@ -29,8 +29,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
     key = "async-web-service",
-    name = "Asynchronous Web Service",
-    description = "Allows you to run a long running workflow asynchronously",
+    name = "i18n::AsynWebService.name",
+    description = "i18n::AsynWebService.description",
     image = "ui/images/server.svg",
     documentationUrl = "metadata-types/async-web-service.html")
 public class AsyncWebService extends HopMetadataBase implements IHopMetadata {

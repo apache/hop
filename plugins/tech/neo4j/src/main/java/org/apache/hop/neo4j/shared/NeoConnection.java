@@ -52,8 +52,8 @@ import org.neo4j.driver.Value;
 
 @HopMetadata(
     key = "neo4j-connection",
-    name = "Neo4j Connection",
-    description = "A shared connection to a Neo4j server",
+    name = "i18n::NeoConnection.name",
+    description = "i18n::NeoConnection.description",
     image = "neo4j_logo.svg",
     documentationUrl = "/metadata-types/neo4j/neo4j-connection.html")
 public class NeoConnection extends HopMetadataBase implements IHopMetadata {

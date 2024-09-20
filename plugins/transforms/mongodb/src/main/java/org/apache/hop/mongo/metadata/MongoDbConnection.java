@@ -41,8 +41,8 @@ import org.apache.hop.mongo.wrapper.MongoWrapperClientFactory;
 @GuiPlugin
 @HopMetadata(
     key = "mongodb-connection",
-    name = "MongoDB Connection",
-    description = "Describes a MongoDB connection",
+    name = "i18n::MongoDbConnection.name",
+    description = "i18n::MongoDbConnection.description",
     image = "MongoDB_Leaf_FullColor_RGB.svg",
     documentationUrl = "/metadata-types/mongodb-connection.html")
 public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {

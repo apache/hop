@@ -26,8 +26,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
     key = "execution-info-location",
-    name = "Execution Information Location",
-    description = "Describes where Hop can send execution information to",
+    name = "i18n::ExecutionInfoLocation.name",
+    description = "i18n::ExecutionInfoLocation.description",
     image = "ui/images/location.svg",
     documentationUrl = "/metadata-types/execution-information-location.html")
 public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetadata, Cloneable {

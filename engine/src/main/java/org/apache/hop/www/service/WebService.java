@@ -25,8 +25,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
     key = "web-service",
-    name = "Web Service",
-    description = "Allows you to run a pipeline to generate output for a servlet on Hop Server",
+    name = "i18n::WebService.name",
+    description = "i18n::WebService.description",
     image = "ui/images/webservice.svg",
     documentationUrl = "/metadata-types/web-service.html")
 public class WebService extends HopMetadataBase implements IHopMetadata {

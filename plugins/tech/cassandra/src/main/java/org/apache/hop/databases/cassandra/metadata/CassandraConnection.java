@@ -38,8 +38,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @GuiPlugin
 @HopMetadata(
     key = "cassandra-connection",
-    name = "Cassandra Connection",
-    description = "Describes a connection to a Cassandra cluster",
+    name = "i18n::CassandraConnection.name",
+    description = "i18n::CassandraConnection.description",
     image = "Cassandra_logo.svg",
     documentationUrl = "/metadata-types/cassandra/cassandra-connection.html")
 public class CassandraConnection extends HopMetadataBase implements IHopMetadata {

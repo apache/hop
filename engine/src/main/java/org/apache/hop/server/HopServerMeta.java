@@ -100,8 +100,8 @@ import org.w3c.dom.Node;
 
 @HopMetadata(
     key = "server",
-    name = "Hop Server",
-    description = "Defines a Hop Hop Server",
+    name = "i18n::HopServer.name",
+    description = "i18n::HopServer.description",
     image = "ui/images/server.svg",
     documentationUrl = "/metadata-types/hop-server.html")
 public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
