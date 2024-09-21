@@ -45,12 +45,22 @@ import org.mozilla.javascript.ScriptableObject;
 public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesData> {
   private static final Class<?> PKG = ScriptValuesMeta.class;
 
+  /** Excludes the current row from the output row set and continues processing on the next row. */
   public static final int SKIP_PIPELINE = 1;
 
+  /**
+   * Excludes the current row from the output row set, and any remaining rows are not processed, but
+   * does not generate an error.
+   */
   public static final int ABORT_PIPELINE = -1;
 
+  /**
+   * Excludes the current row from the output row set, generates an error, and any remaining rows
+   * are not processed.
+   */
   public static final int ERROR_PIPELINE = -2;
 
+  /** Includes the current row in the output row set. */
   public static final int CONTINUE_PIPELINE = 0;
 
   private boolean bWithPipelineStat = false;
@@ -350,11 +360,12 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         if (pipelineStatus != Scriptable.NOT_FOUND) {
           bWithPipelineStat = true;
           if (log.isDetailed()) {
-            logDetailed(("tran_Status found. Checking pipeline status while script execution."));
+            logDetailed(
+                ("pipeline_Status found. Checking pipeline status while script execution."));
           }
         } else {
           if (log.isDetailed()) {
-            logDetailed(("No tran_Status found. Pipeline status checking not available."));
+            logDetailed(("No pipeline_Status found. Pipeline status checking not available."));
           }
           bWithPipelineStat = false;
         }
