@@ -1211,6 +1211,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         }
       }
 
+      filename = variables.resolve(filename);
       navigationHistory.add(filename);
       navigationIndex = navigationHistory.size() - 1;
     }
