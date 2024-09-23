@@ -36,7 +36,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::SchemaDefinition.Name",
     description = "i18n::SchemaDefinition.Description",
     image = "ui/images/folder.svg",
-    documentationUrl = "/metadata-types/staticschema.html")
+    documentationUrl = "/metadata-types/static-schema-definition.html")
 public class SchemaDefinition extends HopMetadataBase implements Serializable, IHopMetadata {
 
   private static final Class<?> PKG = SchemaDefinition.class;
