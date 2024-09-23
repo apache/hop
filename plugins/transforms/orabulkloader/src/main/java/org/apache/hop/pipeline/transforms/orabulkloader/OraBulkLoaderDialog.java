@@ -234,7 +234,8 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
         };
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection =
+        addConnectionLine(wBulkLoaderComposite, wTransformName, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
