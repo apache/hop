@@ -27,7 +27,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::AzureMetadataType.Name",
     description = "i18n::AzureMetadataType.Description",
     image = "ui/images/folder.svg",
-    documentationUrl = "/metadata-types/staticschema.html")
+    documentationUrl = "/metadata-types/azure-authentication.html")
 public class AzureMetadataType extends HopMetadataBase implements Serializable, IHopMetadata {
 
   private static final Class<?> PKG = AzureMetadataType.class;

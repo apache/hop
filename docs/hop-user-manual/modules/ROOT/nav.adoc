@@ -415,6 +415,7 @@ under the License.
 ** xref:logging/logging-reflection.adoc[Logging reflection]
 * xref:metadata-types/index.adoc[Metadata Types]
 ** xref:metadata-types/asyncwebservice.adoc[]
+** xref:metadata-types/azure-authentication.adoc[Azure Authentication]
 ** xref:metadata-types/beam-file-definition.adoc[Beam File Definition]
 ** xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]
 ** xref:metadata-types/data-set.adoc[Data Set]
