@@ -97,7 +97,10 @@ public abstract class BeamPipelineEngine extends Variables
 
   static MetricResults EMPTY_METRIC_RESULTS =
       new DefaultMetricResults(
-          Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+          Collections.emptyList(),
+          Collections.emptyList(),
+          Collections.emptyList(),
+          Collections.emptyList());
 
   /**
    * Constant specifying a filename containing XML to inject into a ZIP file created during resource

@@ -17,7 +17,7 @@ bin
 routes.yml
 *.tgf
 .vscode
-.swp
+*.swp
 
 rebel.xml
 rebel-remote.xml
