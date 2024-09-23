@@ -165,7 +165,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+                    <artifactId>beam-vendor-guava-33.1.0-jre-jre</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -235,7 +235,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+                    <artifactId>beam-vendor-guava-33.1.0-jre-jre</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
@@ -329,7 +329,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+                    <artifactId>beam-vendor-guava-33.1.0-jre-jre</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
@@ -387,7 +387,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+                    <artifactId>beam-vendor-guava-33.1.0-jre-jre</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
@@ -443,7 +443,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+                    <artifactId>beam-vendor-guava-33.1.0-jre-jre</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
@@ -609,7 +609,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+                    <artifactId>beam-vendor-guava-33.1.0-jre-jre</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
@@ -721,7 +721,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+                    <artifactId>beam-vendor-guava-33.1.0-jre-jre</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
@@ -771,7 +771,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+                    <artifactId>beam-vendor-guava-33.1.0-jre-jre</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
@@ -805,7 +805,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+                    <artifactId>beam-vendor-guava-33.1.0-jre-jre</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
