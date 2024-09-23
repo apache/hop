@@ -32,8 +32,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
  */
 @HopMetadata(
     key = "execution-data-profile",
-    name = "Execution Data Profile",
-    description = "Describes how transform output data is profiled",
+    name = "i18n::ExecutionDataProfile.name",
+    description = "i18n::ExecutionDataProfile.description",
     image = "ui/images/analyzer.svg",
     documentationUrl = "/metadata-types/execution-data-profile.html")
 public class ExecutionDataProfile extends HopMetadataBase implements IHopMetadata, Cloneable {

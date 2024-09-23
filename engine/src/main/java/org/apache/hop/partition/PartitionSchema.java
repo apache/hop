@@ -32,8 +32,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
  */
 @HopMetadata(
     key = "partition",
-    name = "Partition Schema",
-    description = "Describes a partition schema",
+    name = "i18n::PartitionSchema.name",
+    description = "i18n::PartitionSchema.description",
     image = "ui/images/partition_schema.svg",
     documentationUrl = "/metadata-types/partition-schema.html")
 public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopMetadata {

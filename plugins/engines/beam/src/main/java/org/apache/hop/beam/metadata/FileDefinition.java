@@ -33,8 +33,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
     key = "file-definition",
-    name = "Beam File Definition",
-    description = "Describes a file layout in a Beam pipeline",
+    name = "i18n::BeamFileDefinition.name",
+    description = "i18n::BeamFileDefinition.description",
     image = "ui/images/folder.svg",
     documentationUrl = "/metadata-types/beam-file-definition.html")
 public class FileDefinition extends HopMetadataBase implements Serializable, IHopMetadata {

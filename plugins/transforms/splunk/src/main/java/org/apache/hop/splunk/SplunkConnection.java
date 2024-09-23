@@ -31,8 +31,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
     key = "splunk",
-    name = "Splunk Connection",
-    description = "This metadata type describes how you can connect to Splunk",
+    name = "i18n::SplunkConnection.name",
+    description = "i18n::SplunkConnection.description",
     image = "splunk.svg",
     documentationUrl = "/metadata-types/splunk-connection.html")
 public class SplunkConnection extends HopMetadataBase implements Cloneable, IHopMetadata {

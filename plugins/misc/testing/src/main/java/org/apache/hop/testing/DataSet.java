@@ -36,8 +36,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
     key = "dataset",
-    name = "Data Set",
-    description = "This defines a data set, a static pre-defined collection of rows",
+    name = "i18n::DataSet.name",
+    description = "i18n::DataSet.description",
     image = "dataset.svg",
     documentationUrl = "/metadata-types/data-set.html")
 public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata {

@@ -40,9 +40,8 @@ import org.apache.hop.testing.util.DataSetConst;
 /** This class describes a test-case where a pipeline output is verified against golden data. */
 @HopMetadata(
     key = "unit-test",
-    name = "Pipeline Unit Test",
-    description =
-        "This describes a test for a pipeline with alternative data sets as input from certain transform and testing output against golden data",
+    name = "i18n::PipelineUnitTest.name",
+    description = "i18n::PipelineUnitTest.description",
     image = "Test_tube_icon.svg",
     documentationUrl = "/metadata-types/pipeline-unit-test.html")
 public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHopMetadata {
