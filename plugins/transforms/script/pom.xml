@@ -31,7 +31,7 @@
 
     <properties>
         <groovy.version>4.0.22</groovy.version>
-        <jython.version>2.7.3</jython.version>
+        <jython.version>2.7.4</jython.version>
     </properties>
 
     <dependencyManagement>

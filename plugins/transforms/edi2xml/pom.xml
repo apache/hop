@@ -37,6 +37,12 @@
             <groupId>org.antlr</groupId>
             <artifactId>antlr-complete</artifactId>
             <version>${antlr-complete.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>gunit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

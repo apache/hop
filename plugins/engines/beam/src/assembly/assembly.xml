@@ -50,6 +50,8 @@
                 <exclude>org.apache.hadoop:*:jar</exclude>
                 <exclude>org.apache.hadoop.thirdparty:*:jar</exclude>
                 <exclude>org.yaml:snakeyaml:jar</exclude>
+                <exclude>com.google.protobuf:protobuf-java:jar</exclude>
+                <exclude>com.google.protobuf:protobuf-java-util:jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -59,6 +61,8 @@
                 <include>org.apache.hadoop:*:jar</include>
                 <include>org.apache.hadoop.thirdparty:*:jar</include>
                 <include>org.yaml:snakeyaml:jar</include>
+                <include>com.google.protobuf:protobuf-java:jar</include>
+                <include>com.google.protobuf:protobuf-java-util:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
