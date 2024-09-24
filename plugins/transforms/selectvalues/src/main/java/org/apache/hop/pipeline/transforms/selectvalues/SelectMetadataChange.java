@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.selectvalues;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
-public class SelectMetadataChange implements Cloneable {
+public class SelectMetadataChange {
 
   // META-DATA mode
   /** Fields of which we want to change the meta data */
@@ -116,7 +116,7 @@ public class SelectMetadataChange implements Cloneable {
   private String encoding;
 
   public SelectMetadataChange() {
-    storageType = ValueMetaFactory.getValueMetaName(-1);
+    storageType = "";
   }
 
   public SelectMetadataChange(
