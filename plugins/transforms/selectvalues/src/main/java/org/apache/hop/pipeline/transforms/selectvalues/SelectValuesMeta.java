@@ -343,7 +343,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     IRowMeta row;
 
     var selectFields = selectOption.getSelectFields();
-    if (selectFields != null && selectFields.isEmpty()) { // SELECT values
+    if (selectFields != null && !selectFields.isEmpty()) { // SELECT values
 
       // 0. Start with an empty row
       // 1. Keep only the selected values
