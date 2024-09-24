@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.selectvalues;
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
-public class DeleteField {
+public class DeleteField implements Cloneable {
 
   @HopMetadataProperty(key = "name", injectionKey = "FIELD_NAME", injectionGroupKey = "REMOVES")
   private String name;
@@ -46,5 +46,15 @@ public class DeleteField {
   @Override
   public int hashCode() {
     return Objects.hashCode(name);
+  }
+
+  @Override
+  protected DeleteField clone() throws CloneNotSupportedException {
+
+    try {
+      return (DeleteField) super.clone();
+    } catch (CloneNotSupportedException e) {
+      return null;
+    }
   }
 }
