@@ -36,9 +36,8 @@ public class SingletonUtil {
       Object singleton = getInstanceMethod.invoke(null, new Object[] {});
 
       Method method = singletonClass.getMethod(methodName);
-      List<String> values = (List<String>) method.invoke(singleton, new Object[] {});
 
-      return values;
+      return (List<String>) method.invoke(singleton, new Object[] {});
     } catch (Exception e) {
       throw new HopException(
           "Unable to get list of values from class "

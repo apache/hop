@@ -222,17 +222,15 @@ public class PGBulkLoaderTest {
   }
 
   private static DatabaseMeta getDatabaseMetaSpy() throws HopXmlException {
-    DatabaseMeta databaseMeta =
-        spy(
-            new DatabaseMeta(
-                CONNECTION_NAME,
-                "POSTGRESQL",
-                "Native",
-                CONNECTION_DB_HOST,
-                CONNECTION_DB_NAME,
-                CONNECTION_DB_PORT,
-                CONNECTION_DB_USERNAME,
-                CONNECTION_DB_PASSWORD));
-    return databaseMeta;
+    return spy(
+        new DatabaseMeta(
+            CONNECTION_NAME,
+            "POSTGRESQL",
+            "Native",
+            CONNECTION_DB_HOST,
+            CONNECTION_DB_NAME,
+            CONNECTION_DB_PORT,
+            CONNECTION_DB_USERNAME,
+            CONNECTION_DB_PASSWORD));
   }
 }

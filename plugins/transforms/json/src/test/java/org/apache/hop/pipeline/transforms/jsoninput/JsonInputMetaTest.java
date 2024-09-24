@@ -138,8 +138,7 @@ public class JsonInputMetaTest {
   private Node loadTransformFile(String transformFilename) throws HopXmlException {
     Document document =
         XmlHandler.loadXmlFile(this.getClass().getResourceAsStream(transformFilename));
-    Node transformNode = document.getDocumentElement();
-    return transformNode;
+    return document.getDocumentElement();
   }
 
   private String expectedMeta(String transform) throws Exception {

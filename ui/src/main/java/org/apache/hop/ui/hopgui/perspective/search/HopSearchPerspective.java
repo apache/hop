@@ -523,13 +523,11 @@ public class HopSearchPerspective implements IHopPerspective {
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>();
-    return handlers;
+    return new ArrayList<>();
   }
 
   @Override
   public List<ISearchable> getSearchables() {
-    List<ISearchable> searchables = new ArrayList<>();
-    return searchables;
+    return new ArrayList<>();
   }
 }

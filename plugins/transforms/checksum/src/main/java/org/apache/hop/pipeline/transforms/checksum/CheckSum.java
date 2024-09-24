@@ -188,10 +188,9 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
     data.digest.update(baos.toByteArray());
 
     // Completes the hash computation by performing final operations such as padding
-    byte[] hash = data.digest.digest();
     // After digest has been called, the MessageDigest object is reset to its initialized state
 
-    return hash;
+    return data.digest.digest();
   }
 
   private static String getStringFromBytes(byte[] bytes) {

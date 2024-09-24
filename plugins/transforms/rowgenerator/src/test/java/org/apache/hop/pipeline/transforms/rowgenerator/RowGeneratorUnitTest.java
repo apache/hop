@@ -80,6 +80,6 @@ public class RowGeneratorUnitTest {
     rowGenerator.init();
 
     long rowLimit = rowGenerator.getData().rowLimit;
-    assertEquals(rowLimit, 1440);
+    assertEquals(1440, rowLimit);
   }
 }

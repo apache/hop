@@ -33,9 +33,7 @@ public class BeamBaseTransformHandler {
 
   protected Node getTransformXmlNode(TransformMeta transformMeta) throws HopException {
     String xml = transformMeta.getXml();
-    Node transformNode =
-        XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), TransformMeta.XML_TAG);
-    return transformNode;
+    return XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), TransformMeta.XML_TAG);
   }
 
   protected void loadTransformMetadata(

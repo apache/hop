@@ -298,15 +298,11 @@ public class WebServer {
 
     // Start execution
     createListeners();
-    // Temp disable shutdown listener #3367
-    //    Thread monitor = new MonitorThread(server, hostname, shutdownPort);
-    //    monitor.start();
     server.start();
   }
 
   public String getContextPath(IHopServerPlugin servlet) {
-    String contextPath = servlet.getContextPath();
-    return contextPath;
+    return servlet.getContextPath();
   }
 
   public void join() throws InterruptedException {
@@ -353,11 +349,6 @@ public class WebServer {
     connector.setHost(hostname);
     connector.setName(BaseMessages.getString(PKG, "WebServer.Log.HopHTTPListener", hostname));
     log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.CreateListener", hostname, "" + port));
-
-    // Temp disable shutdown listener #3367
-    //    log.logBasic(
-    //        BaseMessages.getString(
-    //            PKG, "WebServer.Log.CreateShutDownListener", hostname, "" + shutdownPort));
 
     server.setConnectors(new Connector[] {connector});
   }

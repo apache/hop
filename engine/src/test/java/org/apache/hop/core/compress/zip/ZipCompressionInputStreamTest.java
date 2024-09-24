@@ -66,7 +66,7 @@ public class ZipCompressionInputStreamTest {
   @Test
   public void getZIPCompressionProvider() {
     ICompressionProvider provider = inStream.getCompressionProvider();
-    assertEquals(provider.getName(), PROVIDER_NAME);
+    assertEquals(PROVIDER_NAME, provider.getName());
   }
 
   @Test

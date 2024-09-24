@@ -989,22 +989,20 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
 
   static DialogBoxWithButtons getFieldsChoiceDialog(
       Shell shell, int existingFields, int newFields) {
-    DialogBoxWithButtons messageDialog =
-        new DialogBoxWithButtons(
-            shell,
-            BaseMessages.getString(PKG, "BaseTransformDialog.GetFieldsChoice.Title"), // "Warning!"
-            BaseMessages.getString(
-                PKG,
-                "BaseTransformDialog.GetFieldsChoice.Message",
-                "" + existingFields,
-                "" + newFields),
-            new String[] {
-              BaseMessages.getString(PKG, "BaseTransformDialog.AddNew"),
-              BaseMessages.getString(PKG, "BaseTransformDialog.Add"),
-              BaseMessages.getString(PKG, "BaseTransformDialog.ClearAndAdd"),
-              BaseMessages.getString(PKG, "BaseTransformDialog.Cancel"),
-            });
-    return messageDialog;
+    return new DialogBoxWithButtons(
+        shell,
+        BaseMessages.getString(PKG, "BaseTransformDialog.GetFieldsChoice.Title"), // "Warning!"
+        BaseMessages.getString(
+            PKG,
+            "BaseTransformDialog.GetFieldsChoice.Message",
+            "" + existingFields,
+            "" + newFields),
+        new String[] {
+          BaseMessages.getString(PKG, "BaseTransformDialog.AddNew"),
+          BaseMessages.getString(PKG, "BaseTransformDialog.Add"),
+          BaseMessages.getString(PKG, "BaseTransformDialog.ClearAndAdd"),
+          BaseMessages.getString(PKG, "BaseTransformDialog.Cancel"),
+        });
   }
 
   /**

@@ -47,7 +47,7 @@ public class ValidatorMessages {
     } catch (Exception e) {
       return "??? " + key + " ???";
     }
-    String formattedString = MessageFormat.format(unformattedString, params);
-    return formattedString;
+
+    return MessageFormat.format(unformattedString, params);
   }
 }

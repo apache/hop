@@ -306,7 +306,7 @@ public class TestingGuiPlugin {
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void clearInputDataSet(HopGuiPipelineTransformContext context) {
-    HopGui hopGui = ((HopGui) HopGui.getInstance());
+    HopGui hopGui = HopGui.getInstance();
     PipelineMeta pipelineMeta = context.getPipelineMeta();
     TransformMeta transformMeta = context.getTransformMeta();
     IVariables variables = context.getPipelineGraph().getVariables();
@@ -1005,8 +1005,7 @@ public class TestingGuiPlugin {
     }
     Control control =
         pipelineGraph.getToolBarWidgets().getWidgetsMap().get(ID_TOOLBAR_UNIT_TESTS_COMBO);
-    if ((control != null) && (control instanceof Combo)) {
-      Combo combo = (Combo) control;
+    if ((control != null) && (control instanceof Combo combo)) {
       return combo;
     }
     return null;
@@ -1083,8 +1082,7 @@ public class TestingGuiPlugin {
 
     // On with the program
     //
-    PipelineMeta pipelineMeta = (PipelineMeta) subject;
-    return pipelineMeta;
+    return (PipelineMeta) subject;
   }
 
   /**
@@ -1216,10 +1214,7 @@ public class TestingGuiPlugin {
     if (stateMap == null) {
       return null;
     }
-
-    PipelineUnitTest test =
-        (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
-    return test;
+    return (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
   }
 
   @GuiContextAction(

@@ -188,9 +188,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
    * @return
    */
   private Object[] buildEmptyRow() {
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-
-    return rowData;
+    return RowDataUtil.allocateRowData(data.outputRowMeta.size());
   }
 
   private boolean isFolderExausted() {

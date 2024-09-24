@@ -676,30 +676,30 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
     Connection conn = data.db.getConnection();
     if (conn != null) {
-      if (conn instanceof VerticaConnection) {
-        return (VerticaConnection) conn;
+      if (conn instanceof VerticaConnection verticaConnection) {
+        return verticaConnection;
       } else {
         Connection underlyingConn = null;
-        if (conn instanceof DelegatingConnection) {
-          DelegatingConnection pooledConn = (DelegatingConnection) conn;
+        if (conn instanceof DelegatingConnection delegatingConnection) {
+          DelegatingConnection pooledConn = delegatingConnection;
           underlyingConn = pooledConn.getInnermostDelegate();
-        } else if (conn instanceof javax.sql.PooledConnection) {
-          PooledConnection pooledConn = (PooledConnection) conn;
+        } else if (conn instanceof javax.sql.PooledConnection pooledConnection) {
+          PooledConnection pooledConn = pooledConnection;
           underlyingConn = pooledConn.getConnection();
         } else {
           // Last resort - attempt to use unwrap to get at the connection.
           try {
             if (conn.isWrapperFor(VerticaConnection.class)) {
-              VerticaConnection vc = conn.unwrap(VerticaConnection.class);
-              return vc;
+              return conn.unwrap(VerticaConnection.class);
             }
           } catch (SQLException ignored) {
             // ignored - the connection doesn't support unwrap or the connection cannot be
             // unwrapped into a VerticaConnection.
           }
         }
-        if ((underlyingConn != null) && (underlyingConn instanceof VerticaConnection)) {
-          return (VerticaConnection) underlyingConn;
+        if ((underlyingConn != null)
+            && (underlyingConn instanceof VerticaConnection verticaConnection)) {
+          return verticaConnection;
         }
       }
       throw new IllegalStateException(

@@ -467,8 +467,7 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   public static String getMethodName(int methodDescriptorIndex) {
     Object[] methodDescriptor =
         (Object[]) JdbcMetadataMeta.methodDescriptors[methodDescriptorIndex];
-    String methodName = (String) methodDescriptor[0];
-    return methodName;
+    return (String) methodDescriptor[0];
   }
 
   public static Class<?>[] getMethodParameterTypes(Object[] methodDescriptor) {

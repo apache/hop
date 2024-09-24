@@ -240,9 +240,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   }
 
   protected Point real2screen(int x, int y) {
-    Point screen = new Point((int) (x + offset.x), (int) (y + offset.y));
-
-    return screen;
+    return new Point((int) (x + offset.x), (int) (y + offset.y));
   }
 
   protected Point magnifyPoint(Point p) {

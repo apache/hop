@@ -1504,9 +1504,7 @@ public class GuiResource {
     // Calculate the exact location...
     //
     Rectangle r = control.getBounds();
-    Point p = control.getParent().toDisplay(r.x, r.y);
-
-    return p;
+    return control.getParent().toDisplay(r.x, r.y);
   }
 
   /**

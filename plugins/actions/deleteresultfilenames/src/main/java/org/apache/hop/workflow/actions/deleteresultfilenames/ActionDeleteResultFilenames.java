@@ -84,18 +84,15 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
   public String getXml() {
 
     // 75 chars in just tag names and spaces
-    String retval =
-        super.getXml()
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("foldername", folderName)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("specify_wildcard", specifyWildcard)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("wildcard", wildcard)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("wildcardexclude", wildcardExclude);
-
-    return retval;
+    return super.getXml()
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("foldername", folderName)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("specify_wildcard", specifyWildcard)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("wildcard", wildcard)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("wildcardexclude", wildcardExclude);
   }
 
   @Override

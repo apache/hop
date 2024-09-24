@@ -963,8 +963,7 @@ public class UIGit extends VCS {
     }
     try (RevWalk rw = new RevWalk(git.getRepository())) {
       RevObject obj = rw.parseAny(id);
-      RevCommit commit = (RevCommit) obj;
-      return commit;
+      return (RevCommit) obj;
     } catch (MissingObjectException e) {
       e.printStackTrace();
     } catch (IOException e) {

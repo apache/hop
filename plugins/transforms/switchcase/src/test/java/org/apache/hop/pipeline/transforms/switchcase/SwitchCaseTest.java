@@ -57,7 +57,7 @@ import org.xml.sax.SAXException;
 public class SwitchCaseTest {
 
   private TransformMockHelper<SwitchCaseMeta, SwitchCaseData> mockHelper;
-  private static Boolean EMPTY_STRING_AND_NULL_ARE_DIFFERENT = false;
+  private static final Boolean EMPTY_STRING_AND_NULL_ARE_DIFFERENT = false;
 
   @Before
   public void setUp() throws Exception {
@@ -154,7 +154,6 @@ public class SwitchCaseTest {
           0,
           mockHelper.pipelineMeta,
           mockHelper.pipeline);
-      // this.mockHelper = mockHelper;
       init();
 
       // call to convert value will returns same value.
@@ -192,10 +191,8 @@ public class SwitchCaseTest {
 
                 // If it's a string and the string is empty, it's a null value as well
                 //
-                if (obj instanceof String) {
-                  if (((String) obj).length() == 0) {
-                    return true;
-                  }
+                if (obj instanceof String && !((String) obj).isEmpty()) {
+                  return true;
                 }
                 return false;
               });
@@ -266,8 +263,7 @@ public class SwitchCaseTest {
     }
 
     private IRowMeta getDynamicRowMetaInterface() {
-      IRowMeta inputRowMeta = mock(IRowMeta.class);
-      return inputRowMeta;
+      return mock(IRowMeta.class);
     }
   }
 }

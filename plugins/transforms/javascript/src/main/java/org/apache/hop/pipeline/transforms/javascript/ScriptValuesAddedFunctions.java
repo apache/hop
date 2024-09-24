@@ -271,8 +271,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   public static Object getPipelineName(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
     try {
-      Object objTranName = Context.toString(actualObject.get("_PipelineName_", actualObject));
-      return objTranName;
+      return Context.toString(actualObject.get("_PipelineName_", actualObject));
     } catch (Exception e) {
       throw Context.reportRuntimeError(e.toString());
     }

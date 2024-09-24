@@ -51,15 +51,13 @@ public class BaseGuiElements {
     if (StringUtils.isNotEmpty(guiElement.getterMethod())) {
       return guiElement.getterMethod();
     }
-    String getter = "get" + StringUtil.initCap(fieldName);
-    return getter;
+    return "get" + StringUtil.initCap(fieldName);
   }
 
   protected String calculateSetterMethod(GuiWidgetElement guiElement, String fieldName) {
     if (StringUtils.isNotEmpty(guiElement.setterMethod())) {
       return guiElement.setterMethod();
     }
-    String getter = "set" + StringUtil.initCap(fieldName);
-    return getter;
+    return "set" + StringUtil.initCap(fieldName);
   }
 }

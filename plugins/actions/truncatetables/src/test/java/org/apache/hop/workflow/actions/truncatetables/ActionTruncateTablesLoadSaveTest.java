@@ -46,30 +46,24 @@ public class ActionTruncateTablesLoadSaveTest
 
   @Override
   protected Map<String, String> createGettersMap() {
-    Map<String, String> getterMap =
-        new HashMap<String, String>() {
-          {
-            put("connection", "getConnection");
-            put("arg_from_previous", "isArgFromPrevious");
-            put("items", "getItems");
-          }
-        };
-
-    return getterMap;
+    return new HashMap<String, String>() {
+      {
+        put("connection", "getConnection");
+        put("arg_from_previous", "isArgFromPrevious");
+        put("items", "getItems");
+      }
+    };
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
-    Map<String, String> setterMap =
-        new HashMap<String, String>() {
-          {
-            put("connection", "setConnection");
-            put("arg_from_previous", "setArgFromPrevious");
-            put("items", "setItems");
-          }
-        };
-
-    return setterMap;
+    return new HashMap<String, String>() {
+      {
+        put("connection", "setConnection");
+        put("arg_from_previous", "setArgFromPrevious");
+        put("items", "setItems");
+      }
+    };
   }
 
   @Override
@@ -89,11 +83,7 @@ public class ActionTruncateTablesLoadSaveTest
 
     @Override
     public TruncateTableItem getTestObject() {
-
-      TruncateTableItem field =
-          new TruncateTableItem(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-
-      return field;
+      return new TruncateTableItem(UUID.randomUUID().toString(), UUID.randomUUID().toString());
     }
 
     @Override

@@ -45,8 +45,7 @@ public class BulkImportClient {
   private String header(String username, String password) {
     String auth = username + ":" + password;
     String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
-    String authHeader = "Basic " + encodedAuth;
-    return authHeader;
+    return "Basic " + encodedAuth;
   }
 
   public HttpBulkImportResponse batchInsert(

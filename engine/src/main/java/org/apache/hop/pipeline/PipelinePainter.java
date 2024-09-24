@@ -174,7 +174,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   private static String[] getPeekTitles() {
-    String[] titles = {
+    return new String[] {
       BaseMessages.getString(PKG, "PeekMetric.Column.Copynr"),
       BaseMessages.getString(PKG, "PeekMetric.Column.Read"),
       BaseMessages.getString(PKG, "PeekMetric.Column.Written"),
@@ -188,7 +188,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       BaseMessages.getString(PKG, "PeekMetric.Column.Speed"),
       BaseMessages.getString(PKG, "PeekMetric.Column.PriorityBufferSizes")
     };
-    return titles;
   }
 
   public void drawPipelineImage() throws HopException {
@@ -387,7 +386,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               // if the transform can't keep up with its input, mark it by drawing an animation
               boolean isSlow = inputRows * 0.85 > outputRows;
               if (isSlow) {
-                //                gc.setLineWidth(lineWidth + 1);
                 if (transformMeta.isSelected()) {
                   gc.setLineWidth(lineWidth + 2);
                 } else {
@@ -569,22 +567,20 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     boolean active = firstRowReadDate != null && component.getLastRowWrittenDate() == null;
 
-    String[] fields =
-        new String[] {
-          Integer.toString(component.getCopyNr()),
-          Long.toString(component.getLinesRead()),
-          Long.toString(component.getLinesWritten()),
-          Long.toString(component.getLinesInput()),
-          Long.toString(component.getLinesOutput()),
-          Long.toString(component.getLinesUpdated()),
-          Long.toString(component.getLinesRejected()),
-          Long.toString(component.getErrors()),
-          active ? "Yes" : "No",
-          duration,
-          speed,
-          component.getInputBufferSize() + "/" + component.getOutputBufferSize()
-        };
-    return fields;
+    return new String[] {
+      Integer.toString(component.getCopyNr()),
+      Long.toString(component.getLinesRead()),
+      Long.toString(component.getLinesWritten()),
+      Long.toString(component.getLinesInput()),
+      Long.toString(component.getLinesOutput()),
+      Long.toString(component.getLinesUpdated()),
+      Long.toString(component.getLinesRejected()),
+      Long.toString(component.getErrors()),
+      active ? "Yes" : "No",
+      duration,
+      speed,
+      component.getInputBufferSize() + "/" + component.getOutputBufferSize()
+    };
   }
 
   private void drawTransformInformationIndicator(TransformMeta transformMeta) throws HopException {

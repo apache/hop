@@ -693,9 +693,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   // package-local visibility for testing purposes
   FTPClient createAndSetUpFtpClient() throws HopException {
 
-    FTPClient ftpClient = FtpClientUtil.connectAndLogin(log, this, this, getName());
-
-    return ftpClient;
+    return FtpClientUtil.connectAndLogin(log, this, this, getName());
   }
 
   @Override

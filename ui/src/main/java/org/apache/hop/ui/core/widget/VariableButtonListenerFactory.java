@@ -91,9 +91,7 @@ public class VariableButtonListenerFactory {
     esd.clearModal();
     if (esd.open() != null) {
       int nr = esd.getSelectionNr();
-      String var = key[nr];
-
-      return var;
+      return key[nr];
     } else {
       return null;
     }

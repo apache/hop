@@ -75,26 +75,24 @@ public class SasInputField implements Cloneable {
 
   public String getXml() {
 
-    String xml =
-        "    "
-            + XmlHandler.addTagValue("name", name)
-            + "    "
-            + XmlHandler.addTagValue("rename", rename)
-            + "    "
-            + XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(type))
-            + "    "
-            + XmlHandler.addTagValue("length", length)
-            + "    "
-            + XmlHandler.addTagValue("precision", precision)
-            + "    "
-            + XmlHandler.addTagValue("conversion_mask", conversionMask)
-            + "    "
-            + XmlHandler.addTagValue("decimal", decimalSymbol)
-            + "    "
-            + XmlHandler.addTagValue("grouping", groupingSymbol)
-            + "    "
-            + XmlHandler.addTagValue("trim_type", ValueMetaBase.getTrimTypeCode(trimType));
-    return xml;
+    return "    "
+        + XmlHandler.addTagValue("name", name)
+        + "    "
+        + XmlHandler.addTagValue("rename", rename)
+        + "    "
+        + XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(type))
+        + "    "
+        + XmlHandler.addTagValue("length", length)
+        + "    "
+        + XmlHandler.addTagValue("precision", precision)
+        + "    "
+        + XmlHandler.addTagValue("conversion_mask", conversionMask)
+        + "    "
+        + XmlHandler.addTagValue("decimal", decimalSymbol)
+        + "    "
+        + XmlHandler.addTagValue("grouping", groupingSymbol)
+        + "    "
+        + XmlHandler.addTagValue("trim_type", ValueMetaBase.getTrimTypeCode(trimType));
   }
 
   public SasInputField(Node node) throws HopXmlException {

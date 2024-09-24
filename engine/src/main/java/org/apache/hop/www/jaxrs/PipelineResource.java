@@ -65,11 +65,10 @@ public class PipelineResource {
   public String getPipelineLog(@PathParam("id") String id, @PathParam("logStart") int startLineNr) {
     int lastLineNr = HopLogStore.getLastBufferLineNr();
     IPipelineEngine<PipelineMeta> pipeline = HopServerResource.getPipeline(id);
-    String logText =
-        HopLogStore.getAppender()
-            .getBuffer(pipeline.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr)
-            .toString();
-    return logText;
+
+    return HopLogStore.getAppender()
+        .getBuffer(pipeline.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr)
+        .toString();
   }
 
   @GET
@@ -197,7 +196,7 @@ public class PipelineResource {
   public PipelineStatus addPipeline(String xml) {
     PipelineConfiguration pipelineConfiguration;
     try {
-      pipelineConfiguration = PipelineConfiguration.fromXml(xml.toString());
+      pipelineConfiguration = PipelineConfiguration.fromXml(xml);
       IHopMetadataProvider metadataProvider =
           new MultiMetadataProvider(
               HopServerSingleton.getHopServer().getVariables(),

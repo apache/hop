@@ -83,9 +83,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
               + "] doesn't exist. (or perhaps you are trying a preview?)");
     }
 
-    RowMetaAndData parameters = new RowMetaAndData(parametersMeta, parametersData);
-
-    return parameters;
+    return new RowMetaAndData(parametersMeta, parametersData);
   }
 
   @Override
@@ -123,10 +121,8 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
           parameters = rmad.getData();
           parametersMeta = rmad.getRowMeta();
         }
-        if (parameters != null) {
-          if (log.isDetailed()) {
-            logDetailed("Query parameters found = " + parametersMeta.getString(parameters));
-          }
+        if (parameters != null && log.isDetailed()) {
+          logDetailed("Query parameters found = " + parametersMeta.getString(parameters));
         }
       } else {
         parameters = new Object[] {};
@@ -185,10 +181,8 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
             putRow(data.rowMeta, data.thisrow); // fill the rowset(s). (wait for empty)
             data.thisrow = data.nextrow;
 
-            if (checkFeedback(getLinesInput())) {
-              if (log.isBasic()) {
-                logBasic("linenr " + getLinesInput());
-              }
+            if (checkFeedback(getLinesInput()) && log.isBasic()) {
+              logBasic("linenr " + getLinesInput());
             }
           }
         }
@@ -204,10 +198,8 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       putRow(data.rowMeta, data.thisrow); // fill the rowset(s). (wait for empty)
       data.thisrow = data.nextrow;
 
-      if (checkFeedback(getLinesInput())) {
-        if (log.isBasic()) {
-          logBasic("linenr " + getLinesInput());
-        }
+      if (checkFeedback(getLinesInput()) && log.isBasic()) {
+        logBasic("linenr " + getLinesInput());
       }
     }
 

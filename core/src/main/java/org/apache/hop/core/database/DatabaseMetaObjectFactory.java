@@ -28,8 +28,7 @@ public class DatabaseMetaObjectFactory implements IHopMetadataObjectFactory {
   public Object createObject(String id, Object parentObject) throws HopException {
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.findPluginWithId(DatabasePluginType.class, id);
-    IDatabase iDatabase = (IDatabase) registry.loadClass(plugin);
-    return iDatabase;
+    return registry.loadClass(plugin);
   }
 
   @Override

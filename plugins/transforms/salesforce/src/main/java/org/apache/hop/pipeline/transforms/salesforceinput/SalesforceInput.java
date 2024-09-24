@@ -333,8 +333,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
    * @return
    */
   private Object[] buildEmptyRow() {
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-    return rowData;
+    return RowDataUtil.allocateRowData(data.outputRowMeta.size());
   }
 
   @Override

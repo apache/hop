@@ -389,9 +389,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
    * @return
    */
   private Object[] buildEmptyRow() {
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-
-    return rowData;
+    return RowDataUtil.allocateRowData(data.outputRowMeta.size());
   }
 
   @Override

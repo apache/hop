@@ -475,8 +475,7 @@ public class GuiRegistry {
   }
 
   public List<GuiTabItem> findGuiTabItems(String parent) {
-    List<GuiTabItem> guiTabItems = guiTabsMap.get(parent);
-    return guiTabItems;
+    return guiTabsMap.get(parent);
   }
 
   public void addKeyboardShortcut(

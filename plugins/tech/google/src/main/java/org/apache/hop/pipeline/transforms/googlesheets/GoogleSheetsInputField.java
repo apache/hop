@@ -28,7 +28,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in a text file */
@@ -203,7 +202,7 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
   }
 
   public String getTrimTypeCode() {
-    return ValueMetaString.getTrimTypeCode(trimType);
+    return ValueMetaBase.getTrimTypeCode(trimType);
   }
 
   public String getTrimTypeDesc() {
@@ -429,11 +428,9 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
           } else {
             if (ch == '.') {
               contains_dot = true;
-              // containsDot = true;
             }
             if (ch == ',') {
               contains_comma = true;
-              // containsComma = true;
             }
           }
         }
@@ -553,8 +550,6 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
       return 0; // nothing behind decimal point...
     }
 
-    // System.out.println("d="+d+", diff="+diff);
-
     // remainder: 12.345678 --> 0.345678
     for (int i = 1; i < maxprec; i++) { // cap off precision at a reasonable maximum
       double factor = Math.pow(10.0, i);
@@ -562,8 +557,6 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
       if (diff < maxdiff) {
         return i;
       }
-
-      // System.out.println("d="+d+", diff="+diff+", factor="+factor);
 
       factor *= 10;
     }

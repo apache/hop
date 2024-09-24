@@ -106,16 +106,13 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
       //   Then we output group values with result values behind it.
       //
       String counterName = transformName + " AGG";
-      PCollection<HopRow> output =
-          grouped.apply(
-              ParDo.of(
-                  new GroupByFn(
-                      counterName,
-                      JsonRowMeta.toJson(groupRowMeta),
-                      JsonRowMeta.toJson(subjectRowMeta),
-                      aggregations)));
-
-      return output;
+      return grouped.apply(
+          ParDo.of(
+              new GroupByFn(
+                  counterName,
+                  JsonRowMeta.toJson(groupRowMeta),
+                  JsonRowMeta.toJson(subjectRowMeta),
+                  aggregations)));
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in group by transform", e);

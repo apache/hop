@@ -220,14 +220,12 @@ public class ResourceUtil {
       commandString += "'";
     }
 
-    String message =
-        BaseMessages.getString(
-            PKG,
-            "ResourceUtil.ExportResourcesExplanation",
-            zipFilename,
-            commandString,
-            launchFile,
-            Const.CR);
-    return message;
+    return BaseMessages.getString(
+        PKG,
+        "ResourceUtil.ExportResourcesExplanation",
+        zipFilename,
+        commandString,
+        launchFile,
+        Const.CR);
   }
 }

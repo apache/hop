@@ -150,8 +150,7 @@ public class GoogleDriveFileObject extends AbstractFileObject {
   protected InputStream doGetInputStream() throws Exception {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     driveService.files().get(id).executeMediaAndDownloadTo(out);
-    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-    return in;
+    return new ByteArrayInputStream(out.toByteArray());
   }
 
   @Override
@@ -160,24 +159,22 @@ public class GoogleDriveFileObject extends AbstractFileObject {
         getName().getParent() != null
             ? searchFile(getName().getParent().getBaseName(), null)
             : null;
-    ByteArrayOutputStream out =
-        new ByteArrayOutputStream() {
-          @Override
-          public void close() throws IOException {
-            File file = new File();
-            file.setName(getName().getBaseName());
-            if (parent != null) {
-              file.setParents(Collections.singletonList(parent.getId()));
-            }
-            ByteArrayContent fileContent =
-                new ByteArrayContent("application/octet-stream", toByteArray());
-            if (count > 0) {
-              driveService.files().create(file, fileContent).execute();
-              ((GoogleDriveFileSystem) getFileSystem()).clearFileFromCache(getName());
-            }
-          }
-        };
-    return out;
+    return new ByteArrayOutputStream() {
+      @Override
+      public void close() throws IOException {
+        File file = new File();
+        file.setName(getName().getBaseName());
+        if (parent != null) {
+          file.setParents(Collections.singletonList(parent.getId()));
+        }
+        ByteArrayContent fileContent =
+            new ByteArrayContent("application/octet-stream", toByteArray());
+        if (count > 0) {
+          driveService.files().create(file, fileContent).execute();
+          ((GoogleDriveFileSystem) getFileSystem()).clearFileFromCache(getName());
+        }
+      }
+    };
   }
 
   @Override

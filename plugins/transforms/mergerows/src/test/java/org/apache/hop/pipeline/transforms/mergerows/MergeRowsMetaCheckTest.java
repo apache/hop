@@ -78,7 +78,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     pipelineMeta = mock(PipelineMeta.class);
     meta = new MergeRowsMeta();
     transformMeta = new TransformMeta(TRANSFORM_NAME, meta);
@@ -111,7 +111,7 @@ public class MergeRowsMetaCheckTest {
 
     assertNotNull(remarks);
     assertTrue(remarks.size() >= 2);
-    assertEquals(remarks.get(1).getType(), ICheckResult.TYPE_RESULT_OK);
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.get(1).getType());
   }
 
   @Test
@@ -134,7 +134,7 @@ public class MergeRowsMetaCheckTest {
 
     assertNotNull(remarks);
     assertTrue(remarks.size() >= 2);
-    assertEquals(remarks.get(1).getType(), ICheckResult.TYPE_RESULT_OK);
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.get(1).getType());
   }
 
   @Test
@@ -157,7 +157,7 @@ public class MergeRowsMetaCheckTest {
 
     assertNotNull(remarks);
     assertTrue(remarks.size() >= 2);
-    assertEquals(remarks.get(1).getType(), ICheckResult.TYPE_RESULT_ERROR);
+    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.get(1).getType());
   }
 
   @Test
@@ -180,6 +180,6 @@ public class MergeRowsMetaCheckTest {
 
     assertNotNull(remarks);
     assertTrue(remarks.size() >= 2);
-    assertEquals(remarks.get(1).getType(), ICheckResult.TYPE_RESULT_ERROR);
+    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.get(1).getType());
   }
 }

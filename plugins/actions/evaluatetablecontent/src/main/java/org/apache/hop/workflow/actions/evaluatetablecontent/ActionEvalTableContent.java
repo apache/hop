@@ -146,31 +146,27 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
 
   @Override
   public String getXml() {
-
-    String retval =
-        super.getXml()
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("connection", connection == null ? null : connection.getName())
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("schemaname", schemaname)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("tablename", tableName)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("success_condition", getSuccessConditionCode(successCondition))
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("limit", limit)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("is_custom_sql", useCustomSql)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("is_usevars", useVars)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("custom_sql", customSql)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("add_rows_result", addRowsResult)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("clear_result_rows", clearResultList);
-
-    return retval;
+    return super.getXml()
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("connection", connection == null ? null : connection.getName())
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("schemaname", schemaname)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("tablename", tableName)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("success_condition", getSuccessConditionCode(successCondition))
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("limit", limit)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("is_custom_sql", useCustomSql)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("is_usevars", useVars)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("custom_sql", customSql)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("add_rows_result", addRowsResult)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("clear_result_rows", clearResultList);
   }
 
   private static String getSuccessConditionCode(int i) {

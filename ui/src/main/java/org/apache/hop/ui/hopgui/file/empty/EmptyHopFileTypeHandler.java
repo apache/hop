@@ -183,8 +183,7 @@ public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>();
-    return handlers;
+    return new ArrayList<>();
   }
 
   /**

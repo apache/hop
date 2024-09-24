@@ -5344,8 +5344,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>();
-    return handlers;
+    return new ArrayList<>();
   }
 
   @GuiContextAction(

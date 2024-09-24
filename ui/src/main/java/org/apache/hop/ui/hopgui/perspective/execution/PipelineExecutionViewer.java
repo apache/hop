@@ -681,9 +681,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   @Override
   protected Point getArea() {
     org.eclipse.swt.graphics.Rectangle rect = canvas.getClientArea();
-    Point area = new Point(rect.width, rect.height);
-
-    return area;
+    return new Point(rect.width, rect.height);
   }
 
   public void drawPipelineImage(GC swtGc, int width, int height, float magnificationFactor) {

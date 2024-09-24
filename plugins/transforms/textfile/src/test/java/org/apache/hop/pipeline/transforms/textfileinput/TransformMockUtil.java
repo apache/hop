@@ -73,10 +73,8 @@ public class TransformMockUtil {
     Constructor<Main> kons =
         mainClass.getConstructor(
             TransformMeta.class, dataClass, int.class, PipelineMeta.class, Pipeline.class);
-    Main transform =
-        kons.newInstance(
-            mock.transformMeta, mock.iTransformData, 0, mock.pipelineMeta, mock.pipeline);
-    return transform;
+    return kons.newInstance(
+        mock.transformMeta, mock.iTransformData, 0, mock.pipelineMeta, mock.pipeline);
   }
 
   public static <
@@ -134,10 +132,7 @@ public class TransformMockUtil {
             int.class,
             PipelineMeta.class,
             Pipeline.class);
-    Main transform =
-        kons.newInstance(
-            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
-
-    return transform;
+    return kons.newInstance(
+        mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
   }
 }

@@ -69,10 +69,8 @@ public class TransformMockUtil {
             int.class,
             PipelineMeta.class,
             Pipeline.class);
-    T transform =
-        kons.newInstance(
-            mock.transformMeta, mock.iTransformData, 0, mock.pipelineMeta, mock.pipeline);
-    return transform;
+    return kons.newInstance(
+        mock.transformMeta, mock.iTransformData, 0, mock.pipelineMeta, mock.pipeline);
   }
 
   public static <T extends BaseTransform, K extends ITransformMeta> T getTransform(

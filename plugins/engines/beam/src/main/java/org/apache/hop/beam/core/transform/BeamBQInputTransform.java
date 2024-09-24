@@ -97,9 +97,7 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
 
       // Apply the function
       //
-      PCollection<HopRow> output = input.apply(bqTypedRead);
-
-      return output;
+      return input.apply(bqTypedRead);
 
     } catch (Exception e) {
       numErrors.inc();

@@ -27,7 +27,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -96,12 +95,8 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
 
     @Override
     public StringCutField getTestObject() {
-      String[] types = ValueMetaFactory.getAllValueMetaNames();
-
-      StringCutField field =
-          new StringCutField(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "1", "5");
-
-      return field;
+      return new StringCutField(
+          UUID.randomUUID().toString(), UUID.randomUUID().toString(), "1", "5");
     }
 
     @Override

@@ -132,8 +132,7 @@ public class CustomDataStoreFactory extends AbstractDataStoreFactory {
           result.add(IOUtils.deserialize(bytes));
         }
 
-        List var7 = Collections.unmodifiableList(result);
-        return var7;
+        return Collections.unmodifiableList(result);
       } finally {
         this.lock.unlock();
       }

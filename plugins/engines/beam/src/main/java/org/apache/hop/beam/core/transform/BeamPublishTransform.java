@@ -107,8 +107,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
 
         PublishStringsFn stringsFn = new PublishStringsFn(transformName, fieldIndex, rowMetaJson);
         PCollection<String> stringPCollection = input.apply(transformName, ParDo.of(stringsFn));
-        PDone done = PubsubIO.writeStrings().to(topic).expand(stringPCollection);
-        return done;
+        return PubsubIO.writeStrings().to(topic).expand(stringPCollection);
       }
 
       // PubsubMessages
@@ -117,8 +116,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
         PublishMessagesFn messagesFn =
             new PublishMessagesFn(transformName, fieldIndex, rowMetaJson);
         PCollection<PubsubMessage> messagesPCollection = input.apply(ParDo.of(messagesFn));
-        PDone done = PubsubIO.writeMessages().to(topic).expand(messagesPCollection);
-        return done;
+        return PubsubIO.writeMessages().to(topic).expand(messagesPCollection);
       }
 
       throw new RuntimeException("Message type '" + messageType + "' is not yet supported");

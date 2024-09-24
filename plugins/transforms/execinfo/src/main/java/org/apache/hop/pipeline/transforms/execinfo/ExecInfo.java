@@ -337,9 +337,7 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
   }
 
   private boolean getValueIncludeChildren(IRowMeta rowMeta, Object[] row) throws HopException {
-    boolean includeChildren =
-        rowMeta.getBoolean(row, resolve(meta.getIncludeChildrenFieldName()), Boolean.FALSE);
-    return includeChildren;
+    return rowMeta.getBoolean(row, resolve(meta.getIncludeChildrenFieldName()), Boolean.FALSE);
   }
 
   private void verifyField(String fieldName, boolean required) throws HopException {

@@ -39,13 +39,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/aws-sqs-reader.html")
 public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
 
-  /**
-   * The PKG member is used when looking up internationalized strings. The properties file with
-   * localized keys is expected to reside in {the package of the class
-   * specified}/messages/messages_{locale}.properties
-   */
-  private static Class<?> PKG = SqsReaderMeta.class; // for i18n purposes
-
   @HopMetadataProperty(key = "AwsCredChain", injectionKey = "AWS_CRED_CHAIN")
   private String awsCredChain;
 
@@ -95,9 +88,8 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
    * transform configuration to sensible defaults. The values set here will be used by Hop Gui when
    * a new transform is created.
    */
-  public void setDefault() {
-    // outputField = "demo_field";
-  }
+  @Override
+  public void setDefault() {}
 
   public String getAwsCredChain() {
     return awsCredChain = awsCredChain == null ? "N" : awsCredChain;
@@ -205,6 +197,7 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
    *
    * @return a deep copy of this
    */
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;

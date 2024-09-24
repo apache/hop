@@ -34,7 +34,6 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -60,7 +59,7 @@ public class TableOutputMetaTest {
   }
 
   @Test
-  public void testIsReturningGeneratedKeys() throws Exception {
+  public void testIsReturningGeneratedKeys() {
     TableOutputMeta tableOutputMeta = new TableOutputMeta(),
         tableOutputMetaSpy = spy(tableOutputMeta);
 
@@ -76,7 +75,7 @@ public class TableOutputMetaTest {
   }
 
   @Test
-  public void testSetupDefault() throws Exception {
+  public void testSetupDefault() {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     tableOutputMeta.setDefault();
     assertEquals("", tableOutputMeta.getTableName());
@@ -102,7 +101,7 @@ public class TableOutputMetaTest {
   }
 
   @Test
-  public void testSupportsErrorHandling() throws Exception {
+  public void testSupportsErrorHandling() {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IDatabase iDatabase = mock(IDatabase.class);
@@ -137,12 +136,7 @@ public class TableOutputMetaTest {
 
     @Override
     public TableOutputField getTestObject() {
-      String[] types = ValueMetaFactory.getAllValueMetaNames();
-
-      TableOutputField field =
-          new TableOutputField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-
-      return field;
+      return new TableOutputField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
     }
 
     @Override

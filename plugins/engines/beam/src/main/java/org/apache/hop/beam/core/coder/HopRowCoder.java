@@ -260,8 +260,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
             Schema schema = new Schema.Parser().parse(schemaJson);
             ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("read", schema);
             DataInputStream dataInputStream = new DataInputStream(in);
-            GenericRecord genericRecord = (GenericRecord) valueMeta.readData(dataInputStream);
-            return genericRecord;
+            return valueMeta.readData(dataInputStream);
           } catch (Exception e) {
             throw new IOException(
                 "Error de-serializing Avro schema and generic record from JSON", e);

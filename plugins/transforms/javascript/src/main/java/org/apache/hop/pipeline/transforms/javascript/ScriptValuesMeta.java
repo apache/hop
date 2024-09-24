@@ -841,8 +841,7 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
       // We never know what else the script wants to load with the class loader, so lets not close
       // it just like that.
       HopURLClassLoader kl = new HopURLClassLoader(new URL[] {u}, cl);
-      Class<?> toRun = kl.loadClass(strClassName);
-      return toRun;
+      return kl.loadClass(strClassName);
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(PKG, "ScriptValuesMetaMod.Exception.UnableToLoadAdditionalClass"),

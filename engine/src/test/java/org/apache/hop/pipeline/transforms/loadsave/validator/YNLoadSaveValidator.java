@@ -24,8 +24,7 @@ public class YNLoadSaveValidator implements IFieldLoadSaveValidator<String> {
   @Override
   public String getTestObject() {
     boolean ltr = r.nextBoolean();
-    String letter = ltr ? "Y" : "N";
-    return letter;
+    return ltr ? "Y" : "N";
   }
 
   @Override

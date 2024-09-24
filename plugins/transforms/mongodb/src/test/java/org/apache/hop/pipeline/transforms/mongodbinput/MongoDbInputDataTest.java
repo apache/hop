@@ -50,13 +50,12 @@ import org.junit.Test;
 
 public class MongoDbInputDataTest {
   private IHopMetadataProvider metadataProvider;
-  private MongoDbInputData mongoDbInputData;
 
-  protected static String s_testData =
+  protected static String sTestData =
       "{\"one\" : {\"three\" : [ {\"rec2\" : { \"f0\" : \"zzz\" } } ], "
           + "\"two\" : [ { \"rec1\" : { \"f1\" : \"bob\", \"f2\" : \"fred\" } } ] }, "
           + "\"name\" : \"george\", \"aNumber\" : 42 }";
-  protected static String s_testData2 =
+  protected static String sTestData2 =
       "{\"one\" : {\"three\" : [ {\"rec2\" : { \"f0\" : \"zzz\" } } ], "
           + "\"two\" : [ { \"rec1\" : { \"f1\" : \"bob\", \"f2\" : \"fred\" } }, "
           + "{ \"rec1\" : { \"f1\" : \"sid\", \"f2\" : \"zaphod\" } } ] }, "
@@ -66,7 +65,6 @@ public class MongoDbInputDataTest {
   public void setUp() throws HopException {
     HopClientEnvironment.init();
     metadataProvider = mock(IHopMetadataProvider.class);
-    mongoDbInputData = new MongoDbInputData();
   }
 
   @Test
@@ -197,7 +195,7 @@ public class MongoDbInputDataTest {
 
   @Test
   public void testGetNonExistentField() throws HopException {
-    Object mongoO = BasicDBObject.parse(s_testData);
+    Object mongoO = BasicDBObject.parse(sTestData);
     assertTrue(mongoO instanceof DBObject);
 
     List<MongoField> discoveredFields = new ArrayList<>();
@@ -228,7 +226,7 @@ public class MongoDbInputDataTest {
 
   @Test
   public void testArrayUnwindArrayFieldsOnly() throws HopException {
-    Object mongoO = BasicDBObject.parse(s_testData2);
+    Object mongoO = BasicDBObject.parse(sTestData2);
     assertTrue(mongoO instanceof DBObject);
 
     List<MongoField> fields = new ArrayList<>();
@@ -266,7 +264,7 @@ public class MongoDbInputDataTest {
 
   @Test
   public void testArrayUnwindOneArrayExpandFieldAndOneNormalField() throws HopException {
-    Object mongoO = BasicDBObject.parse(s_testData2);
+    Object mongoO = BasicDBObject.parse(sTestData2);
     assertTrue(mongoO instanceof DBObject);
 
     List<MongoField> fields = new ArrayList<>();
@@ -317,7 +315,7 @@ public class MongoDbInputDataTest {
 
   @Test
   public void testArrayUnwindWithOneExistingAndOneNonExistingField() throws HopException {
-    Object mongoO = BasicDBObject.parse(s_testData2);
+    Object mongoO = BasicDBObject.parse(sTestData2);
     assertTrue(mongoO instanceof DBObject);
 
     List<MongoField> fields = new ArrayList<>();
@@ -370,17 +368,17 @@ public class MongoDbInputDataTest {
   public void testCleansePath() {
     // param at end of path
     assertEquals(
-        MongoDbInputData.cleansePath("my.path.with.${a.dot.param}"), "my.path.with.${a_dot_param}");
+        "my.path.with.${a_dot_param}", MongoDbInputData.cleansePath("my.path.with.${a.dot.param}"));
     // param at start of path
     assertEquals(
-        MongoDbInputData.cleansePath("${a.dot.param}.my.path.with"), "${a_dot_param}.my.path.with");
+        "${a_dot_param}.my.path.with", MongoDbInputData.cleansePath("${a.dot.param}.my.path.with"));
     // param in middle of path
     assertEquals(
-        MongoDbInputData.cleansePath("my.path.with.${a.dot.param}.otherstuff"),
-        "my.path.with.${a_dot_param}.otherstuff");
+        "my.path.with.${a_dot_param}.otherstuff",
+        MongoDbInputData.cleansePath("my.path.with.${a.dot.param}.otherstuff"));
     // multiple params
     assertEquals(
-        MongoDbInputData.cleansePath("my.${oneparam}.with.${a.dot.param}.otherstuff"),
-        "my.${oneparam}.with.${a_dot_param}.otherstuff");
+        "my.${oneparam}.with.${a_dot_param}.otherstuff",
+        MongoDbInputData.cleansePath("my.${oneparam}.with.${a.dot.param}.otherstuff"));
   }
 }

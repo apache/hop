@@ -562,8 +562,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
                     .setStartDate(wQuStartDate.getText())
                     .setEndDate(wQuEndDate.getText()))
             .build();
-    RunReportResponse response = analyticsData.runReport(request);
-    return response;
+    return analyticsData.runReport(request);
   }
 
   // Visible for testing

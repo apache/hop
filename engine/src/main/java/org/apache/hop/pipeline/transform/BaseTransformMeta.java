@@ -798,8 +798,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
    *     possible actions like "New target transform"
    */
   public List<IStream> getOptionalStreams() {
-    List<IStream> list = new ArrayList<>();
-    return list;
+    return new ArrayList<>();
   }
 
   /**

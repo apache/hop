@@ -26,9 +26,7 @@ public class SetFieldLoadSaveValidator implements IFieldLoadSaveValidator<SetFie
 
   @Override
   public SetField getTestObject() {
-    SetField field = new SetField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-
-    return field;
+    return new SetField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
   }
 
   @Override

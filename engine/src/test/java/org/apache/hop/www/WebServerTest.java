@@ -28,15 +28,12 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.server.HopServerMeta;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("This test needs to be reviewed") // TODO replace by integration tests
 public class WebServerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -52,8 +49,6 @@ public class WebServerTest {
   private static final int SHUTDOEN_PORT = 8098;
 
   private static final String ACCEPTORS = "5";
-
-  private static final int EXPECTED_ACCEPTORS = 5;
 
   private static final String ACCEPT_QUEUE_SIZE = "5000";
 
@@ -72,17 +67,12 @@ public class WebServerTest {
   private HopServerMeta sServer = mock(HopServerMeta.class);
   private WorkflowMap jbMapMock = mock(WorkflowMap.class);
   private ILogChannel logMock = mock(ILogChannel.class);
-  //  private static final SocketConnector defSocketConnector = new SocketConnector();
-  private static ServerConnector defServerConnector;
 
   @Before
   public void setup() throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, ACCEPTORS);
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE);
     System.setProperty(Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME, RES_MAX_IDLE_TIME);
-
-    Server server = new Server();
-    defServerConnector = new ServerConnector(server);
 
     when(sServerConfMock.getHopServer()).thenReturn(sServer);
     when(trMapMock.getHopServerConfig()).thenReturn(sServerConfMock);
@@ -103,19 +93,9 @@ public class WebServerTest {
     System.getProperties().remove(Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME);
   }
 
-  //  @Test
-  //  public void testJettyOption_AcceptorsSetUp() throws Exception {
-  //    assertEquals( getSocketConnectors( webServer ).size(), EXPECTED_CONNECTORS_SIZE );
-  //    for ( ServerConnector sc : getSocketConnectors( webServer ) ) {
-  //      assertEquals( EXPECTED_ACCEPTORS, sc.getAcceptors() );
-  //
-  //    }
-  //
-  //  }
-
   @Test
   public void testJettyOption_AcceptQueueSizeSetUp() {
-    assertEquals(getSocketConnectors(webServer).size(), EXPECTED_CONNECTORS_SIZE);
+    assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServer).size());
     for (ServerConnector sc : getSocketConnectors(webServer)) {
       assertEquals(EXPECTED_ACCEPT_QUEUE_SIZE, sc.getAcceptQueueSize());
     }
@@ -123,7 +103,7 @@ public class WebServerTest {
 
   @Test
   public void testJettyOption_LowResourceMaxIdleTimeSetUp() {
-    assertEquals(getSocketConnectors(webServer).size(), EXPECTED_CONNECTORS_SIZE);
+    assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServer).size());
     for (ServerConnector sc : getSocketConnectors(webServer)) {
       assertEquals(EXPECTED_RES_MAX_IDLE_TIME, sc.getIdleTimeout());
     }
@@ -140,7 +120,7 @@ public class WebServerTest {
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
-    assertEquals(getSocketConnectors(webServerNg).size(), EXPECTED_CONNECTORS_SIZE);
+    assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServerNg).size());
     for (ServerConnector sc : getSocketConnectors(webServerNg)) {
       assertEquals(sc.getAcceptors(), sc.getAcceptors());
     }
@@ -159,7 +139,7 @@ public class WebServerTest {
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
-    assertEquals(getSocketConnectors(webServerNg).size(), EXPECTED_CONNECTORS_SIZE);
+    assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServerNg).size());
     for (ServerConnector sc : getSocketConnectors(webServerNg)) {
       assertEquals(sc.getAcceptors(), sc.getAcceptors());
     }

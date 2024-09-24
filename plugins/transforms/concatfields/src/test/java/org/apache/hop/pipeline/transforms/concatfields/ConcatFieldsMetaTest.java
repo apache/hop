@@ -31,6 +31,6 @@ public class ConcatFieldsMetaTest {
         TransformSerializationTestUtil.testSerialization(
             "/concat-fields-transform.xml", ConcatFieldsMeta.class);
 
-    assertEquals(meta.getOutputFields().size(), 9);
+    assertEquals(9, meta.getOutputFields().size());
   }
 }

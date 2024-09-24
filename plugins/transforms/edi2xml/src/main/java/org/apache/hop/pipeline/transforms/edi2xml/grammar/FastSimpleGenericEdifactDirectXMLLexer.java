@@ -270,14 +270,10 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
               } else if ((LA2_19 == '.')) {
                 alt2 = 3;
               } else {
-                NoViableAltException nvae = new NoViableAltException("", 2, 19, input);
-
-                throw nvae;
+                throw new NoViableAltException("", 2, 19, input);
               }
             } else {
-              NoViableAltException nvae = new NoViableAltException("", 2, 18, input);
-
-              throw nvae;
+              throw new NoViableAltException("", 2, 18, input);
             }
           } else {
             alt2 = 11;
@@ -346,9 +342,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
         || (LA2_0 >= 'V' && LA2_0 <= '\uFFFF'))) {
       alt2 = 11;
     } else {
-      NoViableAltException nvae = new NoViableAltException("", 2, 0, input);
-
-      throw nvae;
+      throw new NoViableAltException("", 2, 0, input);
     }
     switch (alt2) {
       case 1:

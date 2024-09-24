@@ -217,8 +217,7 @@ public class MetadataFileTypeHandler<T extends IHopMetadata> implements IHopFile
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>();
-    return handlers;
+    return new ArrayList<>();
   }
 
   /**

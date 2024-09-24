@@ -85,8 +85,7 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
       TypeReference<HashMap<String, Object>> typeRef =
           new TypeReference<HashMap<String, Object>>() {};
       try (InputStream inputStream = HopVfs.getInputStream(file)) {
-        HashMap<String, Object> configMap = objectMapper.readValue(inputStream, typeRef);
-        return configMap;
+        return objectMapper.readValue(inputStream, typeRef);
       }
     } catch (Exception e) {
       throw new HopException("Error reading Hop configuration file " + filename, e);
