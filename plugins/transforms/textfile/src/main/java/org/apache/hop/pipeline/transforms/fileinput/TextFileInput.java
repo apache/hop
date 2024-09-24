@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.fileinput;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1037,7 +1038,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
   }
 
   @Override
-  public boolean processRow() throws HopException {
+  public boolean processRow() throws HopException, IOException {
     Object[] r = null;
     boolean retval = true;
     boolean putrow = false;
@@ -1094,6 +1095,18 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
           // Grab another row
           fileRow = getRowFrom(data.rowSet);
+        }
+
+        if (needToSkipRow()) {
+          while (!data.newLineFound()) {
+            data.moveEndBufferPointer();
+          }
+
+          data.moveEndBufferPointer();
+
+          if (data.newLineFound()) {
+            data.moveEndBufferPointer();
+          }
         }
 
         if (data.getFiles().nrOfFiles() == 0) {
@@ -1879,5 +1892,40 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       data.in = null;
     }
     super.dispose();
+  }
+
+  private boolean needToSkipRow() {
+    try {
+      // first we move pointer to the last byte of the previous transform
+      data.fc.position(data.fc.position() - 1);
+      // read data, if not yet
+      data.resizeBufferIfNeeded();
+
+      // check whether the last symbol from the previous transform is a new line
+      if (data.newLineFound()) {
+        // don't increase bytes read for this transform, as it is actually content of another
+        // transform and we are reading this just for evaluation.
+        data.moveEndBufferPointer(false);
+        // now we are at the first char of our thread.
+        // there is still a situation we want to avoid: when there is a windows style "/r/n", and we
+        // are between two of this chars. In this case we need to skip a line. Otherwise we don't
+        // skip it.
+        return data.newLineFound();
+      } else {
+        // moving to the first char of our line.
+        data.moveEndBufferPointer(false);
+      }
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        data.fc.position(data.fc.position() + 1);
+      } catch (IOException e) {
+        // nothing to do here
+      }
+    }
+
+    return true;
   }
 }

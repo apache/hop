@@ -18,7 +18,7 @@
 
 package org.apache.hop.beam.core.transform;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.beam.sdk.metrics.Counter;
@@ -202,7 +202,7 @@ public class TransformFn extends TransformBaseFn {
   }
 
   private void initializeTransformPipeline(DoFn<HopRow, HopRow>.ProcessContext context)
-      throws HopException, ParseException, JsonProcessingException {
+      throws HopException, ParseException, IOException {
     initialize = false;
     // Initialize Hop and load extra plugins as well
     //

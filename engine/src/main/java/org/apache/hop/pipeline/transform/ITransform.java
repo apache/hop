@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -56,7 +57,7 @@ public interface ITransform extends IVariables, IHasLogChannel, IEngineComponent
    * @return false if no more rows can be processed or an error occurred.
    * @throws HopException
    */
-  boolean processRow() throws HopException;
+  boolean processRow() throws HopException, IOException;
 
   /**
    * This method checks if the transform is capable of processing at least one row.
