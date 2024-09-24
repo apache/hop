@@ -266,8 +266,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
         input.consume();
         state.errorRecovery = false;
       } else {
-        MismatchedSetException mse = new MismatchedSetException(null, input);
-        throw mse;
+        throw new MismatchedSetException(null, input);
       }
       retval.stop = input.LT(-1);
 
@@ -340,8 +339,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
               input.consume();
               state.errorRecovery = false;
             } else {
-              MismatchedSetException mse = new MismatchedSetException(null, input);
-              throw mse;
+              throw new MismatchedSetException(null, input);
             }
             break;
 
@@ -524,9 +522,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
           || LA6_0 == SEGMENT_TERMINATOR)) {
         alt6 = 2;
       } else {
-        NoViableAltException nvae = new NoViableAltException("", 6, 0, input);
-
-        throw nvae;
+        throw new NoViableAltException("", 6, 0, input);
       }
       switch (alt6) {
         case 1:
@@ -707,9 +703,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
           || LA8_0 == SEGMENT_TERMINATOR)) {
         alt8 = 2;
       } else {
-        NoViableAltException nvae = new NoViableAltException("", 8, 0, input);
-
-        throw nvae;
+        throw new NoViableAltException("", 8, 0, input);
       }
       switch (alt8) {
         case 1:

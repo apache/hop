@@ -54,8 +54,7 @@ public class Counters {
 
   public Counter getCounter(String name) {
     synchronized (lock) {
-      Counter found = counterMap.get(name);
-      return found;
+      return counterMap.get(name);
     }
   }
 

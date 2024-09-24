@@ -552,8 +552,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
                   CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_JAVA_OBJECT)) {
                 // Is it a BigDecimal class ?
                 try {
-                  BigDecimal bd = (BigDecimal) result;
-                  return bd;
+                  return (BigDecimal) result;
                 } catch (Exception e) {
                   String string = (String) result;
                   return new BigDecimal(string);

@@ -53,8 +53,7 @@ public class LoggingPluginType extends BasePluginType<LoggingPlugin> {
 
   @Override
   protected String extractID(LoggingPlugin annotation) {
-    String id = annotation.id();
-    return id;
+    return annotation.id();
   }
 
   @Override

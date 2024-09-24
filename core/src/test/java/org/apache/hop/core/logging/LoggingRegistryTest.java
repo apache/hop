@@ -44,7 +44,7 @@ public class LoggingRegistryTest {
 
     String logChanelId = loggingRegistry.registerLoggingSource(child);
 
-    assertEquals(logChanelId, LOG_CHANEL_ID_CHILD);
+    assertEquals(LOG_CHANEL_ID_CHILD, logChanelId);
   }
 
   @Test

@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.edi2xml;
 
-import org.apache.hop.core.util.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
 
@@ -28,10 +30,10 @@ public class Edi2XmlMetaTest {
         TransformSerializationTestUtil.testSerialization(
             "/edi-to-xml-transform.xml", Edi2XmlMeta.class);
 
-    Assert.assertNotNull(meta.getInputField());
-    Assert.assertNotNull(meta.getOutputField());
+    assertNotNull(meta.getInputField());
+    assertNotNull(meta.getOutputField());
 
-    org.junit.Assert.assertEquals(meta.getInputField(), "edi");
-    org.junit.Assert.assertEquals(meta.getOutputField(), "xml");
+    assertEquals("edi", meta.getInputField());
+    assertEquals("xml", meta.getOutputField());
   }
 }

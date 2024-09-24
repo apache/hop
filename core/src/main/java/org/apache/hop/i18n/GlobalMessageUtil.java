@@ -321,8 +321,7 @@ public class GlobalMessageUtil {
       ResourceBundle bundle =
           getBundle(locale, packageName + "." + bundleName, resourceClass, fallbackOnRoot);
       String unformattedString = bundle.getString(key);
-      String string = MessageFormat.format(unformattedString, parameters);
-      return string;
+      return MessageFormat.format(unformattedString, parameters);
     } catch (IllegalArgumentException e) {
       final StringBuilder msg = new StringBuilder();
       msg.append("Format problem with key=[")

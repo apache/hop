@@ -66,8 +66,7 @@ public class HopGuiFileDelegate {
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {
-    IHopFileTypeHandler typeHandler = hopGui.getActivePerspective().getActiveFileTypeHandler();
-    return typeHandler;
+    return hopGui.getActivePerspective().getActiveFileTypeHandler();
   }
 
   public void fileOpen() {

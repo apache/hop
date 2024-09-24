@@ -634,15 +634,13 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   private PipelineMeta loadPipeline(
       String realFilename, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopException {
-    PipelineMeta pipelineMeta = new PipelineMeta(realFilename, metadataProvider, variables);
-    return pipelineMeta;
+    return new PipelineMeta(realFilename, metadataProvider, variables);
   }
 
   private WorkflowMeta loadWorkflow(
       String realFilename, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopException {
-    WorkflowMeta workflowMeta = new WorkflowMeta(variables, realFilename, metadataProvider);
-    return workflowMeta;
+    return new WorkflowMeta(variables, realFilename, metadataProvider);
   }
 
   @Override

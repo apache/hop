@@ -164,8 +164,7 @@ public interface ICsvInputAwareTransformDialog {
       final InputStreamReader reader = getReader(meta, inputStream);
       final ICsvInputAwareImportProgressDialog pd =
           getCsvImportProgressDialog(meta, samples, reader);
-      String message = pd.open(false);
-      return message;
+      return pd.open(false);
     } finally {
       try {
         inputStream.close();

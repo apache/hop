@@ -64,8 +64,7 @@ public class HopMetadataUtil {
 
   public static <T extends IHopMetadata> HopMetadata getHopMetadataAnnotation(
       Class<T> managedClass) {
-    HopMetadata hopMetadata = managedClass.getAnnotation(HopMetadata.class);
-    return hopMetadata;
+    return managedClass.getAnnotation(HopMetadata.class);
   }
 
   public static String[] getHopMetadataKeys(IHopMetadataProvider provider) {

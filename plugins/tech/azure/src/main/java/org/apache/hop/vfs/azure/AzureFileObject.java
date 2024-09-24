@@ -217,8 +217,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   private String getFilePath(String filename) {
-    String filePath = filename.substring(filename.indexOf('/'), filename.length());
-    return filePath;
+    return filename.substring(filename.indexOf('/'), filename.length());
   }
 
   @Override
@@ -253,6 +252,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
    * @param newfile the new file
    * @return
    */
+  @Override
   public boolean canRenameTo(FileObject newfile) {
     return true;
   }

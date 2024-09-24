@@ -153,9 +153,7 @@ public class TestUtilities {
       String name, PluginRegistry pluginRegistry) {
     DummyMeta dummyPipelineMeta = new DummyMeta();
     String dummyPid = pluginRegistry.getPluginId(TransformPluginType.class, dummyPipelineMeta);
-    TransformMeta dummyTransform = new TransformMeta(dummyPid, name, dummyPipelineMeta);
-
-    return dummyTransform;
+    return new TransformMeta(dummyPid, name, dummyPipelineMeta);
   }
 
   /**
@@ -172,9 +170,7 @@ public class TestUtilities {
 
     // Set the information of the injector
     String injectorPid = pluginRegistry.getPluginId(TransformPluginType.class, injectorMeta);
-    TransformMeta injectorTransform = new TransformMeta(injectorPid, name, injectorMeta);
-
-    return injectorTransform;
+    return new TransformMeta(injectorPid, name, injectorMeta);
   }
 
   /**
@@ -322,9 +318,7 @@ public class TestUtilities {
 
     String sortRowsTransformPid =
         pluginRegistry.getPluginId(TransformPluginType.class, sortRowsMeta);
-    TransformMeta sortRowsTransform = new TransformMeta(sortRowsTransformPid, name, sortRowsMeta);
-
-    return sortRowsTransform;
+    return new TransformMeta(sortRowsTransformPid, name, sortRowsMeta);
   }
 
   /**

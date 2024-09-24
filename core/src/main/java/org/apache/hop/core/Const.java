@@ -2355,12 +2355,10 @@ public class Const {
   }
 
   public static String getSimpleStackTrace(Throwable aThrowable) {
-    String result =
-        ExceptionUtils.getMessage(aThrowable)
-            + Const.CR
-            + "Root cause: "
-            + ExceptionUtils.getRootCauseMessage(aThrowable);
-    return result;
+    return ExceptionUtils.getMessage(aThrowable)
+        + Const.CR
+        + "Root cause: "
+        + ExceptionUtils.getRootCauseMessage(aThrowable);
   }
 
   /**

@@ -140,8 +140,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
       String schemaJson = schema.toString();
       String dataJson = genericRecord.toString();
 
-      String json = "{ \"schema\" : " + schemaJson + ", \"data\" : " + dataJson + " }";
-      return json;
+      return "{ \"schema\" : " + schemaJson + ", \"data\" : " + dataJson + " }";
     } catch (Exception e) {
       throw new HopValueException(
           "Unable to convert an Avro record to a JSON String using the provided schema", e);
@@ -451,9 +450,8 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
 
       BinaryDecoder binaryDecoder = DecoderFactory.get().directBinaryDecoder(inputStream, null);
       GenericDatumReader<GenericRecord> datumReader = new GenericDatumReader<>(schema);
-      GenericRecord genericRecord = datumReader.read(null, binaryDecoder);
 
-      return genericRecord;
+      return datumReader.read(null, binaryDecoder);
     } catch (EOFException e) {
       throw new HopEofException(e);
     } catch (SocketTimeoutException e) {

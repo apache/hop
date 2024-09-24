@@ -106,8 +106,7 @@ public class ExplorerFileType implements IHopFileType {
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>();
-    return handlers;
+    return new ArrayList<>();
   }
 
   @Override

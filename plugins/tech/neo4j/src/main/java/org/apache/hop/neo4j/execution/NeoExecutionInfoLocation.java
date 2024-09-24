@@ -1600,8 +1600,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     if (value.isNull()) {
       return null;
     }
-    List<String> list = value.asList(Value::asString);
-    return list;
+    return value.asList(Value::asString);
   }
 
   private Map<String, String> getMap(org.neo4j.driver.Record record, String key) {

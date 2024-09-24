@@ -142,17 +142,14 @@ public class LogMessageTest {
     ILoggingObject transformLogObject =
         new SimpleLoggingObject(
             "TRANSFORM_SUBJECT", LoggingObjectType.TRANSFORM, pipelineLogObject);
-    ILoggingObject pipelineChildLogObject =
-        new SimpleLoggingObject(
-            "PIPELINE_CHILD_SUBJECT", LoggingObjectType.PIPELINE, transformLogObject);
-    return pipelineChildLogObject;
+    return new SimpleLoggingObject(
+        "PIPELINE_CHILD_SUBJECT", LoggingObjectType.PIPELINE, transformLogObject);
   }
 
   private static ILoggingObject getLoggingObjectWithOneParent() {
     ILoggingObject rootLogObject =
         new SimpleLoggingObject("ROOT_SUBJECT", LoggingObjectType.HOP_GUI, null);
-    ILoggingObject pipelineLogObject =
-        new SimpleLoggingObject("PIPELINE_SUBJECT", LoggingObjectType.PIPELINE, rootLogObject);
-    return pipelineLogObject;
+
+    return new SimpleLoggingObject("PIPELINE_SUBJECT", LoggingObjectType.PIPELINE, rootLogObject);
   }
 }

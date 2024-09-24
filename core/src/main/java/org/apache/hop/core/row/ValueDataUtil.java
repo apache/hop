@@ -1041,8 +1041,7 @@ public class ValueDataUtil {
    */
   public static Object round(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
-    final Object r = round(metaA, dataA, metaB, dataB, ROUND_2_MODE);
-    return r;
+    return round(metaA, dataA, metaB, dataB, ROUND_2_MODE);
   }
 
   /**

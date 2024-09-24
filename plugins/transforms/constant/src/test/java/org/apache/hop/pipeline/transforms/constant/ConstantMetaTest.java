@@ -28,7 +28,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
@@ -145,12 +144,8 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
 
     @Override
     public ConstantField getTestObject() {
-      String[] types = ValueMetaFactory.getAllValueMetaNames();
-
-      ConstantField field =
-          new ConstantField(UUID.randomUUID().toString(), "String", UUID.randomUUID().toString());
-
-      return field;
+      return new ConstantField(
+          UUID.randomUUID().toString(), "String", UUID.randomUUID().toString());
     }
 
     @Override

@@ -564,8 +564,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     FileObject root = HopVfs.getFileObject(rootFolder);
     FileObject file = HopVfs.getFileObject(filename);
 
-    String relativePath = root.getName().getRelativeName(file.getName());
-    return relativePath;
+    return root.getName().getRelativeName(file.getName());
   }
 
   private void fileSelected() {

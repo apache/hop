@@ -47,8 +47,7 @@ public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, Dete
    */
   private Object[] buildOneRow() {
     // return previous fields name
-    Object[] outputRowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-    return outputRowData;
+    return RowDataUtil.allocateRowData(data.outputRowMeta.size());
   }
 
   @Override

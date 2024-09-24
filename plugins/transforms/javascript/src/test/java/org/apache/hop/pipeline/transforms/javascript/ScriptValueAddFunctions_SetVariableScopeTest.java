@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -44,8 +43,8 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setParentScopeVariable(child, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(child).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(parent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(child).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(parent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -55,8 +54,8 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setParentScopeVariable(child, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(child).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(parent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(child).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(parent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -65,7 +64,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setParentScopeVariable(pipeline, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(pipeline).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(pipeline).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -75,8 +74,8 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setGrandParentScopeVariable(child, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(child).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(parent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(child).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(parent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -87,9 +86,9 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setGrandParentScopeVariable(child, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(child).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(parent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(grandParent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(child).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(parent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(grandParent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -101,10 +100,10 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setGrandParentScopeVariable(child, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(child).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(parent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(grandParent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(grandGrandParent, never()).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(child).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(parent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(grandParent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(grandGrandParent, never()).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -113,7 +112,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setGrandParentScopeVariable(pipeline, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(pipeline).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(pipeline).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -124,8 +123,8 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setRootScopeVariable(child, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(child).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(parent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(child).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(parent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -137,10 +136,10 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setRootScopeVariable(child, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(child).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(parent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(grandParent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-    verify(grandGrandParent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(child).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(parent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(grandParent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+    verify(grandGrandParent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -149,7 +148,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
     ScriptValuesAddedFunctions.setRootScopeVariable(pipeline, VARIABLE_NAME, VARIABLE_VALUE);
 
-    verify(pipeline).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+    verify(pipeline).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
   }
 
   @Test
@@ -161,8 +160,8 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
     try {
       ScriptValuesAddedFunctions.setSystemScopeVariable(pipeline, VARIABLE_NAME, VARIABLE_VALUE);
 
-      Assert.assertEquals(System.getProperty(VARIABLE_NAME), VARIABLE_VALUE);
-      verify(pipeline).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+      Assert.assertEquals(VARIABLE_VALUE, System.getProperty(VARIABLE_NAME));
+      verify(pipeline).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
     } finally {
       System.clearProperty(VARIABLE_NAME);
     }
@@ -180,12 +179,12 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
     try {
       ScriptValuesAddedFunctions.setSystemScopeVariable(child, VARIABLE_NAME, VARIABLE_VALUE);
 
-      Assert.assertEquals(System.getProperty(VARIABLE_NAME), VARIABLE_VALUE);
+      Assert.assertEquals(VARIABLE_VALUE, System.getProperty(VARIABLE_NAME));
 
-      verify(child).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-      verify(parent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-      verify(grandParent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
-      verify(grandGrandParent).setVariable(eq(VARIABLE_NAME), eq(VARIABLE_VALUE));
+      verify(child).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+      verify(parent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+      verify(grandParent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
+      verify(grandGrandParent).setVariable(VARIABLE_NAME, VARIABLE_VALUE);
     } finally {
       System.clearProperty(VARIABLE_NAME);
     }

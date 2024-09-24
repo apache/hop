@@ -475,9 +475,9 @@ public class RowMetaTest {
       }
     }
     assertNotNull(found);
-    assertEquals(found.getOrigin(), "newOriginTransform");
+    assertEquals("newOriginTransform", found.getOrigin());
     assertNotNull(other);
-    assertEquals(other.getOrigin(), "originTransform");
+    assertEquals("originTransform", other.getOrigin());
   }
 
   @Test

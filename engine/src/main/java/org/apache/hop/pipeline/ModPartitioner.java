@@ -101,9 +101,7 @@ public class ModPartitioner extends BasePartitioner {
         value = valueMeta.hashCode(valueData);
     }
 
-    int targetLocation = (int) (Math.abs(value) % nrPartitions);
-
-    return targetLocation;
+    return (int) (Math.abs(value) % nrPartitions);
   }
 
   @Override

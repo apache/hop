@@ -66,23 +66,23 @@ public class ValueMetaTimestampTest {
     Timestamp later = Timestamp.valueOf("2013-12-12 12:12:12.121212");
     assertTrue(vm.isSortedAscending());
     assertFalse(vm.isSortedDescending());
-    assertEquals(vm.compare(null, null), 0);
-    assertEquals(vm.compare(null, earlier), -1);
-    assertEquals(vm.compare(earlier, null), 1);
-    assertEquals(vm.compare(earlier, earlier), 0);
-    assertEquals(vm.compare(earlier, later), -1);
-    assertEquals(vm.compare(later, earlier), 1);
+    assertEquals(0, vm.compare(null, null));
+    assertEquals(-1, vm.compare(null, earlier));
+    assertEquals(1, vm.compare(earlier, null));
+    assertEquals(0, vm.compare(earlier, earlier));
+    assertEquals(-1, vm.compare(earlier, later));
+    assertEquals(1, vm.compare(later, earlier));
 
     // Check Descending comparison
     vm.setSortedDescending(true);
     assertFalse(vm.isSortedAscending());
     assertTrue(vm.isSortedDescending());
-    assertEquals(vm.compare(null, null), 0);
-    assertEquals(vm.compare(null, earlier), 1);
-    assertEquals(vm.compare(earlier, null), -1);
-    assertEquals(vm.compare(earlier, earlier), 0);
-    assertEquals(vm.compare(earlier, later), 1);
-    assertEquals(vm.compare(later, earlier), -1);
+    assertEquals(0, vm.compare(null, null));
+    assertEquals(1, vm.compare(null, earlier));
+    assertEquals(-1, vm.compare(earlier, null));
+    assertEquals(0, vm.compare(earlier, earlier));
+    assertEquals(1, vm.compare(earlier, later));
+    assertEquals(-1, vm.compare(later, earlier));
   }
 
   @Test
@@ -100,7 +100,7 @@ public class ValueMetaTimestampTest {
   }
 
   @Test
-  public void testConvertTimestampToString() throws Exception {
+  public void testConvertTimestampToString() {
     ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
     assertEquals(
         "2012/04/05 04:03:02.123456000",
@@ -116,7 +116,7 @@ public class ValueMetaTimestampTest {
   }
 
   @Test
-  public void testConvertDateToTimestamp() throws Exception {
+  public void testConvertDateToTimestamp() {
     ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
     // Converting date to timestamp
     Date date = new Date();

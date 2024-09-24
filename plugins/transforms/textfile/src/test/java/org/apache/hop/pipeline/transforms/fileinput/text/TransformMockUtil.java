@@ -77,15 +77,13 @@ public class TransformMockUtil {
             int.class,
             PipelineMeta.class,
             Pipeline.class);
-    Main transform =
-        kons.newInstance(
-            mock.transformMeta,
-            mock.iTransformMeta,
-            mock.iTransformData,
-            0,
-            mock.pipelineMeta,
-            mock.pipeline);
-    return transform;
+    return kons.newInstance(
+        mock.transformMeta,
+        mock.iTransformMeta,
+        mock.iTransformData,
+        0,
+        mock.pipelineMeta,
+        mock.pipeline);
   }
 
   public static <
@@ -115,15 +113,12 @@ public class TransformMockUtil {
             int.class,
             PipelineMeta.class,
             Pipeline.class);
-    Main main =
-        kons.newInstance(
-            transformMockHelper.transformMeta,
-            meta,
-            data,
-            0,
-            transformMockHelper.pipelineMeta,
-            transformMockHelper.pipeline);
-
-    return main;
+    return kons.newInstance(
+        transformMockHelper.transformMeta,
+        meta,
+        data,
+        0,
+        transformMockHelper.pipelineMeta,
+        transformMockHelper.pipeline);
   }
 }

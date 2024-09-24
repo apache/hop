@@ -139,10 +139,8 @@ public class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
       if (scriptType == 3) {
         scriptType = -1;
       }
-      ScriptValuesScript rtn =
-          new ScriptValuesScript(
-              scriptType, UUID.randomUUID().toString(), UUID.randomUUID().toString());
-      return rtn;
+      return new ScriptValuesScript(
+          scriptType, UUID.randomUUID().toString(), UUID.randomUUID().toString());
     }
 
     @Override

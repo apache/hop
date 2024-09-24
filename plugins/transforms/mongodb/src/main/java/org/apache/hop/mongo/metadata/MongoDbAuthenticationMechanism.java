@@ -33,8 +33,7 @@ public enum MongoDbAuthenticationMechanism {
 
   public MongoDbAuthenticationMechanism getMechanism(String code) {
     try {
-      MongoDbAuthenticationMechanism mechanism = MongoDbAuthenticationMechanism.valueOf(code);
-      return mechanism;
+      return MongoDbAuthenticationMechanism.valueOf(code);
     } catch (IllegalArgumentException e) {
       return PLAIN;
     }

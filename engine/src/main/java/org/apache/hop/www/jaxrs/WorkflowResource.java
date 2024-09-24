@@ -61,11 +61,10 @@ public class WorkflowResource {
   public String getWorkflowLog(@PathParam("id") String id, @PathParam("logStart") int startLineNr) {
     int lastLineNr = HopLogStore.getLastBufferLineNr();
     IWorkflowEngine<WorkflowMeta> workflow = HopServerResource.getWorkflow(id);
-    String logText =
-        HopLogStore.getAppender()
-            .getBuffer(workflow.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr)
-            .toString();
-    return logText;
+
+    return HopLogStore.getAppender()
+        .getBuffer(workflow.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr)
+        .toString();
   }
 
   @GET

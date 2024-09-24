@@ -203,11 +203,8 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
     @Override
     public FilterItem getTestObject() {
 
-      FilterItem field =
-          new FilterItem(
-              FileInputList.FileTypeFilter.getByOrdinal(new Random().nextInt(3)).toString());
-
-      return field;
+      return new FilterItem(
+          FileInputList.FileTypeFilter.getByOrdinal(new Random().nextInt(3)).toString());
     }
 
     @Override
@@ -228,17 +225,14 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
     @Override
     public FileItem getTestObject() {
 
-      FileItem field =
-          new FileItem(
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              GetFileNamesMeta.RequiredFilesCode[
-                  new Random().nextInt(GetFileNamesMeta.RequiredFilesCode.length)],
-              GetFileNamesMeta.RequiredFilesCode[
-                  new Random().nextInt(GetFileNamesMeta.RequiredFilesCode.length)]);
-
-      return field;
+      return new FileItem(
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          GetFileNamesMeta.RequiredFilesCode[
+              new Random().nextInt(GetFileNamesMeta.RequiredFilesCode.length)],
+          GetFileNamesMeta.RequiredFilesCode[
+              new Random().nextInt(GetFileNamesMeta.RequiredFilesCode.length)]);
     }
 
     @Override

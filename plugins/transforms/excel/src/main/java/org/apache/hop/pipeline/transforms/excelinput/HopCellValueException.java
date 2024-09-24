@@ -62,15 +62,13 @@ public class HopCellValueException extends HopException {
 
   @Override
   public String getMessage() {
-    String msgText =
-        BaseMessages.getString(
-            PKG,
-            "HopCellValueException.CannotConvertFieldFromCell",
-            Integer.toString(sheetnr),
-            Integer.toString(rownr),
-            Integer.toString(colnr),
-            fieldName,
-            super.getMessage());
-    return msgText;
+    return BaseMessages.getString(
+        PKG,
+        "HopCellValueException.CannotConvertFieldFromCell",
+        Integer.toString(sheetnr),
+        Integer.toString(rownr),
+        Integer.toString(colnr),
+        fieldName,
+        super.getMessage());
   }
 }

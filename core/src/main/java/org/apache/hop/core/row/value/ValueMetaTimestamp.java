@@ -69,8 +69,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
 
   @Override
   public Date getDate(Object object) throws HopValueException {
-    Timestamp timestamp = getTimestamp(object);
-    return timestamp;
+    return getTimestamp(object);
   }
 
   @Override
@@ -321,14 +320,13 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     // See if we need to convert a null value into a String
     // For example, we might want to convert null into "Empty".
     //
-    if (!Utils.isEmpty(ifNull)) {
+    if (!Utils.isEmpty(ifNull)
+        && (Utils.isEmpty(pol)
+            || pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length())))) {
       // Note that you can't pull the pad method up here as a nullComp variable
       // because you could get an NPE since you haven't checked isEmpty(pol)
       // yet!
-      if (Utils.isEmpty(pol)
-          || pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length()))) {
-        pol = ifNull;
-      }
+      pol = ifNull;
     }
 
     // See if the polled value is empty
@@ -401,8 +399,8 @@ public class ValueMetaTimestamp extends ValueMetaDate {
       return null;
     }
     Timestamp result = null;
-    if (date instanceof Timestamp) {
-      result = (Timestamp) date;
+    if (date instanceof Timestamp timestamp) {
+      result = timestamp;
     } else {
       result = new Timestamp(date.getTime());
     }

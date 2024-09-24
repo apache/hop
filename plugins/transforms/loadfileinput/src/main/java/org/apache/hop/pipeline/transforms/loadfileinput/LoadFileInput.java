@@ -340,9 +340,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
    * @return
    */
   private Object[] buildEmptyRow() {
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-
-    return rowData;
+    return RowDataUtil.allocateRowData(data.outputRowMeta.size());
   }
 
   Object[] getOneRow() throws HopException {

@@ -95,9 +95,7 @@ public class HopServerResource {
   @Path("/pipelines")
   @Produces({MediaType.APPLICATION_JSON})
   public List<HopServerObjectEntry> getPipelines() {
-    List<HopServerObjectEntry> pipelineEntries =
-        HopServerSingleton.getInstance().getPipelineMap().getPipelineObjects();
-    return pipelineEntries;
+    return HopServerSingleton.getInstance().getPipelineMap().getPipelineObjects();
   }
 
   @GET
@@ -120,9 +118,7 @@ public class HopServerResource {
   @Path("/workflows")
   @Produces({MediaType.APPLICATION_JSON})
   public List<HopServerObjectEntry> getWorkflows() {
-    List<HopServerObjectEntry> actions =
-        HopServerSingleton.getInstance().getWorkflowMap().getWorkflowObjects();
-    return actions;
+    return HopServerSingleton.getInstance().getWorkflowMap().getWorkflowObjects();
   }
 
   @GET

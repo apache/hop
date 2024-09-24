@@ -54,8 +54,7 @@ public class GoogleAnalyticsField {
   }
 
   public IValueMeta createValueMeta() throws HopPluginException {
-    IValueMeta v = ValueMetaFactory.createValueMeta(outputFieldName, getHopType());
-    return v;
+    return ValueMetaFactory.createValueMeta(outputFieldName, getHopType());
   }
 
   public String getFeedFieldType() {

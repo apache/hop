@@ -62,7 +62,7 @@ public class SnappyCompressionOutputStreamTest {
   @Test
   public void getCompressionProvider() {
     ICompressionProvider provider = outStream.getCompressionProvider();
-    assertEquals(provider.getName(), PROVIDER_NAME);
+    assertEquals(PROVIDER_NAME, provider.getName());
   }
 
   @Test

@@ -239,6 +239,6 @@ public class SalesforceInsertTest {
 
     sfInputTransform.writeToSalesForce(new Object[] {1L});
     XmlObject sObject = data.sfBuffer[0].getChild(ACCOUNT_ID);
-    Assert.assertEquals(sObject.getValue(), 1);
+    Assert.assertEquals(1, sObject.getValue());
   }
 }

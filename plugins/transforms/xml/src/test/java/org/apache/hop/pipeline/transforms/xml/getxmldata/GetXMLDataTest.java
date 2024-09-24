@@ -56,42 +56,38 @@ public class GetXMLDataTest extends TestCase {
   }
 
   private static String getXML1() {
-    String xml1 =
-        "<Level1>                                     "
-            + " <Level2>                                    "
-            + "  <Props>                                    "
-            + "   <ObjectID>AAAAA</ObjectID>                "
-            + "   <SAPIDENT>31-8200</SAPIDENT>              "
-            + "   <Quantity>1</Quantity>                    "
-            + "   <Merkmalname>TX_B</Merkmalname>           "
-            + "   <Merkmalswert> 600</Merkmalswert>         "
-            + "  </Props>                                   "
-            + "  <Props>                                    "
-            + "   <ObjectID>BBBBB</ObjectID>                "
-            + "   <SAPIDENT>31-8201</SAPIDENT>              "
-            + "   <Quantity>3</Quantity>                    "
-            + "   <Merkmalname>TX_C</Merkmalname>           "
-            + "   <Merkmalswert> 900</Merkmalswert>         "
-            + "  </Props>                                   "
-            + " </Level2>                                   "
-            + "</Level1>";
-    return xml1;
+    return "<Level1>                                     "
+        + " <Level2>                                    "
+        + "  <Props>                                    "
+        + "   <ObjectID>AAAAA</ObjectID>                "
+        + "   <SAPIDENT>31-8200</SAPIDENT>              "
+        + "   <Quantity>1</Quantity>                    "
+        + "   <Merkmalname>TX_B</Merkmalname>           "
+        + "   <Merkmalswert> 600</Merkmalswert>         "
+        + "  </Props>                                   "
+        + "  <Props>                                    "
+        + "   <ObjectID>BBBBB</ObjectID>                "
+        + "   <SAPIDENT>31-8201</SAPIDENT>              "
+        + "   <Quantity>3</Quantity>                    "
+        + "   <Merkmalname>TX_C</Merkmalname>           "
+        + "   <Merkmalswert> 900</Merkmalswert>         "
+        + "  </Props>                                   "
+        + " </Level2>                                   "
+        + "</Level1>";
   }
 
   private static String getXML2() {
-    String xml2 =
-        "<Level1>                                 "
-            + " <Level2>                                    "
-            + "  <Props>                                    "
-            + "   <ObjectID>CCCCC</ObjectID>                "
-            + "   <SAPIDENT>11-8201</SAPIDENT>              "
-            + "   <Quantity>5</Quantity>                    "
-            + "   <Merkmalname>TX_C</Merkmalname>           "
-            + "   <Merkmalswert> 700</Merkmalswert>         "
-            + "  </Props>                                   "
-            + " </Level2>                                   "
-            + "</Level1>";
-    return xml2;
+    return "<Level1>                                 "
+        + " <Level2>                                    "
+        + "  <Props>                                    "
+        + "   <ObjectID>CCCCC</ObjectID>                "
+        + "   <SAPIDENT>11-8201</SAPIDENT>              "
+        + "   <Quantity>5</Quantity>                    "
+        + "   <Merkmalname>TX_C</Merkmalname>           "
+        + "   <Merkmalswert> 700</Merkmalswert>         "
+        + "  </Props>                                   "
+        + " </Level2>                                   "
+        + "</Level1>";
   }
 
   public List<RowMetaAndData> createData() {
@@ -440,8 +436,6 @@ public class GetXMLDataTest extends TestCase {
     pipeline.waitUntilFinished();
 
     // Compare the results
-    List<RowMetaAndData> resultRows = dummyRc1.getRowsWritten();
-    List<RowMetaAndData> goldenImageRows = createResultData1();
 
     GetXmlDataData getXMLDataData = new GetXmlDataData();
     GetXmlData getXmlData =

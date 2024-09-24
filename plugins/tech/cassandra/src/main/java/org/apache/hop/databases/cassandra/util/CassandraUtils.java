@@ -323,9 +323,7 @@ public class CassandraUtils {
    * @return the new batch
    */
   public static List<Object[]> newNonCQLBatch(int numRows) {
-    List<Object[]> newBatch = new ArrayList<>(numRows);
-
-    return newBatch;
+    return new ArrayList<>(numRows);
   }
 
   /**

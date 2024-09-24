@@ -102,7 +102,7 @@ public class PluginTest {
     plugin.merge(fragment);
 
     assertTrue(classMap.containsKey(IPluginTypeListener.class));
-    assertEquals(libraries.size(), 2);
+    assertEquals(2, libraries.size());
     assertTrue(libraries.contains(Integer.class.getName()));
     assertEquals("", plugin.getDescription());
     assertEquals(fragment.getImageFile(), plugin.getImageFile());

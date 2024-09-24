@@ -92,11 +92,9 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
       int fieldNameIndex = getFieldsTable().hasIndexColumn() ? 1 : 0;
       fieldNamesInTable.add(item.getText(fieldNameIndex));
     }
-    final List<String> newFieldNames =
-        Arrays.asList(fieldNamesInTable.toArray(new String[fieldNamesInTable.size()])).stream()
-            .filter(fieldName -> !Arrays.asList(incomingFieldNames).contains(fieldName))
-            .collect(Collectors.toList());
-    return newFieldNames;
+    return Arrays.asList(fieldNamesInTable.toArray(new String[fieldNamesInTable.size()])).stream()
+        .filter(fieldName -> !Arrays.asList(incomingFieldNames).contains(fieldName))
+        .collect(Collectors.toList());
   }
 
   /**

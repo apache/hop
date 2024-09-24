@@ -222,8 +222,7 @@ public class HopServerConfigTest {
 
   private Node getConfigNode(String configString) throws HopXmlException {
     Document document = XmlHandler.loadXmlString(configString);
-    Node configNode = XmlHandler.getSubNode(document, HopServerConfig.XML_TAG);
-    return configNode;
+    return XmlHandler.getSubNode(document, HopServerConfig.XML_TAG);
   }
 
   private String getConfigWithAcceptorsOnlyOption() {

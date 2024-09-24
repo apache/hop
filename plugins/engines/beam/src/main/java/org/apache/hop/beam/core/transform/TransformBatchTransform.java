@@ -177,13 +177,12 @@ public class TransformBatchTransform extends TransformTransform {
 
       // Apply the multi output parallel do transform function to the main input stream
       //
-      PCollectionTuple collectionTuple = input.apply(multiOutput);
 
       // In the tuple is everything we need to find.
       // Just make sure to retrieve the PCollections using the correct Tuple ID
       // Use HopBeamUtil.createTargetTupleId()... to make sure
       //
-      return collectionTuple;
+      return input.apply(multiOutput);
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error transforming data in transform '" + transformName + "'", e);

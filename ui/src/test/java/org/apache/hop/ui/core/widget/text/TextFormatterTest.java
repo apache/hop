@@ -34,9 +34,9 @@ public class TextFormatterTest {
         "This has one this is the first value this is the second value", format.getText());
     Assert.assertEquals(2, format.getStyleRanges().size());
     Assert.assertEquals(
-        format.getStyleRanges().get(0).data, "http://www.example.com/page/index.html?query=test1");
+        "http://www.example.com/page/index.html?query=test1", format.getStyleRanges().get(0).data);
     Assert.assertEquals(
-        format.getStyleRanges().get(1).data, "http://www.example.com/page/index.html?query=test2");
+        "http://www.example.com/page/index.html?query=test2", format.getStyleRanges().get(1).data);
     Assert.assertEquals(13, format.getStyleRanges().get(0).start);
     Assert.assertEquals(37, format.getStyleRanges().get(1).start);
   }

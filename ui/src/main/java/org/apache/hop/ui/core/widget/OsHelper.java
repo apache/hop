@@ -82,8 +82,7 @@ public class OsHelper {
     // It's a workaround for apparently randomly enabled/disabled menu
     // items. In fact, they are just kept in synch
     // with global accelerators
-    String result = StringUtils.join(items, "\t") + "\t " + key;
-    return result;
+    return StringUtils.join(items, "\t") + "\t " + key;
   }
 
   public static boolean setAppName() {

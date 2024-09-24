@@ -707,8 +707,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
           IValueMeta vm = inputMeta.getValueMeta(index);
           if (!vm.isNull(row[index])) {
             String jsonDoc = vm.getString(row[index]);
-            DBObject docToInsert = (DBObject) JSON.parse(jsonDoc);
-            return docToInsert;
+            return (DBObject) JSON.parse(jsonDoc);
           } else {
             return null;
           }

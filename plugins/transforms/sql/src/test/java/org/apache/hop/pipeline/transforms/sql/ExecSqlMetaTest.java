@@ -142,9 +142,7 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
     @Override
     public ExecSqlArgumentItem getTestObject() {
 
-      ExecSqlArgumentItem field = new ExecSqlArgumentItem(UUID.randomUUID().toString());
-
-      return field;
+      return new ExecSqlArgumentItem(UUID.randomUUID().toString());
     }
 
     @Override

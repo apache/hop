@@ -198,9 +198,8 @@ public class HopServerPipelineStatus {
 
   public static HopServerPipelineStatus fromXml(String xml) throws HopException {
     Document document = XmlHandler.loadXmlString(xml);
-    HopServerPipelineStatus status =
-        new HopServerPipelineStatus(XmlHandler.getSubNode(document, XML_TAG));
-    return status;
+
+    return new HopServerPipelineStatus(XmlHandler.getSubNode(document, XML_TAG));
   }
 
   /**

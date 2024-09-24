@@ -29,15 +29,13 @@ public class ExecutorUtil {
   private ExecutorUtil() {}
 
   private static ExecutorService init() {
-    ExecutorService executorService =
-        Executors.newCachedThreadPool(
-            r -> {
-              Thread thread = Executors.defaultThreadFactory().newThread(r);
-              thread.setDaemon(true);
-              thread.setName(SIMPLE_NAME + " thread " + threadNum.getAndIncrement());
-              return thread;
-            });
-    return executorService;
+    return Executors.newCachedThreadPool(
+        r -> {
+          Thread thread = Executors.defaultThreadFactory().newThread(r);
+          thread.setDaemon(true);
+          thread.setName(SIMPLE_NAME + " thread " + threadNum.getAndIncrement());
+          return thread;
+        });
   }
 
   public static ExecutorService getExecutor() {

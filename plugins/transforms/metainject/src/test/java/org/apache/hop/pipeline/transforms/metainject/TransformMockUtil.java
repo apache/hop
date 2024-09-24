@@ -69,15 +69,13 @@ public class TransformMockUtil {
             int.class,
             PipelineMeta.class,
             Pipeline.class);
-    MetaInject transform =
-        kons.newInstance(
-            mock.transformMeta,
-            mock.iTransformMeta,
-            mock.iTransformData,
-            0,
-            mock.pipelineMeta,
-            mock.pipeline);
-    return transform;
+    return kons.newInstance(
+        mock.transformMeta,
+        mock.iTransformMeta,
+        mock.iTransformData,
+        0,
+        mock.pipelineMeta,
+        mock.pipeline);
   }
 
   public static MetaInject getTransform(

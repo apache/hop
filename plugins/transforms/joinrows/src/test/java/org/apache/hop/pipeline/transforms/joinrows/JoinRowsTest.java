@@ -193,7 +193,7 @@ public class JoinRowsTest {
   }
 
   private Object[][] createExpectedResult() {
-    Object[][] objects = {
+    return new Object[][] {
       {
         "main -- row[0]-first value",
         "main -- row[0]-second value",
@@ -267,6 +267,5 @@ public class JoinRowsTest {
         "secondary -- row[2]-third value"
       }
     };
-    return objects;
   }
 }

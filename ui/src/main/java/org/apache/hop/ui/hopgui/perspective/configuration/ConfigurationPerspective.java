@@ -54,7 +54,6 @@ import org.eclipse.swt.widgets.Control;
     image = "ui/images/gear.svg")
 @GuiPlugin(description = "i18n::HopConfigurationPerspective.GuiPlugin.Description")
 public class ConfigurationPerspective implements IHopPerspective, TabClosable {
-  private static final Class<?> PKG = ConfigurationPerspective.class;
 
   public static final String CONFIG_PERSPECTIVE_TABS = "ConfigurationPerspective.Tabs.ID";
   private HopGui hopGui;
@@ -72,8 +71,7 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>();
-    return handlers;
+    return new ArrayList<>();
   }
 
   @Override
@@ -163,7 +161,9 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
   }
 
   public void showSystemVariablesTab() {
-    for (CTabItem tabItem : configTabs.getItems()) {}
+    for (CTabItem tabItem : configTabs.getItems()) {
+      // Do nothing
+    }
   }
 
   @Override
@@ -193,8 +193,7 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public List<ISearchable> getSearchables() {
-    List<ISearchable> searchables = new ArrayList<>();
-    return searchables;
+    return new ArrayList<>();
   }
 
   @Override

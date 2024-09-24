@@ -120,7 +120,7 @@ public class VariablesTest {
       for (int i = 0; i < 300; i++) {
         String key = "key" + i;
         variables.setVariable(key, "value");
-        assertEquals(variables.resolve("${" + key + "}"), "value");
+        assertEquals("value", variables.resolve("${" + key + "}"));
       }
       return true;
     };

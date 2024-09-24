@@ -49,12 +49,11 @@ public class InjectorField {
   }
 
   public IValueMeta createValueMeta(IVariables variables) throws HopException {
-    String name = variables.resolve(this.name);
-    int type = ValueMetaFactory.getIdForValueMeta(variables.resolve(this.type));
-    int length = Const.toInt(variables.resolve(this.length), -1);
-    int precision = Const.toInt(variables.resolve(this.precision), -1);
-    IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, type, length, precision);
-    return valueMeta;
+    return ValueMetaFactory.createValueMeta(
+        variables.resolve(this.name),
+        ValueMetaFactory.getIdForValueMeta(variables.resolve(this.type)),
+        Const.toInt(variables.resolve(this.length), -1),
+        Const.toInt(variables.resolve(this.precision), -1));
   }
 
   /**

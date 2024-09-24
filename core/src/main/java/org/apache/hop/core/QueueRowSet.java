@@ -35,8 +35,7 @@ public class QueueRowSet extends BaseRowSet implements Comparable<IRowSet>, IRow
 
   @Override
   public Object[] getRow() {
-    Object[] retRow = buffer.pollFirst();
-    return retRow;
+    return buffer.pollFirst();
   }
 
   @Override

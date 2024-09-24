@@ -310,7 +310,6 @@ public class GuiCompositeWidgets {
           Class<?> methodClass = buttonMethod.getDeclaringClass();
 
           try {
-            // ClassLoader classLoader = guiElements.getClassLoader();
 
             Object guiObject = methodClass.getDeclaredConstructor().newInstance();
 
@@ -353,7 +352,6 @@ public class GuiCompositeWidgets {
           Class<?> methodClass = buttonMethod.getDeclaringClass();
 
           try {
-            // ClassLoader classLoader = guiElements.getClassLoader();
 
             Object guiObject = methodClass.getDeclaredConstructor().newInstance();
 
@@ -523,8 +521,7 @@ public class GuiCompositeWidgets {
     // Instantiate the class...
     //
     try {
-      ITypeFilename typeFilename = typeFilenameClass.newInstance();
-      return typeFilename;
+      return typeFilenameClass.newInstance();
     } catch (Exception e) {
       throw new RuntimeException(
           "Error instantiating class "
@@ -546,8 +543,7 @@ public class GuiCompositeWidgets {
     // Instantiate the class...
     //
     try {
-      ITypeMetadata typeMetadata = typeMetadataClass.newInstance();
-      return typeMetadata;
+      return typeMetadataClass.newInstance();
     } catch (Exception e) {
       throw new RuntimeException(
           "Error instantiating class "

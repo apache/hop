@@ -66,7 +66,7 @@ public class GzipCompressionInputStreamTest {
   @Test
   public void getZIPCompressionProvider() {
     ICompressionProvider provider = inStream.getCompressionProvider();
-    assertEquals(provider.getName(), PROVIDER_NAME);
+    assertEquals(PROVIDER_NAME, provider.getName());
   }
 
   @Test
@@ -92,7 +92,6 @@ public class GzipCompressionInputStreamTest {
     GZIPOutputStream gos = new GZIPOutputStream(baos);
     byte[] testBytes = "Test".getBytes();
     gos.write(testBytes);
-    ByteArrayInputStream in = new ByteArrayInputStream(baos.toByteArray());
-    return in;
+    return new ByteArrayInputStream(baos.toByteArray());
   }
 }

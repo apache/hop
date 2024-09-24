@@ -115,24 +115,21 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
   public String getXml() {
 
     // 133 chars in just spaces and tag names alone
-    String retval =
-        super.getXml()
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("include_subfolders", includesubfolders)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("compare_filecontent", comparefilecontent)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("compare_filesize", comparefilesize)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("compareonly", compareonly)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("wildcard", wildcard)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue(CONST_FILENAME1, filename1)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue(CONST_FILENAME2, filename2);
-
-    return retval;
+    return super.getXml()
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("include_subfolders", includesubfolders)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("compare_filecontent", comparefilecontent)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("compare_filesize", comparefilesize)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("compareonly", compareonly)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("wildcard", wildcard)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue(CONST_FILENAME1, filename1)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue(CONST_FILENAME2, filename2);
   }
 
   @Override

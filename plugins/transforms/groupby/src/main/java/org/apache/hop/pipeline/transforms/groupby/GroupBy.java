@@ -848,8 +848,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
   // Method is defined as public in order to be accessible by unit tests
   public String retrieveVfsPath(String pathToTmp) throws HopFileException {
     FileObject vfsFile = HopVfs.getFileObject(pathToTmp);
-    String path = vfsFile.getName().getPath();
-    return path;
+    return vfsFile.getName().getPath();
   }
 
   private Object[] getRowFromBuffer() throws HopFileException {

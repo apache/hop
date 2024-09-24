@@ -124,20 +124,17 @@ public class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
     public GeneratorField getTestObject() {
       String[] types = ValueMetaFactory.getAllValueMetaNames();
 
-      GeneratorField field =
-          new GeneratorField(
-              UUID.randomUUID().toString(),
-              types[Math.abs(rand.nextInt(types.length))],
-              UUID.randomUUID().toString(),
-              rand.nextInt(20),
-              rand.nextInt(20),
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              rand.nextInt(20) < 0);
-
-      return field;
+      return new GeneratorField(
+          UUID.randomUUID().toString(),
+          types[Math.abs(rand.nextInt(types.length))],
+          UUID.randomUUID().toString(),
+          rand.nextInt(20),
+          rand.nextInt(20),
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          rand.nextInt(20) < 0);
     }
 
     @Override

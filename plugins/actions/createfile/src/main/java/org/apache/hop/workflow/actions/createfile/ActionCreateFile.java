@@ -81,17 +81,13 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
 
   @Override
   public String getXml() {
-
-    String xml =
-        super.getXml()
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue(CONST_FILENAME, filename)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("fail_if_file_exists", failIfFileExists)
-            + CONST_SPACE_SHORT
-            + XmlHandler.addTagValue("add_filename_result", addfilenameresult);
-
-    return xml;
+    return super.getXml()
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue(CONST_FILENAME, filename)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("fail_if_file_exists", failIfFileExists)
+        + CONST_SPACE_SHORT
+        + XmlHandler.addTagValue("add_filename_result", addfilenameresult);
   }
 
   @Override

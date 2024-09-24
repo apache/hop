@@ -27,29 +27,29 @@ public class ScriptValueAddFunctions_GetVariableScopeTest {
   @Test
   public void getSystemVariableScope() {
     assertEquals(
-        ScriptValuesAddedFunctions.getVariableScope("s"),
-        ScriptValuesAddedFunctions.VariableScope.SYSTEM);
+        ScriptValuesAddedFunctions.VariableScope.SYSTEM,
+        ScriptValuesAddedFunctions.getVariableScope("s"));
   }
 
   @Test
   public void getRootVariableScope() {
     assertEquals(
-        ScriptValuesAddedFunctions.getVariableScope("r"),
-        ScriptValuesAddedFunctions.VariableScope.ROOT);
+        ScriptValuesAddedFunctions.VariableScope.ROOT,
+        ScriptValuesAddedFunctions.getVariableScope("r"));
   }
 
   @Test
   public void getParentVariableScope() {
     assertEquals(
-        ScriptValuesAddedFunctions.getVariableScope("p"),
-        ScriptValuesAddedFunctions.VariableScope.PARENT);
+        ScriptValuesAddedFunctions.VariableScope.PARENT,
+        ScriptValuesAddedFunctions.getVariableScope("p"));
   }
 
   @Test
   public void getGrandParentVariableScope() {
     assertEquals(
-        ScriptValuesAddedFunctions.getVariableScope("g"),
-        ScriptValuesAddedFunctions.VariableScope.GRAND_PARENT);
+        ScriptValuesAddedFunctions.VariableScope.GRAND_PARENT,
+        ScriptValuesAddedFunctions.getVariableScope("g"));
   }
 
   @Test(expected = EvaluatorException.class)
