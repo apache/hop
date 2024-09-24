@@ -29,7 +29,7 @@
     <name>Hop Plugins Databases ClickHouse</name>
 
     <properties>
-        <clickhouse.jdbc.version>0.6.2</clickhouse.jdbc.version>
+        <clickhouse.jdbc.version>0.6.5</clickhouse.jdbc.version>
     </properties>
 
     <dependencies>
