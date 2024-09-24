@@ -114,7 +114,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
       } else if (!checkedFiles.isEmpty()) {
         oneFileLocked = isOneSpecifiedFileLocked();
       } else {
-        log.logBasic(
+        logBasic(
             "This action didn't execute any locking checks "
                 + "as there were no lines to check and no arguments provided.");
       }

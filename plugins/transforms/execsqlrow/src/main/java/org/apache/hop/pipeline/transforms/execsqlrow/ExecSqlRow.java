@@ -127,12 +127,12 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
           // empty filename
           throw new HopException(BaseMessages.getString(PKG, "ExecSqlRow.Log.EmptySQLFromFile"));
         }
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "ExecSqlRow.Log.ExecutingSQLFromFile", sql));
         }
         data.result = data.db.execStatementsFromFile(sql, meta.isSendOneStatement());
       } else {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(PKG, "ExecSqlRow.Log.ExecutingSQLScript") + Const.CR + sql);
         }
@@ -164,7 +164,7 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
 
       putRow(data.outputRowMeta, row); // send it out!
 
-      if (checkFeedback(getLinesWritten()) && log.isBasic()) {
+      if (checkFeedback(getLinesWritten()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ExecSqlRow.Log.LineNumber") + getLinesWritten());
       }
     } catch (HopException e) {
@@ -189,7 +189,7 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
   @Override
   public void dispose() {
 
-    if (log.isBasic()) {
+    if (isBasic()) {
       logBasic(BaseMessages.getString(PKG, "ExecSqlRow.Log.FinishingReadingQuery"));
     }
 
@@ -240,7 +240,7 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
       try {
         data.db.connect();
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ExecSqlRow.Log.ConnectedToDB"));
         }
 

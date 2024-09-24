@@ -141,7 +141,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
       // add new values to the row.
       putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,
@@ -196,7 +196,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
       try {
         data.db.connect();
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ColumnExists.Log.ConnectedToDB"));
         }
 

@@ -68,7 +68,7 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
     // indexes
     // in the row structure that only need to be done once
     if (first) {
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "CoalesceTransform.Log.StartedProcessing"));
       }
 
@@ -143,7 +143,7 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
     // put the row to the output row stream
     putRow(data.outputRowMeta, outputRowValues);
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(
               PKG, "CoalesceTransform.Log.WroteRowToNextTransform", outputRowValues));

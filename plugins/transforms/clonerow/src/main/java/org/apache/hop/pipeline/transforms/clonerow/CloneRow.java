@@ -102,7 +102,7 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> {
       } else {
         String nrclonesString = resolve(meta.getNrClones());
         data.nrclones = Const.toInt(nrclonesString, 0);
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "CloneRow.Log.NrClones", "" + data.nrclones));
         }
       }
@@ -134,7 +134,7 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> {
         throw new HopException(BaseMessages.getString(PKG, "CloneRow.Log.NrClonesIsNull"));
       } else {
         data.nrclones = nrCloneFieldValue;
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "CloneRow.Log.NrClones", "" + data.nrclones));
         }
       }
@@ -161,7 +161,7 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> {
       putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
     }
 
-    if (log.isDetailed() && checkFeedback(getLinesRead())) {
+    if (isDetailed() && checkFeedback(getLinesRead())) {
       logDetailed(BaseMessages.getString(PKG, "CloneRow.Log.LineNumber", "" + getLinesRead()));
     }
 

@@ -212,7 +212,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> {
     if (meta.useXSLField()) {
       // Get the value
       data.xslfilename = getInputRowMeta().getString(row, data.fielxslfiledposition);
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "Xslt.Log.XslfileNameFromFied", data.xslfilename, meta.getXSLFileField()));
@@ -221,7 +221,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> {
 
     try {
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         if (meta.isXSLFieldIsAFile()) {
           logDetailed(BaseMessages.getString(PKG, "Xslt.Log.Filexsl") + data.xslfilename);
         } else {
@@ -251,13 +251,13 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> {
       transformer.transform(source, result);
 
       String xmlString = result.getWriter().toString();
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "Xslt.Log.FileResult"));
         logDetailed(xmlString);
       }
       Object[] outputRowData = RowDataUtil.addValueData(row, getInputRowMeta().size(), xmlString);
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "Xslt.Log.ReadRow")
                 + " "

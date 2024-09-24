@@ -493,8 +493,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         }
 
         runConfiguration = resolve(runConfiguration);
-        log.logBasic(
-            BaseMessages.getString(PKG, "ActionPipeline.RunConfig.Message", runConfiguration));
+        logBasic(BaseMessages.getString(PKG, "ActionPipeline.RunConfig.Message", runConfiguration));
 
         // Create the pipeline from meta-data
         //

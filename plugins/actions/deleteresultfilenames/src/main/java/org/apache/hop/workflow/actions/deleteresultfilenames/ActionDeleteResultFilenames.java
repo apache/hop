@@ -156,14 +156,14 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     if (previousResult != null) {
       try {
         int size = previousResult.getResultFiles().size();
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(PKG, "ActionDeleteResultFilenames.log.FilesFound", "" + size));
         }
         if (!specifyWildcard) {
           // Delete all files
           previousResult.getResultFiles().clear();
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionDeleteResultFilenames.log.DeletedFiles", "" + size));
@@ -183,7 +183,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
                   // Remove file from result files list
                   result.getResultFiles().remove(resultFile.getFile().toString());
 
-                  if (log.isDetailed()) {
+                  if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(
                             PKG, "ActionDeleteResultFilenames.log.DeletedFile", file.toString()));

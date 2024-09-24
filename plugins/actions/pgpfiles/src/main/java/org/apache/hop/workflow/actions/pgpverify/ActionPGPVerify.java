@@ -166,7 +166,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
       }
       file = HopVfs.getFileObject(realFilename, getVariables());
 
-      GPG gpg = new GPG(resolve(getGPGLocation()), log, getVariables());
+      GPG gpg = new GPG(resolve(getGPGLocation()), getLogChannel(), getVariables());
 
       if (useDetachedfilename()) {
         String signature = resolve(getDetachedfilename());

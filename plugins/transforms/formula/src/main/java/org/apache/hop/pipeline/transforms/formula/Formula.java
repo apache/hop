@@ -116,7 +116,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
     int tempIndex = getInputRowMeta().size();
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(r));
     }
 
@@ -200,7 +200,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
     putRow(data.outputRowMeta, outputRowData);
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel("Wrote row #" + getLinesWritten() + " : " + Arrays.toString(r));
     }
     if (checkFeedback(getLinesRead())) {

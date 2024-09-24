@@ -47,7 +47,7 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
   @Override
   protected IBaseFileInputReader createReader(
       TextFileInputMeta meta, TextFileInputData data, FileObject file) throws Exception {
-    return new TextFileInputReader(this, meta, data, file, log);
+    return new TextFileInputReader(this, meta, data, file, getLogChannel());
   }
 
   @Override

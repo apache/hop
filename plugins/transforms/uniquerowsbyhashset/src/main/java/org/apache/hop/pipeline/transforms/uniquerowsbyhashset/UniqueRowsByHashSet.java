@@ -106,11 +106,8 @@ public class UniqueRowsByHashSet
       }
     }
 
-    if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
-        logBasic(
-            BaseMessages.getString(PKG, "UniqueRowsByHashSet.Log.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "UniqueRowsByHashSet.Log.LineNumber") + getLinesRead());
     }
 
     return true;

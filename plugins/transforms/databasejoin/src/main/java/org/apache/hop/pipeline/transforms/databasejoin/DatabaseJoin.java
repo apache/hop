@@ -77,7 +77,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
       data.lookupRowMeta = new RowMeta();
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "DatabaseJoin.Log.CheckingRow")
                 + rowMeta.getString(rowData));
@@ -121,7 +121,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           // we have to clone, otherwise we only get the last new value
           putRow(data.outputRowMeta, data.outputRowMeta.cloneRow(newRow));
 
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 BaseMessages.getString(PKG, "DatabaseJoin.Log.PutoutRow")
                     + data.outputRowMeta.getString(newRow));
@@ -193,7 +193,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
       lookupValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
 
       if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(BaseMessages.getString(PKG, "DatabaseJoin.Log.LineNumber") + getLinesRead());
         }
       }
@@ -272,7 +272,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
         try {
           data.db.connect();
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "DatabaseJoin.Log.ConnectedToDB"));
           }
 
@@ -282,7 +282,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           }
           // Prepare the SQL statement
           data.pstmt = data.db.prepareSql(sql);
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "DatabaseJoin.Log.SQLStatement", sql));
           }
           data.db.setQueryLimit(meta.getRowLimit());

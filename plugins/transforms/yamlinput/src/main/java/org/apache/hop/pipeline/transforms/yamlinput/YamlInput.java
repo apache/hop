@@ -83,7 +83,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
 
       if (data.readrow == null) {
         // finished processing!
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "YamlInput.Log.FinishedProcessing"));
         }
         return false;
@@ -121,7 +121,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
 
       getLinesInput();
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "YamlInput.Log.YAMLStream", meta.getYamlField(), fieldvalue));
@@ -165,7 +165,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
     try {
       if (data.filenr >= data.files.nrOfFiles()) {
         // finished processing!
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "YamlInput.Log.FinishedProcessing"));
         }
         return false;
@@ -246,7 +246,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
       return false; // end of data or error.
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "YamlInput.Log.ReadRow", data.outputRowMeta.getString(r)));
     }
@@ -401,7 +401,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
           valueMeta.setTrimType(field.getTrimType());
           data.rowMeta.addValueMeta(valueMeta);
         } catch (Exception e) {
-          log.logError("Unable to create value meta", e);
+          logError("Unable to create value meta", e);
           return false;
         }
       }

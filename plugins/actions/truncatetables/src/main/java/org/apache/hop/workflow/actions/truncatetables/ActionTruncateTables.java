@@ -106,7 +106,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
           db.truncateTable(tableName);
         }
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "ActionTruncateTables.Log.TableTruncated", tableName));
         }
@@ -136,7 +136,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
     nrSuccess = 0;
 
     if (argFromPrevious) {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG,
@@ -165,7 +165,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
             String schemaNamePrevious = resultRow.getString(1, null);
 
             if (!Utils.isEmpty(tableNamePrevious)) {
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG,
@@ -194,7 +194,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
             String realTableName = resolve(tableItem.getTableName());
             String realSchemaName = resolve(tableItem.getSchemaName());
             if (!Utils.isEmpty(realTableName)) {
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG, "ActionTruncateTables.ProcessingArg", realTableName, realSchemaName));

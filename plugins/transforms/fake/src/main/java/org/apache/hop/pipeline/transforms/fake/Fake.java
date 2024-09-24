@@ -64,7 +64,7 @@ public class Fake extends BaseTransform<FakeMeta, FakeData> {
           Method topicMethod = fakerType.getClass().getMethod(field.getTopic());
           data.fakerMethods.add(topicMethod);
         } catch (Exception e) {
-          log.logError(
+          logError(
               "Error getting faker object or method for type "
                   + field.getType()
                   + " and topic "

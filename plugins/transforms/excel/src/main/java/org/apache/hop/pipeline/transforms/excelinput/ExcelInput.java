@@ -101,7 +101,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
           ex = new HopCellValueException(ex, this.data.sheetnr, this.data.rownr, i, "");
           throw ex;
         }
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG,
@@ -159,7 +159,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
               row[rowColumn] = cell.getValue();
               sourceMeta = data.valueMetaNumber;
             } else {
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 KCellType ct = cell.getType();
                 logDetailed(
                     BaseMessages.getString(
@@ -218,7 +218,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
           ex = new HopCellValueException(ex, this.data.sheetnr, cell.getRow(), i, field.getName());
           throw ex;
         }
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG,
@@ -431,7 +431,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
     // See if we're not done processing...
     // We are done processing if the filenr >= number of files.
     if (data.filenr >= data.files.nrOfFiles()) {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ExcelInput.Log.NoMoreFiles", "" + data.filenr));
       }
 
@@ -441,7 +441,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
     if (meta.getRowLimit() > 0 && getLinesInput() >= meta.getRowLimit()) {
       // The close of the openFile is in dispose()
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "ExcelInput.Log.RowLimitReached", "" + meta.getRowLimit()));
       }
@@ -487,7 +487,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
     if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(
             BaseMessages.getString(PKG, "ExcelInput.Log.RequiredFilesTitle"),
             BaseMessages.getString(PKG, "ExcelInput.Warning.MissingFiles", message));
@@ -506,7 +506,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
     List<FileObject> nonAccessibleFiles = data.files.getNonAccessibleFiles();
     if (!nonAccessibleFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonAccessibleFiles);
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(
             BaseMessages.getString(PKG, "ExcelInput.Log.RequiredFilesTitle"),
             BaseMessages.getString(PKG, "ExcelInput.Log.RequiredFilesMsgNotAccessible", message));
@@ -569,7 +569,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
           addResultFile(resultFile);
         }
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ExcelInput.Log.OpeningFile", "" + data.filenr + " : " + data.filename));
@@ -599,7 +599,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
       boolean nextsheet = false;
 
       // What sheet were we handling?
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "ExcelInput.Log.GetSheet", "" + data.filenr + "." + data.sheetnr));
@@ -629,7 +629,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
           if (!data.filePlayList.isProcessingNeeded(data.file, lineNr, sheetName)) {
             retval = null; // placeholder, was already null
           } else {
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel(
                   BaseMessages.getString(
                       PKG,
@@ -638,14 +638,14 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
                       data.filenr + "." + data.sheetnr));
             }
 
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel(
                   BaseMessages.getString(PKG, "ExcelInput.Log.ReadLineWith", "" + line.length));
             }
 
             ExcelInputRow excelInputRow = new ExcelInputRow(sheet.getName(), lineNr, line);
             Object[] r = fillRow(data.colnr, excelInputRow);
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel(
                   BaseMessages.getString(
                       PKG,
@@ -669,7 +669,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
             }
           }
         } catch (ArrayIndexOutOfBoundsException e) {
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(BaseMessages.getString(PKG, "ExcelInput.Log.OutOfIndex"));
           }
 
@@ -884,7 +884,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
     try {
       data.errorHandler.close();
     } catch (HopException e) {
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(
             BaseMessages.getString(
                 PKG, "ExcelInput.Error.CouldNotCloseErrorHandler", e.toString()));

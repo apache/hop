@@ -79,7 +79,7 @@ public class RedshiftBulkLoader
         data.db.connect();
         getDbFields();
 
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG, "RedshiftBulkLoader.Connection.Connected", data.db.getDatabaseMeta()));
@@ -256,7 +256,7 @@ public class RedshiftBulkLoader
         data.writer.close();
       }
       data.writer = null;
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Closing normal file ...");
       }
 

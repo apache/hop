@@ -81,10 +81,10 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       data.freeMemoryPct = Const.getPercentageFreeMemory();
       data.freeCounter = 0;
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         data.memoryReporting++;
         if (data.memoryReporting >= 10) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "SortRows.Detailed.AvailableMemory", data.freeMemoryPct));
@@ -100,8 +100,8 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
         data.freeMemoryPctLimit > 0
             && data.freeMemoryPct < data.freeMemoryPctLimit
             && data.buffer.size() >= data.minSortSize;
-    if (log.isDebug()) {
-      this.logDebug(
+    if (isDebug()) {
+      logDebug(
           BaseMessages.getString(
               PKG, "SortRows.Debug.StartDumpToDisk", data.freeMemoryPct, data.buffer.size()));
     }
@@ -152,7 +152,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
             int result = data.outputRowMeta.compare(row, previousRow, data.fieldnrs);
             if (result == 0) {
               duplicates.add(index);
-              if (log.isRowLevel()) {
+              if (isRowLevel()) {
                 logRowlevel(
                     BaseMessages.getString(
                         PKG,
@@ -206,7 +206,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       //
       data.freeMemoryPct = Const.getPercentageFreeMemory();
       data.freeCounter = 0;
-      if (data.sortSize <= 0 && log.isDetailed()) {
+      if (data.sortSize <= 0 && isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "SortRows.Detailed.AvailableMemory", data.freeMemoryPct));
       }
@@ -232,7 +232,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
 
     // Open all files at once and read one row from each file...
     if (CollectionUtils.isNotEmpty(data.files) && (data.dis.isEmpty() || data.fis.isEmpty())) {
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "SortRows.Basic.OpeningTempFiles", data.files.size()));
       }
 
@@ -240,7 +240,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
         for (int f = 0; f < data.files.size() && !isStopped(); f++) {
           FileObject fileObject = data.files.get(f);
           String filename = HopVfs.getFilename(fileObject);
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "SortRows.Detailed.OpeningTempFile", filename));
           }
           InputStream fi = HopVfs.getInputStream(fileObject);
@@ -256,7 +256,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
           // How long is the buffer?
           int buffersize = data.bufferSizes.get(f);
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "SortRows.Detailed.FromFileExpectingRows", filename, buffersize));
@@ -293,7 +293,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       } else {
         // We now have "filenr" rows waiting: which one is the smallest?
         //
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           for (int i = 0; i < data.rowbuffer.size() && !isStopped(); i++) {
             Object[] b = data.rowbuffer.get(i);
             logRowlevel(
@@ -485,7 +485,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
     }
 
     if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic("Linenr " + getLinesRead());
       }
     }
@@ -504,12 +504,12 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
     Object[] previousRow = null;
 
     // log time spent for external merge (expected time consuming operation)
-    if (log.isDebug() && !data.files.isEmpty()) {
+    if (isDebug() && !data.files.isEmpty()) {
       this.logDebug(BaseMessages.getString(PKG, "SortRows.Debug.ExternalMergeStarted"));
     }
 
     while (r != null && !isStopped()) {
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG, "SortRows.RowLevel.ReadRow", data.outputRowMeta.getString(r)));
@@ -539,7 +539,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       r = getBuffer();
     }
 
-    if (log.isDebug() && !data.files.isEmpty()) {
+    if (isDebug() && !data.files.isEmpty()) {
       this.logDebug(BaseMessages.getString(PKG, "SortRows.Debug.ExternalMergeFinished"));
     }
 
@@ -629,7 +629,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
         nrConversions += valueMeta.getNumberOfBinaryStringConversions();
         valueMeta.setNumberOfBinaryStringConversions(0L);
       }
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "SortRows.Detailed.ReportNumberOfBinaryStringConv", nrConversions));

@@ -80,7 +80,7 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> {
       String timeOut = resolve(meta.getTimeout());
       data.timeout = Const.toInt(timeOut, 0);
 
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "Delay.Log.TimeOut", "" + data.timeout, msgScale));
       }
     }
@@ -115,13 +115,13 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> {
         }
       }
     }
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "Delay.WaitTimeIsElapsed.Label"));
     }
 
     putRow(getInputRowMeta(), r); // copy row to possible alternate rowset(s).
 
-    if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+    if (checkFeedback(getLinesRead()) && isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "Delay.Log.LineNumber", "" + getLinesRead()));
     }
 

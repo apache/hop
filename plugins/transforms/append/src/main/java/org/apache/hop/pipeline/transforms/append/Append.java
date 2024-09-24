@@ -90,7 +90,7 @@ public class Append extends BaseTransform<AppendMeta, AppendData> {
     }
 
     if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "Append.Log.LineNumber") + getLinesRead());
       }
     }

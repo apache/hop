@@ -87,7 +87,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     IRowMeta returnRowMeta = null;
     if (!meta.isSkipLookup()) {
       data.db.setValues(data.lookupParameterRowMeta, lookupRow, data.prepStatementLookup);
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(
             BaseMessages.getString(
                 PKG,
@@ -129,7 +129,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
                   + data.lookupParameterRowMeta.getString(lookupRow));
         }
       } else {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "Update.Log.KeyCouldNotFound")
                   + data.lookupParameterRowMeta.getString(lookupRow));
@@ -140,7 +140,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         }
       }
     } else {
-      if (!meta.isSkipLookup() && log.isRowLevel()) {
+      if (!meta.isSkipLookup() && isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "Update.Log.FoundRow")
                 + data.lookupReturnRowMeta.getString(add));
@@ -180,7 +180,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
           updateRow[data.valuenrs.length + i] = lookupRow[i];
         }
 
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(
               BaseMessages.getString(PKG, "Update.Log.UpdateRow")
                   + data.lookupParameterRowMeta.getString(lookupRow));
@@ -226,7 +226,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
               this, meta.getLookupField().getSchemaName(), meta.getLookupField().getTableName());
 
       // lookup the values!
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "Update.Log.CheckingRow") + getInputRowMeta().getString(r));
       }
@@ -267,7 +267,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         }
         keynrs2.add(keynr2);
 
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(PKG, "Update.Log.FieldHasDataNumbers", keyItem.getKeyStream())
                   + ""
@@ -290,7 +290,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
               BaseMessages.getString(
                   PKG, CONST_UPDATE_EXCEPTION_FIELD_REQUIRED, fieldItem.getUpdateStream()));
         }
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                       PKG, "Update.Log.FieldHasDataNumbers", fieldItem.getUpdateStream())
@@ -334,7 +334,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       if (outputRow != null) {
         putRow(data.outputRowMeta, outputRow); // copy non-ignored rows to output rowset(s)
       }
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "Update.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
@@ -421,7 +421,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     }
 
     try {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Setting preparedStatement to [" + sql + "]");
       }
       data.prepStatementLookup =
@@ -495,7 +495,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       sql += " ) ) ";
     }
     try {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Setting update preparedStatement to [" + sql + "]");
       }
       data.prepStatementUpdate =
@@ -522,7 +522,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       try {
         data.db.connect();
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "Update.Log.ConnectedToDB"));
         }
 

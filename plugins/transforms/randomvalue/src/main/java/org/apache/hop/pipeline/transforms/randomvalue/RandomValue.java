@@ -172,7 +172,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
 
     row = getRandomValue(imeta, row);
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(
               PKG, "RandomValue.Log.ValueReturned", data.outputRowMeta.getString(row)));

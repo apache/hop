@@ -79,7 +79,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         // Verify some extra metadata...
         //
         if (StringUtils.isEmpty(meta.getConnectionName())) {
-          log.logError("You need to specify a Neo4j connection to use in this transform");
+          logError("You need to specify a Neo4j connection to use in this transform");
           return false;
         }
 
@@ -87,7 +87,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
             metadataProvider.getSerializer(NeoConnection.class);
         data.neoConnection = serializer.load(meta.getConnectionName());
         if (data.neoConnection == null) {
-          log.logError(
+          logError(
               "Connection '"
                   + meta.getConnectionName()
                   + "' could not be found in the metadata : "
@@ -96,11 +96,11 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         }
 
         try {
-          data.driver = data.neoConnection.getDriver(log, this);
-          data.session = data.neoConnection.getSession(log, data.driver, this);
+          data.driver = data.neoConnection.getDriver(getLogChannel(), this);
+          data.session = data.neoConnection.getSession(getLogChannel(), data.driver, this);
           data.version4 = data.neoConnection.isVersion4();
         } catch (Exception e) {
-          log.logError(
+          logError(
               "Unable to get or create Neo4j database driver for database '"
                   + data.neoConnection.getName()
                   + "'",
@@ -133,10 +133,10 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         //
         List<NodeProperty> usedNodeProperties = findUsedNodeProperties();
         data.modelValidator = new ModelValidator(data.graphModel, usedNodeProperties);
-        int nrErrors = data.modelValidator.validateBeforeLoad(log, data.session);
+        int nrErrors = data.modelValidator.validateBeforeLoad(getLogChannel(), data.session);
         if (nrErrors > 0) {
           // There were validation errors, we can stop here...
-          log.logError(
+          logError(
               "Validation against graph model '"
                   + data.graphModel.getName()
                   + "' failed with "
@@ -144,12 +144,12 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
                   + " errors.");
           return false;
         } else {
-          log.logBasic(
+          logBasic(
               "Validation against graph model '" + data.graphModel.getName() + "' was successful.");
         }
       }
     } catch (HopException e) {
-      log.logError("Could not find Neo4j connection'" + meta.getConnectionName() + "'", e);
+      logError("Could not find Neo4j connection'" + meta.getConnectionName() + "'", e);
       return false;
     }
 
@@ -450,7 +450,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       //
       Map<String, Object> parameters = new HashMap<>();
       String cypher = getCypher(row, getInputRowMeta(), parameters);
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Parameters found : " + parameters.size());
         logDebug("Merge statement : " + cypher);
       }
@@ -522,7 +522,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     //
     for (GraphNode node : nodePropertiesMap.keySet()) {
       NeoConnectionUtils.createNodeIndex(
-          log, data.session, node.getLabels(), nodePropertiesMap.get(node));
+          getLogChannel(), data.session, node.getLabels(), nodePropertiesMap.get(node));
     }
   }
 
@@ -627,8 +627,8 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     boolean errors = false;
     ResultSummary summary = result.consume();
     for (Notification notification : summary.notifications()) {
-      log.logError(notification.title() + " (" + notification.severity() + ")");
-      log.logError(
+      logError(notification.title() + " (" + notification.severity() + ")");
+      logError(
           notification.code()
               + " : "
               + notification.description()
@@ -734,7 +734,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
             "We didn't find a node to write to.  Did you specify a field mapping to node properties?");
       }
       if (nar.nodes.size() > 1) {
-        log.logBasic("Warning: writing to multiple nodes but not to any relationships");
+        logBasic("Warning: writing to multiple nodes but not to any relationships");
       }
       for (SelectedNode node : nar.nodes) {
         addNodeCypher(
@@ -762,7 +762,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         GraphRelationship relationship = selectedRelationship.getRelationship();
 
         relationshipIndex++;
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug("Handling relationship : " + relationship.getName());
         }
         // Add the source node to the cypher
@@ -898,7 +898,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         // Null value?
         //
         if (nodeProperty.sourceValueMeta.isNull(nodeProperty.sourceValueData)) {
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(
                 "Detected primary null property for node "
                     + nodeProperty.node
@@ -1012,7 +1012,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       }
     }
 
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(
           "Found "
               + selectedRelationships.size()
@@ -1252,8 +1252,8 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     updateUsageMap(node.getLabels(), GraphUsage.NODE_UPDATE);
 
-    if (log.isDebug()) {
-      logBasic(" - node merge : " + node.getName());
+    if (isDebug()) {
+      logDebug(" - node merge : " + node.getName());
     }
 
     // Look up the properties to update in the node
@@ -1281,8 +1281,8 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
           firstPrimary = false;
 
-          if (log.isDebug()) {
-            logBasic(
+          if (isDebug()) {
+            logDebug(
                 "   * property match/create : "
                     + napd.property.getName()
                     + " with value "
@@ -1309,8 +1309,8 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
             matchCypher.append(buildParameterClause(parameterName)).append(" ");
           }
 
-          if (log.isDebug()) {
-            logBasic(
+          if (isDebug()) {
+            logDebug(
                 "   * property update : "
                     + napd.property.getName()
                     + " with value "
@@ -1441,7 +1441,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
             "We didn't find a node to write to.  Did you specify a field mapping to node properties?");
       }
       if (nar.nodes.size() > 1) {
-        log.logBasic("Warning: writing to multiple nodes but not to any relationships");
+        logBasic("Warning: writing to multiple nodes but not to any relationships");
       }
 
       for (SelectedNode node : nar.nodes) {
@@ -1547,7 +1547,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         // Null value?
         //
         if (nodeProperty.sourceValueMeta.isNull(nodeProperty.sourceValueData)) {
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(
                 "Detected primary null property for node "
                     + nodeProperty.node

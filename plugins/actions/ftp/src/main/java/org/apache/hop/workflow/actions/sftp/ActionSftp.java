@@ -427,14 +427,14 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     result.setResult(false);
     long filesRetrieved = 0;
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "ActionSftp.Log.StartAction"));
     }
     HashSet<String> listPreviousFilenames = new HashSet<>();
 
     if (copyprevious) {
       if (rows.isEmpty()) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionSftp.ArgsFromPreviousNothing"));
         }
         result.setResult(true);
@@ -450,7 +450,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
           String filePrevious = resultRow.getString(0, null);
           if (!Utils.isEmpty(filePrevious)) {
             listPreviousFilenames.add(filePrevious);
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug(
                   BaseMessages.getString(PKG, "ActionSftp.Log.FilenameFromResult", filePrevious));
             }
@@ -502,7 +502,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
         targetFolder = HopVfs.getFileObject(realTargetDirectory);
         boolean targetFolderExists = targetFolder.exists();
         if (targetFolderExists) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionSftp.Log.TargetFolderExists", realTargetDirectory));
@@ -518,7 +518,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
           } else {
             // create target folder
             targetFolder.createFolder();
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG, "ActionSftp.Log.TargetFolderCreated", realTargetDirectory));
@@ -540,7 +540,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
               realUsername,
               realKeyFilename,
               realPassPhrase);
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG,
@@ -582,7 +582,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
                   PKG, "ActionSftp.Error.CanNotFindRemoteFolder", realSftpDirString));
           throw new Exception(e);
         }
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "ActionSftp.Log.ChangedDirectory", realSftpDirString));
         }
@@ -593,12 +593,12 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
       if (filelist == null) {
         // Nothing was found !!! exit
         result.setResult(true);
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionSftp.Log.Found", "" + 0));
         }
         return result;
       }
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ActionSftp.Log.Found", "" + filelist.length));
       }
 
@@ -626,7 +626,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
         }
 
         if (getIt) {
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(
                 BaseMessages.getString(
                     PKG, "ActionSftp.Log.GettingFiles", filelist[i], realTargetDirectory));
@@ -646,20 +646,20 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
                     parentWorkflow.getWorkflowName(),
                     toString());
             result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG, "ActionSftp.Log.FilenameAddedToResultFilenames", filelist[i]));
             }
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "ActionSftp.Log.TransferedFile", filelist[i]));
           }
 
           // Delete the file if this is needed!
           if (remove) {
             sftpclient.delete(filelist[i]);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(BaseMessages.getString(PKG, "ActionSftp.Log.DeletedFile", filelist[i]));
             }
           }

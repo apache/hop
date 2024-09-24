@@ -98,7 +98,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
         while ((line = br.readLine()) != null) {
           // Only perform the concatenation if at basic level. Otherwise,
           // this just reads from the stream.
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic(type + line);
           }
         }

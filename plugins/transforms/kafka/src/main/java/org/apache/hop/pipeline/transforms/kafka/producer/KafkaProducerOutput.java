@@ -107,7 +107,7 @@ public class KafkaProducerOutput
 
     putRow(getInputRowMeta(), r); // copy row to possible alternate rowset(s).
 
-    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "KafkaConsumerOutput.Log.LineNumber") + getLinesRead());
     }
 

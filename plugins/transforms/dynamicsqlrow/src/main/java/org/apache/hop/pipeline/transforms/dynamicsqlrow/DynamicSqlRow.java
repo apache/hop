@@ -64,7 +64,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
       loadFromBuffer = false;
     }
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(
           BaseMessages.getString(PKG, "DynamicSQLRow.Log.CheckingRow")
               + rowMeta.getString(rowData));
@@ -79,7 +79,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
       sql = sqlTemp;
     }
 
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "DynamicSQLRow.Log.SQLStatement", sql));
     }
 
@@ -182,7 +182,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
           data.skipPreviousRow = false;
         }
 
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(
               BaseMessages.getString(PKG, "DynamicSQLRow.Log.PutoutRow")
                   + data.outputRowMeta.getString(newRow));
@@ -256,10 +256,8 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
     try {
       lookupValues(getInputRowMeta(), r);
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "DynamicSQLRow.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "DynamicSQLRow.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       boolean sendToErrorRow = false;
@@ -320,7 +318,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
 
         data.db.setCommit(100); // we never get a commit, but it just turns off auto-commit.
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "DynamicSQLRow.Log.ConnectedToDB"));
         }
 

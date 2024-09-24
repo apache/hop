@@ -70,7 +70,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     // Connect to Neo4j
     //
     if (StringUtils.isEmpty(resolve(meta.getConnectionName()))) {
-      log.logError("You need to specify a Neo4j connection to use in this transform");
+      logError("You need to specify a Neo4j connection to use in this transform");
       return false;
     }
     try {
@@ -79,7 +79,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
               .getSerializer(NeoConnection.class)
               .load(resolve(meta.getConnectionName()));
       if (data.neoConnection == null) {
-        log.logError(
+        logError(
             "Connection '"
                 + resolve(meta.getConnectionName())
                 + "' could not be found in the metadata: "
@@ -87,7 +87,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
         return false;
       }
     } catch (HopException e) {
-      log.logError(
+      logError(
           "Could not gencsv Neo4j connection '"
               + resolve(meta.getConnectionName())
               + "' from the metastore",
@@ -101,7 +101,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     //
     int retries = Const.toInt(resolve(meta.getNrRetriesOnError()), 0);
     if (retries < 0) {
-      log.logError("The number of retries on an error should be larger than 0, not " + retries);
+      logError("The number of retries on an error should be larger than 0, not " + retries);
       return false;
     }
     data.attempts = 1 + retries;
@@ -109,7 +109,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     try {
       createDriverSession();
     } catch (Exception e) {
-      log.logError(
+      logError(
           "Unable to get or create Neo4j database driver for database '"
               + data.neoConnection.getName()
               + "'",
@@ -139,14 +139,14 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
   }
 
   private void createDriverSession() throws HopConfigException {
-    data.driver = data.neoConnection.getDriver(log, this);
-    data.session = data.neoConnection.getSession(log, data.driver, this);
+    data.driver = data.neoConnection.getDriver(getLogChannel(), this);
+    data.session = data.neoConnection.getSession(getLogChannel(), data.driver, this);
   }
 
   private void reconnect() throws HopConfigException {
     closeSessionDriver();
 
-    log.logBasic("RECONNECTING to database");
+    logBasic("RECONNECTING to database");
 
     // Wait for 30 seconds before reconnecting.
     // Let's give the server a breath of fresh air.
@@ -226,7 +226,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
 
     if (meta.isCypherFromField()) {
       data.cypher = getInputRowMeta().getString(row, data.cypherFieldIndex);
-      log.logDetailed("Cypher statement from field is: " + data.cypher);
+      logDetailed("Cypher statement from field is: " + data.cypher);
     }
 
     // Do the value mapping and conversion to the parameters
@@ -356,7 +356,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
         }
       }
 
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Processed " + nrProcessed + " statements");
       }
 
@@ -380,7 +380,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     try {
       for (int attempt = 0; attempt < data.attempts; attempt++) {
         if (attempt > 0) {
-          log.logBasic("Attempt #" + (attempt + 1) + "/" + data.attempts + " on Neo4j transaction");
+          logBasic("Attempt #" + (attempt + 1) + "/" + data.attempts + " on Neo4j transaction");
         }
         try {
           if (meta.isReadOnly()) {
@@ -395,7 +395,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
           if (attempt + 1 >= data.attempts) {
             throw e;
           } else {
-            log.logBasic(
+            logBasic(
                 "Retrying transaction after attempt #"
                     + (attempt + 1)
                     + " with error : "
@@ -591,7 +591,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
       for (Notification notification : summary.notifications()) {
         if ("WARNING".equalsIgnoreCase(notification.severity())) {
           // Log it
-          log.logBasic(
+          logBasic(
               notification.severity()
                   + " : "
                   + notification.title()
@@ -604,8 +604,8 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
         } else {
           // This is an error
           //
-          log.logError(notification.severity() + " : " + notification.title());
-          log.logError(
+          logError(notification.severity() + " : " + notification.title());
+          logError(
               notification.code()
                   + " : "
                   + notification.description()

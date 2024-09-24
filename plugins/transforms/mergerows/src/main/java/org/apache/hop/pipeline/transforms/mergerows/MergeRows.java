@@ -113,7 +113,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
       }
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "MergeRows.Log.DataInfo", Arrays.toString(data.one) + "")
               + Arrays.toString(data.two));
@@ -206,10 +206,8 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
     // send the row to the next transforms...
     putRow(data.outputRowMeta, RowDataUtil.addValueData(outputRow, outputIndex, flagField));
 
-    if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "MergeRows.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "MergeRows.LineNumber") + getLinesRead());
     }
 
     return true;

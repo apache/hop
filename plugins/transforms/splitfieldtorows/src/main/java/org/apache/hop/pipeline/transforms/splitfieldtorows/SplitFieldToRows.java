@@ -130,7 +130,7 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
       return false;
     }
 
-    if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+    if (checkFeedback(getLinesRead()) && isDetailed()) {
       logBasic(BaseMessages.getString(PKG, "SplitFieldToRows.Log.LineNumber") + getLinesRead());
     }
 
@@ -151,7 +151,7 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
           data.delimiterPattern = Pattern.compile(Pattern.quote(resolve(delimiter)));
         }
       } catch (PatternSyntaxException pse) {
-        log.logError(pse.getMessage());
+        logError(pse.getMessage());
         throw pse;
       }
 

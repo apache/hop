@@ -326,7 +326,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
         File file = new File(realFilename);
         if (file.exists() && file.canRead()) {
           // User has specified an existing file, We can continue ...
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "ActionMssqlBulkLoad.FileExists.Label", realFilename));
           }
@@ -351,7 +351,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
               if (db.checkTableExists(realSchemaname, realTablename)) {
                 // The table existe, We can continue ...
-                if (log.isDetailed()) {
+                if (isDetailed()) {
                   logDetailed(
                       BaseMessages.getString(
                           PKG, "ActionMssqlBulkLoad.TableExists.Label", realTablename));

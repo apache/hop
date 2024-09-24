@@ -126,7 +126,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
     } else {
       if (keep) {
         if (data.trueRowSet != null) {
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 "Sending row to true  :"
                     + data.trueTransformName
@@ -137,7 +137,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
         }
       } else {
         if (data.falseRowSet != null) {
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 "Sending row to false :"
                     + data.falseTransformName
@@ -149,7 +149,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
       }
     }
 
-    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "FilterRows.Log.LineNumber") + getLinesRead());
     }
 

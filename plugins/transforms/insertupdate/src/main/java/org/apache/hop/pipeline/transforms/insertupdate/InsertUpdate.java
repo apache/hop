@@ -78,7 +78,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
     data.db.setValues(data.lookupParameterRowMeta, lookupRow, data.prepStatementLookup);
 
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(
           BaseMessages.getString(PKG, "InsertUpdate.Log.ValuesSetForLookup")
               + data.lookupParameterRowMeta.getString(lookupRow));
@@ -92,7 +92,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
        *
        * INSERT ROW
        */
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(BaseMessages.getString(PKG, "InsertUpdate.InsertRow") + rowMeta.getString(row));
       }
 
@@ -113,7 +113,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       incrementLinesOutput();
     } else {
       if (!meta.isUpdateBypassed()) {
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(
               BaseMessages.getString(PKG, "InsertUpdate.Log.FoundRowForUpdate")
                   + rowMeta.getString(row));
@@ -156,7 +156,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
             updateRow[j + i] = lookupRow[i];
           }
 
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 BaseMessages.getString(PKG, "InsertUpdate.Log.UpdateRow")
                     + data.lookupParameterRowMeta.getString(lookupRow));
@@ -168,7 +168,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
           incrementLinesSkipped();
         }
       } else {
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(
               BaseMessages.getString(PKG, "InsertUpdate.Log.UpdateBypassed")
                   + rowMeta.getString(row));
@@ -204,7 +204,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
               this, meta.getSchemaName(), meta.getTableName());
 
       // lookup the values!
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(
             BaseMessages.getString(PKG, "InsertUpdate.Log.CheckingRow")
                 + getInputRowMeta().getString(r));
@@ -248,7 +248,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
         }
         keynrs2.add(keynr2);
 
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                       PKG, "InsertUpdate.Log.FieldHasDataNumbers", keyField.getKeyStream())
@@ -273,7 +273,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
               BaseMessages.getString(
                   PKG, CONST_INSERT_UPDATE_EXCEPTION_FIELD_REQUIRED, valueField.getUpdateStream()));
         }
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                       PKG, "InsertUpdate.Log.FieldHasDataNumbers", valueField.getUpdateStream())
@@ -325,7 +325,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
           r); // Nothing changed to the input, return the same row, pass a "cloned" metadata
       // row.
 
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "InsertUpdate.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
@@ -414,7 +414,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     }
 
     try {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Setting preparedStatement to [" + sql + "]");
       }
       data.prepStatementLookup =
@@ -494,7 +494,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     }
 
     try {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Setting update preparedStatement to [" + sql + "]");
       }
       data.prepStatementUpdate =

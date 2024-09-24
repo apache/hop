@@ -102,7 +102,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
         if (meta.createTable()) {
           String crTable = data.db.getDDLCreationTable(schemaTable, data.insertRowMeta);
 
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(BaseMessages.getString(PKG, "SQLFileOutputLog.OutputSQL", crTable));
           }
           // Write to file
@@ -132,7 +132,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
         sql = sql + Const.CR;
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(BaseMessages.getString(PKG, "SQLFileOutputLog.OutputSQL", sql));
       }
 
@@ -147,7 +147,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       incrementLinesOutput();
 
       if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic("linenr " + getLinesRead());
         }
       }
@@ -199,32 +199,32 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       }
       OutputStream outputStream;
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Opening output stream in nocompress mode");
       }
       OutputStream fos = HopVfs.getOutputStream(filename, meta.isFileAppended(), variables);
       outputStream = fos;
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Opening output stream in default encoding");
       }
       data.writer = new OutputStreamWriter(new BufferedOutputStream(outputStream, 5000));
 
       if (!Utils.isEmpty(meta.getEncoding())) {
-        if (log.isBasic()) {
+        if (isBasic()) {
           logDetailed("Opening output stream in encoding: " + meta.getEncoding());
         }
         data.writer =
             new OutputStreamWriter(
                 new BufferedOutputStream(outputStream, 5000), resolve(meta.getEncoding()));
       } else {
-        if (log.isBasic()) {
+        if (isBasic()) {
           logDetailed("Opening output stream in default encoding");
         }
         data.writer = new OutputStreamWriter(new BufferedOutputStream(outputStream, 5000));
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Opened new file with name [" + filename + "]");
       }
 
@@ -244,18 +244,18 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
 
     try {
       if (data.writer != null) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug("Closing output stream");
         }
         data.writer.close();
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug("Closed output stream");
         }
         data.writer = null;
       }
 
       if (data.fos != null) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug("Closing normal file ..");
         }
         data.fos.close();
@@ -299,10 +299,10 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
             String filename = resolve(meta.getFileName());
             parentfolder = HopVfs.getFileObject(filename, variables).getParent();
             if (!parentfolder.exists()) {
-              log.logBasic(
+              logBasic(
                   "Folder parent", "Folder parent " + parentfolder.getName() + " does not exist !");
               parentfolder.createFolder();
-              log.logBasic("Folder parent", "Folder parent was created.");
+              logBasic("Folder parent", "Folder parent was created.");
             }
           } catch (Exception e) {
             logError("Couldn't created parent folder " + parentfolder.getName());

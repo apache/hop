@@ -164,7 +164,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
       }
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "Calculator.Log.ReadRow")
               + getLinesRead()
@@ -176,10 +176,10 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
       Object[] row = calcFields(getInputRowMeta(), r);
       putRow(data.getOutputRowMeta(), row); // copy row to possible alternate rowset(s).
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel("Wrote row #" + getLinesWritten() + " : " + getInputRowMeta().getString(r));
       }
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "Calculator.Log.Linenr", "" + getLinesRead()));
       }
     } catch (HopFileNotFoundException e) {

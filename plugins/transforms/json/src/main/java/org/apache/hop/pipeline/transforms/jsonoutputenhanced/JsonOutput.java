@@ -566,13 +566,13 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       // Get parent folder
       parentfolder = HopVfs.getFileObject(filename).getParent();
       if (!parentfolder.exists()) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG, "JsonOutput.Error.ParentFolderNotExist", parentfolder.getName()));
         }
         parentfolder.createFolder();
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "JsonOutput.Log.ParentFolderCreated"));
         }
       }
@@ -623,7 +623,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         data.writer = new OutputStreamWriter(new BufferedOutputStream(outputStream, 5000));
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "JsonOutput.FileOpened", filename));
       }
 

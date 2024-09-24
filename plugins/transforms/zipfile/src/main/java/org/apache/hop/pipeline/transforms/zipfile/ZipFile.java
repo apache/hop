@@ -140,7 +140,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
       String sourceFilename = getInputRowMeta().getString(r, data.indexOfSourceFilename);
 
       if (Utils.isEmpty(sourceFilename)) {
-        log.logError(toString(), BaseMessages.getString(PKG, "ZipFile.Error.SourceFileEmpty"));
+        logError(toString(), BaseMessages.getString(PKG, "ZipFile.Error.SourceFileEmpty"));
         throw new HopException(BaseMessages.getString(PKG, "ZipFile.Error.SourceFileEmpty"));
       }
       data.sourceFile = HopVfs.getFileObject(sourceFilename, variables);
@@ -148,14 +148,14 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
       // Check sourcefile
       boolean skip = false;
       if (!data.sourceFile.exists()) {
-        log.logError(
+        logError(
             toString(),
             BaseMessages.getString(PKG, "ZipFile.Error.SourceFileNotExist", sourceFilename));
         throw new HopException(
             BaseMessages.getString(PKG, "ZipFile.Error.SourceFileNotExist", sourceFilename));
       } else {
         if (data.sourceFile.getType() != FileType.FILE) {
-          log.logError(
+          logError(
               toString(),
               BaseMessages.getString(PKG, "ZipFile.Error.SourceFileNotFile", sourceFilename));
           throw new HopException(
@@ -182,13 +182,13 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
         String targetFilename = getInputRowMeta().getString(r, data.indexOfZipFilename);
 
         if (Utils.isEmpty(targetFilename)) {
-          log.logError(toString(), BaseMessages.getString(PKG, "ZipFile.Error.TargetFileEmpty"));
+          logError(toString(), BaseMessages.getString(PKG, "ZipFile.Error.TargetFileEmpty"));
           throw new HopException(BaseMessages.getString(PKG, "ZipFile.Error.TargetFileEmpty"));
         }
         data.zipFile = HopVfs.getFileObject(targetFilename, variables);
         if (data.zipFile.exists()) {
-          if (log.isDetailed()) {
-            log.logDetailed(
+          if (isDetailed()) {
+            logDetailed(
                 toString(),
                 BaseMessages.getString(PKG, "ZipFile.Log.TargetFileExists", targetFilename));
           }
@@ -225,7 +225,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
       getLinesInput();
       putRow(data.outputRowMeta, r); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ZipFile.LineNumber", "" + getLinesRead()));
       }
     } catch (Exception e) {
@@ -325,8 +325,8 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
       resultFile.setComment(BaseMessages.getString(PKG, "ZipFile.Log.FileAddedResult"));
       addResultFile(resultFile);
 
-      if (log.isDetailed()) {
-        log.logDetailed(
+      if (isDetailed()) {
+        logDetailed(
             toString(),
             BaseMessages.getString(
                 PKG, "ZipFile.Log.FilenameAddResult", data.sourceFile.toString()));

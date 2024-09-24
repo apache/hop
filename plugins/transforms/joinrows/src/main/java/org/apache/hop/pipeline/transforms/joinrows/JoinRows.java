@@ -134,7 +134,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
         data.fileRowMeta[0] = rowSet.getRowMeta();
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "JoinRows.Log.ReadRowFromStream")
                 + (rowData == null ? "<null>" : data.fileRowMeta[0].getString(rowData)));
@@ -161,7 +161,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
         // Read a row from the temporary file
 
         if (data.size[filenr] == 0) {
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic(
                 BaseMessages.getString(PKG, "JoinRows.Log.NoRowsComingFromTransform")
                     + data.rs[filenr].getOriginTransformName()
@@ -193,7 +193,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
           stopAll();
           return null;
         }
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(
               BaseMessages.getString(PKG, "JoinRows.Log.ReadRowFromFile")
                   + filenr
@@ -228,7 +228,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
         }
       } else {
         if (data.size[filenr] == 0) {
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic(
                 BaseMessages.getString(PKG, "JoinRows.Log.NoRowsComingFromTransform")
                     + data.rs[filenr].getOriginTransformName()
@@ -394,7 +394,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
       data.fileRowMeta[data.filenr].writeData(data.dataOutputStream[data.filenr], rowData);
       data.size[data.filenr]++;
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,
@@ -415,7 +415,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
         data.cache[data.filenr].add(rowData);
       } else {
         // we can't cope with this many rows: reset the cache...
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,

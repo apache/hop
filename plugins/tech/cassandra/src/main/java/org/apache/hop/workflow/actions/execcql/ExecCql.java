@@ -136,7 +136,8 @@ public class ExecCql extends ActionBase implements IAction {
       cqlStatements = script;
     }
 
-    int nrExecuted = executeCqlStatements(this, log, result, cassandraConnection, cqlStatements);
+    int nrExecuted =
+        executeCqlStatements(this, getLogChannel(), result, cassandraConnection, cqlStatements);
 
     if (result.getNrErrors() == 0) {
       logBasic("Cassandra executed " + nrExecuted + " CQL commands without error");

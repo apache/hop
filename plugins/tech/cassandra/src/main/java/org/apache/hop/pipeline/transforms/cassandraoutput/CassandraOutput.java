@@ -206,7 +206,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
                     getInputRowMeta(),
                     keyIndexes,
                     resolve(getMeta().getCreateTableWithClause()),
-                    log);
+                    getLogChannel());
 
             if (!result) {
               throw new HopException(
@@ -231,7 +231,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
 
         if (getMeta().isUpdateCassandraMeta()) {
           // Update cassandra meta data for unknown incoming fields?
-          keyspace.updateTableCQL3(tableName, getInputRowMeta(), keyIndexes, log);
+          keyspace.updateTableCQL3(tableName, getInputRowMeta(), keyIndexes, getLogChannel());
         }
 
         // get the table meta data
@@ -262,7 +262,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
 
         // Truncate (remove all data from) table first?
         if (getMeta().isTruncateTable()) {
-          keyspace.truncateTable(tableName, log);
+          keyspace.truncateTable(tableName, getLogChannel());
         }
       } finally {
         if (connection != null) {

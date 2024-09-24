@@ -78,13 +78,13 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
   }
 
   public boolean execute(MonetDbBulkLoaderMeta meta) throws HopException {
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("Started execute");
     }
 
     try {
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Auto String Length flag: " + meta.isAutoStringWidths());
       }
 
@@ -104,7 +104,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
         throw new HopException("Error while connecting to MonetDB for bulk loading : " + error);
       }
 
-      data.outputLogger = new StreamLogger(log, mserver.getInputStream(), "OUTPUT");
+      data.outputLogger = new StreamLogger(getLogChannel(), mserver.getInputStream(), "OUTPUT");
 
       // If the truncate table checkbox is checked, we can do the truncate here.
       if (meta.isTruncate()) {
@@ -189,7 +189,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
 
   protected void writeRowToMonetDB(IRowMeta rowMeta, Object[] r, DatabaseMeta dm)
       throws HopException {
-    if (data.bufferIndex == data.bufferSize || log.isDebug()) {
+    if (data.bufferIndex == data.bufferSize || isDebug()) {
       writeBufferToMonetDB(dm);
     }
     addRowToBuffer(rowMeta, r);
@@ -398,24 +398,24 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
 
   public void autoAdjustSchema(MonetDbBulkLoaderMeta meta) throws HopException {
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("Attempting to auto adjust table structure");
     }
 
     drop();
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("getTransMeta: " + getTransformMeta());
     }
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("getTransformname: " + getTransformName());
     }
     SqlStatement statement =
         meta.getTableDdl(variables, getPipelineMeta(), getTransformName(), true, data, true);
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("Statement: " + statement);
     }
-    if (log.isDetailed() && statement != null) {
+    if (isDetailed() && statement != null) {
       logDetailed("Statement has SQL: " + statement.hasSql());
     }
 
@@ -428,7 +428,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       }
     }
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("Successfull");
     }
   }
@@ -472,7 +472,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
         for (String statement : sqlStatements) {
           data.out.write('s');
           data.out.write(resolve(statement));
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(resolve(statement));
           }
           data.out.write(';');
@@ -482,7 +482,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
         data.out.write('s');
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(cmd);
       }
       data.out.write(cmdBuff.toString());
@@ -491,7 +491,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       for (int i = 0; i < data.bufferIndex; i++) {
         String buffer = data.rowBuffer[i];
         data.out.write(buffer);
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(buffer);
         }
       }
@@ -521,7 +521,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
         }
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(Const.CR);
       }
 
@@ -629,7 +629,8 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
     String password = Utils.resolvePassword(variables, Const.NVL(dm.getPassword(), ""));
     String db = resolve(Const.NVL(dm.getDatabaseName(), ""));
 
-    return getMonetDBConnection(hostname, Integer.parseInt(portnum), user, password, db, log);
+    return getMonetDBConnection(
+        hostname, Integer.parseInt(portnum), user, password, db, getLogChannel());
   }
 
   protected static MapiSocket getMonetDBConnection(

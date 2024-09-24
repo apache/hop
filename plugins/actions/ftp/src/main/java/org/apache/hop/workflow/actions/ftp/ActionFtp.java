@@ -323,7 +323,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
 
   @Override
   public Result execute(Result previousResult, int nr) {
-    log.logBasic(BaseMessages.getString(PKG, "ActionFTP.Started", serverName));
+    logBasic(BaseMessages.getString(PKG, "ActionFTP.Started", serverName));
 
     Result result = previousResult;
     result.setNrErrors(1);
@@ -350,7 +350,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     String realMoveToFolder = null;
 
     try {
-      ftpClient = FtpClientUtil.connectAndLogin(log, this, this, getName());
+      ftpClient = FtpClientUtil.connectAndLogin(getLogChannel(), this, this, getName());
 
       // move to spool dir ...
       if (!Utils.isEmpty(remoteDirectory)) {
@@ -752,7 +752,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
 
         return true;
       } else if (ifFileExists == ifFileExistsFail) {
-        log.logError(BaseMessages.getString(PKG, CONST_LOCAL_FILE_EXISTS), filename);
+        logError(BaseMessages.getString(PKG, CONST_LOCAL_FILE_EXISTS), filename);
         updateErrors();
       } else {
         if (isDebug()) {

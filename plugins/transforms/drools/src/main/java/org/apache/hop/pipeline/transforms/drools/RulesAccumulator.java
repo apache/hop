@@ -58,7 +58,7 @@ public class RulesAccumulator extends BaseTransform<RulesAccumulatorMeta, RulesA
       } catch (RuleValidationException e) {
 
         for (String message : e.getMessages()) {
-          log.logError(message);
+          logError(message);
         }
         throw new HopTransformException(BaseMessages.getString(PKG, "RulesData.Error.CompileDRL"));
       }

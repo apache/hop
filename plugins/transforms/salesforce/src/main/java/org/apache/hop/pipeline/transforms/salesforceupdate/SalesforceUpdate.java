@@ -112,7 +112,7 @@ public class SalesforceUpdate
   void writeToSalesForce(Object[] rowData) throws HopException {
     try {
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             "Called writeToSalesForce with "
                 + data.iBufferPos
@@ -134,7 +134,7 @@ public class SalesforceUpdate
             // We need to keep track of this field
             fieldsToNull.add(
                 SalesforceUtils.getFieldToNullName(
-                    log, meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
+                    getLogChannel(), meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
           } else {
             IValueMeta valueMeta = data.inputRowMeta.getValueMeta(data.fieldnrs[i]);
             Object value = rowData[data.fieldnrs[i]];
@@ -165,7 +165,7 @@ public class SalesforceUpdate
       }
 
       if (data.iBufferPos >= meta.getBatchSizeInt()) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed("Calling flush buffer from writeToSalesForce");
         }
         flushBuffers();
@@ -190,7 +190,7 @@ public class SalesforceUpdate
         if (data.saveResult[j].isSuccess()) {
           // Row was updated
           String id = data.saveResult[j].getId();
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed("Row updated with id: " + id);
           }
 
@@ -198,14 +198,14 @@ public class SalesforceUpdate
           Object[] newRow =
               RowDataUtil.resizeArray(data.outputBuffer[j], data.outputRowMeta.size());
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed("The new row has an id value of : " + newRow[0]);
           }
 
           putRow(data.outputRowMeta, newRow); // copy row to output rowset(s)
           incrementLinesUpdated();
 
-          if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+          if (checkFeedback(getLinesInput()) && isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "SalesforceUpdate.log.LineRow", "" + getLinesInput()));
           }
@@ -216,7 +216,7 @@ public class SalesforceUpdate
           // array and write them to the screen
 
           if (!getTransformMeta().isDoingErrorHandling()) {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed("Found error from SalesForce and raising the exception");
             }
 
@@ -246,7 +246,7 @@ public class SalesforceUpdate
           }
 
           // Simply add this row to the error row
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug("Passing row to error transform");
           }
 
@@ -271,7 +271,7 @@ public class SalesforceUpdate
       }
 
       // Simply add this row to the error row
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Passing row to error transform");
       }
 

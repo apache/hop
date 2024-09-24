@@ -115,7 +115,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
       //
       String valname = row.getValueMeta(i).getName();
       if (strTransformScript.indexOf(valname) >= 0) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ScriptValuesMod.Log.UsedValueName", String.valueOf(i), valname));
@@ -125,7 +125,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
       }
     }
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(
           BaseMessages.getString(
               PKG,
@@ -296,11 +296,11 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
           if (strStartScript != null && strStartScript.length() > 0) {
             Script startScript = data.cx.compileString(strStartScript, "pipeline_Start", 1, null);
             startScript.exec(data.cx, data.scope);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(("Start Script found!"));
             }
           } else {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(("No starting Script found!"));
             }
           }
@@ -359,12 +359,12 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         Object pipelineStatus = data.scope.get("pipeline_Status", data.scope);
         if (pipelineStatus != Scriptable.NOT_FOUND) {
           bWithPipelineStat = true;
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 ("pipeline_Status found. Checking pipeline status while script execution."));
           }
         } else {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(("No pipeline_Status found. Pipeline status checking not available."));
           }
           bWithPipelineStat = false;
@@ -462,11 +462,11 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
           if (strEndScript != null && strEndScript.length() > 0) {
             Script endScript = data.cx.compileString(strEndScript, "pipeline_End", 1, null);
             endScript.exec(data.cx, data.scope);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(("End Script found!"));
             }
           } else {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(("No end Script found!"));
             }
           }

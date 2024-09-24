@@ -171,7 +171,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
               && ((data.getFileStreamsCollection().size() == 0) || meta.isFileNameInField())) {
             createParentFolder(filename);
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed("Opening output stream using provider: " + compressionProvider.getName());
           }
 
@@ -185,7 +185,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           // that do not archive entries, they should use the default no-op implementation.
           compressionOutputStream.addEntry(filename, resolve(meta.getExtension()));
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             if (!Utils.isEmpty(meta.getEncoding())) {
               logDetailed("Opening output stream in encoding: " + meta.getEncoding());
             } else {
@@ -201,7 +201,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
           data.getFileStreamsCollection().add(filename, fileStreams);
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed("Opened new file with name [" + HopVfs.getFriendlyURI(filename) + "]");
           }
         } else if (fileStreams.getBufferedOutputStream()
@@ -775,7 +775,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         getPartitionId(),
         data.splitnr,
         data.isBeamContext(),
-        log.getLogChannelId(),
+        getLogChannelId(),
         data.getBeamBundleNr(),
         ziparchive,
         meta);
@@ -802,7 +802,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
       data.writer = null;
       data.out = null;
       data.fos = null;
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Closing normal file ...");
       }
       retval = true;

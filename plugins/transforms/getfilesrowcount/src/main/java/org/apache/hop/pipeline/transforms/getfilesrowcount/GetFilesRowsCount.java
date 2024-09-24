@@ -82,7 +82,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
 
       if (meta.isFileFromField() || data.lastFile) {
         putRow(data.outputRowMeta, outputRow);
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "GetFilesRowsCount.Log.TotalRowsFiles"),
               data.rowNumber,
@@ -182,7 +182,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
       } else {
         data.inputRow = getRow();
         if (data.inputRow == null) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "GetFilesRowsCount.Log.FinishedProcessing"));
           }
           return false;
@@ -226,7 +226,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
         } // End if first
 
         String filename = getInputRowMeta().getString(data.inputRow, data.indexOfFilenameField);
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
@@ -258,12 +258,12 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
         addResultFile(resultFile);
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "GetFilesRowsCount.Log.OpeningFile", data.file.toString()));
       }
       getRowNumber();
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "GetFilesRowsCount.Log.FileOpened", data.file.toString()));
       }
@@ -287,7 +287,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
     if (data.fileNumber >= data.files.nrOfFiles()) {
       // finished processing!
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "GetFilesRowsCount.Log.FinishedProcessing"));
       }
       return true;
@@ -370,7 +370,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
         data.file.close();
         data.file = null;
       } catch (Exception e) {
-        log.logError("Error closing file", e);
+        logError("Error closing file", e);
       }
     }
     if (data.lineStringBuilder != null) {

@@ -76,7 +76,7 @@ public class KafkaConsumerInput
     try {
       data.outputRowMeta = meta.getRowMeta(getTransformName(), this);
     } catch (HopTransformException e) {
-      log.logError("Error determining output row metadata", e);
+      logError("Error determining output row metadata", e);
     }
 
     data.incomingRowsBuffer = new ArrayList<>();

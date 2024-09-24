@@ -111,7 +111,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
       }
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel("Read row #" + getLinesRead() + " : " + getInputRowMeta().getString(r));
     }
 
@@ -124,7 +124,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
     } else {
       if (keep) {
         if (data.trueRowSet != null) {
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 "Sending row to true  :"
                     + data.trueTransformName
@@ -135,7 +135,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
         }
       } else {
         if (data.falseRowSet != null) {
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 "Sending row to false :"
                     + data.falseTransformName
@@ -147,7 +147,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
       }
     }
 
-    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "JavaFilter.Log.LineNumber") + getLinesRead());
     }
 

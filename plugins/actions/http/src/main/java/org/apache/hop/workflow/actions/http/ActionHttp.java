@@ -450,19 +450,20 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
           HttpsURLConnection httpsConn = (HttpsURLConnection) connection;
           httpsConn.setSSLSocketFactory(
               HttpClientManager.getTrustAllSslContext().getSocketFactory());
-          httpsConn.setHostnameVerifier(HttpClientManager.getHostnameVerifier(isDebug(), log));
+          httpsConn.setHostnameVerifier(
+              HttpClientManager.getHostnameVerifier(isDebug(), getLogChannel()));
         }
 
         // if we have HTTP headers, add them
         if (!Utils.isEmpty(headerName)) {
-          if (log.isDebug()) {
-            log.logDebug(BaseMessages.getString(PKG, "ActionHTTP.Log.HeadersProvided"));
+          if (isDebug()) {
+            logDebug(BaseMessages.getString(PKG, "ActionHTTP.Log.HeadersProvided"));
           }
           for (int j = 0; j < headerName.length; j++) {
             if (!Utils.isEmpty(headerValue[j])) {
               connection.setRequestProperty(resolve(headerName[j]), resolve(headerValue[j]));
-              if (log.isDebug()) {
-                log.logDebug(
+              if (isDebug()) {
+                logDebug(
                     BaseMessages.getString(
                         PKG,
                         "ActionHTTP.Log.HeaderSet",
@@ -477,7 +478,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
 
         // See if we need to send a file over?
         if (!Utils.isEmpty(realUploadFile)) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "ActionHTTP.Log.SendingFile", realUploadFile));
           }
 
@@ -500,12 +501,12 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
               fileStream = null;
             }
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "ActionHTTP.Log.FinishedSendingFile"));
           }
         }
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionHTTP.Log.StartReadingReply"));
         }
 

@@ -402,7 +402,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
           lookupValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "CombinationLookup.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
@@ -487,7 +487,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     }
 
     try {
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("preparing combi-lookup statement:" + Const.CR + sql);
       }
       data.prepStatementLookup =
@@ -697,11 +697,6 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
   }
 
   @Override
-  public boolean isRowLevel() {
-    return log.isRowLevel();
-  }
-
-  @Override
   public boolean init() {
     if (super.init()) {
       data.realSchemaName = resolve(meta.getSchemaName());
@@ -722,7 +717,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       try {
         data.db.connect();
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "CombinationLookup.Log.ConnectedToDB"));
         }
         data.db.setCommit(meta.getCommitSize());
@@ -830,7 +825,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       sql += "GROUP BY" + Const.CR;
       sql += lookupKeys + Const.CR;
 
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Using preload cache statement:" + Const.CR + sql);
       }
       cacheValues = data.db.getRows(databaseMeta.stripCR(sql), meta.getCacheSize());

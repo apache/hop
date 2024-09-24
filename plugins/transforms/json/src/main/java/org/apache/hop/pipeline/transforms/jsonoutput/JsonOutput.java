@@ -302,7 +302,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         try {
           outputRow(null);
         } catch (Exception e) {
-          log.logError("Error writing final rows to disk", e);
+          logError("Error writing final rows to disk", e);
         }
       }
       data.ja = null;
@@ -343,13 +343,13 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       // Get parent folder
       parentfolder = HopVfs.getFileObject(filename).getParent();
       if (!parentfolder.exists()) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG, "JsonOutput.Error.ParentFolderNotExist", parentfolder.getName()));
         }
         parentfolder.createFolder();
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "JsonOutput.Log.ParentFolderCreated"));
         }
       }
@@ -402,7 +402,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         data.writer = new OutputStreamWriter(new BufferedOutputStream(outputStream, 5000));
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "JsonOutput.FileOpened", filename));
       }
 
@@ -424,7 +424,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         null,
         data.splitnr + "",
         data.isBeamContext(),
-        log.getLogChannelId(),
+        getLogChannelId(),
         data.getBeamBundleNr(),
         false);
   }

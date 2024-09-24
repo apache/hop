@@ -170,7 +170,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
         //
         outputData[outputIndex++] = valueMeta.cloneValueData(rowData[idx]);
       } else {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "SelectValues.Log.MixingStreamWithDifferentFields"));
         }
@@ -372,7 +372,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       rowCopy = getInputRowMeta().cloneRow(rowData);
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "SelectValues.Log.GotRowFromPreviousTransform")
               + getInputRowMeta().getString(rowData));
@@ -410,7 +410,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       // Send the row on its way
       //
       putRow(data.metadataRowMeta, outputData);
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "SelectValues.Log.WroteRowToNextTransform")
                 + data.metadataRowMeta.getString(outputData));

@@ -125,7 +125,7 @@ public abstract class BaseFileInputTransform<
         resultFile.setComment("File was read by an Text File input transform");
         addResultFile(resultFile);
       }
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic("Opening file: " + data.file.getName().getFriendlyURI());
       }
 
@@ -214,7 +214,7 @@ public abstract class BaseFileInputTransform<
     data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
 
     BaseFileInputTransformUtils.handleMissingFiles(
-        data.files, log, meta.errorHandling.errorIgnored, data.dataErrorLineHandler);
+        data.files, getLogChannel(), meta.errorHandling.errorIgnored, data.dataErrorLineHandler);
 
     // Count the number of repeat fields...
     for (int i = 0; i < meta.inputFields.length; i++) {
@@ -311,7 +311,7 @@ public abstract class BaseFileInputTransform<
     }
 
     if (data.files.nrOfFiles() == 0) {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "BaseFileInputTransform.Log.Error.NoFilesSpecified"));
       }

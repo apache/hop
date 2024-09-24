@@ -365,10 +365,10 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
   }
 
   private void logInfo(Object[] outputRow) throws HopValueException {
-    if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+    if (checkFeedback(getLinesRead()) && isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "GetTableNames.LineNumber", "" + getLinesRead()));
     }
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(
               PKG, "GetTableNames.Log.PutoutRow", data.outputRowMeta.getString(outputRow)));
@@ -426,7 +426,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       data.db = new Database(this, variables, databaseMeta);
       try {
         data.db.connect();
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "GetTableNames.Log.ConnectedToDB"));
         }
 

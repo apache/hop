@@ -193,7 +193,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
       resultFile.setComment("");
       result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "ActionCreateFile.FileAddedToResult", targetFilename));
       }

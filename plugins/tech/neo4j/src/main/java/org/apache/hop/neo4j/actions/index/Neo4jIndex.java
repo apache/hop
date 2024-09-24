@@ -124,17 +124,17 @@ public class Neo4jIndex extends ActionBase implements IAction {
     // Run this cypher statement...
     //
     final String _cypher = cypher;
-    try (Driver driver = connection.getDriver(log, this)) {
-      try (Session session = connection.getSession(log, driver, this)) {
+    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
+      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
         session.writeTransaction(
             tx -> {
               try {
-                log.logDetailed("Dropping index with cypher: " + _cypher);
+                logDetailed("Dropping index with cypher: " + _cypher);
                 org.neo4j.driver.Result result = tx.run(_cypher);
                 result.consume();
                 return true;
               } catch (Throwable e) {
-                log.logError("Error dropping index with cypher [" + _cypher + "]", e);
+                logError("Error dropping index with cypher [" + _cypher + "]", e);
                 return false;
               }
             });
@@ -178,17 +178,17 @@ public class Neo4jIndex extends ActionBase implements IAction {
     // Run this cypher statement...
     //
     final String _cypher = cypher;
-    try (Driver driver = connection.getDriver(log, this)) {
-      try (Session session = connection.getSession(log, driver, this)) {
+    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
+      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
         session.writeTransaction(
             tx -> {
               try {
-                log.logDetailed("Creating index with cypher: " + _cypher);
+                logDetailed("Creating index with cypher: " + _cypher);
                 org.neo4j.driver.Result result = tx.run(_cypher);
                 result.consume();
                 return true;
               } catch (Throwable e) {
-                log.logError("Error creating index with cypher [" + _cypher + "]", e);
+                logError("Error creating index with cypher [" + _cypher + "]", e);
                 return false;
               }
             });

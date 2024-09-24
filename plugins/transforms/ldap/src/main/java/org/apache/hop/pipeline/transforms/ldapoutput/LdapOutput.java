@@ -266,13 +266,13 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
 
       putRow(getInputRowMeta(), outputRowData); // copy row to output rowset(s)
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(classFromResourcesPackage, "LdapOutput.log.ReadRow"),
             getInputRowMeta().getString(outputRowData));
       }
 
-      if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+      if (checkFeedback(getLinesInput()) && isDetailed()) {
         logDetailed(
             BaseMessages.getString(classFromResourcesPackage, "LdapOutput.log.LineRow")
                 + getLinesInput());
@@ -311,7 +311,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
     if (super.init()) {
       try {
         // Define new LDAP connection
-        data.connection = new LdapConnection(log, this, meta, null);
+        data.connection = new LdapConnection(getLogChannel(), this, meta, null);
 
         // connect
         if (meta.isUseAuthentication()) {

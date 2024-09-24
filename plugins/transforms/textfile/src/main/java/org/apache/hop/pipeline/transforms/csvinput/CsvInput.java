@@ -144,7 +144,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         }
       } else {
         putRow(data.outputRowMeta, outputRowData); // copy row to possible alternate rowset(s).
-        if (checkFeedback(getLinesInput()) && log.isBasic()) {
+        if (checkFeedback(getLinesInput()) && isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG, "CsvInput.Log.LineNumber", Long.toString(getLinesInput())));
@@ -477,14 +477,14 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       EncodingType encodingType = EncodingType.guessEncodingType(reader.getEncoding());
       String line =
           TextFileInput.getLine(
-              log,
+              getLogChannel(),
               reader,
               encodingType,
               TextFileInputMeta.FILE_FORMAT_UNIX,
               new StringBuilder(1000));
       String[] fieldNames =
           TextFileLineUtil.guessStringsFromLine(
-              log, line, delimiter, enclosure, csvInputMeta.getEscapeCharacter());
+              getLogChannel(), line, delimiter, enclosure, csvInputMeta.getEscapeCharacter());
       if (!Utils.isEmpty(csvInputMeta.getEnclosure())) {
         removeEnclosure(fieldNames, csvInputMeta.getEnclosure());
       }
@@ -741,7 +741,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         // Did we have any escaped characters in there?
         //
         if (escapedEnclosureFound > 0) {
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel("Escaped enclosures found in " + new String(field));
           }
           field = data.removeEscapedEnclosures(field, escapedEnclosureFound);

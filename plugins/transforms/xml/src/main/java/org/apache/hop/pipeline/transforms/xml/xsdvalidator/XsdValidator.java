@@ -207,7 +207,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
         outputRowData2 = outputRowData;
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "XsdValidator.Log.ReadRow")
                 + " "

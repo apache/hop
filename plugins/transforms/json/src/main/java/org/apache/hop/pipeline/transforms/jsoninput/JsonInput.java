@@ -105,7 +105,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
         return false; // end of data or error.
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG, "JsonInput.Log.ReadRow", data.outputRowMeta.getString(outRow)));
@@ -248,7 +248,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     super.fillFileAdditionalFields(data, file);
     data.filename = HopVfs.getFilename(file);
     data.filenr++;
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "JsonInput.Log.OpeningFile", file.toString()));
     }
     addFileToResultFilesname(file);
@@ -454,7 +454,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       inputFields[i] = field;
     }
     // Instead of putting in the meta.inputFields, we put in our json path resolved input fields
-    data.reader = new FastJsonReader(inputFields, meta.isDefaultPathLeafToNull(), log);
+    data.reader = new FastJsonReader(inputFields, meta.isDefaultPathLeafToNull(), getLogChannel());
     data.reader.setIgnoreMissingPath(meta.isIgnoreMissingPath());
   }
 

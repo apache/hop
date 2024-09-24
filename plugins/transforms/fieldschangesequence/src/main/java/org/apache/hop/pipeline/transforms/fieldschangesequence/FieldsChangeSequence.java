@@ -111,7 +111,7 @@ public class FieldsChangeSequence
         data.seq = data.startAt;
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "FieldsChangeSequence.Log.ReadRow")
                 + getLinesRead()
@@ -126,7 +126,7 @@ public class FieldsChangeSequence
 
       data.seq += data.incrementBy;
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "FieldsChangeSequence.Log.WriteRow")
                 + getLinesWritten()
@@ -134,7 +134,7 @@ public class FieldsChangeSequence
                 + getInputRowMeta().getString(r));
       }
 
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(
             BaseMessages.getString(PKG, "FieldsChangeSequence.Log.LineNumber") + getLinesRead());
       }

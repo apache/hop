@@ -240,7 +240,7 @@ public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorDa
     putRow(data.outputRowMeta, r);
     data.rowsWritten++;
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(
               PKG,
@@ -250,7 +250,7 @@ public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorDa
     }
 
     if (checkFeedback(data.rowsWritten)) {
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(
             BaseMessages.getString(
                 PKG, "RowGenerator.Log.LineNr", Long.toString(data.rowsWritten)));

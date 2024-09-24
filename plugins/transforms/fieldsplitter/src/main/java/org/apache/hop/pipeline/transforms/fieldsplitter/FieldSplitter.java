@@ -104,7 +104,7 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
     //
     final boolean selectFieldById = StringUtils.isNotEmpty(meta.getFields().get(0).getId());
 
-    if (log.isDebug()) {
+    if (isDebug()) {
       if (selectFieldById) {
         logDebug(BaseMessages.getString(PKG, "FieldSplitter.Log.UsingIds"));
       } else {
@@ -138,7 +138,7 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
           }
         }
 
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "FieldSplitter.Log.SplitInfo") + rawValue);
         }
       } else {
@@ -147,7 +147,7 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
         rawValue = (valueParts == null || i >= valueParts.length) ? null : valueParts[i];
         prev += (rawValue == null ? 0 : rawValue.length()) + data.delimiter.length();
 
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG, "FieldSplitter.Log.SplitFieldsInfo", rawValue, String.valueOf(prev)));
@@ -198,10 +198,8 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
     Object[] outputRowData = splitField(r);
     putRow(data.outputMeta, outputRowData);
 
-    if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "FieldSplitter.Log.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "FieldSplitter.Log.LineNumber") + getLinesRead());
     }
 
     return true;

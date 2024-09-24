@@ -350,14 +350,14 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
       }
 
     } catch (IOException | HopFileException e) {
-      log.logError("IO Error while reading file: " + fileName + ". Invalid charset?");
+      logError("IO Error while reading file: " + fileName + ". Invalid charset?");
       throw new HopTransformException(e.getMessage(), e);
 
     } catch (ArrayIndexOutOfBoundsException e) {
-      log.logError("Error determining field types for: " + fileName + ". Inconsistent delimiters?");
+      logError("Error determining field types for: " + fileName + ". Inconsistent delimiters?");
       throw new HopTransformException(e.getMessage(), e);
     } catch (CsvValidationException e) {
-      log.logError("Error validating CSV file " + fileName, e);
+      logError("Error validating CSV file " + fileName, e);
       throw new HopTransformException(e.getMessage(), e);
     }
   }
@@ -390,7 +390,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
               .withDelimiterCandidates(delimiterCandidates)
               .withEnclosureCandidates(enclosureCandidates)
               .withInput(f)
-              .withLogger(log)
+              .withLogger(getLogChannel())
               .withRowLimit(limitRows)
               .build();
 

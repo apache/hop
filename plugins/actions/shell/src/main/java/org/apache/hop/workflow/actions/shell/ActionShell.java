@@ -310,7 +310,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       shellLogLevel = logFileLevel;
     }
 
-    log.setLogLevel(shellLogLevel);
+    setLogLevel(shellLogLevel);
 
     result.setEntryNr(nr);
 
@@ -329,7 +329,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     boolean first = true;
     List<RowMetaAndData> rows = result.getRows();
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(
           BaseMessages.getString(
               PKG, "ActionShell.Log.FoundPreviousRows", "" + (rows != null ? rows.size() : 0)));
@@ -413,7 +413,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       String[] base = null;
       List<String> cmds = new ArrayList<>();
 
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ActionShell.RunningOn", Const.getSystemOs()));
       }
 
@@ -529,7 +529,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         }
         command.append(it.next());
       }
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ActionShell.ExecCommand", command.toString()));
       }
 
@@ -551,10 +551,12 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       Process proc = procBuilder.start();
 
       // any error message?
-      StreamLogger errorLogger = new StreamLogger(log, proc.getErrorStream(), "(stderr)", true);
+      StreamLogger errorLogger =
+          new StreamLogger(getLogChannel(), proc.getErrorStream(), "(stderr)", true);
 
       // any output?
-      StreamLogger outputLogger = new StreamLogger(log, proc.getInputStream(), "(stdout)");
+      StreamLogger outputLogger =
+          new StreamLogger(getLogChannel(), proc.getInputStream(), "(stdout)");
 
       // kick them off
       Thread errorLoggerThread = new Thread(errorLogger);
@@ -563,14 +565,14 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       outputLoggerThread.start();
 
       proc.waitFor();
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ActionShell.CommandFinished", command.toString()));
       }
 
       // What's the exit status?
       result.setExitStatus(proc.exitValue());
       if (result.getExitStatus() != 0) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
@@ -654,9 +656,9 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           Process proc = procBuilder.start();
           // Eat/log stderr/stdout all messages in a different thread...
           StreamLogger errorLogger =
-              new StreamLogger(log, proc.getErrorStream(), toString() + " (stderr)");
+              new StreamLogger(getLogChannel(), proc.getErrorStream(), toString() + " (stderr)");
           StreamLogger outputLogger =
-              new StreamLogger(log, proc.getInputStream(), toString() + " (stdout)");
+              new StreamLogger(getLogChannel(), proc.getInputStream(), toString() + " (stdout)");
           new Thread(errorLogger).start();
           new Thread(outputLogger).start();
           proc.waitFor();

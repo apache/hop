@@ -138,7 +138,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
         //
         if (iMaximumTimeout < 0) {
           iMaximumTimeout = Const.toInt(DEFAULT_MAXIMUM_TIMEOUT, 0);
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic("Maximum timeout invalid, reset to " + iMaximumTimeout);
           }
         }
@@ -146,17 +146,17 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
         if (iCycleTime < 1) {
           // If lower than 1 set to the default
           iCycleTime = Const.toInt(DEFAULT_CHECK_CYCLE_TIME, 1);
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic("Check cycle time invalid, reset to " + iCycleTime);
           }
         }
 
         if (iMaximumTimeout == 0) {
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic("Waiting indefinitely for file [" + realFilename + "]");
           }
         } else {
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic("Waiting " + iMaximumTimeout + " seconds for file [" + realFilename + "]");
           }
         }
@@ -167,7 +167,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
 
           if (fileObject.exists()) {
             // file exists, we're happy to exit
-            if (log.isBasic()) {
+            if (isBasic()) {
               logBasic("Detected file [" + realFilename + "] within timeout");
             }
             result.setResult(true);
@@ -192,12 +192,12 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
 
               // file doesn't exist after timeout, either true or false
               if (isSuccessOnTimeout()) {
-                if (log.isBasic()) {
+                if (isBasic()) {
                   logBasic("Didn't detect file [" + realFilename + "] before timeout, success");
                 }
                 result.setResult(true);
               } else {
-                if (log.isBasic()) {
+                if (isBasic()) {
                   logBasic("Didn't detect file [" + realFilename + "] before timeout, failure");
                 }
                 result.setResult(false);
@@ -219,7 +219,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
 
             try {
               if (sleepTime > 0) {
-                if (log.isDetailed()) {
+                if (isDetailed()) {
                   logDetailed(
                       "Sleeping "
                           + sleepTime
@@ -241,10 +241,10 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
           long oldSize = -1;
           long newSize = fileObject.getContent().getSize();
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed("File [" + realFilename + "] is " + newSize + " bytes long");
           }
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic(
                 "Waiting until file ["
                     + realFilename
@@ -254,7 +254,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
           }
           while (oldSize != newSize && !parentWorkflow.isStopped()) {
             try {
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     "Sleeping "
                         + iCycleTime
@@ -270,11 +270,11 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
             }
             oldSize = newSize;
             newSize = fileObject.getContent().getSize();
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed("File [" + realFilename + "] is " + newSize + " bytes long");
             }
           }
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic("Stopped waiting for file [" + realFilename + CONST_TO_STOP_GROWING);
           }
         }

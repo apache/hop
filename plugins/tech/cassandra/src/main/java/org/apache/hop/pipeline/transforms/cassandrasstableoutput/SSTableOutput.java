@@ -137,7 +137,7 @@ public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutpu
 
     writer = builder.build();
     try {
-      disableSystemExit(sm, log);
+      disableSystemExit(sm, getLogChannel());
       writer.init();
     } catch (Exception e) {
       throw new RuntimeException(

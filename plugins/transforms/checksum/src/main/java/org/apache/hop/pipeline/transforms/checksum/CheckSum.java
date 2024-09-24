@@ -126,7 +126,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
         }
       }
 
-      if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "CheckSum.Log.LineNumber", Long.toString(getLinesRead())));
       }

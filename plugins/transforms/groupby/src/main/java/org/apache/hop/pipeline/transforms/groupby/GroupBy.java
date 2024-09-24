@@ -256,7 +256,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
     data.previous = data.inputRowMeta.cloneRow(r);
 
-    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "GroupBy.LineNumber") + getLinesRead());
     }
 
@@ -945,13 +945,13 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         closeInput();
         closeOutput();
       } catch (HopFileException e) {
-        log.logError(e.getLocalizedMessage());
+        logError(e.getLocalizedMessage());
       }
 
       boolean tempFileDeleted = data.tempFile.delete();
 
-      if (!tempFileDeleted && log.isDetailed()) {
-        log.logDetailed(
+      if (!tempFileDeleted && isDetailed()) {
+        logDetailed(
             BaseMessages.getString(
                 PKG, "GroupBy.Exception.UnableToDeleteTemporaryFile", data.tempFile.getPath()));
       }

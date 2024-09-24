@@ -68,7 +68,7 @@ public class StandardizePhoneNumber
     // indexes
     // in the row structure that only need to be done once
     if (first) {
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "StandardizePhoneNumber.Log.StartedProcessing"));
       }
 
@@ -148,7 +148,7 @@ public class StandardizePhoneNumber
           }
           outputRow[index] = phoneNumberService.format(phoneNumber, format);
         } catch (NumberParseException e) {
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 BaseMessages.getString(
                     PKG,
@@ -180,7 +180,7 @@ public class StandardizePhoneNumber
     // put the row to the output row stream
     putRow(data.outputRowMeta, outputRow);
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(
               PKG, "StandardizePhoneNumber.Log.WroteRowToNextTransform", outputRow));

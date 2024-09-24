@@ -107,7 +107,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
 
       if (data.prunePath != null) {
         // when pruning is on: reader.read() below will wait until all is processed in the handler
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "GetXMLData.Log.StreamingMode.Activated"));
         }
         if (data.PathValue.equals(data.prunePath)) {
@@ -134,7 +134,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
                   // NPE or other errors depending on the parsing location - this will be treated in
                   // the catch part below
                   // any better idea is welcome
-                  if (log.isBasic()) {
+                  if (isBasic()) {
                     logBasic(BaseMessages.getString(PKG, "GetXMLData.Log.StreamingMode.Stopped"));
                   }
                   data.stopPruning = true;
@@ -143,7 +143,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
                 }
 
                 // process a ROW element
-                if (log.isDebug()) {
+                if (isDebug()) {
                   logDebug(
                       BaseMessages.getString(PKG, "GetXMLData.Log.StreamingMode.StartProcessing"));
                 }
@@ -160,7 +160,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
                 }
                 // prune the tree
                 row.detach();
-                if (log.isDebug()) {
+                if (isDebug()) {
                   logDebug(
                       BaseMessages.getString(PKG, "GetXMLData.Log.StreamingMode.EndProcessing"));
                 }
@@ -231,7 +231,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     if (meta.isNamespaceAware()) {
       prepareNSMap(data.document.getRootElement());
     }
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "GetXMLData.Log.StreamingMode.ApplyXPath"));
     }
     // If the prune path and the path are the same, then
@@ -240,7 +240,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       data.an.set(0, (AbstractNode) row);
       data.nodesize = 1; // it's always just one row.
       data.nodenr = 0;
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "GetXMLData.Log.StreamingMode.ProcessingRows"));
       }
       Object[] r = getXmlRowPutRowWithErrorhandling();
@@ -261,7 +261,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     }
     // main loop through the data until limit is reached or transformation is stopped
     // similar functionality like in BaseTransform.runTransformThread
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "GetXMLData.Log.StreamingMode.ProcessingRows"));
     }
     boolean cont = true;
@@ -276,7 +276,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       // the hole
       // file (slow but works)
     }
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "GetXMLData.Log.StreamingMode.FreeMemory"));
     }
     // free allocated memory
@@ -359,7 +359,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       if (data.readrow == null) {
         // finished processing!
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "GetXMLData.Log.FinishedProcessing"));
         }
         return false;
@@ -412,7 +412,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         // get XML field value
         String fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfXmlField);
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "GetXMLData.Log.XMLStream", meta.getXMLField(), fieldvalue));
@@ -444,7 +444,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
 
             addFileToResultFilesname(file);
 
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -483,7 +483,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
             throw new HopException(
                 BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH));
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, CONST_GET_XMLDATA_LOG_LOOP_FILE_OCCURENCES, "" + data.nodesize));
@@ -586,7 +586,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       if (data.filenr >= data.files.nrOfFiles()) {
         // finished processing!
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "GetXMLData.Log.FinishedProcessing"));
         }
         return false;
@@ -638,7 +638,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         openNextFile();
 
       } else {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "GetXMLData.Log.OpeningFile", data.file.toString()));
         }
@@ -661,7 +661,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
 
         addFileToResultFilesname(data.file);
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "GetXMLData.Log.FileOpened", data.file.toString()));
           logDetailed(
@@ -724,7 +724,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   }
 
   private boolean putRowOut(Object[] r) throws HopException {
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "GetXMLData.Log.ReadRow", data.outputRowMeta.getString(r)));
     }
@@ -1017,7 +1017,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       if (!data.PathValue.substring(0, 1).equals(GetXmlDataMeta.N0DE_SEPARATOR)) {
         data.PathValue = GetXmlDataMeta.N0DE_SEPARATOR + data.PathValue;
       }
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "GetXMLData.Log.LoopXPath", data.PathValue));
       }
 

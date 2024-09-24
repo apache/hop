@@ -321,7 +321,7 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
 
       putRow(data.outputRowMeta, output);
 
-      if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "StringOperations.Log.LineNumber") + getLinesRead());
       }

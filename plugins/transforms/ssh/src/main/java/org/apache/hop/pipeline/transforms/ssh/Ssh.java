@@ -118,19 +118,19 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
 
       // Open a session
       session = data.conn.openSession();
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "SSH.Log.SessionOpened"));
       }
 
       // execute commands
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "SSH.Log.RunningCommand", data.commands));
       }
       session.execCommand(data.commands);
 
       // Read Stdout, Sterr and exitStatus
       SessionResult sessionresult = new SessionResult(session);
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(
             BaseMessages.getString(
                 PKG,
@@ -148,7 +148,7 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
         rowData[index++] = sessionresult.isStdTypeErr();
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG, "SSH.Log.OutputLine", data.outputRowMeta.getString(rowData)));
@@ -157,7 +157,7 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
       putRow(data.outputRowMeta, rowData);
 
       if (checkFeedback(getLinesRead())) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "SSH.LineNumber", "" + getLinesRead()));
         }
       }
@@ -183,7 +183,7 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
     } finally {
       if (session != null) {
         session.close();
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "SSH.Log.SessionClosed"));
         }
       }
@@ -220,7 +220,7 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
         // Open connection
         data.conn = SshData.openConnection(this, meta);
 
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "SSH.Log.ConnectionOpened"));
         }
 

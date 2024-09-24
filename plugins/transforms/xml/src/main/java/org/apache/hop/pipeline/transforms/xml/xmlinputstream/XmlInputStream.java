@@ -216,8 +216,8 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       try {
         data.xmlEventReader.close();
       } catch (XMLStreamException e) {
-        if (log.isBasic()) {
-          log.logBasic(
+        if (isBasic()) {
+          logBasic(
               BaseMessages.getString(
                   PKG,
                   CONST_XMLINPUT_STREAM_LOG_UNABLE_TO_CLOSE_FILE,
@@ -230,8 +230,8 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       try {
         data.inputStream.close();
       } catch (IOException e) {
-        if (log.isBasic()) {
-          log.logBasic(
+        if (isBasic()) {
+          logBasic(
               BaseMessages.getString(
                   PKG,
                   CONST_XMLINPUT_STREAM_LOG_UNABLE_TO_CLOSE_FILE,
@@ -244,8 +244,8 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       try {
         data.fileObject.close();
       } catch (FileSystemException e) {
-        if (log.isBasic()) {
-          log.logBasic(
+        if (isBasic()) {
+          logBasic(
               BaseMessages.getString(
                   PKG,
                   CONST_XMLINPUT_STREAM_LOG_UNABLE_TO_CLOSE_FILE,
@@ -330,7 +330,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
 
     // Skip rows? (not exact science since some attributes could be mixed within the last row)
     if (data.nrRowsToSkip == 0 || data.rowNumber > data.nrRowsToSkip) {
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel("Read row: " + data.outputRowMeta.getString(r));
       }
       if (data.currentInputRow != null) {

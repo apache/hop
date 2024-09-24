@@ -609,7 +609,7 @@ public class SnowflakeBulkLoader
         throw new HopException("Compression provider GZip does not support output streams!");
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Opening output stream using provider: " + compressionProvider.getName());
       }
 
@@ -629,7 +629,7 @@ public class SnowflakeBulkLoader
 
       data.writer = new BufferedOutputStream(data.out, 5000);
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             "Opened new file with name [" + HopVfs.getFriendlyURI(filename, variables) + "]");
       }
@@ -654,7 +654,7 @@ public class SnowflakeBulkLoader
         data.writer.flush();
       }
       data.writer = null;
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Closing normal file ...");
       }
       if (data.out != null) {
@@ -703,7 +703,7 @@ public class SnowflakeBulkLoader
         data.db = new Database(this, variables, data.databaseMeta);
         data.db.connect();
 
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic("Connected to database [" + meta.getConnection() + "]");
         }
 

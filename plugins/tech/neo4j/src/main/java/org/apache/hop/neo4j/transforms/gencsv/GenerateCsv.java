@@ -86,7 +86,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
             csvFile.closeFile();
           } catch (Exception e) {
             setErrors(1L);
-            log.logError("Error flushing/closing file '" + csvFile.getFilename() + "'", e);
+            logError("Error flushing/closing file '" + csvFile.getFilename() + "'", e);
           }
 
           Object[] nodeFileRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());

@@ -109,12 +109,12 @@ public class BlockUntilTransformsFinish
           // This transform is still running...
           data.continueLoop = true;
         } else {
-          log.logBasic(
+          logBasic(
               "Transform " + transform.getName() + " status: " + transform.getStatusDescription());
           // We have done with this transform.
           // remove it from the map
           data.componentMap.remove(e.getKey());
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 "Finished running transform ["
                     + transform.getName()

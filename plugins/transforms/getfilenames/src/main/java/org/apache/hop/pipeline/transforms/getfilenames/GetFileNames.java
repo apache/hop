@@ -285,7 +285,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
 
     data.filenr++;
 
-    if (checkFeedback(getLinesInput()) && log.isBasic()) {
+    if (checkFeedback(getLinesInput()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "GetFileNames.Log.NrLine", "" + getLinesInput()));
     }
 

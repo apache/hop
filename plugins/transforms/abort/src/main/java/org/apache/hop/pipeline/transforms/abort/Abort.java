@@ -111,7 +111,7 @@ public class Abort extends BaseTransform<AbortMeta, AbortData> {
                   Long.toString(nrInputRows),
                   getInputRowMeta().getString(r)));
         } else {
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 BaseMessages.getString(
                     PKG,

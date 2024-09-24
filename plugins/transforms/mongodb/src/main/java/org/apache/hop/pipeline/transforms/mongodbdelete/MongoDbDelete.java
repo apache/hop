@@ -129,7 +129,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
         DBObject query =
             MongoDbDeleteData.getQueryObject(
                 data.mUserFields, getInputRowMeta(), row, MongoDbDelete.this);
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(PKG, "MongoDbDelete.Message.Debug.QueryForDelete", query));
         }
@@ -190,7 +190,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
         }
 
         // init connection constructs a MongoCredentials object if necessary
-        data.clientWrapper = data.connection.createWrapper(this, log);
+        data.clientWrapper = data.connection.createWrapper(this, getLogChannel());
         data.collection = data.clientWrapper.getCollection(databaseName, collection);
 
         if (!StringUtil.isEmpty(meta.getWriteRetries())) {
@@ -233,14 +233,14 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
       try {
         data.cursor.close();
       } catch (MongoDbException e) {
-        log.logError(e.getMessage());
+        logError(e.getMessage());
       }
     }
     if (data.clientWrapper != null) {
       try {
         data.clientWrapper.dispose();
       } catch (MongoDbException e) {
-        log.logError(e.getMessage());
+        logError(e.getMessage());
       }
     }
 
@@ -252,7 +252,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
       try {
         data.getConnection().dispose();
       } catch (MongoDbException e) {
-        log.logError(e.getMessage());
+        logError(e.getMessage());
       }
     }
   }

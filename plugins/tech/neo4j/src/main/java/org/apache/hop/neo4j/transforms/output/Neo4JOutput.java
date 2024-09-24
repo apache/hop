@@ -185,10 +185,10 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       // Create a session
       //
       if (meta.isReturningGraph()) {
-        log.logBasic("Writing to output graph field, not to Neo4j");
+        logBasic("Writing to output graph field, not to Neo4j");
       } else {
-        data.driver = data.neoConnection.getDriver(log, this);
-        data.session = data.neoConnection.getSession(log, data.driver, this);
+        data.driver = data.neoConnection.getDriver(getLogChannel(), this);
+        data.session = data.neoConnection.getSession(getLogChannel(), data.driver, this);
 
         // Create indexes for the primary properties of the From and To nodes
         //
@@ -196,7 +196,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
           try {
             createNodePropertyIndexes(meta, data, getInputRowMeta(), row);
           } catch (HopException e) {
-            log.logError("Unable to create indexes", e);
+            logError("Unable to create indexes", e);
             return false;
           }
         }
@@ -796,7 +796,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       // Connect to Neo4j using info metastore Neo4j Connection metadata
       //
       if (StringUtils.isEmpty(resolve(meta.getConnection()))) {
-        log.logError("You need to specify a Neo4j connection to use in this transform");
+        logError("You need to specify a Neo4j connection to use in this transform");
         return false;
       }
 
@@ -804,7 +804,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
         data.neoConnection =
             metadataProvider.getSerializer(NeoConnection.class).load(resolve(meta.getConnection()));
         if (data.neoConnection == null) {
-          log.logError(
+          logError(
               "Connection '"
                   + resolve(meta.getConnection())
                   + "' could not be found in the metastore : "
@@ -813,7 +813,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
         }
         data.version4 = data.neoConnection.isVersion4();
       } catch (HopException e) {
-        log.logError(
+        logError(
             "Could not gencsv Neo4j connection '"
                 + resolve(meta.getConnection())
                 + "' from the metastore",
@@ -867,8 +867,8 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     boolean error = false;
     ResultSummary summary = result.consume();
     for (Notification notification : summary.notifications()) {
-      log.logError(notification.title() + " (" + notification.severity() + ")");
-      log.logError(
+      logError(notification.title() + " (" + notification.severity() + ")");
+      logError(
           notification.code()
               + " : "
               + notification.description()
@@ -983,7 +983,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
       if (label != null && !primaryProperties.isEmpty()) {
         NeoConnectionUtils.createNodeIndex(
-            log, data.session, Collections.singletonList(label), primaryProperties);
+            getLogChannel(), data.session, Collections.singletonList(label), primaryProperties);
       }
     }
   }

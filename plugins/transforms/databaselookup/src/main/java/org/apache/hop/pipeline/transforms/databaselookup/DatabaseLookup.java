@@ -121,7 +121,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
         // database when all rows
         // are in (exception LIKE
         // operator)
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(
               BaseMessages.getString(PKG, "DatabaseLookup.Log.AddedValuesToLookupRow1")
                   + meta.getLookup().getKeyFields().size()
@@ -146,7 +146,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
         return null;
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(BaseMessages.getString(PKG, "DatabaseLookup.Log.NoResultsFoundAfterLookup"));
       }
 
@@ -159,7 +159,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
         }
       }
     } else {
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "DatabaseLookup.Log.FoundResultsAfterLookup")
                 + Arrays.toString(add));
@@ -359,7 +359,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
           lookup.isFailingOnMultipleResults());
 
       // lookup the values!
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "DatabaseLookup.Log.CheckingRow")
                 + getInputRowMeta().getString(r));
@@ -394,7 +394,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
                   + BaseMessages.getString(
                       PKG, "DatabaseLookup.ERROR0001.FieldRequired4.Exception"));
         }
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(PKG, "DatabaseLookup.Log.FieldHasIndex1")
                   + field.getStreamField1()
@@ -433,7 +433,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       }
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "DatabaseLookup.Log.GotRowFromPreviousTransform")
               + getInputRowMeta().getString(r));
@@ -447,7 +447,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
         // copy row to output rowset(s)
         putRow(data.outputRowMeta, outputRow);
 
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(
               BaseMessages.getString(PKG, "DatabaseLookup.Log.WroteRowToNextTransform")
                   + getInputRowMeta().getString(r));
@@ -687,7 +687,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
     database.setCommit(100); // we never get a commit, but it just turns off auto-commit.
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "DatabaseLookup.Log.ConnectedToDatabase"));
     }
   }

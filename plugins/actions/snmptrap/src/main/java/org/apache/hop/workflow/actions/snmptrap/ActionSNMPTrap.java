@@ -332,7 +332,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
         target.setVersion(SnmpConstants.version1);
         target.setAddress(udpAddress);
         if (target.getAddress().isValid()) {
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug("Valid IP address");
           }
         } else {
@@ -359,7 +359,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
         transMap.listen();
         usertarget.setAddress(udpAddress);
         if (usertarget.getAddress().isValid()) {
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug("Valid IP address");
           }
         } else {
@@ -392,7 +392,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
               new USM(
                   SecurityProtocols.getInstance(), new OctetString(MPv3.createLocalEngineID()), 0);
           usm.addUser(new OctetString(userName), uu);
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug("Valid Usm");
           }
         }
@@ -409,7 +409,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
         response = snmp.send(pdu, usertarget);
       }
 
-      if (response != null && log.isDebug()) {
+      if (response != null && isDebug()) {
         logDebug("Received response from: " + response.getPeerAddress() + response.toString());
       }
 

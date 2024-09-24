@@ -247,7 +247,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
         File file = new File(realFilename);
         if ((file.exists() && file.canRead()) || isLocalInfile() == false) {
           // User has specified an existing file, We can continue ...
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed("File [" + realFilename + "] exists.");
           }
 
@@ -262,7 +262,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
               if (db.checkTableExists(realSchemaname, realTablename)) {
                 // The table existe, We can continue ...
-                if (log.isDetailed()) {
+                if (isDetailed()) {
                   logDetailed("Table [" + realTablename + "] exists.");
                 }
 
@@ -403,7 +403,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
                 // Of course, the table should have been created already before the bulk load
                 // operation
                 result.setNrErrors(1);
-                if (log.isDetailed()) {
+                if (isDetailed()) {
                   logDetailed("Table [" + realTablename + "] doesn't exist!");
                 }
               }

@@ -492,7 +492,8 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         // Link both ways!
         workflow.getWorkflowTracker().setParentWorkflowTracker(parentWorkflow.getWorkflowTracker());
 
-        ActionWorkflowRunner runner = new ActionWorkflowRunner(workflow, result, nr, log);
+        ActionWorkflowRunner runner =
+            new ActionWorkflowRunner(workflow, result, nr, getLogChannel());
         Thread workflowRunnerThread = new Thread(runner);
         // added UUID to thread name, otherwise threads do share names if workflows actions are
         // executed in parallel in a
@@ -590,23 +591,23 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       parentfolder = HopVfs.getFileObject(filename).getParent();
       if (!parentfolder.exists()) {
         if (createParentFolder) {
-          if (log.isDebug()) {
-            log.logDebug(
+          if (isDebug()) {
+            logDebug(
                 BaseMessages.getString(
                     PKG,
                     "ActionWorkflow.Log.ParentLogFolderNotExist",
                     parentfolder.getName().toString()));
           }
           parentfolder.createFolder();
-          if (log.isDebug()) {
-            log.logDebug(
+          if (isDebug()) {
+            logDebug(
                 BaseMessages.getString(
                     PKG,
                     "ActionWorkflow.Log.ParentLogFolderCreated",
                     parentfolder.getName().toString()));
           }
         } else {
-          log.logError(
+          logError(
               BaseMessages.getString(
                   PKG,
                   "ActionWorkflow.Log.ParentLogFolderNotExist",
@@ -614,8 +615,8 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
           resultat = false;
         }
       } else {
-        if (log.isDebug()) {
-          log.logDebug(
+        if (isDebug()) {
+          logDebug(
               BaseMessages.getString(
                   PKG,
                   "ActionWorkflow.Log.ParentLogFolderExists",
@@ -624,7 +625,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       }
     } catch (Exception e) {
       resultat = false;
-      log.logError(
+      logError(
           BaseMessages.getString(PKG, "ActionWorkflow.Error.ChekingParentLogFolderTitle"),
           BaseMessages.getString(
               PKG,

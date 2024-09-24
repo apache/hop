@@ -81,10 +81,8 @@ public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData>
       // add value to output
       row = RowDataUtil.addRowData(row, getInputRowMeta().size(), new Object[] {ranges});
       putRow(data.outputRowMeta, row);
-      if (checkFeedback(getLinesRead())) {
-        if (log.isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "NumberRange.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "NumberRange.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       boolean sendToErrorRow = false;

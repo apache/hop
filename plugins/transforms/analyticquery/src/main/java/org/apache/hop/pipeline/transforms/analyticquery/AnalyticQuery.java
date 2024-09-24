@@ -121,7 +121,7 @@ public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQuer
       processQueue();
     }
 
-    if (log.isBasic() && checkFeedback(getLinesRead())) {
+    if (isBasic() && checkFeedback(getLinesRead())) {
       logBasic(BaseMessages.getString(PKG, "LineNr", getLinesRead()));
     }
 

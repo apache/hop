@@ -110,7 +110,7 @@ public class SynchronizeAfterMerge
          * INSERT ROW
          */
 
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(
               BaseMessages.getString(PKG, "SynchronizeAfterMerge.InsertRow", Arrays.toString(row)));
         }
@@ -129,7 +129,7 @@ public class SynchronizeAfterMerge
                 data.db.getInsertStatement(
                     data.realSchemaName, data.realTableName, data.insertRowMeta);
 
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug("Preparation of the insert SQL statement: " + sql);
             }
 
@@ -152,7 +152,7 @@ public class SynchronizeAfterMerge
         if (!data.batchMode) {
           incrementLinesOutput();
         }
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel("Written row: " + data.insertRowMeta.getString(insertRowData));
         }
 
@@ -181,7 +181,7 @@ public class SynchronizeAfterMerge
             if (data.lookupStatement == null) {
               String sql = getLookupStatement(data.inputRowMeta);
 
-              if (log.isDebug()) {
+              if (isDebug()) {
                 logDebug("Preparating SQL for insert: " + sql);
               }
 
@@ -192,7 +192,7 @@ public class SynchronizeAfterMerge
           }
 
           data.db.setValues(data.lookupParameterRowMeta, lookupRow, data.lookupStatement);
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 BaseMessages.getString(
                     PKG,
@@ -224,7 +224,7 @@ public class SynchronizeAfterMerge
                     "SynchronizeAfterMerge.Exception.KeyCouldNotFound",
                     data.lookupParameterRowMeta.getString(lookupRow)));
           } else {
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel(
                   BaseMessages.getString(
                       PKG,
@@ -261,7 +261,7 @@ public class SynchronizeAfterMerge
                 data.updateStatement = data.db.prepareSql(sql);
                 data.preparedStatements.put(
                     data.realSchemaTable + CONST_UPDATE, data.updateStatement);
-                if (log.isDebug()) {
+                if (isDebug()) {
                   logDebug("Preparation of the Update SQL statement : " + sql);
                 }
               }
@@ -290,7 +290,7 @@ public class SynchronizeAfterMerge
               data.savepoint = data.db.setSavepoint();
             }
             data.db.setValues(data.updateParameterRowMeta, updateRow, data.updateStatement);
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel(
                   BaseMessages.getString(
                       PKG,
@@ -318,7 +318,7 @@ public class SynchronizeAfterMerge
               data.deleteStatement = data.db.prepareSql(sql);
               data.preparedStatements.put(
                   data.realSchemaTable + CONST_DELETE, data.deleteStatement);
-              if (log.isDebug()) {
+              if (isDebug()) {
                 logDebug("Preparation of the Delete SQL statement : " + sql);
               }
             }
@@ -345,7 +345,7 @@ public class SynchronizeAfterMerge
             data.savepoint = data.db.setSavepoint();
           }
           data.db.setValues(data.deleteParameterRowMeta, deleteRow, data.deleteStatement);
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel(
                 BaseMessages.getString(
                     PKG,
@@ -466,7 +466,7 @@ public class SynchronizeAfterMerge
       }
     } catch (HopDatabaseException dbe) {
       if (getTransformMeta().isDoingErrorHandling()) {
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel("Written row to error handling : " + getInputRowMeta().getString(row));
         }
 
@@ -756,7 +756,7 @@ public class SynchronizeAfterMerge
       data.insertRowMeta = new RowMeta();
 
       // lookup the values!
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(
             BaseMessages.getString(PKG, "SynchronizeAfterMerge.Log.CheckingRow")
                 + Arrays.toString(nextRow));
@@ -790,7 +790,7 @@ public class SynchronizeAfterMerge
                   meta.getKeyStream2()[i]));
         }
 
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                       PKG, "SynchronizeAfterMerge.Log.FieldHasDataNumbers", meta.getKeyStream()[i])
@@ -827,7 +827,7 @@ public class SynchronizeAfterMerge
                   CONST_SYNCHRONIZE_AFTER_MERGE_EXCEPTION_FIELD_REQUIRED,
                   meta.getUpdateStream()[i]));
         }
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                       PKG,
@@ -843,7 +843,7 @@ public class SynchronizeAfterMerge
           data.lookupStatement = data.preparedStatements.get(data.realSchemaTable + CONST_LOOKUP);
           if (data.lookupStatement == null) {
             String sql = getLookupStatement(data.inputRowMeta);
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug("Preparation of the lookup SQL statement : " + sql);
             }
 
@@ -859,7 +859,7 @@ public class SynchronizeAfterMerge
               data.db.getInsertStatement(
                   data.realSchemaName, data.realTableName, data.insertRowMeta);
 
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug("Preparation of the Insert SQL statement : " + sql);
           }
 
@@ -875,7 +875,7 @@ public class SynchronizeAfterMerge
 
           data.updateStatement = data.db.prepareSql(sql);
           data.preparedStatements.put(data.realSchemaTable + CONST_UPDATE, data.updateStatement);
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug("Preparation of the Update SQL statement : " + sql);
           }
         }
@@ -887,7 +887,7 @@ public class SynchronizeAfterMerge
 
           data.deleteStatement = data.db.prepareSql(sql);
           data.preparedStatements.put(data.realSchemaTable + CONST_DELETE, data.deleteStatement);
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug("Preparation of the Delete SQL statement : " + sql);
           }
         }
@@ -900,7 +900,7 @@ public class SynchronizeAfterMerge
         putRow(data.outputRowMeta, nextRow); // copy row to output rowset(s)
       }
 
-      if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "SynchronizeAfterMerge.Log.LineNumber") + getLinesRead());
       }
@@ -955,7 +955,7 @@ public class SynchronizeAfterMerge
 
         if (data.batchMode && data.specialErrorHandling) {
           data.batchMode = false;
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic(BaseMessages.getString(PKG, "SynchronizeAfterMerge.Log.BatchModeDisabled"));
           }
         }

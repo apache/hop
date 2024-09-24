@@ -244,7 +244,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
     // let the transformation complete it's execution to allow for any customizations to MDI to
     // happen in the init methods of transforms
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("XML of transformation after injection: " + data.pipelineMeta.getXml(this));
     }
     String targetFile = resolve(meta.getTargetFile());
@@ -378,7 +378,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
   /** Inject values from transforms. */
   private void newInjection(String targetTransform, ITransformMeta targetTransformMeta)
       throws HopException {
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("Handing transform '" + targetTransform + "' injection!");
     }
     BeanInjectionInfo injectionInfo = new BeanInjectionInfo(targetTransformMeta.getClass());
@@ -451,7 +451,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
   private void newInjectionConstants(
       IVariables variables, String targetTransform, ITransformMeta targetTransformMeta)
       throws HopException {
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("Handing transform '" + targetTransform + "' constants injection!");
     }
     BeanInjectionInfo injectionInfo = new BeanInjectionInfo(targetTransformMeta.getClass());

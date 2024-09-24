@@ -206,7 +206,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
       first = false;
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       String metaString =
           BaseMessages.getString(
               PKG, "MultiMergeJoin.Log.DataInfo", data.metas[0].getString(data.rows[0]) + "");

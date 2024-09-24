@@ -98,7 +98,7 @@ public abstract class ActionBase
   protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
 
   /** The log channel interface object, used for logging */
-  protected ILogChannel log;
+  private ILogChannel log;
 
   /** The log level */
   private LogLevel logLevel = DefaultLogLevel.getLogLevel();

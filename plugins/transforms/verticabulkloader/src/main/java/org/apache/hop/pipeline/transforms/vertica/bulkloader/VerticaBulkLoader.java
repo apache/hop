@@ -190,7 +190,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         incrementLinesOutput();
       }
 
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic("linenr " + getLinesRead());
       }
     } catch (HopException e) {
@@ -576,7 +576,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         data.db = new Database(this, this, data.databaseMeta);
         data.db.connect();
 
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic("Connected to database [" + meta.getDatabaseMeta() + "]");
         }
 

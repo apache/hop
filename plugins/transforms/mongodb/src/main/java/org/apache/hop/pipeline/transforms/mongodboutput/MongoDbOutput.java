@@ -101,7 +101,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       if (indexes != null && !indexes.isEmpty()) {
         logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.ApplyingIndexOpps"));
         try {
-          data.applyIndexes(indexes, log, meta.getTruncate());
+          data.applyIndexes(indexes, getLogChannel(), meta.getTruncate());
         } catch (MongoDbException e) {
           throw new HopException(e);
         }
@@ -169,7 +169,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
                 MongoDbOutput.this,
                 mongoTopLevelStructure);
 
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG, "MongoDbOutput.Messages.Debug.QueryForUpsert", updateQuery));
@@ -190,7 +190,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
                     row,
                     mongoTopLevelStructure,
                     data.hasTopLevelJsonDocInsert);
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
                       PKG, "MongoDbOutput.Messages.Debug.InsertUpsertObject", insertUpdate));
@@ -210,7 +210,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
             } catch (MongoDbException e) {
               throw new HopException(e);
             }
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
                       PKG, "MongoDbOutput.Messages.Debug.ModifierUpdateObject", insertUpdate));
@@ -472,7 +472,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
         }
 
         // init connection constructs a MongoCredentials object if necessary
-        data.clientWrapper = data.connection.createWrapper(this, log);
+        data.clientWrapper = data.connection.createWrapper(this, getLogChannel());
 
         if (StringUtils.isEmpty(collection)) {
           throw new HopException(
@@ -523,7 +523,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       try {
         data.getConnection().dispose();
       } catch (MongoDbException e) {
-        log.logError(e.getMessage());
+        logError(e.getMessage());
       }
     }
   }

@@ -71,7 +71,7 @@ public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData> {
 
       for (String part : rangePart) {
         if (part.matches("\\d+")) {
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "SampleRows.Log.RangeValue", part));
           }
           int vpart = Integer.valueOf(part);
@@ -82,7 +82,7 @@ public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData> {
           Integer start = Integer.valueOf(rangeMultiPart[0]);
           Integer end = Integer.valueOf(rangeMultiPart[1]);
           Range<Integer> range = Range.closed(start, end);
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "SampleRows.Log.RangeValue", range));
           }
           setBuilder.add(range);
@@ -110,7 +110,7 @@ public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData> {
       //
       putRow(data.outputRowMeta, data.outputRow);
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,

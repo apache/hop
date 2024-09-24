@@ -101,7 +101,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
         data.db.connect();
         getDbFields();
 
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG, "CrateDBBulkLoader.Connection.Connected", data.db.getDatabaseMeta()));
@@ -486,7 +486,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
         data.writer.close();
       }
       data.writer = null;
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Closing normal file ...");
       }
 

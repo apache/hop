@@ -117,7 +117,7 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
     Object[] outputRowData = concatFields(row);
     putRow(data.outputRowMeta, outputRowData);
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "ConcatFields.Log.WriteRow")
               + getLinesWritten()
@@ -125,7 +125,7 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
               + data.outputRowMeta.getString(row));
     }
     if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ConcatFields.Log.LineNumber") + getLinesRead());
       }
     }

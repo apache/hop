@@ -398,7 +398,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
 
   @Override
   public Result execute(Result previousResult, int nr) {
-    log.logBasic(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Started", serverName));
+    logBasic(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Started", serverName));
 
     Result result = previousResult;
     result.setNrErrors(1);
@@ -491,7 +491,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
       result.setResult(true);
 
     } catch (Exception e) {
-      log.logError(
+      logError(
           BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ErrorGetting", e.toString()));
     }
 

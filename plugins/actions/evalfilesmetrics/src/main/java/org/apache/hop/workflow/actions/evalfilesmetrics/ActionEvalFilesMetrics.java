@@ -381,7 +381,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
         int indexOfResultFieldIncludeSubfolders = -1;
 
         // as such we must get rows
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
@@ -456,7 +456,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
         break;
       case SOURCE_FILES_FILENAMES_RESULT:
         List<ResultFile> resultFiles = result.getResultFilesList();
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,

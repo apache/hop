@@ -84,7 +84,7 @@ public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappin
     applySchemaToIncomingStream(outputData, r);
 
     putRow(data.outputRowMeta, outputData);
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "SchemaMapping.Log.WroteRowToNextTransform")
               + data.outputRowMeta.getString(outputData));

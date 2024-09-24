@@ -161,7 +161,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
       throw new HopException("Error getting Neo4j logging information", e);
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel("System info returned: " + data.outputRowMeta.getString(row));
     }
 
@@ -218,7 +218,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
             + "ORDER BY startDate DESC "
             + "LIMIT 1 ";
 
-    return getResultStartDate(log, connection, cypher, parameters);
+    return getResultStartDate(getLogChannel(), connection, cypher, parameters);
   }
 
   private Date getPreviousPipelineSuccess(String pipelineName) throws Exception {
@@ -245,7 +245,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
             + "ORDER BY startDate DESC "
             + "LIMIT 1 ";
 
-    return getResultStartDate(log, connection, cypher, parameters);
+    return getResultStartDate(getLogChannel(), connection, cypher, parameters);
   }
 
   private Date getPreviousWorkflowExecution(String jobName) throws Exception {
@@ -271,7 +271,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
             + "ORDER BY startDate DESC "
             + "LIMIT 1 ";
 
-    return getResultStartDate(log, connection, cypher, parameters);
+    return getResultStartDate(getLogChannel(), connection, cypher, parameters);
   }
 
   private Date getPreviousWorkflowSuccess(String jobName) throws Exception {
@@ -298,7 +298,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
             + "ORDER BY startDate DESC "
             + "LIMIT 1 ";
 
-    return getResultStartDate(log, connection, cypher, parameters);
+    return getResultStartDate(getLogChannel(), connection, cypher, parameters);
   }
 
   private Date getResultStartDate(

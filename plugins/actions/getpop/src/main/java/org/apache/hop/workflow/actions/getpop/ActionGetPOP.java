@@ -854,7 +854,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       // create a mail connection object
       mailConn =
           new MailConnection(
-              log,
+              getLogChannel(),
               MailConnectionMeta.getProtocolFromString(
                   getProtocol(), MailConnectionMeta.PROTOCOL_IMAP),
               realserver,

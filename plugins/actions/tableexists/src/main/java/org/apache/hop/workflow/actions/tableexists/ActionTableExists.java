@@ -131,13 +131,13 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
           String realSchemaName = resolve(schemaName);
 
           if (db.checkTableExists(realSchemaName, realTableName)) {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(PKG, "TableExists.Log.TableExists", realTableName));
             }
             result.setResult(true);
           } else {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(PKG, "TableExists.Log.TableNotExists", realTableName));
             }

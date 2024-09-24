@@ -139,7 +139,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
       }
 
       if (!data.KeySet.contains(propkey)) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "PropertyOutput.Log.Key", propkey));
           logDetailed(BaseMessages.getString(PKG, "PropertyOutput.Log.Value", propvalue));
         }
@@ -148,7 +148,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         putRow(data.outputRowMeta, r); // in case we want it to go further...
         incrementLinesOutput();
 
-        if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        if (checkFeedback(getLinesRead()) && isBasic()) {
           logBasic("linenr " + getLinesRead());
         }
         data.KeySet.add(propkey);
@@ -207,7 +207,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         // Get parent folder
         parentfolder = data.file.getParent();
         if (!parentfolder.exists()) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -215,7 +215,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
                     parentfolder.getName().toString()));
           }
           parentfolder.createFolder();
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,

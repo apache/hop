@@ -166,8 +166,8 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
                 throw ex;
               }
             }
-            if (log.isBasic()) {
-              log.logBasic("Total files", "We found : " + filescount + " file(s)");
+            if (isBasic()) {
+              logBasic("Total files", "We found : " + filescount + " file(s)");
             }
             if (filescount == 0) {
               result.setResult(true);
@@ -175,12 +175,12 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
             }
           } else {
             // Not a folder, fail
-            log.logError("[" + realFoldername + "] is not a folder, failing.");
+            logError("[" + realFoldername + "] is not a folder, failing.");
             result.setNrErrors(1);
           }
         } else {
           // No Folder found
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic("we can not find [" + realFoldername + "] !");
           }
           result.setNrErrors(1);
@@ -233,8 +233,8 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
               // We are in the Base folder
               if ((isSpecifyWildcard() && GetFileWildcard(info.getFile().getName().getBaseName()))
                   || !isSpecifyWildcard()) {
-                if (log.isDetailed()) {
-                  log.logDetailed("We found file : " + info.getFile().toString());
+                if (isDetailed()) {
+                  logDetailed("We found file : " + info.getFile().toString());
                 }
                 filescount++;
               }
@@ -244,8 +244,8 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
               if (isIncludeSubFolders()) {
                 if ((isSpecifyWildcard() && GetFileWildcard(info.getFile().getName().getBaseName()))
                     || !isSpecifyWildcard()) {
-                  if (log.isDetailed()) {
-                    log.logDetailed("We found file : " + info.getFile().toString());
+                  if (isDetailed()) {
+                    logDetailed("We found file : " + info.getFile().toString());
                   }
                   filescount++;
                 }
@@ -263,7 +263,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
 
       } catch (Exception e) {
         if (!rethrow) {
-          log.logError(
+          logError(
               BaseMessages.getString(PKG, "ActionFolderIsEmpty.Error"),
               BaseMessages.getString(
                   PKG,

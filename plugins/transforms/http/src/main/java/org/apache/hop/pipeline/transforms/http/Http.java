@@ -131,7 +131,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
               data.headerParameters[i].getName(),
               data.inputRowMeta.getString(rowData, data.header_parameters_nrs[i]));
           if (isDebug()) {
-            log.logDebug(
+            logDebug(
                 BaseMessages.getString(
                     PKG,
                     "HTTPDialog.Log.HeaderValue",
@@ -171,8 +171,8 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
         // calculate the responseTime
         long responseTime = System.currentTimeMillis() - startTime;
-        if (log.isDetailed()) {
-          log.logDetailed(BaseMessages.getString(PKG, "HTTP.Log.ResponseTime", responseTime, uri));
+        if (isDetailed()) {
+          logDetailed(BaseMessages.getString(PKG, "HTTP.Log.ResponseTime", responseTime, uri));
         }
         int statusCode = requestStatusCode(httpResponse);
         // The status code

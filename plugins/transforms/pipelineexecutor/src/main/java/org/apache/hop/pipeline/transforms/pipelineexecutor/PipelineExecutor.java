@@ -260,7 +260,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
       result = executorPipeline.getResult();
     } catch (HopException e) {
-      log.logError("An error occurred executing the pipeline: ", e);
+      logError("An error occurred executing the pipeline: ", e);
       result.setResult(false);
       result.setNrErrors(1);
     }

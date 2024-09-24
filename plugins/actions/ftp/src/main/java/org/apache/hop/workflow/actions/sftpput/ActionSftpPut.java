@@ -561,14 +561,14 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     List<RowMetaAndData> rows = result.getRows();
     result.setResult(false);
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "ActionSftpPut.Log.StartAction"));
     }
     ArrayList<FileObject> myFileList = new ArrayList<>();
 
     if (copyingPrevious) {
       if (rows.isEmpty()) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionSftpPut.ArgsFromPreviousNothing"));
         }
         result.setResult(true);
@@ -591,7 +591,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                       PKG, "ActionSftpPut.Log.FilefromPreviousNotFound", filePrevious));
             } else {
               myFileList.add(file);
-              if (log.isDebug()) {
+              if (isDebug()) {
                 logDebug(
                     BaseMessages.getString(
                         PKG, "ActionSftpPut.Log.FilenameFromResult", filePrevious));
@@ -611,7 +611,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     if (copyingPreviousFiles) {
       List<ResultFile> resultFiles = result.getResultFilesList();
       if (resultFiles == null || resultFiles.isEmpty()) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionSftpPut.ArgsFromPreviousNothingFiles"));
         }
         result.setResult(true);
@@ -630,7 +630,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                       PKG, "ActionSftpPut.Log.FilefromPreviousNotFound", file.toString()));
             } else {
               myFileList.add(file);
-              if (log.isDebug()) {
+              if (isDebug()) {
                 logDebug(
                     BaseMessages.getString(
                         PKG, "ActionSftpPut.Log.FilenameFromResult", file.toString()));
@@ -728,7 +728,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
               realUsername,
               realKeyFilename,
               realPassPhrase);
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG,
@@ -768,7 +768,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                 BaseMessages.getString(
                     PKG, "ActionSftpPut.Error.CanNotFindRemoteFolder", realSftpDirString));
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionSftpPut.Error.CanNotFindRemoteFolder", realSftpDirString));
@@ -776,14 +776,14 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
 
           // Let's create folder
           sftpclient.createFolder(realSftpDirString);
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionSftpPut.Log.RemoteFolderCreated", realSftpDirString));
           }
         }
         sftpclient.chdir(realSftpDirString);
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "ActionSftpPut.Log.ChangedDirectory", realSftpDirString));
         }
@@ -805,7 +805,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
         }
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "ActionSftpPut.Log.RowsFromPreviousResult", myFileList.size()));
@@ -839,7 +839,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
           if (getIt) {
             nrFilesMatched++;
 
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
                       PKG, "ActionSftpPut.Log.PuttingFile", localFilename, realSftpDirString));
@@ -848,7 +848,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
             sftpclient.put(myFile, destinationFilename);
             nrFilesSent++;
 
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(PKG, "ActionSftpPut.Log.TransferredFile", localFilename));
             }
@@ -858,7 +858,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
             switch (getAfterFtps()) {
               case AFTER_FTPSPUT_DELETE:
                 myFile.delete();
-                if (log.isDetailed()) {
+                if (isDetailed()) {
                   logDetailed(
                       BaseMessages.getString(PKG, "ActionSftpPut.Log.DeletedFile", localFilename));
                 }
@@ -872,7 +872,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                               + Const.FILE_SEPARATOR
                               + myFile.getName().getBaseName());
                   myFile.moveTo(destination);
-                  if (log.isDetailed()) {
+                  if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(
                             PKG, "ActionSftpPut.Log.FileMoved", myFile, destination));
@@ -893,7 +893,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                           parentWorkflow.getWorkflowName(),
                           toString());
                   result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
-                  if (log.isDetailed()) {
+                  if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(
                             PKG,

@@ -155,19 +155,19 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
     String mailError = null;
     for (int i = 0; i < mailsCheck.length && !exitloop; i++) {
       String email = mailsCheck[i];
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ActionMailValidator.CheckingMail", email));
       }
 
       // Check if address is valid
       MailValidationResult resultValidator =
           MailValidation.isAddressValid(
-              log, email, realSender, realDefaultSMTP, timeOut, smtpCheck);
+              getLogChannel(), email, realSender, realDefaultSMTP, timeOut, smtpCheck);
 
       mailIsValid = resultValidator.isValide();
       mailError = resultValidator.getErrorMessage();
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         if (mailIsValid) {
           logDetailed(BaseMessages.getString(PKG, "ActionMailValidator.MailValid", email));
         } else {

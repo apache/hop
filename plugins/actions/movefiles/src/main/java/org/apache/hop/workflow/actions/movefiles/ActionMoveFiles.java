@@ -323,7 +323,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     successConditionBrokenExit = false;
     limitFiles = Const.toInt(resolve(getNrErrorsLessThan()), 10);
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       if (simulate) {
         logDetailed(BaseMessages.getString(PKG, "ActionMoveFiles.Log.SimulationOn"));
       }
@@ -347,7 +347,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
       try {
         folder = HopVfs.getFileObject(moveToFolder, getVariables());
         if (!folder.exists()) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionMoveFiles.Log.Error.FolderMissing", moveToFolder));
@@ -386,7 +386,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     }
 
     if (argFromPrevious) {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG,
@@ -418,7 +418,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
         if (!Utils.isEmpty(vSourceFileFolderPrevious)
             && !Utils.isEmpty(vDestinationFileFolderPrevious)) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -440,7 +440,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             updateErrors();
           }
         } else {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -468,7 +468,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
         if (!Utils.isEmpty(vSourceFileFolder[i]) && !Utils.isEmpty(vDestinationFileFolder[i])) {
           // ok we can process this file/folder
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -489,7 +489,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             updateErrors();
           }
         } else {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -515,7 +515,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   }
 
   private void displayResults() {
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("=======================================");
       logDetailed(
           BaseMessages.getString(PKG, "ActionMoveFiles.Log.Info.FilesInError", "" + nrErrors));
@@ -575,7 +575,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             // Source is a folder, destination is a file
             // WARNING !!! CAN NOT MOVE FOLDER TO FILE !!!
 
-            log.logError(
+            logError(
                 BaseMessages.getString(PKG, "ActionMoveFiles.Log.Forbidden"),
                 BaseMessages.getString(
                     PKG,
@@ -670,7 +670,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               return entrystatus;
             } else {
               // Both source and destination are folders
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed("  ");
                 logDetailed(
                     BaseMessages.getString(
@@ -821,7 +821,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           sourcefilename.moveTo(destinationfilename);
         }
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
@@ -841,7 +841,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         retval = true;
 
       } else {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ActionMoveFiles.Log.FileExists", destinationfilename.toString()));
@@ -850,7 +850,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           if (!simulate) {
             sourcefilename.moveTo(destinationfilename);
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -891,7 +891,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           if (!simulate) {
             sourcefilename.moveTo(destinationfile);
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -913,7 +913,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           if (!simulate) {
             sourcefilename.delete();
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -944,7 +944,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             if (!simulate) {
               sourcefilename.moveTo(destinationfile);
             }
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -965,7 +965,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               if (!simulate) {
                 sourcefilename.moveTo(destinationfile);
               }
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG,
@@ -996,7 +996,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               if (!simulate) {
                 sourcefilename.moveTo(destinationfile);
               }
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG,
@@ -1205,7 +1205,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               toString());
       result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
 
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(" ------ ");
         logDebug(
             BaseMessages.getString(
@@ -1213,7 +1213,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
       }
 
     } catch (Exception e) {
-      log.logError(
+      logError(
           BaseMessages.getString(PKG, "ActionMoveFiles.Error.AddingToFilenameResult"),
           fileaddentry + "" + e.getMessage());
     }
@@ -1230,13 +1230,13 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
       if (!folder.exists()) {
         if (createDestinationFolder) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionMoveFiles.Log.FolderNotExist", folder.getName().toString()));
           }
           folder.createFolder();
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionMoveFiles.Log.FolderWasCreated", folder.getName().toString()));

@@ -83,7 +83,7 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
       for (int i = 0; i < meta.getFieldDefinitions().size(); i++) {
         GetVariableMeta.FieldDefinition fieldDefinition = meta.getFieldDefinitions().get(i);
         String newValue = resolve(fieldDefinition.getVariableString());
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               "field [" + fieldDefinition.getFieldName() + "] has value [" + newValue + "]");
         }
