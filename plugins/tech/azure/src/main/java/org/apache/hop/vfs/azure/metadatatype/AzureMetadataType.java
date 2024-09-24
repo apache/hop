@@ -26,7 +26,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     key = "AzureConnectionDefinition",
     name = "i18n::AzureMetadataType.Name",
     description = "i18n::AzureMetadataType.Description",
-    image = "ui/images/folder.svg",
+    image = "ui/images/authentication.svg",
     documentationUrl = "/metadata-types/azure-authentication.html")
 public class AzureMetadataType extends HopMetadataBase implements Serializable, IHopMetadata {
 
