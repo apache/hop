@@ -58,17 +58,6 @@ public class AreaOwner {
     TRANSFORM_OUTPUT_DATA(true),
     /** The pipeline hop decoration */
     TRANSFORM_TARGET_HOP_ICON(true),
-    /** TODO: ? */
-    TRANSFORM_TARGET_HOP_ICON_OPTION(false),
-
-    @Deprecated
-    TRANSFORM_INFO_HOP_ICON(false),
-    @Deprecated
-    TRANSFORM_ERROR_HOP_ICON(false),
-    @Deprecated
-    TRANSFORM_INPUT_HOP_ICON(false),
-    @Deprecated
-    TRANSFORM_OUTPUT_HOP_ICON(false),
 
     /** The pipeline hop decoration copy icon that indicate that all rows. */
     HOP_COPY_ICON(true),

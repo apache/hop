@@ -667,27 +667,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     if (areaOwner != null && areaOwner.getAreaType() != null) {
       switch (areaOwner.getAreaType()) {
-        case TRANSFORM_OUTPUT_HOP_ICON:
-          // Click on the output icon means: start of drag
-          // Action: We show the input icons on the other transforms...
-          //
-          selectedTransform = null;
-          startHopTransform = (TransformMeta) areaOwner.getParent();
-          candidateHopType = null;
-          startErrorHopTransform = false;
-          break;
-
-        case TRANSFORM_INPUT_HOP_ICON:
-          // Click on the input icon means: start to a new hop
-          // In this case, we set the end hop transform...
-          //
-          selectedTransform = null;
-          startHopTransform = null;
-          endHopTransform = (TransformMeta) areaOwner.getParent();
-          candidateHopType = null;
-          startErrorHopTransform = false;
-          break;
-
         case TRANSFORM_INFO_ICON:
           // Click on the transform info icon means: Edit transformation description
           //
@@ -716,10 +695,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           //
           TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
           pipelineTransformDelegate.editTransformErrorHandling(pipelineMeta, transformMeta);
-          break;
-
-        case TRANSFORM_TARGET_HOP_ICON_OPTION:
-          // Below, see showTransformTargetOptions()
           break;
 
         case TRANSFORM_ICON:
@@ -3012,22 +2987,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   Const.CR));
           tipImage = GuiResource.getInstance().getImageError();
           break;
-        case TRANSFORM_INPUT_HOP_ICON:
-          tip.append(BaseMessages.getString(PKG, "PipelineGraph.TransformInputConnector.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageInput();
-          break;
-        case TRANSFORM_OUTPUT_HOP_ICON:
-          tip.append(BaseMessages.getString(PKG, "PipelineGraph.TransformOutputConnector.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageOutput();
-          break;
-        case TRANSFORM_INFO_HOP_ICON:
-          ITransformIOMeta ioMeta = (ITransformIOMeta) areaOwner.getOwner();
-          tip.append(
-              BaseMessages.getString(PKG, "PipelineGraph.TransformMetaConnector.Tooltip")
-                  + Const.CR
-                  + ioMeta.toString());
-          tipImage = GuiResource.getInstance().getImageInfo();
-          break;
+
         case TRANSFORM_TARGET_HOP_ICON:
           IStream stream = (IStream) areaOwner.getOwner();
           tip.append(stream.getDescription());
@@ -3039,19 +2999,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           } else {
             tipImage = GuiResource.getInstance().getImageTarget();
           }
-          break;
-        case TRANSFORM_ERROR_HOP_ICON:
-          TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
-          if (transformMeta.supportsErrorHandling()) {
-            tip.append(
-                BaseMessages.getString(
-                    PKG, "PipelineGraph.TransformSupportsErrorHandling.Tooltip"));
-          } else {
-            tip.append(
-                BaseMessages.getString(
-                    PKG, "PipelineGraph.TransformDoesNotSupportsErrorHandling.Tooltip"));
-          }
-          tipImage = GuiResource.getInstance().getImageError();
           break;
 
         case TRANSFORM_INFO_ICON, TRANSFORM_ICON:
