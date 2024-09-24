@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.fake;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -202,6 +203,7 @@ public class FakeDialog extends BaseTransformDialog {
         // Ignore methods needing parameters for now
         // or that doesn't return type (String, long or Date)
         if (method.getParameterCount() == 0
+            && Modifier.isPublic(method.getModifiers())
             && (method.getReturnType().isAssignableFrom(String.class)
                 || method.getReturnType().isAssignableFrom(long.class)
                 || method.getReturnType().isAssignableFrom(Date.class))) {

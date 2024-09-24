@@ -105,10 +105,10 @@ public class FakeMeta extends BaseTransformMeta<Fake, FakeData> {
             valueMeta.setOrigin(name);
             rowMeta.addValueMeta(valueMeta);
           } else {
-            log.logError("Error unsupported faker return type");
+            logError("Error unsupported faker return type");
           }
         } catch (NoSuchMethodException e) {
-          log.logError(
+          logError(
               "Error getting faker object or method for type "
                   + field.getType()
                   + " and topic "
