@@ -292,6 +292,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
   @VisibleForTesting
   protected void getInfo(ActionWorkflow action) {
     action.setName(wName.getText());
+
     action.setFileName(wPath.getText());
     action.setRunConfiguration(wRunConfiguration.getText());
 
@@ -347,6 +348,21 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
       mb.open();
       return;
     }
+    if (Utils.isEmpty(wPath.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "ActionWorkflowDialog.FilenameMissing.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "ActionWorkflowDialog.FilenameMissing.Message"));
+      mb.open();
+      return;
+    }
+    if (isSelfReferencing()) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "ActionWorkflowDialog.SelfReference.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "ActionWorkflowDialog.SelfReference.Message"));
+      mb.open();
+      return;
+    }
+
     getInfo(action);
     action.setChanged();
     dispose();
@@ -360,5 +376,9 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
   @VisibleForTesting
   protected String getPath() {
     return wPath.getText();
+  }
+
+  private boolean isSelfReferencing() {
+    return variables.resolve(wPath.getText()).equals(variables.resolve(workflowMeta.getFilename()));
   }
 }

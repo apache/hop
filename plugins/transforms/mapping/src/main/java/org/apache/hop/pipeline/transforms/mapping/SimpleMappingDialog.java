@@ -39,6 +39,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
@@ -778,6 +779,21 @@ public class SimpleMappingDialog extends BaseTransformDialog {
       return;
     }
 
+    if (Utils.isEmpty(wPath.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.FilenameMissing.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "SimpleMappingDialog.FilenameMissing.Message"));
+      mb.open();
+      return;
+    }
+    if (isSelfReferencing()) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.SelfReference.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "SimpleMappingDialog.SelfReference.Message"));
+      mb.open();
+      return;
+    }
+
     transformName = wTransformName.getText(); // return value
     String pipelinePath = wPath.getText();
     mappingMeta.setFilename(pipelinePath);
@@ -818,5 +834,9 @@ public class SimpleMappingDialog extends BaseTransformDialog {
       applyChanges.applyChanges(); // collect information from all
       // tabs...
     }
+  }
+
+  private boolean isSelfReferencing() {
+    return variables.resolve(wPath.getText()).equals(variables.resolve(pipelineMeta.getFilename()));
   }
 }
