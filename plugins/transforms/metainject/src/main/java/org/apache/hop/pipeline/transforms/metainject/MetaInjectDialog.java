@@ -1343,9 +1343,6 @@ public class MetaInjectDialog extends BaseTransformDialog {
   }
 
   private boolean isSelfReferencing() {
-    if (variables.resolve(wPath.getText()).equals(variables.resolve(pipelineMeta.getFilename()))) {
-      return true;
-    }
-    return false;
+    return variables.resolve(wPath.getText()).equals(variables.resolve(pipelineMeta.getFilename()));
   }
 }

@@ -968,11 +968,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
   }
 
   private boolean isSelfReferencing() {
-    if (variables
+    return variables
         .resolve(wFilename.getText())
-        .equals(variables.resolve(pipelineMeta.getFilename()))) {
-      return true;
-    }
-    return false;
+        .equals(variables.resolve(pipelineMeta.getFilename()));
   }
 }

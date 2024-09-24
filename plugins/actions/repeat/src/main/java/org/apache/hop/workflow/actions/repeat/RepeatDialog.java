@@ -397,7 +397,6 @@ public class RepeatDialog extends ActionDialog {
     fdLogFileUpdateInterval.right = new FormAttachment(100, 0);
     fdLogFileUpdateInterval.top = new FormAttachment(wlLogFileUpdateInterval, 0, SWT.CENTER);
     wLogFileUpdateInterval.setLayoutData(fdLogFileUpdateInterval);
-    lastLogControl = wLogFileUpdateInterval;
 
     FormData fdLogFileGroup = new FormData();
     fdLogFileGroup.left = new FormAttachment(0, 0);
@@ -463,7 +462,6 @@ public class RepeatDialog extends ActionDialog {
     fdParameters.top = new FormAttachment(lastControl, margin);
     fdParameters.bottom = new FormAttachment(wOK, -margin * 2);
     wParameters.setLayoutData(fdParameters);
-    lastControl = wParameters;
 
     getData();
 
@@ -658,11 +656,8 @@ public class RepeatDialog extends ActionDialog {
   }
 
   private boolean isSelfReferencing() {
-    if (variables
+    return variables
         .resolve(wFilename.getText())
-        .equals(variables.resolve(workflowMeta.getFilename()))) {
-      return true;
-    }
-    return false;
+        .equals(variables.resolve(workflowMeta.getFilename()));
   }
 }

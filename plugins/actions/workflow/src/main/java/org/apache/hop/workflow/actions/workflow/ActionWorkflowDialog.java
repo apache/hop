@@ -379,9 +379,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
   }
 
   private boolean isSelfReferencing() {
-    if (variables.resolve(wPath.getText()).equals(variables.resolve(workflowMeta.getFilename()))) {
-      return true;
-    }
-    return false;
+    return variables.resolve(wPath.getText()).equals(variables.resolve(workflowMeta.getFilename()));
   }
 }

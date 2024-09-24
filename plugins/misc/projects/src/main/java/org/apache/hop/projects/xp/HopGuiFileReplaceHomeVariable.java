@@ -55,7 +55,14 @@ public class HopGuiFileReplaceHomeVariable implements IExtensionPoint<HopGuiFile
     if (projectConfig == null) {
       return;
     }
-    String homeFolder = variables.resolve(projectConfig.getProjectHome());
+    String homeFolder;
+
+    if (variables != null) {
+      homeFolder = variables.resolve(projectConfig.getProjectHome());
+    } else {
+      homeFolder = projectConfig.getProjectHome();
+    }
+
     try {
       if (StringUtils.isNotEmpty(homeFolder)) {
 

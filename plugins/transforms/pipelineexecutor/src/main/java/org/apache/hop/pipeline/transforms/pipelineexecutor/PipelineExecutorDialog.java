@@ -388,8 +388,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
   }
 
   private void selectPipelineFile() {
-    String curFile = variables.resolve(wPath.getText());
-
     String parentFolder = null;
     try {
       parentFolder =
@@ -960,7 +958,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     tiExecutionFilesRetrievedField = wExectionResults.table.getItem(index++);
     tiExecutionExitStatusField = wExectionResults.table.getItem(index++);
     tiExecutionLogTextField = wExectionResults.table.getItem(index++);
-    tiExecutionLogChannelIdField = wExectionResults.table.getItem(index++);
+    tiExecutionLogChannelIdField = wExectionResults.table.getItem(index);
 
     tiExecutionTimeField.setText(
         FIELD_DESCRIPTION,
@@ -1362,9 +1360,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
   }
 
   private boolean isSelfReferencing() {
-    if (variables.resolve(wPath.getText()).equals(variables.resolve(pipelineMeta.getFilename()))) {
-      return true;
-    }
-    return false;
+    return variables.resolve(wPath.getText()).equals(variables.resolve(pipelineMeta.getFilename()));
   }
 }
