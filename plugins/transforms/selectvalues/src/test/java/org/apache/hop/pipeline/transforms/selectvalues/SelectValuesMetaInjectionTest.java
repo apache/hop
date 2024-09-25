@@ -33,7 +33,9 @@
 
   @Before
   public void setup() throws Exception {
-    setup(new SelectValuesMeta());
+      SelectValuesMeta selectValuesMeta = new SelectValuesMeta();
+      selectValuesMeta.getSelectOption().setSelectFields(SelectValueMetaTestFactory.getSelectFields("v","v2"));
+      setup(selectValuesMeta);
   }
 
   @Test
