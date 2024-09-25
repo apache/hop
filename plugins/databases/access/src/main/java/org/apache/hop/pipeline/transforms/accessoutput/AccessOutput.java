@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.accessoutput;
 
+import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.Cursor;
 import com.healthmarketscience.jackcess.CursorBuilder;
@@ -116,9 +117,23 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
         data.table = data.db.getTable(tableName);
         if (data.table == null) {
           if (meta.isCreateTable()) {
+
+            if (isBasic()) {
+              logBasic(
+                  BaseMessages.getString(PKG, "AccessOutput.Log.CreateDatabaseTable", tableName));
+            }
+
             // Create the table
             List<ColumnBuilder> columns = prepareTableColumns(data.outputRowMeta);
+
             data.table = new TableBuilder(tableName).addColumns(columns).toTable(data.db);
+
+            if (isDebug()) {
+              for (Column column : data.table.getColumns()) {
+                logDebug(BaseMessages.getString(PKG, "AccessOutput.Log.TableColumn", column));
+              }
+            }
+
           } else {
             logError(
                 BaseMessages.getString(PKG, "AccessOutput.Error.TableDoesNotExist", tableName));
@@ -203,12 +218,18 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
     // First open or create the access file
     if (!file.exists()) {
       if (meta.isCreateFile()) {
-        data.db = DatabaseBuilder.create(FileFormat.V2000, file);
+        if (isBasic()) {
+          logBasic(BaseMessages.getString(PKG, "AccessOutput.Log.CreateDatabaseFile", fileName));
+        }
+        data.db = DatabaseBuilder.create(FileFormat.V2019, file);
       } else {
-        logError(BaseMessages.getString(PKG, "AccessOutput.InitError.FileDoesNotExist", fileName));
+        logError(BaseMessages.getString(PKG, "AccessOutput.Error.FileDoesNotExist", fileName));
         return false;
       }
     } else {
+      if (isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "AccessOutput.Log.OpenDatabaseFile", fileName));
+      }
       data.db = DatabaseBuilder.open(file);
     }
 
@@ -287,7 +308,7 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
   }
 
   public List<ColumnBuilder> prepareTableColumns(IRowMeta row) {
-    List<ColumnBuilder> list = new ArrayList<>();
+    List<ColumnBuilder> columns = new ArrayList<>();
 
     for (int i = 0; i < row.size(); i++) {
       IValueMeta valueMeta = row.getValueMeta(i);
@@ -320,7 +341,8 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
           column.setLength(DataType.SHORT_DATE_TIME.getFixedSize());
           break;
         case IValueMeta.TYPE_STRING:
-          if (length < DataType.TEXT.getMaxSize() / DataType.TEXT.getUnitSize()) {
+          length *= DataType.TEXT.getUnitSize();
+          if (length <= DataType.TEXT.getMaxSize()) {
             column.setType(DataType.TEXT);
           } else {
             column.setType(DataType.MEMO);
@@ -343,13 +365,13 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
       }
 
       if (valueMeta.getPrecision() >= 1 && valueMeta.getPrecision() <= 28) {
-        column.setPrecision((byte) valueMeta.getPrecision());
+        column.setPrecision(valueMeta.getPrecision());
       }
 
-      list.add(column);
+      columns.add(column);
     }
 
-    return list;
+    return columns;
   }
 
   @Override
@@ -369,7 +391,9 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
           data.db = null;
         }
       } catch (IOException e) {
-        logError("Error closing the database: " + e.toString());
+        logError(
+            BaseMessages.getString(
+                PKG, "AccessOutput.Exception.UnexpectedErrorClosingDatabase", e));
         setErrors(1);
         stopAll();
       }
