@@ -61,8 +61,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
 
     // Is the pipeline doing a preview?  We don't want to log in that case.
     //
-    String previewVariable = pipeline.getVariable(IPipelineEngine.PIPELINE_IN_PREVIEW_MODE, "N");
-    if (Const.toBoolean(previewVariable)) {
+    if (pipeline.getVariableBoolean(IPipelineEngine.PIPELINE_IN_PREVIEW_MODE, false)) {
       return;
     }
 
