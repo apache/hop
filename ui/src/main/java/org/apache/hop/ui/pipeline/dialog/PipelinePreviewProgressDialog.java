@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -152,6 +153,7 @@ public class PipelinePreviewProgressDialog {
     //
     pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject());
     pipeline.setPreview(true);
+    pipeline.setVariable(IPipelineEngine.PIPELINE_IN_PREVIEW_MODE, "Y");
     pipeline.setMetadataProvider(hopGui.getMetadataProvider());
 
     // Prepare the execution...

@@ -2469,6 +2469,7 @@ public abstract class Pipeline
    * @return true if the pipeline is being previewed, false otherwise
    */
   @Override
+  @Deprecated(since = "2.10")
   public boolean isPreview() {
     return preview;
   }
@@ -2479,6 +2480,7 @@ public abstract class Pipeline
    * @param preview true if the pipeline is being previewed, false otherwise
    */
   @Override
+  @Deprecated(since = "2.10")
   public void setPreview(boolean preview) {
     this.preview = preview;
   }
