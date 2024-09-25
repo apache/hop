@@ -1372,16 +1372,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if (checkIfHopAlreadyExists(workflowMeta, hopCandidate)) {
         boolean cancel = false;
         workflowMeta.addWorkflowHop(hopCandidate);
+        WorkflowHopMeta theHopCandidate = hopCandidate;
         if (workflowMeta.hasLoop(hopCandidate.getToAction())) {
-          MessageBox mb =
-              new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.CANCEL | SWT.ICON_WARNING);
+          MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_WARNING);
           mb.setMessage(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message"));
           mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title"));
-          int choice = mb.open();
-          if (choice == SWT.CANCEL) {
-            workflowMeta.removeWorkflowHop(hopCandidate);
-            cancel = true;
-          }
+          mb.open();
+          workflowMeta.removeWorkflowHop(theHopCandidate);
+          cancel = true;
         }
         if (!cancel) {
           hopGui.undoDelegate.addUndoNew(
@@ -1398,12 +1396,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public boolean checkIfHopAlreadyExists(WorkflowMeta workflowMeta, WorkflowHopMeta newHop) {
     boolean ok = true;
     if (workflowMeta.findWorkflowHop(newHop.getFromAction(), newHop.getToAction(), true) != null) {
-      MessageBox mb = new MessageBox(hopShell(), SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG, "WorkflowGraph.Dialog.HopExists.Message")); // "This hop already exists!"
-      mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopExists.Title")); // Error!
-      mb.open();
       ok = false;
     }
 
