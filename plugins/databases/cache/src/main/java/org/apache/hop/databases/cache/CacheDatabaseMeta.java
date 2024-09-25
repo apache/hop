@@ -159,17 +159,29 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         if (fieldname.equalsIgnoreCase(tk)) { // Technical & primary key : see at bottom
           retval += "DECIMAL";
         } else {
-          if (length < 0 || precision < 0) {
-            retval += "DOUBLE";
-          } else if (precision > 0 || length > 9) {
-            retval += "DECIMAL(" + length;
-            if (precision > 0) {
-              retval += ", " + precision;
+          if (type == IValueMeta.TYPE_INTEGER) {
+            // Integer values...
+            if (length > 9) {
+              retval += "DECIMAL(" + length + ")";
+            } else {
+              retval += "INT";
             }
-            retval += ")";
+          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
+            // Fixed point value...
+            if (length
+                < 1) { // user configured no value for length. Use 16 digits, which is comparable to
+              // mantissa 2^53 of IEEE 754 binary64 "double".
+              length = 16;
+            }
+            if (precision
+                < 1) { // user configured no value for precision. Use 16 digits, which is comparable
+              // to IEEE 754 binary64 "double".
+              precision = 16;
+            }
+            retval += "DECIMAL(" + length + "," + precision + ")";
           } else {
-            // Precision == 0 && length<=9
-            retval += "INT";
+            // Floating point value with double precision...
+            retval += "DOUBLE";
           }
         }
         break;

@@ -430,18 +430,19 @@ public class AS400DatabaseMetaTest {
         "DOUBLE",
         nativeMeta.getFieldDefinition(new ValueMetaNumber("FOO"), "", "", false, false, false));
     assertEquals(
-        "DECIMAL(5)",
+        "INT",
         nativeMeta.getFieldDefinition(
             new ValueMetaInteger("FOO", 5, 0), "", "", false, false, false));
     assertEquals(
-        "DECIMAL(5, 3)",
+        "DOUBLE",
         nativeMeta.getFieldDefinition(
             new ValueMetaNumber("FOO", 5, 3), "", "", false, false, false));
 
+    // test if an invalid user configuration with length = 0 for a fixed point number works
     assertEquals(
-        "DECIMAL",
+        "DECIMAL(16,3)",
         nativeMeta.getFieldDefinition(
-            new ValueMetaBigNumber("FOO", 0, 3), "", "", false, false, false)); // This is a bug
+            new ValueMetaBigNumber("FOO", 0, 3), "", "", false, false, false));
 
     assertEquals(
         "CLOB",
@@ -489,7 +490,7 @@ public class AS400DatabaseMetaTest {
             new ValueMetaInternetAddress("FOO"), "", "", false, false, false));
 
     assertEquals(
-        " UNKNOWN" + System.getProperty("line.separator"),
+        " UNKNOWN" + System.lineSeparator(),
         nativeMeta.getFieldDefinition(
             new ValueMetaInternetAddress("FOO"), "", "", false, false, true));
   }

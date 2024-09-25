@@ -162,28 +162,39 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       case IValueMeta.TYPE_BOOLEAN:
         retval += "CHARACTER(1)";
         break;
-      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
         if (fieldname.equalsIgnoreCase(tk) && useAutoinc) { // Technical key: auto increment field!
           retval +=
               "BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1, NOCACHE)";
         } else {
-          if (length > 0) {
-            retval += "DECIMAL(" + length;
-            if (precision > 0) {
-              retval += ", " + precision;
+          if (type == IValueMeta.TYPE_INTEGER) {
+            // Integer values...
+            if (length > 18) {
+              retval += "DECIMAL(" + length + ")";
+            } else if (length > 9) {
+              retval += "BIGINT";
+            } else if (length > 4) {
+              retval += "INTEGER";
+            } else {
+              retval += "SMALLINT";
             }
-            retval += ")";
+          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
+            // Fixed point value...
+            if (length
+                < 1) { // user configured no value for length. Use 16 digits, which is comparable to
+              // mantissa 2^53 of IEEE 754 binary64 "double".
+              length = 16;
+            }
+            if (precision
+                < 1) { // user configured no value for precision. Use 16 digits, which is comparable
+              // to IEEE 754 binary64 "double".
+              precision = 16;
+            }
+            retval += "DECIMAL(" + length + "," + precision + ")";
           } else {
-            retval += "FLOAT";
+            // Floating point value with double precision...
+            retval += "DOUBLE";
           }
-        }
-        break;
-      case IValueMeta.TYPE_INTEGER:
-        if (fieldname.equalsIgnoreCase(tk) && useAutoinc) { // Technical key: auto increment field!
-          retval +=
-              "INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1, NOCACHE)";
-        } else {
-          retval += "INTEGER";
         }
         break;
       case IValueMeta.TYPE_STRING:
@@ -692,8 +703,8 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getSqlLockTables(String[] tableNames) {
     StringBuilder sql = new StringBuilder();
-    for (int i = 0; i < tableNames.length; i++) {
-      sql.append("LOCK TABLE " + tableNames[i] + " IN SHARE MODE;" + Const.CR);
+    for (String tableName : tableNames) {
+      sql.append("LOCK TABLE " + tableName + " IN SHARE MODE;" + Const.CR);
     }
     return sql.toString();
   }
