@@ -15,91 +15,91 @@
 // * limitations under the License.
 // */
 //
-// package org.apache.hop.pipeline.transforms.selectvalues;
-//
-// import static org.junit.Assert.assertEquals;
-//
-// import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-// import org.apache.hop.core.row.IValueMeta;
-// import org.apache.hop.core.row.value.ValueMetaFactory;
-// import org.apache.hop.core.row.value.ValueMetaString;
-// import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-// import org.junit.Before;
-// import org.junit.ClassRule;
-// import org.junit.Test;
-//
-// public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<SelectValuesMeta> {
-//  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-//
-//  @Before
-//  public void setup() throws Exception {
-//    setup(new SelectValuesMeta());
-//  }
-//
-//  @Test
-//  public void test() throws Exception {
-//    check(
-//        "SELECT_UNSPECIFIED",
-//        () -> meta.getSelectOption().isSelectingAndSortingUnspecifiedFields());
-//    check("FIELD_NAME", () -> meta.getSelectOption().getSelectFields().get(0).getName());
-//    check("FIELD_RENAME", () -> meta.getSelectOption().getSelectFields().get(0).getRename());
-//    check("FIELD_LENGTH", () -> meta.getSelectOption().getSelectFields().get(0).getLength());
-//    check("FIELD_PRECISION", () ->
-// meta.getSelectOption().getSelectFields().get(0).getPrecision());
-//    check("REMOVE_NAME", () -> meta.getSelectOption().getDeleteName().get(0));
-//    check("META_NAME", () -> meta.getSelectOption().getMeta().get(0).getName());
-//    check("META_RENAME", () -> meta.getSelectOption().getSelectFields().get(0).getRename());
-//    check("META_LENGTH", () -> meta.getSelectOption().getSelectFields().get(0).getLength());
-//    check("META_PRECISION", () -> meta.getSelectOption().getMeta().get(0).getPrecision());
-//    check(
-//        "META_CONVERSION_MASK", () ->
-// meta.getSelectOption().getMeta().get(0).getConversionMask());
-//    check(
-//        "META_DATE_FORMAT_LENIENT",
-//        () -> meta.getSelectOption().getMeta().get(0).isDateFormatLenient());
-//    check(
-//        "META_DATE_FORMAT_LOCALE",
-//        () -> meta.getSelectOption().getMeta().get(0).getDateFormatLocale());
-//    check(
-//        "META_DATE_FORMAT_TIMEZONE",
-//        () -> meta.getSelectOption().getMeta().get(0).getDateFormatTimeZone());
-//    check(
-//        "META_LENIENT_STRING_TO_NUMBER",
-//        () -> meta.getSelectOption().getMeta().get(0).isLenientStringToNumber());
-//    check("META_DECIMAL", () -> meta.getSelectOption().getMeta().get(0).getDecimalSymbol());
-//    check("META_GROUPING", () -> meta.getSelectOption().getMeta().get(0).getGroupingSymbol());
-//    check("META_CURRENCY", () -> meta.getSelectOption().getMeta().get(0).getCurrencySymbol());
-//    check("META_ENCODING", () -> meta.getSelectOption().getMeta().get(0).getEncoding());
-//
-//    IValueMeta mftt = new ValueMetaString("f");
-//    injector.setProperty(meta, "META_STORAGE_TYPE", setValue(mftt, "normal"), "f");
-//    assertEquals(
-//        ValueMetaFactory.getValueMetaName(0),
-//        meta.getSelectOption().getMeta().get(0).getStorageType());
-//    injector.setProperty(meta, "META_STORAGE_TYPE", setValue(mftt, "binary-string"), "f");
-//    assertEquals(
-//        ValueMetaFactory.getValueMetaName(1),
-//        meta.getSelectOption().getMeta().get(0).getStorageType());
-//    injector.setProperty(meta, "META_STORAGE_TYPE", setValue(mftt, "indexed"), "f");
-//    assertEquals(
-//        ValueMetaFactory.getValueMetaName(2),
-//        meta.getSelectOption().getMeta().get(0).getStorageType());
-//    skipPropertyTest("META_STORAGE_TYPE");
-//
-//    // TODO check field type plugins
-//    skipPropertyTest("META_TYPE");
-//  }
-//
-//  // test default values length and precision after injection
-//  @Test
-//  public void testDefaultValue() throws Exception {
-//    IValueMeta valueMeta = new ValueMetaString("f");
-//    injector.setProperty(meta, "FIELD_NAME", setValue(valueMeta, "testValue"), "f");
-//    nonTestedProperties.clear(); // we don't need to test other properties
-//    assertEquals(
-//        SelectValuesMeta.UNDEFINED, meta.getSelectOption().getSelectFields().get(0).getLength());
-//    assertEquals(
-//        SelectValuesMeta.UNDEFINED,
-// meta.getSelectOption().getSelectFields().get(0).getPrecision());
-//  }
-// }
+ package org.apache.hop.pipeline.transforms.selectvalues;
+
+ import static org.junit.Assert.assertEquals;
+
+ import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+ import org.apache.hop.core.row.IValueMeta;
+ import org.apache.hop.core.row.value.ValueMetaFactory;
+ import org.apache.hop.core.row.value.ValueMetaString;
+ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+ import org.junit.Before;
+ import org.junit.ClassRule;
+ import org.junit.Test;
+
+ public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<SelectValuesMeta> {
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
+  @Before
+  public void setup() throws Exception {
+    setup(new SelectValuesMeta());
+  }
+
+  @Test
+  public void test() throws Exception {
+    check(
+        "SELECT_UNSPECIFIED",
+        () -> meta.getSelectOption().isSelectingAndSortingUnspecifiedFields());
+    check("FIELD_NAME", () -> meta.getSelectOption().getSelectFields().get(0).getName());
+    check("FIELD_RENAME", () -> meta.getSelectOption().getSelectFields().get(0).getRename());
+    check("FIELD_LENGTH", () -> meta.getSelectOption().getSelectFields().get(0).getLength());
+    check("FIELD_PRECISION", () ->
+ meta.getSelectOption().getSelectFields().get(0).getPrecision());
+    check("REMOVE_NAME", () -> meta.getSelectOption().getDeleteName().get(0).getName());
+    check("META_NAME", () -> meta.getSelectOption().getMeta().get(0).getName());
+    check("META_RENAME", () -> meta.getSelectOption().getSelectFields().get(0).getRename());
+    check("META_LENGTH", () -> meta.getSelectOption().getSelectFields().get(0).getLength());
+    check("META_PRECISION", () -> meta.getSelectOption().getMeta().get(0).getPrecision());
+    check(
+        "META_CONVERSION_MASK", () ->
+ meta.getSelectOption().getMeta().get(0).getConversionMask());
+    check(
+        "META_DATE_FORMAT_LENIENT",
+        () -> meta.getSelectOption().getMeta().get(0).isDateFormatLenient());
+    check(
+        "META_DATE_FORMAT_LOCALE",
+        () -> meta.getSelectOption().getMeta().get(0).getDateFormatLocale());
+    check(
+        "META_DATE_FORMAT_TIMEZONE",
+        () -> meta.getSelectOption().getMeta().get(0).getDateFormatTimeZone());
+    check(
+        "META_LENIENT_STRING_TO_NUMBER",
+        () -> meta.getSelectOption().getMeta().get(0).isLenientStringToNumber());
+    check("META_DECIMAL", () -> meta.getSelectOption().getMeta().get(0).getDecimalSymbol());
+    check("META_GROUPING", () -> meta.getSelectOption().getMeta().get(0).getGroupingSymbol());
+    check("META_CURRENCY", () -> meta.getSelectOption().getMeta().get(0).getCurrencySymbol());
+    check("META_ENCODING", () -> meta.getSelectOption().getMeta().get(0).getEncoding());
+
+    IValueMeta mftt = new ValueMetaString("f");
+    injector.setProperty(meta, "META_STORAGE_TYPE", setValue(mftt, "normal"), "f");
+    assertEquals(
+        ValueMetaFactory.getValueMetaName(0),
+        meta.getSelectOption().getMeta().get(0).getStorageType());
+    injector.setProperty(meta, "META_STORAGE_TYPE", setValue(mftt, "binary-string"), "f");
+    assertEquals(
+        ValueMetaFactory.getValueMetaName(1),
+        meta.getSelectOption().getMeta().get(0).getStorageType());
+    injector.setProperty(meta, "META_STORAGE_TYPE", setValue(mftt, "indexed"), "f");
+    assertEquals(
+        ValueMetaFactory.getValueMetaName(2),
+        meta.getSelectOption().getMeta().get(0).getStorageType());
+    skipPropertyTest("META_STORAGE_TYPE");
+
+    // TODO check field type plugins
+    skipPropertyTest("META_TYPE");
+  }
+
+  // test default values length and precision after injection
+  @Test
+  public void testDefaultValue() throws Exception {
+    IValueMeta valueMeta = new ValueMetaString("f");
+    injector.setProperty(meta, "FIELD_NAME", setValue(valueMeta, "testValue"), "f");
+    nonTestedProperties.clear(); // we don't need to test other properties
+    assertEquals(
+        SelectValuesMeta.UNDEFINED, meta.getSelectOption().getSelectFields().get(0).getLength());
+    assertEquals(
+        SelectValuesMeta.UNDEFINED,
+ meta.getSelectOption().getSelectFields().get(0).getPrecision());
+  }
+ }

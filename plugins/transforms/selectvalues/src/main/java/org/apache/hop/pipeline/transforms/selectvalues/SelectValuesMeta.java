@@ -66,6 +66,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
    */
   public SelectValuesMeta() {
     super(); // allocate BaseTransformMeta
+    selectOption = new SelectOptions();
   }
 
   @Override
