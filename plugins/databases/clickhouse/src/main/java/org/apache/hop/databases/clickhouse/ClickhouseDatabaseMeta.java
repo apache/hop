@@ -188,10 +188,14 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
           }
         } else if (type == IValueMeta.TYPE_BIGNUMBER) {
           // Fixed point value...
-          if (length < 1) { // user configured no value for length. Use 16 digits, which is comparable to mantissa 2^53 of IEEE 754 binary64 "double".
+          if (length < 1) {
+            // user configured no value for length. Use 16 digits, which is comparable to
+            // mantissa 2^53 of IEEE 754 binary64 "double".
             length = 16;
           }
-          if (precision < 1) { // user configured no value for precision. Use 16 digits, which is comparable to IEEE 754 binary64 "double".
+          if (precision < 1) {
+            // user configured no value for precision. Use 16 digits, which is comparable
+            // to IEEE 754 binary64 "double".
             precision = 16;
           }
           retval += "DECIMAL(" + length + "," + precision + ")";
