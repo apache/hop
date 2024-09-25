@@ -209,6 +209,17 @@ public class KettleConst {
                   "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME"
                 }, // switchcase
                 {"DEFAULT_TARGET_STEP_NAME", "DEFAULT_TARGET_TRANSFORM_NAME"}, // switchcase
+                // Javascript
+                {"trans_Status", "pipeline_Status"},
+                {"CONTINUE_TRANSFORMATION", "CONTINUE_PIPELINE"},
+                {"SKIP_TRANSFORMATION", "SKIP_PIPELINE"},
+                {"ERROR_TRANSFORMATION", "ERROR_PIPELINE"},
+                {"ABORT_TRANSFORMATION", "ABORT_PIPELINE"},
+                // UJDC
+                {
+                  "processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException",
+                  "processRow() throws HopException"
+                },
                 {"CURRENT_JOB", "CURRENT_WORKFLOW"}, // set variable
                 {"PARENT_JOB", "PARENT_WORKFLOW"}, // set variable
                 {"ROOT_JOB", "ROOT_WORKFLOW"} // set variable
