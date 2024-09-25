@@ -15,27 +15,29 @@
 // * limitations under the License.
 // */
 //
- package org.apache.hop.pipeline.transforms.selectvalues;
+package org.apache.hop.pipeline.transforms.selectvalues;
 
- import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
- import org.apache.hop.core.injection.BaseMetadataInjectionTest;
- import org.apache.hop.core.row.IValueMeta;
- import org.apache.hop.core.row.value.ValueMetaFactory;
- import org.apache.hop.core.row.value.ValueMetaString;
- import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
- import org.junit.Before;
- import org.junit.ClassRule;
- import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
- public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<SelectValuesMeta> {
+public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<SelectValuesMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setup() throws Exception {
-      SelectValuesMeta selectValuesMeta = new SelectValuesMeta();
-      selectValuesMeta.getSelectOption().setSelectFields(SelectValueMetaTestFactory.getSelectFields("v","v2"));
-      setup(selectValuesMeta);
+    SelectValuesMeta selectValuesMeta = new SelectValuesMeta();
+    selectValuesMeta
+        .getSelectOption()
+        .setSelectFields(SelectValueMetaTestFactory.getSelectFields("v", "v2"));
+    setup(selectValuesMeta);
   }
 
   @Test
@@ -46,16 +48,14 @@
     check("FIELD_NAME", () -> meta.getSelectOption().getSelectFields().get(0).getName());
     check("FIELD_RENAME", () -> meta.getSelectOption().getSelectFields().get(0).getRename());
     check("FIELD_LENGTH", () -> meta.getSelectOption().getSelectFields().get(0).getLength());
-    check("FIELD_PRECISION", () ->
- meta.getSelectOption().getSelectFields().get(0).getPrecision());
+    check("FIELD_PRECISION", () -> meta.getSelectOption().getSelectFields().get(0).getPrecision());
     check("REMOVE_NAME", () -> meta.getSelectOption().getDeleteName().get(0).getName());
     check("META_NAME", () -> meta.getSelectOption().getMeta().get(0).getName());
     check("META_RENAME", () -> meta.getSelectOption().getSelectFields().get(0).getRename());
     check("META_LENGTH", () -> meta.getSelectOption().getSelectFields().get(0).getLength());
     check("META_PRECISION", () -> meta.getSelectOption().getMeta().get(0).getPrecision());
     check(
-        "META_CONVERSION_MASK", () ->
- meta.getSelectOption().getMeta().get(0).getConversionMask());
+        "META_CONVERSION_MASK", () -> meta.getSelectOption().getMeta().get(0).getConversionMask());
     check(
         "META_DATE_FORMAT_LENIENT",
         () -> meta.getSelectOption().getMeta().get(0).isDateFormatLenient());
@@ -101,7 +101,6 @@
     assertEquals(
         SelectValuesMeta.UNDEFINED, meta.getSelectOption().getSelectFields().get(0).getLength());
     assertEquals(
-        SelectValuesMeta.UNDEFINED,
- meta.getSelectOption().getSelectFields().get(0).getPrecision());
+        SelectValuesMeta.UNDEFINED, meta.getSelectOption().getSelectFields().get(0).getPrecision());
   }
- }
+}

@@ -15,33 +15,32 @@
 // * limitations under the License.
 // */
 
- package org.apache.hop.pipeline.transforms.selectvalues;
+package org.apache.hop.pipeline.transforms.selectvalues;
 
- import static org.mockito.Mockito.doReturn;
- import static org.mockito.Mockito.spy;
- import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
- import java.util.Calendar;
- import java.util.Collections;
- import java.util.List;
- import java.util.Locale;
- import org.apache.hop.core.HopEnvironment;
- import org.apache.hop.core.exception.HopException;
- import org.apache.hop.core.row.IValueMeta;
- import org.apache.hop.core.row.RowMeta;
- import org.apache.hop.core.row.value.ValueMetaDate;
- import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
- import org.apache.hop.pipeline.PipelineTestingUtil;
- import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
- import org.junit.After;
- import org.junit.Before;
- import org.junit.BeforeClass;
- import org.junit.ClassRule;
- import org.junit.Ignore;
- import org.junit.Test;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.pipeline.PipelineTestingUtil;
+import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /** Note: In Europe (e.g. in UK), week starts on Monday. In USA, it starts on Sunday. */
- public class SelectValues_LocaleHandling_Test {
+public class SelectValues_LocaleHandling_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -68,8 +67,7 @@
   private void configureTransform(SelectValuesMeta meta, SelectValuesData data)
       throws HopException {
     transform =
-        new SelectValues(helper.transformMeta, meta, data, 1, helper.pipelineMeta,
- helper.pipeline);
+        new SelectValues(helper.transformMeta, meta, data, 1, helper.pipelineMeta, helper.pipeline);
     transform = spy(transform);
 
     // Dec 28, 2015
@@ -111,26 +109,19 @@
   private void executeAndCheck(String locale, String expectedWeekNumber) throws Exception {
 
     SelectValuesMeta transformMeta = new SelectValuesMeta();
-  //  transformMeta.allocate(1, 0, 1);
-      transformMeta.getSelectOption().getSelectFields().addAll(SelectValueMetaTestFactory.getSelectFields("field"));
+    //  transformMeta.allocate(1, 0, 1);
+    transformMeta
+        .getSelectOption()
+        .getSelectFields()
+        .addAll(SelectValueMetaTestFactory.getSelectFields("field"));
 
-    transformMeta.getSelectOption().getMeta().add(
-        new SelectMetadataChange(
-            "field",
-            null,
-            "String",
-            -2,
-            -2,
-            "normal",
-            "ww",
-            false,
-            locale,
-            null,
-            false,
-            null,
-            null,
-            null)
-    );
+    transformMeta
+        .getSelectOption()
+        .getMeta()
+        .add(
+            new SelectMetadataChange(
+                "field", null, "String", -2, -2, "normal", "ww", false, locale, null, false, null,
+                null, null));
 
     SelectValuesData transformData = new SelectValuesData();
     transformData.select = true;
@@ -146,6 +137,6 @@
 
     List<Object[]> execute = PipelineTestingUtil.execute(transform, 1, true);
     PipelineTestingUtil.assertResult(
-         Collections.singletonList(new Object[] {expectedWeekNumber}), execute);
+        Collections.singletonList(new Object[] {expectedWeekNumber}), execute);
   }
- }
+}

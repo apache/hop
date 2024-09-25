@@ -22,28 +22,28 @@ import java.util.List;
 
 public class SelectValueMetaTestFactory {
 
-    public static List<SelectField> getSelectFields(String... fields) {
-        List<SelectField> result = new ArrayList<>();
-        for (String field : fields) {
-            if (field == null) {
-                throw new IllegalArgumentException("Field name cannot be null");
-            }
-            SelectField selectField = new SelectField();
-            selectField.setName(field);
-            result.add(selectField);
-
-        }
-        return result;
+  public static List<SelectField> getSelectFields(String... fields) {
+    List<SelectField> result = new ArrayList<>();
+    for (String field : fields) {
+      if (field == null) {
+        throw new IllegalArgumentException("Field name cannot be null");
+      }
+      SelectField selectField = new SelectField();
+      selectField.setName(field);
+      result.add(selectField);
     }
+    return result;
+  }
 
-    public static List<SelectField> getSelectFieldsWithRename(List<String> names, List<String> renames) {
-        List<SelectField> result = new ArrayList<>();
-        for (int i = 0; i < names.size(); i++) {
-            SelectField selectField = new SelectField();
-            selectField.setName(names.get(i));
-            selectField.setRename(renames.get(i));
-            result.add(selectField);
-        }
-        return result;
+  public static List<SelectField> getSelectFieldsWithRename(
+      List<String> names, List<String> renames) {
+    List<SelectField> result = new ArrayList<>();
+    for (int i = 0; i < names.size(); i++) {
+      SelectField selectField = new SelectField();
+      selectField.setName(names.get(i));
+      selectField.setRename(renames.get(i));
+      result.add(selectField);
     }
+    return result;
+  }
 }

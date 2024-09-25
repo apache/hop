@@ -134,7 +134,7 @@ public class SelectMetadataChange {
       String decimalSymbol,
       String groupingSymbol,
       String currencySymbol) {
-
+    this();
     this.name = name;
     this.rename = rename;
     this.type = type;
