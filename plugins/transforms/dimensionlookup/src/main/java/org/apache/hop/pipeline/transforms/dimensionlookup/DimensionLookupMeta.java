@@ -281,44 +281,32 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     }
 
     try {
-      DatabaseMeta databaseMeta =
-          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      // Get the rows from the table...
+      IRowMeta extraFields = getTableFields(variables);
 
-      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
-        // Get the rows from the table...
-        IRowMeta extraFields = db.getTableFieldsMeta(schemaName, tableName);
-
-        for (DLField field : fields.fields) {
-          v = extraFields.searchValueMeta(field.getLookup());
-          if (v == null) {
-            String message =
-                BaseMessages.getString(
-                    PKG,
-                    "DimensionLookupMeta.Exception.UnableToFindReturnField",
-                    field.getLookup());
-            logError(message);
-            throw new HopTransformException(message);
-          }
-
-          // If the field needs to be renamed, rename
-          if (StringUtils.isNotEmpty(field.getName())) {
-            v.setName(field.getName());
-          }
-          v.setOrigin(name);
-          row.addValueMeta(v);
+      for (DLField field : fields.fields) {
+        v = extraFields.searchValueMeta(field.getLookup());
+        if (v == null) {
+          String message =
+              BaseMessages.getString(
+                  PKG, "DimensionLookupMeta.Exception.UnableToFindReturnField", field.getLookup());
+          logError(message);
+          throw new HopTransformException(message);
         }
-      } catch (Exception e) {
-        String message =
-            BaseMessages.getString(
-                PKG, "DimensionLookupMeta.Exception.UnableToRetrieveDataTypeOfReturnField2");
-        logError(message);
-        throw new HopTransformException(message, e);
+
+        // If the field needs to be renamed, rename
+        if (StringUtils.isNotEmpty(field.getName())) {
+          v.setName(field.getName());
+        }
+        v.setOrigin(name);
+        row.addValueMeta(v);
       }
-    } catch (HopException e) {
+    } catch (Exception e) {
       String message =
-          BaseMessages.getString(PKG, "DimensionLookupMeta.Exception.DatabaseErrorOccurred")
-              + e.getMessage();
+          BaseMessages.getString(
+              PKG, "DimensionLookupMeta.Exception.UnableToRetrieveDataTypeOfReturnField2");
       logError(message);
+      throw new HopTransformException(message, e);
     }
   }
 
