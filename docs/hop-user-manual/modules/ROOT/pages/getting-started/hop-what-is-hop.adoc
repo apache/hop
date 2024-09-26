@@ -23,7 +23,7 @@ under the License.
 
 == Visual Design and Metadata
 
-Apache Hop, short for **H**op **O**rchestration **P**latform, is a data orchestration and data engineering platform that aims to facillitate all aspects of data and metadata orchestration.
+Apache Hop, short for **H**op **O**rchestration **P**latform, is a data orchestration and data engineering platform that aims to facilitate all aspects of data and metadata orchestration.
 Hop lets you focus on the problem you're trying to solve without technology getting in the way.
 Simple tasks should be easy, complex tasks need to be possible.
 
