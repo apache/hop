@@ -104,6 +104,11 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   private String logFile;
 
   @Option(
+      names = {"-lfo", "--logfile-overwrite"},
+      description = "Overwrite the log file if it exists")
+  private boolean logFileOverwrite;
+
+  @Option(
       names = {"-p", "--parameters"},
       description = "A list of PARAMETER=VALUE pairs")
   private String[] parameters = null;
@@ -195,7 +200,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       }
 
       if (!Utils.isEmpty(logFile)) {
-        fileLoggingEventListener = new FileLoggingEventListener(logFile, false);
+        fileLoggingEventListener = new FileLoggingEventListener(logFile, logFileOverwrite);
         HopLogStore.getAppender().addLoggingEventListener(fileLoggingEventListener);
       }
 
@@ -824,6 +829,14 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
   public void setLogFile(String logFile) {
     this.logFile = logFile;
+  }
+
+  public boolean getLogFileOverwrite() {
+    return logFileOverwrite;
+  }
+
+  public void setLogFileOverwrite(boolean logFileOverwrite) {
+    this.logFileOverwrite = logFileOverwrite;
   }
 
   /**
