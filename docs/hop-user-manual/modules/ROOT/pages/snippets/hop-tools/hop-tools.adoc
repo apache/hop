@@ -33,6 +33,3 @@ include::hop-search.adoc[]
 
 Hop Server::
 include::hop-server.adoc[]
-
-Hop Translate::
-include::hop-translator.adoc[]

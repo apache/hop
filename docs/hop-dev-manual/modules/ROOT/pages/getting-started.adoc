@@ -62,7 +62,6 @@ This module obviously contains everything related to the Hop GUI
 
 - Tools: *hop-gui, hop-translate*
 - Hop GUI: *HopGui, HopDataOrchestrationPerspective, HopPipelineFileType, ...*
-- Translator, a tool to help you translate Hop itself: *Translator*
 - The rest is mostly a collection of re-usable dialogs and widgets
 
 == Metadata
