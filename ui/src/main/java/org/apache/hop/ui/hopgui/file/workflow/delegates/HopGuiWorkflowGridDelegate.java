@@ -27,6 +27,7 @@ import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -56,8 +57,8 @@ public class HopGuiWorkflowGridDelegate {
   private CTabItem workflowGridTab;
   private Tree wTree;
 
-  public WorkflowTracker workflowTracker;
-  public int previousNrItems;
+  private WorkflowTracker<?> workflowTracker;
+  private int previousNrItems;
 
   private int nrRow = 0;
 
@@ -104,6 +105,7 @@ public class HopGuiWorkflowGridDelegate {
     // Create the tree table...
     wTree = new Tree(workflowGraph.extraViewTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     wTree.setHeaderVisible(true);
+    PropsUi.setLook(wTree);
     TreeMemory.addTreeListener(wTree, STRING_CHEF_LOG_TREE_NAME);
 
     TreeColumn column1 = new TreeColumn(wTree, SWT.LEFT);
@@ -124,7 +126,7 @@ public class HopGuiWorkflowGridDelegate {
 
     TreeColumn column5 = new TreeColumn(wTree, SWT.LEFT);
     column5.setText(BaseMessages.getString(PKG, "WorkflowLog.Column.Filename"));
-    column5.setWidth(200);
+    column5.setWidth(300);
 
     TreeColumn column6 = new TreeColumn(wTree, SWT.RIGHT);
     column6.setText(BaseMessages.getString(PKG, "WorkflowLog.Column.Nr"));
@@ -132,7 +134,7 @@ public class HopGuiWorkflowGridDelegate {
 
     TreeColumn column7 = new TreeColumn(wTree, SWT.RIGHT);
     column7.setText(BaseMessages.getString(PKG, "WorkflowLog.Column.LogDate"));
-    column7.setWidth(120);
+    column7.setWidth(150);
 
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment(0, 0);
@@ -141,8 +143,8 @@ public class HopGuiWorkflowGridDelegate {
     fdTree.bottom = new FormAttachment(100, 0);
     wTree.setLayoutData(fdTree);
 
-    final Timer tim = new Timer("JobGrid: " + workflowGraph.getMeta().getName());
-    TimerTask timtask =
+    final Timer timer = new Timer("WorkflowGridAutoRefresh: " + workflowGraph.getName());
+    TimerTask refreshTask =
         new TimerTask() {
           @Override
           public void run() {
@@ -162,12 +164,9 @@ public class HopGuiWorkflowGridDelegate {
             }
           }
         };
-    tim.schedule(timtask, 10L, 2000L); // refresh every 2 seconds...
+    timer.schedule(refreshTask, 10L, 2000L); // refresh every 2 seconds...
 
-    workflowGraph
-        .workflowLogDelegate
-        .getWorkflowLogTab()
-        .addDisposeListener(disposeEvent -> tim.cancel());
+    wTree.addListener(SWT.Dispose, event -> timer.cancel());
   }
 
   /** Refresh the data in the tree-table... Use the data from the WorkflowTracker in the workflow */
@@ -176,7 +175,7 @@ public class HopGuiWorkflowGridDelegate {
       int nrItems = workflowTracker.getTotalNumberOfItems();
 
       if (nrItems != previousNrItems) {
-        // Allow some flickering for now ;-)
+        wTree.setRedraw(false);
         wTree.removeAll();
 
         // Re-populate this...
@@ -193,27 +192,38 @@ public class HopGuiWorkflowGridDelegate {
           }
         }
         treeItem.setText(0, workflowName);
+        treeItem.setText(4, Const.NVL(workflowTracker.getWorfkflowFilename(), ""));
+
         TreeMemory.getInstance()
             .storeExpanded(STRING_CHEF_LOG_TREE_NAME, new String[] {workflowName}, true);
 
+        nrRow = 1;
         for (int i = 0; i < workflowTracker.nrWorkflowTrackers(); i++) {
           addTrackerToTree(workflowTracker.getWorkflowTracker(i), treeItem);
         }
         previousNrItems = nrItems;
 
         TreeMemory.setExpandedFromMemory(wTree, STRING_CHEF_LOG_TREE_NAME);
+        wTree.setRedraw(true);
       }
     }
   }
 
-  private void addTrackerToTree(WorkflowTracker workflowTracker, TreeItem parentItem) {
+  private void addTrackerToTree(WorkflowTracker<?> workflowTracker, TreeItem parentItem) {
     try {
       if (workflowTracker != null) {
         TreeItem treeItem = new TreeItem(parentItem, SWT.NONE);
+
+        // Alternate color
         if (nrRow % 2 != 0) {
-          treeItem.setBackground(GuiResource.getInstance().getColorBlueCustomGrid());
+          if (PropsUi.getInstance().isDarkMode()) {
+            treeItem.setBackground(GuiResource.getInstance().getColorDemoGray());
+          } else {
+            treeItem.setBackground(GuiResource.getInstance().getColorBlueCustomGrid());
+          }
         }
         nrRow++;
+
         if (workflowTracker.nrWorkflowTrackers() > 0) {
           // This is a sub-workflow: display the name at the top of the list...
           treeItem.setText(
@@ -228,9 +238,9 @@ public class HopGuiWorkflowGridDelegate {
         } else {
           ActionResult result = workflowTracker.getActionResult();
           if (result != null) {
-            String jobEntryName = result.getActionName();
-            if (!Utils.isEmpty(jobEntryName)) {
-              treeItem.setText(0, jobEntryName);
+            String actionName = result.getActionName();
+            if (!Utils.isEmpty(actionName)) {
+              treeItem.setText(0, actionName);
               treeItem.setText(4, Const.NVL(result.getActionFilename(), ""));
             } else {
               treeItem.setText(
@@ -251,8 +261,10 @@ public class HopGuiWorkflowGridDelegate {
                       : BaseMessages.getString(PKG, "WorkflowLog.Tree.Failure"));
               treeItem.setText(5, Long.toString(res.getEntryNr()));
               if (res.getResult()) {
-                treeItem.setForeground(GuiResource.getInstance().getColorSuccessGreen());
+                treeItem.setImage(2, GuiResource.getInstance().getImageSuccess());
+                treeItem.setForeground(2, GuiResource.getInstance().getColorSuccessGreen());
               } else {
+                treeItem.setImage(2, GuiResource.getInstance().getImageFailure());
                 treeItem.setForeground(GuiResource.getInstance().getColorRed());
               }
             }
@@ -277,7 +289,10 @@ public class HopGuiWorkflowGridDelegate {
     return workflowGridTab;
   }
 
-  public void setWorkflowTracker(WorkflowTracker workflowTracker) {
+  public void setWorkflowTracker(WorkflowTracker<?> workflowTracker) {
     this.workflowTracker = workflowTracker;
+
+    // Reset nr of items
+    this.previousNrItems = -1;
   }
 }

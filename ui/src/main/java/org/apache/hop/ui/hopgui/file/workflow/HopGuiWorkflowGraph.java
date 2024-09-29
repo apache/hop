@@ -3698,9 +3698,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.StartingWorkflow"));
           workflowThread = new Thread(() -> workflow.startExecution());
           workflowThread.start();
-          workflowGridDelegate.previousNrItems = -1;
-          // Link to the new workflowTracker!
-          workflowGridDelegate.workflowTracker = workflow.getWorkflowTracker();
+
+          // Link to the new workflow tracker
+          workflowGridDelegate.setWorkflowTracker(workflow.getWorkflowTracker());
 
           updateGui();
 

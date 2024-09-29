@@ -392,6 +392,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
       //
       items.remove(tabItemHandler);
       CTabItem tabItem = tabItemHandler.getTabItem();
+      tabItem.getControl().dispose();
       tabItem.dispose();
 
       // Also remove the keyboard shortcuts for this handler
