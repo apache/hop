@@ -306,8 +306,8 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
             // byte [] is not Comparable and can not be added to TreeSet.
             // For our case it can be binary array. It was typed as String.
             // So it can be processing (comparing and displaying) correctly as String
-            if (obj instanceof byte[]) {
-              obj = new String((byte[]) obj);
+            if (obj instanceof byte[] bytes) {
+              obj = new String(bytes);
             }
             if (!aggregate.distinctObjs[i].contains(obj)) {
               aggregate.distinctObjs[i].add(obj);

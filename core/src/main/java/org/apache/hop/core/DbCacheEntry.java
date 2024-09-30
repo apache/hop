@@ -69,8 +69,8 @@ public class DbCacheEntry {
 
   @Override
   public boolean equals(Object o) {
-    if (o instanceof DbCacheEntry) {
-      DbCacheEntry obj = (DbCacheEntry) o;
+    if (o instanceof DbCacheEntry dbCacheEntry) {
+      DbCacheEntry obj = dbCacheEntry;
 
       return dbname.equalsIgnoreCase(obj.dbname) && sql.equalsIgnoreCase(obj.sql);
     }

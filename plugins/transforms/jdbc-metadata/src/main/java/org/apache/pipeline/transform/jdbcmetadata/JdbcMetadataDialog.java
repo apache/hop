@@ -110,10 +110,9 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
           || control == argumentSourceFields
           || control == removeArgumentFieldsLabel
           || control == removeArgumentFieldsButton) continue;
-      if (control instanceof ComboVar) {
+      if (control instanceof ComboVar comboVar) {
         if (!control.isDisposed()
-            && (((ComboVar) control).getText() != null
-                || ((ComboVar) control).getText().length() > 0)) {
+            && (comboVar.getText() != null || comboVar.getText().length() > 0)) {
           currentValues.add(((ComboVar) control).getText());
         }
       }

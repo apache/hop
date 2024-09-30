@@ -61,39 +61,23 @@ public class PropsUi extends Props {
   private static final String OS = System.getProperty("os.name").toLowerCase();
 
   private static double nativeZoomFactor;
-
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
-
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
-
   private static final String SHOW_HELP_TOOL_TIPS = "ShowHelpToolTips";
-
   private static final String HIDE_MENU_BAR = "HideMenuBar";
-
   private static final String SORT_FIELD_BY_NAME = "SortFieldByName";
-
   private static final String CANVAS_GRID_SIZE = "CanvasGridSize";
-
   private static final String LEGACY_PERSPECTIVE_MODE = "LegacyPerspectiveMode";
-
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
-
   private static final String USE_DOUBLE_CLICK_ON_CANVAS = "UseDoubleClickOnCanvas";
-
   private static final String DRAW_BORDER_AROUND_CANVAS_NAMES = "DrawBorderAroundCanvasNames";
-
   private static final String USE_GLOBAL_FILE_BOOKMARKS = "UseGlobalFileBookmarks";
-
   private static final String DARK_MODE = "DarkMode";
-
   private static final String GLOBAL_ZOOMFACTOR = "GlobalZoomFactor";
-
   private static final String MAX_EXECUTION_LOGGING_TEXT_SIZE = "MaxExecutionLoggingTextSize";
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
-
   private Map<RGB, RGB> contrastingColors;
-
   private static PropsUi instance;
 
   public static PropsUi getInstance() {
@@ -499,8 +483,8 @@ public class PropsUi extends Props {
 
     setLook(widget, style);
 
-    if (widget instanceof Composite) {
-      Composite composite = (Composite) widget;
+    if (widget instanceof Composite compositeWidget) {
+      Composite composite = compositeWidget;
       for (Control child : composite.getChildren()) {
         setLook(child);
       }
@@ -523,10 +507,10 @@ public class PropsUi extends Props {
     Color background = null;
     Color foreground = null;
 
-    if (widget instanceof Shell) {
+    if (widget instanceof Shell shellWidget) {
       background = gui.getColorWhite();
       foreground = gui.getColorBlack();
-      Shell shell = (Shell) widget;
+      Shell shell = shellWidget;
       shell.setBackgroundMode(SWT.INHERIT_FORCE);
       shell.setForeground(gui.getColorBlack());
       shell.setBackground(gui.getColorWhite());
@@ -586,16 +570,20 @@ public class PropsUi extends Props {
         break;
     }
 
-    if (font != null && !font.isDisposed() && (widget instanceof Control)) {
-      ((Control) widget).setFont(font);
+    if (font != null && !font.isDisposed() && (widget instanceof Control controlWidget)) {
+      controlWidget.setFont(font);
     }
 
-    if (background != null && !background.isDisposed() && (widget instanceof Control)) {
-      ((Control) widget).setBackground(background);
+    if (background != null
+        && !background.isDisposed()
+        && (widget instanceof Control controlWidget)) {
+      controlWidget.setBackground(background);
     }
 
-    if (foreground != null && !foreground.isDisposed() && (widget instanceof Control)) {
-      ((Control) widget).setForeground(foreground);
+    if (foreground != null
+        && !foreground.isDisposed()
+        && (widget instanceof Control controlWidget)) {
+      controlWidget.setForeground(foreground);
     }
   }
 
@@ -659,16 +647,20 @@ public class PropsUi extends Props {
         break;
     }
 
-    if (font != null && !font.isDisposed() && (widget instanceof Control)) {
-      ((Control) widget).setFont(font);
+    if (font != null && !font.isDisposed() && (widget instanceof Control controlWidget)) {
+      controlWidget.setFont(font);
     }
 
-    if (background != null && !background.isDisposed() && (widget instanceof Control)) {
-      ((Control) widget).setBackground(background);
+    if (background != null
+        && !background.isDisposed()
+        && (widget instanceof Control controlWidget)) {
+      controlWidget.setBackground(background);
     }
 
-    if (foreground != null && !foreground.isDisposed() && (widget instanceof Control)) {
-      ((Control) widget).setForeground(foreground);
+    if (foreground != null
+        && !foreground.isDisposed()
+        && (widget instanceof Control controlWidget)) {
+      controlWidget.setForeground(foreground);
     }
   }
 
@@ -722,16 +714,20 @@ public class PropsUi extends Props {
         break;
     }
 
-    if (font != null && !font.isDisposed() && (widget instanceof Control)) {
-      ((Control) widget).setFont(font);
+    if (font != null && !font.isDisposed() && (widget instanceof Control controlWidget)) {
+      controlWidget.setFont(font);
     }
 
-    if (background != null && !background.isDisposed() && (widget instanceof Control)) {
-      ((Control) widget).setBackground(background);
+    if (background != null
+        && !background.isDisposed()
+        && (widget instanceof Control controlWidget)) {
+      controlWidget.setBackground(background);
     }
 
-    if (foreground != null && !foreground.isDisposed() && (widget instanceof Control)) {
-      ((Control) widget).setForeground(foreground);
+    if (foreground != null
+        && !foreground.isDisposed()
+        && (widget instanceof Control controlWidget)) {
+      controlWidget.setForeground(foreground);
     }
   }
 

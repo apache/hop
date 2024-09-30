@@ -77,10 +77,10 @@ final class WsdlUtils {
   protected static String getSOAPAddress(Port p) {
     ExtensibilityElement e =
         findExtensibilityElement((ElementExtensible) p, SOAP_PORT_ADDRESS_NAME);
-    if (e instanceof SOAP12Address) {
-      return ((SOAP12Address) e).getLocationURI();
-    } else if (e instanceof SOAPAddress) {
-      return ((SOAPAddress) e).getLocationURI();
+    if (e instanceof SOAP12Address soap12Address) {
+      return soap12Address.getLocationURI();
+    } else if (e instanceof SOAPAddress soapAddress) {
+      return soapAddress.getLocationURI();
     }
 
     return null;
@@ -98,10 +98,10 @@ final class WsdlUtils {
         findExtensibilityElement((ElementExtensible) binding, SOAP_BINDING_ELEMENT_NAME);
 
     if (soapBindingElem != null) {
-      if (soapBindingElem instanceof SOAP12Binding) {
-        style = ((SOAP12Binding) soapBindingElem).getStyle();
-      } else if (soapBindingElem instanceof SOAPBinding) {
-        style = ((SOAPBinding) soapBindingElem).getStyle();
+      if (soapBindingElem instanceof SOAP12Binding soap12Binding) {
+        style = soap12Binding.getStyle();
+      } else if (soapBindingElem instanceof SOAPBinding soapBinding) {
+        style = soapBinding.getStyle();
       } else {
         throw new HopException(
             "Binding type "
@@ -135,8 +135,8 @@ final class WsdlUtils {
           WsdlUtils.findExtensibilityElement(
               (ElementExtensible) bindingInput, SOAP_BODY_ELEMENT_NAME);
       if (soapBodyElem != null) {
-        if (soapBodyElem instanceof SOAP12BodyImpl) {
-          return ((SOAP12BodyImpl) soapBodyElem).getUse();
+        if (soapBodyElem instanceof SOAP12BodyImpl soap12Body) {
+          return soap12Body.getUse();
         } else {
           return ((SOAPBody) soapBodyElem).getUse();
         }
@@ -150,8 +150,8 @@ final class WsdlUtils {
           WsdlUtils.findExtensibilityElement(
               (ElementExtensible) bindingOutput, SOAP_BODY_ELEMENT_NAME);
       if (soapBodyElem != null) {
-        if (soapBodyElem instanceof SOAP12BodyImpl) {
-          return ((SOAP12BodyImpl) soapBodyElem).getUse();
+        if (soapBodyElem instanceof SOAP12BodyImpl soap12Body) {
+          return soap12Body.getUse();
         } else {
           return ((SOAPBody) soapBodyElem).getUse();
         }
@@ -171,8 +171,8 @@ final class WsdlUtils {
     ExtensibilityElement e =
         findExtensibilityElement((ElementExtensible) operation, SOAP_OPERATION_ELEMENT_NAME);
     if (e != null) {
-      if (e instanceof SOAP12Operation) {
-        return ((SOAP12Operation) e).getSoapActionURI();
+      if (e instanceof SOAP12Operation soap12Operation) {
+        return soap12Operation.getSoapActionURI();
       } else {
         return ((SOAPOperation) e).getSoapActionURI();
       }
@@ -235,8 +235,8 @@ final class WsdlUtils {
 
     HashSet<String> headerSet = new HashSet<>(headers.size());
     for (ExtensibilityElement element : headers) {
-      if (element instanceof SOAP12Header) {
-        headerSet.add(((SOAP12Header) element).getPart());
+      if (element instanceof SOAP12Header soap12Header) {
+        headerSet.add(soap12Header.getPart());
       } else {
         headerSet.add(((SOAPHeader) element).getPart());
       }

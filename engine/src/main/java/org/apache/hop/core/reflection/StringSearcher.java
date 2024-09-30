@@ -144,12 +144,11 @@ public class StringSearcher {
     String fieldName = field.getName();
     if (obj == null) {
       stringList.add(new StringSearchResult(null, parentObject, grandParentObject, fieldName));
-    } else if (obj instanceof String) {
+    } else if (obj instanceof String string) {
       // OK, let's add the String
-      stringList.add(
-          new StringSearchResult((String) obj, parentObject, grandParentObject, fieldName));
-    } else if (obj instanceof String[]) {
-      String[] array = (String[]) obj;
+      stringList.add(new StringSearchResult(string, parentObject, grandParentObject, fieldName));
+    } else if (obj instanceof String[] stringArray) {
+      String[] array = stringArray;
       for (int x = 0; x < array.length; x++) {
         if (array[x] != null) {
           stringList.add(
@@ -157,34 +156,28 @@ public class StringSearcher {
                   array[x], parentObject, grandParentObject, fieldName + " #" + (x + 1)));
         }
       }
-    } else if (obj instanceof Boolean) {
+    } else if (obj instanceof Boolean bool) {
       // OK, let's add the String
       stringList.add(
           new StringSearchResult(
-              ((Boolean) obj).toString(),
-              parentObject,
-              grandParentObject,
-              fieldName + " (Boolean)"));
-    } else if (obj instanceof Condition) {
+              bool.toString(), parentObject, grandParentObject, fieldName + " (Boolean)"));
+    } else if (obj instanceof Condition condition) {
       stringList.add(
           new StringSearchResult(
-              ((Condition) obj).toString(),
-              parentObject,
-              grandParentObject,
-              fieldName + " (Condition)"));
-    } else if (obj instanceof IDatabase) {
+              condition.toString(), parentObject, grandParentObject, fieldName + " (Condition)"));
+    } else if (obj instanceof IDatabase iDatabaseObject) {
       // Make sure we read the attributes. This is not picked up by default. (getDeclaredFields
       // doesn't pick up
       // inherited fields)
       //
-      IDatabase iDatabase = (IDatabase) obj;
+      IDatabase iDatabase = iDatabaseObject;
       findMapMetaData(
           iDatabase.getAttributes(), level + 1, stringList, parentObject, grandParentObject, field);
       findMetaData(obj, level + 1, stringList, parentObject, grandParentObject);
     } else if (obj instanceof Map) {
       findMapMetaData((Map<?, ?>) obj, level, stringList, parentObject, grandParentObject, field);
-    } else if (obj instanceof Object[]) {
-      for (int j = 0; j < ((Object[]) obj).length; j++) {
+    } else if (obj instanceof Object[] objectArray) {
+      for (int j = 0; j < objectArray.length; j++) {
         findMetaData(((Object[]) obj)[j], level + 1, stringList, parentObject, grandParentObject);
       }
     } else {

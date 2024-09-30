@@ -1171,8 +1171,8 @@ public abstract class Pipeline
 
       // Make sure this is called first!
       //
-      if (sid.transform instanceof BaseTransform) {
-        ((BaseTransform) sid.transform).getTransformFinishedListeners().add(0, finishedListener);
+      if (sid.transform instanceof BaseTransform baseTransform) {
+        baseTransform.getTransformFinishedListeners().add(0, finishedListener);
       } else {
         sid.transform.addTransformFinishedListener(finishedListener);
       }
@@ -2464,8 +2464,7 @@ public abstract class Pipeline
   }
 
   /**
-   * Checks whether the pipeline is being previewed.
-   *
+   * @deprecated Checks whether the pipeline is being previewed.
    * @return true if the pipeline is being previewed, false otherwise
    */
   @Override
@@ -2475,8 +2474,7 @@ public abstract class Pipeline
   }
 
   /**
-   * Sets whether the pipeline is being previewed.
-   *
+   * @deprecated Sets whether the pipeline is being previewed.
    * @param preview true if the pipeline is being previewed, false otherwise
    */
   @Override

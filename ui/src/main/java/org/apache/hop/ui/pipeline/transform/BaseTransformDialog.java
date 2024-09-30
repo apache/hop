@@ -401,17 +401,17 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
    * @return the table views
    */
   private static final void getTableViews(Control parentControl, List<TableView> tableViews) {
-    if (parentControl instanceof TableView) {
-      tableViews.add((TableView) parentControl);
+    if (parentControl instanceof TableView tableViewParentControl) {
+      tableViews.add(tableViewParentControl);
     } else {
-      if (parentControl instanceof Composite) {
-        Control[] children = ((Composite) parentControl).getChildren();
+      if (parentControl instanceof Composite compositeParentControl) {
+        Control[] children = compositeParentControl.getChildren();
         for (Control child : children) {
           getTableViews(child, tableViews);
         }
       } else {
-        if (parentControl instanceof Shell) {
-          Control[] children = ((Shell) parentControl).getChildren();
+        if (parentControl instanceof Shell shellParentControl) {
+          Control[] children = shellParentControl.getChildren();
           for (Control child : children) {
             getTableViews(child, tableViews);
           }

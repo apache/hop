@@ -225,10 +225,10 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           fileStreams.setBufferedOutputStream(bufferedOutputStream);
         }
       } catch (Exception e) {
-        if (!(e instanceof HopException)) {
+        if (!(e instanceof HopException hopException)) {
           throw new HopException(CONST_ERROR_OPENING_NEW_FILE + e.toString());
         } else {
-          throw (HopException) e;
+          throw hopException;
         }
       }
 
@@ -494,7 +494,10 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           && Utils.isEmpty(v.getStringEncoding())) {
         return (byte[]) valueData;
       } else {
-        String svalue = (valueData instanceof String) ? (String) valueData : v.getString(valueData);
+        String svalue =
+            (valueData instanceof String stringValueData)
+                ? stringValueData
+                : v.getString(valueData);
         return convertStringToBinaryString(v, Const.trimToType(svalue, v.getTrimType()));
       }
     } else {
@@ -601,8 +604,8 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         str = nullString;
       } else {
         if (meta.isFastDump()) {
-          if (valueData instanceof byte[]) {
-            str = (byte[]) valueData;
+          if (valueData instanceof byte[] bytesValueData) {
+            str = bytesValueData;
           } else {
             str = getBinaryString((valueData == null) ? "" : valueData.toString());
           }

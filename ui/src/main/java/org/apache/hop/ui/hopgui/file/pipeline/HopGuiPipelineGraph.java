@@ -615,12 +615,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // See if the double click was in one of the visible drawn area's...
           //
           if (areaOwner != null
-              && areaOwner.getParent() instanceof TransformMeta
+              && areaOwner.getParent() instanceof TransformMeta transformMetaAreaOwnerParent
               && areaOwner
                   .getOwner()
                   .equals(PipelinePainter.STRING_PARTITIONING_CURRENT_TRANSFORM)) {
 
-            TransformMeta transform = (TransformMeta) areaOwner.getParent();
+            TransformMeta transform = transformMetaAreaOwnerParent;
             pipelineTransformDelegate.editTransformPartitioning(pipelineMeta, transform);
           } else {
             editPipelineProperties(new HopGuiPipelineContext(pipelineMeta, this, real));
@@ -1171,11 +1171,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               PipelineRunConfiguration pipelineRunConfiguration =
                   pipeline.getPipelineRunConfiguration();
               if (pipelineRunConfiguration.getEngineRunConfiguration()
-                  instanceof LocalPipelineRunConfiguration) {
-                String sampleTypeInGui =
-                    ((LocalPipelineRunConfiguration)
-                            pipelineRunConfiguration.getEngineRunConfiguration())
-                        .getSampleTypeInGui();
+                  instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration) {
+                String sampleTypeInGui = localPipelineRunConfiguration.getSampleTypeInGui();
                 if (StringUtils.isNotEmpty(sampleTypeInGui)) {
                   try {
                     SampleType sampleType = SampleType.valueOf(sampleTypeInGui);

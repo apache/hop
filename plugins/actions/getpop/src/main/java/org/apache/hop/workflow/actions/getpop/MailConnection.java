@@ -769,8 +769,8 @@ public class MailConnection {
     Object content = null;
     try {
       content = getMessage().getContent();
-      if (content instanceof Multipart) {
-        handleMultipart(folderName, (Multipart) content, pattern);
+      if (content instanceof Multipart multipart) {
+        handleMultipart(folderName, multipart, pattern);
       }
     } catch (Exception e) {
       throw new HopException(
@@ -1399,8 +1399,8 @@ public class MailConnection {
     int retval = 0;
     try {
       content = message.getContent();
-      if (content instanceof Multipart) {
-        Multipart multipart = (Multipart) content;
+      if (content instanceof Multipart multipartContent) {
+        Multipart multipart = multipartContent;
         for (int i = 0, n = multipart.getCount(); i < n; i++) {
           Part part = multipart.getBodyPart(i);
           String disposition = part.getDisposition();

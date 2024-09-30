@@ -240,8 +240,8 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
 
     List<IEngineComponent> components = mappingPipeline.getComponents();
     for (IEngineComponent component : components) {
-      if (component instanceof MappingInput) {
-        list.add((MappingInput) component);
+      if (component instanceof MappingInput mappingInput) {
+        list.add(mappingInput);
       }
     }
 
@@ -253,8 +253,8 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
 
     List<IEngineComponent> components = mappingPipeline.getComponents();
     for (IEngineComponent component : components) {
-      if (component instanceof MappingOutput) {
-        list.add((MappingOutput) component);
+      if (component instanceof MappingOutput mappingOutput) {
+        list.add(mappingOutput);
       }
     }
 

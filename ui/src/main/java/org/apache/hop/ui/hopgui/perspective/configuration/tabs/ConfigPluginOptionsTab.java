@@ -27,7 +27,6 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -49,7 +48,6 @@ import org.eclipse.swt.widgets.Shell;
 
 @GuiPlugin
 public class ConfigPluginOptionsTab {
-  private static final Class<?> PKG = BaseDialog.class;
 
   public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 
@@ -188,10 +186,11 @@ public class ConfigPluginOptionsTab {
     compositeWidgets.createCompositeWidgets(
         pluginSourceData, null, wPluginsComp, GUI_WIDGETS_PARENT_ID, null);
     compositeWidgets.setWidgetsContents(pluginSourceData, wPluginsComp, GUI_WIDGETS_PARENT_ID);
-    if (pluginSourceData instanceof IGuiPluginCompositeWidgetsListener) {
+    if (pluginSourceData
+        instanceof IGuiPluginCompositeWidgetsListener iGuiPluginCompositeWidgetsListener) {
       // This listener saves the changed values immediately, so we don't have to worry about that.
       //
-      compositeWidgets.setWidgetsListener((IGuiPluginCompositeWidgetsListener) pluginSourceData);
+      compositeWidgets.setWidgetsListener(iGuiPluginCompositeWidgetsListener);
     }
 
     wPluginsComp.layout();

@@ -52,16 +52,16 @@ public class KerberosInvocationHandler implements InvocationHandler {
                 return method.invoke(delegate, args);
               } catch (InvocationTargetException e) {
                 Throwable cause = e.getCause();
-                if (cause instanceof Exception) {
-                  throw (Exception) cause;
+                if (cause instanceof Exception exception) {
+                  throw exception;
                 }
                 throw e;
               }
             }
           });
     } catch (PrivilegedActionException e) {
-      if (e.getCause() instanceof MongoDbException) {
-        throw (MongoDbException) e.getCause();
+      if (e.getCause() instanceof MongoDbException mongoDbException) {
+        throw mongoDbException;
       } else {
         throw new MongoDbException(e.getCause());
       }

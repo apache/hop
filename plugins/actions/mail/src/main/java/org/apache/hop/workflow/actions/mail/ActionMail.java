@@ -1129,8 +1129,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
       Exception ex = mex;
       do {
-        if (ex instanceof SendFailedException) {
-          SendFailedException sfex = (SendFailedException) ex;
+        if (ex instanceof SendFailedException sendFailedException) {
+          SendFailedException sfex = sendFailedException;
 
           Address[] invalid = sfex.getInvalidAddresses();
           if (invalid != null) {
@@ -1158,8 +1158,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
             }
           }
         }
-        if (ex instanceof MessagingException) {
-          ex = ((MessagingException) ex).getNextException();
+        if (ex instanceof MessagingException messagingException) {
+          ex = messagingException.getNextException();
         } else {
           ex = null;
         }

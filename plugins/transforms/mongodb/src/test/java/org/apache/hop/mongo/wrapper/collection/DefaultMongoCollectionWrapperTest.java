@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,7 +57,7 @@ public class DefaultMongoCollectionWrapperTest {
   @Test
   public void testRemove() throws Exception {
     defaultMongoCollectionWrapper.remove();
-    verify(mockDBCollection, times(1)).remove(eq(new BasicDBObject()));
+    verify(mockDBCollection, times(1)).remove(new BasicDBObject());
   }
 
   @Test

@@ -43,9 +43,9 @@ public class AuthenticationPersistenceManager {
         PluginRegistry.getInstance().getPlugins(AuthenticationConsumerPluginType.class)) {
       try {
         Object pluginMain = PluginRegistry.getInstance().loadClass(plugin);
-        if (pluginMain instanceof IAuthenticationConsumerType) {
+        if (pluginMain instanceof IAuthenticationConsumerType iAuthenticationConsumerType) {
           Class<? extends IAuthenticationConsumer<?, ?>> consumerClass =
-              ((IAuthenticationConsumerType) pluginMain).getConsumerClass();
+              iAuthenticationConsumerType.getConsumerClass();
           manager.registerConsumerClass(consumerClass);
         } else {
           throw new HopPluginException(

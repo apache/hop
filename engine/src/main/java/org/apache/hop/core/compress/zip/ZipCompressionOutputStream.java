@@ -34,8 +34,8 @@ public class ZipCompressionOutputStream extends CompressionOutputStream {
 
   protected static ZipOutputStream getDelegate(OutputStream out) {
     ZipOutputStream delegate;
-    if (out instanceof ZipOutputStream) {
-      delegate = (ZipOutputStream) out;
+    if (out instanceof ZipOutputStream zipOutputStream) {
+      delegate = zipOutputStream;
     } else {
       delegate = new ZipOutputStream(out);
     }

@@ -35,8 +35,8 @@ public class CanvasFacadeImpl extends CanvasFacade {
   @Override
   void setDataInternal(Canvas canvas, float magnification, DPoint offset, Object meta) {
     setDataCommon(canvas, magnification, offset, meta);
-    if (meta instanceof WorkflowMeta) {
-      setDataWorkflow(canvas, (WorkflowMeta) meta);
+    if (meta instanceof WorkflowMeta workflowMeta) {
+      setDataWorkflow(canvas, workflowMeta);
     } else {
       setDataPipeline(canvas, (PipelineMeta) meta);
     }
@@ -57,8 +57,8 @@ public class CanvasFacadeImpl extends CanvasFacade {
     canvas.setData("props", jsonProps);
 
     JsonArray jsonNotes = new JsonArray();
-    if (meta instanceof AbstractMeta) {
-      ((AbstractMeta) meta)
+    if (meta instanceof AbstractMeta abstractMeta) {
+      abstractMeta
           .getNotes()
           .forEach(
               note -> {

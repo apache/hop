@@ -944,8 +944,8 @@ public class HopGui
   @GuiOsxKeyboardShortcut(command = true, key = SWT.HOME)
   public void menuEditSnapToGrid() {
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
-    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
-      ((IGraphSnapAlignDistribute) activeFileTypeHandler).snapToGrid();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute iGraphSnapAlignDistribute) {
+      iGraphSnapAlignDistribute.snapToGrid();
     }
   }
 
@@ -959,8 +959,8 @@ public class HopGui
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
   public void menuEditAlignLeft() {
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
-    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
-      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignLeft();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute iGraphSnapAlignDistribute) {
+      iGraphSnapAlignDistribute.alignLeft();
       activeFileTypeHandler.updateGui();
     }
   }
@@ -975,8 +975,8 @@ public class HopGui
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
   public void menuEditAlignRight() {
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
-    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
-      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignRight();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute iGraphSnapAlignDistribute) {
+      iGraphSnapAlignDistribute.alignRight();
       activeFileTypeHandler.updateGui();
     }
   }
@@ -991,8 +991,8 @@ public class HopGui
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
   public void menuEditAlignTop() {
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
-    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
-      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignTop();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute iGraphSnapAlignDistribute) {
+      iGraphSnapAlignDistribute.alignTop();
       activeFileTypeHandler.updateGui();
     }
   }
@@ -1007,8 +1007,8 @@ public class HopGui
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
   public void menuEditAlignBottom() {
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
-    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
-      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignBottom();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute iGraphSnapAlignDistribute) {
+      iGraphSnapAlignDistribute.alignBottom();
       activeFileTypeHandler.updateGui();
     }
   }
@@ -1023,8 +1023,8 @@ public class HopGui
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void menuEditDistributeHorizontal() {
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
-    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
-      ((IGraphSnapAlignDistribute) activeFileTypeHandler).distributeHorizontal();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute iGraphSnapAlignDistribute) {
+      iGraphSnapAlignDistribute.distributeHorizontal();
       activeFileTypeHandler.updateGui();
     }
   }
@@ -1039,8 +1039,8 @@ public class HopGui
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   public void menuEditDistributeVertical() {
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
-    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
-      ((IGraphSnapAlignDistribute) activeFileTypeHandler).distributeVertical();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute iGraphSnapAlignDistribute) {
+      iGraphSnapAlignDistribute.distributeVertical();
       activeFileTypeHandler.updateGui();
     }
   }
@@ -1363,8 +1363,8 @@ public class HopGui
 
     // Add it to all the children as well so we don't have any focus issues
     //
-    if (control instanceof Composite) {
-      for (Control child : ((Composite) control).getChildren()) {
+    if (control instanceof Composite compositeControl) {
+      for (Control child : compositeControl.getChildren()) {
         replaceKeyboardShortcutListeners(child, keyHandler);
       }
     }

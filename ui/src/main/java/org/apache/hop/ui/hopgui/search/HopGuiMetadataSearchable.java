@@ -61,8 +61,8 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
 
   @Override
   public String getFilename() {
-    if (serializer instanceof JsonMetadataSerializer) {
-      return ((JsonMetadataSerializer) serializer).calculateFilename(getName());
+    if (serializer instanceof JsonMetadataSerializer jsonMetadataSerializer) {
+      return jsonMetadataSerializer.calculateFilename(getName());
     }
     return null;
   }

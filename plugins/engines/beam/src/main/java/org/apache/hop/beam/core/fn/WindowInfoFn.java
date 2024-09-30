@@ -105,8 +105,8 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
       // Use the last field in the output
       //
       if (StringUtils.isNotEmpty(startWindowField)) {
-        if (window instanceof IntervalWindow) {
-          IntervalWindow intervalWindow = (IntervalWindow) window;
+        if (window instanceof IntervalWindow intervalWindowInstance) {
+          IntervalWindow intervalWindow = intervalWindowInstance;
           Instant start = intervalWindow.start();
           if (start != null) {
             outputRow[fieldIndex] = start.toDate();
@@ -115,8 +115,8 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
         fieldIndex++;
       }
       if (StringUtils.isNotEmpty(endWindowField)) {
-        if (window instanceof IntervalWindow) {
-          IntervalWindow intervalWindow = (IntervalWindow) window;
+        if (window instanceof IntervalWindow intervalWindowInstance) {
+          IntervalWindow intervalWindow = intervalWindowInstance;
           Instant end = intervalWindow.end();
           if (end != null) {
             outputRow[fieldIndex] = end.toDate();

@@ -229,8 +229,8 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
             if (isDetailed()) {
               logDetailed(("Start compiledScript found!"));
             }
-            if (data.engine instanceof Compilable) {
-              CompiledScript startScript = ((Compilable) data.engine).compile(strStartScript);
+            if (data.engine instanceof Compilable compilable) {
+              CompiledScript startScript = compilable.compile(strStartScript);
               startScript.eval(bindings);
             } else {
               // Can't compile beforehand, so just eval it
@@ -249,8 +249,8 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
 
         data.rawScript = strTransformScript;
         // Now Compile our Script if supported by the engine
-        if (data.engine instanceof Compilable) {
-          data.compiledScript = ((Compilable) data.engine).compile(strTransformScript);
+        if (data.engine instanceof Compilable compilable) {
+          data.compiledScript = compilable.compile(strTransformScript);
 
         } else {
           data.compiledScript = null;

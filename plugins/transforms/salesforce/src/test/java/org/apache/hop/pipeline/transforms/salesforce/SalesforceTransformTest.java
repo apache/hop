@@ -170,7 +170,7 @@ public class SalesforceTransformTest {
     Date date = dateFormat.parse("12-10-2017 15:10:25");
     Mockito.when(valueMeta.isDate()).thenReturn(true);
     Mockito.when(valueMeta.getDateFormatTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
-    Mockito.when(valueMeta.getDate(Mockito.eq(date))).thenReturn(date);
+    Mockito.when(valueMeta.getDate(date)).thenReturn(date);
     Object value = transform.normalizeValue(valueMeta, date);
     Assert.assertTrue(value instanceof Calendar);
     DateFormat minutesDateFormat = new SimpleDateFormat("mm:ss");

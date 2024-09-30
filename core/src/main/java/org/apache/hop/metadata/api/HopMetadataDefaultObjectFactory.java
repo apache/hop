@@ -37,9 +37,9 @@ public class HopMetadataDefaultObjectFactory implements IHopMetadataObjectFactor
       // By default, inherit variables from a parent object.
       //
       if (parentObject != null) {
-        if (parentObject instanceof IVariables) {
-          if (object instanceof IVariables) {
-            ((IVariables) object).initializeFrom((IVariables) parentObject);
+        if (parentObject instanceof IVariables iVariablesParentObject) {
+          if (object instanceof IVariables iVariablesObject) {
+            iVariablesObject.initializeFrom(iVariablesParentObject);
           }
         }
       }

@@ -38,8 +38,8 @@ public class ActionDebugLevelToolTipExtensionPoint extends BeePainter
 
     AreaOwner areaOwner = ext.areaOwner;
     try {
-      if (areaOwner.getOwner() instanceof ActionDebugLevel) {
-        ActionDebugLevel debugLevel = (ActionDebugLevel) areaOwner.getOwner();
+      if (areaOwner.getOwner() instanceof ActionDebugLevel actionDebugLevel) {
+        ActionDebugLevel debugLevel = actionDebugLevel;
         ext.tip.append("Custom action debug level: " + debugLevel.toString());
       }
     } catch (Exception e) {

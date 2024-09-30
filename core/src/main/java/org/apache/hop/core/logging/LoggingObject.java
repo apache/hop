@@ -40,8 +40,8 @@ public class LoggingObject implements ILoggingObject {
   private boolean forcingSeparateLogging;
 
   public LoggingObject(Object object) {
-    if (object instanceof ILoggingObject) {
-      grabLoggingObjectInformation((ILoggingObject) object);
+    if (object instanceof ILoggingObject iLoggingObject) {
+      grabLoggingObjectInformation(iLoggingObject);
     } else {
       grabObjectInformation(object);
     }
@@ -169,9 +169,9 @@ public class LoggingObject implements ILoggingObject {
       return;
     }
 
-    if (parentObject instanceof ILoggingObject) {
+    if (parentObject instanceof ILoggingObject iLoggingObject) {
 
-      parent = (ILoggingObject) parentObject;
+      parent = iLoggingObject;
 
       // See if the parent is already in the logging registry.
       // This prevents the logging registry from hanging onto Pipeline and Job objects that would

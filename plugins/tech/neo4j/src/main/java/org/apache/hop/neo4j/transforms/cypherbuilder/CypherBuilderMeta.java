@@ -109,8 +109,8 @@ public class CypherBuilderMeta extends BaseTransformMeta<CypherBuilder, CypherBu
     // These will be returned as fields.
     //
     for (IOperation operation : operations) {
-      if (operation instanceof ReturnOperation) {
-        ReturnOperation returnOperation = (ReturnOperation) operation;
+      if (operation instanceof ReturnOperation returnOperationValue) {
+        ReturnOperation returnOperation = returnOperationValue;
         List<ReturnValue> returnValues = returnOperation.getReturnValues();
         for (ReturnValue returnValue : returnValues) {
           IValueMeta valueMeta = returnValue.createValueMeta();

@@ -161,14 +161,14 @@ public class SolutionsWorkbenchImporter {
     if (obj == null) {
       return Double.valueOf(0);
     }
-    if (obj instanceof Double) {
-      return (Double) obj;
+    if (obj instanceof Double doubleValue) {
+      return doubleValue;
     }
-    if (obj instanceof Float) {
-      return ((Float) obj).doubleValue();
+    if (obj instanceof Float floatValue) {
+      return floatValue.doubleValue();
     }
-    if (obj instanceof Long) {
-      return ((Long) obj).doubleValue();
+    if (obj instanceof Long longValue) {
+      return longValue.doubleValue();
     }
     throw new RuntimeException("Unrecognized data type for value " + obj.toString());
   }

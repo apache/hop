@@ -220,21 +220,20 @@ public class HopGuiAuditDelegate {
             stateProperties.put(STATE_PROPERTY_ACTIVE, active);
 
             auditStateMap.add(new AuditState(filename, stateProperties));
-          } else if (typeHandler instanceof MetadataEditor<?>) {
+          } else if (typeHandler instanceof MetadataEditor<?> metadataEditorTypeHandler
+              && StringUtils.isNotEmpty(name)) {
             // Don't save new unchanged metadata objects...
             //
-            if (StringUtils.isNotEmpty(name)) {
-              // Metadata saved by name
-              // We also need to store the metadata type...
-              //
-              MetadataEditor<?> metadataEditor = (MetadataEditor<?>) typeHandler;
-              IHopMetadata metadata = metadataEditor.getMetadata();
-              Class<? extends IHopMetadata> metadataClass = metadata.getClass();
+            // Metadata saved by name
+            // We also need to store the metadata type...
+            //
+            MetadataEditor<?> metadataEditor = metadataEditorTypeHandler;
+            IHopMetadata metadata = metadataEditor.getMetadata();
+            Class<? extends IHopMetadata> metadataClass = metadata.getClass();
 
-              // Save as METADATA:className:name
-              //
-              files.add(METADATA_FILENAME_PREFIX + metadataClass.getName() + ":" + name);
-            }
+            // Save as METADATA:className:name
+            //
+            files.add(METADATA_FILENAME_PREFIX + metadataClass.getName() + ":" + name);
           }
         }
         AuditList auditList = new AuditList(files);

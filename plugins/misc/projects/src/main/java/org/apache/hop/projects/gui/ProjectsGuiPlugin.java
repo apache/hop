@@ -256,8 +256,8 @@ public class ProjectsGuiPlugin {
             .getMainToolbarWidgets()
             .getWidgetsMap()
             .get(ProjectsGuiPlugin.ID_TOOLBAR_PROJECT_COMBO);
-    if (control instanceof Combo) {
-      return (Combo) control;
+    if (control instanceof Combo combo) {
+      return combo;
     }
     return null;
   }
@@ -268,8 +268,8 @@ public class ProjectsGuiPlugin {
             .getMainToolbarWidgets()
             .getWidgetsMap()
             .get(ProjectsGuiPlugin.ID_TOOLBAR_ENVIRONMENT_COMBO);
-    if (control instanceof Combo) {
-      return (Combo) control;
+    if (control instanceof Combo combo) {
+      return combo;
     }
     return null;
   }

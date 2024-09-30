@@ -96,8 +96,8 @@ public class BeanLevelInfo<Meta extends Object> {
     while (type != null) {
       Class<Meta> clazz;
       ParameterizedType pt;
-      if (type instanceof ParameterizedType) {
-        pt = (ParameterizedType) type;
+      if (type instanceof ParameterizedType parameterizedType) {
+        pt = parameterizedType;
         clazz = (Class<Meta>) pt.getRawType();
       } else {
         pt = null;
@@ -162,8 +162,8 @@ public class BeanLevelInfo<Meta extends Object> {
       if (f.getType().isArray()) {
         Type ff = f.getGenericType();
         leaf.dim = DIMENSION.ARRAY;
-        if (ff instanceof GenericArrayType) {
-          GenericArrayType ffg = (GenericArrayType) ff;
+        if (ff instanceof GenericArrayType genericArrayType) {
+          GenericArrayType ffg = genericArrayType;
           t = resolveGenericType(ffg.getGenericComponentType(), genericsInfo);
         } else {
           t = f.getType().getComponentType();
@@ -181,8 +181,8 @@ public class BeanLevelInfo<Meta extends Object> {
         leaf.dim = DIMENSION.NONE;
         t = resolveGenericType(f.getGenericType(), genericsInfo);
       }
-      if (t instanceof ParameterizedType) {
-        ParameterizedType pt = (ParameterizedType) t;
+      if (t instanceof ParameterizedType parameterizedType) {
+        ParameterizedType pt = parameterizedType;
         leaf.leafClass = (Class<?>) pt.getRawType();
       } else {
         leaf.leafClass = (Class<?>) t;

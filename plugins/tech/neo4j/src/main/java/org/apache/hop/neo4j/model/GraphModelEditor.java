@@ -778,8 +778,10 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
         }
 
         TableEditor editor = wNodeLabels.getEditor();
-        if (editor != null && editor.getEditor() != null && (editor.getEditor() instanceof Text)) {
-          Text text = (Text) editor.getEditor();
+        if (editor != null
+            && editor.getEditor() != null
+            && (editor.getEditor() instanceof Text textEditor)) {
+          Text text = textEditor;
           if (!text.isDisposed() && !labels.contains(text.getText())) {
             labels.add(text.getText());
           }

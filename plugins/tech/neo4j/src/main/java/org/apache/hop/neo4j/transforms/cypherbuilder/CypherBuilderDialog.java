@@ -1485,16 +1485,16 @@ public class CypherBuilderDialog extends BaseTransformDialog {
       // We also want the text in the text editor buffer.
       //
       String newValue = "";
-      if (e.widget instanceof Text) {
-        newValue = ((Text) e.widget).getText();
-      } else if (e.widget instanceof TextVar) {
-        newValue = ((TextVar) e.widget).getText();
-      } else if (e.widget instanceof CCombo) {
-        newValue = ((CCombo) e.widget).getText();
-      } else if (e.widget instanceof Combo) {
-        newValue = ((Combo) e.widget).getText();
-      } else if (e.widget instanceof ComboVar) {
-        newValue = ((ComboVar) e.widget).getText();
+      if (e.widget instanceof Text text) {
+        newValue = text.getText();
+      } else if (e.widget instanceof TextVar textVar) {
+        newValue = textVar.getText();
+      } else if (e.widget instanceof CCombo cCombo) {
+        newValue = cCombo.getText();
+      } else if (e.widget instanceof Combo combo) {
+        newValue = combo.getText();
+      } else if (e.widget instanceof ComboVar comboVar) {
+        newValue = comboVar.getText();
       }
 
       TableItem activeItem = tableView.table.getSelection()[0];

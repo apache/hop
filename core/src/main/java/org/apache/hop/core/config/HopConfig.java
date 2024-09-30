@@ -120,11 +120,11 @@ public class HopConfig extends ConfigFile implements IConfigFile {
     if (Utils.isEmpty(value.toString())) {
       return defaultValue;
     }
-    if (value instanceof Boolean) {
-      return (Boolean) value;
+    if (value instanceof Boolean bool) {
+      return bool;
     }
-    if (value instanceof Integer) {
-      return ((Integer) value) != 0;
+    if (value instanceof Integer integer) {
+      return integer != 0;
     }
     String str = value.toString();
     return Const.toBoolean(str);

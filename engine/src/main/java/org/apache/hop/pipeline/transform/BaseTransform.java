@@ -482,8 +482,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     //
     IPipelineEngineRunConfiguration engineRunConfiguration =
         pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
-    if (engineRunConfiguration instanceof LocalPipelineRunConfiguration) {
-      if (((LocalPipelineRunConfiguration) engineRunConfiguration).isSafeModeEnabled()) {
+    if (engineRunConfiguration
+        instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration) {
+      if (localPipelineRunConfiguration.isSafeModeEnabled()) {
         allowEmptyFieldNamesAndTypes =
             ValueMetaBase.convertStringToBoolean(
                 System.getProperties()

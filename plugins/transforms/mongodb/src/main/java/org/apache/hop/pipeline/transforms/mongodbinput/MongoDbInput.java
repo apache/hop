@@ -136,8 +136,8 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
 
       return true;
     } catch (Exception e) {
-      if (e instanceof HopException) {
-        throw (HopException) e;
+      if (e instanceof HopException hopException) {
+        throw hopException;
       } else {
         throw new HopException(e);
       }

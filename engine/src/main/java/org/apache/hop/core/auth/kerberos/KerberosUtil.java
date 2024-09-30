@@ -151,10 +151,10 @@ public class KerberosUtil {
           public void handle(Callback[] callbacks)
               throws IOException, UnsupportedCallbackException {
             for (Callback callback : callbacks) {
-              if (callback instanceof NameCallback) {
-                ((NameCallback) callback).setName(principal);
-              } else if (callback instanceof PasswordCallback) {
-                ((PasswordCallback) callback).setPassword(password.toCharArray());
+              if (callback instanceof NameCallback nameCallback) {
+                nameCallback.setName(principal);
+              } else if (callback instanceof PasswordCallback passwordCallback) {
+                passwordCallback.setPassword(password.toCharArray());
               } else {
                 throw new UnsupportedCallbackException(callback);
               }

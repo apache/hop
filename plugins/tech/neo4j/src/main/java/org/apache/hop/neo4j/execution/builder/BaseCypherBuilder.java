@@ -40,10 +40,9 @@ public abstract class BaseCypherBuilder implements ICypherBuilder {
 
   protected void addParameter(String property, Object value) {
     if (value != null) {
-      if (value instanceof Date) {
+      if (value instanceof Date date) {
         // Convert to LocalDateTime
-        parameters.put(
-            property, LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault()));
+        parameters.put(property, LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
       } else {
         parameters.put(property, value);
       }

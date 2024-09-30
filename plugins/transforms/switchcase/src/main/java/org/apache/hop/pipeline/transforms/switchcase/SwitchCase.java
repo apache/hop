@@ -87,10 +87,8 @@ public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> {
       putRowTo(data.outputRowMeta, r, rowSet);
     }
 
-    if (checkFeedback(getLinesRead())) {
-      if (isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "SwitchCase.Log.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "SwitchCase.Log.LineNumber") + getLinesRead());
     }
 
     return true;
@@ -213,6 +211,6 @@ public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> {
   }
 
   protected static Object prepareObjectType(Object o) {
-    return (o instanceof byte[]) ? Arrays.hashCode((byte[]) o) : o;
+    return (o instanceof byte[] bytes) ? Arrays.hashCode(bytes) : o;
   }
 }

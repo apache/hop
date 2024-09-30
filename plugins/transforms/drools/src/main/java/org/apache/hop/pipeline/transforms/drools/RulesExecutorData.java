@@ -166,7 +166,7 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
             new ObjectFilter() {
               @Override
               public boolean accept(Object o) {
-                if (o instanceof Rules.Column && !((Rules.Column) o).isExternalSource()) {
+                if (o instanceof Rules.Column column && !column.isExternalSource()) {
                   return true;
                 }
                 return false;

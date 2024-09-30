@@ -149,8 +149,8 @@ public class KeyValue<T> implements Serializable {
     if (this.value == null) {
       return null;
     }
-    if (this.value instanceof Boolean) {
-      return (Boolean) this.value;
+    if (this.value instanceof Boolean bool) {
+      return bool;
     }
     final String stringValue = this.stringValue();
     if (ignoreCase) {
@@ -187,8 +187,8 @@ public class KeyValue<T> implements Serializable {
     if (this.value == null) {
       return null;
     }
-    if (this.value instanceof String) {
-      return (String) this.value;
+    if (this.value instanceof String string) {
+      return string;
     }
     return String.valueOf(this.value);
   }
@@ -225,8 +225,8 @@ public class KeyValue<T> implements Serializable {
     if (this.value == null) {
       return null;
     }
-    if (this.value instanceof Integer) {
-      return (Integer) this.value;
+    if (this.value instanceof Integer integer) {
+      return integer;
     }
     return Integer.valueOf(String.valueOf(this.value));
   }
@@ -254,8 +254,8 @@ public class KeyValue<T> implements Serializable {
     if (this.value == null) {
       return null;
     }
-    if (this.value instanceof Long) {
-      return (Long) this.value;
+    if (this.value instanceof Long longValue) {
+      return longValue;
     }
     return Long.valueOf(String.valueOf(this.value));
   }
@@ -283,8 +283,8 @@ public class KeyValue<T> implements Serializable {
     if (this.value == null) {
       return null;
     }
-    if (this.value instanceof Double) {
-      return (Double) this.value;
+    if (this.value instanceof Double doubleValue) {
+      return doubleValue;
     }
     return Double.valueOf(String.valueOf(this.value));
   }
@@ -312,8 +312,8 @@ public class KeyValue<T> implements Serializable {
     if (this.value == null) {
       return null;
     }
-    if (this.value instanceof Float) {
-      return (Float) this.value;
+    if (this.value instanceof Float floatValue) {
+      return floatValue;
     }
     return Float.valueOf(String.valueOf(this.value));
   }

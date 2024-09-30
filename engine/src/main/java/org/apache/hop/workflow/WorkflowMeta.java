@@ -731,8 +731,8 @@ public class WorkflowMeta extends AbstractMeta
     if (deleted != null) {
       // give transform a chance to cleanup
       deleted.setParentWorkflowMeta(null);
-      if (deleted.getAction() instanceof MissingAction) {
-        removeMissingAction((MissingAction) deleted.getAction());
+      if (deleted.getAction() instanceof MissingAction missingAction) {
+        removeMissingAction(missingAction);
       }
     }
     setChanged();

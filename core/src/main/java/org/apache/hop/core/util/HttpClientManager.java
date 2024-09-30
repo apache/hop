@@ -205,8 +205,8 @@ public class HttpClientManager {
     // Get hold of the default trust manager
     X509TrustManager defaultTm = null;
     for (TrustManager tm : tmf.getTrustManagers()) {
-      if (tm instanceof X509TrustManager) {
-        defaultTm = (X509TrustManager) tm;
+      if (tm instanceof X509TrustManager x509TrustManager) {
+        defaultTm = x509TrustManager;
         break;
       }
     }
@@ -223,8 +223,8 @@ public class HttpClientManager {
     // Get hold of the default trust manager
     X509TrustManager trustManager = null;
     for (TrustManager tm : tmf.getTrustManagers()) {
-      if (tm instanceof X509TrustManager) {
-        trustManager = (X509TrustManager) tm;
+      if (tm instanceof X509TrustManager x509TrustManager) {
+        trustManager = x509TrustManager;
         break;
       }
     }

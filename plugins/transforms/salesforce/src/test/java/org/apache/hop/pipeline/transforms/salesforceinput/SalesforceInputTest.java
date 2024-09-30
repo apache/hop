@@ -39,7 +39,7 @@ public class SalesforceInputTest {
     int copyNr = 0;
     PipelineMeta pipelineMeta = Mockito.mock(PipelineMeta.class);
     Pipeline pipeline = Mockito.spy(new LocalPipelineEngine());
-    Mockito.when(pipelineMeta.findTransform(Mockito.eq(name))).thenReturn(transformMeta);
+    Mockito.when(pipelineMeta.findTransform(name)).thenReturn(transformMeta);
 
     SalesforceInputMeta meta = new SalesforceInputMeta();
     SalesforceInputData data = new SalesforceInputData();
@@ -48,10 +48,10 @@ public class SalesforceInputTest {
         new SalesforceInput(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
 
     data.outputRowMeta = Mockito.mock(RowMeta.class);
-    Mockito.when(data.outputRowMeta.getValueMeta(Mockito.eq(0))).thenReturn(new ValueMetaBinary());
+    Mockito.when(data.outputRowMeta.getValueMeta(0)).thenReturn(new ValueMetaBinary());
 
     data.convertRowMeta = Mockito.mock(RowMeta.class);
-    Mockito.when(data.convertRowMeta.getValueMeta(Mockito.eq(0))).thenReturn(new ValueMetaString());
+    Mockito.when(data.convertRowMeta.getValueMeta(0)).thenReturn(new ValueMetaString());
 
     Object[] outputRowData = new Object[1];
     byte[] binary = {0, 1, 0, 1, 1, 1};

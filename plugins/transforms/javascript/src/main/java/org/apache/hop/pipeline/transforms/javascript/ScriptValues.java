@@ -503,8 +503,8 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
       addValues(getInputRowMeta(), r);
     } catch (HopValueException e) {
       String location = null;
-      if (e.getCause() instanceof EvaluatorException) {
-        EvaluatorException ee = (EvaluatorException) e.getCause();
+      if (e.getCause() instanceof EvaluatorException evaluatorException) {
+        EvaluatorException ee = evaluatorException;
         location = "--> " + ee.lineNumber() + ":" + ee.columnNumber();
       }
 

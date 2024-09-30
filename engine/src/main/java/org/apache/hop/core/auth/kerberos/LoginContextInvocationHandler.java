@@ -76,8 +76,8 @@ public class LoginContextInvocationHandler<T> implements InvocationHandler {
                 return result;
               });
     } catch (PrivilegedActionException e) {
-      if (e.getCause() instanceof InvocationTargetException) {
-        throw ((InvocationTargetException) e.getCause()).getCause();
+      if (e.getCause() instanceof InvocationTargetException invocationTargetException) {
+        throw invocationTargetException.getCause().getCause();
       }
       throw e;
     }

@@ -81,13 +81,13 @@ public class FileLoggingEventListener implements IHopLoggingEventListener {
 
     try {
       Object messageObject = event.getMessage();
-      if (messageObject instanceof LogMessage) {
+      if (messageObject instanceof LogMessage logMessage) {
         boolean logToFile = false;
 
         if (logChannelId == null) {
           logToFile = true;
         } else {
-          LogMessage message = (LogMessage) messageObject;
+          LogMessage message = logMessage;
           // This should be fast enough cause cached.
           List<String> logChannelChildren =
               LoggingRegistry.getInstance().getLogChannelChildren(logChannelId);

@@ -441,8 +441,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     if (item != null) {
       Control control = widgetsMap.get(id);
       if (control != null) {
-        if (control instanceof Combo) {
-          Combo combo = (Combo) control;
+        if (control instanceof Combo comboControl) {
+          Combo combo = comboControl;
           combo.setItems(getComboItems(item));
         } else {
           LogChannel.UI.logError(
@@ -462,8 +462,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     GuiToolbarItem item = guiToolBarMap.get(id);
     if (item != null) {
       Control control = widgetsMap.get(id);
-      if (control instanceof Combo) {
-        Combo combo = (Combo) control;
+      if (control instanceof Combo comboControl) {
+        Combo combo = comboControl;
         combo.setText(Const.NVL(string, ""));
         int index = Const.indexOfString(string, combo.getItems());
         if (index >= 0) {

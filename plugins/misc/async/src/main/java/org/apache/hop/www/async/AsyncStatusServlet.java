@@ -139,8 +139,8 @@ public class AsyncStatusServlet extends BaseHttpServlet implements IHopServerPlu
       // Add the pipeline statuses found in the parent workflow...
       //
       for (Object dataValue : workflow.getExtensionDataMap().values()) {
-        if (dataValue instanceof HopServerPipelineStatus) {
-          status.getPipelineStatuses().add((HopServerPipelineStatus) dataValue);
+        if (dataValue instanceof HopServerPipelineStatus hopServerPipelineStatus) {
+          status.getPipelineStatuses().add(hopServerPipelineStatus);
         }
       }
 

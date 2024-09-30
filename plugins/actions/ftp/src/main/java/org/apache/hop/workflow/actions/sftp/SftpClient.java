@@ -197,8 +197,8 @@ public class SftpClient {
       if (v != null) {
         for (int i = 0; i < v.size(); i++) {
           Object obj = v.elementAt(i);
-          if (obj != null && obj instanceof com.jcraft.jsch.ChannelSftp.LsEntry) {
-            LsEntry lse = (com.jcraft.jsch.ChannelSftp.LsEntry) obj;
+          if (obj != null && obj instanceof com.jcraft.jsch.ChannelSftp.LsEntry lsEntry) {
+            LsEntry lse = lsEntry;
             if (!lse.getAttrs().isDir()) {
               o.add(lse.getFilename());
             }

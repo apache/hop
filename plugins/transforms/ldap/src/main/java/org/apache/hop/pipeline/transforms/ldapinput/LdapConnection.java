@@ -578,8 +578,8 @@ public class LdapConnection {
           Control[] rc = getInitialContext().getResponseControls();
           if (rc != null) {
             for (int i = 0; i < rc.length; i++) {
-              if (rc[i] instanceof PagedResultsResponseControl) {
-                PagedResultsResponseControl prc = (PagedResultsResponseControl) rc[i];
+              if (rc[i] instanceof PagedResultsResponseControl pagedResultsResponseControl) {
+                PagedResultsResponseControl prc = pagedResultsResponseControl;
                 cookie = prc.getCookie();
               }
             }

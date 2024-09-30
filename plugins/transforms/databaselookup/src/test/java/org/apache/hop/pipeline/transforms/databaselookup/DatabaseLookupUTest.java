@@ -28,7 +28,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -135,51 +134,6 @@ public class DatabaseLookupUTest {
     return mockHelper;
   }
 
-  private DatabaseLookupMeta createDatabaseLookup() throws HopException {
-    NoneDatabaseMeta genericMeta = new NoneDatabaseMeta();
-    DatabaseMeta dbMeta = new DatabaseMeta();
-    dbMeta.setIDatabase(genericMeta);
-
-    DatabaseLookupMeta meta = new DatabaseLookupMeta();
-    Lookup lookup = meta.getLookup();
-
-    // meta.setDatabaseMeta(dbMeta);
-    lookup.setSchemaName("VirtualSchema");
-    lookup.setTableName("VirtualTable");
-    lookup.getKeyFields().add(new KeyField("", "", "=", ID_FIELD));
-    lookup
-        .getReturnValues()
-        .add(
-            new ReturnValue(
-                BINARY_FIELD,
-                "returned value",
-                "",
-                "Binary",
-                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
-
-    meta = spy(meta);
-    doAnswer(
-            invocation -> {
-              IRowMeta row = (IRowMeta) invocation.getArguments()[0];
-              IValueMeta v = new ValueMetaBinary(BINARY_FIELD);
-              row.addValueMeta(v);
-              return null;
-            })
-        .when(meta)
-        .getFields(
-            any(IRowMeta.class),
-            anyString(),
-            any(IRowMeta[].class),
-            any(TransformMeta.class),
-            any(IVariables.class),
-            any(IHopMetadataProvider.class));
-    return meta;
-  }
-
-  private DatabaseLookupData createDatabaseData() {
-    return new DatabaseLookupData();
-  }
-
   private Database createVirtualDb(DatabaseMeta meta) throws Exception {
     ResultSet rs = mock(ResultSet.class);
     when(rs.getMetaData()).thenReturn(mock(ResultSetMetaData.class));
@@ -224,7 +178,7 @@ public class DatabaseLookupUTest {
         new DatabaseLookup(mocks.transformMeta, meta, data, 1, mocks.pipelineMeta, mocks.pipeline);
     lookup = Mockito.spy(lookup);
 
-    doReturn(db).when(lookup).getDatabase(eq(dbMeta));
+    doReturn(db).when(lookup).getDatabase(dbMeta);
     for (IRowSet rowSet : lookup.getOutputRowSets()) {
       if (mockingDetails(rowSet).isMock()) {
         when(rowSet.putRow(any(IRowMeta.class), any(Object[].class))).thenReturn(true);
@@ -251,7 +205,6 @@ public class DatabaseLookupUTest {
     meta.setConnection("connection1");
     Lookup lookup = meta.getLookup();
 
-    // meta.setDatabaseMeta(dbMeta);
     lookup.setTableName("VirtualTable");
     lookup.getKeyFields().add(new KeyField("", "", "=", "ID1"));
     lookup.getKeyFields().add(new KeyField("", "", "IS NULL", "ID2"));

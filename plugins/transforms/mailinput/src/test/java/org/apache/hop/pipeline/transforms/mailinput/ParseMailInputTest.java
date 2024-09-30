@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.mailinput;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -160,8 +159,8 @@ public class ParseMailInputTest {
         .thenReturn(getEnum(new Header[] {ex1, ex2}));
 
     // for previous implementation
-    when(message.getHeader(eq(HDR_EX1))).thenReturn(new String[] {ex1.getValue()});
-    when(message.getHeader(eq(HDR_EX2))).thenReturn(new String[] {ex2.getValue()});
+    when(message.getHeader(HDR_EX1)).thenReturn(new String[] {ex1.getValue()});
+    when(message.getHeader(HDR_EX2)).thenReturn(new String[] {ex2.getValue()});
   }
 
   /**
