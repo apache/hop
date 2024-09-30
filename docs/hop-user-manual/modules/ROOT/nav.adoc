@@ -466,7 +466,6 @@ under the License.
 ** xref:hop-tools/hop-search.adoc[hop-search]
 ** xref:hop-tools/hop-import.adoc[hop-import]
 ** xref:hop-server/index.adoc[hop-server]
-** xref:hop-tools/hop-translator.adoc[hop-translator]
 * xref:best-practices/index.adoc[Best Practices]
 * xref:protips/index.adoc[Pro Tips]
 * xref:hop-usps.adoc[Unique Selling Propositions]
