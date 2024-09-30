@@ -253,6 +253,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
    * @return String containing the XML describing this transform.
    * @throws HopException in case there is an XML conversion or encoding error
    */
+  @Deprecated(since = "2.10.0", forRemoval = false)
   public String getXml() throws HopException {
     convertIOMetaToTransformNames();
     return XmlMetadataUtil.serializeObjectToXml(this);
@@ -266,6 +267,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
    * @param metadataProvider
    * @throws HopXmlException
    */
+  @Deprecated(since = "2.10.0", forRemoval = false)
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     XmlMetadataUtil.deSerializeFromXml(transformNode, getClass(), this, metadataProvider);
