@@ -42,6 +42,7 @@
             <scope>runtime</scope>
             <excludes>
                 <exclude>org.apache.hop:hop-tech-cassandra:jar</exclude>
+                <exclude>com.github.spotbugs:spotbugs-annotations:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/cassandra/lib</outputDirectory>
         </dependencySet>
