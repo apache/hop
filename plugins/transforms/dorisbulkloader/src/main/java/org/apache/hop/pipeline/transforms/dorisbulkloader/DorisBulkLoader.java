@@ -123,7 +123,7 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
    *
    * @param streamLoadRow the row will be load into doris
    * @param first true then current processed row is the first row
-   * @throws Exception
+   * @throws org.apache.hop.pipeline.transforms.dorisbulkloader.DorisStreamLoadException
    */
   public void processStreamLoad(String streamLoadRow, boolean first)
       throws DorisStreamLoadException {

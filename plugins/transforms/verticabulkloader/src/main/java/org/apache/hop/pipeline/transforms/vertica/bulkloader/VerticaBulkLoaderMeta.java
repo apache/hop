@@ -200,7 +200,7 @@ public class VerticaBulkLoaderMeta
   }
 
   /**
-   * @deprecated use {@link #setTableName()}
+   * @deprecated use {@link #setTableName}
    */
   @Deprecated(since = "2.10")
   public void setTablename(String name) {
@@ -208,7 +208,7 @@ public class VerticaBulkLoaderMeta
   }
 
   /**
-   * @param tablename The tablename to set.
+   * @param name The tablename to set.
    */
   public void setTableName(String name) {
     this.tablename = name;

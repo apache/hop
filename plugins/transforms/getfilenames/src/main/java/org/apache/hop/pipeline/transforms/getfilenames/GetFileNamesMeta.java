@@ -266,7 +266,7 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   }
 
   /**
-   * @param filefield The filefield to set.
+   * @param fileField The filefield to set.
    */
   public void setFileField(boolean fileField) {
     this.fileField = fileField;
@@ -288,7 +288,7 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   }
 
   /**
-   * @param isaddresult The isaddresult to set.
+   * @param addResultFile The isaddresult to set.
    */
   public void setAddResultFile(boolean addResultFile) {
     this.addResultFile = addResultFile;

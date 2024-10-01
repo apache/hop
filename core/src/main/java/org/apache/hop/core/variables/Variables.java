@@ -147,9 +147,9 @@ public class Variables implements IVariables {
   }
 
   /**
-   * Substitutes field values in <code>aString</code>. Field values are of the form "?{<field
-   * name>}". The values are retrieved from the specified row. Please note that the getString()
-   * method is used to convert to a String, for all values in the row.
+   * Substitutes field values in <code>aString</code>. Field values are of the form {@literal
+   * "?{<fieldname>}"} . The values are retrieved from the specified row. Please note that the
+   * getString() method is used to convert to a String, for all values in the row.
    *
    * @param aString the string on which to apply the substitution.
    * @param rowMeta The row metadata to use.

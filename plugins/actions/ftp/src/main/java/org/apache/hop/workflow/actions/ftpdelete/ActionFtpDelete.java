@@ -849,30 +849,18 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     return this.socksProxyPassword;
   }
 
-  /**
-   * @return Sets socks proxy host
-   */
   public void setSocksProxyHost(String socksProxyHost) {
     this.socksProxyHost = socksProxyHost;
   }
 
-  /**
-   * @return Sets socks proxy port
-   */
   public void setSocksProxyPort(String socksProxyPort) {
     this.socksProxyPort = socksProxyPort;
   }
 
-  /**
-   * @return Sets socks proxy username
-   */
   public void setSocksProxyUsername(String socksProxyUsername) {
     this.socksProxyUsername = socksProxyUsername;
   }
 
-  /**
-   * @return Sets socks proxy username
-   */
   public void setSocksProxyPassword(String socksProxyPassword) {
     this.socksProxyPassword = socksProxyPassword;
   }

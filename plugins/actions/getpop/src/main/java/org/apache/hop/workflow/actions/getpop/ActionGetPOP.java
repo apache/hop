@@ -597,11 +597,14 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
   /**
    *
-   * <li>0 = retrieve all
-   * <li>2 = retrieve unread
+   *
+   * <ul>
+   *   <li>0 = retrieve all
+   *   <li>2 = retrieve unread
+   * </ul>
    *
    * @param nr
-   * @see {@link #setValueImapList(int)}
+   * @see #setValueImapList(int)
    */
   public void setRetrievemails(int nr) {
     retrievemails = nr;

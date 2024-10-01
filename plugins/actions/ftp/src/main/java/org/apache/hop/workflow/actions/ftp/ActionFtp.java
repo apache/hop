@@ -566,7 +566,6 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @param path
    * @return normalized path
-   * @throws Exception
    */
   public String normalizePath(String path) {
 

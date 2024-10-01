@@ -52,6 +52,7 @@ import org.w3c.dom.Node;
  *   <li>Whether the pipeline was stopped
  *   <li>Logging information (channel ID and text)
  *       <p>After execution of a workflow or pipeline, the Result can be evaluated.
+ * </ul>
  */
 public class Result implements Cloneable {
 
@@ -808,7 +809,7 @@ public class Result implements Cloneable {
   /**
    * Returns the elapsed time of the ETL execution in milliseconds
    *
-   * @returns elapsed time of the ETL execution in milliseconds
+   * @return elapsed time of the ETL execution in milliseconds
    */
   public long getElapsedTimeMillis() {
     return elapsedTimeMillis;

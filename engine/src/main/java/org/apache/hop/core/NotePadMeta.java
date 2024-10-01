@@ -258,28 +258,28 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   }
 
   /**
-   * @parm red the backGround red color.
+   * @param red the backGround red color.
    */
   public void setBackGroundColorRed(int red) {
     this.backGroundColorRed = red;
   }
 
   /**
-   * @parm green the backGround green color.
+   * @param green the backGround green color.
    */
   public void setBackGroundColorGreen(int green) {
     this.backGroundColorGreen = green;
   }
 
   /**
-   * @parm green the backGround blue color.
+   * @param blue the backGround blue color.
    */
   public void setBackGroundColorBlue(int blue) {
     this.backGroundColorBlue = blue;
   }
 
   /**
-   * @returns the font color red.
+   * @param red the font color red.
    */
   public void setFontColorRed(int red) {
     this.fontColorRed = red;

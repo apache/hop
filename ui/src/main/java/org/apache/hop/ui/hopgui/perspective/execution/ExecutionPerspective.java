@@ -456,7 +456,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
    * @param locationName the exec info location to use
    * @param executionType The type of execution to look for
    * @param name The name of the pipeline
-   * @return The execution or null if none was found
    */
   public void createLastExecutionView(String locationName, ExecutionType executionType, String name)
       throws Exception {

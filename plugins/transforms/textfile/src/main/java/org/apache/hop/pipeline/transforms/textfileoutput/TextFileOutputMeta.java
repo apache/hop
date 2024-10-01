@@ -477,7 +477,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
   }
 
   /**
-   * @return <tt>1</tt> if <tt>isFooterEnabled()</tt> and <tt>0</tt> otherwise
+   * @return <i>1</i> if <i>isFooterEnabled()</i> and <i>0</i> otherwise
    */
   public int getFooterShift() {
     return isFooterEnabled() ? 1 : 0;

@@ -112,7 +112,7 @@ public interface IExecutionInfoLocation extends Cloneable {
    *
    * @param executionId The id of the execution to look for.
    * @param sizeLimit The maximum amount of characters to load from the logging text. Set the limit
-   *     to <=0 if you want to load everything up to a global limit of usually 20MB.
+   *     to {@literal <=0} if you want to load everything up to a global limit of usually 20MB.
    * @return The complete logging text
    * @throws HopException
    */
@@ -132,7 +132,7 @@ public interface IExecutionInfoLocation extends Cloneable {
    *
    * @param includeChildren set to true if you want to see child executions of workflows and
    *     pipelines.
-   * @param limit the maximum number of IDs to retrieve or a value <=0 to get all IDs.
+   * @param limit the maximum number of IDs to retrieve or a value {@literal <=0} to get all IDs.
    * @return The list of execution IDs
    * @throws HopException in case something went wrong
    */

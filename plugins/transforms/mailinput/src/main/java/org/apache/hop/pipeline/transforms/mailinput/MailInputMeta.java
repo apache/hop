@@ -536,12 +536,11 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   }
 
   /**
-   *
-   * <li>0 = retrieve all
-   * <li>2 = retrieve unread
+   * 0 = retrieve all <br>
+   * 2 = retrieve unread
    *
    * @param nr
-   * @see {@link #setValueImapList(int)}
+   * @see #setValueImapList(int)
    */
   public void setRetrievemails(int nr) {
     retrievemails = nr;

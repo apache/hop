@@ -136,7 +136,6 @@ public class Append extends BaseTransform<AppendMeta, AppendData> {
    *
    * @param referenceRowMeta Reference row
    * @param compareRowMeta Row to compare to
-   * @return true when templates are compatible.
    * @throws HopRowException in case there is a compatibility error.
    */
   protected void checkInputLayoutValid(IRowMeta referenceRowMeta, IRowMeta compareRowMeta)

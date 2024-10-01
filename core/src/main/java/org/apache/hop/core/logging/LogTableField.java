@@ -99,7 +99,8 @@ public class LogTableField implements Cloneable {
   /**
    * Create a new enabled log table field with the specified field name for the specified subject.
    *
-   * @param fieldname
+   * @param id
+   * @param fieldName
    * @param subject
    */
   public LogTableField(String id, String fieldName, Object subject) {

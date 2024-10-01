@@ -89,7 +89,8 @@ public class DimensionCache implements Comparator<Object[]> {
    *
    * @param lookupRowData The data of the lookup row. Make sure that on the index of the from date,
    *     you put the lookup date.
-   * @throws a HopException in case there are conversion errors during the lookup of the row
+   * @throws org.apache.hop.core.exception.HopException in case there are conversion errors during
+   *     the lookup of the row
    */
   public int lookupRow(Object[] lookupRowData) throws HopException {
     try {

@@ -277,7 +277,7 @@ public final class Assert { // NOPMD
 
   /**
    * @param value value to test.
-   * @throws IllegalArgumentException if value is null or <= 0.
+   * @throws IllegalArgumentException if value is null or {@literal <= 0 }.
    */
   public static void assertGreaterZero(final Integer value) throws IllegalArgumentException {
     assertGreaterZero(value, "Value must be greater than 0");
@@ -285,7 +285,7 @@ public final class Assert { // NOPMD
 
   /**
    * @param value value to test.
-   * @throws IllegalArgumentException if value is null or <= 0.
+   * @throws IllegalArgumentException if value is null or {@literal <= 0 }.
    */
   public static void assertGreaterZero(final Double value) throws IllegalArgumentException {
     assertGreaterZero(value, "Value must be greater than 0");
@@ -294,7 +294,7 @@ public final class Assert { // NOPMD
   /**
    * @param value value to test.
    * @param message the message.
-   * @throws IllegalArgumentException if value is null or <= 0.
+   * @throws IllegalArgumentException if value is null or {@literal <= 0 }.
    */
   public static void assertGreaterZero(final Double value, final String message)
       throws IllegalArgumentException {
@@ -306,7 +306,7 @@ public final class Assert { // NOPMD
   /**
    * @param value value to test.
    * @param message the message.
-   * @throws IllegalArgumentException if value is null or <= 0.
+   * @throws IllegalArgumentException if value is null or {@literal <= 0 }.
    */
   public static void assertGreaterZero(final Integer value, final String message)
       throws IllegalArgumentException {

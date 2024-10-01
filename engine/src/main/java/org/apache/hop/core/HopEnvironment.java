@@ -29,7 +29,6 @@ import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
@@ -214,11 +213,7 @@ public class HopEnvironment {
     }
   }
 
-  /**
-   * Loads the plugin registry.
-   *
-   * @throws HopPluginException if any errors are encountered while loading the plugin registry.
-   */
+  /** Loads the plugin registry. */
   public void loadPluginRegistry() {
     // Do Nothing
   }

@@ -122,7 +122,8 @@ public class RowMeta implements IRowMeta {
    *
    * @param targetType The target type
    * @return The cloned metadata
-   * @throws if the target type could not be loaded from the plugin registry
+   * @throws org.apache.hop.core.exception.HopValueException if the target type could not be loaded
+   *     from the plugin registry
    */
   @Override
   public IRowMeta cloneToType(int targetType) throws HopValueException {
@@ -1195,7 +1196,8 @@ public class RowMeta implements IRowMeta {
    * Create a new row metadata object from XML
    *
    * @param node the XML node to deserialize from
-   * @throws IOException Thrown in case there is an (Base64/GZip) decoding problem
+   * @throws org.apache.hop.core.exception.HopException Thrown in case there is an (Base64/GZip)
+   *     decoding problem
    */
   public RowMeta(Node node) throws HopException {
     this();
@@ -1245,7 +1247,8 @@ public class RowMeta implements IRowMeta {
    *
    * @param node The data row node
    * @return a row of data, converted from XML
-   * @throws IOException Thrown in case there is an (Base64/GZip) decoding problem
+   * @throws org.apache.hop.core.exception.HopException Thrown in case there is an (Base64/GZip)
+   *     decoding problem
    */
   @Override
   public Object[] getRow(Node node) throws HopException {

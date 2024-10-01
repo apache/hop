@@ -586,7 +586,8 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
    *
    * @param parent the parent composite object
    * @param previous the previous control
-   * @param
+   * @param selected the selected DatabaseMeta
+   * @param lsMod Changed listener
    * @return the combo box UI component
    */
   public MetaSelectionLine<DatabaseMeta> addConnectionLine(

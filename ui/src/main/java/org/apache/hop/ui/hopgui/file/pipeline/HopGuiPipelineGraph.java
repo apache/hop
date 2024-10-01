@@ -3582,8 +3582,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   /**
    * @param pipelineMeta the pipelineMeta to set
-   * @return the pipelineMeta / public PipelineMeta getPipelineMeta() { return pipelineMeta; }
-   *     <p>/**
    */
   public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;

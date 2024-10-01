@@ -27,7 +27,6 @@ import org.apache.hop.i18n.BaseMessages;
  * [...]
  * private static final PluginMessages MESSAGES = PluginMessages.getMessages([class]).
  * [...]
- * <p>
  * MESSAGES.getString([key])
  * </code>
  */

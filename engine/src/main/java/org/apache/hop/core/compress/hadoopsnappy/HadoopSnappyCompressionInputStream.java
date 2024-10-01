@@ -59,7 +59,7 @@ public class HadoopSnappyCompressionInputStream extends CompressionInputStream {
   /**
    * Gets an InputStream that uses the snappy codec and wraps the supplied base input stream.
    *
-   * @param the buffer size for the codec to use (in bytes)
+   * @param bufferSize the buffer size for the codec to use (in bytes)
    * @param in the base input stream to wrap around
    * @return an InputStream that uses the Snappy codec
    * @throws Exception if snappy is not available or an error occurs during reflection

@@ -73,14 +73,14 @@ public class SnowflakeBulkLoaderMeta
   public static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
   public static final String TIMESTAMP_FORMAT_STRING = "YYYY-MM-DD HH24:MI:SS.FF3";
 
-  /** The valid location type codes {@value} */
+  /** The valid location type codes */
   public static final String[] LOCATION_TYPE_CODES = {"user", "table", "internal_stage"};
 
   public static final int LOCATION_TYPE_USER = 0;
   public static final int LOCATION_TYPE_TABLE = 1;
   public static final int LOCATION_TYPE_INTERNAL_STAGE = 2;
 
-  /** The valid on error codes {@value} */
+  /** The valid on error codes */
   public static final String[] ON_ERROR_CODES = {
     "continue", "skip_file", "skip_file_percent", "abort"
   };
@@ -90,7 +90,7 @@ public class SnowflakeBulkLoaderMeta
   public static final int ON_ERROR_SKIP_FILE_PERCENT = 2;
   public static final int ON_ERROR_ABORT = 3;
 
-  /** The valid data type codes {@value} */
+  /** The valid data type codes */
   public static final String[] DATA_TYPE_CODES = {"csv", "json"};
 
   public static final int DATA_TYPE_CSV = 0;

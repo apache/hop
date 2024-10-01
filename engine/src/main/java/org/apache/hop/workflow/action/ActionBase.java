@@ -576,9 +576,9 @@ public abstract class ActionBase
    * substitution. Truth values include case-insensitive versions of "Y", "YES", "TRUE" or "1".
    *
    * @param variableName the name of the variable to interrogate
+   * @param defaultValue the value to use if the specified variable is unassigned.
    * @return a boolean representation of the specified variable after performing any necessary
    *     substitution
-   * @boolean defaultValue the value to use if the specified variable is unassigned.
    * @see IVariables#getVariableBoolean(String, boolean)
    */
   @Override

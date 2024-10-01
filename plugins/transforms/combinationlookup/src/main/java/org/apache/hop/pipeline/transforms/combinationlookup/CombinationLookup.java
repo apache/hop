@@ -47,21 +47,11 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
- * Manages or looks up information in a Type 1 or junk dimension.
- *
- * <p>
- *
- * <p>1) Lookup combination field1..n in a dimension
- *
- * <p>2) If this combination exists, return technical key
- *
- * <p>3) If this combination doesn't exist, insert & return technical key
- *
- * <p>4) if replace is Y, remove all key fields from output.
- *
- * <p>
- *
- * <p>
+ * Manages or looks up information in a Type 1 or junk dimension. <br>
+ * 1) Lookup combination field1..n in a dimension <br>
+ * 2) If this combination exists, return technical key <br>
+ * 3) If this combination doesn't exist, insert &amp; return technical key <br>
+ * 4) if replace is Y, remove all key fields from output.
  */
 public class CombinationLookup extends BaseTransform<CombinationLookupMeta, CombinationLookupData> {
 

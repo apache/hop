@@ -48,7 +48,6 @@ public class LdapProtocolFactory {
    * Returns the connection types understood by the factory
    *
    * @return the connection types understood by the factory
-   * @throws HopException
    */
   public static final List<String> getConnectionTypes(ILogChannel log) {
     List<String> result = new ArrayList<>();

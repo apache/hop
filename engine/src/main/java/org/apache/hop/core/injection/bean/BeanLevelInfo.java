@@ -72,7 +72,10 @@ public class BeanLevelInfo<Meta extends Object> {
   /** Name on the path : prefix + key usually. */
   public String nameKey;
 
-  /** Flag for the metadata property system with support for simplified List<String> fields */
+  /**
+   * Flag for the metadata property system with support for simplified {@literal List<String>}
+   * fields
+   */
   public boolean stringList = false;
 
   /** To support inflation from a hop metadata provider by name */

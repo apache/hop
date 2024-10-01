@@ -44,13 +44,13 @@ public class ConstUi {
   /** Default checkbox width */
   public static final int CHECKBOX_WIDTH = 20;
 
-  /** Default line width for arrows & around icons */
+  /** Default line width for arrows &amp; around icons */
   public static final int LINE_WIDTH = 1;
 
   /** Default grid size to which the graphical views snap. */
   public static final int GRID_SIZE = 16;
 
-  /** The minimal size of a note on a graphical view (width & height) */
+  /** The minimal size of a note on a graphical view (width &amp; height) */
   public static final int NOTE_MIN_SIZE = 20;
 
   /** Offset between pointer and tooltip position. */

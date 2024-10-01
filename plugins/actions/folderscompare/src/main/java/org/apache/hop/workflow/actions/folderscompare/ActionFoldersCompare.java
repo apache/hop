@@ -195,7 +195,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
    * @param file1 first file to compare
    * @param file2 second file to compare
    * @return true if files are equal, false if they are not
-   * @throws IOException upon IO problems
+   * @throws org.apache.hop.core.exception.HopFileException upon IO problems
    */
   protected boolean equalFileContents(FileObject file1, FileObject file2) throws HopFileException {
     // Really read the contents and do comparisons

@@ -110,7 +110,7 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
   }
 
   /**
-   * @param fieldName The fieldName to set.
+   * @param fields The fieldName to set.
    */
   public void setLogFields(List<LogField> fields) {
     this.logFields = fields;

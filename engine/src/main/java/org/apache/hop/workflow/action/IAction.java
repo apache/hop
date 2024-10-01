@@ -68,20 +68,20 @@ import org.w3c.dom.Node;
  *       tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is typically used to
  *       construct the XML string.<br>
  *       <br>
- *       <a href="#loadXml(org.w3c.dom.Node)"><code>void loadXml(...)</code></a></br> This method is
- *       called by Hop whenever a action needs to read its settings from XML. The XML node
- *       containing the action's settings is passed in as an argument. Again, the helper class
+ *       <code>void loadXml(...)</code><br>
+ *       This method is called by Hop whenever a action needs to read its settings from XML. The XML
+ *       node containing the action's settings is passed in as an argument. Again, the helper class
  *       org.apache.hop.core.xml.XmlHandler is typically used to conveniently read the settings from
  *       the XML node.<br>
  *       <br>
  *       <br>
- *       <quote>Hint: When developing plugins, make sure the serialization code is in sync with the
+ *       <q>Hint: When developing plugins, make sure the serialization code is in sync with the
  *       settings available from the action dialog. When testing a plugin in HopGui, Hop will
- *       internally first save and load a copy of the workflow.</quote><br>
+ *       internally first save and load a copy of the workflow.</q><br>
  *   <li><b>Provide access to dialog class</b><br>
  *       Hop needs to know which class will take care of the settings dialog for the action. The
  *       interface method getDialogClassName() must return the name of the class implementing the
- *       IActionDialog.</br>
+ *       IActionDialog.
  *   <li><b>Provide information about possible outcomes</b><br>
  *       A action may support up to three types of outgoing hops: true, false, and unconditional.
  *       Sometimes it does not make sense to support all three possibilities. For instance, if the
@@ -104,7 +104,7 @@ import org.w3c.dom.Node;
  *       The class implementing IAction executes the actual action task by implementing the
  *       following method: <br>
  *       <br>
- *       <a href="#execute(org.apache.hop.core.Result, int)"><code>Result execute(..)</code></a><br>
+ *       <code>Result execute(..)</code><br>
  *       The execute() method is going to be called by Hop when it is time for the action to execute
  *       its logic. The arguments are a result object, which is passed in from the previously
  *       executed action and an integer number indicating the distance of the action from the start

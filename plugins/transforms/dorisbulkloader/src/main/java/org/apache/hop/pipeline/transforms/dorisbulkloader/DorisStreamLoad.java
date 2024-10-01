@@ -137,7 +137,6 @@ public class DorisStreamLoad {
   /**
    * stop to load buffer data into doris by http api
    *
-   * @return
    * @throws IOException
    */
   public void endWritingIntoBuffer() throws IOException, InterruptedException {
@@ -152,7 +151,6 @@ public class DorisStreamLoad {
    *
    * @return
    * @throws IOException
-   * @throws InterruptedException
    * @throws DorisStreamLoadException
    */
   public ResponseContent executeDorisStreamLoad() throws IOException, DorisStreamLoadException {
@@ -161,7 +159,6 @@ public class DorisStreamLoad {
     put.setHeader(HttpHeaders.AUTHORIZATION, basicAuthHeader(loginUser, loginPassword));
     put.setHeader(
         LoadConstants.LABEL_KEY, LoadConstants.LABEL_SUFFIX + UUID.randomUUID().toString());
-    // put.setHeader("Content-Type", "text/plain; charset=UTF-8");
     if (LoadConstants.JSON.equals(format)) {
       put.setHeader(LoadConstants.STRIP_OUTER_ARRAY_KEY, LoadConstants.STRIP_OUTER_ARRAY_DEFAULT);
     }

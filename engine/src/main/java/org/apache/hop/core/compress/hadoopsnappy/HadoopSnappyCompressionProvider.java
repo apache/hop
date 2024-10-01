@@ -46,11 +46,9 @@ public class HadoopSnappyCompressionProvider implements ICompressionProvider {
   /**
    * Locate the Snappy Shim for the active Hadoop Configuration via the Hadoop Configuration Util
    *
-   * @return A {@link org.apache.hop.hadoop.shim.spi.SnappyShim} to interact with Snappy
    * @throws Exception Error locating a valid Snappy shim:
    *     <p>
    *     <ul>
-   *       <li>{@link org.apache.hop.hadoop.hive.jdbc.HadoopConfigurationUtil} could not be located
    *       <li>No active Hadoop configuration
    *       <li>Active Hadoop configuration doesn't support Snappy
    *     </ul>

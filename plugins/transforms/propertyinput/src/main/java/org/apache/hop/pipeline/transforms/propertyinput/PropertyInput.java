@@ -42,8 +42,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.ini4j.Wini;
 
 /**
- * Read all Properties files (& INI files) , convert them to rows and writes these to one or more
- * output streams.
+ * Read all Properties files (&amp; INI files) , convert them to rows and writes these to one or
+ * more output streams.
  */
 public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInputData> {
   private static final Class<?> PKG = PropertyInputMeta.class;

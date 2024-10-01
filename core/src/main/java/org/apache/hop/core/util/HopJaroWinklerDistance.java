@@ -69,7 +69,6 @@ public class HopJaroWinklerDistance {
    *
    * @param left the first String, must not be null
    * @param right the second String, must not be null
-   * @return result distance
    * @throws IllegalArgumentException if either String input {@code null}
    */
   public void apply(final CharSequence left, final CharSequence right) {

@@ -90,9 +90,9 @@ public class FileMetadataDialog extends BaseTransformDialog {
    * variable, so it can conveniently read and write settings from/to it.
    *
    * @param parent the SWT shell to open the dialog in
-   * @param in the meta object holding the transform's settings
+   * @param variables in the meta object holding the transform's settings
    * @param pipelineMeta transformation description
-   * @param sname the transform name
+   * @param transformMeta name the transform name
    */
   public FileMetadataDialog(
       Shell parent,

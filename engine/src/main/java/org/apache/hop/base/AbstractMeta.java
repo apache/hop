@@ -296,7 +296,7 @@ public abstract class AbstractMeta
    * @param name The database name to look for
    * @param variables IVariables to use to resolve possible database name
    * @param haltOnMissingMeta Raise an exception in case connection is missing
-   * @returnThe database connection or null if nothing was found.
+   * @return The database connection or null if nothing was found.
    */
   public DatabaseMeta findDatabase(String name, IVariables variables, boolean haltOnMissingMeta) {
     if (metadataProvider == null || StringUtils.isEmpty(variables.resolve(name))) {
@@ -991,7 +991,7 @@ public abstract class AbstractMeta
   /**
    * Sets the internal name hop variable.
    *
-   * @param var the new internal name hop variable
+   * @param variables the new internal name hop variable
    */
   protected abstract void setInternalNameHopVariable(IVariables variables);
 

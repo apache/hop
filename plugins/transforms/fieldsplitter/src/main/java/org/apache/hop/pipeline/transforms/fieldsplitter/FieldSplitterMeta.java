@@ -35,51 +35,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * <CODE>
- * Example1:<p>
- * -------------<p>
- * DATUM;VALUES<p>
- * 20031031;500,300,200,100<p>
- * <p>
- * ||<t>        delimiter     = ,<p>
- * \||/<t>       field[]       = SALES1, SALES2, SALES3, SALES4<p>
- * \/<t>        id[]          = <empty><p>
- * <t>        idrem[]       = no, no, no, no<p>
- * <t>       type[]        = Number, Number, Number, Number<p>
- * <t>      format[]      = ###.##, ###.##, ###.##, ###.##<p>
- * <t>      group[]       = <empty><p>
- * <t>      decimal[]     = .<p>
- * <t>      currency[]    = <empty><p>
- * <t>      length[]      = 3, 3, 3, 3<p>
- * <t>      precision[]   = 0, 0, 0, 0<p>
- * <p>
- * DATUM;SALES1;SALES2;SALES3;SALES4<p>
- * 20031031;500;300;200;100<p>
- * <p>
- * Example2:<p>
- * -----------<p>
- * <p>
- * 20031031;Sales2=310.50, Sales4=150.23<p>
- * <p>
- * ||        delimiter     = ,<p>
- * \||/       field[]       = SALES1, SALES2, SALES3, SALES4<p>
- * \/        id[]          = Sales1, Sales2, Sales3, Sales4<p>
- * idrem[]       = yes, yes, yes, yes (remove ID's from split field)<p>
- * type[]        = Number, Number, Number, Number<p>
- * format[]      = ###.##, ###.##, ###.##, ###.##<p>
- * group[]       = <empty><p>
- * decimal[]     = .<p>
- * currency[]    = <empty><p>
- * length[]      = 3, 3, 3, 3<p>
- * precision[]   = 0, 0, 0, 0<p>
- * <p>
- * DATUM;SALES1;SALES2;SALES3;SALES4<p>
- * 20031031;310,50;150,23<p>
- * <p>
- *
- * </CODE>
- */
 @Transform(
     id = "FieldSplitter",
     image = "fieldsplitter.svg",

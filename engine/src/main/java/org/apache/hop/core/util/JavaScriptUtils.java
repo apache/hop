@@ -25,10 +25,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.xml.XmlHandler;
 import org.mozilla.javascript.Context;
 
-/**
- * This class contains common code from {@linkplain org.apache.hop.pipeline.transforms.script} and
- * {@linkplain org.apache.hop.pipeline.transforms} classes
- */
+/** This class contains common code used by Script transform */
 public class JavaScriptUtils {
   private static final String CONST_UNDEFINED = "org.mozilla.javascript.Undefined";
   private static final String CONST_NATIVE_JAVA_OBJECT = "org.mozilla.javascript.NativeJavaObject";

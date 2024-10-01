@@ -109,7 +109,8 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
    *
    * @param parent the parent composite object
    * @param previous the previous control
-   * @param
+   * @param selected The selected database connection
+   * @param lsMod changed listener
    * @return the combo box UI component
    */
   public MetaSelectionLine<DatabaseMeta> addConnectionLine(

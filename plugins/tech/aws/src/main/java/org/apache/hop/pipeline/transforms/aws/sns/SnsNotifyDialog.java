@@ -96,9 +96,9 @@ public class SnsNotifyDialog extends BaseTransformDialog {
    * variable, so it can conveniently read and write settings from/to it.
    *
    * @param parent the SWT shell to open the dialog in
-   * @param in the meta object holding the transform's settings
+   * @param variables in the meta object holding the transform's settings
    * @param pipelineMeta pipeline description
-   * @param transformName the transform name
+   * @param transformMeta the transform name
    */
   public SnsNotifyDialog(
       Shell parent, IVariables variables, SnsNotifyMeta transformMeta, PipelineMeta pipelineMeta) {

@@ -248,12 +248,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
     return super.startExecution();
   }
 
-  /**
-   * This method looks up the execution information location specified in the run configuration.
-   *
-   * @return The location or null
-   * @throws HopException In case something fundamental went wrong.
-   */
+  /** This method looks up the execution information location specified in the run configuration. */
   public void lookupExecutionInformationLocation() {
     try {
       String locationName = resolve(workflowRunConfiguration.getExecutionInfoLocationName());
@@ -285,8 +280,6 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
   /**
    * If needed, register this workflow at the specified execution information location. The name of
    * the location is specified in the run configuration.
-   *
-   * @throws HopException In case something goes wrong
    */
   public void registerWorkflowExecutionInformation() {
     try {

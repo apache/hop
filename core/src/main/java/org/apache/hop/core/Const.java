@@ -211,7 +211,7 @@ public class Const {
   public static final int LENGTH = 350;
 
   /**
-   * @deprecated The margin between the different dialog components & widgets. This method is
+   * @deprecated The margin between the different dialog components &amp; widgets. This method is
    *     deprecated. Please use PropsUi.getMargin() instead.
    */
   @Deprecated(since = "2.10")
@@ -810,7 +810,7 @@ public class Const {
    * A variable to configure the minimum allowed ratio between de- and inflated bytes to detect a
    * zipbomb.
    *
-   * <p>If not set or if the configured value is invalid, it defaults to {@value
+   * <p>If not set or if the configured value is invalid, it defaults to {@link
    * #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT}
    *
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT
@@ -842,7 +842,7 @@ public class Const {
   /**
    * A variable to configure the maximum file size of a single zip entry.
    *
-   * <p>If not set or if the configured value is invalid, it defaults to {@value
+   * <p>If not set or if the configured value is invalid, it defaults to {@link
    * #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT}
    *
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
@@ -873,7 +873,7 @@ public class Const {
    * A variable to configure the maximum number of characters of text that are extracted before an
    * exception is thrown during extracting text from documents.
    *
-   * <p>If not set or if the configured value is invalid, it defaults to {@value
+   * <p>If not set or if the configured value is invalid, it defaults to {@link
    * #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT}
    *
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT
@@ -2628,7 +2628,7 @@ public class Const {
   }
 
   /**
-   * Escape HTML content. i.e. replace characters with &values;
+   * Escape HTML content. i.e. replace characters with &amp;values;
    *
    * @param content content
    * @return escaped content
@@ -2641,7 +2641,7 @@ public class Const {
   }
 
   /**
-   * UnEscape HTML content. i.e. replace characters with &values;
+   * UnEscape HTML content. i.e. replace characters with &amp;values;
    *
    * @param content content
    * @return unescaped content
@@ -2654,7 +2654,7 @@ public class Const {
   }
 
   /**
-   * UnEscape XML content. i.e. replace characters with &values;
+   * UnEscape XML content. i.e. replace characters with &amp;values;
    *
    * @param content content
    * @return unescaped content
@@ -2667,7 +2667,7 @@ public class Const {
   }
 
   /**
-   * Escape SQL content. i.e. replace characters with &values;
+   * Escape SQL content. i.e. replace characters with &amp;values;
    *
    * @param content content
    * @return escaped content
@@ -2864,7 +2864,7 @@ public class Const {
   }
 
   /**
-   * Mask XML content. i.e. replace characters with &values;
+   * Mask XML content. i.e. replace characters with &amp;values;
    *
    * @param content content
    * @return masked content

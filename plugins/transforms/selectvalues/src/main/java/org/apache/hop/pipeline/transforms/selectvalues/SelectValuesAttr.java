@@ -100,7 +100,7 @@ public enum SelectValuesAttr implements IHopAttribute {
   }
 
   /**
-   * @param xmlCode The XML Code to search for
+   * @param key The XML Code to search for
    * @return the attribute that corresponds to the XML code or null if nothing was found.
    */
   public static SelectValuesAttr findByKey(String key) {

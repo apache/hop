@@ -64,8 +64,8 @@ public class VariableRegistry {
   }
 
   /**
-   * Search described variables with the <code>@Variable<code> annotation
-   * and detect deprecated variables with the <code>@Deprecated</code> annotation.
+   * Search described variables with the <code>@Variable</code> annotation and detect deprecated
+   * variables with the <code>@Deprecated</code> annotation.
    */
   public static void init() throws HopException {
 

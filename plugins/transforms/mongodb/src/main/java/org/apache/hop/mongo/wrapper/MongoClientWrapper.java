@@ -75,7 +75,7 @@ public interface MongoClientWrapper {
   /**
    * Return a list of custom "lastErrorModes" (if any) defined in the replica set configuration
    * object on the server. These can be used as the "w" setting for the write concern in addition to
-   * the standard "w" values of <number> or "majority".
+   * the standard "w" values of {@literal <number>} or "majority".
    *
    * @return a list of the names of any custom "lastErrorModes"
    * @throws MongoDbException if a problem occurs

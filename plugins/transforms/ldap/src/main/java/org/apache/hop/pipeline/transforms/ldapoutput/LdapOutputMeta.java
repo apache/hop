@@ -178,9 +178,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return useCertificate;
   }
 
-  /**
-   * @return Returns the useCertificate.
-   */
   public void setUseCertificate(boolean value) {
     this.useCertificate = value;
   }
@@ -193,9 +190,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return trustAllCertificates;
   }
 
-  /**
-   * @return Returns the input trustAllCertificates.
-   */
   public void setTrustAllCertificates(boolean value) {
     this.trustAllCertificates = value;
   }

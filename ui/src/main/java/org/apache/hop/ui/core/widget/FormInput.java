@@ -29,13 +29,13 @@ import org.eclipse.swt.widgets.Label;
  *
  * <p>This template requires one to define the type of contained control.
  *
- * <p>ex: FormInput<Text> input = new FormInput<Text>( new Label( shell, SWT.NONE ), new Text(shell,
- * SWT.SINGLE | SWT.LEFT | SWT.BORDER) ); input.setText( "Hello", FormInput.Widget.LABEL );
- * input.setText( "World", FormInput.Widget.INPUT ); input.setToolTip( "To whom do you want to send
- * a shout out?", FormInput.Widget.INPUT ); input.setPosition( 0, 47, FormInput.Widget.LABEL,
+ * <p>{@literal ex: FormInput<Text> input = new FormInput<Text>( new Label( shell, SWT.NONE ), new
+ * Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER) ); input.setText( "Hello", FormInput.Widget.LABEL
+ * ); input.setText( "World", FormInput.Widget.INPUT ); input.setToolTip( "To whom do you want to
+ * send a shout out?", FormInput.Widget.INPUT ); input.setPosition( 0, 47, FormInput.Widget.LABEL,
  * FormInput.Position.LEFT ); input.setPosition( 0, 130, FormInput.Widget.LABEL,
  * FormInput.Position.RIGHT ); input.setPosition( input.getLabel( ), 10, FormInput.Widget.INPUT,
- * FormInput.Position.LEFT );
+ * FormInput.Position.LEFT );}
  */
 public class FormInput<C extends Control> extends Object {
   public static final String VC_ID = "$Id: FormInput.java 1672 2009-05-20 20:12:26Z robert $";
@@ -65,7 +65,7 @@ public class FormInput<C extends Control> extends Object {
    * Constructor.
    *
    * @param label
-   * @param control input
+   * @param input input
    */
   public FormInput(Label label, C input) {
     super();
@@ -153,7 +153,7 @@ public class FormInput<C extends Control> extends Object {
    * @param numerator
    * @param offset
    * @param widget to set position, [ lable, input ]
-   * @param position side, [ left, right, top, bottom ]
+   * @param side side, [ left, right, top, bottom ]
    */
   public void setPosition(int numerator, int offset, Widget widget, Position side) {
     setPosition(new FormAttachment(numerator, offset), widget, side);
@@ -162,10 +162,10 @@ public class FormInput<C extends Control> extends Object {
   /**
    * setter for the element position
    *
-   * @param Control
+   * @param control
    * @param offset
    * @param widget to set position, [ lable, input ]
-   * @param position side, [ left, right, top, bottom ]
+   * @param side side, [ left, right, top, bottom ]
    */
   public void setPosition(Control control, int offset, Widget widget, Position side) {
     setPosition(new FormAttachment(control, offset), widget, side);
@@ -174,9 +174,9 @@ public class FormInput<C extends Control> extends Object {
   /**
    * setter for the element position
    *
-   * @param FormAttachment position
+   * @param position position
    * @param widget to set position, [ lable, input ]
-   * @param position side, [ left, right, top, bottom ]
+   * @param side side, [ left, right, top, bottom ]
    */
   public void setPosition(FormAttachment position, Widget widget, Position side) {
     FormData layout = widget == Widget.LABEL ? getLabelFD() : getInputFD();
@@ -202,7 +202,7 @@ public class FormInput<C extends Control> extends Object {
   /**
    * setter for the widget text
    *
-   * @param string text
+   * @param text text
    * @param widget to set text on
    */
   public void setText(String text, Widget widget) {
@@ -240,7 +240,8 @@ public class FormInput<C extends Control> extends Object {
   /**
    * setter for the tooltip
    *
-   * @param string text
+   * @param text text
+   * @param widget
    */
   public void setToolTip(String text, Widget widget) {
     switch (widget) {

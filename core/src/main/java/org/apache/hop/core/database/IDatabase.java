@@ -803,7 +803,7 @@ public interface IDatabase extends Cloneable {
   String getSqlListOfSchemas();
 
   /**
-   * @return The maximum number of columns in a database, <=0 means: no known limit
+   * @return The maximum number of columns in a database, {@literal <=}0 means: no known limit
    */
   int getMaxColumnsInIndex();
 

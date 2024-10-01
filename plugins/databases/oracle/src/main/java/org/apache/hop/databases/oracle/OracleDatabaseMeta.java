@@ -661,7 +661,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   /**
-   * @return The maximum number of columns in a database, <=0 means: no known limit
+   * @return The maximum number of columns in a database, {@literal <=0} means: no known limit
    */
   @Override
   public int getMaxColumnsInIndex() {

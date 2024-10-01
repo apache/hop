@@ -119,9 +119,9 @@ public class TeraFastDialog extends BaseTransformDialog {
    * Constructor.
    *
    * @param parent parent shell.
-   * @param baseTransformMeta transform meta
+   * @param variables transform meta
    * @param pipelineMeta transaction meta
-   * @param transformName name of transform.
+   * @param transformMeta name of transform.
    */
   public TeraFastDialog(
       final Shell parent,

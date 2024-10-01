@@ -50,10 +50,10 @@ import org.w3c.dom.Node;
  * <p>
  *
  * <ul>
- *   <li><b>Keep track of the transform settings</b></br> The implementing class typically keeps
- *       track of transform settings using private fields with corresponding getters and setters.
- *       The dialog class implementing ITransformDialog is using the getters and setters to copy the
- *       user supplied configuration in and out of the dialog.
+ *   <li><b>Keep track of the transform settings</b> The implementing class typically keeps track of
+ *       transform settings using private fields with corresponding getters and setters. The dialog
+ *       class implementing ITransformDialog is using the getters and setters to copy the user
+ *       supplied configuration in and out of the dialog.
  *       <p>The following interface methods also fall into the area of maintaining settings:
  *       <p><i><a href="#setDefault()">void setDefault()</a></i>
  *       <p>This method is called every time a new transform is created and should allocate or set
@@ -100,10 +100,7 @@ import org.w3c.dom.Node;
  *   <li><b>Report the transform&#8217;s changes to the row stream</b> Apache Hop needs to know how
  *       a transform affects the row structure. A transform may be adding or removing fields, as
  *       well as modifying the metadata of a field. The method implementing this aspect of a
- *       transform plugin is getFields().
- *       <p><i><a href= "#getFields(org.apache.hop.core.row.IRowMeta, java.lang.String,
- *       org.apache.hop.core.row.IRowMeta[], org.apache.hop.pipeline.transform.TransformMeta,
- *       org.apache.hop.core.variables.IVariables)" >public void getFields(...)</a></i>
+ *       transform plugin is getFields(). <i>public void getFields(...)</i>
  *       <p>Given a description of the input rows, the plugin needs to modify it to match the
  *       structure for its output fields. The implementation modifies the passed in IRowMeta object
  *       to reflect any changes to the row stream. Typically a transform adds fields to the row
@@ -114,10 +111,7 @@ import org.w3c.dom.Node;
  *       HopGui supports a &#8220;validate pipeline&#8221; feature, which triggers a self-check of
  *       all transforms. Apache Hop invokes the check() method of each transform on the canvas
  *       allowing each transform to validate its settings.
- *       <p><i><a href= "#check(java.util.List, org.apache.hop.pipeline.PipelineMeta,
- *       org.apache.hop.pipeline.transform.TransformMeta, org.apache.hop.core.row.IRowMeta,
- *       java.lang.String[], java.lang.String[], org.apache.hop.core.row.IRowMeta)" >public void
- *       check()</a></i>
+ *       <p><i>public void check()</i>
  *       <p>Each transform has the opportunity to validate its settings and verify that the
  *       configuration given by the user is reasonable. In addition to that a transform typically
  *       checks if it is connected to preceding or following transforms, if the nature of the
