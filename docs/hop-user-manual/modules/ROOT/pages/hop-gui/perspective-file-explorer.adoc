@@ -39,13 +39,12 @@ The file operations are available through a number of toolbar options:
 
 image::hop-gui/perspective-explorer-toolbar-items.png[File explorer toolbar items]
 
-* Right arrow: open selected file
-* Create new folder
-* Delete
-* Rename
-* Refresh
-
-You can also open a file simply by double-clicking it.  If this is a workflow or pipeline it will be opened in the data xref:hop-gui/perspective-data-orchestration.adoc[orchestration perspective].  In all other cases the file will be opened in a new tab.
+* Open selected file: Use the right arrow or double-click to open a selected file. You can also open a file simply by double-clicking it. If this is a workflow or pipeline it will be opened in the xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestation] perspective. In all other cases the file will be opened in a new tab.
+* Create folder: Add a new folder.
+* Delete: Remove a selected file or folder.
+* Rename: Rename a file or folder.
+* Refresh: Refresh the file list.
+* Show or hide files: Show or hide files or directories.
 
 == Git integration
 
@@ -91,11 +90,11 @@ image::hop-gui/hop-gui-file-explorer-right-menu.png[git right-click menu options
 
 Here are the basic git operations that are supported:
 
-* add: stage the file to include it in a commit
-* commit: commit changes to origin
-* revert changes: checkout file or folder to revert changes
-* push: push changes
-* pull: pull changes
+* Git Add: stage the file to include it in a commit.
+* Git Commit: commit changes to origin.
+* Git Revert: checkout file or folder to revert changes.
+* Git Push: push changes.
+* Git Pull: pull changes.
 
 You can access these operations from the toolbar above the file explorer tree:
 
