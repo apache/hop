@@ -3112,8 +3112,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   /**
    * @param workflowMeta the workflowMeta to set
-   * @return the workflowMeta / public WorkflowMeta getWorkflowMeta() { return workflowMeta; }
-   *     <p>/**
    */
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;

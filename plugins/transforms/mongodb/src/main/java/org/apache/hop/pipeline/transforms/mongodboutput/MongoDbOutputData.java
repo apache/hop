@@ -256,8 +256,8 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
    * @param log the logging object
    * @param truncate true if the collection was truncated in the current execution - in this case
    *     drop operations are not necessary
-   * @throws MongoException if something goes wrong
-   * @throws HopException
+   * @throws com.mongodb.MongoException if something goes wrong
+   * @throws org.apache.hop.mongo.MongoDbException
    */
   public void applyIndexes(
       List<MongoDbOutputMeta.MongoIndex> indexes, ILogChannel log, boolean truncate)

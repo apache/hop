@@ -59,7 +59,7 @@ import org.w3c.dom.Node;
  *       XML. The XML node containing the plugin's settings is passed in as an argument. Again, the
  *       helper class org.apache.hop.core.xml.XmlHandler is typically used to conveniently read the
  *       settings from the XML node.
- *       <p><i><a href="#getDialogClassName()">public String getDialogClassName()</i></a>
+ *       <p><i><a href="#getDialogClassName()">public String getDialogClassName()</a></i>
  *   <li><b>Partition incoming rows during runtime</b><br>
  *       The class implementing IPartitioner executes the actual logic that distributes the rows to
  *       available partitions.
@@ -67,7 +67,7 @@ import org.w3c.dom.Node;
  *       return the partition this row will be sent to. The total number of partitions is available
  *       in the inherited field nrPartitions, and the return value must be between 0 and
  *       nrPartitions-1.
- *       <p><i><a href="">public int getPartition(...)</a></i>
+ *       <p><i>public int getPartition(...)</i>
  * </ul>
  */
 @HopMetadataObject()

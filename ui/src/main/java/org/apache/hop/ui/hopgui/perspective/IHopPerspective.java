@@ -75,7 +75,7 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    * Initialize this perspective
    *
    * @param hopGui The parent Hop GUI
-   * @parem parent the parent perspectives composite
+   * @param parent the parent perspectives composite
    */
   void initialize(HopGui hopGui, Composite parent);
 
@@ -92,7 +92,6 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    * Remove this file type handler from the perspective
    *
    * @param typeHandler The file type handler to remove
-   * @return
    */
   boolean remove(IHopFileTypeHandler typeHandler);
 

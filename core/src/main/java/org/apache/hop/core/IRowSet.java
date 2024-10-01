@@ -66,9 +66,6 @@ public interface IRowSet {
    */
   Object[] getRowWait(long timeout, TimeUnit tu);
 
-  /**
-   * @return Set indication that there is no more input
-   */
   void setDone();
 
   /**

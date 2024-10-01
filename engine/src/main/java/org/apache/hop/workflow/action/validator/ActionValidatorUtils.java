@@ -28,7 +28,7 @@ import org.apache.hop.core.ICheckResultSource;
 
 /**
  * Methods in this class are referenced in validator definitions within the validator resources file
- * (e.g. <tt>validator.xml</tt>).
+ * (e.g. <i>validator.xml</i>).
  *
  * <p>Modeled after <code>org.apache.struts.validator.FieldChecks</code> and <code>
  * org.apache.commons.collections.PredicateUtils</code>.

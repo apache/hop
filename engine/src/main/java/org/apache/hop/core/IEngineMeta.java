@@ -20,7 +20,6 @@ package org.apache.hop.core;
 import java.util.Date;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.IXml;
 
 public interface IEngineMeta {
 
@@ -56,7 +55,6 @@ public interface IEngineMeta {
    *
    * @return the XML representation of this pipeline
    * @throws HopException if any errors occur during generation of the XML
-   * @see IXml#getXml()
    * @param variables
    */
   String getXml(IVariables variables) throws HopException;

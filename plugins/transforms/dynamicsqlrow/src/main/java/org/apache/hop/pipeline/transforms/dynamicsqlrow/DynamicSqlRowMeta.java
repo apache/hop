@@ -151,9 +151,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
     return replaceVariables;
   }
 
-  /**
-   * @param replacevars The replacevars to set.
-   */
   public void setReplaceVariables(boolean replaceVariables) {
     this.replaceVariables = replaceVariables;
   }

@@ -430,7 +430,6 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
   /**
    * This method looks up the execution information location specified in the run configuration.
    *
-   * @return The location or null
    * @throws HopException In case something fundamental went wrong.
    */
   public void lookupExecutionInformationLocation() throws HopException {

@@ -753,7 +753,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   /**
-   * Prepare inserting values into a table, using the fields & values in a Row
+   * Prepare inserting values into a table, using the fields &amp; values in a Row
    *
    * @param rowMeta The row metadata to determine which values need to be inserted
    * @param tableName The name of the table in which we want to insert rows
@@ -764,7 +764,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   /**
-   * Prepare inserting values into a table, using the fields & values in a Row
+   * Prepare inserting values into a table, using the fields &amp; values in a Row
    *
    * @param rowMeta The metadata row to determine which values need to be inserted
    * @param schemaName The name of the schema in which we want to insert rows
@@ -1514,7 +1514,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * @param params The parameters or null if no parameters are used.
    * @return A JDBC ResultSet
    * @throws HopDatabaseException when something goes wrong with the query.
-   * @data the parameter data to open the query with
    */
   public ResultSet openQuery(String sql, IRowMeta params, Object[] data)
       throws HopDatabaseException {
@@ -3360,7 +3359,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * Reads the result of an SQL query into an ArrayList
    *
    * @param sql The SQL to launch
-   * @param limit <=0 means unlimited, otherwise this specifies the maximum number of rows read.
+   * @param limit {@literal <=0} means unlimited, otherwise this specifies the maximum number of
+   *     rows read.
    * @return An ArrayList of rows.
    * @throws HopDatabaseException if something goes wrong.
    */
@@ -3372,7 +3372,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * Reads the result of an SQL query into an ArrayList
    *
    * @param sql The SQL to launch
-   * @param limit <=0 means unlimited, otherwise this specifies the maximum number of rows read.
+   * @param limit {@literal <=0} means unlimited, otherwise this specifies the maximum number of
+   *     rows read.
    * @param monitor The progress monitor to update while getting the rows.
    * @return An ArrayList of rows.
    * @throws HopDatabaseException if something goes wrong.
@@ -3391,7 +3392,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * @param data The values of any parameters to be passed to the query
    * @param fetchMode The fetch mode for the query (ResultSet.FETCH_FORWARD, e.g.)
    * @param lazyConversion Whether to perform lazy conversion of the values
-   * @param limit <=0 means unlimited, otherwise this specifies the maximum number of rows read.
+   * @param limit {@literal <=0} means unlimited, otherwise this specifies the maximum number of
+   *     rows read.
    * @param monitor The progress monitor to update while getting the rows.
    * @return An ArrayList of rows.
    * @throws HopDatabaseException if something goes wrong.
@@ -3417,7 +3419,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * Reads the result of a ResultSet into an ArrayList
    *
    * @param rset the ResultSet to read out
-   * @param limit <=0 means unlimited, otherwise this specifies the maximum number of rows read.
+   * @param limit {@literal <=0} means unlimited, otherwise this specifies the maximum number of
+   *     rows read.
    * @param monitor The progress monitor to update while getting the rows.
    * @return An ArrayList of rows.
    * @throws HopDatabaseException if something goes wrong.
@@ -3468,8 +3471,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * Get the first rows from a table (for preview)
    *
    * @param tableName The table name (or schema/table combination): this needs to be quoted properly
-   * @param limit limit <=0 means unlimited, otherwise this specifies the maximum number of rows
-   *     read.
+   * @param limit limit {@literal <=0} means unlimited, otherwise this specifies the maximum number
+   *     of rows read.
    * @param monitor The progress monitor to update while getting the rows.
    * @return An ArrayList of rows.
    * @throws HopDatabaseException in case something goes wrong
@@ -4303,7 +4306,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * Return SQL CREATION statement for a Table
    *
    * @param tableName The table to create
-   * @throws HopDatabaseException
    */
   public String getDDLCreationTable(String tableName, IRowMeta fields) {
     String retval;
@@ -4615,7 +4617,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    *     statement. If false separate statements will be isolated and executed.
    * @return a Result object indicating the number of lines read, deleted, inserted, updated, ...
    * @throws HopDatabaseException in case anything goes wrong.
-   * @sendSinglestatement send one statement
    */
   public Result execStatementsFromFile(String filename, boolean sendSinglestatement)
       throws HopException {

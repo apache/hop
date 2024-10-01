@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import org.apache.hop.core.exception.HopException;
 import org.apache.parquet.io.SeekableInputStream;
 
 public class ParquetInputStream extends SeekableInputStream {
@@ -35,7 +34,7 @@ public class ParquetInputStream extends SeekableInputStream {
    * Read the input stream into memory to get a seekable input stream...
    *
    * @param inputStream
-   * @throws HopException
+   * @throws java.io.IOException
    */
   public ParquetInputStream(InputStream inputStream) throws IOException {
 

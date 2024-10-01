@@ -317,7 +317,7 @@ public class HopVfs {
    * @param vfsFilename the filename or URL to read from
    * @param charSetName the character set of the string (UTF-8, ISO8859-1, etc)
    * @return The content of the file as a String
-   * @throws IOException
+   * @throws org.apache.hop.core.exception.HopFileException
    */
   public static String getTextFileContent(String vfsFilename, String charSetName)
       throws HopFileException {

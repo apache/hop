@@ -35,7 +35,7 @@ public class MetricsUtil {
    * Calculates the durations between the START and STOP snapshots for a given metric description
    *
    * @param logChannelId the id of the log channel to investigate
-   * @param metricsCode the metric code
+   * @param metric the metric code
    * @return the duration in ms
    */
   public static List<MetricsDuration> getDuration(String logChannelId, Metrics metric) {

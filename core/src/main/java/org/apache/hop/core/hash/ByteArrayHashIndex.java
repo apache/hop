@@ -34,7 +34,7 @@ public class ByteArrayHashIndex {
   /**
    * Create a Byte array hash index to store row
    *
-   * @param rowMeta
+   * @param keyRowMeta
    */
   public ByteArrayHashIndex(IRowMeta keyRowMeta, int size) {
     this.keyRowMeta = keyRowMeta;

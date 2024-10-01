@@ -264,8 +264,8 @@ public class StringUtil {
   }
 
   /**
-   * Substitutes variables in <code>aString</code>. Variables are of the form "${<variable name>}",
-   * following the Unix scripting convention. The values are retrieved from the given map.
+   * Substitutes variables in <code>aString</code>. Variables are of the form {@literal "${<variable
+   * name>}"}, following the Unix scripting convention. The values are retrieved from the given map.
    *
    * @param aString the string on which to apply the substitution.
    * @param variables a map containg the variable values. The keys are the variable names, the
@@ -277,8 +277,8 @@ public class StringUtil {
   }
 
   /**
-   * Substitutes variables in <code>aString</code>. Variables are of the form "%%<variable name>%%",
-   * following the Windows convention. The values are retrieved from the given map.
+   * Substitutes variables in <code>aString</code>. Variables are of the form {@literal "%%<variable
+   * name>%%"}, following the Windows convention. The values are retrieved from the given map.
    *
    * @param aString the string on which to apply the substitution.
    * @param variables a map containg the variable values. The keys are the variable names, the
@@ -290,9 +290,9 @@ public class StringUtil {
   }
 
   /**
-   * Substitutes field values in <code>aString</code>. Field values are of the form "?{<field
-   * name>}". The values are retrieved from the specified row. Please note that the getString()
-   * method is used to convert to a String, for all values in the row.
+   * Substitutes field values in <code>aString</code>. Field values are of the form {@literal
+   * "?{<fieldname>}" } . The values are retrieved from the specified row. Please note that the
+   * getString() method is used to convert to a String, for all values in the row.
    *
    * @param aString the string on which to apply the substitution.
    * @param rowMeta The row metadata to use.

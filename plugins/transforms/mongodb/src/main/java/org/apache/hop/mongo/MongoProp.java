@@ -201,8 +201,7 @@ public enum MongoProp {
 
   /**
    * Specifies the number of servers to wait on before acknowledging a write. Corresponds to the
-   * String parameter of the constructor {@link com.mongodb.WriteConcern(String, int, boolean,
-   * boolean)}.
+   * String parameter of the constructor {@link com.mongodb.WriteConcern}.
    */
   writeConcern {
     @Override

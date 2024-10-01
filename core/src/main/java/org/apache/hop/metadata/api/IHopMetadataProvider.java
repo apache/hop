@@ -39,7 +39,6 @@ public interface IHopMetadataProvider {
    *
    * @param <T>
    * @return The list of all available classes including those who have no objects defined.
-   * @throws HopException
    */
   <T extends IHopMetadata> List<Class<T>> getMetadataClasses();
 
@@ -48,7 +47,7 @@ public interface IHopMetadataProvider {
    *
    * @param key The key of the metadata object class
    * @return The class for the given key
-   * @throws HopException
+   * @throws org.apache.hop.core.exception.HopException
    */
   <T extends IHopMetadata> Class<T> getMetadataClassForKey(String key) throws HopException;
 }

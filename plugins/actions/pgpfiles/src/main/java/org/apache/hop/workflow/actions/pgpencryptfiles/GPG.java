@@ -379,7 +379,7 @@ public class GPG {
    *
    * @param filename file to encrypt
    * @param userID specific user id key
-   * @param cryptedFilename crypted filename
+   * @param signedFilename crypted filename
    * @param asciiMode output ASCII file
    * @throws HopException
    */
@@ -441,7 +441,6 @@ public class GPG {
    *
    * @param filename filename
    * @throws HopException
-   * @originalFilename fill this value in case of detached signature
    */
   public void verifySignature(String filename) throws HopException {
 
@@ -452,7 +451,7 @@ public class GPG {
    * Verify a signature for detached file
    *
    * @param signatureFilename filename
-   * @param originalFilenamefill this value in case of detached signature
+   * @param originalFilename this value in case of detached signature
    * @throws HopException
    */
   public void verifyDetachedSignature(String signatureFilename, String originalFilename)

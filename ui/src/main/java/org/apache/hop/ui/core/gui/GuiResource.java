@@ -2112,7 +2112,8 @@ public class GuiResource {
   /**
    * Gets image run 16x16
    *
-   * @see {@link GuiResource#getImageStop}, {@link GuiResource#getImagePause}
+   * @see #getImageStop
+   * @see #getImagePause
    * @return image
    */
   public Image getImageRun() {
@@ -2122,7 +2123,8 @@ public class GuiResource {
   /**
    * Gets image stop 16x16
    *
-   * @see {@link GuiResource#getImageRun}, {@link GuiResource#getImagePause}
+   * @see #getImageRun
+   * @see #getImagePause
    * @return image
    */
   public Image getImageStop() {

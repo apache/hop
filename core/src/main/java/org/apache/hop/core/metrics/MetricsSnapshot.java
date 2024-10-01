@@ -54,7 +54,7 @@ public class MetricsSnapshot implements IMetricsSnapshot {
    * Create a new metrics snapshot without a subject
    *
    * @param type
-   * @param description
+   * @param metric
    * @param logChannelId
    */
   public MetricsSnapshot(MetricsSnapshotType type, IMetrics metric, String logChannelId) {
@@ -80,7 +80,7 @@ public class MetricsSnapshot implements IMetricsSnapshot {
    * Create a snapshot metric with a value.
    *
    * @param type The type. For metrics with a value it is usually MIN, MAX, SUM, COUNT, ...
-   * @param description The description
+   * @param metric The description
    * @param value The value
    * @param logChannelId The logging channel to reference.
    */

@@ -110,7 +110,8 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   /**
    * The URL format for jTDS is:
    *
-   * <p>jdbc:jtds:<server_type>://<server>[:<port>][/<database>][;<property>=<value>[;...]]
+   * <p>{@literal
+   * jdbc:jtds:<server_type>://<server>[:<port>][/<database>][;<property>=<value>[;...]]}
    */
   @Override
   public String getURL(String hostname, String port, String databaseName) {

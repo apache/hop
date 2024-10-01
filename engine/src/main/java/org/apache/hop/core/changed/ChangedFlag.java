@@ -69,7 +69,7 @@ public class ChangedFlag implements IChanged {
   /**
    * Sets whether or not this has changed.
    *
-   * @param ch true if you want to mark this as changed, false otherwise
+   * @param b true if you want to mark this as changed, false otherwise
    */
   @Override
   public void setChanged(boolean b) {

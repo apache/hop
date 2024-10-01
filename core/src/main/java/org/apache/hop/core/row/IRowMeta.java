@@ -45,21 +45,20 @@ import org.w3c.dom.Node;
  * execution of processRow(). The following methods of IRowMeta are particularly useful in that
  * regard:
  *
- * <p><i><a href="">public int indexOfValue(...)</a></i><br>
+ * <p><i>public int indexOfValue(...)</i><br>
  * Given a field name, determine the index of the field in the row.
  *
- * <p><i><a href="#getFieldNames()">public String[] getFieldNames()</a></i><br>
+ * <p><i>public String[] getFieldNames()</i><br>
  * Returns an array of field names. The index of a field name matches the field index in the row
  * array.
  *
- * <p><i><a href="#searchValueMeta(java.lang.String)">public void searchValueMeta(String
- * valueName)</a></i><br>
+ * <p><i>public void searchValueMeta(String valueName)</i><br>
  * Given a field name, determine the meta data for the field.
  *
- * <p><i><a href="#getValueMeta(int index)">public vValueMetaInterface getValueMeta(...)</a></i><br>
+ * <p><i>public vValueMetaInterface getValueMeta(...)</i><br>
  * Given a field index, determine the meta data for the field.<br>
  *
- * <p><i><a href="#getValueMetaList()">public List<IValueMeta> getValueMetaList()</a></i><br>
+ * <p><i>public List{@literal <}IValueMeta{@literal >} getValueMetaList()</i><br>
  * Returns a list of all field descriptions. The index of the field description matches the field
  * index in the row array.
  *

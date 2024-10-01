@@ -98,7 +98,6 @@ public class ReflectionUtil {
    * @param clazz The class to investigate.
    * @param sortFunction the function to extract the key to sort on. If the function returns null
    *     the field is not included.
-   * @param
    * @return A sorted list of fields.
    */
   public static final List<Field> findAllFields(

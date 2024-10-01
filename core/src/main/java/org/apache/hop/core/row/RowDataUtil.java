@@ -25,7 +25,7 @@ package org.apache.hop.core.row;
  * <p>For example, a transform adding a field to the row should always call
  *
  * <pre>
- * <a href="">public static Object[] resizeArray(Object[] objects, int newSize)</a></i>
+ * <i>public static Object[] resizeArray(Object[] objects, int newSize)</i>
  * </pre>
  *
  * <p>which will either physically resize the array or return the original row, in case it was
@@ -138,8 +138,8 @@ public class RowDataUtil {
    * Add two arrays and make one new one.
    *
    * @param one The first array
-   * @param the length of the row data or of it's longer, the location of the new extra value in the
-   *     returned data row
+   * @param sourceLength the length of the row data or of it's longer, the location of the new extra
+   *     value in the returned data row
    * @param two The second array
    * @return a new Array containing all elements from one and two after one another
    */
@@ -155,8 +155,8 @@ public class RowDataUtil {
    * Add a single value to a row of data
    *
    * @param rowData The original row of data
-   * @param the length of the row data or of it's longer, the location of the new extra value in the
-   *     returned data row
+   * @param length the length of the row data or of it's longer, the location of the new extra value
+   *     in the returned data row
    * @param extra The extra value to add
    * @return a new Array containing all elements, including the extra one
    */

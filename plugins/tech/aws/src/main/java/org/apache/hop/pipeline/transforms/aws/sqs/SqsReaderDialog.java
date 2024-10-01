@@ -90,7 +90,8 @@ public class SqsReaderDialog extends BaseTransformDialog {
    * variable, so it can conveniently read and write settings from/to it.
    *
    * @param parent the SWT shell to open the dialog in
-   * @param in the meta object holding the transform's settings
+   * @param variables in the meta object holding the transform's settings
+   * @param transformMeta transform definition
    * @param pipelineMeta pipeline description
    */
   public SqsReaderDialog(

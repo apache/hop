@@ -18,7 +18,6 @@
 
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -137,7 +136,7 @@ public class RecordBuffer {
   /**
    * This method will be called at the end of each stream load batch
    *
-   * @throws IOException
+   * @throws java.lang.InterruptedException
    */
   public void stopBufferData() throws InterruptedException {
     if (currentWriteBuffer != null) {

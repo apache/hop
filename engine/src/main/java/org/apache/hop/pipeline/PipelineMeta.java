@@ -3092,7 +3092,7 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Cancels queries opened for checking & fieldprediction.
+   * Cancels queries opened for checking &amp; fieldprediction.
    *
    * @throws HopDatabaseException if any errors occur during query cancellation
    */

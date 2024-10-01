@@ -141,9 +141,6 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     return useCertificate;
   }
 
-  /**
-   * @return Returns the useCertificate.
-   */
   public void setUseCertificate(boolean value) {
     this.useCertificate = value;
   }
@@ -156,9 +153,6 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     return trustAllCertificates;
   }
 
-  /**
-   * @return Returns the input trustAllCertificates.
-   */
   public void setTrustAllCertificates(boolean value) {
     this.trustAllCertificates = value;
   }
@@ -215,9 +209,6 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     return dynamicSearch;
   }
 
-  /**
-   * @return Returns the input dynamicSearch.
-   */
   public void setDynamicSearch(boolean dynamicSearch) {
     this.dynamicSearch = dynamicSearch;
   }
@@ -229,9 +220,6 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     return dynamicSeachFieldName;
   }
 
-  /**
-   * @return Returns the input dynamicSeachFieldName.
-   */
   public void setDynamicSearchFieldName(String dynamicSeachFieldName) {
     this.dynamicSeachFieldName = dynamicSeachFieldName;
   }

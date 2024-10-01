@@ -718,9 +718,9 @@ public class CassandraUtils {
   }
 
   /**
-   * A function designed to check any mismatched Hop <-> CQL types and fix those issues For now, it
-   * just checks if a java.util.Date is specified for a CQL Date column, and converts that object to
-   * a com.datastax.driver.core.LocalDate type
+   * A function designed to check any mismatched Hop {@literal <->} CQL types and fix those issues
+   * For now, it just checks if a java.util.Date is specified for a CQL Date column, and converts
+   * that object to a com.datastax.driver.core.LocalDate type
    *
    * @param batch the batch list of rows to process
    * @param inputMeta the meta of the incoming rows (column order aligns with batch, whereas

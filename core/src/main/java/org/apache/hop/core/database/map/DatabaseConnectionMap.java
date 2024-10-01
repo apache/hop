@@ -48,15 +48,15 @@ public class DatabaseConnectionMap {
   }
 
   /**
-   * Tries to obtain an existing <tt>Database</tt> instance for specified parameters. If none is
-   * found, then maps the key's value to <tt>database</tt>. Similarly to {@linkplain
-   * ConcurrentHashMap#putIfAbsent(Object, Object)} returns <tt>null</tt> if there was no value for
+   * Tries to obtain an existing <i>Database</i> instance for specified parameters. If none is
+   * found, then maps the key's value to <i>database</i>. Similarly to {@linkplain
+   * ConcurrentHashMap#putIfAbsent(Object, Object)} returns <i>null</i> if there was no value for
    * the specified key and they mapped value otherwise.
    *
    * @param connectionGroup connection group
    * @param partitionID partition's id
    * @param database database
-   * @return <tt>null</tt> or previous value
+   * @return <i>null</i> or previous value
    */
   public Database getOrStoreIfAbsent(
       String connectionGroup, String partitionID, Database database) {
@@ -88,7 +88,6 @@ public class DatabaseConnectionMap {
    * Get all the databases in the map which belong to a certain group...
    *
    * @param group The group to search for
-   * @return
    */
   public List<Database> getDatabases(String group) {
     List<Database> databases = new ArrayList<>();

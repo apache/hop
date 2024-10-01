@@ -216,8 +216,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
   }
 
   /**
-   * @see ITransform#init(org.apache.hop.pipeline.transform.ITransform,
-   *     org.apache.hop.pipeline.transform.ITransformData)
+   * @see ITransform#init
    */
   @Override
   public boolean init() {

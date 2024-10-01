@@ -201,7 +201,6 @@ public class DbCache {
    * Create the database cache instance by loading it from disk
    *
    * @return the database cache instance.
-   * @throws HopFileException
    */
   public static final DbCache getInstance() {
     if (dbCache != null) {

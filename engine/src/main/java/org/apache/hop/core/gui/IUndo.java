@@ -28,7 +28,7 @@ public interface IUndo {
    * @param pos An array of object locations
    * @param prev An array of points representing the old positions
    * @param curr An array of points representing the new positions
-   * @param type_of_change The type of change that's being done to the pipeline.
+   * @param typeOfChange The type of change that's being done to the pipeline.
    * @param nextAlso indicates that the next undo operation needs to follow this one.
    */
   void addUndo(

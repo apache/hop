@@ -77,7 +77,7 @@ public class HopRow implements Serializable {
    * This only addresses the actual filled in items in the object array, not any possible trailing
    * null values.
    *
-   * @return the populated (actual) length of the row (optionalSize<=row.length).
+   * @return the populated (actual) length of the row (optionalSize{@literal <=}row.length).
    */
   public int length() {
     return optionalSize < 0 ? (row == null ? 0 : row.length) : optionalSize;

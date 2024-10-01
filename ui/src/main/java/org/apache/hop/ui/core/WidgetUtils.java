@@ -51,7 +51,7 @@ public abstract class WidgetUtils {
    * creates a ComboVar populated with fields from the previous transform.
    *
    * @param parentComposite - the composite in which the widget will be placed
-   * @param props - PropsUi props for L&F
+   * @param props - PropsUi props for L&amp;F
    * @param transformMeta - transformMeta of the current transform
    * @param formData - FormData to use for placement
    */

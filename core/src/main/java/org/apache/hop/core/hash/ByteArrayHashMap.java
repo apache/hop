@@ -30,7 +30,7 @@ public class ByteArrayHashMap extends AbstractHashedMap {
   private IRowMeta keyMeta;
 
   /**
-   * Constructs an empty <tt>ByteArrayHashMap</tt> with the specified initial capacity and load
+   * Constructs an empty <i>ByteArrayHashMap</i> with the specified initial capacity and load
    * factor.
    *
    * @param initialCapacity the initial capacity
@@ -66,8 +66,8 @@ public class ByteArrayHashMap extends AbstractHashedMap {
   }
 
   /**
-   * Constructs an empty <tt>ByteArrayHashMap</tt> with the specified initial capacity and the
-   * default load factor (0.75).
+   * Constructs an empty <i>ByteArrayHashMap</i> with the specified initial capacity and the default
+   * load factor (0.75).
    *
    * @param initialCapacity the initial capacity.
    * @throws IllegalArgumentException if the initial capacity is negative.
@@ -77,8 +77,8 @@ public class ByteArrayHashMap extends AbstractHashedMap {
   }
 
   /**
-   * Constructs an empty <tt>HashMap</tt> with the default initial capacity (16) and the default
-   * load factor (0.75).
+   * Constructs an empty <i>HashMap</i> with the default initial capacity (16) and the default load
+   * factor (0.75).
    */
   public ByteArrayHashMap(IRowMeta keyMeta) {
     this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, keyMeta);
@@ -94,9 +94,6 @@ public class ByteArrayHashMap extends AbstractHashedMap {
    * one such entry.)
    *
    * @param key The key to look up.
-   * @throws HopValueException in case of a value conversion error
-   * @see #put(Object)
-   * @see #insert(Object)
    */
   public byte[] get(byte[] key) {
     return (byte[]) super.get(key);

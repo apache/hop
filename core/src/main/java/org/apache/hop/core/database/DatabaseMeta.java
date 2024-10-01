@@ -1808,7 +1808,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   /**
-   * @return true if reserved words' case should be preserved
+   * @param b set to true if reserved words' case should be preserved
    */
   public void setPreserveReservedCase(boolean b) {
     iDatabase.setPreserveReservedCase(b);
@@ -2250,8 +2250,6 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   /**
    * Sets the marker used to determine if the DatabaseMeta should be allowed to be modified/saved.
    * Setting to true does NOT prevent object modification.
-   *
-   * @return
    */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;

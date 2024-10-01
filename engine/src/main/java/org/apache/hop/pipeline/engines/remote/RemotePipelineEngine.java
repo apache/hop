@@ -681,7 +681,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * Adds a pipeline started listener.
    *
-   * @param executionStartedListener the pipeline started listener
+   * @param listener the pipeline started listener
    */
   @Override
   public void addExecutionStartedListener(
@@ -702,7 +702,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * Adds a pipeline finished listener.
    *
-   * @param executionFinishedListener the pipeline finished listener
+   * @param listener the pipeline finished listener
    */
   @Override
   public void addExecutionFinishedListener(
@@ -994,7 +994,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   /**
    * @deprecated
-   * @param executionStartedListeners The executionStartedListeners to set
+   * @param listener The executionStartedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionStartedListeners(
@@ -1024,7 +1024,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   /**
    * @deprecated
-   * @param executionFinishedListeners The executionFinishedListeners to set
+   * @param listener The executionFinishedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionFinishedListeners(

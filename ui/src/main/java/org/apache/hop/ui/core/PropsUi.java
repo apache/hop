@@ -315,7 +315,7 @@ public class PropsUi extends Props {
    *
    * @return
    */
-  /** The margin between the different dialog components & widgets */
+  /** The margin between the different dialog components &amp; widgets */
   public static int getMargin() {
     return (int) Math.round(4 * getNativeZoomFactor());
   }

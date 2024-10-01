@@ -107,7 +107,7 @@ public class FastloadControlBuilder {
   /**
    * @param sessions the sesssions.
    * @return this.
-   * @throws IllegalArgumentException if sessions <= 0
+   * @throws IllegalArgumentException if sessions {@literal <= 0}
    */
   public FastloadControlBuilder setSessions(final int sessions) throws IllegalArgumentException {
     Assert.assertGreaterZero(sessions);
@@ -117,7 +117,7 @@ public class FastloadControlBuilder {
   /**
    * @param errorLimit the errorLimit.
    * @return this.
-   * @throws IllegalArgumentException if errorLimit <= 0
+   * @throws IllegalArgumentException if errorLimit {@literal <= 0}
    */
   public FastloadControlBuilder setErrorLimit(final int errorLimit)
       throws IllegalArgumentException {

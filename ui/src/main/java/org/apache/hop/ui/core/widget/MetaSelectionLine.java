@@ -346,8 +346,8 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
    *
    * @param parent the parent composite object
    * @param previous the previous control
-   * @param
-   * @return the combo box UI component
+   * @param selected
+   * @param lsMod
    */
   public void addToConnectionLine(
       Composite parent, Control previous, T selected, ModifyListener lsMod) {

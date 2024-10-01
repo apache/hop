@@ -1033,8 +1033,6 @@ public class ProjectsGuiPlugin {
    *
    * @param log
    * @param metadataProvider
-   * @return
-   * @throws Exception
    */
   public List<String> getEnvironmentsList(ILogChannel log, IHopMetadataProvider metadataProvider) {
     return ProjectsConfigSingleton.getConfig().listEnvironmentNames();

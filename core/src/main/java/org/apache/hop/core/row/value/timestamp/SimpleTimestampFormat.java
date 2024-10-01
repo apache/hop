@@ -210,7 +210,8 @@ public class SimpleTimestampFormat extends SimpleDateFormat {
   }
 
   /**
-   * Constructs a <codeSimpleTimestampFormat</code> using the given pattern and date format symbols.
+   * Constructs a <code>codeSimpleTimestampFormat</code> using the given pattern and date format
+   * symbols.
    *
    * @param pattern the pattern describing the date and time format
    * @param formatSymbols the date format symbols to be used for formatting
@@ -223,7 +224,7 @@ public class SimpleTimestampFormat extends SimpleDateFormat {
   }
 
   /**
-   * Formats the given <code>Date</code> or <code></>Timestamp</code> into a date/time string and
+   * Formats the given <code>Date</code> or <code>Timestamp</code> into a date/time string and
    * appends the result to the given <code>StringBuffer</code>.
    *
    * @param timestamp the date-time value to be formatted into a date-time string.

@@ -62,6 +62,7 @@ import org.w3c.dom.Node;
  * <p>
  *
  * <Table border="1">
+ * <caption>Java mappings</caption>
  * <tr>
  * <th>Apache Hop data type</th>
  * <th>Type constant</th>
@@ -120,6 +121,7 @@ import org.w3c.dom.Node;
  * <p>
  *
  * <Table border="1">
+ * <caption>Storage mappings</caption>
  * <tr>
  * <th>Type constant</th>
  * <th>Actual field data type</th>

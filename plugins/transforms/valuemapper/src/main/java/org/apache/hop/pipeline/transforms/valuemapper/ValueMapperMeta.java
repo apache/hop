@@ -95,7 +95,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
   }
 
   /**
-   * @param fieldValue The fieldValue to set.
+   * @param values The fieldValue to set.
    */
   public void setValues(List<Values> values) {
     this.values = values;

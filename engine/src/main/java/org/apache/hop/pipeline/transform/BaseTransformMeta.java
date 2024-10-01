@@ -74,7 +74,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
 
   private boolean changed;
 
-  /** database connection object to use for searching fields & checking transforms */
+  /** database connection object to use for searching fields &amp; checking transforms */
   protected Database[] databases;
 
   protected TransformMeta parentTransformMeta;

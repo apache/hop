@@ -26,40 +26,27 @@ import java.util.Collection;
 import org.apache.commons.vfs2.FileObject;
 
 /**
- * <p>
- * Utility class to guess the encoding of a given byte array. The guess is unfortunately not 100% sure. Especially for
- * 8-bit charsets. It's not possible to know which 8-bit charset is used. Except through statistical analysis. We will
- * then infer that the charset encountered is the same as the default standard charset.
- * </p>
+ * Utility class to guess the encoding of a given byte array. The guess is unfortunately not 100%
+ * sure. Especially for 8-bit charsets. It's not possible to know which 8-bit charset is used.
+ * Except through statistical analysis. We will then infer that the charset encountered is the same
+ * as the default standard charset.
  *
- * <p>
- * On the other hand, unicode files encoded in UTF-16 (low or big endian) or UTF-8 files with a Byte Order Marker are
- * easy to find. For UTF-8 files with no BOM, if the buffer is wide enough, it's easy to guess.
- * </p>
+ * <p>On the other hand, unicode files encoded in UTF-16 (low or big endian) or UTF-8 files with a
+ * Byte Order Marker are easy to find. For UTF-8 files with no BOM, if the buffer is wide enough,
+ * it's easy to guess.
  *
- * <p>
- * Tested against a complicated UTF-8 file, Sun's implementation does not render bad UTF-8 constructs as expected by the
- * specification. But with a buffer wide enough, the method guessEncoding() did behave correctly and recognized the
- * UTF-8 charset.
- * </p>
+ * <p>Tested against a complicated UTF-8 file, Sun's implementation does not render bad UTF-8
+ * constructs as expected by the specification. But with a buffer wide enough, the method
+ * guessEncoding() did behave correctly and recognized the UTF-8 charset.
  *
- * <p>
- * A byte buffer of 4KB or 8KB is sufficient to be able to guess the encoding.
- * </p>
+ * <p>A byte buffer of 4KB or 8KB is sufficient to be able to guess the encoding.
  *
- * <p>
- * Usage:
- * </p>
+ * <p>Usage: // guess the encoding Charset guessedCharset =
+ * com.glaforge.i18n.io.CharsetToolkit.guessEncoding(file, 4096);
  *
- * <pre>
- * // guess the encoding
- * Charset guessedCharset = com.glaforge.i18n.io.CharsetToolkit.guessEncoding(file, 4096);
- *
- * // create a reader with the charset we've just discovered
- * FileInputStream fis = new FileInputStream(file);
- * InputStreamReader isr = new InputStreamReader(fis, guessedCharset);
+ * <p>// create a reader with the charset we've just discovered FileInputStream fis = new
+ * FileInputStream(file); InputStreamReader isr = new InputStreamReader(fis, guessedCharset);
  * BufferedReader br = new BufferedReader(isr);
- *
  */
 public class CharsetToolkit {
   private byte[] buffer;

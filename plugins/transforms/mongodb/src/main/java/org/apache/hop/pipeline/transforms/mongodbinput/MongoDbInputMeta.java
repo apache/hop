@@ -316,7 +316,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
   /**
    * Get whether the supplied query is actually a pipeline specification
    *
-   * @true true if the supplied query is a pipeline specification
+   * @return true if the supplied query is a pipeline specification
    */
   public boolean isQueryIsPipeline() {
     return aggPipeline;

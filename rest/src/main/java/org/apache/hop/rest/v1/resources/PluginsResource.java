@@ -56,7 +56,6 @@ public class PluginsResource extends BaseResource {
    *
    * @param typeClassName the metadata key to use
    * @return A list with all the available plugins
-   * @throws HopException
    */
   @GET
   @Path("/list/{typeClassName}/")

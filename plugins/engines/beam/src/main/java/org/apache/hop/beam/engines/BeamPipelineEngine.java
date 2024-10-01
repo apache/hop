@@ -1112,7 +1112,6 @@ public abstract class BeamPipelineEngine extends Variables
   /**
    * This method looks up the execution information location specified in the run configuration.
    *
-   * @return The location or null
    * @throws HopException In case something fundamental went wrong.
    */
   public void lookupExecutionInformationLocation() throws HopException {

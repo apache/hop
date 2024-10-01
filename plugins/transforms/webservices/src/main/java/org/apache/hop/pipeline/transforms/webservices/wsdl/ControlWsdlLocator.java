@@ -31,7 +31,7 @@ import org.xml.sax.InputSource;
 
 /**
  * Implementation of WSDLLocator for Beehive controls. This WSDLLocator implementation may open
- * multiple input streams, its <tt>cleanup()</tt> method should always be called once the WSDL file
+ * multiple input streams, its <i>cleanup()</i> method should always be called once the WSDL file
  * has been parsed.
  */
 public final class ControlWsdlLocator implements WSDLLocator {

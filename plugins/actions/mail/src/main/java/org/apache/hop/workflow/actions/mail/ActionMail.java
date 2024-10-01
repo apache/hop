@@ -421,7 +421,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   }
 
   /**
-   * @return the result file types to select for attachment </b>
+   * @return the result file types to select for attachment
    * @see ResultFile
    */
   public int[] getFileType() {

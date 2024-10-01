@@ -121,13 +121,13 @@ public class HopGuiFileDelegate {
   }
 
   /**
-   * We need to figure out which file is open at the given time so we can save it.
-   * To do this we see which is the active perspective.
-   * Then we ask the perspective for the shown/active file.
-   * We then know the filter extension and name so we can show a dialog.
-   * We can then also have the {@link IHopFileType to save the file.
+   * We need to figure out which file is open at the given time so we can save it. To do this we see
+   * which is the active perspective. Then we ask the perspective for the shown/active file. We then
+   * know the filter extension and name so we can show a dialog. We can then also have the {@link
+   * IHopFileType} to save the file.
    *
-   * @return The original filename, not having any variables replaced.  It returns null if no file was saved
+   * @return The original filename, not having any variables replaced. It returns null if no file
+   *     was saved
    */
   public String fileSaveAs() {
     try {

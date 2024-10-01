@@ -922,9 +922,7 @@ public class ValueMetaBase implements IValueMeta {
     return this.collatorLocale;
   }
 
-  /**
-   * @ sets the collator Locale
-   */
+  /** sets the collator Locale */
   @Override
   public void setCollatorLocale(Locale locale) {
     // Update the collator only if required
@@ -934,9 +932,7 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  /**
-   * @get the collatorStrength
-   */
+  /** get the collatorStrength */
   @Override
   public int getCollatorStrength() {
     return collatorStrength;
@@ -3758,7 +3754,8 @@ public class ValueMetaBase implements IValueMeta {
    *
    * @param node the node to retrieve the data value from
    * @return the converted data value
-   * @throws IOException thrown in case there is a problem with the XML to object conversion
+   * @throws org.apache.hop.core.exception.HopException thrown in case there is a problem with the
+   *     XML to object conversion
    */
   @Override
   public Object getValue(Node node) throws HopException {
