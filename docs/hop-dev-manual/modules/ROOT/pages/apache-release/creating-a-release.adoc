@@ -20,73 +20,139 @@ under the License.
 
 This document includes the steps needed to be taken by the release manager to create a successful release candidate.
 
-== Creating a release branch
+== Prerequisites
+Following items have to be completed once before you can start building and deploying a release.
 
-first step is to create a new release branch.
-The branch must follow following naming pattern `releaseX.XX` where `X.XX` is the release version number.
+* Have Git installed
+* Have SVN installed
+* Have a valid GPG Key on your `@apache`mail address (see <<CreatingAKey, Create key>>)
+** Add The key to the keys file (see <<CreatingAKey, Create key>>)
+** Configure Maven (see <<ConfigureMaven, Configure Maven>>)
 
-In this example upstream is the apache/hop github repository
 
-[source,bash]
+== Creating the release candidate
+
+When developing we are all using a fork of the Apache Hop code repository.
+For this process we will need to do a clone of the apache/hop repository.
+
+IMPORTANT: We will be working on the main code branch be extra vigilant
+
+=== Clone the Repository
+
 ----
-git branch releaseX.XX upstream/master
-git checkout releaseX.XX
-git push upstream releaseX.XX:releaseX.XX
+git clone  https://github.com/apache/hop.git apache_hop
+----
+If you already have the repository update the `main` branch to the latest version.
+
+=== Preparing the release
+
+* check you are using the correct java version `java -version`
+* Link GPG to your current terminal `export GPG_TTY=$(tty)` (not sure if needed on all OS)
+
+Build the software using the apache release profile
+
+----
+mvn clean install -Papache-release
 ----
 
-== update the version of the poms
+we are going to use the `mvn release:prepare` command to prepare the release process
 
-[source,bash]
+full command:
 ----
-mvn versions:set -DnewVersion=X.XX -DgenerateBackupPoms=false
+mvn release:prepare -DautoVersionSubmodules=true -DskipTests=true -DpushChanges=false -Darguments="-DskipTests=true -DpushChanges=false"
 ----
 
-== check for missing replaced poms
-check the source code and search for X.XX-SNAPSHOT and replace it by X.XX
+You will get following question:
 
-== correctly set the documentation version
-Update following files and set the correct documentation version and name
+* What is the release version for "Hop Orchestration Platform"? (org.apache.hop:hop) 2.10.0: :
+** Use the default suggestion
+* What is SCM release tag or label for "Hop Orchestration Platform"? (org.apache.hop:hop) hop-2.10.0:
+** Change the tag to `version-rcX` where x is 1 if it's the first candidate
+* What is the new development version for "Hop Orchestration Platform"? (org.apache.hop:hop) 2.2.1-SNAPSHOT:
+** Set the next development version usually increase `minor version` with 1
 
-* docs/hop-user-manual/antora.yml
-* docs/hop-tech-manual/antora.yml
-* docs/hop-dev-manual/antora.yml
+Once the build is finished you will have new commits and an extra tag. Push the commits to the main branch and push the new tag.
 
-Remove the `prerelease` and `display_version` attributes
-
-== commit the changed version and add tag
-
-Next up checking in the changes and adding a release tag.
-
-[source,bash]
 ----
-git add .
-git commit -m 'Create release version x.xx'
-git push upstream releaseX.XX:releaseX.XX
-
-git tag -a X.XX-rcX
-git push upstream tag X.XX-rcX
+git push
+git push origin tag <tag_name>
 ----
-start numbering the rc with 1 (rc1)
 
-== Creating the release artifacts
+=== Creating a branch from the release tag
+
+Create a new branch from the pushed changes
+
+----
+git checkout -b release/<release_version> tags/<tag_name>
+----
+
+push the branch
+
+----
+git push origin release/<release_version>
+----
+
+=== Perform the release
+
+----
+mvn release:perform -DautoVersionSubmodules=true -Dassemblies=false -DskipTests=true -DpushChanges=false -DautoVersionSubmodules=true -Darguments="-Dassemblies=false -DskipTests=true -DpushChanges=false"
+----
+
+=== Nexus
+After the `release:perform` operation a staging repository will have been created in Nexus. This will contain all the artifacts that will end up in Maven Central after we finished our voting process.
+
+* Go to the https://repository.apache.org/#stagingRepositories[Nexus staging repository] (Use your ASF credentials to log in)
+* Find Staged release its name will be orgapachehop-<number>
+* Do a quick check the repository contains the artifacts
+* Select the repository and click on the Close button
+* Description when closing: Prepare Apache Hop <version>-rc<number> release
+* After a while, the status will go from open to closed
+
+
+== GitHub
+=== Create a pre-release tag on GitHub
+
+* Go to the https://github.com/apache/hop/releases[releases page] on GitHub
+* Press Draft a new release
+* Select the new tag and the previous version tag
+* Release title is just the release version
+* Hit Generate release notes
+* Select the `Set as a pre-release` checkbox
+* publish release
+
+=== Close the current milestone
+
+* Go to the https://github.com/apache/hop/milestones[milestones page] on gitHub
+* Select the current milestone
+* Move open tickets to the next milestone
+* Select Edit milestone
+* Select Close milestone
+
+== SVN
+
+Now that all the staging is done, let's prepare the SVN distribution.
+
+=== Creating the release artifacts
 
 Checkout the tag to a clean folder to avoid files that are ignored by git and remove the git folder.
 Next up is creating the tar.gz file
 
 [source,bash]
 ----
+mkdir /tmp/release
+cd /tmp/release
 git clone --depth 1 --branch X.XX-rcX https://github.com/apache/hop.git apache-hop-X.XX
 rm -rf apache-hop-X.XX/.git
 tar -czvf apache-hop-X.XX-src.tar.gz apache-hop-X.XX
 ----
 
-== Sign the artifacts
+=== Sign the artifacts
 
 This part assumes you already have created and registered keys to sign the artifacts, for more information on creating and adding your keys see <<CreatingAKey,here>>
 
 [source,bash]
 ----
-gpg --armor --default-key username@apache.org --output apache-hop-X.XX-src.tar.gz.asc --detach-sig apache-hop-X.XX-src.tar.gz
+gpg --armor -u username@apache.org --output apache-hop-X.XX-src.tar.gz.asc --detach-sig apache-hop-X.XX-src.tar.gz
 sha512sum apache-hop-X.XX-src.tar.gz > apache-hop-X.XX-src.tar.gz.sha512
 
 # Validate
@@ -94,7 +160,7 @@ gpg --verify apache-hop-X.XX-src.tar.gz.asc
 sha512sum -c apache-hop-X.XX-src.tar.gz.sha512
 ----
 
-== Creating the client
+=== Creating the client
 
 The client included in the release has to be build using the source code in the release.
 Use the source you just prepared to generate the client.
@@ -119,7 +185,7 @@ As we now added a new binary file we also need to sign and create a sha512 for i
 [source,bash]
 ----
 # Create keyfile and sha512
-gpg --armor --default-key username@apache.org --output apache-hop-client-X.XX.zip.asc --detach-sig apache-hop-client-X.XX.zip
+gpg --armor -u username@apache.org --output apache-hop-client-X.XX.zip.asc --detach-sig apache-hop-client-X.XX.zip
 sha512sum apache-hop-client-X.XX.zip > apache-hop-client-X.XX.zip.sha512
 
 # Validate
@@ -127,7 +193,7 @@ gpg --verify apache-hop-client-X.XX.zip.asc
 sha512sum -c apache-hop-client-X.XX.zip.sha512
 ----
 
-== Creating the Helm chart (if needed)
+=== Creating the Helm chart (if needed)
 
 When changes have been made to the helm chart a new release of this artifact is also needed.
 This assumes helm has been installed.
@@ -152,7 +218,7 @@ As we now added a new binary file we also need to sign and create a sha512 for i
 [source,bash]
 ----
 # Create keyfile and sha512
-gpg --armor --default-key username@apache.org --output hop-X.XX.tgz.asc --detach-sig hop-X.XX.tgz
+gpg --armor -u username@apache.org --output hop-X.XX.tgz.asc --detach-sig hop-X.XX.tgz
 sha512sum hop-X.XX.tgz > hop-X.XX.tgz.sha512
 
 # Validate
@@ -160,7 +226,7 @@ gpg --verify hop-X.XX.tgz.asc
 sha512sum -c hop-X.XX.tgz.sha512
 ----
 
-== Staging the files
+=== Staging the files
 
 First step is to check out the SVN directory, and create a new directory
 
@@ -189,13 +255,16 @@ Add and commit the files to svn
 ----
 cd apache-hop-x.xx-rcx
 svn add *
+cd ..
 svn status
 svn commit -m 'Add release files for Apache hop X.XX-rcX'
 ----
 
 Check if the files are uploaded https://dist.apache.org/repos/dist/dev/hop/[here]
 
-== Send mail to dev list to announce new release candidate
+== Sending the vote mails
+
+Send mail to dev list to announce new release candidate
 
 Mail Template
 
@@ -217,6 +286,9 @@ The release files, including signatures, digests, etc. can be found at:
 https://dist.apache.org/repos/dist/dev/hop/apache-hop-X.XX-rcX/
 
 The SHA512 Checksum for these artifacts is:
+Source:
+<INCLUDE CHECKSUM FROM SHA512 file>
+client:
 <INCLUDE CHECKSUM FROM SHA512 file>
 
 Release artifacts are signed with the following key:
@@ -265,6 +337,18 @@ Cheers,
 <YOUR NAME>
 ----
 
+== Other changes
+
+=== Change documentation version in release branch
+Update following files and set the correct documentation version and name
+
+* docs/hop-user-manual/antora.yml
+* docs/hop-tech-manual/antora.yml
+* docs/hop-dev-manual/antora.yml
+
+Remove the `prerelease` and `display_version` attributes
+
+
 == [[CreatingAKey]]Creating a key
 
 To generate and publish a key follow these steps, it is recommended to use your apache email as key alias.
@@ -288,3 +372,73 @@ gpg --list-sigs <keyID> >> KEYS
 gpg  --armor --export <keyID> >> KEYS
 svn commit -m "added new public key to KEYS file"
 ----
+
+
+== [[ConfigureMaven]]Configure Maven
+
+To build and deploy to Apache resources you have to modify the settings.xml file located in your .m2 directory.
+
+To do This you will first have to create a master password, this will be used to encrypt the other passwords.
+
+Use following command to generate a master password:
+
+[source,bash]
+----
+mvn --encrypt-master-password
+----
+
+This command will produce an encrypted version of the password, something like
+[source,bash]
+----
+{jSMOWnoPFgsHVpMvz5VrIt5kRbzGpI8u+9EF1iFQyJQ=}
+----
+
+Store this password in the `${user.home}/.m2/settings-security.xml`; it should look like
+
+[source,xml]
+----
+<settingsSecurity>
+    <master>{jSMOWnoPFgsHVpMvz5VrIt5kRbzGpI8u+9EF1iFQyJQ=}</master>
+</settingsSecurity>
+----
+
+Next up we have to configure the `${user.home}/.m2/settings.xml` file.
+
+[source,xml]
+----
+<servers>
+    <!-- To publish a snapshot of your project -->
+    <server>
+      <id>apache.snapshots.https</id>
+      <username>ApacheUserID</username>
+      <!-- Your Apache password encrypted using mvn --encrypt-password command -->
+      <password></password>
+    </server>
+    <!-- To stage a release of your project -->
+    <server>
+      <id>apache.releases.https</id>
+      <username>ApacheUserID</username>
+      <!-- Your Apache password encrypted using mvn --encrypt-password command -->
+      <password></password>
+    </server>
+  </servers>
+
+<!-- To sign the artifacts during mvn release process -->
+<profiles>
+    <profile>
+      <id>my_profile_id</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <!-- Key ID fetched using gpg --list-key -->
+        <gpg.keyname>0AFCA1919D19DAA60AB0BF94C4092203EB788658</gpg.keyname>
+        <!-- Remove this for password prompt or fill in with password of the key (remove recommended) -->
+        <gpg.passphrase></gpg.passphrase>
+      </properties>
+    </profile>
+</profiles>
+----
+
+for more information you can look at the https://maven.apache.org/guides/mini/guide-encryption.html[Maven documentation]
+
