@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -34,6 +35,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -59,12 +61,16 @@ import org.eclipse.swt.widgets.Text;
 public class RestDialog extends BaseTransformDialog {
   private static final Class<?> PKG = RestMeta.class;
 
+  public static final String CONST_ERROR = "Error";
+
   private ComboVar wApplicationType;
 
   private Label wlMethod;
+
   private ComboVar wMethod;
 
   private Label wlUrl;
+
   private TextVar wUrl;
 
   private TextVar wResult;
@@ -76,6 +82,7 @@ public class RestDialog extends BaseTransformDialog {
   private Button wUrlInField;
 
   private Label wlUrlField;
+
   private ComboVar wUrlField;
 
   private Button wMethodInField;
@@ -83,6 +90,7 @@ public class RestDialog extends BaseTransformDialog {
   private Button wPreemptive;
 
   private Label wlMethodField;
+
   private ComboVar wMethodField;
 
   private final RestMeta input;
@@ -90,9 +98,11 @@ public class RestDialog extends BaseTransformDialog {
   private final List<String> inputFields = new ArrayList<>();
 
   private Label wlBody;
+
   private ComboVar wBody;
 
   private ColumnInfo[] colinf;
+
   private ColumnInfo[] colinfoparams;
 
   private TextVar wConnectionTimeout;
@@ -108,11 +118,15 @@ public class RestDialog extends BaseTransformDialog {
   private TextVar wProxyPort;
 
   private Label wlParameters;
+
   private Label wlMatrixParameters;
+
   private TableView wParameters;
+
   private TableView wMatrixParameters;
 
   private TextVar wResponseTime;
+
   private TextVar wResponseHeader;
 
   private TextVar wTrustStorePassword;
@@ -124,6 +138,8 @@ public class RestDialog extends BaseTransformDialog {
   private Button wIgnoreSsl;
 
   private Button wMatrixGet;
+
+  private MetaSelectionLine wSelectionLine;
 
   public RestDialog(
       Shell parent, IVariables variables, RestMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -180,6 +196,7 @@ public class RestDialog extends BaseTransformDialog {
 
     Group gSettings = setupSettingGroup(wGeneralComp);
 
+    setupRestConnectionLine(lsMod, middle, margin, wGeneralComp, gSettings);
     setupUrlLine(lsMod, middle, margin, wGeneralComp, gSettings);
     setupUrlInFieldLine(middle, margin, gSettings);
     setupUrlFieldNameLine(lsMod, middle, margin, gSettings);
@@ -1174,15 +1191,41 @@ public class RestDialog extends BaseTransformDialog {
         });
   }
 
+  private void setupRestConnectionLine(
+      ModifyListener lsMod, int middle, int margin, Composite wGeneralComp, Group gSettings) {
+
+    wSelectionLine =
+        new MetaSelectionLine(
+            variables,
+            metadataProvider,
+            RestConnection.class,
+            gSettings,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            "REST Connection",
+            "The name of the REST connection to use.");
+    PropsUi.setLook(wSelectionLine);
+    FormData fdSelectionLine = new FormData();
+    fdSelectionLine.left = new FormAttachment(0, 0);
+    fdSelectionLine.top = new FormAttachment(wGeneralComp, margin);
+    fdSelectionLine.right = new FormAttachment(100, -margin);
+    wSelectionLine.setLayoutData(fdSelectionLine);
+    try {
+      wSelectionLine.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(shell, CONST_ERROR, "Error getting list of REST connections", e);
+    }
+  }
+
   private void setupUrlLine(
       ModifyListener lsMod, int middle, int margin, Composite wGeneralComp, Group gSettings) {
+
     wlUrl = new Label(gSettings, SWT.RIGHT);
     wlUrl.setText(BaseMessages.getString(PKG, "RestDialog.URL.Label"));
     PropsUi.setLook(wlUrl);
     FormData fdlUrl = new FormData();
     fdlUrl.left = new FormAttachment(0, 0);
     fdlUrl.right = new FormAttachment(middle, -margin);
-    fdlUrl.top = new FormAttachment(wGeneralComp, margin * 2);
+    fdlUrl.top = new FormAttachment(wSelectionLine, margin * 2);
     wlUrl.setLayoutData(fdlUrl);
 
     wUrl = new TextVar(variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -1190,7 +1233,7 @@ public class RestDialog extends BaseTransformDialog {
     wUrl.addModifyListener(lsMod);
     FormData fdUrl = new FormData();
     fdUrl.left = new FormAttachment(middle, 0);
-    fdUrl.top = new FormAttachment(wGeneralComp, margin * 2);
+    fdUrl.top = new FormAttachment(wSelectionLine, margin * 2);
     fdUrl.right = new FormAttachment(100, 0);
     wUrl.setLayoutData(fdUrl);
   }
