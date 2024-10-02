@@ -41,9 +41,12 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.SQLStyledTextComp;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -68,7 +71,7 @@ public class TableInputDialog extends BaseTransformDialog {
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private SQLStyledTextComp wSql;
+  private TextComposite wSql;
 
   private CCombo wDataFrom;
 
@@ -263,9 +266,15 @@ public class TableInputDialog extends BaseTransformDialog {
     fdbTable.top = new FormAttachment(wConnection, margin * 2);
     wbTable.setLayoutData(fdbTable);
 
-    wSql =
-        new SQLStyledTextComp(
-            variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      wSql =
+          new StyledTextComp(
+              variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    } else {
+      wSql =
+          new SQLStyledTextComp(
+              variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    }
     PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
     FormData fdSql = new FormData();
@@ -330,7 +339,7 @@ public class TableInputDialog extends BaseTransformDialog {
     wDataFrom.addListener(SWT.Selection, e -> setFlags());
     wDataFrom.addListener(SWT.FocusOut, e -> setFlags());
 
-    wSql.addLineStyleListener(new SQLValuesHighlight());
+    wSql.addLineStyleListener();
     getData();
     input.setChanged(changed);
 

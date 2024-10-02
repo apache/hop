@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
-public class StyledTextComp extends Composite {
+public class StyledTextComp extends TextComposite {
   private static final Class<?> PKG = StyledTextComp.class;
 
   // Modification for Undo/Redo on Styled Text
@@ -138,6 +138,11 @@ public class StyledTextComp extends Composite {
 
   public void addModifyListener(ModifyListener lsMod) {
     textWidget.addModifyListener(lsMod);
+  }
+
+  @Override
+  public void addLineStyleListener() {
+    // No listener required
   }
 
   public void addKeyListener(KeyAdapter keyAdapter) {
