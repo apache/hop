@@ -1,19 +1,19 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/// *
+// * Licensed to the Apache Software Foundation (ASF) under one or more
+// * contributor license agreements.  See the NOTICE file distributed with
+// * this work for additional information regarding copyright ownership.
+// * The ASF licenses this file to You under the Apache License, Version 2.0
+// * (the "License"); you may not use this file except in compliance with
+// * the License.  You may obtain a copy of the License at
+// *
+// *      http://www.apache.org/licenses/LICENSE-2.0
+// *
+// * Unless required by applicable law or agreed to in writing, software
+// * distributed under the License is distributed on an "AS IS" BASIS,
+// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// * See the License for the specific language governing permissions and
+// * limitations under the License.
+// */
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
@@ -27,13 +27,11 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.apache.hop.pipeline.transforms.selectvalues.SelectValuesMeta.SelectField;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -111,25 +109,19 @@ public class SelectValues_LocaleHandling_Test {
   private void executeAndCheck(String locale, String expectedWeekNumber) throws Exception {
 
     SelectValuesMeta transformMeta = new SelectValuesMeta();
-    transformMeta.allocate(1, 0, 1);
-    transformMeta.getSelectFields()[0] = new SelectField();
-    transformMeta.getSelectFields()[0].setName("field");
-    transformMeta.getMeta()[0] =
-        new SelectMetadataChange(
-            "field",
-            null,
-            IValueMeta.TYPE_STRING,
-            -2,
-            -2,
-            IValueMeta.STORAGE_TYPE_NORMAL,
-            "ww",
-            false,
-            locale,
-            null,
-            false,
-            null,
-            null,
-            null);
+    //  transformMeta.allocate(1, 0, 1);
+    transformMeta
+        .getSelectOption()
+        .getSelectFields()
+        .addAll(SelectValueMetaTestFactory.getSelectFields("field"));
+
+    transformMeta
+        .getSelectOption()
+        .getMeta()
+        .add(
+            new SelectMetadataChange(
+                "field", null, "String", -2, -2, "normal", "ww", false, locale, null, false, null,
+                null, null));
 
     SelectValuesData transformData = new SelectValuesData();
     transformData.select = true;
@@ -145,6 +137,6 @@ public class SelectValues_LocaleHandling_Test {
 
     List<Object[]> execute = PipelineTestingUtil.execute(transform, 1, true);
     PipelineTestingUtil.assertResult(
-        execute, Collections.singletonList(new Object[] {expectedWeekNumber}));
+        Collections.singletonList(new Object[] {expectedWeekNumber}), execute);
   }
 }
