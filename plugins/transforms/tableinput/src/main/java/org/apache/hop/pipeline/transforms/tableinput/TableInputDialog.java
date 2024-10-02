@@ -40,7 +40,7 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
-import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -68,7 +68,7 @@ public class TableInputDialog extends BaseTransformDialog {
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private StyledTextComp wSql;
+  private SQLStyledTextComp wSql;
 
   private CCombo wDataFrom;
 
@@ -264,7 +264,7 @@ public class TableInputDialog extends BaseTransformDialog {
     wbTable.setLayoutData(fdbTable);
 
     wSql =
-        new StyledTextComp(
+        new SQLStyledTextComp(
             variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
@@ -330,6 +330,7 @@ public class TableInputDialog extends BaseTransformDialog {
     wDataFrom.addListener(SWT.Selection, e -> setFlags());
     wDataFrom.addListener(SWT.FocusOut, e -> setFlags());
 
+    wSql.addLineStyleListener(new SQLValuesHighlight());
     getData();
     input.setChanged(changed);
 
