@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-public class SQLStyledTextComp extends Composite {
+public class SQLStyledTextComp extends TextComposite {
   private static final Class<?> PKG = SQLStyledTextComp.class;
 
   // Modification for Undo/Redo on Styled Text
@@ -140,6 +140,11 @@ public class SQLStyledTextComp extends Composite {
 
   public void addModifyListener(ModifyListener lsMod) {
     textWidget.addModifyListener(lsMod);
+  }
+
+  @Override
+  public void addLineStyleListener() {
+    addLineStyleListener(new SQLValuesHighlight());
   }
 
   public void addKeyListener(KeyAdapter keyAdapter) {
