@@ -95,6 +95,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
     DUMMY,
     FORMULA,
     GOOGLE_SHEETS_INPUT,
+    METAINJECT,
     SIMPLE_MAPPING,
     OTHER
   };
@@ -589,6 +590,10 @@ public class KettleImport extends HopImportBase implements IHopImport {
                   && childNode.getChildNodes().item(0).getNodeValue().equals("Mapping")) {
                 entryType = EntryType.SIMPLE_MAPPING;
               }
+              if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals("MetaInject")) {
+                entryType = EntryType.METAINJECT;
+              }
             }
           }
         }
@@ -698,7 +703,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
         }
       }
 
-      if (entryType == EntryType.SIMPLE_MAPPING && currentNode.getNodeName().equals("transform")) {
+      if ((entryType == EntryType.SIMPLE_MAPPING || entryType == EntryType.METAINJECT)
+          && currentNode.getNodeName().equals("transform")) {
 
         Node filenameNode = null;
         String transName = "";
@@ -718,10 +724,11 @@ public class KettleImport extends HopImportBase implements IHopImport {
           }
         }
 
-        // if we have a trans name and directory path, use it to update the mapping pipeline
+        // if we have a trans name and directory path, use it to update the mapping or injectable
+        // pipeline
         // filename.
         if (!StringUtils.isEmpty(transName) && !StringUtils.isEmpty(directoryPath)) {
-          filenameNode.setTextContent("${PROJECT_HOME}" + directoryPath + "/" + transName + ".hpl");
+          filenameNode.setTextContent("${PROJECT_HOME}" + directoryPath + '/' + transName + ".hpl");
         }
 
         // add the default pipeline run configuration.
