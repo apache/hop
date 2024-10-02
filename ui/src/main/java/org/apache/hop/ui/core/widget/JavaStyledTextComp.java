@@ -25,7 +25,10 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.highlight.JavaHighlight;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.LineStyleListener;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.FocusAdapter;
@@ -43,26 +46,26 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Text;
 
-public class StyledTextComp extends TextComposite {
-  private static final Class<?> PKG = StyledTextComp.class;
+public class JavaStyledTextComp extends TextComposite {
+  private static final Class<?> PKG = JavaStyledTextComp.class;
 
   // Modification for Undo/Redo on Styled Text
-  private final Text textWidget;
+  private final StyledText textWidget;
   private final Menu styledTextPopupmenu;
   private final Composite xParent;
   private Image image;
 
-  public StyledTextComp(IVariables variables, Composite parent, int args) {
+  public JavaStyledTextComp(IVariables variables, Composite parent, int args) {
     this(variables, parent, args, true, false);
   }
 
-  public StyledTextComp(IVariables variables, Composite parent, int args, boolean varsSensitive) {
+  public JavaStyledTextComp(
+      IVariables variables, Composite parent, int args, boolean varsSensitive) {
     this(variables, parent, args, varsSensitive, false);
   }
 
-  public StyledTextComp(
+  public JavaStyledTextComp(
       IVariables variables,
       Composite parent,
       int args,
@@ -70,7 +73,7 @@ public class StyledTextComp extends TextComposite {
       boolean variableIconOnTop) {
 
     super(parent, SWT.NONE);
-    textWidget = new Text(this, args);
+    textWidget = new StyledText(this, args);
     styledTextPopupmenu = new Menu(parent.getShell(), SWT.POP_UP);
     xParent = parent;
     this.setLayout(new FormLayout());
@@ -122,7 +125,7 @@ public class StyledTextComp extends TextComposite {
 
   @Override
   public int getCaretOffset() {
-    return textWidget.getCaretPosition();
+    return textWidget.getCaretOffset();
   }
 
   public String getText() {
@@ -148,12 +151,16 @@ public class StyledTextComp extends TextComposite {
 
   @Override
   public void addLineStyleListener() {
-    // No listener required
+    addLineStyleListener(new JavaHighlight());
   }
 
   @Override
-  public void addLineStyleListener(List<String> sqlKeywords) {
+  public void addLineStyleListener(List<String> keywords) {
     // No listener required
+  }
+
+  public void addLineStyleListener(LineStyleListener lineStyler) {
+    textWidget.addLineStyleListener(lineStyler);
   }
 
   public void addKeyListener(KeyAdapter keyAdapter) {
@@ -269,7 +276,7 @@ public class StyledTextComp extends TextComposite {
     return image;
   }
 
-  public Text getTextWidget() {
+  public StyledText getTextWidget() {
     return textWidget;
   }
 
@@ -308,7 +315,7 @@ public class StyledTextComp extends TextComposite {
     }
 
     int rowNumber = 1;
-    int textPosition = textWidget.getCaretPosition();
+    int textPosition = textWidget.getCaretOffset();
     while (textPosition > 0) {
       if (text.charAt(textPosition - 1) == '\n') {
         rowNumber++;
@@ -329,7 +336,7 @@ public class StyledTextComp extends TextComposite {
     }
 
     int columnNumber = 1;
-    int textPosition = textWidget.getCaretPosition();
+    int textPosition = textWidget.getCaretOffset();
     while (textPosition > 0
         && text.charAt(textPosition - 1) != '\n'
         && text.charAt(textPosition - 1) != '\r') {
@@ -341,6 +348,6 @@ public class StyledTextComp extends TextComposite {
   }
 
   public int getCaretPosition() {
-    return textWidget.getCaretPosition();
+    return textWidget.getCaretOffset();
   }
 }
