@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.tableinput;
+package org.apache.hop.ui.core.widget;
 
 import java.io.IOException;
 import java.io.StringReader;
