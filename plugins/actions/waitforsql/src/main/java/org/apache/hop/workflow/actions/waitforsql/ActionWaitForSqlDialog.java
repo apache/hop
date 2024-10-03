@@ -32,9 +32,12 @@ import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -87,7 +90,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
 
   private Label wlSql;
 
-  private StyledTextComp wSql;
+  private TextComposite wSql;
 
   private Label wlPosition;
 
@@ -512,8 +515,16 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     wbSqlTable.addListener(SWT.Selection, e -> getSql());
 
     wSql =
-        new StyledTextComp(
-            action, wCustomGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        EnvironmentUtils.getInstance().isWeb()
+            ? new StyledTextComp(
+                action,
+                wCustomGroup,
+                SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)
+            : new SQLStyledTextComp(
+                action,
+                wCustomGroup,
+                SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    wSql.addLineStyleListener();
     PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
     FormData fdSql = new FormData();
