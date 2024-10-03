@@ -96,14 +96,13 @@ public class SQLValuesHighlight implements LineStyleListener {
   }
 
   void initializeColors() {
-    // Display display = Display.getDefault();
     colors =
         new Color[] {
-          GuiResource.getInstance().getColor(0, 0, 0), // black
-          GuiResource.getInstance().getColor(255, 0, 0), // red
-          GuiResource.getInstance().getColor(63, 127, 95), // green
-          GuiResource.getInstance().getColor(0, 0, 255), // blue
-          GuiResource.getInstance().getColor(255, 0, 255) // SQL Functions / Rose
+          GuiResource.getInstance().getColorBlack(), // black
+          GuiResource.getInstance().getColorRed(), // red
+          GuiResource.getInstance().getColorGreen(), // green
+          GuiResource.getInstance().getColorBlue(), // blue
+          GuiResource.getInstance().getColorMagenta() // SQL Functions / Rose
         };
     tokenColors = new int[MAXIMUM_TOKEN];
     tokenColors[WORD] = 0;
