@@ -87,7 +87,7 @@ public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> {
       putRowTo(data.outputRowMeta, r, rowSet);
     }
 
-    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "SwitchCase.Log.LineNumber") + getLinesRead());
     }
 
