@@ -152,13 +152,13 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
           IValueMeta inputValueMeta = null;
           String fieldName = Const.NVL(field.getRename(), field.getName());
           int outputIndex = getInputRowMeta().size() + i;
-          if (sasValue instanceof byte[]) {
+          if (sasValue instanceof byte[] bytes) {
             inputValueMeta = new ValueMetaString(fieldName);
             if (sasFileProperties.getEncoding() != null) {
-              value = new String((byte[]) sasValue, sasFileProperties.getEncoding());
+              value = new String(bytes, sasFileProperties.getEncoding());
             } else {
               // TODO: user defined encoding.
-              value = new String((byte[]) sasValue);
+              value = new String(bytes);
             }
           }
           if (sasValue instanceof String) {

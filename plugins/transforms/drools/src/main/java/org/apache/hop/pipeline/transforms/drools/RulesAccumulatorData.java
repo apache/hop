@@ -148,7 +148,7 @@ public class RulesAccumulatorData extends BaseTransformData implements ITransfor
                   new ObjectFilter() {
                     @Override
                     public boolean accept(Object o) {
-                      if (o instanceof Rules.Row && !((Rules.Row) o).isExternalSource()) {
+                      if (o instanceof Rules.Row row && !row.isExternalSource()) {
                         return true;
                       }
                       return false;

@@ -553,7 +553,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
   @Override
   public boolean equals(Object obj) {
-    return obj instanceof DatabaseMeta && getName().equals(((DatabaseMeta) obj).getName());
+    return obj instanceof DatabaseMeta databaseMeta && getName().equals(databaseMeta.getName());
   }
 
   public String getURL(IVariables variables) throws HopDatabaseException {
@@ -930,8 +930,8 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       clearDatabaseInterfacesMap();
       // doCreate() above doesn't declare any exceptions so anything that comes out SHOULD be a
       // runtime exception
-      if (e instanceof RuntimeException) {
-        throw (RuntimeException) e;
+      if (e instanceof RuntimeException runtimeException) {
+        throw runtimeException;
       } else {
         throw new RuntimeException(e);
       }

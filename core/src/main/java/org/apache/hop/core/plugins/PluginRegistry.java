@@ -413,8 +413,8 @@ public class PluginRegistry {
               PKG, "PluginRegistry.RuntimeError.NoValidTransformOrPlugin.PLUGINREGISTRY001"));
     }
 
-    if (plugin instanceof IClassLoadingPlugin) {
-      T aClass = ((IClassLoadingPlugin) plugin).loadClass(pluginClass);
+    if (plugin instanceof IClassLoadingPlugin iClassLoadingPlugin) {
+      T aClass = iClassLoadingPlugin.loadClass(pluginClass);
       if (aClass == null) {
         throw new HopPluginClassMapException(
             BaseMessages.getString(
@@ -804,9 +804,9 @@ public class PluginRegistry {
     try {
       if (plugin.isNativePlugin()) {
         return (T) Class.forName(className);
-      } else if ((plugin instanceof IClassLoadingPlugin)
-          && ((IClassLoadingPlugin) plugin).getClassLoader() != null) {
-        return (T) ((IClassLoadingPlugin) plugin).getClassLoader().loadClass(className);
+      } else if ((plugin instanceof IClassLoadingPlugin iClassLoadingPlugin)
+          && iClassLoadingPlugin.getClassLoader() != null) {
+        return (T) iClassLoadingPlugin.getClassLoader().loadClass(className);
       } else {
         URLClassLoader ucl;
         lock.writeLock().lock();
@@ -931,8 +931,9 @@ public class PluginRegistry {
                 } else {
                   ucl = classLoaders.get(plugin);
                   if (ucl == null) {
-                    if (plugin.getLibraries().isEmpty() && plugin instanceof IClassLoadingPlugin) {
-                      return ((IClassLoadingPlugin) plugin).getClassLoader();
+                    if (plugin.getLibraries().isEmpty()
+                        && plugin instanceof IClassLoadingPlugin iClassLoadingPlugin) {
+                      return iClassLoadingPlugin.getClassLoader();
                     }
                     ucl = createClassLoader(plugin);
                     classLoaders.put(plugin, ucl); // save for later use...

@@ -408,7 +408,10 @@ public class SnowflakeBulkLoader
           && StringUtils.isEmpty(v.getStringEncoding())) {
         return (byte[]) valueData;
       } else {
-        String svalue = (valueData instanceof String) ? (String) valueData : v.getString(valueData);
+        String svalue =
+            (valueData instanceof String stringValueData)
+                ? stringValueData
+                : v.getString(valueData);
 
         // trim or cut to size if needed.
         //

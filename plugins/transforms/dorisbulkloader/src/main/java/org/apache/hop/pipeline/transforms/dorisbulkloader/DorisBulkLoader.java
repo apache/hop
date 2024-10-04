@@ -174,8 +174,8 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
         }
       }
     } catch (Exception e) {
-      if (e instanceof DorisStreamLoadException) {
-        throw (DorisStreamLoadException) e;
+      if (e instanceof DorisStreamLoadException dorisStreamLoadException) {
+        throw dorisStreamLoadException;
       } else {
         throw new DorisStreamLoadException(e);
       }

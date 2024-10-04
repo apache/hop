@@ -65,8 +65,8 @@ public class ErrorDialog extends Dialog {
 
     throwable.printStackTrace();
 
-    if (throwable instanceof Exception) {
-      showErrorDialog(parent, title, message, (Exception) throwable, false);
+    if (throwable instanceof Exception exception) {
+      showErrorDialog(parent, title, message, exception, false);
     } else {
       // not optimal, but better then nothing
       showErrorDialog(

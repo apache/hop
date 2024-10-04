@@ -419,8 +419,8 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
     } catch (HopException e) {
       if (getTransformMeta().isDoingErrorHandling()) {
         String field;
-        if (e instanceof HopConversionException) {
-          List<IValueMeta> fields = ((HopConversionException) e).getFields();
+        if (e instanceof HopConversionException hopConversionException) {
+          List<IValueMeta> fields = hopConversionException.getFields();
           field = fields.isEmpty() ? null : fields.get(0).getName();
         } else {
           field = null;

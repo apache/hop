@@ -375,16 +375,14 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
       TreeItem treeItem = tree.getSelection()[0];
       if (treeItem != null) {
-        if (treeItem.getData() instanceof Execution) {
-          Execution execution = (Execution) treeItem.getData();
+        if (treeItem.getData() instanceof Execution execution) {
           ExecutionInfoLocation location =
               (ExecutionInfoLocation) treeItem.getParentItem().getData();
           ExecutionState executionState =
               location.getExecutionInfoLocation().getExecutionState(execution.getId());
           createExecutionViewer(location.getName(), execution, executionState);
-        } else if (treeItem.getData(CONST_ERROR) instanceof Exception) {
-          Exception e = (Exception) treeItem.getData(CONST_ERROR);
-          new ErrorDialog(getShell(), CONST_ERROR1, "Location error:", e);
+        } else if (treeItem.getData(CONST_ERROR) instanceof Exception exception) {
+          new ErrorDialog(getShell(), CONST_ERROR1, "Location error:", exception);
         }
       }
     } catch (Exception e) {
@@ -676,7 +674,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       }
       TreeItem item = tree.getSelection()[0];
       Object itemData = item.getData();
-      if (itemData instanceof ExecutionInfoLocation) {
+      if (itemData instanceof ExecutionInfoLocation location) {
         // Delete the whole location
         //
         MessageBox box = new MessageBox(getShell(), SWT.APPLICATION_MODAL | SWT.NO | SWT.YES);
@@ -687,17 +685,15 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           return;
         }
 
-        ExecutionInfoLocation location = (ExecutionInfoLocation) itemData;
         IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
         List<String> executionIds = iLocation.getExecutionIds(false, 0);
         for (int i = executionIds.size() - 1; i >= 0; i--) {
           iLocation.deleteExecution(executionIds.get(i));
         }
         refresh();
-      } else if (itemData instanceof Execution) {
+      } else if (itemData instanceof Execution execution) {
         // Delete one execution: do not ask for confirmation
         //
-        Execution execution = (Execution) itemData;
         TreeItem parentItem = item.getParentItem();
         ExecutionInfoLocation location = (ExecutionInfoLocation) parentItem.getData();
         IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();

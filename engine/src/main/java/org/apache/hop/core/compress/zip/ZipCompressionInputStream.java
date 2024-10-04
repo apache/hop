@@ -33,8 +33,8 @@ public class ZipCompressionInputStream extends CompressionInputStream {
 
   protected static ZipInputStream getDelegate(InputStream in) {
     ZipInputStream delegate = null;
-    if (in instanceof ZipInputStream) {
-      delegate = (ZipInputStream) in;
+    if (in instanceof ZipInputStream zipInputStream) {
+      delegate = zipInputStream;
     } else {
       delegate = new ZipInputStream(in);
     }

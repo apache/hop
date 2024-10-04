@@ -1345,8 +1345,8 @@ public class ContextDialog extends Dialog {
 
     for (AreaOwner areaOwner : areaOwners) {
       if (areaOwner.contains(x, y)) {
-        if (areaOwner.getOwner() instanceof Item) {
-          return (Item) areaOwner.getOwner();
+        if (areaOwner.getOwner() instanceof Item item) {
+          return item;
         }
       }
     }

@@ -32,8 +32,8 @@ public class GzipCompressionInputStream extends CompressionInputStream {
 
   protected static GZIPInputStream getDelegate(InputStream in) throws IOException {
     GZIPInputStream delegate = null;
-    if (in instanceof GZIPInputStream) {
-      delegate = (GZIPInputStream) in;
+    if (in instanceof GZIPInputStream gzipInputStream) {
+      delegate = gzipInputStream;
     } else {
       delegate = new GZIPInputStream(in);
     }

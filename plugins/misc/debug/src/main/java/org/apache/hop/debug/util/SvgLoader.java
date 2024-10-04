@@ -79,8 +79,8 @@ public class SvgLoader {
 
     // Return the newly rendered image.
     //
-    if (img instanceof BufferedImage) {
-      return (BufferedImage) img;
+    if (img instanceof BufferedImage bufferedImage) {
+      return bufferedImage;
     }
 
     // Convert to a buffered image for the Hop GC API

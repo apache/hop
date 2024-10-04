@@ -38,8 +38,8 @@ public abstract class AbstractFileValidator implements IActionValidator {
       List<ICheckResult> remarks,
       ValidatorContext context) {
     Object obj = context.get(KEY_VARIABLE_SPACE);
-    if (obj instanceof IVariables) {
-      return (IVariables) obj;
+    if (obj instanceof IVariables iVariables) {
+      return iVariables;
     } else {
       ActionValidatorUtils.addGeneralRemark(
           source,

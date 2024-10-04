@@ -359,8 +359,8 @@ public class PipelineMeta extends AbstractMeta
     transforms.add(transformMeta);
     transformMeta.setParentPipelineMeta(this);
     ITransformMeta iface = transformMeta.getTransform();
-    if (iface instanceof ITransformMetaChangeListener) {
-      addTransformChangeListener((ITransformMetaChangeListener) iface);
+    if (iface instanceof ITransformMetaChangeListener iTransformMetaChangeListener) {
+      addTransformChangeListener(iTransformMetaChangeListener);
     }
     changedTransforms = true;
     clearCaches();
@@ -382,8 +382,8 @@ public class PipelineMeta extends AbstractMeta
     }
     transformMeta.setParentPipelineMeta(this);
     ITransformMeta iface = transformMeta.getTransform();
-    if (index != -1 && iface instanceof ITransformMetaChangeListener) {
-      addTransformChangeListener(index, (ITransformMetaChangeListener) iface);
+    if (index != -1 && iface instanceof ITransformMetaChangeListener iTransformMetaChangeListener) {
+      addTransformChangeListener(index, iTransformMetaChangeListener);
     }
     changedTransforms = true;
     clearCaches();
@@ -488,14 +488,14 @@ public class PipelineMeta extends AbstractMeta
 
     TransformMeta removeTransform = transforms.get(i);
     ITransformMeta iface = removeTransform.getTransform();
-    if (iface instanceof ITransformMetaChangeListener) {
-      removeTransformChangeListener((ITransformMetaChangeListener) iface);
+    if (iface instanceof ITransformMetaChangeListener iTransformMetaChangeListener) {
+      removeTransformChangeListener(iTransformMetaChangeListener);
     }
 
     transforms.remove(i);
 
-    if (removeTransform.getTransform() instanceof Missing) {
-      removeMissingPipeline((Missing) removeTransform.getTransform());
+    if (removeTransform.getTransform() instanceof Missing missingTransform) {
+      removeMissingPipeline(missingTransform);
     }
 
     changedTransforms = true;

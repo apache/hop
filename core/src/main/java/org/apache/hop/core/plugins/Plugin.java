@@ -319,7 +319,7 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
 
   @Override
   public boolean equals(Object obj) {
-    return (obj != null) && (obj instanceof Plugin) && compareTo((Plugin) obj) == 0;
+    return (obj != null) && (obj instanceof Plugin plugin) && compareTo(plugin) == 0;
   }
 
   @Override

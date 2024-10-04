@@ -742,7 +742,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
           && StringUtils.isEmpty(v.getStringEncoding())) {
         return (byte[]) valueData;
       } else {
-        String svalue = (valueData instanceof String) ? (String) valueData : v.getString(valueData);
+        String svalue = (valueData instanceof String string) ? string : v.getString(valueData);
 
         // trim or cut to size if needed.
         //

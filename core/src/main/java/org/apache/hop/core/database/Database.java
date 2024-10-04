@@ -1300,8 +1300,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   public static HopDatabaseBatchException createHopDatabaseBatchException(
       String message, SQLException ex) {
     HopDatabaseBatchException kdbe = new HopDatabaseBatchException(message, ex);
-    if (ex instanceof BatchUpdateException) {
-      kdbe.setUpdateCounts(((BatchUpdateException) ex).getUpdateCounts());
+    if (ex instanceof BatchUpdateException batchUpdateException) {
+      kdbe.setUpdateCounts(batchUpdateException.getUpdateCounts());
     } else {
       // Null update count forces rollback of batch
       kdbe.setUpdateCounts(null);

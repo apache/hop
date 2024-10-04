@@ -162,7 +162,7 @@ public class HopEnvironment {
       } catch (Throwable t) {
         ready.setException(t);
         // If it's a HopException, throw it, otherwise wrap it in a HopException
-        throw ((t instanceof HopException) ? (HopException) t : new HopException(t));
+        throw ((t instanceof HopException hopException) ? hopException : new HopException(t));
       }
 
     } else {

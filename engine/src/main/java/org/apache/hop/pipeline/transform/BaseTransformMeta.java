@@ -138,8 +138,8 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
 
   protected Type[] getParameterizedTypes(Class<?> clazz) {
     Type[] types = getGenericType(clazz);
-    if (types.length > 0 && types[0] instanceof ParameterizedType) {
-      return ((ParameterizedType) types[0]).getActualTypeArguments();
+    if (types.length > 0 && types[0] instanceof ParameterizedType parameterizedType) {
+      return parameterizedType.getActualTypeArguments();
     }
     return null;
   }

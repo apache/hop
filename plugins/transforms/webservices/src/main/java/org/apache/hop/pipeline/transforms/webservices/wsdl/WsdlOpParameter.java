@@ -333,8 +333,8 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    * @return true if equal
    */
   public boolean equals(Object o) {
-    if (o instanceof WsdlOpParameter) {
-      return Name.equals(((WsdlOpParameter) o).getName());
+    if (o instanceof WsdlOpParameter wsdlOpParameter) {
+      return Name.equals(wsdlOpParameter.getName());
     }
     return false;
   }

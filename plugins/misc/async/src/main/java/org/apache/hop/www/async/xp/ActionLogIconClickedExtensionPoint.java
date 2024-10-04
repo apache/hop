@@ -52,8 +52,7 @@ public class ActionLogIconClickedExtensionPoint
       if (areaOwner.getOwner() == null) {
         return;
       }
-      if (areaOwner.getOwner() instanceof String) {
-        String message = (String) areaOwner.getOwner();
+      if (areaOwner.getOwner() instanceof String message) {
         if (message.startsWith(DrawAsyncLoggingIconExtensionPoint.STRING_AREA_OWNER_PREFIX)) {
           String serviceName =
               message.substring(

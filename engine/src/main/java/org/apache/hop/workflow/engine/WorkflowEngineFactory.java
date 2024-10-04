@@ -104,8 +104,8 @@ public class WorkflowEngineFactory {
     IWorkflowEngine<T> workflowEngine = pluginRegistry.loadClass(plugin, IWorkflowEngine.class);
     workflowEngine.setWorkflowRunConfiguration(workflowRunConfiguration);
 
-    if (workflowEngine instanceof LocalWorkflowEngine) {
-      ((LocalWorkflowEngine) workflowEngine).setParentLoggingObject(parentLogging);
+    if (workflowEngine instanceof LocalWorkflowEngine localWorkflowEngine) {
+      localWorkflowEngine.setParentLoggingObject(parentLogging);
     }
     workflowEngine.setWorkflowMeta(workflowMeta);
 

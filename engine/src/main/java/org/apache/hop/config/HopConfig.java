@@ -30,7 +30,6 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.IPlugin;
@@ -89,9 +88,7 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
       Map<String, Object> mixins = cmd.getMixins();
       for (String key : mixins.keySet()) {
         Object mixin = mixins.get(key);
-        if (mixin instanceof IConfigOptions) {
-          IConfigOptions configOptions = (IConfigOptions) mixin;
-
+        if (mixin instanceof IConfigOptions configOptions) {
           actionTaken = configOptions.handleOption(log, this, variables) || actionTaken;
         }
       }
@@ -109,7 +106,7 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
     return LogLevel.lookupCode(variables.resolve(level));
   }
 
-  private void buildMetadataProvider() throws HopException {
+  private void buildMetadataProvider() {
     List<IHopMetadataProvider> providers = new ArrayList<>();
     String folder = variables.getVariable(Const.HOP_METADATA_FOLDER);
     if (StringUtils.isEmpty(folder)) {

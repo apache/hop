@@ -205,7 +205,7 @@ public class ConcurrentMapProperties extends Properties {
   @Override
   public String getProperty(String key) {
     Object oval = storageMap.get(key);
-    String sval = (oval instanceof String) ? (String) oval : null;
+    String sval = (oval instanceof String string) ? string : null;
     return ((sval == null) && (defaults != null)) ? defaults.getProperty(key) : sval;
   }
 
@@ -337,7 +337,7 @@ public class ConcurrentMapProperties extends Properties {
    */
   public static ConcurrentMapProperties convertProperties(Properties props) {
     if (props != null) {
-      if (!(props instanceof ConcurrentMapProperties)) {
+      if (!(props instanceof ConcurrentMapProperties concurrentMapProperties)) {
         ConcurrentMapProperties result = new ConcurrentMapProperties(null);
         synchronized (props) {
           for (String prop : props.stringPropertyNames()) {
@@ -347,7 +347,7 @@ public class ConcurrentMapProperties extends Properties {
         return result;
       } else {
         // Already a ConcurrentMapProperties
-        return (ConcurrentMapProperties) props;
+        return concurrentMapProperties;
       }
     }
     return null;

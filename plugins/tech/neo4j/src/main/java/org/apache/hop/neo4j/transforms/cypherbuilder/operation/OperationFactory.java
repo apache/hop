@@ -62,8 +62,8 @@ public class OperationFactory implements IHopMetadataObjectFactory {
 
   @Override
   public String getObjectId(Object object) throws HopException {
-    if (object instanceof IOperation) {
-      return ((IOperation) object).getOperationType().name();
+    if (object instanceof IOperation iOperation) {
+      return iOperation.getOperationType().name();
     } else {
       throw new HopException("Unexpected object class received: " + object.getClass().getName());
     }

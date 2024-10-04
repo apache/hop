@@ -133,8 +133,8 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
    * @param t
    */
   private void inheritVariables(T t) {
-    if (t instanceof IVariables) {
-      ((IVariables) t).initializeFrom(variables);
+    if (t instanceof IVariables iVariables) {
+      iVariables.initializeFrom(variables);
     }
   }
 

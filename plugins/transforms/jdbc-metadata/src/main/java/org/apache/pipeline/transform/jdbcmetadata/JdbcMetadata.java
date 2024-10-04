@@ -410,8 +410,8 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       logRowlevel("Done processing 1 input row.");
     } catch (Exception exception) {
       exception.printStackTrace();
-      if (exception instanceof HopException) {
-        throw (HopException) exception;
+      if (exception instanceof HopException hopException) {
+        throw hopException;
       } else {
         throw new HopException(exception);
       }

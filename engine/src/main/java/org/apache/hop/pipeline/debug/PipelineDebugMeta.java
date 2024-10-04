@@ -89,8 +89,7 @@ public class PipelineDebugMeta {
       for (IEngineComponent component : pipeline.getComponentCopies(transformMeta.getName())) {
         // TODO: Make this functionality more generic in the pipeline engines
         //
-        if (component instanceof ITransform) {
-          ITransform baseTransform = (ITransform) component;
+        if (component instanceof ITransform baseTransform) {
           baseTransform.addRowListener(
               new RowAdapter() {
                 @Override

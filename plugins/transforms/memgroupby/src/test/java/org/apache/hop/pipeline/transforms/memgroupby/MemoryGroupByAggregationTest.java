@@ -279,7 +279,7 @@ public class MemoryGroupByAggregationTest {
     TransformMeta transformMeta = new TransformMeta(TRANSFORM_NAME, meta);
     PipelineMeta pipelineMeta = Mockito.mock(PipelineMeta.class);
     Pipeline pipeline = Mockito.spy(new LocalPipelineEngine());
-    Mockito.when(pipelineMeta.findTransform(Mockito.eq(TRANSFORM_NAME))).thenReturn(transformMeta);
+    Mockito.when(pipelineMeta.findTransform(TRANSFORM_NAME)).thenReturn(transformMeta);
 
     // Spy on transform, regrettable but we need to easily inject rows
     MemoryGroupBy transform =

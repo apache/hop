@@ -171,8 +171,8 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
         // CHE: Read the chained SQL exceptions and add them
         // to the errorMessage
         SQLException nextSqlExOnChain = null;
-        if ((e.getCause() != null) && (e.getCause() instanceof SQLException)) {
-          nextSqlExOnChain = ((SQLException) e.getCause()).getNextException();
+        if ((e.getCause() != null) && (e.getCause() instanceof SQLException sqlException)) {
+          nextSqlExOnChain = sqlException.getNextException();
           while (nextSqlExOnChain != null) {
             errorMessage = errorMessage + nextSqlExOnChain.getMessage() + Const.CR;
             nextSqlExOnChain = nextSqlExOnChain.getNextException();

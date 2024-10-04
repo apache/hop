@@ -32,8 +32,8 @@ public class SnappyCompressionInputStream extends CompressionInputStream {
 
   protected static SnappyInputStream getDelegate(InputStream in) throws IOException {
     SnappyInputStream delegate = null;
-    if (in instanceof SnappyInputStream) {
-      delegate = (SnappyInputStream) in;
+    if (in instanceof SnappyInputStream snappyInputStream) {
+      delegate = snappyInputStream;
     } else {
       delegate = new SnappyInputStream(in);
     }

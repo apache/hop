@@ -139,20 +139,19 @@ public class XmlMetadataUtil {
     if (value == null) {
       xml += XmlHandler.addTagValue(tag, (String) null);
     } else {
-      if (value instanceof String) {
+      if (value instanceof String string) {
         // Hang on, is this a password?
         //
         if (password) {
-          xml +=
-              XmlHandler.addTagValue(tag, Encr.encryptPasswordIfNotUsingVariables((String) value));
+          xml += XmlHandler.addTagValue(tag, Encr.encryptPasswordIfNotUsingVariables(string));
         } else {
-          xml += XmlHandler.addTagValue(tag, (String) value);
+          xml += XmlHandler.addTagValue(tag, string);
         }
-      } else if (value instanceof Boolean) {
-        xml += XmlHandler.addTagValue(tag, (Boolean) value);
-      } else if (value instanceof Integer) {
+      } else if (value instanceof Boolean bool) {
+        xml += XmlHandler.addTagValue(tag, bool);
+      } else if (value instanceof Integer integer) {
         if (intCodeConverterClass.equals(IIntCodeConverter.None.class)) {
-          xml += XmlHandler.addTagValue(tag, (Integer) value);
+          xml += XmlHandler.addTagValue(tag, integer);
         } else {
           try {
             IIntCodeConverter converter = intCodeConverterClass.getConstructor().newInstance();
@@ -164,17 +163,17 @@ public class XmlMetadataUtil {
                 e);
           }
         }
-      } else if (value instanceof Long) {
-        xml += XmlHandler.addTagValue(tag, (Long) value);
-      } else if (value instanceof Date) {
-        xml += XmlHandler.addTagValue(tag, (Date) value);
+      } else if (value instanceof Long longValue) {
+        xml += XmlHandler.addTagValue(tag, longValue);
+      } else if (value instanceof Date date) {
+        xml += XmlHandler.addTagValue(tag, date);
       } else if (value.getClass().isEnum()) {
         if (storeWithCode) {
           xml += XmlHandler.addTagValue(tag, ((IEnumHasCode) value).getCode());
         } else {
           xml += XmlHandler.addTagValue(tag, ((Enum) value).name());
         }
-      } else if (value instanceof java.util.List) {
+      } else if (value instanceof java.util.List list) {
 
         // Serialize a list of values
         // Use the key on the annotation to open a new block
@@ -186,7 +185,7 @@ public class XmlMetadataUtil {
 
         // Add the elements...
         //
-        List listItems = (List) value;
+        List listItems = list;
         for (Object listItem : listItems) {
           xml +=
               serializeObjectToXml(

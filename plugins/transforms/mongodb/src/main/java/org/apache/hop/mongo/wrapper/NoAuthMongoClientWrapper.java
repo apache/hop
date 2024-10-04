@@ -197,8 +197,8 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
     try {
       return getDb(dB).getCollectionNames();
     } catch (Exception e) {
-      if (e instanceof MongoDbException) {
-        throw (MongoDbException) e;
+      if (e instanceof MongoDbException mongoDbException) {
+        throw mongoDbException;
       } else {
         throw new MongoDbException(e);
       }
@@ -295,8 +295,8 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
               + ":\n\n"
               + e.getMessage(),
           e);
-      if (e instanceof MongoDbException) {
-        throw (MongoDbException) e;
+      if (e instanceof MongoDbException mongoDbException) {
+        throw mongoDbException;
       } else {
         throw new MongoDbException(e);
       }
@@ -321,8 +321,8 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
           if (config != null) {
             Object members = config.get(REPL_SET_MEMBERS);
 
-            if (members instanceof BasicDBList) {
-              if (((BasicDBList) members).isEmpty()) {
+            if (members instanceof BasicDBList basicDBList) {
+              if (basicDBList.isEmpty()) {
                 // log that there are no replica set members defined
                 logInfo(
                     BaseMessages.getString(
@@ -427,8 +427,8 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
       }
       return result;
     } catch (Exception ex) {
-      if (ex instanceof MongoDbException) {
-        throw (MongoDbException) ex;
+      if (ex instanceof MongoDbException mongoDbException) {
+        throw mongoDbException;
       } else {
         throw new MongoDbException(
             BaseMessages.getString(

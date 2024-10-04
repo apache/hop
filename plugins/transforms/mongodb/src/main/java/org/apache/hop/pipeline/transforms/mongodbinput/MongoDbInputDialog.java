@@ -941,8 +941,8 @@ public class MongoDbInputDialog extends BaseTransformDialog {
         return true;
       }
     } catch (Exception e) {
-      if (e instanceof HopException) {
-        throw (HopException) e;
+      if (e instanceof HopException hopException) {
+        throw hopException;
       } else {
         throw new HopException("Unable to discover fields from MongoDB", e);
       }

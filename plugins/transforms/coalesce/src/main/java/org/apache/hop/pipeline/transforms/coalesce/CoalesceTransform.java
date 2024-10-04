@@ -196,8 +196,8 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
       if (index >= 0) {
         Object data = row[index];
         boolean isNotNull =
-            data instanceof byte[]
-                ? data != null && ((byte[]) data).length > 0
+            data instanceof byte[] byteArray
+                ? data != null && byteArray.length > 0
                 : row[index] != null;
         if (!isTreatEmptyStringsAsNulls && data != null && isNotNull) {
           return index;

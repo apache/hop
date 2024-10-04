@@ -613,8 +613,8 @@ public class SalesforceConnection {
       if (element != null) {
         Object object = element.getValue();
         if (object != null) {
-          if (object instanceof QueryResult) {
-            return buildJsonQueryResult((QueryResult) object);
+          if (object instanceof QueryResult queryResult) {
+            return buildJsonQueryResult(queryResult);
           }
           return String.valueOf(object);
         } else {
@@ -638,9 +638,9 @@ public class SalesforceConnection {
           if (index == lastIndex) {
             return element;
           } else {
-            if (element instanceof SObject) {
+            if (element instanceof SObject sObject) {
               // Found the next level, keep going
-              currentSObject = (SObject) element;
+              currentSObject = sObject;
             }
             break;
           }
@@ -668,8 +668,8 @@ public class SalesforceConnection {
     JSONObject jsonObject = new JSONObject();
     for (XmlObject element : getChildren(sobject)) {
       Object object = element.getValue();
-      if (object != null && object instanceof SObject) {
-        jsonObject.put(element.getName(), buildJSONSObject((SObject) object));
+      if (object != null && object instanceof SObject sObject) {
+        jsonObject.put(element.getName(), buildJSONSObject(sObject));
       } else {
         jsonObject.put(element.getName(), element.getValue());
       }

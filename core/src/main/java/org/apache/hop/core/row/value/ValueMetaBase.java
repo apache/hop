@@ -408,7 +408,7 @@ public class ValueMetaBase implements IValueMeta {
    *     loadMetaData() method.
    */
   @Deprecated(since = "2.0")
-  public ValueMetaBase(DataInputStream inputStream) throws HopFileException, HopEofException {
+  public ValueMetaBase(DataInputStream inputStream) throws HopFileException {
     this();
     try {
       type = inputStream.readInt();
@@ -3417,7 +3417,7 @@ public class ValueMetaBase implements IValueMeta {
    * @throws HopEofException If we reached the end of the stream
    */
   @Override
-  public void readMetaData(DataInputStream inputStream) throws HopFileException, HopEofException {
+  public void readMetaData(DataInputStream inputStream) throws HopFileException {
 
     // Loading the type is not handled here, this should be read from the stream previously!
     //
@@ -5595,22 +5595,20 @@ public class ValueMetaBase implements IValueMeta {
                 }
               }
             } else {
-              if (data instanceof Timestamp) {
+              if (data instanceof Timestamp timestamp) {
                 // Preserve ns precision!
                 //
                 if (databaseMeta.getIDatabase().isDuckDbVariant()) {
                   // As of DuckDB JDBC 0.10.0
                   // setTimestamp(int parameterIndex, Timestamp x, Calendar cal)
                   // is not yet implemented
-                  preparedStatement.setTimestamp(index, (Timestamp) data);
+                  preparedStatement.setTimestamp(index, timestamp);
                 } else {
                   if (this.getDateFormatTimeZone() == null) {
-                    preparedStatement.setTimestamp(index, (Timestamp) data);
+                    preparedStatement.setTimestamp(index, timestamp);
                   } else {
                     preparedStatement.setTimestamp(
-                        index,
-                        (Timestamp) data,
-                        Calendar.getInstance(this.getDateFormatTimeZone()));
+                        index, timestamp, Calendar.getInstance(this.getDateFormatTimeZone()));
                   }
                 }
               } else {

@@ -243,8 +243,7 @@ public class SimpleTimestampFormat extends SimpleDateFormat {
     StringBuffer dateBuffer;
     String nan;
 
-    if (timestamp instanceof Timestamp) {
-      Timestamp tmp = (Timestamp) timestamp;
+    if (timestamp instanceof Timestamp tmp) {
       Date date = new Date(tmp.getTime());
       dateBuffer = super.format(date, toAppendTo, pos);
       nan = formatNanoseconds(tmp.getNanos());

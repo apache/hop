@@ -1880,8 +1880,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
     Object transformObject =
         Context.jsToJava(actualObject.get(CONST_TRANSFORM, actualObject), ITransform.class);
-    if (transformObject instanceof ITransform) {
-      ITransform transform = (ITransform) transformObject;
+    if (transformObject instanceof ITransform transform) {
       IPipelineEngine pipeline = transform.getPipeline();
       final String variableName = Context.toString(arguments[0]);
       final String variableValue = Context.toString(arguments[1]);

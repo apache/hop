@@ -243,12 +243,12 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
           long count = data.counters[i];
           Object sum = data.sum[i];
           if (count > 0) {
-            if (sum instanceof Long) {
-              resultValue = (Long) sum / count;
-            } else if (sum instanceof Double) {
-              resultValue = (Double) sum / count;
-            } else if (sum instanceof BigDecimal) {
-              resultValue = ((BigDecimal) sum).divide(new BigDecimal(count));
+            if (sum instanceof Long longValue) {
+              resultValue = longValue / count;
+            } else if (sum instanceof Double doubleValue) {
+              resultValue = doubleValue / count;
+            } else if (sum instanceof BigDecimal bigDecimalValue) {
+              resultValue = bigDecimalValue.divide(new BigDecimal(count));
             } else {
               resultValue = null;
             }

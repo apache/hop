@@ -47,8 +47,8 @@ public class PipelineRunConfigurationMetadataObjectFactory implements IHopMetada
       engineRunConfiguration.setEnginePluginId(plugin.getIds()[0]);
       engineRunConfiguration.setEnginePluginName(plugin.getName());
 
-      if (parentObject != null && (parentObject instanceof IVariables)) {
-        engineRunConfiguration.initializeFrom((IVariables) parentObject);
+      if (parentObject != null && (parentObject instanceof IVariables iVariables)) {
+        engineRunConfiguration.initializeFrom(iVariables);
       }
 
       return engineRunConfiguration;

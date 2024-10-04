@@ -94,8 +94,8 @@ public class FileDoesNotExistValidator extends AbstractFileValidator {
       List<ICheckResult> remarks,
       ValidatorContext context) {
     Object obj = context.get(KEY_FAIL_IF_EXISTS);
-    if (obj instanceof Boolean) {
-      return (Boolean) obj;
+    if (obj instanceof Boolean bool) {
+      return bool;
     } else {
       // default is false
       return false;

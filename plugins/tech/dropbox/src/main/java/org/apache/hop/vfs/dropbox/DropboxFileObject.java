@@ -158,16 +158,16 @@ public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
 
   @Override
   protected long doGetContentSize() {
-    if (metadata instanceof FileMetadata) {
-      return ((FileMetadata) metadata).getSize();
+    if (metadata instanceof FileMetadata fileMetadata) {
+      return fileMetadata.getSize();
     }
     return 0;
   }
 
   @Override
   protected long doGetLastModifiedTime() {
-    if (metadata instanceof FileMetadata) {
-      return ((FileMetadata) metadata).getClientModified().getTime();
+    if (metadata instanceof FileMetadata fileMetadata) {
+      return fileMetadata.getClientModified().getTime();
     }
     return 0;
   }

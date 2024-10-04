@@ -55,8 +55,8 @@ public interface ICsvInputAwareImportProgressDialog {
     // or wrap its as a
     // HopException, if it isn't one already
     if (failOnParseError) {
-      if (exc instanceof HopException) {
-        throw (HopException) exc;
+      if (exc instanceof HopException hopException) {
+        throw hopException;
       } else if (exc != null) {
         throw new HopException(exc);
       }

@@ -313,8 +313,8 @@ public class ExcelWriterTransform
       if (meta.getFile().isAutosizecolums()) {
 
         // track all columns for autosizing if using streaming worksheet
-        if (file.getSheet() instanceof SXSSFSheet) {
-          ((SXSSFSheet) file.getSheet()).trackAllColumnsForAutoSizing();
+        if (file.getSheet() instanceof SXSSFSheet sxssfSheet) {
+          sxssfSheet.trackAllColumnsForAutoSizing();
         }
 
         if (meta.getOutputFields() == null || meta.getOutputFields().isEmpty()) {
@@ -337,8 +337,8 @@ public class ExcelWriterTransform
       file.getWorkbook().close();
 
       // deleting the temporary files
-      if (file.getWorkbook() instanceof SXSSFWorkbook) {
-        ((SXSSFWorkbook) file.getWorkbook()).dispose();
+      if (file.getWorkbook() instanceof SXSSFWorkbook sxssfWorkbook) {
+        sxssfWorkbook.dispose();
       }
 
     } catch (IOException e) {
@@ -374,12 +374,12 @@ public class ExcelWriterTransform
           }
         }
       }
-    } else if (workbookDefinition.getWorkbook() instanceof HSSFWorkbook) {
+    } else if (workbookDefinition.getWorkbook() instanceof HSSFWorkbook hssfWorkbook) {
       // XLS supports a "dirty" flag to have excel recalculate everything when a sheet is opened
       for (int sheetNum = 0;
           sheetNum < workbookDefinition.getWorkbook().getNumberOfSheets();
           sheetNum++) {
-        HSSFSheet sheet = ((HSSFWorkbook) workbookDefinition.getWorkbook()).getSheetAt(sheetNum);
+        HSSFSheet sheet = hssfWorkbook.getSheetAt(sheetNum);
         sheet.setForceFormulaRecalculation(true);
       }
     } else {

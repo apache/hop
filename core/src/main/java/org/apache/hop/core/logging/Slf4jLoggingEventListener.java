@@ -54,8 +54,7 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
   public void eventAdded(HopLoggingEvent event) {
     Object messageObject = event.getMessage();
     checkNotNull(messageObject, "Expected log message to be defined.");
-    if (messageObject instanceof LogMessage) {
-      LogMessage message = (LogMessage) messageObject;
+    if (messageObject instanceof LogMessage message) {
       ILoggingObject loggingObject = logObjProvider.apply(message.getLogChannelId());
 
       if (loggingObject == null) {

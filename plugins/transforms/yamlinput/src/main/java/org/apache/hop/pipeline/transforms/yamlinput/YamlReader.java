@@ -208,23 +208,23 @@ public class YamlReader {
 
     switch (valueMeta.getType()) {
       case IValueMeta.TYPE_INTEGER:
-        if (value instanceof Integer) {
-          o = Long.valueOf((Integer) value);
-        } else if (value instanceof BigInteger) {
-          o = Long.valueOf(((BigInteger) value).longValue());
-        } else if (value instanceof Long) {
-          o = Long.valueOf((Long) value);
+        if (value instanceof Integer integerValue) {
+          o = Long.valueOf(integerValue);
+        } else if (value instanceof BigInteger bigIntegerValue) {
+          o = Long.valueOf(bigIntegerValue.longValue());
+        } else if (value instanceof Long longValue) {
+          o = Long.valueOf(longValue);
         } else {
           o = Long.valueOf(value.toString());
         }
         break;
       case IValueMeta.TYPE_NUMBER:
-        if (value instanceof Integer) {
-          o = Double.valueOf((Integer) value);
-        } else if (value instanceof BigInteger) {
-          o = Double.valueOf(((BigInteger) value).doubleValue());
-        } else if (value instanceof Long) {
-          o = Double.valueOf((Long) value);
+        if (value instanceof Integer integerValue) {
+          o = Double.valueOf(integerValue);
+        } else if (value instanceof BigInteger bigIntegerValue) {
+          o = Double.valueOf(bigIntegerValue.doubleValue());
+        } else if (value instanceof Long longValue) {
+          o = Double.valueOf(longValue);
         } else if (value instanceof Double) {
           o = value;
         } else {
@@ -232,14 +232,14 @@ public class YamlReader {
         }
         break;
       case IValueMeta.TYPE_BIGNUMBER:
-        if (value instanceof Integer) {
-          o = new BigDecimal((Integer) value);
-        } else if (value instanceof BigInteger) {
-          o = new BigDecimal((BigInteger) value);
-        } else if (value instanceof Long) {
-          o = new BigDecimal((Long) value);
-        } else if (value instanceof Double) {
-          o = BigDecimal.valueOf((Double) value);
+        if (value instanceof Integer integerValue) {
+          o = new BigDecimal(integerValue);
+        } else if (value instanceof BigInteger bigIntegerValue) {
+          o = new BigDecimal(bigIntegerValue);
+        } else if (value instanceof Long longValue) {
+          o = new BigDecimal(longValue);
+        } else if (value instanceof Double doubleValue) {
+          o = BigDecimal.valueOf(doubleValue);
         }
         break;
       case IValueMeta.TYPE_BOOLEAN:

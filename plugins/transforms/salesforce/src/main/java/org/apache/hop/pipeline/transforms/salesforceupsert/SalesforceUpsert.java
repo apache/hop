@@ -311,9 +311,9 @@ public class SalesforceUpsert
 
     } catch (Exception e) {
       if (!getTransformMeta().isDoingErrorHandling()) {
-        if (e instanceof HopException) {
+        if (e instanceof HopException hopException) {
           // I know, bad form usually. But I didn't want to duplicate the logic with a
-          throw (HopException) e;
+          throw hopException;
         } else {
           throw new HopException(
               BaseMessages.getString(PKG, "SalesforceUpsert.FailedUpsert", e.getMessage()), e);
