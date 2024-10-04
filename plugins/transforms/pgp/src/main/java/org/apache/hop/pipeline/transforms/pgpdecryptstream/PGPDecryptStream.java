@@ -135,7 +135,7 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
       // add new values to the row.
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,
@@ -181,7 +181,7 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
 
       try {
         // initiate a new GPG encryptor
-        data.gpg = new GPG(resolve(meta.getGPGLocation()), log, variables);
+        data.gpg = new GPG(resolve(meta.getGPGLocation()), getLogChannel(), variables);
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "PGPDecryptStream.Init.Error"), e);
         return false;

@@ -179,7 +179,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         if (parentWorkflow != null) {
           parentWorkflow.setVariable(varname, value);
         } else {
-          log.logBasic(
+          logBasic(
               CONST_WARNING_CAN_T_SET_VARIABLE
                   + varname
                   + "] on parent workflow: the parent workflow is not available");
@@ -191,7 +191,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         if (gpJob != null) {
           gpJob.setVariable(varname, value);
         } else {
-          log.logBasic(
+          logBasic(
               CONST_WARNING_CAN_T_SET_VARIABLE
                   + varname
                   + "] on grand parent workflow: the grand parent workflow is not available");
@@ -205,7 +205,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         if (parentWorkflow != null) {
           parentWorkflow.setVariable(varname, value);
         } else {
-          log.logBasic(
+          logBasic(
               CONST_WARNING_CAN_T_SET_VARIABLE
                   + varname
                   + "] on parent workflow: the parent workflow is not available");

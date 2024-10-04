@@ -265,7 +265,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     boolean successOK = false;
 
     int nrRowsLimit = Const.toInt(resolve(limit), 0);
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(
           BaseMessages.getString(PKG, "ActionEvalTableContent.Log.nrRowsLimit", "" + nrRowsLimit));
     }
@@ -279,7 +279,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
           if (useVars) {
             realCustomSql = resolve(realCustomSql);
           }
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(
                 BaseMessages.getString(
                     PKG, "ActionEvalTableContent.Log.EnteredCustomSQL", realCustomSql));
@@ -312,7 +312,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
         }
 
         if (countSqlStatement != null) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionEvalTableContent.Log.RunSQLStatement", countSqlStatement));
@@ -340,7 +340,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
                 }
               }
             } else {
-              if (log.isDebug()) {
+              if (isDebug()) {
                 logDebug(
                     BaseMessages.getString(
                         PKG,
@@ -355,7 +355,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
               rowsCount = row.getInteger(0);
             }
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionEvalTableContent.Log.NrRowsReturned", "" + rowsCount));

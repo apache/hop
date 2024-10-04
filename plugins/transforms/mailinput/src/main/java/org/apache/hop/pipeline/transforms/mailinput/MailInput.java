@@ -69,7 +69,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
     }
 
     if (isRowLevel()) {
-      log.logRowlevel(
+      logRowlevel(
           toString(),
           BaseMessages.getString(
               PKG, "MailInput.Log.OutputRow", data.outputRowMeta.getString(outputRowData)));
@@ -454,7 +454,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
       // create a mail connection object
       data.mailConn =
           new MailConnection(
-              log,
+              getLogChannel(),
               MailConnectionMeta.getProtocolFromString(
                   meta.getProtocol(), MailConnectionMeta.PROTOCOL_IMAP),
               realserver,
@@ -519,7 +519,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
       try {
         return Integer.parseInt(toParse);
       } catch (NumberFormatException e) {
-        log.logError(e.getLocalizedMessage());
+        logError(e.getLocalizedMessage());
       }
     }
     return null;

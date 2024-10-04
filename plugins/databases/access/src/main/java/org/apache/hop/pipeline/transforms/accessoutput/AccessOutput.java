@@ -82,7 +82,7 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
       writeToTable(row);
       putRow(data.outputRowMeta, row); // in case we want it go further...
 
-      if (checkFeedback(getLinesOutput()) && log.isBasic()) {
+      if (checkFeedback(getLinesOutput()) && isBasic()) {
         logBasic("linenr " + getLinesOutput());
       }
     } catch (HopException e) {
@@ -99,7 +99,7 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
   protected boolean writeToTable(Object[] row) throws HopValueException {
     if (row == null) {
       // Stop: last line or error encountered
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Last line inserted: stop");
       }
       return false;
@@ -194,7 +194,7 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
   protected boolean openFile() throws Exception {
     data.oneFileOpened = true;
     String fileName = resolve(meta.getFileName());
-    if (log.isBasic()) {
+    if (isBasic()) {
       logBasic(BaseMessages.getString(PKG, "AccessOutput.log.WritingToFile", fileName));
     }
     FileObject fileObject = HopVfs.getFileObject(fileName);

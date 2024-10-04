@@ -1097,7 +1097,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         }
 
         if (data.getFiles().nrOfFiles() == 0) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "TextFileInput.Log.Error.NoFilesSpecified"));
           }
           setOutputDone();
@@ -1180,7 +1180,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
        */
       if (!data.doneWithHeader && data.pageLinesRead == 0) {
         // We are reading header lines
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel("P-HEADER (" + data.headerLinesRead + ") : " + textLine.line);
         }
         data.headerLinesRead++;
@@ -1203,7 +1203,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             }
           }
 
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel("P-DATA: " + textLine.line);
           }
           // Read a normal line on a page of data.
@@ -1212,7 +1212,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           long useNumber = meta.isRowNumberByFile() ? data.lineInFile : getLinesWritten() + 1;
           r =
               convertLineToRow(
-                  log,
+                  getLogChannel(),
                   textLine,
                   meta,
                   data.currentPassThruFieldsRow,
@@ -1257,7 +1257,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             data.headerLinesRead = 0;
             data.pageLinesRead = 0;
             data.footerLinesRead = 0;
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("RESTART PAGE");
             }
           }
@@ -1265,7 +1265,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           // done reading the data lines, skip the footer lines
 
           if (meta.hasFooter() && data.footerLinesRead < meta.getNrFooterLines()) {
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("P-FOOTER: " + textLine.line);
             }
             data.footerLinesRead++;
@@ -1279,7 +1279,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             data.headerLinesRead = 0;
             data.pageLinesRead = 0;
             data.footerLinesRead = 0;
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("RESTART PAGE");
             }
           }
@@ -1328,7 +1328,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             long useNumber = meta.isRowNumberByFile() ? data.lineInFile : getLinesWritten() + 1;
             r =
                 convertLineToRow(
-                    log,
+                    getLogChannel(),
                     textLine,
                     meta,
                     data.currentPassThruFieldsRow,
@@ -1358,7 +1358,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                     data.extension,
                     data.size);
             if (r != null) {
-              if (log.isRowLevel()) {
+              if (isRowLevel()) {
                 logRowlevel("Found data row: " + data.outputRowMeta.getString(r));
               }
               putrow = true;
@@ -1393,7 +1393,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         }
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel("Putting row: " + data.outputRowMeta.getString(r));
       }
       putRow(data.outputRowMeta, r);
@@ -1406,7 +1406,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     }
 
     if (checkFeedback(getLinesInput())) {
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic("linenr " + getLinesInput());
       }
     }
@@ -1525,8 +1525,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
     if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
-      if (log.isBasic()) {
-        log.logBasic("Required files", "WARNING: Missing " + message);
+      if (isBasic()) {
+        logBasic("Required files", "WARNING: Missing " + message);
       }
       if (meta.isErrorIgnored()) {
         for (FileObject fileObject : nonExistantFiles) {
@@ -1540,8 +1540,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     List<FileObject> nonAccessibleFiles = data.getFiles().getNonAccessibleFiles();
     if (!nonAccessibleFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonAccessibleFiles);
-      if (log.isBasic()) {
-        log.logBasic("Required files", "WARNING: Not accessible " + message);
+      if (isBasic()) {
+        logBasic("Required files", "WARNING: Not accessible " + message);
       }
       if (meta.isErrorIgnored()) {
         for (FileObject fileObject : nonAccessibleFiles) {
@@ -1642,7 +1642,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         resultFile.setComment("File was read by an Text File input transform");
         addResultFile(resultFile);
       }
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic("Opening file: " + data.file.getName().getFriendlyURI());
       }
 
@@ -1654,7 +1654,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       data.dataErrorLineHandler.handleFile(data.file);
       data.in.nextEntry();
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             "This is a compressed file being handled by the " + provider.getName() + " provider");
       }
@@ -1696,7 +1696,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         for (int i = 0; i < meta.getNrLinesDocHeader(); i++) {
           // Just skip these...
           getLine(
-              log,
+              getLogChannel(),
               data.isr,
               data.encodingType,
               data.fileFormatType,
@@ -1742,7 +1742,13 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
   private boolean tryToReadLine(boolean applyFilter) throws HopFileException {
     String line;
-    line = getLine(log, data.isr, data.encodingType, data.fileFormatType, data.lineStringBuilder);
+    line =
+        getLine(
+            getLogChannel(),
+            data.isr,
+            data.encodingType,
+            data.fileFormatType,
+            data.lineStringBuilder);
     if (line != null) {
       // when there is no header, check the filter for the first line
       if (applyFilter) {
@@ -1871,7 +1877,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         data.file.close();
         data.file = null;
       } catch (Exception e) {
-        log.logError("Error closing file", e);
+        logError("Error closing file", e);
       }
     }
     if (data.in != null) {

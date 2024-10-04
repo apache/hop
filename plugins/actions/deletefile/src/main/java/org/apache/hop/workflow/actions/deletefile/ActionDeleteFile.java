@@ -119,7 +119,7 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
           } else {
             // File already deleted, no reason to try to delete it
             result.setResult(true);
-            if (log.isBasic()) {
+            if (isBasic()) {
               logBasic(
                   BaseMessages.getString(
                       PKG, "ActionDeleteFile.File_Already_Deleted", realFilename));
@@ -134,7 +134,7 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
             result.setResult(false);
             result.setNrErrors(1);
           }
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic(BaseMessages.getString(PKG, "ActionDeleteFile.File_Deleted", realFilename));
           }
           result.setResult(true);

@@ -119,14 +119,14 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
 
     // Open all files at once and read one row from each file...
     if (!data.files.isEmpty() && (data.dis.isEmpty() || data.fis.isEmpty())) {
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "BlockingTransform.Log.Openfiles"));
       }
 
       try {
         FileObject fileObject = data.files.get(0);
         String filename = HopVfs.getFilename(fileObject);
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "BlockingTransform.Log.Openfilename1")
                   + filename
@@ -147,7 +147,7 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
         // How long is the buffer?
         int buffersize = di.readInt();
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "BlockingTransform.Log.BufferSize1")
                   + filename
@@ -295,7 +295,7 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
         // Now we can start the output!
         r = getBuffer();
         while (r != null && !isStopped()) {
-          if (log.isRowLevel()) {
+          if (isRowLevel()) {
             logRowlevel("Read row: " + getInputRowMeta().getString(r));
           }
 

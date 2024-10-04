@@ -118,7 +118,7 @@ public class GoogleSheetsOutput
           // log.logBasic(wsID+" VS "+spreadsheet.getId());
           if (spreadsheetID.equals(spreadsheet.getId())) {
             exists = true; // file exists
-            log.logBasic("Spreadsheet:" + spreadsheetID + " exists");
+            logBasic("Spreadsheet:" + spreadsheetID + " exists");
           }
         }
 
@@ -195,7 +195,7 @@ public class GoogleSheetsOutput
                   new UpdateSheetPropertiesRequest().setProperties(title);
               // set fields you want to update
               rename.setFields("title");
-              log.logBasic("Changing worksheet title to:" + resolve(meta.getWorksheetId()));
+              logBasic("Changing worksheet title to:" + resolve(meta.getWorksheetId()));
               List<Request> requests = new ArrayList<>();
               Request request1 = new Request().setUpdateSheetProperties(rename);
               requests.add(request1);
@@ -205,7 +205,7 @@ public class GoogleSheetsOutput
               data.service.spreadsheets().batchUpdate(spreadsheetID, requestBody).execute();
             }
           } else {
-            log.logError("Append and Create options cannot be activated altogether");
+            logError("Append and Create options cannot be activated altogether");
             return false;
           }
 
@@ -221,18 +221,18 @@ public class GoogleSheetsOutput
                   public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders)
                       throws IOException {
                     // Handle error
-                    log.logError("Failed sharing file" + e.getMessage());
+                    logError("Failed sharing file" + e.getMessage());
                   }
 
                   @Override
                   public void onSuccess(Permission permission, HttpHeaders responseHeaders)
                       throws IOException {
-                    log.logBasic("Shared successfully : Permission ID: " + permission.getId());
+                    logBasic("Shared successfully : Permission ID: " + permission.getId());
                   }
                 };
             BatchRequest batch = service.batch();
             if (resolve(meta.getShareEmail()) != null && !resolve(meta.getShareEmail()).isEmpty()) {
-              log.logBasic("Sharing sheet with:" + resolve(meta.getShareEmail()));
+              logBasic("Sharing sheet with:" + resolve(meta.getShareEmail()));
               Permission userPermission =
                   new Permission()
                       .setType("user")
@@ -247,7 +247,7 @@ public class GoogleSheetsOutput
             }
             if (resolve(meta.getShareDomain()) != null
                 && !resolve(meta.getShareDomain()).isEmpty()) {
-              log.logBasic("Sharing sheet with domain:" + resolve(meta.getShareDomain()));
+              logBasic("Sharing sheet with domain:" + resolve(meta.getShareDomain()));
               Permission domainPermission =
                   new Permission()
                       .setType("domain")
@@ -264,12 +264,12 @@ public class GoogleSheetsOutput
         }
 
         if (!exists && !meta.isCreate()) {
-          log.logError("File does not Exist");
+          logError("File does not Exist");
           return false;
         }
 
       } catch (Exception e) {
-        log.logError(
+        logError(
             "Error: for worksheet : "
                 + resolve(meta.getWorksheetId())
                 + " in spreadsheet :"

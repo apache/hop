@@ -80,7 +80,7 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
 
     data.fileIndex++;
 
-    if (checkFeedback(getLinesInput()) && log.isBasic()) {
+    if (checkFeedback(getLinesInput()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "GetSubFolders.Log.NrLine", "" + getLinesInput()));
     }
 

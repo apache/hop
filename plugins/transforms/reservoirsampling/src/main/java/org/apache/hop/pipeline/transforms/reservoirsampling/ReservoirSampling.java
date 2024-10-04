@@ -107,7 +107,7 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
       return false;
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(row));
     }
 

@@ -212,7 +212,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           lookupValues(data.inputRowMeta, r); // add new values to the row in rowset[0].
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "DimensionLookup.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
@@ -311,7 +311,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
       sql += " FROM " + data.schemaTable;
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             "Pre-loading cache by reading from database with: " + Const.CR + sql + Const.CR);
       }
@@ -821,8 +821,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     //
     if (data.returnRowMeta.getValueMeta(0).isBigNumber() && returnRow[0] instanceof Long) {
       if (isDebug()) {
-        log.logDebug(
-            "Changing the type of the technical key from TYPE_BIGNUMBER to an TYPE_INTEGER");
+        logDebug("Changing the type of the technical key from TYPE_BIGNUMBER to an TYPE_INTEGER");
       }
       IValueMeta tkValueMeta = data.returnRowMeta.getValueMeta(0);
       data.returnRowMeta.setValueMeta(
@@ -1312,16 +1311,6 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     return technicalKey;
   }
 
-  @Override
-  public boolean isRowLevel() {
-    return log.isRowLevel();
-  }
-
-  @Override
-  public boolean isDebug() {
-    return log.isDebug();
-  }
-
   public void dimUpdate(IRowMeta rowMeta, Object[] row, Long dimkey, Date valueDate)
       throws HopDatabaseException {
     DLFields f = meta.getFields();
@@ -1806,7 +1795,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     try {
       data.db.connect();
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "DimensionLookup.Log.ConnectedToDB"));
       }
       data.db.setCommit(meta.getCommitSize());

@@ -74,7 +74,7 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
       throw new HopException(e); // shouldn't happen on files
     }
 
-    if (checkFeedback(getLinesInput()) && log.isBasic()) {
+    if (checkFeedback(getLinesInput()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "CubeInput.Log.LineNumber") + getLinesInput());
     }
 

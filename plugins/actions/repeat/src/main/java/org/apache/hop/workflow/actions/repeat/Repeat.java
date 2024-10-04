@@ -175,8 +175,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       executionResult = executePipelineOrWorkflow(realFilename, nr, executionResult, repetitionNr);
       Result result = executionResult.result;
       if (!result.getResult() || result.getNrErrors() > 0 || result.isStopped()) {
-        log.logError(
-            "The repeating work encountered and error or was stopped. This ends the loop.");
+        logError("The repeating work encountered and error or was stopped. This ends the loop.");
 
         // On an false result, stop the loop
         //
@@ -393,7 +392,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
       boolean flagSet = workflow.getExtensionDataMap().get(REPEAT_END_LOOP) != null;
       if (flagSet) {
-        log.logBasic("End loop flag found, stopping loop.");
+        logBasic("End loop flag found, stopping loop.");
       }
 
       return new ExecutionResult(result, workflow, flagSet);

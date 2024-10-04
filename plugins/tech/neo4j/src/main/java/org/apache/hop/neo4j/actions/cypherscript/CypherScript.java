@@ -106,11 +106,11 @@ public class CypherScript extends ActionBase implements IAction {
 
     int nrExecuted;
 
-    try (Driver driver = connection.getDriver(log, this)) {
+    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
 
       // Connect to the database
       //
-      try (Session session = connection.getSession(log, driver, this)) {
+      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
 
         TransactionWork<Integer> transactionWork =
             transaction -> {
@@ -130,14 +130,14 @@ public class CypherScript extends ActionBase implements IAction {
                   if (StringUtils.isNotEmpty(cypher)) {
                     transaction.run(cypher);
                     executed++;
-                    log.logDetailed("Executed cypher statement: " + cypher);
+                    logDetailed("Executed cypher statement: " + cypher);
                   }
                 }
                 // All statements executed successfully so commit
                 //
                 transaction.commit();
               } catch (Exception e) {
-                log.logError("Error executing cypher statements...", e);
+                logError("Error executing cypher statements...", e);
                 result.increaseErrors(1L);
                 transaction.rollback();
                 result.setResult(false);

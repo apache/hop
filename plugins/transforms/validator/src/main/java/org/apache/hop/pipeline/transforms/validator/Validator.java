@@ -88,7 +88,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
       }
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel("Read row #" + getLinesRead() + " : " + getInputRowMeta().getString(r));
     }
 
@@ -140,7 +140,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
       }
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel("Wrote row #" + getLinesWritten() + " : " + getInputRowMeta().getString(r));
     }
     if (checkFeedback(getLinesRead())) {

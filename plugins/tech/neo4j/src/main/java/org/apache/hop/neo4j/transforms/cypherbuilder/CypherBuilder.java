@@ -58,9 +58,9 @@ public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilde
     String connectionName = resolve(meta.getConnectionName());
     try {
       data.connection = metadataProvider.getSerializer(NeoConnection.class).load(connectionName);
-      data.driver = data.connection.getDriver(log, this);
+      data.driver = data.connection.getDriver(getLogChannel(), this);
       data.driver.verifyConnectivity();
-      data.session = data.connection.getSession(log, data.driver, this);
+      data.session = data.connection.getSession(getLogChannel(), data.driver, this);
     } catch (Exception e) {
       setErrors(1);
       logError("Error connecting to Neo4j", e);
@@ -80,7 +80,7 @@ public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilde
         data.driver.close();
       }
     } catch (Exception e) {
-      log.logError("Error closing Neo4j connection", e);
+      logError("Error closing Neo4j connection", e);
     }
 
     super.dispose();

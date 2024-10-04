@@ -153,7 +153,7 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
 
     // check logging level and only set to false if
     // logging level at least detailed
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       serverDetermined = false;
     }
 
@@ -262,7 +262,7 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
         }
 
         // init connection constructs a MongoCredentials object if necessary
-        data.clientWrapper = data.connection.createWrapper(this, log);
+        data.clientWrapper = data.connection.createWrapper(this, getLogChannel());
         data.collection = data.clientWrapper.getCollection(databaseName, collection);
 
         if (!meta.isOutputJson()) {
@@ -293,14 +293,14 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
       try {
         data.cursor.close();
       } catch (MongoDbException e) {
-        log.logError(e.getMessage());
+        logError(e.getMessage());
       }
     }
     if (data.clientWrapper != null) {
       try {
         data.clientWrapper.dispose();
       } catch (MongoDbException e) {
-        log.logError(e.getMessage());
+        logError(e.getMessage());
       }
     }
 

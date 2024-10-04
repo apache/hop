@@ -115,17 +115,17 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     // Run this cypher statement...
     //
     final String _cypher = cypher;
-    try (Driver driver = connection.getDriver(log, this)) {
-      try (Session session = connection.getSession(log, driver, this)) {
+    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
+      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
         session.writeTransaction(
             tx -> {
               try {
-                log.logDetailed("Dropping constraint with cypher: " + _cypher);
+                logDetailed("Dropping constraint with cypher: " + _cypher);
                 org.neo4j.driver.Result result = tx.run(_cypher);
                 result.consume();
                 return true;
               } catch (Throwable e) {
-                log.logError("Error dropping constraint with cypher [" + _cypher + "]", e);
+                logError("Error dropping constraint with cypher [" + _cypher + "]", e);
                 return false;
               }
             });
@@ -180,17 +180,17 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     // Run this cypher statement...
     //
     final String _cypher = cypher;
-    try (Driver driver = connection.getDriver(log, this)) {
-      try (Session session = connection.getSession(log, driver, this)) {
+    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
+      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
         session.writeTransaction(
             tx -> {
               try {
-                log.logDetailed("Creating constraint with cypher: " + _cypher);
+                logDetailed("Creating constraint with cypher: " + _cypher);
                 org.neo4j.driver.Result result = tx.run(_cypher);
                 result.consume();
                 return true;
               } catch (Throwable e) {
-                log.logError("Error creating constraint with cypher [" + _cypher + "]", e);
+                logError("Error creating constraint with cypher [" + _cypher + "]", e);
                 return false;
               }
             });

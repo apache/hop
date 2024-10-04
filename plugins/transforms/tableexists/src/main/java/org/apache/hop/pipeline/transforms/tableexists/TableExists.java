@@ -98,7 +98,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
       // add new values to the row.
       putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,
@@ -150,7 +150,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
       try {
         data.db.connect();
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "TableExists.Log.ConnectedToDB"));
         }
 

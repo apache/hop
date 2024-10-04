@@ -104,7 +104,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
 
     data.previous = r;
 
-    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "Denormaliser.Log.LineNumber") + getLinesRead());
     }
 

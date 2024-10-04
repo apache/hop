@@ -62,7 +62,7 @@ public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, Dete
         putRow(data.outputRowMeta, buildOneRow()); // copy row to possible alternate rowset(s).
 
         if (checkFeedback(getLinesRead())) {
-          if (log.isBasic()) {
+          if (isBasic()) {
             logBasic(
                 BaseMessages.getString(PKG, "DetectEmptyStream.Log.LineNumber") + getLinesRead());
           }

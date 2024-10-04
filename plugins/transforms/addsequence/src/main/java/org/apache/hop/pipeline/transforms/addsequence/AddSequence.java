@@ -104,7 +104,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "AddSequence.Log.ReadRow")
               + getLinesRead()
@@ -115,14 +115,14 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
     try {
       putRow(data.outputRowMeta, addSequence(getInputRowMeta(), r));
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "AddSequence.Log.WriteRow")
                 + getLinesWritten()
                 + " : "
                 + getInputRowMeta().getString(r));
       }
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "AddSequence.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
@@ -156,7 +156,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         data.setDb(db);
         try {
           data.getDb().connect();
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "AddSequence.Log.ConnectedDB"));
           }
           return true;

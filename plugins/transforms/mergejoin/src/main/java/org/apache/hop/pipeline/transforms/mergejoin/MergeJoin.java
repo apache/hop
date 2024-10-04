@@ -154,7 +154,7 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> {
       data.two_dummy = new Object[data.twoMeta.size()];
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(
                   PKG, "MergeJoin.Log.DataInfo", data.oneMeta.getString(data.one) + "")

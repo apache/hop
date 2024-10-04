@@ -304,7 +304,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
       try {
         inputStream.close();
       } catch (Exception e) {
-        log.logError("Error closing reader", e);
+        logError("Error closing reader", e);
       }
     }
     return retval;
@@ -452,7 +452,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
       }
       try {
         ClassLoader classLoader = meta.getClass().getClassLoader();
-        data.tikaOutput = new TikaOutput(classLoader, log, this);
+        data.tikaOutput = new TikaOutput(classLoader, getLogChannel(), this);
       } catch (Exception e) {
         logError("Tika Error", e);
       }

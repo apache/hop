@@ -79,7 +79,7 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
         // copy row to output rowset(s)
         putRow(data.outputRowMeta, outputRow);
 
-        if (log.isRowLevel()) {
+        if (isRowLevel()) {
           logRowlevel(
               BaseMessages.getString(PKG, "DetectLastRow.Log.WroteRowToNextTransform")
                   + data.outputRowMeta.getString(outputRow));
@@ -100,7 +100,7 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
       // copy row to output rowset(s)
       putRow(data.outputRowMeta, outputRow);
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "DetectLastRow.Log.WroteRowToNextTransform")
                 + data.outputRowMeta.getString(outputRow));

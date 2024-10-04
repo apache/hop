@@ -71,7 +71,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
       jsonFactory = JacksonFactory.getDefaultInstance();
       httpTransport = GoogleNetHttpTransport.newTrustedTransport();
     } catch (Exception e) {
-      log.logError("cannot initiate HTTP transport" + e.getMessage());
+      logError("cannot initiate HTTP transport" + e.getMessage());
       return false;
     }
 
@@ -94,7 +94,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
         ValueRange response =
             service.spreadsheets().values().get(resolve(meta.getSpreadsheetKey()), range).execute();
         if (response == null) {
-          log.logError(
+          logError(
               "No data found for worksheet : "
                   + resolve(meta.getWorksheetId())
                   + CONST_IN_SPREADSHEET
@@ -102,7 +102,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
           return false;
         } else {
           List<List<Object>> values = response.getValues();
-          log.logBasic("Reading Sheet, found: " + values.size() + " rows");
+          logBasic("Reading Sheet, found: " + values.size() + " rows");
           if (values == null || values.isEmpty()) {
             throw new HopTransformException(
                 "No response found for worksheet : "
@@ -114,7 +114,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
           }
         }
       } catch (Exception e) {
-        log.logError(
+        logError(
             "Error: for worksheet : "
                 + resolve(meta.getWorksheetId())
                 + CONST_IN_SPREADSHEET
@@ -247,7 +247,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
           }
         }
       } else {
-        log.logBasic(
+        logBasic(
             "Finished reading last row "
                 + Integer.toString(data.currentRow)
                 + " / "
@@ -256,7 +256,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
       }
       return outputRowData;
     } catch (Exception e) {
-      log.logError("Exception reading value :" + e.getMessage());
+      logError("Exception reading value :" + e.getMessage());
       return null;
     }
   }

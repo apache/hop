@@ -114,7 +114,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
 
     putRow(data.outputMeta, r); // in case we want it to go further...
 
-    if (checkFeedback(getLinesOutput()) && log.isBasic()) {
+    if (checkFeedback(getLinesOutput()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "CubeOutput.Log.LineNumber") + getLinesOutput());
     }
 
@@ -209,7 +209,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
 
         // Try to create the parent folder...
         parentFolder.createFolder();
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG, "CubeOutput.Log.ParentFolderCreated", parentFolder.getName()));

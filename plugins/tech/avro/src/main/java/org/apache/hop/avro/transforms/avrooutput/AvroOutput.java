@@ -251,12 +251,12 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       fields.add(avroField);
     }
     data.avroSchema = createAvroSchema(fields, "");
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("Automatically generated Avro schema.");
     }
 
     if (meta.isWriteSchemaFile()) {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Writing schema file.");
       }
       try {
@@ -267,18 +267,18 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
         }
         OutputStream outputStream = getOutputStream(schemaFileName, false);
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed("Opening output stream in default encoding");
         }
         OutputStream schemaWriter = new BufferedOutputStream(outputStream, 5000);
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed("Opened new file with name [" + schemaFileName + "]");
         }
 
         schemaWriter.write(data.avroSchema.toString(true).getBytes());
         schemaWriter.close();
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed("Closed schema file with name [" + schemaFileName + "]");
         }
 
@@ -499,7 +499,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
         getCopy(),
         getPartitionId(),
         data.isBeamContext(),
-        log.getLogChannelId(),
+        getLogChannelId(),
         data.getBeamBundleNr());
   }
 
@@ -521,12 +521,12 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
       OutputStream outputStream = getOutputStream(filename, false);
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Opening output stream in default encoding");
       }
       data.writer = new BufferedOutputStream(outputStream, 5000);
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Opened new file with name [" + filename + "]");
       }
     } catch (Exception e) {
@@ -553,7 +553,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       if (data.writer != null) {
         data.writer.flush();
 
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug("Closing output stream");
         }
         if (data.dataFileWriter != null) {
@@ -564,7 +564,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
         // also.
         data.writer = null;
         data.dataFileWriter = null;
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug("Closed output stream");
         }
       }

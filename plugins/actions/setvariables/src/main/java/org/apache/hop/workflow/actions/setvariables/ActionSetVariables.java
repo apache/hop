@@ -313,7 +313,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
         }
 
         // ok we can process this line
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ActionSetVariables.Log.SetVariableToValue", name, value));

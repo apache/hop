@@ -122,7 +122,7 @@ public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> {
           resultFile.setComment(BaseMessages.getString(PKG, "FileExists.Log.FileAddedResult"));
           addResultFile(resultFile);
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "FileExists.Log.FilenameAddResult", data.file.toString()));
@@ -142,7 +142,7 @@ public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> {
       // add new values to the row.
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,

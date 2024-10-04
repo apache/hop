@@ -141,7 +141,7 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
         // Let's check the limit time
         if ((iMaximumTimeout >= 0) && (now >= (timeStart + iMaximumTimeout))) {
           // We have reached the time limit
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "ActionDelay.WaitTimeIsElapsed.Label"));
           }
           continueLoop = false;

@@ -542,7 +542,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
         putRow(data.previousRowMeta, r);
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,
@@ -767,9 +767,9 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
     } else {
       // attached files
       if (meta.isDynamicFilename()) {
-        setAttachedFilesList(r, log);
+        setAttachedFilesList(r, getLogChannel());
       } else {
-        setAttachedFilesList(null, log);
+        setAttachedFilesList(null, getLogChannel());
       }
     }
 

@@ -81,13 +81,13 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
 
       putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "LdapInput.log.ReadRow"),
             data.outputRowMeta.getString(outputRowData));
       }
 
-      if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+      if (checkFeedback(getLinesInput()) && isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "LdapInput.log.LineRow") + getLinesInput());
       }
 
@@ -121,7 +121,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
     data.readRow = getRow();
     // Get row from input rowset & set row busy!
     if (data.readRow == null) {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "LdapInput.Log.FinishedProcessing"));
       }
       setOutputDone();
@@ -200,7 +200,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
         // we need to perform another search with incoming row
         if (!dynamicSearch()) {
           // we finished with incoming rows
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "LdapInput.Log.FinishedProcessing"));
           }
           return null;
@@ -347,7 +347,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
     }
 
     // Define new LDAP connection
-    data.connection = new LdapConnection(log, this, meta, data.attributesBinary);
+    data.connection = new LdapConnection(getLogChannel(), this, meta, data.attributesBinary);
 
     for (int i = 0; i < data.attrReturned.length; i++) {
       LdapInputField field = meta.getInputFields()[i];

@@ -159,13 +159,13 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
 
           if (file.exists()
               && file.isReadable()) { // TODO: is it needed to check file for readability?
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(PKG, "ActionFilesExist.File_Exists", realFilefoldername));
             }
           } else {
             missingfiles++;
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG, "ActionFilesExist.File_Does_Not_Exist", realFilefoldername));

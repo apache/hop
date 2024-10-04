@@ -109,7 +109,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
           // Folder already exists: there is no reason to try and create it.
           //
           result.setResult(true);
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(CONST_FOLDER + realFolderName + "] already exists, not recreating.");
           }
         }
@@ -118,7 +118,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
 
       // No Folder yet, create an empty Folder.
       folderObject.createFolder();
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(CONST_FOLDER + realFolderName + "] created!");
       }
       result.setResult(true);

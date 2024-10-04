@@ -57,7 +57,7 @@ public class SplunkInput extends BaseTransform<SplunkInputMeta, SplunkInputData>
     // Connect to Neo4j
     //
     if (StringUtils.isEmpty(meta.getConnectionName())) {
-      log.logError("You need to specify a Splunk connection to use in this transform");
+      logError("You need to specify a Splunk connection to use in this transform");
       return false;
     }
 
@@ -76,7 +76,7 @@ public class SplunkInput extends BaseTransform<SplunkInputMeta, SplunkInputData>
       }
       data.splunkConnection = serializer.load(connectionName);
     } catch (HopException e) {
-      log.logError(
+      logError(
           "Could not load Splunk connection '" + meta.getConnectionName() + "' from the metastore",
           e);
       return false;
@@ -89,7 +89,7 @@ public class SplunkInput extends BaseTransform<SplunkInputMeta, SplunkInputData>
       data.service = Service.connect(data.serviceArgs);
 
     } catch (Exception e) {
-      log.logError(
+      logError(
           "Unable to get or create a connection to Splunk connection named '"
               + data.splunkConnection.getName()
               + "'",

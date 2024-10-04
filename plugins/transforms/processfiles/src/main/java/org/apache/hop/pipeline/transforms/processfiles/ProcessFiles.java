@@ -89,7 +89,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         }
       }
 
-      if (meta.simulate && log.isBasic()) {
+      if (meta.simulate && isBasic()) {
 
         logBasic(BaseMessages.getString(PKG, "ProcessFiles.Log.SimulationModeON"));
       }
@@ -127,7 +127,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         }
         data.targetFile = HopVfs.getFileObject(targetFilename, variables);
         if (data.targetFile.exists()) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "ProcessFiles.Log.TargetFileExists", targetFilename));
           }
@@ -170,13 +170,13 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
             // Better to delete the file before because. sometime, it's not properly overwritten
             data.targetFile.delete();
             data.targetFile.copyFrom(data.sourceFile, new TextOneToOneFileSelector());
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG, "ProcessFiles.Log.SourceFileCopied", sourceFilename, targetFilename));
             }
           } else {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -191,13 +191,13 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                   || !data.targetFile.exists())
               && !meta.simulate) {
             data.sourceFile.moveTo(HopVfs.getFileObject(targetFilename, variables));
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG, "ProcessFiles.Log.SourceFileMoved", sourceFilename, targetFilename));
             }
           } else {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -213,7 +213,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                 BaseMessages.getString(
                     PKG, "ProcessFiles.Error.CanNotDeleteFile", data.sourceFile.toString()));
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "ProcessFiles.Log.SourceFileDeleted", sourceFilename));
           }
@@ -236,7 +236,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         resultFile.setComment(BaseMessages.getString(PKG, "ProcessFiles.Log.FileAddedResult"));
         addResultFile(resultFile);
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ProcessFiles.Log.FilenameAddResult", data.targetFile.toString()));
@@ -245,7 +245,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
 
       putRow(getInputRowMeta(), r); // copy row to possible alternate rowset(s).
 
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ProcessFiles.LineNumber") + getLinesRead());
       }
     } catch (Exception e) {

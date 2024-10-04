@@ -138,7 +138,7 @@ public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
     String targetDbFolder = data.baseFolder + "data/databases/" + data.databaseFilename;
     try {
       if (new File(targetDbFolder).exists()) {
-        log.logBasic("Removing exsting folder: " + targetDbFolder);
+        logBasic("Removing exsting folder: " + targetDbFolder);
         FileUtils.deleteDirectory(new File(targetDbFolder));
       }
     } catch (Exception e) {
@@ -192,8 +192,8 @@ public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
     for (String argument : arguments) {
       command.append(argument).append(" ");
     }
-    log.logBasic("Running command : " + command);
-    log.logBasic("Running from base folder: " + data.baseFolder);
+    logBasic("Running command : " + command);
+    logBasic("Running from base folder: " + data.baseFolder);
 
     ProcessBuilder pb = new ProcessBuilder(arguments);
     pb.directory(new File(data.baseFolder));

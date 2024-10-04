@@ -61,7 +61,7 @@ public class RowsFromResult extends BaseTransform<RowsFromResultMeta, RowsFromRe
     putRow(data.outputRowMeta, row.getData());
 
     if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "RowsFromResult.Log.LineNumber") + getLinesRead());
       }
     }

@@ -133,8 +133,8 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
           // stop to load buffer data into doris by http api
           data.dorisStreamLoad.endWritingIntoBuffer();
           ResponseContent responseContent = data.dorisStreamLoad.executeDorisStreamLoad();
-          if (log.isDetailed()) {
-            log.logDetailed(
+          if (isDetailed()) {
+            logDetailed(
                 BaseMessages.getString(
                     PKG, "DorisBulkLoader.Log.StreamLoadResult", responseContent.toString()));
           }
@@ -160,8 +160,8 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
         // stream load current buffer data into doris, and then write data into buffer again
         data.dorisStreamLoad.endWritingIntoBuffer();
         ResponseContent responseContent = data.dorisStreamLoad.executeDorisStreamLoad();
-        if (log.isDetailed()) {
-          log.logDetailed(
+        if (isDetailed()) {
+          logDetailed(
               BaseMessages.getString(
                   PKG, "DorisBulkLoader.Log.StreamLoadResult", responseContent.toString()));
         }
@@ -188,8 +188,8 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
    * @throws IOException
    */
   private void initStreamLoad() throws HopException {
-    if (log.isDetailed()) {
-      log.logDetailed(
+    if (isDetailed()) {
+      logDetailed(
           BaseMessages.getString(
               PKG,
               "DorisBulkLoader.Log.StreamLoadParameter",

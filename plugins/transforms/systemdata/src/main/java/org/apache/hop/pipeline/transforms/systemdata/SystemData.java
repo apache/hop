@@ -739,7 +739,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
 
     row = getSystemData(imeta, row);
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel("System info returned: " + data.outputRowMeta.getString(row));
     }
 

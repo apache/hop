@@ -131,7 +131,7 @@ public class CreditCardValidator
       // add new values to the row.
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,

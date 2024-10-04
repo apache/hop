@@ -174,7 +174,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     successConditionBrokenExit = false;
     nrLimitFolders = Const.toInt(resolve(getLimitFolders()), 10);
 
-    if (argFromPrevious && log.isDetailed()) {
+    if (argFromPrevious && isDetailed()) {
       logDetailed(
           BaseMessages.getString(
               PKG,
@@ -229,7 +229,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
       }
     }
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("=======================================");
       logDetailed(
           BaseMessages.getString(PKG, "ActionDeleteFolders.Log.Info.NrError", "" + nrErrors));
@@ -283,14 +283,14 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
         // the file or folder exists
         if (filefolder.getType() == FileType.FOLDER) {
           // It's a folder
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "ActionDeleteFolders.ProcessingFolder", folderName));
           }
           // Delete Files
           int count = filefolder.delete(new TextFileSelector());
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionDeleteFolders.TotalDeleted", folderName, String.valueOf(count)));
@@ -302,7 +302,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
         }
       } else {
         // File already deleted, no reason to try to delete it
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(PKG, "ActionDeleteFolders.FolderAlreadyDeleted", folderName));
         }

@@ -205,13 +205,13 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
         // Perform a system (Java) ping ...
         status = systemPing(hostname, timeoutInt);
         if (status) {
-          if (log.isDetailed()) {
-            log.logDetailed(
+          if (isDetailed()) {
+            logDetailed(
                 BaseMessages.getString(PKG, "ActionPing.SystemPing"),
                 BaseMessages.getString(PKG, CONST_ACTION_PING_OK_LABEL, hostname));
           }
         } else {
-          log.logError(
+          logError(
               BaseMessages.getString(PKG, "ActionPing.SystemPing"),
               BaseMessages.getString(PKG, CONST_ACTION_PING_NOK_LABEL, hostname));
         }
@@ -220,13 +220,13 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
         // Perform a classic ping ..
         status = classicPing(hostname, packets);
         if (status) {
-          if (log.isDetailed()) {
-            log.logDetailed(
+          if (isDetailed()) {
+            logDetailed(
                 BaseMessages.getString(PKG, "ActionPing.ClassicPing"),
                 BaseMessages.getString(PKG, CONST_ACTION_PING_OK_LABEL, hostname));
           }
         } else {
-          log.logError(
+          logError(
               BaseMessages.getString(PKG, "ActionPing.ClassicPing"),
               BaseMessages.getString(PKG, CONST_ACTION_PING_NOK_LABEL, hostname));
         }
@@ -235,7 +235,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
       logError(BaseMessages.getString(PKG, "ActionPing.Error.Label") + ex.getMessage());
     }
     if (status) {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, CONST_ACTION_PING_OK_LABEL, hostname));
       }
       result.setNrErrors(0);
@@ -262,7 +262,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
         return retval;
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ActionPing.HostName", address.getHostName()));
         logDetailed(
             BaseMessages.getString(PKG, "ActionPing.HostAddress", address.getHostAddress()));
@@ -286,7 +286,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
         cmdPing += hostname + " " + NIX_CHAR + " " + nrpackets;
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ActionPing.NbrPackets.Label", "" + nrpackets));
         logDetailed(BaseMessages.getString(PKG, "ActionPing.ExecClassicPing.Label", cmdPing));
       }
@@ -296,7 +296,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
       } catch (InterruptedException e) {
         logDetailed(BaseMessages.getString(PKG, "ActionPing.ClassicPingInterrupted"));
       }
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ActionPing.Gettingresponse.Label", hostname));
       }
       // Get ping response
@@ -304,7 +304,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
 
       // Read response lines
       while ((lignePing = br.readLine()) != null) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(lignePing);
         }
       }

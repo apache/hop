@@ -115,7 +115,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     String realDTDfilename = getRealDTDfilename();
 
     // Define a new DTD validator instance
-    DtdValidatorUtil validator = new DtdValidatorUtil(log);
+    DtdValidatorUtil validator = new DtdValidatorUtil(getLogChannel());
     // Set XML filename
     validator.setXMLFilename(realxmlfilename);
     if (dtdintern) {
@@ -130,7 +130,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     boolean status = validator.validate();
     if (!status) {
       // The XML file is invalid!
-      log.logError(validator.getErrorMessage());
+      logError(validator.getErrorMessage());
       result.setResult(false);
       result.setNrErrors(validator.getNrErrors());
       result.setLogText(validator.getErrorMessage());

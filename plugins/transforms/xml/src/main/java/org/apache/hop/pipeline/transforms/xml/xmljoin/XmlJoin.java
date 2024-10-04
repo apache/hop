@@ -280,7 +280,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       //
       swapFirstInputRowSetIfExists(meta.getTargetXmlTransform());
     } catch (Exception e) {
-      log.logError(BaseMessages.getString(PKG, "XmlJoin.Error.Init"), e);
+      logError(BaseMessages.getString(PKG, "XmlJoin.Error.Init"), e);
       return false;
     }
 

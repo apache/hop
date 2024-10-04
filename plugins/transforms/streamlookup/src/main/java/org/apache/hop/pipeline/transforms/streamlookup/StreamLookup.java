@@ -132,7 +132,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
       logError(BaseMessages.getString(PKG, "StreamLookup.Log.NoLookupTransformSpecified"));
       return false;
     }
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(
           BaseMessages.getString(PKG, "StreamLookup.Log.ReadingFromStream")
               + data.infoStream.getTransformName()
@@ -148,7 +148,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
     IRowSet rowSet = findInputRowSet(data.infoStream.getTransformName());
     Object[] rowData = getRowFrom(rowSet); // rows are originating from "lookup_from"
     while (rowData != null) {
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "StreamLookup.Log.ReadLookupRow")
                 + rowSet.getRowMeta().getString(rowData));
@@ -398,7 +398,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
     if (r == null) {
       // no more input to be expected...
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "StreamLookup.Log.StoppedProcessingWithEmpty", getLinesRead() + ""));
@@ -426,7 +426,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
                   meta.getKeystream()[i],
                   "" + getInputRowMeta().getString(r)));
         } else {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
@@ -470,7 +470,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
     putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
     if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "StreamLookup.Log.LineNumber") + getLinesRead());
       }
     }

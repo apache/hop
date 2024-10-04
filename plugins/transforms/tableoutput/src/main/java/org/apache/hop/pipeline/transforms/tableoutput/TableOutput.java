@@ -119,7 +119,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         incrementLinesOutput();
       }
 
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic("linenr " + getLinesRead());
       }
     } catch (HopException e) {
@@ -136,7 +136,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
   protected Object[] writeToTable(IRowMeta rowMeta, Object[] r) throws HopException {
 
     if (r == null) { // Stop: last line or error encountered
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Last line inserted: stop");
       }
       return null;
@@ -232,7 +232,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     if (insertStatement == null) {
       String sql =
           data.db.getInsertStatement(resolve(meta.getSchemaName()), tableName, data.insertRowMeta);
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Prepared statement : " + sql);
       }
       insertStatement = data.db.prepareSql(sql, meta.isReturningGeneratedKeys());
@@ -357,14 +357,14 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       } else {
         if (meta.isIgnoreErrors()) {
           if (data.warnings < 20) {
-            if (log.isBasic()) {
+            if (isBasic()) {
               logBasic(
                   "WARNING: Couldn't insert row into table: "
                       + rowMeta.getString(r)
                       + Const.CR
                       + dbe.getMessage());
             }
-          } else if (data.warnings == 20 && log.isBasic()) {
+          } else if (data.warnings == 20 && isBasic()) {
             logBasic(
                 "FINAL WARNING (no more then 20 displayed): Couldn't insert row into table: "
                     + rowMeta.getString(r)
@@ -424,11 +424,6 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     }
 
     return outputRowData;
-  }
-
-  @Override
-  public boolean isRowLevel() {
-    return log.isRowLevel();
   }
 
   private void processBatchException(
@@ -512,7 +507,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         //
         if (getTransformMeta().isDoingErrorHandling()
             && !dbInterface.IsSupportsErrorHandlingOnBatchUpdates()) {
-          log.logBasic(
+          logBasic(
               BaseMessages.getString(
                   PKG, "TableOutput.Warning.ErrorHandlingIsNotFullySupportedWithBatchProcessing"));
         }
@@ -524,7 +519,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.db = new Database(this, this, data.databaseMeta);
         data.db.connect();
 
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               "Connected to database ["
                   + variables.resolve(meta.getConnection())

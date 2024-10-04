@@ -201,7 +201,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
         outputRow[data.indexOfResultField] = isMatch;
       }
 
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "RegexEval.Log.ReadRow")
                 + " "
@@ -243,7 +243,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
       if (meta.isUseVariableInterpolationFlagSet()) {
         regularexpression = resolve(meta.getScript());
       }
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "RegexEval.Log.Regexp")
                 + " "

@@ -122,7 +122,7 @@ public class SalesforceUpsert
   void writeToSalesForce(Object[] rowData) throws HopException {
     try {
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "SalesforceUpsert.CalledWrite", data.iBufferPos, meta.getBatchSizeInt()));
@@ -151,7 +151,7 @@ public class SalesforceUpsert
             // We need to keep track of this field
             fieldsToNull.add(
                 SalesforceUtils.getFieldToNullName(
-                    log, meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
+                    getLogChannel(), meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
           } else {
             Object normalObject = normalizeValue(valueMeta, rowData[data.fieldnrs[i]]);
             if (data.mapData && data.dataTypeMap != null) {
@@ -183,7 +183,7 @@ public class SalesforceUpsert
       }
 
       if (data.iBufferPos >= meta.getBatchSizeInt()) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed("Calling flush buffer from writeToSalesForce");
         }
         flushBuffers();
@@ -227,12 +227,12 @@ public class SalesforceUpsert
           String id = data.upsertResult[j].getId();
           if (data.upsertResult[j].isCreated()) {
             incrementLinesOutput();
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(BaseMessages.getString(PKG, "SalesforceUpsert.ObjectCreated", id));
             }
           } else {
             incrementLinesUpdated();
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(BaseMessages.getString(PKG, "SalesforceUpsert.ObjectUpdated", id));
             }
           }
@@ -244,13 +244,13 @@ public class SalesforceUpsert
             int newIndex = data.inputRowMeta.size();
             newRow[newIndex++] = id;
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "SalesforceUpsert.NewRow", newRow[0]));
           }
 
           putRow(data.outputRowMeta, newRow); // copy row to output rowset(s)
 
-          if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+          if (checkFeedback(getLinesInput()) && isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "SalesforceUpsert.log.LineRow", "" + getLinesInput()));
           }
@@ -261,7 +261,7 @@ public class SalesforceUpsert
           // array and write them to the screen
 
           if (!getTransformMeta().isDoingErrorHandling()) {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(BaseMessages.getString(PKG, "SalesforceUpsert.ErrorFound"));
             }
 
@@ -291,7 +291,7 @@ public class SalesforceUpsert
           }
 
           // Simply add this row to the error row
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "SalesforceUpsert.PassingRowToErrorTransform"));
           }
           putError(
@@ -320,7 +320,7 @@ public class SalesforceUpsert
         }
       }
       // Simply add this row to the error row
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Passing row to error transform");
       }
 

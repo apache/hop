@@ -229,7 +229,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
       } else if (file.exists() && ifFileExists == 1) {
         // the file exists and user want to do nothing
         result.setResult(true);
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_1_LABEL)
                   + realFilename
@@ -265,7 +265,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
         }
 
         // User has specified an existing file, We can continue ...
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_1_LABEL)
                   + realFilename
@@ -283,7 +283,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
             if (db.checkTableExists(realSchemaname, realTablename)) {
               // The table existe, We can continue ...
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(PKG, "ActionMysqlBulkFile.TableExists1.Label")
                         + realTablename
@@ -364,7 +364,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
                       + " LOCK IN SHARE MODE";
 
               try {
-                if (log.isDetailed()) {
+                if (isDetailed()) {
                   logDetailed(fileBulkFile);
                 }
                 // Run the SQL
@@ -401,7 +401,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
               // Of course, the table should have been created already before the bulk load
               // operation
               result.setNrErrors(1);
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(PKG, "ActionMysqlBulkFile.TableNotExists1.Label")
                         + realTablename

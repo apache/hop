@@ -280,7 +280,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     successConditionBrokenExit = false;
 
     if (isfromprevious) {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG,
@@ -320,24 +320,24 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       if (!targetdir.exists()) {
         if (createfolder) {
           targetdir.createFolder();
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionUnZip.Log.TargetFolderCreated", realTargetdirectory));
           }
 
         } else {
-          log.logError(BaseMessages.getString(PKG, "ActionUnZip.TargetFolderNotFound.Label"));
+          logError(BaseMessages.getString(PKG, "ActionUnZip.TargetFolderNotFound.Label"));
           exitaction = true;
         }
       } else {
         if (targetdir.getType() != FileType.FOLDER) {
-          log.logError(
+          logError(
               BaseMessages.getString(
                   PKG, "ActionUnZip.TargetFolderNotFolder.Label", realTargetdirectory));
           exitaction = true;
         } else {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionUnZip.TargetFolderExists.Label", realTargetdirectory));
@@ -349,21 +349,20 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       // movetodirectory must be provided
       if (afterunzip == 2) {
         if (Utils.isEmpty(movetodirectory)) {
-          log.logError(BaseMessages.getString(PKG, "ActionUnZip.MoveToDirectoryEmpty.Label"));
+          logError(BaseMessages.getString(PKG, "ActionUnZip.MoveToDirectoryEmpty.Label"));
           exitaction = true;
         } else {
           movetodir = HopVfs.getFileObject(realMovetodirectory, getVariables());
           if (!(movetodir.exists()) || movetodir.getType() != FileType.FOLDER) {
             if (createMoveToDirectory) {
               movetodir.createFolder();
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG, "ActionUnZip.Log.MoveToFolderCreated", realMovetodirectory));
               }
             } else {
-              log.logError(
-                  BaseMessages.getString(PKG, "ActionUnZip.MoveToDirectoryNotExists.Label"));
+              logError(BaseMessages.getString(PKG, "ActionUnZip.MoveToDirectoryNotExists.Label"));
               exitaction = true;
             }
           }
@@ -420,18 +419,18 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       } else {
         fileObject = HopVfs.getFileObject(realFilenameSource, getVariables());
         if (!fileObject.exists()) {
-          log.logError(
+          logError(
               BaseMessages.getString(
                   PKG, "ActionUnZip.ZipFile.NotExists.Label", realFilenameSource));
           return result;
         }
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "ActionUnZip.Zip_FileExists.Label", realFilenameSource));
         }
         if (Utils.isEmpty(sourcedirectory)) {
-          log.logError(BaseMessages.getString(PKG, "ActionUnZip.SourceFolderNotFound.Label"));
+          logError(BaseMessages.getString(PKG, "ActionUnZip.SourceFolderNotFound.Label"));
           return result;
         }
 
@@ -447,7 +446,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             realWildcardSource);
       }
     } catch (Exception e) {
-      log.logError(
+      logError(
           BaseMessages.getString(
               PKG, "ActionUnZip.ErrorUnzip.Label", realFilenameSource, e.getMessage()));
       updateErrors();
@@ -486,7 +485,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   }
 
   private void displayResults() {
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("=======================================");
       logDetailed(BaseMessages.getString(PKG, "ActionUnZip.Log.Info.FilesInError", "" + nrErrors));
       logDetailed(
@@ -600,7 +599,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     String unzipToFolder = realTargetdirectory;
     try {
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "ActionUnZip.Log.ProcessingFile", sourceFileObject.toString()));
@@ -622,7 +621,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         if (!rootfolder.exists()) {
           try {
             rootfolder.createFolder();
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(PKG, "ActionUnZip.Log.RootFolderCreated", folderName));
             }
@@ -683,7 +682,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         synchronized (HopVfs.getFileSystemManager(getVariables())) {
           FileObject newFileObject = null;
           try {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
@@ -700,7 +699,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             if (item.getType().equals(FileType.FOLDER)) {
               // Directory
               //
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG, "ActionUnZip.CreatingDirectory.Label", newFileName));
@@ -732,7 +731,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
               boolean take = takeThisFile(item, newFileName);
 
               if (getIt && !getItexclude && take) {
-                if (log.isDetailed()) {
+                if (isDetailed()) {
                   logDetailed(
                       BaseMessages.getString(
                           PKG,
@@ -755,7 +754,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                           + StringUtil.getFormattedDateTimeNow(true)
                           + newFileName.substring(lastindexOfDot, lenstring);
 
-                  if (log.isDebug()) {
+                  if (isDebug()) {
                     logDebug(
                         BaseMessages.getString(
                             PKG, "ActionUnZip.Log.CreatingUniqFile", newFileName));
@@ -840,7 +839,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       retval = true;
     } catch (Exception e) {
       updateErrors();
-      log.logError(
+      logError(
           BaseMessages.getString(
               PKG, "ActionUnZip.ErrorUnzip.Label", sourceFileObject.toString(), e.getMessage()),
           e);
@@ -863,7 +862,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                 PKG, "ActionUnZip.Cant_Delete_File.Label", sourceFileObject.toString()));
       }
       // File deleted
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(
             BaseMessages.getString(
                 PKG, "ActionUnZip.File_Deleted.Label", sourceFileObject.toString()));
@@ -879,7 +878,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         sourceFileObject.moveTo(destFile);
 
         // File moved
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
@@ -962,16 +961,16 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     boolean retval = false;
     File destination = new File(destinationFile);
     if (!destination.exists()) {
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "ActionUnZip.Log.CanNotFindFile", destinationFile));
       }
       return true;
     }
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "ActionUnZip.Log.FileExists", destinationFile));
     }
     if (iffileexist == IF_FILE_EXISTS_SKIP) {
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "ActionUnZip.Log.FileSkip", destinationFile));
       }
       return false;
@@ -984,7 +983,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
 
     if (iffileexist == IF_FILE_EXISTS_OVERWRITE) {
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "ActionUnZip.Log.FileOverwrite", destinationFile));
       }
       return true;
@@ -995,7 +994,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
     if (iffileexist == IF_FILE_EXISTS_OVERWRITE_DIFF_SIZE) {
       if (entrySize != destinationSize) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1007,7 +1006,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         }
         return true;
       } else {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1022,7 +1021,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
     if (iffileexist == IF_FILE_EXISTS_OVERWRITE_EQUAL_SIZE) {
       if (entrySize == destinationSize) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1034,7 +1033,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         }
         return true;
       } else {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1049,7 +1048,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
     if (iffileexist == IF_FILE_EXISTS_OVERWRITE_ZIP_BIG) {
       if (entrySize > destinationSize) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1061,7 +1060,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         }
         return true;
       } else {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1076,7 +1075,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
     if (iffileexist == IF_FILE_EXISTS_OVERWRITE_ZIP_BIG_EQUAL) {
       if (entrySize >= destinationSize) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1088,7 +1087,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         }
         return true;
       } else {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1103,7 +1102,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
     if (iffileexist == IF_FILE_EXISTS_OVERWRITE_ZIP_SMALL) {
       if (entrySize < destinationSize) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1115,7 +1114,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         }
         return true;
       } else {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1130,7 +1129,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
     if (iffileexist == IF_FILE_EXISTS_OVERWRITE_ZIP_SMALL_EQUAL) {
       if (entrySize <= destinationSize) {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,
@@ -1142,7 +1141,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         }
         return true;
       } else {
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(
                   PKG,

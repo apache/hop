@@ -202,8 +202,8 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
           putRow(data.outputRowMeta, r);
         }
 
-        if (log.isRowLevel()) {
-          log.logRowlevel(toString(), "Outputted row #" + getProcessed() + " : " + outRowData);
+        if (isRowLevel()) {
+          logRowlevel(toString(), "Outputted row #" + getProcessed() + " : " + outRowData);
         }
 
         if (checkFeedback(getProcessed())) {
@@ -249,7 +249,7 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
       if (cqlHandler == null) {
         cqlHandler = data.keyspace.getCQLRowHandler();
       }
-      cqlHandler.newRowQuery(this, tableName, queryS, compression.name(), "", log);
+      cqlHandler.newRowQuery(this, tableName, queryS, compression.name(), "", getLogChannel());
     } catch (Exception e) {
       closeConnection();
 

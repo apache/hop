@@ -262,7 +262,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
 
     putRow(data.outputMeta, r);
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(
               PKG,
@@ -271,7 +271,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
               getInputRowMeta().getString(r)));
     }
 
-    if (checkFeedback(getLinesWritten()) && log.isBasic()) {
+    if (checkFeedback(getLinesWritten()) && isBasic()) {
       logBasic(
           BaseMessages.getString(PKG, "Constant.Log.LineNr", Long.toString(getLinesWritten())));
     }

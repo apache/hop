@@ -187,7 +187,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
         sql = data.sql;
       }
     }
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(BaseMessages.getString(PKG, "ExecSql.Log.ExecutingSQLScript") + Const.CR + sql);
     }
 
@@ -217,7 +217,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
 
       putRow(data.outputRowMeta, row); // send it out!
 
-      if (checkFeedback(getLinesWritten()) && log.isBasic()) {
+      if (checkFeedback(getLinesWritten()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ExecSql.Log.LineNumber") + getLinesWritten());
       }
     } catch (HopException e) {
@@ -240,7 +240,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
   @Override
   public void dispose() {
 
-    if (log.isBasic()) {
+    if (isBasic()) {
       logBasic(BaseMessages.getString(PKG, "ExecSql.Log.FinishingReadingQuery"));
     }
 
@@ -279,7 +279,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
       try {
         data.db.connect();
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ExecSql.Log.ConnectedToDB"));
         }
 

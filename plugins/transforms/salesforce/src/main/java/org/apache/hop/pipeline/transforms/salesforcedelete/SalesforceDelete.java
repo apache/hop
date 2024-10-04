@@ -100,7 +100,7 @@ public class SalesforceDelete
   private void writeToSalesForce(Object[] rowData) throws HopException {
     try {
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG,
@@ -119,7 +119,7 @@ public class SalesforceDelete
       }
 
       if (data.iBufferPos >= meta.getBatchSizeInt()) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "SalesforceDelete.Log.CallingFlush"));
         }
         flushBuffers();
@@ -148,7 +148,7 @@ public class SalesforceDelete
           incrementLinesOutput();
 
           if (checkFeedback(getLinesInput())) {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG, "SalesforceDelete.log.LineRow", String.valueOf(getLinesInput())));
@@ -161,7 +161,7 @@ public class SalesforceDelete
           // array and write them to the screen
 
           if (!getTransformMeta().isDoingErrorHandling()) {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(BaseMessages.getString(PKG, "SalesforceDelete.Found.Error"));
             }
 
@@ -188,7 +188,7 @@ public class SalesforceDelete
                     err.getMessage());
           }
           // Simply add this row to the error row
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "SalesforceDelete.PassingRowToErrorTransform"));
           }
           putError(
@@ -212,7 +212,7 @@ public class SalesforceDelete
             BaseMessages.getString(PKG, "SalesforceDelete.FailedToDeleted", e.getMessage()));
       }
       // Simply add this row to the error row
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Passing row to error transform");
       }
 

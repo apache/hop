@@ -366,7 +366,7 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
     boolean noRemarks = true;
     for (ICheckResult remark : remarks) {
       if (remark.getType() == ICheckResult.TYPE_RESULT_ERROR) {
-        log.logError(remark.getText());
+        logError(remark.getText());
         noRemarks = false;
       }
     }
@@ -383,7 +383,7 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
               .load(resolve(meta.getLocation()));
       data.location.getExecutionInfoLocation().initialize(this, metadataProvider);
     } catch (HopException e) {
-      log.logError("Error initializing execution information location " + meta.getLocation(), e);
+      logError("Error initializing execution information location " + meta.getLocation(), e);
       return false;
     }
 
@@ -396,7 +396,7 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
       try {
         data.location.getExecutionInfoLocation().close();
       } catch (Exception e) {
-        log.logError("Error closing location " + data.location.getName(), e);
+        logError("Error closing location " + data.location.getName(), e);
       }
     }
     super.dispose();

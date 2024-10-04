@@ -217,7 +217,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     String[] vSourceFileFolder = sourceFileFolders;
     String[] vwildcard = wildcard;
 
-    if (argFromPrevious && log.isDetailed()) {
+    if (argFromPrevious && isDetailed()) {
       logDetailed(
           BaseMessages.getString(
               PKG,
@@ -248,7 +248,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
         String vSourceFileFolderPrevious = resultRow.getString(0, null);
         String vWildcardPrevious = resultRow.getString(1, null);
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
@@ -276,7 +276,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
           return result;
         }
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
@@ -304,7 +304,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   }
 
   private void displayResults() {
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("=======================================");
       logDetailed(
           BaseMessages.getString(PKG, "ActionXMLWellFormed.Log.Info.FilesInError", "" + nrErrors));
@@ -393,7 +393,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
       sourcefilefolder = HopVfs.getFileObject(realSourceFilefoldername);
 
       if (sourcefilefolder.exists()) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ActionXMLWellFormed.Log.FileExists", sourcefilefolder.toString()));
@@ -523,7 +523,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
           addFileToResultFilenames(HopVfs.getFilename(file), result, parentWorkflow);
         }
       } else {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed("---------------------------");
           logDetailed(
               BaseMessages.getString(
@@ -563,7 +563,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
               toString());
       result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "ActionXMLWellFormed.Log.FileAddedToResultFilesName", fileaddentry));

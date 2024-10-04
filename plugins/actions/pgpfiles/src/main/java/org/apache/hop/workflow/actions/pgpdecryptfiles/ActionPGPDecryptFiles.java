@@ -393,7 +393,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
         }
       }
 
-      gpg = new GPG(resolve(gpgLocation), log, getVariables());
+      gpg = new GPG(resolve(gpgLocation), getLogChannel(), getVariables());
 
       if (argFromPrevious && isDetailed()) {
         logDetailed(

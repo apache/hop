@@ -91,14 +91,14 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
       }
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel("Read row #" + getLinesRead() + " : " + getInputRowMeta().getString(r));
     }
 
     try {
       Object[] outputRowData = calcFields(getInputRowMeta(), r);
       putRow(data.outputRowMeta, outputRowData); // copy row to possible alternate rowset(s).
-      if (log.isRowLevel()) {
+      if (isRowLevel()) {
         logRowlevel(
             "Wrote row #"
                 + getLinesWritten()

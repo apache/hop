@@ -298,7 +298,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
               int lenList1 = list1.length;
               int lenList2 = list2.length;
 
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG,
@@ -338,7 +338,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                   Map.Entry<String, String> entree = iterateur.next();
                   if (!collection2.containsKey(entree.getKey())) {
                     ok = false;
-                    if (log.isDetailed()) {
+                    if (isDetailed()) {
                       logDetailed(
                           BaseMessages.getString(
                               PKG,
@@ -347,7 +347,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                               realFilename2));
                     }
                   } else {
-                    if (log.isDebug()) {
+                    if (isDebug()) {
                       logDebug(
                           BaseMessages.getString(
                               PKG,
@@ -363,7 +363,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                     if (!filefolder2.getType().equals(filefolder1.getType())) {
                       // The file1 exist in the folder2..but they don't have the same type
                       ok = false;
-                      if (log.isDetailed()) {
+                      if (isDetailed()) {
                         logDetailed(
                             BaseMessages.getString(
                                 PKG,
@@ -405,7 +405,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                           long filefolder2Size = filefolder2.getContent().getSize();
                           if (filefolder1Size != filefolder2Size) {
                             ok = false;
-                            if (log.isDetailed()) {
+                            if (isDetailed()) {
                               logDetailed(
                                   BaseMessages.getString(
                                       PKG,
@@ -433,7 +433,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                           if (comparefilecontent) {
                             if (!equalFileContents(filefolder1, filefolder2)) {
                               ok = false;
-                              if (log.isDetailed()) {
+                              if (isDetailed()) {
                                 logDetailed(
                                     BaseMessages.getString(
                                         PKG,
@@ -452,7 +452,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                 result.setResult(ok);
               } else {
                 // The 2 folders don't have the same files number
-                if (log.isDetailed()) {
+                if (isDetailed()) {
                   logDetailed(
                       BaseMessages.getString(
                           PKG,

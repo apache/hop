@@ -135,7 +135,7 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> {
       }
     }
 
-    if (checkFeedback(getLinesRead()) && log.isBasic()) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "UniqueRows.Log.LineNumber") + getLinesRead());
     }
     first = false;

@@ -81,7 +81,7 @@ public class NullIf extends BaseTransform<NullIfMeta, NullIfData> {
       }
     }
 
-    if (log.isRowLevel()) {
+    if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "NullIf.Log.ConvertFieldValuesToNullForRow")
               + data.outputRowMeta.getString(r));

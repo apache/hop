@@ -134,7 +134,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
       //
       String valName = row.getValueMeta(i).getName();
       if (strTransformScript.contains(valName)) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "Script.Log.UsedValueName", String.valueOf(i), valName)); // $NON-NLS-3$
@@ -144,7 +144,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
       }
     }
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(
           BaseMessages.getString(
               PKG,
@@ -226,7 +226,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
         try {
           // Checking for StartScript
           if (StringUtils.isNotEmpty(strStartScript)) {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(("Start compiledScript found!"));
             }
             if (data.engine instanceof Compilable) {
@@ -238,7 +238,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
             }
 
           } else {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(("No starting compiledScript found!"));
             }
           }
@@ -308,12 +308,12 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
         Object statusVariable = bindings.get("pipeline_status");
         if (statusVariable != null) {
           bWithPipelineStat = true;
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 ("Value pipeline_status found. Checking pipeline status while compiledScript execution."));
           }
         } else {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 ("No pipeline_status value found. Pipeline status checking not available."));
           }
@@ -619,11 +619,11 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
           // Checking for EndScript
           if (strEndScript != null && strEndScript.length() > 0) {
             data.engine.eval(strEndScript, bindings);
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(("End Script found!"));
             }
           } else {
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(("No end Script found!"));
             }
           }
@@ -700,7 +700,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     try {
       data.engine = ScriptUtils.getInstance().getScriptEngineByName(meta.getLanguageName());
     } catch (Exception e) {
-      log.logError("Error obtaining scripting engine for language " + meta.getLanguageName(), e);
+      logError("Error obtaining scripting engine for language " + meta.getLanguageName(), e);
     }
     rowNumber = 0;
     previousRow = null;

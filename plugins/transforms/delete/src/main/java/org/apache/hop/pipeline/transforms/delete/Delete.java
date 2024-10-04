@@ -69,7 +69,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
 
     data.db.setValues(data.deleteParameterRowMeta, deleteRow, data.prepStatementDelete);
 
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(
           BaseMessages.getString(
               PKG,
@@ -107,7 +107,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
               this, meta.getLookup().getSchemaName(), meta.getLookup().getTableName());
 
       // lookup the values!
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "Delete.Log.CheckingRow") + getInputRowMeta().getString(r));
       }
@@ -140,7 +140,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
               BaseMessages.getString(PKG, "Delete.Exception.FieldRequired", dlf.getKeyStream2()));
         }
 
-        if (log.isDebug()) {
+        if (isDebug()) {
           logDebug(
               BaseMessages.getString(PKG, "Delete.Log.FieldInfo", dlf.getKeyStream())
                   + data.keynrs[i]);
@@ -155,7 +155,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       putRow(
           data.outputRowMeta, r); // output the same rows of data, but with a copy of the metadata
 
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "Delete.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
@@ -211,7 +211,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
     }
 
     try {
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed("Setting delete preparedStatement to [" + sql + "]");
       }
       data.prepStatementDelete =
@@ -242,7 +242,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       try {
         data.db.connect();
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "Delete.Log.ConnectedToDB"));
         }
 

@@ -76,7 +76,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         data.limitReached = false;
         data.nrRecords = data.connection.getRecordsCount();
       }
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "SalesforceInput.Log.RecordCount")
                 + " : "
@@ -97,7 +97,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
       putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+      if (checkFeedback(getLinesInput()) && isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "SalesforceInput.log.LineRow", "" + getLinesInput()));
       }
@@ -149,7 +149,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
           if (meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
             // We retrieved all records available here
             // maybe we need to query more again ...
-            if (log.isDetailed()) {
+            if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG, "SalesforceInput.Log.NeedQueryMore", "" + data.rownr));
@@ -159,7 +159,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
               // We returned more result (query is not done yet)
               int nr = data.connection.getRecordsCount();
               data.nrRecords += nr;
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(PKG, "SalesforceInput.Log.QueryMoreRetrieved", "" + nr));
               }
@@ -345,8 +345,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
       // Check if field list is filled
       if (data.nrFields == 0) {
-        log.logError(
-            BaseMessages.getString(PKG, "SalesforceInputDialog.FieldsMissing.DialogMessage"));
+        logError(BaseMessages.getString(PKG, "SalesforceInputDialog.FieldsMissing.DialogMessage"));
         return false;
       }
 
@@ -356,7 +355,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         if (meta.isSpecifyQuery()) {
           // Check if user specified a query
           if (Utils.isEmpty(soSQL)) {
-            log.logError(
+            logError(
                 BaseMessages.getString(PKG, "SalesforceInputDialog.QueryMissing.DialogMessage"));
             return false;
           }
@@ -365,14 +364,14 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
           if (meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_ALL) {
             String realFromDateString = resolve(meta.getReadFrom());
             if (Utils.isEmpty(realFromDateString)) {
-              log.logError(
+              logError(
                   BaseMessages.getString(
                       PKG, "SalesforceInputDialog.FromDateMissing.DialogMessage"));
               return false;
             }
             String realToDateString = resolve(meta.getReadTo());
             if (Utils.isEmpty(realToDateString)) {
-              log.logError(
+              logError(
                   BaseMessages.getString(PKG, "SalesforceInputDialog.ToDateMissing.DialogMessage"));
               return false;
             }
@@ -385,7 +384,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
               data.endCal.setTime(dateFormat.parse(realToDateString));
               dateFormat = null;
             } catch (Exception e) {
-              log.logError(BaseMessages.getString(PKG, "SalesforceInput.ErrorParsingDate"), e);
+              logError(BaseMessages.getString(PKG, "SalesforceInput.ErrorParsingDate"), e);
               return false;
             }
           }

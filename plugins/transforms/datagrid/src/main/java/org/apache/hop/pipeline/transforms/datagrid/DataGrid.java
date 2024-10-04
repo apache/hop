@@ -89,8 +89,8 @@ public class DataGrid extends BaseTransform<DataGridMeta, DataGridData> {
     putRow(data.outputRowMeta, outputRowData);
     data.linesWritten++;
 
-    if (log.isRowLevel()) {
-      log.logRowlevel(
+    if (isRowLevel()) {
+      logRowlevel(
           toString(),
           BaseMessages.getString(
               PKG,
@@ -99,7 +99,7 @@ public class DataGrid extends BaseTransform<DataGridMeta, DataGridData> {
               data.outputRowMeta.getString(outputRowData)));
     }
 
-    if (checkFeedback(getLinesWritten()) && log.isBasic()) {
+    if (checkFeedback(getLinesWritten()) && isBasic()) {
       logBasic(
           BaseMessages.getString(PKG, "DataGrid.Log.LineNr", Long.toString(getLinesWritten())));
     }

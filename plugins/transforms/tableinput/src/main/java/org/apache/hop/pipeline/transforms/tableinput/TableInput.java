@@ -53,7 +53,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
   }
 
   private RowMetaAndData readStartDate() throws HopException {
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("Reading from transform [" + data.infoStream.getTransformName() + "]");
     }
 
@@ -97,7 +97,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       // Make sure we read data from source transforms...
       if (data.infoStream.getTransformMeta() != null) {
         if (meta.isExecuteEachInputRow()) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 "Reading single row from stream [" + data.infoStream.getTransformName() + "]");
           }
@@ -111,7 +111,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
           parameters = getRowFrom(data.rowSet);
           parametersMeta = data.rowSet.getRowMeta();
         } else {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 "Reading query parameters from stream ["
                     + data.infoStream.getTransformName()
@@ -121,7 +121,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
           parameters = rmad.getData();
           parametersMeta = rmad.getRowMeta();
         }
-        if (parameters != null && log.isDetailed()) {
+        if (parameters != null && isDetailed()) {
           logDetailed("Query parameters found = " + parametersMeta.getString(parameters));
         }
       } else {
@@ -181,7 +181,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
             putRow(data.rowMeta, data.thisrow); // fill the rowset(s). (wait for empty)
             data.thisrow = data.nextrow;
 
-            if (checkFeedback(getLinesInput()) && log.isBasic()) {
+            if (checkFeedback(getLinesInput()) && isBasic()) {
               logBasic("linenr " + getLinesInput());
             }
           }
@@ -198,7 +198,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       putRow(data.rowMeta, data.thisrow); // fill the rowset(s). (wait for empty)
       data.thisrow = data.nextrow;
 
-      if (checkFeedback(getLinesInput()) && log.isBasic()) {
+      if (checkFeedback(getLinesInput()) && isBasic()) {
         logBasic("linenr " + getLinesInput());
       }
     }
@@ -224,7 +224,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       sql = meta.getSql();
     }
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed("SQL query : " + sql);
     }
     if (parametersMeta.isEmpty()) {
@@ -263,7 +263,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
 
   @Override
   public void dispose() {
-    if (log.isBasic()) {
+    if (isBasic()) {
       logBasic("Finished reading query, closing connection.");
     }
     try {
@@ -333,7 +333,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
         if (databaseMeta.isRequiringTransactionsOnQueries()) {
           data.db.setCommit(100); // needed for PGSQL it seems...
         }
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed("Connected to database...");
         }
 

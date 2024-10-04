@@ -171,7 +171,7 @@ public class StringCut extends BaseTransform<StringCutMeta, StringCutData> {
       Object[] output = getOneRow(getInputRowMeta(), r);
       putRow(data.outputRowMeta, output);
 
-      if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
 
         logDetailed(BaseMessages.getString(PKG, "StringCut.Log.LineNumber") + getLinesRead());
       }

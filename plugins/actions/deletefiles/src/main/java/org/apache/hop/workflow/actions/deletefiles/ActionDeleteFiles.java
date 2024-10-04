@@ -162,7 +162,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
     result.setResult(false);
     result.setNrErrors(1);
 
-    if (argFromPrevious && log.isDetailed()) {
+    if (argFromPrevious && isDetailed()) {
       logDetailed(
           BaseMessages.getString(
               PKG,
@@ -179,7 +179,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
         // a root pdi-folder.
         // It is much more likely to be a mistake than a desirable action, so we don't delete
         // anything
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionDeleteFiles.NoPathProvided"));
         }
       } else {
@@ -233,7 +233,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
         String pathToFile = resultRow.getString(0, null);
         String fileMask = resultRow.getString(1, null);
 
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "ActionDeleteFiles.ProcessingRow", pathToFile, fileMask));
         }
@@ -242,7 +242,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
       }
     } else if (arguments != null) {
       for (int i = 0; i < arguments.length; i++) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ActionDeleteFiles.ProcessingArg", arguments[i], filemasks[i]));
@@ -264,7 +264,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
       if (fileFolder.exists()) {
         if (fileFolder.getType() == FileType.FOLDER) {
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "ActionDeleteFiles.ProcessingFolder", path));
           }
 
@@ -272,7 +272,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
               fileFolder.delete(
                   new TextFileSelector(fileFolder.toString(), wildcard, parentWorkflow));
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG, "ActionDeleteFiles.TotalDeleted", String.valueOf(totalDeleted)));
@@ -280,21 +280,21 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
           isDeleted = true;
         } else {
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "ActionDeleteFiles.ProcessingFile", path));
           }
           isDeleted = fileFolder.delete();
           if (!isDeleted) {
             logError(BaseMessages.getString(PKG, "ActionDeleteFiles.CouldNotDeleteFile", path));
           } else {
-            if (log.isBasic()) {
+            if (isBasic()) {
               logBasic(BaseMessages.getString(PKG, "ActionDeleteFiles.FileDeleted", path));
             }
           }
         }
       } else {
         // File already deleted, no reason to try to delete it
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(BaseMessages.getString(PKG, "ActionDeleteFiles.FileAlreadyDeleted", path));
         }
         isDeleted = true;
@@ -348,7 +348,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
             if (includeSubfolders
                 && (info.getFile().getType() == FileType.FILE)
                 && getFileWildcard(shortFilename, fileWildcard)) {
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG, "ActionDeleteFiles.DeletingFile", info.getFile().toString()));
@@ -359,7 +359,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
             // In the Base Folder...
             if ((info.getFile().getType() == FileType.FILE)
                 && getFileWildcard(shortFilename, fileWildcard)) {
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG, "ActionDeleteFiles.DeletingFile", info.getFile().toString()));
@@ -369,7 +369,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
           }
         }
       } catch (Exception e) {
-        log.logError(
+        logError(
             BaseMessages.getString(PKG, "ActionDeleteFiles.Error.Exception.DeleteProcessError"),
             BaseMessages.getString(
                 PKG,

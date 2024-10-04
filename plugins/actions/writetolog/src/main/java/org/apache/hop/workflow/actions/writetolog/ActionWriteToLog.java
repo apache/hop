@@ -67,13 +67,13 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
 
   @Override
   public Object clone() {
-    ActionWriteToLog je = (ActionWriteToLog) super.clone();
-    return je;
+    ActionWriteToLog action = (ActionWriteToLog) super.clone();
+    return action;
   }
 
   private class LogWriterObject implements ILoggingObject {
 
-    private ILogChannel writerLog;
+    private ILogChannel log;
     private LogLevel logLevel;
     private ILoggingObject parent;
     private String subject;
@@ -83,8 +83,8 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
       this.subject = subject;
       this.parent = parent;
       this.logLevel = logLevel;
-      this.writerLog = new LogChannel(this, parent);
-      this.containerObjectId = writerLog.getContainerObjectId();
+      this.log = new LogChannel(this, parent);
+      this.containerObjectId = log.getContainerObjectId();
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
 
     @Override
     public String getLogChannelId() {
-      return writerLog.getLogChannelId();
+      return log.getLogChannelId();
     }
 
     @Override
@@ -109,7 +109,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
 
     @Override
     public LoggingObjectType getObjectType() {
-      return LoggingObjectType.TRANSFORM;
+      return LoggingObjectType.ACTION;
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
     }
 
     public ILogChannel getLogChannel() {
-      return writerLog;
+      return log;
     }
 
     @Override
@@ -142,22 +142,22 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
 
     @Override
     public boolean isGatheringMetrics() {
-      return log.isGatheringMetrics();
+      return parent.isGatheringMetrics();
     }
 
     @Override
     public void setGatheringMetrics(boolean gatheringMetrics) {
-      log.setGatheringMetrics(gatheringMetrics);
+      parent.setGatheringMetrics(gatheringMetrics);
     }
 
     @Override
     public boolean isForcingSeparateLogging() {
-      return log.isForcingSeparateLogging();
+      return parent.isForcingSeparateLogging();
     }
 
     @Override
     public void setForcingSeparateLogging(boolean forcingSeparateLogging) {
-      log.setForcingSeparateLogging(forcingSeparateLogging);
+      parent.setForcingSeparateLogging(forcingSeparateLogging);
     }
   }
 
@@ -180,32 +180,19 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
 
     try {
       switch (getActionLogLevel()) {
-        case ERROR:
-          logChannel.logError(message + Const.CR);
-          break;
-        case MINIMAL:
-          logChannel.logMinimal(message + Const.CR);
-          break;
-        case BASIC:
-          logChannel.logBasic(message + Const.CR);
-          break;
-        case DETAILED:
-          logChannel.logDetailed(message + Const.CR);
-          break;
-        case DEBUG:
-          logChannel.logDebug(message + Const.CR);
-          break;
-        case ROWLEVEL:
-          logChannel.logRowlevel(message + Const.CR);
-          break;
-        default: // NOTHING
-          break;
+        case ERROR -> logChannel.logError(message + Const.CR);
+        case MINIMAL -> logChannel.logMinimal(message + Const.CR);
+        case BASIC -> logChannel.logBasic(message + Const.CR);
+        case DETAILED -> logChannel.logDetailed(message + Const.CR);
+        case DEBUG -> logChannel.logDebug(message + Const.CR);
+        case ROWLEVEL -> logChannel.logRowlevel(message + Const.CR);
+        case NOTHING -> {}
       }
 
       return true;
     } catch (Exception e) {
       result.setNrErrors(1);
-      log.logError(
+      logError(
           BaseMessages.getString(PKG, "WriteToLog.Error.Label"),
           BaseMessages.getString(PKG, "WriteToLog.Error.Description") + " : " + e.toString());
       return false;

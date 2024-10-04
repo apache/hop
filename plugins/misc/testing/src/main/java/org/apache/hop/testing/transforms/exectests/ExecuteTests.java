@@ -56,14 +56,14 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
         data.hasPrevious = true;
 
         if (StringUtils.isEmpty(meta.getTestNameInputField())) {
-          log.logError(
+          logError(
               "When this transform receives input it wants the name of a field to get the unit test name from to determine which transforms to execute");
           setErrors(1);
           return false;
         }
       }
     } catch (Exception e) {
-      log.logError("Error analyzing ", e);
+      logError("Error analyzing ", e);
       setErrors(1);
       return false;
     }

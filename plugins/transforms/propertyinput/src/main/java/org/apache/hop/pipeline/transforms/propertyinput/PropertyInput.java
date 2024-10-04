@@ -334,7 +334,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       if (!meta.isFileField()) {
         if (data.fileNumber >= data.files.nrOfFiles()) { // finished processing!
 
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "PropertyInput.Log.FinishedProcessing"));
           }
           return false;
@@ -349,7 +349,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       } else {
         data.inputRow = getRow(); // Get row from input rowset & set row busy!
         if (data.inputRow == null) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "PropertyInput.Log.FinishedProcessing"));
           }
           return false;
@@ -396,7 +396,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         } // End if first
 
         String filename = getInputRowMeta().getString(data.inputRow, data.indexOfFilenameField);
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
@@ -441,7 +441,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         data.rowNumber = 0;
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "PropertyInput.Log.OpeningFile", data.file.toString()));
       }
@@ -494,7 +494,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         data.iniNameIterator = data.iniSection.keySet().iterator();
       }
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "PropertyInput.Log.FileOpened", data.file.toString()));
         logDetailed(

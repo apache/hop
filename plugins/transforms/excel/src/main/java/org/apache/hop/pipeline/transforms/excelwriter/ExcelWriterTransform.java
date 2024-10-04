@@ -232,7 +232,7 @@ public class ExcelWriterTransform
       putRow(data.outputRowMeta, r);
 
       // Some basic logging
-      if (checkFeedback(getLinesOutput()) && log.isBasic()) {
+      if (checkFeedback(getLinesOutput()) && isBasic()) {
         logBasic("Linenr " + getLinesOutput());
       }
       return true;
@@ -694,7 +694,7 @@ public class ExcelWriterTransform
    */
   private void setDataFormat(
       ExcelWriterWorkbookDefinition workbookDefinition, String excelFieldFormat, Cell cell) {
-    if (log.isDebug()) {
+    if (isDebug()) {
       logDebug(
           BaseMessages.getString(
               PKG,
@@ -728,12 +728,7 @@ public class ExcelWriterTransform
    */
   public String buildFilename(int splitNr) {
     return meta.buildFilename(
-        this,
-        getCopy(),
-        splitNr,
-        data.isBeamContext(),
-        log.getLogChannelId(),
-        data.getBeamBundleNr());
+        this, getCopy(), splitNr, data.isBeamContext(), getLogChannelId(), data.getBeamBundleNr());
   }
 
   /**
@@ -799,7 +794,7 @@ public class ExcelWriterTransform
         createParentFolder(file);
       }
 
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(
             BaseMessages.getString(
                 PKG, "ExcelWriterTransform.Log.OpeningFile", file.getName().toString()));
@@ -807,7 +802,7 @@ public class ExcelWriterTransform
 
       // determine whether existing file must be deleted
       if (file.exists() && data.createNewFile && !file.delete()) {
-        if (log.isBasic()) {
+        if (isBasic()) {
           logBasic(
               BaseMessages.getString(
                   PKG,
@@ -854,7 +849,7 @@ public class ExcelWriterTransform
             copyFile(HopVfs.getFileObject(data.realTemplateFileName, variables), file);
           } else {
             // template is missing, log it and get out
-            if (log.isBasic()) {
+            if (isBasic()) {
               logBasic(
                   BaseMessages.getString(
                       PKG, "ExcelWriterTransform.Log.TemplateMissing", data.realTemplateFileName));
@@ -1032,7 +1027,7 @@ public class ExcelWriterTransform
         }
       }
 
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(
             BaseMessages.getString(
                 PKG, "ExcelWriterTransform.Log.FileOpened", file.getName().toString()));

@@ -527,7 +527,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     result.setResult(false);
     long filesPut = 0;
 
-    if (log.isDetailed()) {
+    if (isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "ActionFtpPut.Log.Starting"));
     }
 
@@ -540,7 +540,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
       String realRemoteDirectory = resolve(remoteDirectory);
       if (!Utils.isEmpty(realRemoteDirectory)) {
         ftpclient.changeWorkingDirectory(realRemoteDirectory);
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG, "ActionFtpPut.Log.ChangedDirectory", realRemoteDirectory));
@@ -571,7 +571,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
           }
         }
       }
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG,
@@ -611,7 +611,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
             // Assume file does not exist !!
           }
 
-          if (log.isDebug()) {
+          if (isDebug()) {
             if (fileExist) {
               logDebug(BaseMessages.getString(PKG, "ActionFtpPut.Log.FileExists", file));
             } else {
@@ -620,7 +620,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
           }
 
           if (!fileExist || !onlyPuttingNewFiles) {
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
                       PKG,
@@ -634,7 +634,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
               if (fileExist) {
                 boolean deleted = ftpclient.deleteFile(file);
                 if (!deleted) {
-                  log.logError(
+                  logError(
                       "Deletion of (existing) file '"
                           + file
                           + "' on the FTP server was not successful with reply string: "
@@ -648,7 +648,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
               if (success) {
                 filesPut++;
               } else {
-                log.logError(
+                logError(
                     "Transfer of file '"
                         + localFilename
                         + "' to the FTP server was not successful with reply string: "
@@ -659,7 +659,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
             // Delete the file if this is needed!
             if (remove) {
               new File(localFilename).delete();
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(PKG, "ActionFtpPut.Log.DeletedFile", localFilename));
               }
@@ -669,7 +669,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
       }
 
       result.setResult(true);
-      if (log.isBasic()) {
+      if (isBasic()) {
         logBasic(BaseMessages.getString(PKG, "ActionFtpPut.Log.WeHavePut", "" + filesPut));
       }
     } catch (Exception e) {
@@ -693,7 +693,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   // package-local visibility for testing purposes
   FTPClient createAndSetUpFtpClient() throws HopException {
 
-    return FtpClientUtil.connectAndLogin(log, this, this, getName());
+    return FtpClientUtil.connectAndLogin(getLogChannel(), this, this, getName());
   }
 
   @Override

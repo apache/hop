@@ -379,7 +379,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
               cachedOperation,
               cachedWsdl.getWsdlTypes().isElementFormQualified(cachedWsdl.getTargetNamespace()));
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "WebServices.Log.SOAPEnvelope"));
         logDetailed(xml);
       }
@@ -632,7 +632,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         StringWriter bodyXML = new StringWriter();
         transformer.transform(new DOMSource(bodyNode), new StreamResult(bodyXML));
 
@@ -768,7 +768,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
               // TODO: remove next 2 lines, added for debug reasons.
               //
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 StringWriter nodeXML = new StringWriter();
                 transformer.transform(new DOMSource(node), new StreamResult(nodeXML));
                 logDetailed(
@@ -870,7 +870,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
             // Start new code
             // START_ELEMENT= 1
             //
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel(
                   "START_ELEMENT / "
                       + vReader.getAttributeCount()
@@ -881,7 +881,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
             // If we start the xml element named like the return type,
             // we start a new row
             //
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel(CONST_V_READER_GET_LOCAL_NAME + vReader.getLocalName());
             }
             if (Utils.isEmpty(meta.getOutFieldArgumentName())) {
@@ -896,7 +896,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
                 } else {
                   if (meta.getOutFieldContainerName().equals(vReader.getLocalName())) {
                     // meta.getOutFieldContainerName() = vReader.getLocalName()
-                    if (log.isRowLevel()) {
+                    if (isRowLevel()) {
                       logRowlevel("OutFieldContainerName = " + meta.getOutFieldContainerName());
                     }
                     oneValueRowProcessing = true;
@@ -905,14 +905,14 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
               }
             } else {
               // getOutFieldArgumentName() != null
-              if (log.isRowLevel()) {
+              if (isRowLevel()) {
                 logRowlevel(CONST_OUT_FIELD_ARGUMENT_NAME + meta.getOutFieldArgumentName());
               }
               if (meta.getOutFieldArgumentName().equals(vReader.getLocalName())) {
-                if (log.isRowLevel()) {
+                if (isRowLevel()) {
                   logRowlevel(CONST_V_READER_GET_LOCAL_NAME + vReader.getLocalName());
                 }
-                if (log.isRowLevel()) {
+                if (isRowLevel()) {
                   logRowlevel(CONST_OUT_FIELD_ARGUMENT_NAME);
                 }
                 if (processing) {
@@ -959,10 +959,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
                 }
 
               } else {
-                if (log.isRowLevel()) {
+                if (isRowLevel()) {
                   logRowlevel(CONST_V_READER_GET_LOCAL_NAME + vReader.getLocalName());
-                }
-                if (log.isRowLevel()) {
                   logRowlevel(CONST_OUT_FIELD_ARGUMENT_NAME + meta.getOutFieldArgumentName());
                 }
               }
@@ -971,7 +969,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
           case XMLStreamConstants.END_ELEMENT:
             // END_ELEMENT= 2
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("END_ELEMENT");
             }
             // If we end the xml element named as the return type, we
@@ -987,82 +985,82 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
             break;
           case XMLStreamConstants.PROCESSING_INSTRUCTION:
             // PROCESSING_INSTRUCTION= 3
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("PROCESSING_INSTRUCTION");
             }
             break;
           case XMLStreamConstants.CHARACTERS:
             // CHARACTERS= 4
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("CHARACTERS");
             }
             break;
           case XMLStreamConstants.COMMENT:
             // COMMENT= 5
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("COMMENT");
             }
             break;
           case XMLStreamConstants.SPACE:
             // PROCESSING_INSTRUCTION= 6
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("PROCESSING_INSTRUCTION");
             }
             break;
           case XMLStreamConstants.START_DOCUMENT:
             // START_DOCUMENT= 7
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("START_DOCUMENT");
             }
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel(vReader.getText());
             }
             break;
           case XMLStreamConstants.END_DOCUMENT:
             // END_DOCUMENT= 8
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("END_DOCUMENT");
             }
             break;
           case XMLStreamConstants.ENTITY_REFERENCE:
             // ENTITY_REFERENCE= 9
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("ENTITY_REFERENCE");
             }
             break;
           case XMLStreamConstants.ATTRIBUTE:
             // ATTRIBUTE= 10
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("ATTRIBUTE");
             }
             break;
           case XMLStreamConstants.DTD:
             // DTD= 11
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("DTD");
             }
             break;
           case XMLStreamConstants.CDATA:
             // CDATA= 12
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("CDATA");
             }
             break;
           case XMLStreamConstants.NAMESPACE:
             // NAMESPACE= 13
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("NAMESPACE");
             }
             break;
           case XMLStreamConstants.NOTATION_DECLARATION:
             // NOTATION_DECLARATION= 14
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("NOTATION_DECLARATION");
             }
             break;
           case XMLStreamConstants.ENTITY_DECLARATION:
             // ENTITY_DECLARATION= 15
-            if (log.isRowLevel()) {
+            if (isRowLevel()) {
               logRowlevel("ENTITY_DECLARATION");
             }
             break;

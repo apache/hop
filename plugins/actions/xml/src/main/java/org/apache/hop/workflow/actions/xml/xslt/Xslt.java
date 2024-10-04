@@ -302,7 +302,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     }
 
     List<RowMetaAndData> rows = result.getRows();
-    if (isFilenamesFromPrevious() && log.isDetailed()) {
+    if (isFilenamesFromPrevious() && isDetailed()) {
       logDetailed(
           BaseMessages.getString(
               PKG, "ActionXSLT.Log.ArgFromPrevious.Found", (rows != null ? rows.size() : 0) + ""));
@@ -393,7 +393,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
 
         } else if (outputfile.exists() && ifFileExists == 1) {
           // Do nothing
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(
                 BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_1_LABEL)
                     + outputfilename
@@ -421,7 +421,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
               // did not find wildcard
               outputfilename = outputfilename + "_" + StringUtil.getFormattedDateTimeNow(true);
             }
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug(
                   BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_1_LABEL)
                       + outputfilename
@@ -441,8 +441,8 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             factory = new net.sf.saxon.TransformerFactoryImpl();
           }
 
-          if (log.isDetailed()) {
-            log.logDetailed(
+          if (isDetailed()) {
+            logDetailed(
                 BaseMessages.getString(PKG, "ActionXSL.Log.TransformerFactoryInfos"),
                 BaseMessages.getString(
                     PKG, "ActionXSL.Log.TransformerFactory", factory.getClass().getName()));
@@ -458,8 +458,8 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             // Use the template to create a transformer
             Transformer xformer = template.newTransformer();
 
-            if (log.isDetailed()) {
-              log.logDetailed(
+            if (isDetailed()) {
+              logDetailed(
                   BaseMessages.getString(PKG, "ActionXSL.Log.TransformerClassInfos"),
                   BaseMessages.getString(
                       PKG, "ActionXSL.Log.TransformerClass", xformer.getClass().getName()));

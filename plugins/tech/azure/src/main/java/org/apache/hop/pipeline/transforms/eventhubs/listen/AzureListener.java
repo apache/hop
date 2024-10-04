@@ -155,7 +155,7 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
       data.stt = false;
     }
 
-    log.logDetailed("Creating connection string builder");
+    logDetailed("Creating connection string builder");
     data.connectionStringBuilder =
         new ConnectionStringBuilder()
             .setNamespaceName(namespace)
@@ -163,11 +163,11 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
             .setSasKeyName(sasKeyName)
             .setSasKey(sasKey);
 
-    log.logDetailed("Opening new executor service");
+    logDetailed("Opening new executor service");
 
     data.executorService = Executors.newSingleThreadScheduledExecutor();
 
-    log.logDetailed("Creating event hub client");
+    logDetailed("Creating event hub client");
     try {
       data.eventHubClient =
           EventHubClient.createFromConnectionStringSync(
@@ -189,7 +189,7 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
     } catch (Exception e) {
       throw new HopException("Unable to set up events host processor", e);
     }
-    log.logDetailed("Set up events host named " + host.getHostName());
+    logDetailed("Set up events host named " + host.getHostName());
 
     EventProcessorOptions options = new EventProcessorOptions();
     options.setExceptionNotification(new AzureListenerErrorNotificationHandler(AzureListener.this));

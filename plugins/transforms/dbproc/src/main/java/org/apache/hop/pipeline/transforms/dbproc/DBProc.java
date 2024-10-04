@@ -160,7 +160,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
           runProc(data.inputRowMeta, r); // add new values to the row in rowset[0].
       putRow(data.outputMeta, outputRowData); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "DBProc.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
@@ -211,12 +211,12 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
         data.db.connect();
 
         if (!meta.isAutoCommit()) {
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "DBProc.Log.AutoCommit"));
           }
           data.db.setCommit(9999);
         }
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "DBProc.Log.ConnectedToDB"));
         }
 

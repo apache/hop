@@ -501,7 +501,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   /** Needed for the Vector coming from sshclient.ls() * */
   @Override
   public Result execute(Result previousResult, int nr) {
-    log.logBasic(BaseMessages.getString(PKG, "ActionFTPDelete.Started", serverName));
+    logBasic(BaseMessages.getString(PKG, "ActionFTPDelete.Started", serverName));
     RowMetaAndData resultRow = null;
     Result result = previousResult;
     List<RowMetaAndData> rows = result.getRows();
@@ -727,7 +727,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   private void ftpConnect(String realFtpDirectory) throws Exception {
 
     // Create ftp client to host:port ...
-    ftpclient = FtpClientUtil.connectAndLogin(log, this, this, getName());
+    ftpclient = FtpClientUtil.connectAndLogin(getLogChannel(), this, this, getName());
 
     // move to spool dir ...
     if (!Utils.isEmpty(realFtpDirectory)) {

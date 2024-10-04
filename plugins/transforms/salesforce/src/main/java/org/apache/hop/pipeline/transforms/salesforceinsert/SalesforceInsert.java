@@ -114,7 +114,7 @@ public class SalesforceInsert
   void writeToSalesForce(Object[] rowData) throws HopException {
     try {
 
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG,
@@ -139,7 +139,7 @@ public class SalesforceInsert
             // We need to keep track of this field
             fieldsToNull.add(
                 SalesforceUtils.getFieldToNullName(
-                    log, meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
+                    getLogChannel(), meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
           } else {
             Object normalObject = normalizeValue(valueMeta, value);
             insertfields.add(
@@ -169,7 +169,7 @@ public class SalesforceInsert
       }
 
       if (data.iBufferPos >= meta.getBatchSizeInt()) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "SalesforceInsert.CallingFlushBuffer"));
         }
         flushBuffers();
@@ -187,7 +187,7 @@ public class SalesforceInsert
         if (data.saveResult[j].isSuccess()) {
           // Row was inserted
           String id = data.saveResult[j].getId();
-          if (log.isDebug()) {
+          if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "SalesforceInsert.RowInserted", id));
           }
 
@@ -199,14 +199,14 @@ public class SalesforceInsert
             int newIndex = getInputRowMeta().size();
             newRow[newIndex++] = id;
           }
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "SalesforceInsert.NewRow", newRow[0]));
           }
 
           putRow(data.outputRowMeta, newRow); // copy row to output rowset(s)
           incrementLinesOutput();
 
-          if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+          if (checkFeedback(getLinesInput()) && isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "SalesforceInsert.log.LineRow", getLinesInput()));
           }
@@ -218,7 +218,7 @@ public class SalesforceInsert
 
           if (!getTransformMeta().isDoingErrorHandling()) {
 
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug(BaseMessages.getString(PKG, "SalesforceInsert.ErrorFound"));
             }
 
@@ -248,7 +248,7 @@ public class SalesforceInsert
           }
 
           // Simply add this row to the error row
-          if (log.isDetailed()) {
+          if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "SalesforceInsert.PassingRowToErrorTransform"));
           }
           putError(
@@ -272,7 +272,7 @@ public class SalesforceInsert
             BaseMessages.getString(PKG, "SalesforceInsert.FailedToInsertObject", e.getMessage()));
       }
       // Simply add this row to the error row
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug("Passing row to error transform");
       }
 

@@ -684,7 +684,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       props.put(CONST_MAIL + protocol + ".port", resolve(port));
     }
 
-    if (log.isDebug()) {
+    if (isDebug()) {
       props.put("mail.debug", "true");
     }
 
@@ -693,7 +693,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     }
 
     Session session = Session.getInstance(props);
-    session.setDebug(log.isDebug());
+    session.setDebug(isDebug());
 
     try {
       // create a message
@@ -1041,8 +1041,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
           String realImageFile = resolve(embeddedimages[i]);
           String realcontenID = resolve(contentids[i]);
           if (messageText.indexOf("cid:" + realcontenID) < 0) {
-            if (log.isDebug()) {
-              log.logDebug("Image [" + realImageFile + "] is not used in message body!");
+            if (isDebug()) {
+              logDebug("Image [" + realImageFile + "] is not used in message body!");
             }
           } else {
             try {
@@ -1051,7 +1051,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
               if (imageFile.exists() && imageFile.getType() == FileType.FILE) {
                 found = true;
               } else {
-                log.logError("We can not find [" + realImageFile + "] or it is not a file");
+                logError("We can not find [" + realImageFile + "] or it is not a file");
               }
               if (found) {
                 // Create part for the image
@@ -1064,12 +1064,12 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
                 // Add part to multi-part
                 parts.addBodyPart(messageBodyPart);
                 nrEmbeddedImages++;
-                log.logBasic("Image '" + fds.getName() + "' was embedded in message.");
+                logBasic("Image '" + fds.getName() + "' was embedded in message.");
               }
             } catch (Exception e) {
-              log.logError(
+              logError(
                   "Error embedding image [" + realImageFile + "] in message : " + e.toString());
-              log.logError(Const.getStackTracker(e));
+              logError(Const.getStackTracker(e));
               result.setNrErrors(1);
             } finally {
               if (imageFile != null) {

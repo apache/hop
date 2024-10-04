@@ -171,10 +171,8 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       putRow(data.outputRowMeta, outputRowData);
     }
 
-    if (checkFeedback(getLinesRead())) {
-      if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "Normaliser.Log.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "Normaliser.Log.LineNumber") + getLinesRead());
     }
 
     return true;

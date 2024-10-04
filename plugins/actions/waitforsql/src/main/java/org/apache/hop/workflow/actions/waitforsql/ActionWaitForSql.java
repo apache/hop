@@ -251,7 +251,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       if (useVars) {
         realCustomSql = resolve(realCustomSql);
       }
-      if (log.isDebug()) {
+      if (isDebug()) {
         logDebug(
             BaseMessages.getString(PKG, "ActionWaitForSQL.Log.EnteredCustomSQL", realCustomSql));
       }
@@ -277,7 +277,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       long timeStart = System.currentTimeMillis() / 1000;
 
       int nrRowsLimit = Const.toInt(resolve(rowsCountValue), 0);
-      if (log.isDetailed()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(PKG, "ActionWaitForSQL.Log.nrRowsLimit", "" + nrRowsLimit));
       }
@@ -343,7 +343,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
           }
           try {
             if (sleepTime > 0) {
-              if (log.isDetailed()) {
+              if (isDetailed()) {
                 logDetailed("Sleeping " + sleepTime + " seconds before next check for SQL data");
               }
               Thread.sleep(sleepTime * 1000);
@@ -398,7 +398,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       }
 
       if (countStatement != null) {
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "ActionWaitForSQL.Log.RunSQLStatement", countStatement));
         }
@@ -408,7 +408,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
           if (ar != null) {
             rowsCount = ar.size();
           } else {
-            if (log.isDebug()) {
+            if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
                       PKG, "ActionWaitForSQL.Log.customSQLreturnedNothing", countStatement));
@@ -421,7 +421,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
             rowsCount = row.getInteger(0);
           }
         }
-        if (log.isDetailed()) {
+        if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "ActionWaitForSQL.Log.NrRowsReturned", "" + rowsCount));
         }
