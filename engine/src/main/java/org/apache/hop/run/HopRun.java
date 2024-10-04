@@ -173,8 +173,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       Map<String, Object> mixins = cmd.getMixins();
       for (String key : mixins.keySet()) {
         Object mixin = mixins.get(key);
-        if (mixin instanceof IConfigOptions iConfigOptions) {
-          IConfigOptions configOptions = iConfigOptions;
+        if (mixin instanceof IConfigOptions configOptions) {
           configOptions.handleOption(log, this, variables);
         }
       }

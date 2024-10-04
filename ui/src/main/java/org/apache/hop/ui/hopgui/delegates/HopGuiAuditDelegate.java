@@ -220,14 +220,13 @@ public class HopGuiAuditDelegate {
             stateProperties.put(STATE_PROPERTY_ACTIVE, active);
 
             auditStateMap.add(new AuditState(filename, stateProperties));
-          } else if (typeHandler instanceof MetadataEditor<?> metadataEditorTypeHandler
+          } else if (typeHandler instanceof MetadataEditor<?> metadataEditor
               && StringUtils.isNotEmpty(name)) {
             // Don't save new unchanged metadata objects...
             //
             // Metadata saved by name
             // We also need to store the metadata type...
             //
-            MetadataEditor<?> metadataEditor = metadataEditorTypeHandler;
             IHopMetadata metadata = metadataEditor.getMetadata();
             Class<? extends IHopMetadata> metadataClass = metadata.getClass();
 

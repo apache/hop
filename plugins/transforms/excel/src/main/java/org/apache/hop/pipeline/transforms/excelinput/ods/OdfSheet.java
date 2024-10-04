@@ -52,8 +52,7 @@ public class OdfSheet implements IKSheet {
     int nodesLen = nodes.getLength();
     for (int i = nodesLen - 1; i >= 0; i--) {
       Node node = nodes.item(i);
-      if (node instanceof TableTableRowElement rowElementNode) {
-        TableTableRowElement rowElement = rowElementNode;
+      if (node instanceof TableTableRowElement rowElement) {
         if (isRowEmpty(rowElement)) {
           // remove this row from counter
           rowCount -= rowElement.getTableNumberRowsRepeatedAttribute();

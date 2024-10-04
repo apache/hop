@@ -1129,9 +1129,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
       Exception ex = mex;
       do {
-        if (ex instanceof SendFailedException sendFailedException) {
-          SendFailedException sfex = sendFailedException;
-
+        if (ex instanceof SendFailedException sfex) {
           Address[] invalid = sfex.getInvalidAddresses();
           if (invalid != null) {
             logError("    ** Invalid Addresses");

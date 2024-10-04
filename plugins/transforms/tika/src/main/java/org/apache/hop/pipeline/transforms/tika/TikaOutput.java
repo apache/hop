@@ -259,8 +259,7 @@ public class TikaOutput {
       // fix for TIKA-596: if a parser doesn't generate
       // XHTML output, the lack of an output document prevents
       // metadata from being output: this fixes that
-      if (handler instanceof NoDocumentMetHandler noDocumentMetHandler) {
-        NoDocumentMetHandler metHandler = noDocumentMetHandler;
+      if (handler instanceof NoDocumentMetHandler metHandler) {
         if (!metHandler.metOutput()) {
           metHandler.endDocument();
         }

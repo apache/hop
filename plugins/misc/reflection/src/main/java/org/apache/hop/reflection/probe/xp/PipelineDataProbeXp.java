@@ -207,10 +207,9 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
       // all instances of the PipelineDataProbe transform
       //
       for (TransformMetaDataCombi combi : probingPipeline.getTransforms()) {
-        if (combi.transform instanceof PipelineDataProbe pipelineDataProbeTransform) {
+        if (combi.transform instanceof PipelineDataProbe pipelineDataProbe) {
           // Give the transform a bit more information to work with...
           //
-          PipelineDataProbe pipelineDataProbe = pipelineDataProbeTransform;
           pipelineDataProbe.setSourcePipelineName(pipeline.getPipelineMeta().getName());
           pipelineDataProbe.setSourceTransformLogChannelId(pipeline.getLogChannelId());
           pipelineDataProbe.setSourceTransformName(componentCopy.getName());

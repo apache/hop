@@ -633,9 +633,8 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
       PipelineHopMeta hopMeta = pipelineMeta.getPipelineHop(i);
       if (hopMeta.getFromTransform().equals(oldMeta)) {
         TransformMeta toTransformMeta = hopMeta.getToTransform();
-        if ((toTransformMeta.getTransform() instanceof MetaInjectMeta toMetaTransform)
+        if ((toTransformMeta.getTransform() instanceof MetaInjectMeta toMeta)
             && (toTransformMeta.equals(this.getParentTransformMeta()))) {
-          MetaInjectMeta toMeta = toMetaTransform;
           Map<TargetTransformAttribute, SourceTransformField> sourceMapping =
               toMeta.getTargetSourceMapping();
           for (Entry<TargetTransformAttribute, SourceTransformField> entry :

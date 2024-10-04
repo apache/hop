@@ -85,8 +85,7 @@ public class HopGuiKeyHandler extends KeyAdapter {
     // This prevents keyboard shortcuts being applied to a workflow or pipeline which
     // isn't visible (in another tab for example).
     //
-    if (parentObject instanceof Control controlParentObject) {
-      Control control = controlParentObject;
+    if (parentObject instanceof Control control) {
       try {
         if (!control.isVisible()) {
           return false;
@@ -99,8 +98,7 @@ public class HopGuiKeyHandler extends KeyAdapter {
     }
     // If this is attached to a perspective, and it's not active, bail out.
     // Except if it's shortcut to activate perspective
-    if (parentObject instanceof IHopPerspective iHopPerspective) {
-      IHopPerspective perspective = iHopPerspective;
+    if (parentObject instanceof IHopPerspective perspective) {
       try {
         // TODO: It's not the best way to check with the method name, but it works for now.
         if (!perspective.isActive() && !shortcut.getParentMethodName().equals("activate")) {
@@ -111,8 +109,7 @@ public class HopGuiKeyHandler extends KeyAdapter {
       }
     }
 
-    if (parentObject instanceof HopGuiPipelineGraph hopGuiPipelineGraph) {
-      HopGuiPipelineGraph graph = hopGuiPipelineGraph;
+    if (parentObject instanceof HopGuiPipelineGraph graph) {
       try {
         if (!graph.isVisible()) {
           return false;

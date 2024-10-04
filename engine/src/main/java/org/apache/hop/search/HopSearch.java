@@ -114,9 +114,7 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
       Map<String, Object> mixins = cmd.getMixins();
       for (String key : mixins.keySet()) {
         Object mixin = mixins.get(key);
-        if (mixin instanceof IConfigOptions configOptionsMixin) {
-          IConfigOptions configOptions = configOptionsMixin;
-
+        if (mixin instanceof IConfigOptions configOptions) {
           actionTaken = configOptions.handleOption(log, this, variables) || actionTaken;
         }
       }

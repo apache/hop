@@ -55,8 +55,7 @@ public class HopLogLayout {
     }
 
     Object object = event.getMessage();
-    if (object instanceof LogMessage logMessage) {
-      LogMessage message = logMessage;
+    if (object instanceof LogMessage message) {
 
       String[] parts =
           message.getMessage() == null ? new String[] {} : message.getMessage().split(Const.CR);

@@ -105,8 +105,7 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
       // Use the last field in the output
       //
       if (StringUtils.isNotEmpty(startWindowField)) {
-        if (window instanceof IntervalWindow intervalWindowInstance) {
-          IntervalWindow intervalWindow = intervalWindowInstance;
+        if (window instanceof IntervalWindow intervalWindow) {
           Instant start = intervalWindow.start();
           if (start != null) {
             outputRow[fieldIndex] = start.toDate();

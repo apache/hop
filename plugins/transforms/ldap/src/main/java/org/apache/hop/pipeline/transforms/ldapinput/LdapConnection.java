@@ -579,8 +579,7 @@ public class LdapConnection {
           if (rc != null) {
             for (int i = 0; i < rc.length; i++) {
               if (rc[i] instanceof PagedResultsResponseControl pagedResultsResponseControl) {
-                PagedResultsResponseControl prc = pagedResultsResponseControl;
-                cookie = prc.getCookie();
+                cookie = pagedResultsResponseControl.getCookie();
               }
             }
           }

@@ -276,8 +276,7 @@ public class HopGuiPipelineGridDelegate {
    */
   public static HopGuiPipelineGridDelegate getInstance() {
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if (fileTypeHandler instanceof HopGuiPipelineGraph hopGuiPipelineGraphFileTypeHandler) {
-      HopGuiPipelineGraph graph = hopGuiPipelineGraphFileTypeHandler;
+    if (fileTypeHandler instanceof HopGuiPipelineGraph graph) {
       return graph.pipelineGridDelegate;
     }
     return null;

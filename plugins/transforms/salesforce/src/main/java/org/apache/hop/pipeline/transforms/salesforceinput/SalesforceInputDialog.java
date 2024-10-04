@@ -1496,8 +1496,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       return;
     }
     String fieldname = prefix + field.getName().getLocalPart();
-    if (field instanceof SObject sObject) {
-      SObject sobject = sObject;
+    if (field instanceof SObject sobject) {
       for (XmlObject element : SalesforceConnection.getChildren(sobject)) {
         addFields(fieldname + ".", fieldNames, element);
       }

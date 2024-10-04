@@ -147,8 +147,7 @@ public class StringSearcher {
     } else if (obj instanceof String string) {
       // OK, let's add the String
       stringList.add(new StringSearchResult(string, parentObject, grandParentObject, fieldName));
-    } else if (obj instanceof String[] stringArray) {
-      String[] array = stringArray;
+    } else if (obj instanceof String[] array) {
       for (int x = 0; x < array.length; x++) {
         if (array[x] != null) {
           stringList.add(
@@ -165,12 +164,11 @@ public class StringSearcher {
       stringList.add(
           new StringSearchResult(
               condition.toString(), parentObject, grandParentObject, fieldName + " (Condition)"));
-    } else if (obj instanceof IDatabase iDatabaseObject) {
+    } else if (obj instanceof IDatabase iDatabase) {
       // Make sure we read the attributes. This is not picked up by default. (getDeclaredFields
       // doesn't pick up
       // inherited fields)
       //
-      IDatabase iDatabase = iDatabaseObject;
       findMapMetaData(
           iDatabase.getAttributes(), level + 1, stringList, parentObject, grandParentObject, field);
       findMetaData(obj, level + 1, stringList, parentObject, grandParentObject);

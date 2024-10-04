@@ -116,8 +116,7 @@ public enum GraphPropertyType {
       case DateTime:
         {
           ZonedDateTime zonedDateTime;
-          if (valueMeta instanceof ValueMetaTimestamp valueMetaTimestampValueMeta) {
-            ValueMetaTimestamp valueMetaTimestamp = valueMetaTimestampValueMeta;
+          if (valueMeta instanceof ValueMetaTimestamp valueMetaTimestamp) {
             Timestamp timestamp = valueMetaTimestamp.getTimestamp(valueData);
             zonedDateTime = timestamp.toInstant().atZone(timeZone.toZoneId());
           } else {

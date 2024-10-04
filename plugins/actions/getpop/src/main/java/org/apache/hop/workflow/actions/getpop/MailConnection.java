@@ -1399,8 +1399,7 @@ public class MailConnection {
     int retval = 0;
     try {
       content = message.getContent();
-      if (content instanceof Multipart multipartContent) {
-        Multipart multipart = multipartContent;
+      if (content instanceof Multipart multipart) {
         for (int i = 0, n = multipart.getCount(); i < n; i++) {
           Part part = multipart.getBodyPart(i);
           String disposition = part.getDisposition();

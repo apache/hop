@@ -38,9 +38,8 @@ public class TransformDebugLevelToolTipExtensionPoint extends BeePainter
 
     AreaOwner areaOwner = ext.areaOwner;
     try {
-      if (areaOwner.getOwner() instanceof TransformDebugLevel transformDebugLevel) {
-        TransformDebugLevel debugLevel = transformDebugLevel;
-        ext.tip.append("Custom transform debug level: " + debugLevel.toString());
+      if (areaOwner.getOwner() instanceof TransformDebugLevel debugLevel) {
+        ext.tip.append("Custom transform debug level: " + debugLevel);
       }
     } catch (Exception e) {
       // Ignore error, not that important

@@ -36,9 +36,7 @@ public class TokenReplacementField implements Cloneable {
   public TokenReplacementField() {}
 
   public boolean equals(Object obj) {
-    if (obj instanceof TokenReplacementField tokenReplacementField) {
-      TokenReplacementField field = tokenReplacementField;
-
+    if (obj instanceof TokenReplacementField field) {
       return name.equals(field.getName()) && tokenName.equals(field.tokenName);
     }
     return false;

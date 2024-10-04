@@ -1101,12 +1101,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       gc.drawImage(arrow, mx, my, magnification, angle);
     }
 
-    if (startObject instanceof TransformMeta transformMetaStartObject
-        && endObject instanceof TransformMeta transformMetaEndObject) {
+    if (startObject instanceof TransformMeta fs && endObject instanceof TransformMeta ts) {
       factor = 0.8;
-
-      TransformMeta fs = transformMetaStartObject;
-      TransformMeta ts = transformMetaEndObject;
 
       // in between 2 points
       mx = (int) (x1 + factor * (x2 - x1) / 2) - miniIconSize / 2;

@@ -20,7 +20,6 @@ package org.apache.hop.workflow.actions.sftp;
 import com.google.common.annotations.VisibleForTesting;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Proxy;
@@ -197,8 +196,7 @@ public class SftpClient {
       if (v != null) {
         for (int i = 0; i < v.size(); i++) {
           Object obj = v.elementAt(i);
-          if (obj != null && obj instanceof com.jcraft.jsch.ChannelSftp.LsEntry lsEntry) {
-            LsEntry lse = lsEntry;
+          if (obj != null && obj instanceof com.jcraft.jsch.ChannelSftp.LsEntry lse) {
             if (!lse.getAttrs().isDir()) {
               o.add(lse.getFilename());
             }

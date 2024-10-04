@@ -238,9 +238,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
     // Grab the WorkflowLogging transforms and inject the pipeline information...
     //
     for (TransformMetaDataCombi combi : loggingPipeline.getTransforms()) {
-      if (combi.transform instanceof PipelineLogging pipelineLoggingTransform) {
-        PipelineLogging pipelineLogging = pipelineLoggingTransform;
-
+      if (combi.transform instanceof PipelineLogging pipelineLogging) {
         pipelineLogging.setLoggingPipeline(pipeline);
         pipelineLogging.setLoggingPhase(loggingPhase);
       }

@@ -228,8 +228,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       }
       if (control instanceof Text textControl) {
         textControl.insert(extra);
-      } else if (control instanceof CCombo cComboControl) {
-        CCombo combo = cComboControl;
+      } else if (control instanceof CCombo combo) {
         combo.setText(
             extra); // We can't know the location of the cursor yet. All we can do is overwrite.
       } else if (control instanceof StyledTextComp styledTextCompControl) {

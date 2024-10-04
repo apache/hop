@@ -163,8 +163,7 @@ public class BeanLevelInfo<Meta extends Object> {
         Type ff = f.getGenericType();
         leaf.dim = DIMENSION.ARRAY;
         if (ff instanceof GenericArrayType genericArrayType) {
-          GenericArrayType ffg = genericArrayType;
-          t = resolveGenericType(ffg.getGenericComponentType(), genericsInfo);
+          t = resolveGenericType(genericArrayType.getGenericComponentType(), genericsInfo);
         } else {
           t = f.getType().getComponentType();
         }
@@ -182,8 +181,7 @@ public class BeanLevelInfo<Meta extends Object> {
         t = resolveGenericType(f.getGenericType(), genericsInfo);
       }
       if (t instanceof ParameterizedType parameterizedType) {
-        ParameterizedType pt = parameterizedType;
-        leaf.leafClass = (Class<?>) pt.getRawType();
+        leaf.leafClass = (Class<?>) parameterizedType.getRawType();
       } else {
         leaf.leafClass = (Class<?>) t;
       }
