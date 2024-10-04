@@ -94,9 +94,11 @@ public abstract class Workflow extends Variables
         IExtensionData,
         IWorkflowEngine<WorkflowMeta> {
   protected static final Class<?> PKG = Workflow.class;
-  private static final String CONST_WORKFLOW_FINISHED = "Workflow.Comment.WorkflowFinished";
   private static final String CONST_REASON_STARTED = "Workflow.Reason.Started";
   private static final String CONST_WORKFLOW_STARTED = "Workflow.Comment.WorkflowStarted";
+  private static final String CONST_WORKFLOW_FINISHED = "Workflow.Comment.WorkflowFinished";
+  private static final String CONST_ACTION_STARTED = "Workflow.Comment.ActionStarted";
+  private static final String CONST_ACTION_FINISHED = "Workflow.Comment.ActionFinished";
 
   public static final String CONFIGURATION_IN_EXPORT_FILENAME =
       "__workflow_execution_configuration__.xml";
@@ -129,7 +131,7 @@ public abstract class Workflow extends Variables
    * Keep a list of the actions that were executed.
    * org.apache.hop.core.logging.CentralLogStore.getInstance()
    */
-  protected WorkflowTracker workflowTracker;
+  protected WorkflowTracker<?> workflowTracker;
 
   /** A flat list of results in THIS workflow, in the order of execution of actions */
   protected final LinkedList<ActionResult> actionResults = new LinkedList<>();
@@ -292,6 +294,10 @@ public abstract class Workflow extends Variables
       //
       this.log = new LogChannel(this, parentLoggingObject, isGatheringMetrics(), true);
       this.logLevel = log.getLogLevel();
+
+      // Update the tracker, not always fully initialized
+      this.workflowTracker.setWorkflowName(workflowMeta.getName());
+      this.workflowTracker.setWorkflowFilename(workflowMeta.getFilename());
 
       executionStartDate = new Date();
       setStopped(false);
@@ -717,7 +723,7 @@ public abstract class Workflow extends Variables
           new ActionResult(
               null,
               null,
-              BaseMessages.getString(PKG, CONST_WORKFLOW_STARTED),
+              BaseMessages.getString(PKG, CONST_ACTION_STARTED),
               reason,
               actionMeta.getName(),
               resolve(actionMeta.getAction().getFilename()));
@@ -725,7 +731,7 @@ public abstract class Workflow extends Variables
 
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader(action.getClass().getClassLoader());
-      // Execute this entry...
+      // Execute this action..
       IAction cloneJei = (IAction) action.clone();
       cloneJei.copyFrom(this);
       cloneJei.getLogChannel().setLogLevel(getLogLevel());
@@ -772,7 +778,7 @@ public abstract class Workflow extends Variables
           new ActionResult(
               newResult,
               cloneJei.getLogChannel().getLogChannelId(),
-              BaseMessages.getString(PKG, CONST_WORKFLOW_FINISHED),
+              BaseMessages.getString(PKG, CONST_ACTION_FINISHED),
               null,
               actionMeta.getName(),
               resolve(actionMeta.getAction().getFilename()));
