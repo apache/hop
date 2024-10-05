@@ -30,6 +30,8 @@ import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -53,9 +55,11 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<DeleteMeta> testMetaClass = DeleteMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  private ILogChannel log;
 
   @Before
   public void setUpLoadSave() throws Exception {
+    log = new LogChannel("DeleteMeta");
     PluginRegistry.init();
     List<String> attributes = Arrays.asList("commit", "connection", "lookup");
 
@@ -169,7 +173,7 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
     pipeline.setVariables(vars);
 
     pipelineMeta.addTransform(transformMeta);
-    del = new Delete(transformMeta, meta, data, 1, pipelineMeta, pipeline);
+    del = new Delete(transformMeta, meta, data, 1, pipelineMeta, log, pipeline);
   }
 
   @Test

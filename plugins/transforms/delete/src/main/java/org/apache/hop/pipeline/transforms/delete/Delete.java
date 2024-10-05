@@ -25,6 +25,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -38,6 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
 
   private static final Class<?> PKG = DeleteMeta.class;
+  private final ILogChannel log;
 
   public Delete(
       TransformMeta transformMeta,
@@ -45,8 +47,10 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       DeleteData data,
       int copyNr,
       PipelineMeta pipelineMeta,
+      ILogChannel log,
       Pipeline pipeline) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
+    this.log = log;
   }
 
   private synchronized void deleteValues(IRowMeta rowMeta, Object[] row) throws HopException {
@@ -178,6 +182,12 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       }
     }
 
+    // Log total number of deleted rows
+    if (log.isBasic()) {
+      logBasic(
+          BaseMessages.getString(
+              PKG, "Delete.Log.TotalNumbers", getLinesUpdated(), data.schemaTable));
+    }
     return true;
   }
 
