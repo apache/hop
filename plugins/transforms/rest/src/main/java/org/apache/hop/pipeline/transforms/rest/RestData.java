@@ -116,7 +116,7 @@ public class RestData extends BaseTransformData implements ITransformData {
     this.resultCodeFieldName = null;
     this.resultResponseFieldName = null;
     this.resultHeaderFieldName = null;
-    this.nrheader = 0;
+    //    this.nrheader = 0;
     this.nrParams = 0;
     this.nrMatrixParams = 0;
     this.method = null;

@@ -424,15 +424,15 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
       // set Headers
-      int nrargs = meta.getHeaderName() == null ? 0 : meta.getHeaderName().length;
-      if (nrargs > 0) {
-        data.nrheader = nrargs;
-        data.indexOfHeaderFields = new int[nrargs];
-        data.headerNames = new String[nrargs];
-        for (int i = 0; i < nrargs; i++) {
+      //      int nrargs = meta.getHeaderName() == null ? 0 : meta.getHeaderName().length;
+      if (meta.getHeaderFields().isEmpty()) {
+        data.nrheader = meta.getHeaderFields().size();
+        data.indexOfHeaderFields = new int[meta.getHeaderFields().size()];
+        data.headerNames = new String[meta.getHeaderFields().size()];
+        for (int i = 0; i < meta.getHeaderFields().size(); i++) {
           // split into body / header
-          data.headerNames[i] = resolve(meta.getHeaderName()[i]);
-          String field = resolve(meta.getHeaderField()[i]);
+          data.headerNames[i] = resolve(meta.getHeaderFields().get(i).getName());
+          String field = resolve(meta.getHeaderFields().get(i).getHeaderField());
           if (Utils.isEmpty(field)) {
             throw new HopException(BaseMessages.getString(PKG, "Rest.Exception.HeaderFieldEmpty"));
           }
@@ -446,14 +446,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
       if (RestMeta.isActiveParameters(meta.getMethod())) {
         // Parameters
-        int nrparams = meta.getParameterField() == null ? 0 : meta.getParameterField().length;
+        int nrparams = meta.getParameterFields() != null ? 0 : meta.getParameterFields().size();
         if (nrparams > 0) {
           data.nrParams = nrparams;
           data.paramNames = new String[nrparams];
           data.indexOfParamFields = new int[nrparams];
           for (int i = 0; i < nrparams; i++) {
-            data.paramNames[i] = resolve(meta.getParameterName()[i]);
-            String field = resolve(meta.getParameterField()[i]);
+            data.paramNames[i] = resolve(meta.getParameterFields().get(i).getName());
+            String field = resolve(meta.getParameterFields().get(i).getHeaderField());
             if (Utils.isEmpty(field)) {
               throw new HopException(BaseMessages.getString(PKG, "Rest.Exception.ParamFieldEmpty"));
             }
@@ -466,14 +466,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           data.useParams = true;
         }
         int nrmatrixparams =
-            meta.getMatrixParameterField() == null ? 0 : meta.getMatrixParameterField().length;
+            meta.getMatrixParameterFields() == null ? 0 : meta.getMatrixParameterFields().size();
         if (nrmatrixparams > 0) {
           data.nrMatrixParams = nrmatrixparams;
           data.matrixParamNames = new String[nrmatrixparams];
           data.indexOfMatrixParamFields = new int[nrmatrixparams];
           for (int i = 0; i < nrmatrixparams; i++) {
-            data.matrixParamNames[i] = resolve(meta.getMatrixParameterName()[i]);
-            String field = resolve(meta.getMatrixParameterField()[i]);
+            data.matrixParamNames[i] = resolve(meta.getMatrixParameterFields().get(i).getName());
+            String field = resolve(meta.getMatrixParameterFields().get(i).getHeaderField());
             if (Utils.isEmpty(field)) {
               throw new HopException(
                   BaseMessages.getString(PKG, "Rest.Exception.MatrixParamFieldEmpty"));
@@ -533,10 +533,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   public boolean init() {
 
     if (super.init()) {
-      data.resultFieldName = resolve(meta.getFieldName());
-      data.resultCodeFieldName = resolve(meta.getResultCodeFieldName());
-      data.resultResponseFieldName = resolve(meta.getResponseTimeFieldName());
-      data.resultHeaderFieldName = resolve(meta.getResponseHeaderFieldName());
+      data.resultFieldName = resolve(meta.getResultField().getFieldName());
+      data.resultCodeFieldName = resolve(meta.getResultField().getCode());
+      data.resultResponseFieldName = resolve(meta.getResultField().getResponseTime());
+      data.resultHeaderFieldName = resolve(meta.getResultField().getResponseHeader());
 
       data.realConnectionTimeout = Const.toInt(resolve(meta.getConnectionTimeout()), -1);
       data.realReadTimeout = Const.toInt(resolve(meta.getReadTimeout()), -1);

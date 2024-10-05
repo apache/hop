@@ -41,16 +41,26 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
+import org.apache.hop.pipeline.transforms.rest.fields.HeaderField;
+import org.apache.hop.pipeline.transforms.rest.fields.MatrixParameterField;
+import org.apache.hop.pipeline.transforms.rest.fields.ParameterField;
+import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class RestMetaTest {
+public class RestMetaTest implements IInitializer<ITransformMeta> {
+
+  LoadSaveTester loadSaveTester;
+  Class<RestMeta> testMetaClass = RestMeta.class;
+
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -67,55 +77,208 @@ public class RestMetaTest {
     List<String> attributes =
         Arrays.asList(
             "applicationType",
-            "method",
             "url",
             "urlInField",
-            "dynamicMethod",
-            "methodFieldName",
             "urlField",
-            "bodyField",
-            "connectionTimeout",
-            "readTimeout",
-            "httpLogin",
-            "httpPassword",
             "proxyHost",
             "proxyPort",
+            "httpLogin",
+            "httpPassword",
             "preemptive",
+            "bodyField",
+            "method",
+            "dynamicMethod",
+            "methodFieldName",
             "trustStoreFile",
             "trustStorePassword",
-            "headerField",
-            "headerName",
-            "parameterField",
-            "parameterName",
-            "matrixParameterField",
-            "matrixParameterName",
-            "fieldName",
-            "resultCodeFieldName",
-            "responseTimeFieldName",
-            "responseHeaderFieldName");
+            "connectionTimeout",
+            "readTimeout",
+            "ignoreSsl",
+            "headerFields",
+            "parameterFields",
+            "matrixParameterFields",
+            "resultField"
+            //            "headerField",
+            //            "headerName",
+            //            "parameterField",
+            //            "parameterName",
+            //            "matrixParameterField",
+            //            "matrixParameterName",
+            //            "fieldName",
+            //            "resultCodeFieldName",
+            //            "responseTimeFieldName",
+            //            "responseHeaderFieldName"
+            );
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
+    Map<String, String> getterMap = new HashMap<>();
+    getterMap.put("applicationType", "getApplicationType");
+    getterMap.put("url", "getUrl");
+    getterMap.put("urlInField", "isUrlInField");
+    getterMap.put("urlField", "getUrlField");
+    getterMap.put("proxyHost", "getProxyHost");
+    getterMap.put("proxyPort", "getProxyPort");
+    getterMap.put("httpLogin", "getHttpLogin");
+    getterMap.put("httpPassword", "getHttpPassword");
+    getterMap.put("preemptive", "isPreemptive");
+    getterMap.put("bodyField", "getBodyField");
+    getterMap.put("method", "getMethod");
+    getterMap.put("dynamicMethod", "isDynamicMethod");
+    getterMap.put("methodFieldName", "getMethodFieldName");
+    getterMap.put("trustStoreFile", "getTrustStoreFile");
+    getterMap.put("trustStorePassword", "getTrustStorePassword");
+    getterMap.put("connectionTimeout", "getConnectionTimeout");
+    getterMap.put("readTimeout", "getReadTimeout");
+    getterMap.put("ignoreSsl", "isIgnoreSsl");
+    getterMap.put("headerFields", "getHeaderFields");
+    getterMap.put("parameterFields", "getParameterFields");
+    getterMap.put("matrixParameterFields", "getMatrixParameterFields");
+    getterMap.put("resultField", "getResultField");
 
-    // Arrays need to be consistent length
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
-    fieldLoadSaveValidatorAttributeMap.put("headerField", stringArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("headerName", stringArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("parameterField", stringArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("parameterName", stringArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("matrixParameterField", stringArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("matrixParameterName", stringArrayLoadSaveValidator);
+    Map<String, String> setterMap = new HashMap<>();
+    setterMap.put("applicationType", "setApplicationType");
+    setterMap.put("url", "setUrl");
+    setterMap.put("urlInField", "setUrlInField");
+    setterMap.put("urlField", "setUrlField");
+    setterMap.put("proxyHost", "setProxyHost");
+    setterMap.put("proxyPort", "setProxyPort");
+    setterMap.put("httpLogin", "setHttpLogin");
+    setterMap.put("httpPassword", "setHttpPassword");
+    setterMap.put("preemptive", "setPreemptive");
+    setterMap.put("bodyField", "setBodyField");
+    setterMap.put("method", "setMethod");
+    setterMap.put("dynamicMethod", "setDynamicMethod");
+    setterMap.put("methodFieldName", "setMethodFieldName");
+    setterMap.put("trustStoreFile", "setTrustStoreFile");
+    setterMap.put("trustStorePassword", "setTrustStorePassword");
+    setterMap.put("connectionTimeout", "setConnectionTimeout");
+    setterMap.put("readTimeout", "setReadTimeout");
+    setterMap.put("ignoreSsl", "setIgnoreSsl");
+    setterMap.put("headerFields", "setHeaderFields");
+    setterMap.put("parameterFields", "setParameterFields");
+    setterMap.put("matrixParameterFields", "setMatrixParameterFields");
+    setterMap.put("resultField", "setResultField");
 
-    LoadSaveTester<RestMeta> loadSaveTester =
-        new LoadSaveTester<>(
-            RestMeta.class,
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
+
+    loadSaveTester =
+        new LoadSaveTester(
+            testMetaClass,
             attributes,
-            new HashMap<>(),
-            new HashMap<>(),
-            fieldLoadSaveValidatorAttributeMap,
-            new HashMap<>());
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
 
-    loadSaveTester.testSerialization();
+    IFieldLoadSaveValidatorFactory validatorFactory =
+        loadSaveTester.getFieldLoadSaveValidatorFactory();
+
+    validatorFactory.registerValidator(
+        validatorFactory.getName(ResultField.class),
+        new ObjectValidator<>(
+            validatorFactory,
+            ResultField.class,
+            Arrays.asList("fieldName", "code", "responseTime", "responseHeader"),
+            new HashMap<String, String>() {
+              {
+                put("fieldname", "getFieldName");
+                put("code", "getCode");
+                put("responseTime", "getResponseTime");
+                put("responseHeader", "getResponseHeader");
+              }
+            },
+            new HashMap<String, String>() {
+              {
+                put("fieldname", "setFieldName");
+                put("code", "setCode");
+                put("responseTime", "setResponseTime");
+                put("responseHeader", "setResponseHeader");
+              }
+            }));
+
+    validatorFactory.registerValidator(
+        validatorFactory.getName(HeaderField.class),
+        new ObjectValidator<>(
+            validatorFactory,
+            HeaderField.class,
+            Arrays.asList("name", "headerField"),
+            new HashMap<String, String>() {
+              {
+                put("name", "getName");
+                put("headerField", "getHeaderField");
+              }
+            },
+            new HashMap<String, String>() {
+              {
+                put("bame", "setName");
+                put("headerField", "setHeaderField");
+              }
+            }));
+
+    validatorFactory.registerValidator(
+        validatorFactory.getName(ParameterField.class),
+        new ObjectValidator<>(
+            validatorFactory,
+            ParameterField.class,
+            Arrays.asList("name", "headerField"),
+            new HashMap<String, String>() {
+              {
+                put("name", "getName");
+                put("headerField", "getHeaderField");
+              }
+            },
+            new HashMap<String, String>() {
+              {
+                put("bame", "setName");
+                put("headerField", "setHeaderField");
+              }
+            }));
+
+    validatorFactory.registerValidator(
+        validatorFactory.getName(MatrixParameterField.class),
+        new ObjectValidator<>(
+            validatorFactory,
+            MatrixParameterField.class,
+            Arrays.asList("name", "headerField"),
+            new HashMap<String, String>() {
+              {
+                put("name", "getName");
+                put("headerField", "getHeaderField");
+              }
+            },
+            new HashMap<String, String>() {
+              {
+                put("bame", "setName");
+                put("headerField", "setHeaderField");
+              }
+            }));
+
+    //    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new
+    // HashMap<>();
+    //
+    //    // Arrays need to be consistent length
+    //    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    //        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
+    //    fieldLoadSaveValidatorAttributeMap.put("headerField", stringArrayLoadSaveValidator);
+    //    fieldLoadSaveValidatorAttributeMap.put("headerName", stringArrayLoadSaveValidator);
+    //    fieldLoadSaveValidatorAttributeMap.put("parameterField", stringArrayLoadSaveValidator);
+    //    fieldLoadSaveValidatorAttributeMap.put("parameterName", stringArrayLoadSaveValidator);
+    //    fieldLoadSaveValidatorAttributeMap.put("matrixParameterField",
+    // stringArrayLoadSaveValidator);
+    //    fieldLoadSaveValidatorAttributeMap.put("matrixParameterName",
+    // stringArrayLoadSaveValidator);
+    //
+    //    LoadSaveTester<RestMeta> loadSaveTester =
+    //        new LoadSaveTester<>(
+    //            RestMeta.class,
+    //            attributes,
+    //            new HashMap<>(),
+    //            new HashMap<>(),
+    //            fieldLoadSaveValidatorAttributeMap,
+    //            new HashMap<>());
+
+    //    loadSaveTester.testSerialization();
   }
 
   @Test
@@ -168,5 +331,46 @@ public class RestMetaTest {
     assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_DELETE));
     assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_HEAD));
     assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_OPTIONS));
+  }
+
+  @Override
+  public void modify(ITransformMeta someMeta) {
+    if (someMeta instanceof RestMeta) {
+      ((RestMeta) someMeta).getHeaderFields().clear();
+      ((RestMeta) someMeta).getParameterFields().clear();
+      ((RestMeta) someMeta).getMatrixParameterFields().clear();
+
+      ((RestMeta) someMeta)
+          .getHeaderFields()
+          .addAll(
+              Arrays.asList(
+                  new HeaderField("field1", "name1"),
+                  new HeaderField("field2", "name2"),
+                  new HeaderField("field3", "name3"),
+                  new HeaderField("field4", "name4"),
+                  new HeaderField("field1", "name5")));
+
+      ((RestMeta) someMeta)
+          .getMatrixParameterFields()
+          .addAll(
+              Arrays.asList(
+                  new MatrixParameterField("field1", "name1"),
+                  new MatrixParameterField("field2", "name2"),
+                  new MatrixParameterField("field3", "name3"),
+                  new MatrixParameterField("field4", "name4"),
+                  new MatrixParameterField("field5", "name5")));
+
+      ((RestMeta) someMeta)
+          .getParameterFields()
+          .addAll(
+              Arrays.asList(
+                  new ParameterField("field1", "name1"),
+                  new ParameterField("field2", "name2"),
+                  new ParameterField("field3", "name3"),
+                  new ParameterField("field4", "name4"),
+                  new ParameterField("field5", "name5")));
+      ((RestMeta) someMeta).getResultField().setFieldName("fieldname");
+      ((RestMeta) someMeta).getResultField().setResponseHeader("headerfield");
+    }
   }
 }

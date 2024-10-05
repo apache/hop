@@ -17,27 +17,28 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
+import org.apache.hop.pipeline.transforms.rest.fields.HeaderField;
+import org.apache.hop.pipeline.transforms.rest.fields.MatrixParameterField;
+import org.apache.hop.pipeline.transforms.rest.fields.ParameterField;
+import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
 
 @Transform(
     id = "Rest",
@@ -84,6 +85,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public static final String CONST_SPACES = "      ";
   public static final String CONST_FIELD = "field";
 
+  @HopMetadataProperty(key = "applicationType", injectionKey = "APPLICATION_TYPE")
   private String applicationType;
 
   public static final String[] HTTP_METHODS =
@@ -104,63 +106,111 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public static final int DEFAULT_READ_TIMEOUT = 10000;
 
   /** URL / service to be called */
+  @HopMetadataProperty(key = "url", injectionKey = "URL")
   private String url;
 
+  @HopMetadataProperty(key = "urlInField", injectionKey = "URL_IN_FIELD")
   private boolean urlInField;
+
+  @HopMetadataProperty(key = "urlField", injectionKey = "URL_IN_FIELD")
   private String urlField;
 
-  /** headers name */
-  private String[] headerField;
-
-  private String[] headerName;
-
-  /** Query parameters name */
-  private String[] parameterField;
-
-  private String[] parameterName;
-
-  /** Matrix parameters name */
-  private String[] matrixParameterField;
-
-  private String[] matrixParameterName;
-
-  /** function result: new value name */
-  private String fieldName;
-
-  private String resultCodeFieldName;
-  private String responseTimeFieldName;
-  private String responseHeaderFieldName;
-
   /** proxy */
+  @HopMetadataProperty(key = "proxyHost", injectionKey = "PROXY_HOST")
   private String proxyHost;
 
+  @HopMetadataProperty(key = "proxyPort", injectionKey = "PROXY_PORT")
   private String proxyPort;
+
+  @HopMetadataProperty(key = "httpLogin", injectionKey = "HTTP_LOGIN")
   private String httpLogin;
+
+  @HopMetadataProperty(key = "httpPassword", injectionKey = "HTTP_PASSWORD")
   private String httpPassword;
+
+  @HopMetadataProperty(key = "preemptive", injectionKey = "PREEMPTIVE")
   private boolean preemptive;
 
   /** Body fieldname */
+  @HopMetadataProperty(key = "bodyField", injectionKey = "BODY_FIELD")
   private String bodyField;
 
   /** HTTP Method */
+  @HopMetadataProperty(key = "method", injectionKey = "METHOD")
   private String method;
 
+  @HopMetadataProperty(key = "dynamicMethod", injectionKey = "DYMAMIC_METHOD")
   private boolean dynamicMethod;
+
+  @HopMetadataProperty(key = "methodFieldName", injectionKey = "METHOD_FIELD_NAME")
   private String methodFieldName;
 
   /** Trust store */
+  @HopMetadataProperty(key = "trustStoreFiel", injectionKey = "TRUSTSTORE_FILE")
   private String trustStoreFile;
 
+  @HopMetadataProperty(key = "trustStorePassword", injectionKey = "TRUSTSTORE_PASSWORD")
   private String trustStorePassword;
 
+  @HopMetadataProperty(key = "connectionTimeout", injectionKey = "CONNECTION_TIMEOUT")
   private String connectionTimeout;
 
+  @HopMetadataProperty(key = "readTimeout", injectionKey = "READ_TIMEOUT")
   private String readTimeout;
 
+  @HopMetadataProperty(key = "ignoreSsl", injectionKey = "IGNORE_SSL")
   private boolean ignoreSsl;
+
+  /** headers name */
+  @HopMetadataProperty(
+      key = "header",
+      groupKey = "headers",
+      injectionKey = "HEADERS",
+      injectionGroupKey = "HEADER")
+  private List<HeaderField> headerFields;
+
+  //  private String[] headerName;
+
+  @HopMetadataProperty(
+      key = "parameter",
+      injectionKey = "PARAMETER",
+      groupKey = "parameters",
+      injectionGroupKey = "PARAMETERS")
+  private List<ParameterField> parameterFields;
+
+  /** Query parameters name */
+  //  private String[] parameterField;
+  //
+  //  private String[] parameterName;
+
+  @HopMetadataProperty(
+      key = "matrixParameter",
+      injectionKey = "MATRIX_PARAMETER",
+      groupKey = "matrixParameters",
+      injectionGroupKey = "MATRIX_PARAMETERS")
+  private List<MatrixParameterField> matrixParameterFields;
+
+  /** Matrix parameters name */
+  //  private String[] matrixParameterField;
+  //
+  //  private String[] matrixParameterName;
+
+  @HopMetadataProperty(key = "result", injectionKey = "RESULT")
+  private ResultField resultField;
+
+  /** function result: new value name */
+  //  private String fieldName;
+  //
+  //  private String resultCodeFieldName;
+  //  private String responseTimeFieldName;
+  //  private String responseHeaderFieldName;
 
   public RestMeta() {
     super(); // allocate BaseTransformMeta
+    headerFields = new ArrayList<>();
+    parameterFields = new ArrayList<>();
+    matrixParameterFields = new ArrayList<>();
+    resultField = new ResultField();
   }
 
   /**
@@ -194,85 +244,97 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   /**
    * @return Returns the headerName.
    */
-  public String[] getHeaderName() {
-    return headerName;
-  }
+  //  public String[] getHeaderName() {
+  //    return headerName;
+  //  }
 
   /**
    * @param value The headerName to set.
    */
-  public void setHeaderName(String[] value) {
-    this.headerName = value;
-  }
+  //  public void setHeaderName(String[] value) {
+  //    this.headerName = value;
+  //  }
 
   /**
    * @return Returns the parameterField.
    */
-  public String[] getParameterField() {
-    return parameterField;
+  public List<ParameterField> getParameterFields() {
+    return parameterFields;
+  }
+
+  public void setParameterFields(List<ParameterField> value) {
+    this.parameterFields = value;
   }
 
   /**
    * @param value The parameterField to set.
    */
-  public void setParameterField(String[] value) {
-    this.parameterField = value;
-  }
+  //  public void setParameterField(String[] value) {
+  //    this.parameterField = value;
+  //  }
 
   /**
    * @return Returns the parameterName.
    */
-  public String[] getParameterName() {
-    return parameterName;
+  //  public String[] getParameterName() {
+  //    return parameterName;
+  //  }
+
+  //  /**
+  //   * @param value The parameterName to set.
+  //   */
+  //  public void setParameterName(String[] value) {
+  //    this.parameterName = value;
+  //  }
+
+  public List<MatrixParameterField> getMatrixParameterFields() {
+    return matrixParameterFields;
   }
 
-  /**
-   * @param value The parameterName to set.
-   */
-  public void setParameterName(String[] value) {
-    this.parameterName = value;
+  public void setMatrixParameterFields(List<MatrixParameterField> value) {
+    this.matrixParameterFields = value;
   }
 
   /**
    * @return Returns the matrixParameterField.
    */
-  public String[] getMatrixParameterField() {
-    return matrixParameterField;
-  }
+  //  public String[] getMatrixParameterField() {
+  //    return matrixParameterField;
+  //  }
 
   /**
    * @param value The matrixParameterField to set.
    */
-  public void setMatrixParameterField(String[] value) {
-    this.matrixParameterField = value;
-  }
+  //  public void setMatrixParameterField(String[] value) {
+  //    this.matrixParameterField = value;
+  //  }
 
   /**
    * @return Returns the matrixParameterName.
    */
-  public String[] getMatrixParameterName() {
-    return matrixParameterName;
-  }
+  //  public String[] getMatrixParameterName() {
+  //    return matrixParameterName;
+  //  }
 
   /**
    * @param value The matrixParameterName to set.
    */
-  public void setMatrixParameterName(String[] value) {
-    this.matrixParameterName = value;
-  }
+  //  public void setMatrixParameterName(String[] value) {
+  //    this.matrixParameterName = value;
+  //  }
 
   /**
    * @return Returns the headerField.
    */
-  public String[] getHeaderField() {
-    return headerField;
+  public List<HeaderField> getHeaderFields() {
+    return headerFields;
   }
 
   /**
    * @param value The headerField to set.
    */
-  public void setHeaderField(String[] value) {
-    this.headerField = value;
+  public void setHeaderFields(List<HeaderField> value) {
+    this.headerFields = value;
   }
 
   /**
@@ -362,16 +424,16 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   /**
    * @return Returns the resultName.
    */
-  public String getFieldName() {
-    return fieldName;
-  }
+  //  public String getFieldName() {
+  //    return fieldName;
+  //  }
 
-  /**
-   * @param resultName The resultName to set.
-   */
-  public void setFieldName(String resultName) {
-    this.fieldName = resultName;
-  }
+  //  /**
+  //   * @param resultName The resultName to set.
+  //   */
+  //  public void setFieldName(String resultName) {
+  //    this.fieldName = resultName;
+  //  }
 
   public boolean isIgnoreSsl() {
     return ignoreSsl;
@@ -381,48 +443,56 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.ignoreSsl = ignoreSsl;
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
+  //  @Override
+  //  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+  //      throws HopXmlException {
+  //    readData(transformNode, metadataProvider);
+  //  }
 
-  public void allocate(int nrheaders, int nrparamers, int nrmatrixparameters) {
-    headerField = new String[nrheaders];
-    headerName = new String[nrheaders];
-    parameterField = new String[nrparamers];
-    parameterName = new String[nrparamers];
-    matrixParameterField = new String[nrmatrixparameters];
-    matrixParameterName = new String[nrmatrixparameters];
-  }
+  //  public void allocate(int nrheaders, int nrparamers, int nrmatrixparameters) {
+  //    headerFields = new ArrayList<>();
+  //    parameterFields = new ArrayList<>();
+  //    matrixParameterFields = new ArrayList<>();
+
+  //    headerName = new String[nrheaders];
+  //    parameterField = new String[nrparamers];
+  //    parameterName = new String[nrparamers];
+  //    matrixParameterField = new String[nrmatrixparameters];
+  //    matrixParameterName = new String[nrmatrixparameters];
+  //  }
 
   @Override
   public Object clone() {
     RestMeta retval = (RestMeta) super.clone();
 
-    int nrheaders = headerName.length;
-    int nrparameters = parameterField.length;
-    int nrmatrixparameters = matrixParameterField.length;
+    //    int nrheaders = headerName.length;
+    //    int nrparameters = parameterField.length;
+    //    int nrmatrixparameters = matrixParameterField.length;
 
-    retval.allocate(nrheaders, nrparameters, nrmatrixparameters);
-    System.arraycopy(headerField, 0, retval.headerField, 0, nrheaders);
-    System.arraycopy(headerName, 0, retval.headerName, 0, nrheaders);
-    System.arraycopy(parameterField, 0, retval.parameterField, 0, nrparameters);
-    System.arraycopy(parameterName, 0, retval.parameterName, 0, nrparameters);
-    System.arraycopy(matrixParameterField, 0, retval.matrixParameterField, 0, nrmatrixparameters);
-    System.arraycopy(matrixParameterName, 0, retval.matrixParameterName, 0, nrmatrixparameters);
+    //    retval.allocate(nrheaders, nrparameters, nrmatrixparameters);
+    //    System.arraycopy(headerFields, 0, retval.headerFields, 0, nrheaders);
+    //    System.arraycopy(headerName, 0, retval.headerName, 0, nrheaders);
+    //    System.arraycopy(parameterField, 0, retval.parameterField, 0, nrparameters);
+    //    System.arraycopy(parameterName, 0, retval.parameterName, 0, nrparameters);
+    //    System.arraycopy(matrixParameterField, 0, retval.matrixParameterField, 0,
+    // nrmatrixparameters);
+    //    System.arraycopy(matrixParameterName, 0, retval.matrixParameterName, 0,
+    // nrmatrixparameters);
 
     return retval;
   }
 
   @Override
   public void setDefault() {
-    allocate(0, 0, 0);
-
-    this.fieldName = CONST_RESULT;
-    this.resultCodeFieldName = "";
-    this.responseTimeFieldName = "";
-    this.responseHeaderFieldName = "";
+    headerFields = new ArrayList<>();
+    parameterFields = new ArrayList<>();
+    matrixParameterFields = new ArrayList<>();
+    resultField = new ResultField();
+    //    allocate(0, 0, 0);
+    //    this.fieldName = CONST_RESULT;
+    //    this.resultCodeFieldName = "";
+    //    this.responseTimeFieldName = "";
+    //    this.responseHeaderFieldName = "";
     this.method = HTTP_METHOD_GET;
     this.dynamicMethod = false;
     this.methodFieldName = null;
@@ -443,23 +513,23 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (!Utils.isEmpty(fieldName)) {
-      IValueMeta v = new ValueMetaString(variables.resolve(fieldName));
+    if (!Utils.isEmpty(resultField.getFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(resultField.getFieldName()));
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
 
-    if (!Utils.isEmpty(resultCodeFieldName)) {
-      IValueMeta v = new ValueMetaInteger(variables.resolve(resultCodeFieldName));
+    if (!Utils.isEmpty(resultField.getCode())) {
+      IValueMeta v = new ValueMetaInteger(variables.resolve(resultField.getCode()));
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    if (!Utils.isEmpty(responseTimeFieldName)) {
-      IValueMeta v = new ValueMetaInteger(variables.resolve(responseTimeFieldName));
+    if (!Utils.isEmpty(resultField.getResponseTime())) {
+      IValueMeta v = new ValueMetaInteger(variables.resolve(resultField.getResponseTime()));
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    String headerFieldName = variables.resolve(responseHeaderFieldName);
+    String headerFieldName = variables.resolve(resultField.getResponseHeader());
     if (!Utils.isEmpty(headerFieldName)) {
       IValueMeta v = new ValueMetaString(headerFieldName);
       v.setOrigin(name);
@@ -467,158 +537,162 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     }
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-    retval.append("    ").append(XmlHandler.addTagValue("applicationType", applicationType));
-    retval.append("    ").append(XmlHandler.addTagValue("method", method));
-    retval.append("    ").append(XmlHandler.addTagValue("url", url));
-    retval.append("    ").append(XmlHandler.addTagValue("urlInField", urlInField));
-    retval.append("    ").append(XmlHandler.addTagValue("dynamicMethod", dynamicMethod));
-    retval.append("    ").append(XmlHandler.addTagValue("methodFieldName", methodFieldName));
+  //  @Override
+  //  public String getXml() {
+  //    StringBuilder retval = new StringBuilder();
+  //    retval.append("    ").append(XmlHandler.addTagValue("applicationType", applicationType));
+  //    retval.append("    ").append(XmlHandler.addTagValue("method", method));
+  //    retval.append("    ").append(XmlHandler.addTagValue("url", url));
+  //    retval.append("    ").append(XmlHandler.addTagValue("urlInField", urlInField));
+  //    retval.append("    ").append(XmlHandler.addTagValue("dynamicMethod", dynamicMethod));
+  //    retval.append("    ").append(XmlHandler.addTagValue("methodFieldName", methodFieldName));
+  //
+  //    retval.append("    ").append(XmlHandler.addTagValue("urlField", urlField));
+  //    retval.append("    ").append(XmlHandler.addTagValue("bodyField", bodyField));
+  //    retval.append("    ").append(XmlHandler.addTagValue("httpLogin", httpLogin));
+  //
+  //    retval.append("    ").append(XmlHandler.addTagValue("readTimeout", readTimeout));
+  //    retval.append("    ").append(XmlHandler.addTagValue("connectionTimeout",
+  // connectionTimeout));
+  //
+  //    retval
+  //        .append("    ")
+  //        .append(
+  //            XmlHandler.addTagValue(
+  //                "httpPassword", Encr.encryptPasswordIfNotUsingVariables(httpPassword)));
+  //
+  //    retval.append("    ").append(XmlHandler.addTagValue("proxyHost", proxyHost));
+  //    retval.append("    ").append(XmlHandler.addTagValue("proxyPort", proxyPort));
+  //    retval.append("    ").append(XmlHandler.addTagValue("preemptive", preemptive));
+  //
+  //    retval.append("    ").append(XmlHandler.addTagValue("trustStoreFile", trustStoreFile));
+  //    retval
+  //        .append("    ")
+  //        .append(
+  //            XmlHandler.addTagValue(
+  //                "trustStorePassword",
+  // Encr.encryptPasswordIfNotUsingVariables(trustStorePassword)));
+  //    retval.append("    ").append(XmlHandler.addTagValue("ignoreSsl", ignoreSsl));
+  //
+  //    retval.append("    <headers>").append(Const.CR);
+  //    for (int i = 0, len = (headerName != null ? headerName.length : 0); i < len; i++) {
+  //      retval.append("      <header>").append(Const.CR);
+  //      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue(CONST_FIELD,
+  // headerFields[i]));
+  //      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", headerName[i]));
+  //      retval.append("        </header>").append(Const.CR);
+  //    }
+  //    retval.append("      </headers>").append(Const.CR);
+  //
+  //    retval.append("    <parameters>").append(Const.CR);
+  //    for (int i = 0, len = (parameterName != null ? parameterName.length : 0); i < len; i++) {
+  //      retval.append("      <parameter>").append(Const.CR);
+  //      retval
+  //          .append(CONST_SPACES_LONG)
+  //          .append(XmlHandler.addTagValue(CONST_FIELD, parameterField[i]));
+  //      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", parameterName[i]));
+  //      retval.append("        </parameter>").append(Const.CR);
+  //    }
+  //    retval.append("      </parameters>").append(Const.CR);
+  //
+  //    retval.append("    <matrixParameters>").append(Const.CR);
+  //    for (int i = 0, len = (matrixParameterName != null ? matrixParameterName.length : 0);
+  //        i < len;
+  //        i++) {
+  //      retval.append("      <matrixParameter>").append(Const.CR);
+  //      retval
+  //          .append(CONST_SPACES_LONG)
+  //          .append(XmlHandler.addTagValue(CONST_FIELD, matrixParameterField[i]));
+  //      retval
+  //          .append(CONST_SPACES_LONG)
+  //          .append(XmlHandler.addTagValue("name", matrixParameterName[i]));
+  //      retval.append("        </matrixParameter>").append(Const.CR);
+  //    }
+  //    retval.append("      </matrixParameters>").append(Const.CR);
+  //
+  //    retval.append("    <result>").append(Const.CR);
+  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fieldName));
+  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("code", resultCodeFieldName));
+  //    retval
+  //        .append(CONST_SPACES)
+  //        .append(XmlHandler.addTagValue("response_time", responseTimeFieldName));
+  //    retval
+  //        .append(CONST_SPACES)
+  //        .append(XmlHandler.addTagValue("response_header", responseHeaderFieldName));
+  //    retval.append("      </result>").append(Const.CR);
+  //
+  //    return retval.toString();
+  //  }
 
-    retval.append("    ").append(XmlHandler.addTagValue("urlField", urlField));
-    retval.append("    ").append(XmlHandler.addTagValue("bodyField", bodyField));
-    retval.append("    ").append(XmlHandler.addTagValue("httpLogin", httpLogin));
+  //  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
+  //      throws HopXmlException {
+  //    try {
+  //      applicationType = XmlHandler.getTagValue(transformNode, "applicationType");
+  //      method = XmlHandler.getTagValue(transformNode, "method");
+  //      url = XmlHandler.getTagValue(transformNode, "url");
+  //      urlInField = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "urlInField"));
+  //      methodFieldName = XmlHandler.getTagValue(transformNode, "methodFieldName");
 
-    retval.append("    ").append(XmlHandler.addTagValue("readTimeout", readTimeout));
-    retval.append("    ").append(XmlHandler.addTagValue("connectionTimeout", connectionTimeout));
-
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "httpPassword", Encr.encryptPasswordIfNotUsingVariables(httpPassword)));
-
-    retval.append("    ").append(XmlHandler.addTagValue("proxyHost", proxyHost));
-    retval.append("    ").append(XmlHandler.addTagValue("proxyPort", proxyPort));
-    retval.append("    ").append(XmlHandler.addTagValue("preemptive", preemptive));
-
-    retval.append("    ").append(XmlHandler.addTagValue("trustStoreFile", trustStoreFile));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables(trustStorePassword)));
-    retval.append("    ").append(XmlHandler.addTagValue("ignoreSsl", ignoreSsl));
-
-    retval.append("    <headers>").append(Const.CR);
-    for (int i = 0, len = (headerName != null ? headerName.length : 0); i < len; i++) {
-      retval.append("      <header>").append(Const.CR);
-      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue(CONST_FIELD, headerField[i]));
-      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", headerName[i]));
-      retval.append("        </header>").append(Const.CR);
-    }
-    retval.append("      </headers>").append(Const.CR);
-
-    retval.append("    <parameters>").append(Const.CR);
-    for (int i = 0, len = (parameterName != null ? parameterName.length : 0); i < len; i++) {
-      retval.append("      <parameter>").append(Const.CR);
-      retval
-          .append(CONST_SPACES_LONG)
-          .append(XmlHandler.addTagValue(CONST_FIELD, parameterField[i]));
-      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", parameterName[i]));
-      retval.append("        </parameter>").append(Const.CR);
-    }
-    retval.append("      </parameters>").append(Const.CR);
-
-    retval.append("    <matrixParameters>").append(Const.CR);
-    for (int i = 0, len = (matrixParameterName != null ? matrixParameterName.length : 0);
-        i < len;
-        i++) {
-      retval.append("      <matrixParameter>").append(Const.CR);
-      retval
-          .append(CONST_SPACES_LONG)
-          .append(XmlHandler.addTagValue(CONST_FIELD, matrixParameterField[i]));
-      retval
-          .append(CONST_SPACES_LONG)
-          .append(XmlHandler.addTagValue("name", matrixParameterName[i]));
-      retval.append("        </matrixParameter>").append(Const.CR);
-    }
-    retval.append("      </matrixParameters>").append(Const.CR);
-
-    retval.append("    <result>").append(Const.CR);
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fieldName));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("code", resultCodeFieldName));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("response_time", responseTimeFieldName));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("response_header", responseHeaderFieldName));
-    retval.append("      </result>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      applicationType = XmlHandler.getTagValue(transformNode, "applicationType");
-      method = XmlHandler.getTagValue(transformNode, "method");
-      url = XmlHandler.getTagValue(transformNode, "url");
-      urlInField = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "urlInField"));
-      methodFieldName = XmlHandler.getTagValue(transformNode, "methodFieldName");
-
-      dynamicMethod = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "dynamicMethod"));
-      urlField = XmlHandler.getTagValue(transformNode, "urlField");
-      bodyField = XmlHandler.getTagValue(transformNode, "bodyField");
-      readTimeout = XmlHandler.getTagValue(transformNode, "readTimeout");
-      connectionTimeout = XmlHandler.getTagValue(transformNode, "connectionTimeout");
-      httpLogin = XmlHandler.getTagValue(transformNode, "httpLogin");
-      httpPassword =
-          Encr.decryptPasswordOptionallyEncrypted(
-              XmlHandler.getTagValue(transformNode, "httpPassword"));
-
-      proxyHost = XmlHandler.getTagValue(transformNode, "proxyHost");
-      proxyPort = XmlHandler.getTagValue(transformNode, "proxyPort");
-      preemptive = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "preemptive"));
-
-      trustStoreFile = XmlHandler.getTagValue(transformNode, "trustStoreFile");
-      trustStorePassword =
-          Encr.decryptPasswordOptionallyEncrypted(
-              XmlHandler.getTagValue(transformNode, "trustStorePassword"));
-      ignoreSsl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignoreSsl"));
-
-      Node headernode = XmlHandler.getSubNode(transformNode, "headers");
-      int nrheaders = XmlHandler.countNodes(headernode, "header");
-      Node paramnode = XmlHandler.getSubNode(transformNode, "parameters");
-      int nrparameters = XmlHandler.countNodes(paramnode, "parameter");
-      Node matrixparamnode = XmlHandler.getSubNode(transformNode, "matrixParameters");
-      int nrmatrixparameters = XmlHandler.countNodes(matrixparamnode, "matrixParameter");
-
-      allocate(nrheaders, nrparameters, nrmatrixparameters);
-      for (int i = 0; i < nrheaders; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(headernode, "header", i);
-        headerField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
-        headerName[i] = XmlHandler.getTagValue(anode, "name");
-      }
-      for (int i = 0; i < nrparameters; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(paramnode, "parameter", i);
-        parameterField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
-        parameterName[i] = XmlHandler.getTagValue(anode, "name");
-      }
-      for (int i = 0; i < nrmatrixparameters; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(matrixparamnode, "matrixParameter", i);
-        matrixParameterField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
-        matrixParameterName[i] = XmlHandler.getTagValue(anode, "name");
-      }
-
-      fieldName =
-          XmlHandler.getTagValue(transformNode, CONST_RESULT, "name"); // Optional, can be null
-      resultCodeFieldName =
-          XmlHandler.getTagValue(transformNode, CONST_RESULT, "code"); // Optional, can be null
-      responseTimeFieldName =
-          XmlHandler.getTagValue(
-              transformNode, CONST_RESULT, "response_time"); // Optional, can be null
-      responseHeaderFieldName =
-          XmlHandler.getTagValue(
-              transformNode, CONST_RESULT, "response_header"); // Optional, can be null
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "RestMeta.Exception.UnableToReadTransformMeta"), e);
-    }
-  }
+  //      dynamicMethod = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode,
+  // "dynamicMethod"));
+  //      urlField = XmlHandler.getTagValue(transformNode, "urlField");
+  //      bodyField = XmlHandler.getTagValue(transformNode, "bodyField");
+  //      readTimeout = XmlHandler.getTagValue(transformNode, "readTimeout");
+  //      connectionTimeout = XmlHandler.getTagValue(transformNode, "connectionTimeout");
+  //      httpLogin = XmlHandler.getTagValue(transformNode, "httpLogin");
+  //      httpPassword =
+  //          Encr.decryptPasswordOptionallyEncrypted(
+  //              XmlHandler.getTagValue(transformNode, "httpPassword"));
+  //
+  //      proxyHost = XmlHandler.getTagValue(transformNode, "proxyHost");
+  //      proxyPort = XmlHandler.getTagValue(transformNode, "proxyPort");
+  //      preemptive = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "preemptive"));
+  //
+  //      trustStoreFile = XmlHandler.getTagValue(transformNode, "trustStoreFile");
+  //      trustStorePassword =
+  //          Encr.decryptPasswordOptionallyEncrypted(
+  //              XmlHandler.getTagValue(transformNode, "trustStorePassword"));
+  //      ignoreSsl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignoreSsl"));
+  //
+  //      Node headernode = XmlHandler.getSubNode(transformNode, "headers");
+  //      int nrheaders = XmlHandler.countNodes(headernode, "header");
+  //      Node paramnode = XmlHandler.getSubNode(transformNode, "parameters");
+  //      int nrparameters = XmlHandler.countNodes(paramnode, "parameter");
+  //      Node matrixparamnode = XmlHandler.getSubNode(transformNode, "matrixParameters");
+  //      int nrmatrixparameters = XmlHandler.countNodes(matrixparamnode, "matrixParameter");
+  //
+  //      allocate(nrheaders, nrparameters, nrmatrixparameters);
+  //      for (int i = 0; i < nrheaders; i++) {
+  //        Node anode = XmlHandler.getSubNodeByNr(headernode, "header", i);
+  //        headerFields[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
+  //        headerName[i] = XmlHandler.getTagValue(anode, "name");
+  //      }
+  //      for (int i = 0; i < nrparameters; i++) {
+  //        Node anode = XmlHandler.getSubNodeByNr(paramnode, "parameter", i);
+  //        parameterField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
+  //        parameterName[i] = XmlHandler.getTagValue(anode, "name");
+  //      }
+  //      for (int i = 0; i < nrmatrixparameters; i++) {
+  //        Node anode = XmlHandler.getSubNodeByNr(matrixparamnode, "matrixParameter", i);
+  //        matrixParameterField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
+  //        matrixParameterName[i] = XmlHandler.getTagValue(anode, "name");
+  //      }
+  //
+  //      fieldName =
+  //          XmlHandler.getTagValue(transformNode, CONST_RESULT, "name"); // Optional, can be null
+  //      resultCodeFieldName =
+  //          XmlHandler.getTagValue(transformNode, CONST_RESULT, "code"); // Optional, can be null
+  //      responseTimeFieldName =
+  //          XmlHandler.getTagValue(
+  //              transformNode, CONST_RESULT, "response_time"); // Optional, can be null
+  //      responseHeaderFieldName =
+  //          XmlHandler.getTagValue(
+  //              transformNode, CONST_RESULT, "response_header"); // Optional, can be null
+  //    } catch (Exception e) {
+  //      throw new HopXmlException(
+  //          BaseMessages.getString(PKG, "RestMeta.Exception.UnableToReadTransformMeta"), e);
+  //    }
+  //  }
 
   @Override
   public void check(
@@ -721,19 +795,19 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     return true;
   }
 
-  /**
-   * @return the resultCodeFieldName
-   */
-  public String getResultCodeFieldName() {
-    return resultCodeFieldName;
-  }
-
-  /**
-   * @param resultCodeFieldName the resultCodeFieldName to set
-   */
-  public void setResultCodeFieldName(String resultCodeFieldName) {
-    this.resultCodeFieldName = resultCodeFieldName;
-  }
+  //  /**
+  //   * @return the resultCodeFieldName
+  //   */
+  //  public String getResultCodeFieldName() {
+  //    return resultCodeFieldName;
+  //  }
+  //
+  //  /**
+  //   * @param resultCodeFieldName the resultCodeFieldName to set
+  //   */
+  //  public void setResultCodeFieldName(String resultCodeFieldName) {
+  //    this.resultCodeFieldName = resultCodeFieldName;
+  //  }
 
   /**
    * Setter
@@ -855,21 +929,29 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     return trustStorePassword;
   }
 
-  public String getResponseTimeFieldName() {
-    return responseTimeFieldName;
+  public ResultField getResultField() {
+    return resultField;
   }
 
-  public void setResponseTimeFieldName(String responseTimeFieldName) {
-    this.responseTimeFieldName = responseTimeFieldName;
+  public void setResultField(ResultField resultField) {
+    this.resultField = resultField;
   }
 
-  public String getResponseHeaderFieldName() {
-    return responseHeaderFieldName;
-  }
-
-  public void setResponseHeaderFieldName(String responseHeaderFieldName) {
-    this.responseHeaderFieldName = responseHeaderFieldName;
-  }
+  //  public String getResponseTimeFieldName() {
+  //    return responseTimeFieldName;
+  //  }
+  //
+  //  public void setResponseTimeFieldName(String responseTimeFieldName) {
+  //    this.responseTimeFieldName = responseTimeFieldName;
+  //  }
+  //
+  //  public String getResponseHeaderFieldName() {
+  //    return responseHeaderFieldName;
+  //  }
+  //
+  //  public void setResponseHeaderFieldName(String responseHeaderFieldName) {
+  //    this.responseHeaderFieldName = responseHeaderFieldName;
+  //  }
 
   public static boolean isActiveBody(String method) {
     if (Utils.isEmpty(method)) {

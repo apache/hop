@@ -60,6 +60,44 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     client = builder.build();
   }
 
+  public String getResponse(String url) throws HopException {
+    WebTarget target = client.target(testUrl);
+    Invocation.Builder invocationBuilder = target.request();
+    if (!StringUtils.isEmpty(authorizationPrefix)) {
+      invocationBuilder.header(
+              authorizationHeaderName, authorizationPrefix + " " + authorizationHeaderValue);
+    } else {
+      invocationBuilder.header(authorizationHeaderName, authorizationHeaderValue);
+    }
+    Response response = invocationBuilder.get();
+
+    if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+      throw new HopException("Error connecting to " + testUrl + ": " + response.getStatus());
+    }
+    return response.readEntity(String.class);
+  }
+
+  public void disconnect() throws HopException {
+    client.close();
+  }
+
+  public void testConnection() throws HopException {
+    WebTarget target = client.target(testUrl);
+    Invocation.Builder invocationBuilder = target.request();
+    if (!StringUtils.isEmpty(authorizationPrefix)) {
+      invocationBuilder.header(
+              authorizationHeaderName, authorizationPrefix + " " + authorizationHeaderValue);
+    } else {
+      invocationBuilder.header(authorizationHeaderName, authorizationHeaderValue);
+    }
+    Response response = invocationBuilder.get();
+    if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+      throw new HopException("Error connecting to " + testUrl + ": " + response.getStatus());
+    }
+    response.close();
+  }
+
+
   public RestConnection(RestConnection connection) {
     this.baseUrl = connection.baseUrl;
   }
@@ -147,19 +185,4 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     this.authorizationHeaderValue = authorizationHeaderValue;
   }
 
-  public void testConnection() throws HopException {
-    WebTarget target = client.target(testUrl);
-    Invocation.Builder invocationBuilder = target.request();
-    if (!StringUtils.isEmpty(authorizationPrefix)) {
-      invocationBuilder.header(
-          authorizationHeaderName, authorizationPrefix + " " + authorizationHeaderValue);
-    } else {
-      invocationBuilder.header(authorizationHeaderName, authorizationHeaderValue);
-    }
-    Response response = invocationBuilder.get();
-    if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-      throw new HopException("Error connecting to " + testUrl + ": " + response.getStatus());
-    }
-    response.close();
-  }
 }
