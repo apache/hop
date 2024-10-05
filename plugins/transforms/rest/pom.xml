@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>rest</artifactId>
+            <artifactId>hop-misc-rest</artifactId>
             <version>${version}</version>
         </dependency>
         <dependency>

@@ -4,9 +4,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class RestConnectionLine extends Composite {
 
-    public RestConnectionLine(Composite parent, int style) {
-        super(parent, style);
-
-
-    }
+  public RestConnectionLine(Composite parent, int style) {
+    super(parent, style);
+  }
 }

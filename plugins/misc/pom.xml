@@ -36,9 +36,9 @@
         <module>passwords</module>
         <module>projects</module>
         <module>reflection</module>
+        <module>rest</module>
         <module>static-schema</module>
         <module>testing</module>
-        <module>rest</module>
     </modules>
 
 </project>
