@@ -424,7 +424,6 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
       // set Headers
-      //      int nrargs = meta.getHeaderName() == null ? 0 : meta.getHeaderName().length;
       if (meta.getHeaderFields().isEmpty()) {
         data.nrheader = meta.getHeaderFields().size();
         data.indexOfHeaderFields = new int[meta.getHeaderFields().size()];

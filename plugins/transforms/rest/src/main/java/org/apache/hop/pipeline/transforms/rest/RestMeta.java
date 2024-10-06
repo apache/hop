@@ -178,11 +178,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       injectionGroupKey = "PARAMETERS")
   private List<ParameterField> parameterFields;
 
-  /** Query parameters name */
-  //  private String[] parameterField;
-  //
-  //  private String[] parameterName;
-
   @HopMetadataProperty(
       key = "matrixParameter",
       injectionKey = "MATRIX_PARAMETER",
@@ -190,20 +185,8 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       injectionGroupKey = "MATRIX_PARAMETERS")
   private List<MatrixParameterField> matrixParameterFields;
 
-  /** Matrix parameters name */
-  //  private String[] matrixParameterField;
-  //
-  //  private String[] matrixParameterName;
-
   @HopMetadataProperty(key = "result", injectionKey = "RESULT")
   private ResultField resultField;
-
-  /** function result: new value name */
-  //  private String fieldName;
-  //
-  //  private String resultCodeFieldName;
-  //  private String responseTimeFieldName;
-  //  private String responseHeaderFieldName;
 
   public RestMeta() {
     super(); // allocate BaseTransformMeta
@@ -242,20 +225,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   }
 
   /**
-   * @return Returns the headerName.
-   */
-  //  public String[] getHeaderName() {
-  //    return headerName;
-  //  }
-
-  /**
-   * @param value The headerName to set.
-   */
-  //  public void setHeaderName(String[] value) {
-  //    this.headerName = value;
-  //  }
-
-  /**
    * @return Returns the parameterField.
    */
   public List<ParameterField> getParameterFields() {
@@ -266,27 +235,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.parameterFields = value;
   }
 
-  /**
-   * @param value The parameterField to set.
-   */
-  //  public void setParameterField(String[] value) {
-  //    this.parameterField = value;
-  //  }
-
-  /**
-   * @return Returns the parameterName.
-   */
-  //  public String[] getParameterName() {
-  //    return parameterName;
-  //  }
-
-  //  /**
-  //   * @param value The parameterName to set.
-  //   */
-  //  public void setParameterName(String[] value) {
-  //    this.parameterName = value;
-  //  }
-
   public List<MatrixParameterField> getMatrixParameterFields() {
     return matrixParameterFields;
   }
@@ -294,34 +242,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public void setMatrixParameterFields(List<MatrixParameterField> value) {
     this.matrixParameterFields = value;
   }
-
-  /**
-   * @return Returns the matrixParameterField.
-   */
-  //  public String[] getMatrixParameterField() {
-  //    return matrixParameterField;
-  //  }
-
-  /**
-   * @param value The matrixParameterField to set.
-   */
-  //  public void setMatrixParameterField(String[] value) {
-  //    this.matrixParameterField = value;
-  //  }
-
-  /**
-   * @return Returns the matrixParameterName.
-   */
-  //  public String[] getMatrixParameterName() {
-  //    return matrixParameterName;
-  //  }
-
-  /**
-   * @param value The matrixParameterName to set.
-   */
-  //  public void setMatrixParameterName(String[] value) {
-  //    this.matrixParameterName = value;
-  //  }
 
   /**
    * @return Returns the headerField.
@@ -421,20 +341,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.urlField = urlField;
   }
 
-  /**
-   * @return Returns the resultName.
-   */
-  //  public String getFieldName() {
-  //    return fieldName;
-  //  }
-
-  //  /**
-  //   * @param resultName The resultName to set.
-  //   */
-  //  public void setFieldName(String resultName) {
-  //    this.fieldName = resultName;
-  //  }
-
   public boolean isIgnoreSsl() {
     return ignoreSsl;
   }
@@ -443,41 +349,9 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.ignoreSsl = ignoreSsl;
   }
 
-  //  @Override
-  //  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-  //      throws HopXmlException {
-  //    readData(transformNode, metadataProvider);
-  //  }
-
-  //  public void allocate(int nrheaders, int nrparamers, int nrmatrixparameters) {
-  //    headerFields = new ArrayList<>();
-  //    parameterFields = new ArrayList<>();
-  //    matrixParameterFields = new ArrayList<>();
-
-  //    headerName = new String[nrheaders];
-  //    parameterField = new String[nrparamers];
-  //    parameterName = new String[nrparamers];
-  //    matrixParameterField = new String[nrmatrixparameters];
-  //    matrixParameterName = new String[nrmatrixparameters];
-  //  }
-
   @Override
   public Object clone() {
     RestMeta retval = (RestMeta) super.clone();
-
-    //    int nrheaders = headerName.length;
-    //    int nrparameters = parameterField.length;
-    //    int nrmatrixparameters = matrixParameterField.length;
-
-    //    retval.allocate(nrheaders, nrparameters, nrmatrixparameters);
-    //    System.arraycopy(headerFields, 0, retval.headerFields, 0, nrheaders);
-    //    System.arraycopy(headerName, 0, retval.headerName, 0, nrheaders);
-    //    System.arraycopy(parameterField, 0, retval.parameterField, 0, nrparameters);
-    //    System.arraycopy(parameterName, 0, retval.parameterName, 0, nrparameters);
-    //    System.arraycopy(matrixParameterField, 0, retval.matrixParameterField, 0,
-    // nrmatrixparameters);
-    //    System.arraycopy(matrixParameterName, 0, retval.matrixParameterName, 0,
-    // nrmatrixparameters);
 
     return retval;
   }
@@ -488,11 +362,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     parameterFields = new ArrayList<>();
     matrixParameterFields = new ArrayList<>();
     resultField = new ResultField();
-    //    allocate(0, 0, 0);
-    //    this.fieldName = CONST_RESULT;
-    //    this.resultCodeFieldName = "";
-    //    this.responseTimeFieldName = "";
-    //    this.responseHeaderFieldName = "";
+
     this.method = HTTP_METHOD_GET;
     this.dynamicMethod = false;
     this.methodFieldName = null;
@@ -536,163 +406,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       inputRowMeta.addValueMeta(v);
     }
   }
-
-  //  @Override
-  //  public String getXml() {
-  //    StringBuilder retval = new StringBuilder();
-  //    retval.append("    ").append(XmlHandler.addTagValue("applicationType", applicationType));
-  //    retval.append("    ").append(XmlHandler.addTagValue("method", method));
-  //    retval.append("    ").append(XmlHandler.addTagValue("url", url));
-  //    retval.append("    ").append(XmlHandler.addTagValue("urlInField", urlInField));
-  //    retval.append("    ").append(XmlHandler.addTagValue("dynamicMethod", dynamicMethod));
-  //    retval.append("    ").append(XmlHandler.addTagValue("methodFieldName", methodFieldName));
-  //
-  //    retval.append("    ").append(XmlHandler.addTagValue("urlField", urlField));
-  //    retval.append("    ").append(XmlHandler.addTagValue("bodyField", bodyField));
-  //    retval.append("    ").append(XmlHandler.addTagValue("httpLogin", httpLogin));
-  //
-  //    retval.append("    ").append(XmlHandler.addTagValue("readTimeout", readTimeout));
-  //    retval.append("    ").append(XmlHandler.addTagValue("connectionTimeout",
-  // connectionTimeout));
-  //
-  //    retval
-  //        .append("    ")
-  //        .append(
-  //            XmlHandler.addTagValue(
-  //                "httpPassword", Encr.encryptPasswordIfNotUsingVariables(httpPassword)));
-  //
-  //    retval.append("    ").append(XmlHandler.addTagValue("proxyHost", proxyHost));
-  //    retval.append("    ").append(XmlHandler.addTagValue("proxyPort", proxyPort));
-  //    retval.append("    ").append(XmlHandler.addTagValue("preemptive", preemptive));
-  //
-  //    retval.append("    ").append(XmlHandler.addTagValue("trustStoreFile", trustStoreFile));
-  //    retval
-  //        .append("    ")
-  //        .append(
-  //            XmlHandler.addTagValue(
-  //                "trustStorePassword",
-  // Encr.encryptPasswordIfNotUsingVariables(trustStorePassword)));
-  //    retval.append("    ").append(XmlHandler.addTagValue("ignoreSsl", ignoreSsl));
-  //
-  //    retval.append("    <headers>").append(Const.CR);
-  //    for (int i = 0, len = (headerName != null ? headerName.length : 0); i < len; i++) {
-  //      retval.append("      <header>").append(Const.CR);
-  //      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue(CONST_FIELD,
-  // headerFields[i]));
-  //      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", headerName[i]));
-  //      retval.append("        </header>").append(Const.CR);
-  //    }
-  //    retval.append("      </headers>").append(Const.CR);
-  //
-  //    retval.append("    <parameters>").append(Const.CR);
-  //    for (int i = 0, len = (parameterName != null ? parameterName.length : 0); i < len; i++) {
-  //      retval.append("      <parameter>").append(Const.CR);
-  //      retval
-  //          .append(CONST_SPACES_LONG)
-  //          .append(XmlHandler.addTagValue(CONST_FIELD, parameterField[i]));
-  //      retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", parameterName[i]));
-  //      retval.append("        </parameter>").append(Const.CR);
-  //    }
-  //    retval.append("      </parameters>").append(Const.CR);
-  //
-  //    retval.append("    <matrixParameters>").append(Const.CR);
-  //    for (int i = 0, len = (matrixParameterName != null ? matrixParameterName.length : 0);
-  //        i < len;
-  //        i++) {
-  //      retval.append("      <matrixParameter>").append(Const.CR);
-  //      retval
-  //          .append(CONST_SPACES_LONG)
-  //          .append(XmlHandler.addTagValue(CONST_FIELD, matrixParameterField[i]));
-  //      retval
-  //          .append(CONST_SPACES_LONG)
-  //          .append(XmlHandler.addTagValue("name", matrixParameterName[i]));
-  //      retval.append("        </matrixParameter>").append(Const.CR);
-  //    }
-  //    retval.append("      </matrixParameters>").append(Const.CR);
-  //
-  //    retval.append("    <result>").append(Const.CR);
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fieldName));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("code", resultCodeFieldName));
-  //    retval
-  //        .append(CONST_SPACES)
-  //        .append(XmlHandler.addTagValue("response_time", responseTimeFieldName));
-  //    retval
-  //        .append(CONST_SPACES)
-  //        .append(XmlHandler.addTagValue("response_header", responseHeaderFieldName));
-  //    retval.append("      </result>").append(Const.CR);
-  //
-  //    return retval.toString();
-  //  }
-
-  //  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-  //      throws HopXmlException {
-  //    try {
-  //      applicationType = XmlHandler.getTagValue(transformNode, "applicationType");
-  //      method = XmlHandler.getTagValue(transformNode, "method");
-  //      url = XmlHandler.getTagValue(transformNode, "url");
-  //      urlInField = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "urlInField"));
-  //      methodFieldName = XmlHandler.getTagValue(transformNode, "methodFieldName");
-
-  //      dynamicMethod = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode,
-  // "dynamicMethod"));
-  //      urlField = XmlHandler.getTagValue(transformNode, "urlField");
-  //      bodyField = XmlHandler.getTagValue(transformNode, "bodyField");
-  //      readTimeout = XmlHandler.getTagValue(transformNode, "readTimeout");
-  //      connectionTimeout = XmlHandler.getTagValue(transformNode, "connectionTimeout");
-  //      httpLogin = XmlHandler.getTagValue(transformNode, "httpLogin");
-  //      httpPassword =
-  //          Encr.decryptPasswordOptionallyEncrypted(
-  //              XmlHandler.getTagValue(transformNode, "httpPassword"));
-  //
-  //      proxyHost = XmlHandler.getTagValue(transformNode, "proxyHost");
-  //      proxyPort = XmlHandler.getTagValue(transformNode, "proxyPort");
-  //      preemptive = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "preemptive"));
-  //
-  //      trustStoreFile = XmlHandler.getTagValue(transformNode, "trustStoreFile");
-  //      trustStorePassword =
-  //          Encr.decryptPasswordOptionallyEncrypted(
-  //              XmlHandler.getTagValue(transformNode, "trustStorePassword"));
-  //      ignoreSsl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignoreSsl"));
-  //
-  //      Node headernode = XmlHandler.getSubNode(transformNode, "headers");
-  //      int nrheaders = XmlHandler.countNodes(headernode, "header");
-  //      Node paramnode = XmlHandler.getSubNode(transformNode, "parameters");
-  //      int nrparameters = XmlHandler.countNodes(paramnode, "parameter");
-  //      Node matrixparamnode = XmlHandler.getSubNode(transformNode, "matrixParameters");
-  //      int nrmatrixparameters = XmlHandler.countNodes(matrixparamnode, "matrixParameter");
-  //
-  //      allocate(nrheaders, nrparameters, nrmatrixparameters);
-  //      for (int i = 0; i < nrheaders; i++) {
-  //        Node anode = XmlHandler.getSubNodeByNr(headernode, "header", i);
-  //        headerFields[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
-  //        headerName[i] = XmlHandler.getTagValue(anode, "name");
-  //      }
-  //      for (int i = 0; i < nrparameters; i++) {
-  //        Node anode = XmlHandler.getSubNodeByNr(paramnode, "parameter", i);
-  //        parameterField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
-  //        parameterName[i] = XmlHandler.getTagValue(anode, "name");
-  //      }
-  //      for (int i = 0; i < nrmatrixparameters; i++) {
-  //        Node anode = XmlHandler.getSubNodeByNr(matrixparamnode, "matrixParameter", i);
-  //        matrixParameterField[i] = XmlHandler.getTagValue(anode, CONST_FIELD);
-  //        matrixParameterName[i] = XmlHandler.getTagValue(anode, "name");
-  //      }
-  //
-  //      fieldName =
-  //          XmlHandler.getTagValue(transformNode, CONST_RESULT, "name"); // Optional, can be null
-  //      resultCodeFieldName =
-  //          XmlHandler.getTagValue(transformNode, CONST_RESULT, "code"); // Optional, can be null
-  //      responseTimeFieldName =
-  //          XmlHandler.getTagValue(
-  //              transformNode, CONST_RESULT, "response_time"); // Optional, can be null
-  //      responseHeaderFieldName =
-  //          XmlHandler.getTagValue(
-  //              transformNode, CONST_RESULT, "response_header"); // Optional, can be null
-  //    } catch (Exception e) {
-  //      throw new HopXmlException(
-  //          BaseMessages.getString(PKG, "RestMeta.Exception.UnableToReadTransformMeta"), e);
-  //    }
-  //  }
 
   @Override
   public void check(
@@ -794,20 +507,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public boolean supportsErrorHandling() {
     return true;
   }
-
-  //  /**
-  //   * @return the resultCodeFieldName
-  //   */
-  //  public String getResultCodeFieldName() {
-  //    return resultCodeFieldName;
-  //  }
-  //
-  //  /**
-  //   * @param resultCodeFieldName the resultCodeFieldName to set
-  //   */
-  //  public void setResultCodeFieldName(String resultCodeFieldName) {
-  //    this.resultCodeFieldName = resultCodeFieldName;
-  //  }
 
   /**
    * Setter
@@ -936,22 +635,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public void setResultField(ResultField resultField) {
     this.resultField = resultField;
   }
-
-  //  public String getResponseTimeFieldName() {
-  //    return responseTimeFieldName;
-  //  }
-  //
-  //  public void setResponseTimeFieldName(String responseTimeFieldName) {
-  //    this.responseTimeFieldName = responseTimeFieldName;
-  //  }
-  //
-  //  public String getResponseHeaderFieldName() {
-  //    return responseHeaderFieldName;
-  //  }
-  //
-  //  public void setResponseHeaderFieldName(String responseHeaderFieldName) {
-  //    this.responseHeaderFieldName = responseHeaderFieldName;
-  //  }
 
   public static boolean isActiveBody(String method) {
     if (Utils.isEmpty(method)) {

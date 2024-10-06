@@ -1463,11 +1463,6 @@ public class RestDialog extends BaseTransformDialog {
     input.getParameterFields().clear();
     input.getMatrixParameterFields().clear();
 
-    //    int nrheaders = wFields.nrNonEmpty();
-    //    int nrparams = wParameters.nrNonEmpty();
-    //    int nrmatrixparams = wMatrixParameters.nrNonEmpty();
-    //    input.allocate(nrheaders, nrparams, nrmatrixparams);
-
     if (isDebug()) {
       logDebug(
           BaseMessages.getString(
@@ -1478,16 +1473,12 @@ public class RestDialog extends BaseTransformDialog {
       HeaderField headerField = new HeaderField();
       headerField.setHeaderField(item.getText(1));
       headerField.setName(item.getText(2));
-      //      input.getHeaderFields()[i] = item.getText(1);
-      //      input.getHeaderName()[i] = item.getText(2);
     }
     for (int i = 0; i < wParameters.nrNonEmpty(); i++) {
       TableItem item = wParameters.getNonEmpty(i);
       ParameterField parameterField = new ParameterField();
       parameterField.setHeaderField(item.getText(1));
       parameterField.setName(item.getText(2));
-      //      input.getParameterField()[i] = item.getText(1);
-      //      input.getParameterName()[i] = item.getText(2);
     }
 
     for (int i = 0; i < wMatrixParameters.nrNonEmpty(); i++) {
@@ -1495,8 +1486,6 @@ public class RestDialog extends BaseTransformDialog {
       MatrixParameterField matrixParameterField = new MatrixParameterField();
       matrixParameterField.setHeaderField(item.getText(1));
       matrixParameterField.setName(item.getText(2));
-      //      input.getMatrixParameterField()[i] = item.getText(1);
-      //      input.getMatrixParameterName()[i] = item.getText(2);
     }
 
     input.setDynamicMethod(wMethodInField.getSelection());
