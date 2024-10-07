@@ -73,8 +73,6 @@ public class JsonOutputDialog extends BaseTransformDialog {
   private Label wlOutputValue;
   private TextVar wOutputValue;
 
-  private Button wCompatibilityMode;
-
   private TextVar wBlocName;
 
   private TextVar wNrRowsInBloc;
@@ -292,33 +290,6 @@ public class JsonOutputDialog extends BaseTransformDialog {
     fdOutputValue.top = new FormAttachment(wNrRowsInBloc, margin);
     fdOutputValue.right = new FormAttachment(100, 0);
     wOutputValue.setLayoutData(fdOutputValue);
-
-    // ////////////////////////// start of compatibility mode
-    Label wlCompatibilityMode = new Label(wSettings, SWT.RIGHT);
-    wlCompatibilityMode.setText(
-        BaseMessages.getString(PKG, "JsonOutputDialog.CompatibilityMode.Label"));
-    PropsUi.setLook(wlCompatibilityMode);
-    FormData fdlCompatibilityMode = new FormData();
-    fdlCompatibilityMode.left = new FormAttachment(0, 0);
-    fdlCompatibilityMode.top = new FormAttachment(wOutputValue, margin);
-    fdlCompatibilityMode.right = new FormAttachment(middle, -margin);
-    wlCompatibilityMode.setLayoutData(fdlCompatibilityMode);
-    wCompatibilityMode = new Button(wSettings, SWT.CHECK);
-    wCompatibilityMode.setToolTipText(
-        BaseMessages.getString(PKG, "JsonOutputDialog.CompatibilityMode.Tooltip"));
-    PropsUi.setLook(wCompatibilityMode);
-    FormData fdCompatibilityMode = new FormData();
-    fdCompatibilityMode.left = new FormAttachment(middle, 0);
-    fdCompatibilityMode.top = new FormAttachment(wlCompatibilityMode, 0, SWT.CENTER);
-    fdCompatibilityMode.right = new FormAttachment(100, 0);
-    wCompatibilityMode.setLayoutData(fdCompatibilityMode);
-    wCompatibilityMode.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
 
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
@@ -797,7 +768,6 @@ public class JsonOutputDialog extends BaseTransformDialog {
     wNrRowsInBloc.setText(Const.NVL(input.getNrRowsInBloc(), ""));
     wEncoding.setText(Const.NVL(input.getEncoding(), ""));
     wOutputValue.setText(Const.NVL(input.getOutputValue(), ""));
-    wCompatibilityMode.setSelection(input.isCompatibilityMode());
 
     wOperation.setText(JsonOutputMeta.operationTypeDesc.get(input.getOperationType()));
     wFilename.setText(Const.NVL(input.getFileName(), ""));
@@ -842,7 +812,6 @@ public class JsonOutputDialog extends BaseTransformDialog {
     jsometa.setNrRowsInBloc(wNrRowsInBloc.getText());
     jsometa.setEncoding(wEncoding.getText());
     jsometa.setOutputValue(wOutputValue.getText());
-    jsometa.setCompatibilityMode(wCompatibilityMode.getSelection());
     jsometa.setOperationType(JsonOutputMeta.operationDescType.get(wOperation.getText()));
     jsometa.setCreateParentFolder(wCreateParentFolder.getSelection());
     jsometa.setFileName(wFilename.getText());

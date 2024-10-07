@@ -112,10 +112,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.APPEND")
   private boolean fileAppended;
 
-  /** Flag to indicate whether or not to create JSON structures compatible with pre v4.3.0 */
-  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.COMPATIBILITY_MODE")
-  private boolean compatibilityMode;
-
   /** Flag: create parent folder if needed */
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.CREATE_PARENT_FOLDER")
   private boolean createParentFolder;
@@ -403,13 +399,5 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
   public void setOutputValue(String outputValue) {
     this.outputValue = outputValue;
-  }
-
-  public boolean isCompatibilityMode() {
-    return compatibilityMode;
-  }
-
-  public void setCompatibilityMode(boolean compatibilityMode) {
-    this.compatibilityMode = compatibilityMode;
   }
 }

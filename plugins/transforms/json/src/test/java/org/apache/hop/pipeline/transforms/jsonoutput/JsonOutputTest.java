@@ -65,7 +65,7 @@ import org.junit.Assert;
 
 public class JsonOutputTest extends TestCase {
 
-  private static final String EXPECTED_NON_COMPATIBILITY_JSON =
+  private static final String EXPECTED_JSON =
       "{\"data\":[{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"},"
           + "{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"},"
           + "{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"},"
@@ -76,15 +76,6 @@ public class JsonOutputTest extends TestCase {
           + "{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"},"
           + "{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"},"
           + "{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"}]}";
-
-  private static final String EXPECTED_COMPATIBILITY_MODE_JSON =
-      "{\"data\":[{\"id\":1},{\"state\":\"Florida\"},{\"city\":\"Orlando\"},{\"id\":1},{\"state\":\"Florida\"},"
-          + "{\"city\":\"Orlando\"},{\"id\":1},{\"state\":\"Florida\"},{\"city\":\"Orlando\"},{\"id\":1},"
-          + "{\"state\":\"Florida\"},{\"city\":\"Orlando\"},{\"id\":1},{\"state\":\"Florida\"},"
-          + "{\"city\":\"Orlando\"},{\"id\":1},{\"state\":\"Florida\"},{\"city\":\"Orlando\"},{\"id\":1},"
-          + "{\"state\":\"Florida\"},{\"city\":\"Orlando\"},{\"id\":1},{\"state\":\"Florida\"},"
-          + "{\"city\":\"Orlando\"},{\"id\":1},{\"state\":\"Florida\"},{\"city\":\"Orlando\"},{\"id\":1},"
-          + "{\"state\":\"Florida\"},{\"city\":\"Orlando\"}]}";
 
   /**
    * Creates a row generator transform for this class..
@@ -270,7 +261,7 @@ public class JsonOutputTest extends TestCase {
     return jsonOutputTransform;
   }
 
-  public String test(boolean compatibilityMode) throws Exception {
+  public void test() throws Exception {
     HopEnvironment.init();
 
     // Create a new transformation...
@@ -300,7 +291,6 @@ public class JsonOutputTest extends TestCase {
     String jsonFileName = TestUtilities.createEmptyTempFile("testJsonOutput1_");
     TransformMeta jsonOutputTransform =
         createJsonOutputTransform("json output transform", jsonFileName, registry);
-    ((JsonOutputMeta) jsonOutputTransform.getTransform()).setCompatibilityMode(compatibilityMode);
     pipelineMeta.addTransform(jsonOutputTransform);
 
     // create a PipelineHopMeta for jsonOutputTransform and add it to the pipelineMeta
@@ -332,19 +322,8 @@ public class JsonOutputTest extends TestCase {
 
     // get the results and return it
     File outputFile = new File(jsonFileName + ".js");
-    return FileUtils.readFileToString(outputFile);
-  }
-
-  // The actual tests
-
-  public void testNonCompatibilityMode() throws Exception {
-    String jsonStructure = test(false);
-    Assert.assertTrue(jsonEquals(EXPECTED_NON_COMPATIBILITY_JSON, jsonStructure));
-  }
-
-  public void testCompatibilityMode() throws Exception {
-    String jsonStructure = test(true);
-    Assert.assertEquals(EXPECTED_COMPATIBILITY_MODE_JSON, jsonStructure);
+    String jsonStructure = FileUtils.readFileToString(outputFile);
+    Assert.assertTrue(jsonEquals(EXPECTED_JSON, jsonStructure));
   }
 
   public void testNpeIsNotThrownOnNullInput() throws Exception {

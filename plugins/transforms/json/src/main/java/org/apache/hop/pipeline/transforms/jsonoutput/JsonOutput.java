@@ -51,123 +51,54 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       Pipeline pipeline) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
 
-    // Here we decide whether or not to build the structure in
-    // compatible mode or fixed mode
     JsonOutputMeta jsonOutputMeta = (JsonOutputMeta) (transformMeta.getTransform());
-    if (jsonOutputMeta.isCompatibilityMode()) {
-      compatibilityFactory = new CompatibilityMode();
-    } else {
-      compatibilityFactory = new FixedMode();
-    }
   }
 
-  private interface CompatibilityFactory {
-    public void execute(Object[] row) throws HopException;
-  }
+  public void execute(Object[] row) throws HopException {
 
-  private class CompatibilityMode implements CompatibilityFactory {
-    @Override
-    public void execute(Object[] row) throws HopException {
+    // Create a new object with specified fields
+    JSONObject jo = new JSONObject();
 
-      for (int i = 0; i < data.nrFields; i++) {
-        JsonOutputField outputField = meta.getOutputFields().get(i);
+    for (int i = 0; i < data.nrFields; i++) {
+      JsonOutputField outputField = meta.getOutputFields().get(i);
 
-        IValueMeta v = data.inputRowMeta.getValueMeta(data.fieldIndexes[i]);
+      IValueMeta v = data.inputRowMeta.getValueMeta(data.fieldIndexes[i]);
 
-        // Create a new object with specified fields
-        JSONObject jo = new JSONObject();
-
-        switch (v.getType()) {
-          case IValueMeta.TYPE_BOOLEAN:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getBoolean(row, data.fieldIndexes[i]));
-            break;
-          case IValueMeta.TYPE_INTEGER:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getInteger(row, data.fieldIndexes[i]));
-            break;
-          case IValueMeta.TYPE_NUMBER:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getNumber(row, data.fieldIndexes[i]));
-            break;
-          case IValueMeta.TYPE_BIGNUMBER:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getBigNumber(row, data.fieldIndexes[i]));
-            break;
-          default:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getString(row, data.fieldIndexes[i]));
-            break;
-        }
-        data.ja.add(jo);
-      }
-
-      data.nrRow++;
-
-      if (data.nrRowsInBloc > 0 && data.nrRow % data.nrRowsInBloc == 0) {
-        // We can now output an object
-        outputRow(row);
+      switch (v.getType()) {
+        case IValueMeta.TYPE_BOOLEAN:
+          jo.put(
+              outputField.getElementName(),
+              data.inputRowMeta.getBoolean(row, data.fieldIndexes[i]));
+          break;
+        case IValueMeta.TYPE_INTEGER:
+          jo.put(
+              outputField.getElementName(),
+              data.inputRowMeta.getInteger(row, data.fieldIndexes[i]));
+          break;
+        case IValueMeta.TYPE_NUMBER:
+          jo.put(
+              outputField.getElementName(), data.inputRowMeta.getNumber(row, data.fieldIndexes[i]));
+          break;
+        case IValueMeta.TYPE_BIGNUMBER:
+          jo.put(
+              outputField.getElementName(),
+              data.inputRowMeta.getBigNumber(row, data.fieldIndexes[i]));
+          break;
+        default:
+          jo.put(
+              outputField.getElementName(), data.inputRowMeta.getString(row, data.fieldIndexes[i]));
+          break;
       }
     }
-  }
+    data.ja.add(jo);
 
-  private class FixedMode implements CompatibilityFactory {
-    @Override
-    public void execute(Object[] row) throws HopException {
+    data.nrRow++;
 
-      // Create a new object with specified fields
-      JSONObject jo = new JSONObject();
-
-      for (int i = 0; i < data.nrFields; i++) {
-        JsonOutputField outputField = meta.getOutputFields().get(i);
-
-        IValueMeta v = data.inputRowMeta.getValueMeta(data.fieldIndexes[i]);
-
-        switch (v.getType()) {
-          case IValueMeta.TYPE_BOOLEAN:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getBoolean(row, data.fieldIndexes[i]));
-            break;
-          case IValueMeta.TYPE_INTEGER:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getInteger(row, data.fieldIndexes[i]));
-            break;
-          case IValueMeta.TYPE_NUMBER:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getNumber(row, data.fieldIndexes[i]));
-            break;
-          case IValueMeta.TYPE_BIGNUMBER:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getBigNumber(row, data.fieldIndexes[i]));
-            break;
-          default:
-            jo.put(
-                outputField.getElementName(),
-                data.inputRowMeta.getString(row, data.fieldIndexes[i]));
-            break;
-        }
-      }
-      data.ja.add(jo);
-
-      data.nrRow++;
-
-      if (data.nrRowsInBloc > 0 && data.nrRow % data.nrRowsInBloc == 0) {
-        // We can now output an object
-        outputRow(row);
-      }
+    if (data.nrRowsInBloc > 0 && data.nrRow % data.nrRowsInBloc == 0) {
+      // We can now output an object
+      outputRow(row);
     }
   }
-
-  private CompatibilityFactory compatibilityFactory;
 
   @Override
   public boolean processRow() throws HopException {
@@ -204,7 +135,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     }
 
     data.rowsAreSafe = false;
-    compatibilityFactory.execute(r);
+    execute(r);
 
     if (data.writeToFile && !data.outputValue) {
       putRow(data.inputRowMeta, r); // in case we want it go further...
