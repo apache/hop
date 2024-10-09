@@ -147,8 +147,6 @@ public class HopWeb implements ApplicationConfiguration {
     application.addEntryPoint("/ui", HopWebEntryPoint.class, properties);
     application.setOperationMode(Application.OperationMode.SWT_COMPATIBILITY);
 
-    application.addServiceHandler("downloadServiceHandler", new DownloadServiceHandler());
-
     // Print some important system settings...
     //
     System.out.println("HOP_CONFIG_FOLDER: " + Const.HOP_CONFIG_FOLDER);
