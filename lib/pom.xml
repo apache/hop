@@ -35,7 +35,7 @@
         <apache-flink.version>1.16.3</apache-flink.version>
         <apache-spark.version>3.4.3</apache-spark.version>
         <asm.version>9.7</asm.version>
-        <avro.version>1.11.3</avro.version>
+        <avro.version>1.11.4</avro.version>
         <aws-java-sdk.version>1.12.347</aws-java-sdk.version>
         <bahir.version>2.1.1</bahir.version>
         <blueprints-core.version>2.6.0</blueprints-core.version>
