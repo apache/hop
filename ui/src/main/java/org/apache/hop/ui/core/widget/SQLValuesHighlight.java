@@ -669,7 +669,7 @@ public class SQLValuesHighlight implements LineStyleListener {
     /** Initialize the lookup table. */
     void initialize() {
       fgKeys = new Hashtable<String, Integer>();
-      Integer k = new Integer(KEY);
+      Integer k = Integer.valueOf(KEY);
       for (int i = 0; i < fgKeywords.length; i++) {
         fgKeys.put(fgKeywords[i], k);
       }
@@ -685,7 +685,7 @@ public class SQLValuesHighlight implements LineStyleListener {
 
     public void initializeSQLFunctions() {
       kfKeys = new Hashtable<String, Integer>();
-      Integer k = new Integer(FUNCTIONS);
+      Integer k = Integer.valueOf(FUNCTIONS);
       for (int i = 0; i < kfKeywords.length; i++) {
         kfKeys.put(kfKeywords[i], k);
       }
