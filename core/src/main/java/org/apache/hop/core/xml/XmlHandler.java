@@ -737,7 +737,8 @@ public class XmlHandler {
     try {
       transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
       transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-    } catch (IllegalArgumentException e) {
+      transformerFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    } catch (IllegalArgumentException | TransformerException e) {
       // Ignore this: the library doesn't support these features.
       // We don't need to disable them.
     }

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
@@ -34,21 +35,19 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
 
 /**
- * @deprecated We expect a few variables to be set for this plugin to be picked up: 1.
- *     HOP_PASSWORD_ENCODER_PLUGIN set to the ID of this plugin:"AES" 2. HOP_AES_ENCODER_KEY set to
- *     the key of your choice.
+ * We expect a few variables to be set for this plugin to be picked up: 1.
+ * HOP_PASSWORD_ENCODER_PLUGIN set to the ID of this plugin:"AES" 2. HOP_AES_ENCODER_KEY set to the
+ * key of your choice.
  */
 @TwoWayPasswordEncoderPlugin(
-    id = "AES",
-    name = "AES Password encoder (Deprecated)",
-    description = "Allows for 128/192/256 bit password encryption of passwords in Hop (Deprecated)")
-@Deprecated(since = "2.11")
-@SuppressWarnings({"java:S5542", "java:S4790"})
-public class AesTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
+    id = "AES2",
+    name = "AES2 Password encoder",
+    description = "Allows for 128/192/256 bit password encryption of passwords in Hop")
+public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
 
   public static final String VARIABLE_HOP_AES_ENCODER_KEY = "HOP_AES_ENCODER_KEY";
-  public static final String AES_PREFIX = "AES ";
-  public static final String AES_ALGORITHM = "AES/ECB/PKCS5Padding";
+  public static final String AES_PREFIX = "AES2 ";
+  public static final String AES_ALGORITHM = "AES/GCM/NoPadding";
 
   private Cipher encryptCipher;
   private Cipher decryptCipher;
@@ -66,18 +65,19 @@ public class AesTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
         noKeySpecified();
       }
       byte[] key = realAesKey.getBytes(StandardCharsets.UTF_8);
-      MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+      MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
       byte[] digestKey = messageDigest.digest(key);
       byte[] copiedKey = Arrays.copyOf(digestKey, 16);
       SecretKeySpec secretKeySpec = new SecretKeySpec(copiedKey, "AES");
+      GCMParameterSpec parameterSpec = new GCMParameterSpec(128, copiedKey);
 
       // Create the cyphers that will do the encoding/decoding below...
       //
       encryptCipher = Cipher.getInstance(AES_ALGORITHM);
-      encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+      encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, parameterSpec);
 
       decryptCipher = Cipher.getInstance(AES_ALGORITHM);
-      decryptCipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+      decryptCipher.init(Cipher.DECRYPT_MODE, secretKeySpec, parameterSpec);
     } catch (Exception e) {
       throw new HopException("Error initializing AES password encoder plugin", e);
     }

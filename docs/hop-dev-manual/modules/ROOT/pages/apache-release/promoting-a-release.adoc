@@ -50,9 +50,24 @@ svn move the files from the staging area to the release area
 cd hop_public_release
 svn mkdir X.XX
 cd X.XX
+svn add .
 svn mv ~/svn/hop_release/apache-hop-X.XX-rcX/* .
 svn commit -m 'Move release files for Apache hop 1.2.0-rc1'
 ----
+
+Remove files from old location
+[source,bash]
+----
+cd hop_release
+svn commit -m 'Move release files for Apache hop 1.2.0-rc1'
+----
+
+== Promoting the artifacts to maven central
+* Go to the https://repository.apache.org/#stagingRepositories[Nexus staging repository] (Use your ASF credentials to log in)
+* Select the repository
+* Release the repository
+* Use "Release Apache Hop x.x.x" as message
+
 
 == Creating Dockerhub Artifacts
 
@@ -65,8 +80,10 @@ first take a copy of the source code release and build the software
 ----
 unzip ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/
 unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp
-unzip ./assemblies/plugins/target/hop-assemblies-*.zip -d ./assemblies/plugins/target/
-unzip -j ./assemblies/lib-jdbc/target/hop-assemblies-*.zip -d ./assemblies/lib-jdbc/target/jdbc-drivers
+
+# Create and push Dataflow template
+# Create hop-fatjar.jar
+./assemblies/client/target/hop/hop-conf.sh --generate-fat-jar=../hop-fatjar.jar
 
 # Create image (make sure to add correct version)
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile -t docker.io/apache/hop:X.XX -t docker.io/apache/hop:latest --push
@@ -74,9 +91,6 @@ docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile -t
 # Create and push Hop Web
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t docker.io/apache/hop-web:X.XX -t docker.io/apache/hop-web:latest --push
 
-# Create and push Dataflow template
-# Create hop-fatjar.jar
-./assemblies/client/target/hop/hop-conf.sh --generate-fat-jar=../hop-fatjar.jar
 # Create image
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.dataflowTemplate -t docker.io/apache/hop-dataflow-template:X.XX -t docker.io/apache/hop-dataflow-template:latest --push
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web-fatjar -t docker.io/apache/hop-web:X.XX-beam -t docker.io/apache/hop-web:latest-beam --push

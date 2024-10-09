@@ -19,15 +19,17 @@ package org.apache.hop.core.truststore;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.X509TrustManager;
 
+/** TrustStore manager to allow all connections */
+@SuppressWarnings("java:S4830")
 public class TrustAlwaysManager implements X509TrustManager {
   @Override
   public void checkClientTrusted(X509Certificate[] cert, String authType) {
-    return;
+    // Do Nothing
   }
 
   @Override
   public void checkServerTrusted(X509Certificate[] cert, String authType) {
-    return;
+    // Do Nothing
   }
 
   @Override

@@ -59,7 +59,7 @@ we are going to use the `mvn release:prepare` command to prepare the release pro
 
 full command:
 ----
-mvn release:prepare -DautoVersionSubmodules=true -DskipTests=true -DpushChanges=false -Darguments="-DskipTests=true -DpushChanges=false"
+mvn release:prepare -Papache-release -DautoVersionSubmodules=true -DskipTests=true -DpushChanges=false -Darguments="-DskipTests=true -DpushChanges=false"
 ----
 
 You will get following question:
@@ -95,7 +95,7 @@ git push origin release/<release_version>
 === Perform the release
 
 ----
-mvn release:perform -DautoVersionSubmodules=true -Dassemblies=false -DskipTests=true -DpushChanges=false -DautoVersionSubmodules=true -Darguments="-Dassemblies=false -DskipTests=true -DpushChanges=false"
+mvn release:perform -Papache-release -DautoVersionSubmodules=true -Dassemblies=false -DskipTests=true -DpushChanges=false -DautoVersionSubmodules=true -Darguments="-Dassemblies=false -DskipTests=true -DpushChanges=false"
 ----
 
 === Nexus
