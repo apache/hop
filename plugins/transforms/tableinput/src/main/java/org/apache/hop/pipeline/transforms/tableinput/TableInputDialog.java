@@ -17,11 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -339,6 +344,38 @@ public class TableInputDialog extends BaseTransformDialog {
     wDataFrom.addListener(SWT.Selection, e -> setFlags());
     wDataFrom.addListener(SWT.FocusOut, e -> setFlags());
 
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    Database db = new Database(loggingObject, variables, databaseMeta);
+    DatabaseMetaData metaData = null;
+    try {
+      db.connect();
+      metaData = db.getDatabaseMetaData();
+    } catch (HopDatabaseException e) {
+      logError(e.getMessage());
+    }
+
+    List<String> keywords = new ArrayList<>();
+    try {
+      Arrays.asList(metaData.getSQLKeywords().split(","))
+          .forEach(keyword -> logBasic("Keyword: " + keyword));
+    } catch (SQLException e) {
+      logError(e.getMessage());
+    }
+    //      var database = pipelineMeta.findDatabase(input.getConnection(), variables);
+    //    try {
+    //      String connectionString = database.getURL(variables);
+    //      try (Connection conn =
+    //          DriverManager.getConnection(
+    //              connectionString, database.getUsername(), database.getPassword())) {
+    //        final DatabaseMetaData metaData = conn.getMetaData();
+    //        keywords = Arrays.asList(metaData.getSQLKeywords().split(","));
+    //
+    //      } catch (SQLException e) {
+    //        logError(e.getMessage());
+    //      }
+    //    } catch (HopDatabaseException e) {
+    //      logError(e.getMessage());
+    //    }
     wSql.addLineStyleListener();
     getData();
     input.setChanged(changed);
