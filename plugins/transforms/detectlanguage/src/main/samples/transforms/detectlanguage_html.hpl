@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline>
+  <info>
+    <name>detectlanguage</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2023/12/18 15:00:31.032</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2023/12/18 15:00:31.032</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Ubuntu</fontname>
+      <fontsize>11</fontsize>
+      <height>170</height>
+      <xloc>352</xloc>
+      <yloc>176</yloc>
+      <note>Lingua is used to detect the language of documents, supporting 75 languages.
+
+In this sample, six identical HTML documents (with broken tags) are analysed, with the content in: English, French, Spanish, Korean, Marathi, and Hindi.
+
+When preprocess=false, the detection fails to correctly identify French, mistaking it for English (with high confidence). 
+This demonstrates that while Lingua performs well even with HTML, it emphasises the importance of
+ pre-processing (i.e. cleaning) documents before language detection.
+
+Reference:
+https://github.com/pemistahl/lingua</note>
+      <width>907</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Detect Language</from>
+      <to>Select values</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>HTML to Text</from>
+      <to>Detect Language</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Documents</from>
+      <to>preprocess=true</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>preprocess=true</from>
+      <to>HTML to Text</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Documents</from>
+      <to>preprocess=false</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>preprocess=false</from>
+      <to>Detect Language (raw)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Detect Language (raw)</from>
+      <to>Select values (raw)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values (raw)</from>
+      <to>Sort rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values</from>
+      <to>Sort rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Sort rows</from>
+      <to>Text output</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Detect Language</name>
+    <type>DetectLanguage</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <corpusField>html2text_output</corpusField>
+    <parallelism>N</parallelism>
+    <attributes/>
+    <GUI>
+      <xloc>800</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Detect Language (raw)</name>
+    <type>DetectLanguage</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <corpusField>document</corpusField>
+    <parallelism>N</parallelism>
+    <attributes/>
+    <GUI>
+      <xloc>800</xloc>
+      <yloc>416</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Documents</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>ENGLISH</item>
+        <item>&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+&lt;title> My Broken HTML Webpage &lt;title>
+  &lt;meta charset="utf8">
+  &lt;meta name="description" content=" This is a sample page ">
+  &lt;link rel="stylesheet" href="styles.css"
+&lt;/head>
+&lt;body>
+&lt;div class="header">
+&lt;h1>Welcome to my webpage&lt;h1>
+&lt;p>This page is under construction&lt;p>
+&lt;/div
+&lt;div class="content">
+    &lt;img src="image.jpg" alt="A sample image"
+    &lt;p>Here is some text about the image&lt;/p
+    &lt;a href="http://example.com">Click here&lt;a>
+&lt;/div
+&lt;div class="footer">
+&lt;p>Footer text&lt;p>
+&lt;a href="contact.html">Contact&lt;a>
+&lt;/div
+&lt;/body>
+&lt;html>
+</item>
+      </line>
+      <line>
+        <item>FRENCH</item>
+        <item>&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+&lt;title> Ma Page Web HTML Cassée &lt;title>
+  &lt;meta charset="utf8">
+  &lt;meta name="description" content=" Ceci est une page d'exemple ">
+  &lt;link rel="stylesheet" href="styles.css"
+&lt;/head>
+&lt;body>
+&lt;div class="header">
+&lt;h1>Bienvenue sur ma page web&lt;h1>
+&lt;p>Cette page est en cours de construction&lt;p>
+&lt;/div>
+&lt;div class="content">
+    &lt;img src="image.jpg" alt="Une image d'exemple"
+    &lt;p>Voici un texte sur l'image&lt;/p
+    &lt;a href="http://example.com">Cliquez ici&lt;a>
+&lt;/div>
+&lt;div class="footer"&gt;
+&lt;p>Texte du pied de page&lt;p>
+&lt;a href="contact.html">Contact&lt;a>
+&lt;/div>
+&lt;/body>
+&lt;html></item>
+      </line>
+      <line>
+        <item>SPANISH</item>
+        <item>&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+&lt;title> Mi Página Web HTML Rota &lt;title>
+  &lt;meta charset="utf8">
+  &lt;meta name="description" content=" Esta es una página de ejemplo ">
+  &lt;link rel="stylesheet" href="styles.css"
+&lt;/head>
+&lt;body>
+&lt;div class="header">
+&lt;h1>Bienvenido a mi página web&lt;h1>
+&lt;p>Esta página está en construcción&lt;p>
+&lt;/div>
+&lt;div class="content">
+    &lt;img src="image.jpg" alt="Una imagen de ejemplo"
+    &lt;p>Aquí hay un texto sobre la imagen&lt;/p
+    &lt;a href="http://example.com">Haz clic aquí&lt;a>
+&lt;/div>
+&lt;div class="footer">
+&lt;p>Texto del pie de página&lt;p>
+&lt;a href="contact.html">Contacto&lt;a>
+&lt;/div>
+&lt;/body>
+&lt;html></item>
+      </line>
+      <line>
+        <item>KOREAN</item>
+        <item>&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+&lt;title> 내 깨진 HTML 웹페이지 &lt;title>
+  &lt;meta charset="utf8">
+  &lt;meta name="description" content=" 이것은 샘플 페이지입니다 ">
+  &lt;link rel="stylesheet" href="styles.css"
+&lt;/head>
+&lt;body>
+&lt;div class="header">
+&lt;h1>내 웹페이지에 오신 것을 환영합니다&lt;h1>
+&lt;p>이 페이지는 공사 중입니다&lt;p>
+&lt;/div>
+&lt;div class="content">
+    &lt;img src="image.jpg" alt="샘플 이미지"
+    &lt;p>이미지에 대한 설명이 있습니다&lt;/p
+    &lt;a href="http://example.com">여기를 클릭하세요&lt;a>
+&lt;/div>
+&lt;div class="footer">
+&lt;p>하단 텍스트&lt;p>
+&lt;a href="contact.html">연락처&lt;a>
+&lt;/div>
+&lt;/body>
+&lt;html></item>
+      </line>
+      <line>
+        <item>MARATHI</item>
+        <item>&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+&lt;title> माझे तुटलेले HTML वेबपेज &lt;title>
+  &lt;meta charset="utf8">
+  &lt;meta name="description" content=" हे एक नमुना पृष्ठ आहे ">
+  &lt;link rel="stylesheet" href="styles.css"
+&lt;/head>
+&lt;body>
+&lt;div class="header">
+&lt;h1>माझ्या वेबपेजवर स्वागत आहे&lt;h1>
+&lt;p>हे पृष्ठ बांधकामाधीन आहे&lt;p>
+&lt;/div>
+&lt;div class="content">
+    &lt;img src="image.jpg" alt="एक नमुना प्रतिमा"
+    &lt;p>प्रतिमेबद्दल काही मजकूर येथे आहे&lt;/p
+    &lt;a href="http://example.com">येथे क्लिक करा&lt;a>
+&lt;/div>
+&lt;div class="footer">
+&lt;p>तळटीप मजकूर&lt;p>
+&lt;a href="contact.html">संपर्क&lt;a>
+&lt;/div>
+&lt;/body>
+&lt;html></item>
+      </line>
+      <line>
+        <item>HINDI</item>
+        <item>&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+&lt;title> मेरा टूटा हुआ HTML वेबपेज &lt;title>
+  &lt;meta charset="utf8">
+  &lt;meta name="description" content=" यह एक नमूना पृष्ठ है ">
+  &lt;link rel="stylesheet" href="styles.css"
+&lt;/head>
+&lt;body>
+&lt;div class="header">
+&lt;h1>मेरे वेबपेज पर आपका स्वागत है&lt;h1>
+&lt;p>यह पृष्ठ निर्माणाधीन है&lt;p>
+&lt;/div>
+&lt;div class="content">
+    &lt;img src="image.jpg" alt="एक नमूना चित्र"
+    &lt;p>यहां चित्र के बारे में कुछ पाठ है&lt;/p
+    &lt;a href="http://example.com">यहां क्लिक करें&lt;a>
+&lt;/div>
+&lt;div class="footer">
+&lt;p>फुटर पाठ&lt;p>
+&lt;a href="contact.html">संपर्क करें&lt;a>
+&lt;/div>
+&lt;/body>
+&lt;html></item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>expected_language</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>document</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>240</xloc>
+      <yloc>464</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>HTML to Text</name>
+    <type>Html2Text</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <htmlField>document</htmlField>
+    <outputField>html2text_output</outputField>
+    <safelistType>basic</safelistType>
+    <cleanOnly>N</cleanOnly>
+    <parallelism>N</parallelism>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Select values</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>preprocess</name>
+      </field>
+      <field>
+        <name>expected_language</name>
+      </field>
+      <field>
+        <name>detected_language</name>
+      </field>
+      <field>
+        <name>detected_language_confidence</name>
+      </field>
+      <field>
+        <name>html2text_output</name>
+        <rename>document</rename>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>976</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Select values (raw)</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>preprocess</name>
+      </field>
+      <field>
+        <name>expected_language</name>
+      </field>
+      <field>
+        <name>detected_language</name>
+      </field>
+      <field>
+        <name>detected_language_confidence</name>
+      </field>
+      <field>
+        <name>document</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>976</xloc>
+      <yloc>416</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Sort rows</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compress>N</compress>
+    <directory>${java.io.tmpdir}</directory>
+    <fields>
+      <field>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <name>expected_language</name>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <name>preprocess</name>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <sort_prefix>out</sort_prefix>
+    <sort_size>1000000</sort_size>
+    <unique_rows>N</unique_rows>
+    <attributes/>
+    <GUI>
+      <xloc>1168</xloc>
+      <yloc>480</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Text output</name>
+    <type>TextFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <schema_definition/>
+    <separator>;</separator>
+    <enclosure>"</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding>UTF-8</encoding>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>detectlanguage</name>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>Y</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery/>
+    </file>
+    <fields>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>1328</xloc>
+      <yloc>480</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>preprocess=false</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>preprocess</name>
+        <nullif>false</nullif>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>Boolean</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>416</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>preprocess=true</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>preprocess</name>
+        <nullif>true</nullif>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>Boolean</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
