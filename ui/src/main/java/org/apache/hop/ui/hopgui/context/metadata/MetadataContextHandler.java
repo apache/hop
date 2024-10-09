@@ -23,6 +23,7 @@ import org.apache.hop.core.DbCache;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -72,10 +73,13 @@ public class MetadataContextHandler implements IGuiContextHandler {
 
     GuiAction newAction =
         new GuiAction(
-            "CREATE_" + hopMetadata.name(),
+            "CREATE_" + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
             GuiActionType.Create,
-            hopMetadata.name(),
-            "Creates a new " + hopMetadata.name() + " : " + hopMetadata.description(),
+            TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
+            "Creates a new "
+                + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass)
+                + " : "
+                + TranslateUtil.translate(hopMetadata.description(), metadataObjectClass),
             hopMetadata.image(),
             (shiftClicked, controlClicked, parameters) -> metadataManager.newMetadataWithEditor());
     newAction.setClassLoader(metadataObjectClass.getClassLoader());
@@ -85,10 +89,13 @@ public class MetadataContextHandler implements IGuiContextHandler {
 
     GuiAction editAction =
         new GuiAction(
-            "EDIT_" + hopMetadata.name(),
+            "EDIT_" + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
             GuiActionType.Modify,
-            hopMetadata.name(),
-            "Edits a " + hopMetadata.name() + " : " + hopMetadata.description(),
+            TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
+            "Edits a "
+                + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass)
+                + " : "
+                + TranslateUtil.translate(hopMetadata.description(), metadataObjectClass),
             hopMetadata.image(),
             (shiftClicked, controlClicked, parameters) -> metadataManager.editMetadata());
     editAction.setClassLoader(metadataObjectClass.getClassLoader());
@@ -98,13 +105,13 @@ public class MetadataContextHandler implements IGuiContextHandler {
 
     GuiAction deleteAction =
         new GuiAction(
-            "DELETE_" + hopMetadata.name(),
+            "DELETE_" + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
             GuiActionType.Delete,
-            hopMetadata.name(),
+            TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
             "After confirmation this deletes a "
-                + hopMetadata.name()
+                + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass)
                 + " : "
-                + hopMetadata.description(),
+                + TranslateUtil.translate(hopMetadata.description(), metadataObjectClass),
             hopMetadata.image(),
             (shiftClicked, controlClicked, parameters) -> metadataManager.deleteMetadata());
     deleteAction.setClassLoader(metadataObjectClass.getClassLoader());

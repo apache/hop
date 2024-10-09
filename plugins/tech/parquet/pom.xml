@@ -29,7 +29,7 @@
     <name>Hop Plugins Technology Parquet</name>
 
     <properties>
-        <parquet.version>1.13.1</parquet.version>
+        <parquet.version>1.14.2</parquet.version>
     </properties>
 
     <dependencyManagement>
