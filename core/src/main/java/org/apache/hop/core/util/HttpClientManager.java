@@ -261,6 +261,15 @@ public class HttpClientManager {
     return sslContext;
   }
 
+  /**
+   * This SSLContext is used when a user chooses to TrustAll and ignore SSL and Certificate
+   * validation
+   *
+   * @return SSLContext
+   * @throws NoSuchAlgorithmException
+   * @throws KeyManagementException
+   */
+  @SuppressWarnings({"java:S4830", "java:S4423"})
   public static SSLContext getTrustAllSslContext()
       throws NoSuchAlgorithmException, KeyManagementException {
     TrustManager[] trustAllCerts =
