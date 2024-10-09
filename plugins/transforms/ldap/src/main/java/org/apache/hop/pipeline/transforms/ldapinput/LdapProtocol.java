@@ -84,6 +84,8 @@ public class LdapProtocol {
    *
    * @return the display name
    */
+  // Suppress the LDAP connection warning
+  @SuppressWarnings("java:S4433")
   public static String getName() {
     return NAME;
   }
