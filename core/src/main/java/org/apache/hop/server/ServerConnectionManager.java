@@ -33,7 +33,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
  */
 public class ServerConnectionManager {
 
-  private static final String SSL = "SSL";
+  private static final String SSL = "TLSv1.2";
   private static final String KEYSTORE_SYSTEM_PROPERTY = "javax.net.ssl.keyStore";
 
   private static ServerConnectionManager serverConnectionManager;
@@ -50,6 +50,7 @@ public class ServerConnectionManager {
             new SecureRandom());
         SSLContext.setDefault(context);
       } catch (Exception ignored) {
+        // Ignore Exception
       }
     }
     manager = new PoolingHttpClientConnectionManager();
@@ -78,7 +79,16 @@ public class ServerConnectionManager {
 
   private static X509TrustManager getDefaultTrustManager() {
     return new X509TrustManager() {
+      /**
+       * Hop Allows self-signed certificates for Hop Server, disable the check for now This is only
+       * used for communication to Hop Server
+       *
+       * @param certs the peer certificate chain
+       * @param param the authentication type based on the client certificate
+       * @throws CertificateException
+       */
       @Override
+      @SuppressWarnings("java:S4830")
       public void checkClientTrusted(X509Certificate[] certs, String param)
           throws CertificateException {
         // Do nothing

@@ -78,6 +78,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     return queryParams;
   }
 
+  /**
+   * Perform the rest call Ignore Sonar SSL warning, SSL can be disabled by a user action
+   *
+   * @param rowData
+   * @return
+   * @throws HopException
+   */
+  @SuppressWarnings("java:S5527")
   protected Object[] callRest(Object[] rowData) throws HopException {
     // get dynamic url ?
     if (meta.isUrlInField()) {
@@ -104,10 +112,16 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       clientBuilder
           .withConfig(data.config)
           .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
-      if (meta.isIgnoreSsl() || !Utils.isEmpty(data.trustStoreFile)) {
+
+      if (!Utils.isEmpty(data.trustStoreFile)) {
         clientBuilder.sslContext(data.sslContext);
+      }
+
+      // Ignore SSL is selected disable hostname verifier
+      if (meta.isIgnoreSsl()) {
         clientBuilder.hostnameVerifier((s1, s2) -> true);
       }
+
       client = clientBuilder.build();
       if (data.basicAuthentication != null) {
         client.register(data.basicAuthentication);
