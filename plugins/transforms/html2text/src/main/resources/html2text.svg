@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="16" height="16">
+    <!-- Definitions -->
+    <defs>
+        <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="2.6" refY="3" orient="auto">
+            <polygon points="0 0, 3 3, 0 6" fill="#0E3A5A"/>
+        </marker>
+    </defs>
+
+    <!-- HTML Bracket Symbols -->
+    <text x="5" y="40" font-family="Arial" font-size="50" fill="#0E3A5A">&lt;/&gt;</text>
+
+    <!-- Arrow with Rounded Bend -->
+    <path d="M28,45 L28,70 Q28,75 30,75 L55,75" stroke="#0E3A5A" stroke-width="5" fill="none" marker-end="url(#arrowhead)"/>
+
+    <text x="62" y="92" font-family="Arial" font-size="50" fill="#0E3A5A">A</text>
+
+</svg>
