@@ -57,7 +57,7 @@ public class GenericDatabaseMetaTest {
     assertEquals(1, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     Map<String, String> attrs = new HashMap<>();
-    attrs.put(GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS, "foo.bar.wibble");
+    attrs.put(GenericDatabaseMeta.ATTRIBUTE_CUSTOM_DRIVER_CLASS, "foo.bar.wibble");
     nativeMeta.setManualUrl("jdbc:foo:bar://foodb");
     nativeMeta.setAttributes(attrs);
     assertEquals("foo.bar.wibble", nativeMeta.getDriverClass());
@@ -86,12 +86,12 @@ public class GenericDatabaseMetaTest {
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaBoolean("BAR"), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DECIMAL(10,16)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 0), "", false, "", false));
 
@@ -106,22 +106,22 @@ public class GenericDatabaseMetaTest {
             "FOO", new ValueMetaNumber("BAR", 0, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR INTEGER",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(10, 3)",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(10, 3)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(10,3)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(21, 4)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(21,4)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 21, 4), "", false, "", false));
 
@@ -141,7 +141,7 @@ public class GenericDatabaseMetaTest {
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO",
             new ValueMetaNumber("BAR", 10, -7),
@@ -151,7 +151,7 @@ public class GenericDatabaseMetaTest {
             false)); // Bug here - invalid SQL
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(22, 7)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(22,7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 22, 7), "", false, "", false));
     assertEquals(
@@ -159,7 +159,7 @@ public class GenericDatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", -10, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(5, 7)",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
     assertEquals(
@@ -177,9 +177,8 @@ public class GenericDatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 26, 8), "BAR", true, "", false));
 
-    String lineSep = System.getProperty("line.separator");
     assertEquals(
-        "ALTER TABLE FOO DROP BAR" + lineSep,
+        "ALTER TABLE FOO DROP BAR" + System.lineSeparator(),
         nativeMeta.getDropColumnStatement(
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", true));
 
@@ -204,12 +203,12 @@ public class GenericDatabaseMetaTest {
             "FOO", new ValueMetaInteger("BAR"), "BAR", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DECIMAL(10,16)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(22, 0)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(22,16)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 22, 0), "", false, "", false));
 

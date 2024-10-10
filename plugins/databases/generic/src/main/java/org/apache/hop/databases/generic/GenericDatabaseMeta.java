@@ -37,7 +37,7 @@ import org.apache.hop.core.row.IValueMeta;
     documentationUrl = "/database/databases.html")
 @GuiPlugin(description = "Generic database GUI Plugin")
 public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
-  public static final String ATRRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";
+  public static final String ATTRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";
   public static final String DATABASE_DIALECT_ID = "DATABASE_DIALECT_ID";
   private IDatabase databaseDialect = null;
 
@@ -75,12 +75,12 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param driverClass The driverClass to set
    */
   public void setDriverClass(String driverClass) {
-    getAttributes().put(ATRRIBUTE_CUSTOM_DRIVER_CLASS, driverClass);
+    getAttributes().put(ATTRIBUTE_CUSTOM_DRIVER_CLASS, driverClass);
   }
 
   @Override
   public String getDriverClass() {
-    return getAttributeProperty(ATRRIBUTE_CUSTOM_DRIVER_CLASS, "");
+    return getAttributeProperty(ATTRIBUTE_CUSTOM_DRIVER_CLASS, "");
   }
 
   @Override
@@ -113,7 +113,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   /**
-   * Checks whether or not the command setFetchSize() is supported by the JDBC driver...
+   * Checks whether the command setFetchSize() is supported by the JDBC driver...
    *
    * @return true is setFetchSize() is supported!
    */
@@ -149,9 +149,9 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param tableName The table to add
    * @param v The column defined as a value
    * @param tk the name of the technical key field
-   * @param useAutoIncrement whether or not this field uses auto increment
+   * @param useAutoIncrement whether this field uses auto increment
    * @param pk the name of the primary key field
-   * @param semicolon whether or not to add a semi-colon behind the statement.
+   * @param semicolon whether to add a semicolon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
@@ -179,9 +179,9 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param tableName The table to add
    * @param v The column defined as a value
    * @param tk the name of the technical key field
-   * @param useAutoIncrement whether or not this field uses auto increment
+   * @param useAutoIncrement whether this field uses auto increment
    * @param pk the name of the primary key field
-   * @param semicolon whether or not to add a semi-colon behind the statement.
+   * @param semicolon whether to add a semicolon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
@@ -238,31 +238,41 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
           retval += "CHAR(1)";
         }
         break;
-      case IValueMeta.TYPE_NUMBER:
-      case IValueMeta.TYPE_INTEGER:
-      case IValueMeta.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
         if (fieldname.equalsIgnoreCase(tk)
             || // Technical key
             fieldname.equalsIgnoreCase(pk) // Primary key
         ) {
           retval += "BIGSERIAL";
         } else {
-          if (length > 0) {
-            if (precision > 0 || length > 18) {
-              retval += "NUMERIC(" + length + ", " + precision + ")";
+          if (type == IValueMeta.TYPE_INTEGER) {
+            // Integer values...
+            if (length < 3) {
+              retval += "TINYINT";
+            } else if (length < 5) {
+              retval += "SMALLINT";
+            } else if (length < 10) {
+              retval += "INT";
+            } else if (length < 20) {
+              retval += "BIGINT";
             } else {
-              if (length > 9) {
-                retval += "BIGINT";
-              } else {
-                if (length < 5) {
-                  retval += "SMALLINT";
-                } else {
-                  retval += "INTEGER";
-                }
-              }
+              retval += "DECIMAL(" + length + ")";
             }
-
+          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
+            // Fixed point value...
+            if (length
+                < 1) { // user configured no value for length. Use 16 digits, which is comparable to
+              // mantissa 2^53 of IEEE 754 binary64 "double".
+              length = 16;
+            }
+            if (precision
+                < 1) { // user configured no value for precision. Use 16 digits, which is comparable
+              // to IEEE 754 binary64 "double".
+              precision = 16;
+            }
+            retval += "DECIMAL(" + length + "," + precision + ")";
           } else {
+            // Floating point value with double precision...
             retval += "DOUBLE PRECISION";
           }
         }

@@ -866,7 +866,7 @@ public class FirebirdDatabaseMetaTest {
         nativeMeta.getFieldDefinition(
             new ValueMetaInternetAddress("FOO"), "", "", false, false, false));
     assertEquals(
-        "UNKNOWN" + System.getProperty("line.separator"),
+        "UNKNOWN" + System.lineSeparator(),
         nativeMeta.getFieldDefinition(
             new ValueMetaInternetAddress("FOO"), "", "", false, false, true));
   }
