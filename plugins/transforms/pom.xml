@@ -85,6 +85,7 @@
         <module>gettablenames</module>
         <module>getvariable</module>
         <module>groupby</module>
+        <module>html2text</module>
         <module>http</module>
         <module>httppost</module>
         <module>ifnull</module>
