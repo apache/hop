@@ -1073,14 +1073,17 @@ public class ProjectsGuiPlugin {
   public void menuProjectExport() {
     HopGui hopGui = HopGui.getInstance();
     Shell shell = hopGui.getShell();
+    IVariables variables = hopGui.getVariables();
 
+    // Resolve variables in filepath
     String zipFilename =
-        BaseDialog.presentFileDialog(
-            true,
-            shell,
-            new String[] {"*.zip", "*.*"},
-            new String[] {"Zip files (*.zip)", "All Files (*.*)"},
-            true);
+        variables.resolve(
+            BaseDialog.presentFileDialog(
+                true,
+                shell,
+                new String[] {"*.zip", "*.*"},
+                new String[] {"Zip files (*.zip)", "All Files (*.*)"},
+                true));
     if (zipFilename == null) {
       return;
     }
@@ -1104,7 +1107,6 @@ public class ProjectsGuiPlugin {
               monitor.setTaskName(
                   BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Taskname.Text"));
               HashMap variablesMap = new HashMap<>();
-              IVariables variables = hopGui.getVariables();
 
               for (String name : variables.getVariableNames()) {
                 if (!name.contains("java.")
@@ -1144,7 +1146,11 @@ public class ProjectsGuiPlugin {
               String projectHomeFolder =
                   HopVfs.getFileObject(projectHome).getParent().getName().getURI();
               zipFile(
-                  projectDirectory, projectDirectory.getName().getURI(), zos, projectHomeFolder);
+                  projectDirectory,
+                  projectDirectory.getName().getURI(),
+                  zos,
+                  projectHomeFolder,
+                  zipFilename);
               zipFile(
                   HopVfs.getFileObject(
                       Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG),
@@ -1152,7 +1158,8 @@ public class ProjectsGuiPlugin {
                       + Const.FILE_SEPARATOR
                       + Const.HOP_CONFIG,
                   zos,
-                  projectHomeFolder);
+                  projectHomeFolder,
+                  zipFilename);
               zipString(
                   variablesJson, "variables.json", zos, projectDirectory.getName().getBaseName());
               zipString(
@@ -1190,7 +1197,8 @@ public class ProjectsGuiPlugin {
       FileObject fileToZip,
       String filename,
       ZipOutputStream zipOutputStream,
-      String projectHomeParent)
+      String projectHomeParent,
+      String zipFilename)
       throws IOException {
     if (fileToZip.isHidden()) {
       return;
@@ -1206,11 +1214,15 @@ public class ProjectsGuiPlugin {
       }
       FileObject[] children = fileToZip.getChildren();
       for (FileObject childFile : children) {
+        if (childFile.equals(zipFilename)) {
+          return;
+        }
         zipFile(
             childFile,
             filename + "/" + childFile.getName().getBaseName(),
             zipOutputStream,
-            projectHomeParent);
+            projectHomeParent,
+            zipFilename);
       }
       return;
     }
