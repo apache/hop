@@ -515,9 +515,8 @@ public class Exasol4DatabaseMetaTest {
         "SELECT /*+FIRST_ROWS*/ FOO FROM BAR WHERE 1=0",
         nativeMeta.getSqlColumnExists("FOO", "BAR"));
 
-    String lineSep = System.getProperty("line.separator");
     assertEquals(
-        "ALTER TABLE FOO DROP COLUMN BAR" + lineSep,
+        "ALTER TABLE FOO DROP COLUMN BAR" + System.lineSeparator(),
         nativeMeta.getDropColumnStatement(
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", true));
 
@@ -534,28 +533,28 @@ public class Exasol4DatabaseMetaTest {
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaBoolean("BAR"), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD ( BAR DECIMAL ) ",
+        "ALTER TABLE FOO ADD ( BAR DOUBLE ) ",
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaNumber("BAR"), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD ( BAR DECIMAL ) ",
+        "ALTER TABLE FOO ADD ( BAR DECIMAL(16,16) ) ",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR"), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD ( BAR DECIMAL(15) ) ",
+        "ALTER TABLE FOO ADD ( BAR DOUBLE ) ",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 15, 0), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD ( BAR DECIMAL(15) ) ",
+        "ALTER TABLE FOO ADD ( BAR DECIMAL(15,16) ) ",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 15, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD ( BAR DECIMAL(15, 5) ) ",
+        "ALTER TABLE FOO ADD ( BAR DOUBLE ) ",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 15, 5), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD ( BAR DECIMAL(15, 5) ) ",
+        "ALTER TABLE FOO ADD ( BAR DECIMAL(15,5) ) ",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 15, 5), "", false, "", false));
 
