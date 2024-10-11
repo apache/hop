@@ -52,9 +52,6 @@ Usage: <main class> [-k] [-gs] [-e=<environmentOption>] [-id=<id>]
       -id=<id>            Specify the ID of the pipeline or workflow to query
   -j, --project=<projectOption>
                           The name of the project to use
-  -k, --kill              Stop the running hopServer server.  This is only
-                            allowed when using the hostname/port form of the
-                            command. Use the -s and -u options to authenticate
   -l, --level=<level>     The debug level, one of NOTHING, ERROR, MINIMAL,
                             BASIC, DETAILED, DEBUG, ROWLEVEL
   -n, --server-name=<serverName>
@@ -91,10 +88,6 @@ The available Hop Server options are:
 |--password
 |The server password.
 Required for administrative operations only, not for starting the server.
-
-|-k
-|--kill
-|Stop the running hop server.
 
 |-u
 |--userName
@@ -152,7 +145,7 @@ Example: `hop-server.bat 192.168.1.221 8081`
 
 Example: `hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml`
 
-Example: `hop-server.bat 127.0.0.1 8080 --kill --userName cluster --password cluster`
+Example: `hop-server.bat 127.0.0.1 8080 --userName cluster --password cluster`
 
 [source,shell]
 hop-server <Interface address> <Port> [ShutdownPort] [-h] [-p <arg>] [-s] [-u <arg>]
