@@ -33,8 +33,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     key = "restconnection",
     name = "i18n::RestConnection.name",
     description = "i18n::RestConnection.description",
-    image = "",
-    documentationUrl = "")
+    image = "rest.svg",
+    documentationUrl = "/metadata-types/rest-connection.html")
 public class RestConnection extends HopMetadataBase implements IHopMetadata {
 
   private ClientBuilder builder;

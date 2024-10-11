@@ -105,6 +105,9 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   /** The default timeout for waiting for reading data (milliseconds) */
   public static final int DEFAULT_READ_TIMEOUT = 10000;
 
+  @HopMetadataProperty(key = "connection_name", injectionKey = "CONNECTION_NAME")
+  private String connectionName;
+
   /** URL / service to be called */
   @HopMetadataProperty(key = "url", injectionKey = "URL")
   private String url;
@@ -690,5 +693,13 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
    */
   public void setReadTimeout(String timeout) {
     this.readTimeout = timeout;
+  }
+
+  public String getConnectionName() {
+    return connectionName;
+  }
+
+  public void setConnectionName(String connectionName) {
+    this.connectionName = connectionName;
   }
 }
