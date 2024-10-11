@@ -1212,6 +1212,7 @@ public class RestDialog extends BaseTransformDialog {
     fdSelectionLine.top = new FormAttachment(wGeneralComp, margin);
     fdSelectionLine.right = new FormAttachment(100, -margin);
     wSelectionLine.setLayoutData(fdSelectionLine);
+    wSelectionLine.addListener(SWT.Selection, e -> input.setChanged(true));
     try {
       wSelectionLine.fillItems();
     } catch (Exception e) {
@@ -1348,6 +1349,10 @@ public class RestDialog extends BaseTransformDialog {
       logDebug(BaseMessages.getString(PKG, "RestDialog.Log.GettingKeyInfo"));
     }
 
+    if (!Utils.isEmpty(input.getConnectionName())) {
+      wSelectionLine.setText(input.getConnectionName());
+    }
+
     if (!input.getHeaderFields().isEmpty()) {
       for (int i = 0; i < input.getHeaderFields().size(); i++) {
         TableItem item = wFields.table.getItem(i);
@@ -1457,6 +1462,10 @@ public class RestDialog extends BaseTransformDialog {
   private void ok() {
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
+    }
+
+    if (!Utils.isEmpty(wSelectionLine.getText())) {
+      input.setConnectionName(wSelectionLine.getText());
     }
 
     input.getHeaderFields().clear();
