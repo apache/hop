@@ -33,7 +33,7 @@ under the License.
 |Driver folder | <Hop Installation>/lib/jdbc
 |===
 
-== Hop 2.10 Snowflake SSL connection.
+== Establishing a Snowflake SSL Authenticated Connection.
 
 === Introduction
 
@@ -89,8 +89,7 @@ library.
 https://www.bouncycastle.org/download/bouncy-castle-java-lts/
 
 The first is a provider jar whose name indicates the JRE/JDK version
-supported. Hop 2.10 supports JDK 17, prior versions of Hop supported JDK
-11.
+supported. Make sure you download the correct version for your JDK that matches the version Hop requires.
 
 bcprov-jdk__versions__.jar
 
