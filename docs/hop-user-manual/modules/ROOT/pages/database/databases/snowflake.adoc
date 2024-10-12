@@ -79,8 +79,8 @@ programmatically.
 
 === Download the Snowflake JDBC driver an Crypto Libraries
 
-On October 11, 2024 the current Snowflake JDBC Driver is
-*snowflake-jdbc-3.19.0.jar*
+Download a current Snowflake JDBC Driver.
+The filename has the naming pattern *snowflake-jdbc-3.19.0.jar*
 
 To support certificate based authentication, we also need to download
 two jar files from Bouncy Castle, who make a famous Java Crypto API
