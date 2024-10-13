@@ -116,7 +116,8 @@ public class AddXmlDialog extends BaseTransformDialog {
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
+    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
     PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
