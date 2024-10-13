@@ -21,6 +21,8 @@ under the License.
 
 = Snowflake
 
+== Configuration
+
 [cols="2*",options="header"]
 |===
 | Option | Info
@@ -50,10 +52,10 @@ you want to use with Hop when connecting to Snowflake.
 You can generate an RSA keypair on most Linux / WSL (Windows Subsystem
 for Linux) by running the following command in the terminal window
 
-openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub
+`openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub`
 
 The rsa_key.pub file contents is what you will then use in your
-Snowflake CREATE USER statement.
+Snowflake `CREATE USER` statement.
 
 [source,sql]
 ----
@@ -73,104 +75,88 @@ image::database/databases/snowflake/snowflake_service_user_create.png[Snowflake 
 
 In the screenshot, we can define all the properties we intend the user
 to take on, including which default compute (warehouse) to use,
-namespace (database), and role. We also define a special attribute TYPE
-= SERVICE to ensure the user cannot log in using a sign-in page but only
+namespace (database), and role. We also define a special attribute `TYPE
+= SERVICE` to ensure the user cannot log in using a sign-in page but only
 programmatically.
 
 === Download the Snowflake JDBC driver an Crypto Libraries
 
-Download a current Snowflake JDBC Driver.
+https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/[Download^] a current Snowflake JDBC Driver.
 The filename has the naming pattern *snowflake-jdbc-3.19.0.jar*
 
-To support certificate based authentication, we also need to download
+To support certificate based authentication, we also need to https://www.bouncycastle.org/download/bouncy-castle-java-lts/[download^]
 two jar files from Bouncy Castle, who make a famous Java Crypto API
 library.
 
-https://www.bouncycastle.org/download/bouncy-castle-java-lts/
-
 The first is a provider jar whose name indicates the JRE/JDK version
-supported. Make sure you download the correct version for your JDK that matches the version Hop requires.
+supported. Make sure you download the correct version for your JDK that matches the version Hop requires. This first file to download is `bcprov-jdk<VERSION>.jar`
 
-bcprov-jdk__versions__.jar
-
-image::database/databases/snowflake/bcprov.png[Bouncy Castle Provider Jar,width=452,height=494]
-
-Figure Bouncy Castle Provider for Java 15 to 18
+image::database/databases/snowflake/bcprov.png[Bouncy Castle Provider Jar,width="90%", caption="Bouncy Castle Provider for Java 15 to 18"]
 
 Secondly, we need the encryption library, which also has JDK version
-support in the filename. The filename is *bcpkix-jdk<version>.jar*
+support in the filename. The filename is `*bcpkix-jdk<version>.jar*`
 
-image::database/databases/snowflake/bcpkix.png[Bouncy Castle Crypt Lib Jar,width=484,height=636]
-
-Figure Bouncy Castle Crypto Library for Java 15 to 18
+image::database/databases/snowflake/bcpkix.png[Bouncy Castle Crypt Lib Jar,width="90%", caption="Bouncy Castle Crypto Library for Java 15 to 18"]
 
 The JDBC driver and two Bouncy Castle cryptography library jar files
-need to go into *hop/lib/jdbc* . Be sure to delete any older version of
-the Snowflake JDBC driver jar you find in hop/lib/jdbc. The Snowflake
+need to go into `*hop/lib/jdbc*` . Be sure to delete any older version of
+the Snowflake JDBC driver jar you find in `hop/lib/jdbc`. The Snowflake
 drivers are well-maintained and updated often.
 
-image::database/databases/snowflake/snowflake_and_bc_jars.png[Snowflake and Bouncy Castle Jars in the Hop Lib JDBC folder,width=624,height=600]
+image::database/databases/snowflake/snowflake_and_bc_jars.png[Snowflake and Bouncy Castle Jars in the Hop Lib JDBC folder,width="90%, caption="Snowflake JDBC and Bouncy Castle Jars"]
 
-Figure Snowflake JDBC and Bouncy Castle Jars
 
 === Place the RSA Private Key in Hop’s Folder
 
-The private key file must be stored in Hop’s root folder. I could not
-figure out how to refer to it in other paths in the _Options_ tab of the
-Hop connection definition.
+The private key file must be stored in Hop’s root folder.
 
-image::database/databases/snowflake/private_key_file_in_hop_root.png[RSA Private Key in Hop Root,width=624,height=612]
+WARNING: There could be ways to include the private key from other paths than the Hop root folder (e.g. defined in the connection's `Options` tab), but this is currently still unclear.
 
-Figure RSA Private Key in Hop root folder
+image::database/databases/snowflake/private_key_file_in_hop_root.png[RSA Private Key in Hop Root,width="90%", caption="RSA Private Key in Hop root folder"]
+
 
 === Gather Snowflake Connection Properties
 
 Let us begin with the end result and then describe where each of the
 properties came from and why.
 
-Most connections in Hop use typical fields like _Server host name, Port
-number, Warehouse, Database name_, but since this is a more advanced
+Most connections in Hop use typical fields like `Server host name`, `Port
+number`, `Warehouse`, `Database name`, but since this is a more advanced
 connection configuration, we need to take advantage of extra JDBC
-parameters that we can set on the _Options_ tab shown below.
+parameters that we can set on the `Options` tab shown below.
 
-image::database/databases/snowflake/hop-connection-general-tab.png[Hop Connection - General Tab,width=624,height=627]
+image::database/databases/snowflake/hop-connection-general-tab.png[Hop Connection - General Tab,width="90%", caption="Hop Database Connection - General Tab"]
 
-Figure Hop Database Connection - General Tab
+Looking at the `Options` tab, we make use of a few keywords,
+*`authenticator`, `private_key_file`, `role`, `schema`,* and `*user*`. The parameters are from the Snowflake JDBC parameters documentation site.
 
-Looking at the _Options_ tab, we make use of a few keywords,
-*authenticator, private_key_file, role, schema,* and *user*. The
-parameters are from the Snowflake JDBC parameters documentation site. We
-first tell the JDBC driver that we are going to use *snowflake_jwt* for
+We first tell the JDBC driver that we are going to use `*snowflake_jwt*` for
 authenticating, which means that it will expect to see some kind of
-private and public key. In this case, I chose the *private_key_file*
-parameter because in our deployment I can pull the certificate out of an
-AWS Secret Store upon Hop invocation and it is not left in the
-environment and disposed of when the image goes away. Other variables
-would allow you to encode it (BASE64) etc.
+private and public key.
 
-image::database/databases/snowflake/hop-connection-options-tab.png[Hop Connection - Options Tab,width=624,height=627]
+In this case, the `*private_key_file*` parameter is used. This could for example come from a certificate from an
+AWS Secret Store. In this case, the certificate or key file doesn't have to be left in the
+environment and are disposed of when the image goes away. +
+Other variables would allow you to encode it (BASE64) etc.
 
-Figure Hop Database Connection - Options Tab
+image::database/databases/snowflake/hop-connection-options-tab.png[Hop Connection - Options Tab,width="90%", caption="Hop Database Connection - Options Tab"]
 
-The URL for the Server host name you can retrieve by clicking on your
-name in the Snowflake console on the lower left corner, select your
-instance, and then there is a little link icon. When you paste this into
-Hop’s dialog box, get rid of the HTTPS:// part as it is not required.
-The connections are always encrypted.
+The URL for the Server host name can be retrieved by clicking on your name in the Snowflake console on the lower left corner, select your  instance, and then there is a little link icon. +
+When you paste this into Hop’s dialog box, get rid of the `HTTPS://` part as it is not required. The connections are always encrypted.
 
-image::database/databases/snowflake/snowflake_account_url.png[Finding the Snowflake Account URL,width=624,height=481]
+image::database/databases/snowflake/snowflake_account_url.png[Finding the Snowflake Account URL,width="90%", caption="Snowflake User Console, finding your database URL"]
 
-Figure Snowflake User Console, finding your database URL
+=== References
 
 References consulted to produce this working configuration
 
-https://docs.snowflake.com/en/developer-guide/jdbc/jdbc-configure
+https://docs.snowflake.com/en/developer-guide/jdbc/jdbc-configure[JDBC Configure^]
 
 Snowflake Account Identifiers
 
-https://docs.snowflake.com/en/user-guide/admin-account-identifier
+https://docs.snowflake.com/en/user-guide/admin-account-identifier[Admin account identifier^]
 
 Snowflake JDBC Connection Parameters +
-_(authenticator, private_key_file, role, schema, user)_
+(`authenticator`, `private_key_file`, `role`, `schema`, `user`)
 
-https://docs.snowflake.com/en/developer-guide/jdbc/jdbc-parameters
+https://docs.snowflake.com/en/developer-guide/jdbc/jdbc-parameters[JDBC parameters^]
