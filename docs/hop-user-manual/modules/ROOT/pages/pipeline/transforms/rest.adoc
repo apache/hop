@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The REST Client transform enables you to consume RESTfull services.
+:description: The REST Client transform enables you to consume RESTful services.
 
 = image:transforms/icons/rest.svg[REST Client transform Icon, role="image-doc-icon"] REST Client
 
