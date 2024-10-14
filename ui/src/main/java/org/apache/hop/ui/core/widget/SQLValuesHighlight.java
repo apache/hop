@@ -62,7 +62,9 @@ public class SQLValuesHighlight implements LineStyleListener {
     scanner = new JavaScanner();
   }
 
-  public SQLValuesHighlight(String[] strArrSQLFunctions) {
+  public SQLValuesHighlight(List<String> sqlKeywords) {
+    String[] strArrSQLFunctions = new String[sqlKeywords.size()];
+    strArrSQLFunctions = sqlKeywords.toArray(strArrSQLFunctions);
     initializeColors();
     scriptStatements = new ArrayList<SqlScriptStatement>();
     scanner = new JavaScanner();

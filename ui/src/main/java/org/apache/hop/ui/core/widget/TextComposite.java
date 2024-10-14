@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.List;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 
@@ -59,6 +60,8 @@ public abstract class TextComposite extends Composite {
   public abstract void addModifyListener(ModifyListener lsMod);
 
   public abstract void addLineStyleListener();
+
+  public abstract void addLineStyleListener(List<String> sqlKeywords);
 
   public abstract int getLineNumber();
 
