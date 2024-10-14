@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.tableinput;
 
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -344,45 +345,46 @@ public class TableInputDialog extends BaseTransformDialog {
     wDataFrom.addListener(SWT.Selection, e -> setFlags());
     wDataFrom.addListener(SWT.FocusOut, e -> setFlags());
 
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    Database db = new Database(loggingObject, variables, databaseMeta);
-    DatabaseMetaData metaData = null;
-    try {
-      db.connect();
-      metaData = db.getDatabaseMetaData();
-    } catch (HopDatabaseException e) {
-      logError(e.getMessage());
-    }
+    final List<String> sqlKeywords = getSqlKeywords();
 
-    List<String> keywords = new ArrayList<>();
-    try {
-      Arrays.asList(metaData.getSQLKeywords().split(","))
-          .forEach(keyword -> logBasic("Keyword: " + keyword));
-    } catch (SQLException e) {
-      logError(e.getMessage());
-    }
-    //      var database = pipelineMeta.findDatabase(input.getConnection(), variables);
-    //    try {
-    //      String connectionString = database.getURL(variables);
-    //      try (Connection conn =
-    //          DriverManager.getConnection(
-    //              connectionString, database.getUsername(), database.getPassword())) {
-    //        final DatabaseMetaData metaData = conn.getMetaData();
-    //        keywords = Arrays.asList(metaData.getSQLKeywords().split(","));
-    //
-    //      } catch (SQLException e) {
-    //        logError(e.getMessage());
-    //      }
-    //    } catch (HopDatabaseException e) {
-    //      logError(e.getMessage());
-    //    }
-    wSql.addLineStyleListener();
+    wSql.addLineStyleListener(sqlKeywords);
     getData();
     input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private List<String> getSqlKeywords() {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    Database db = new Database(loggingObject, variables, databaseMeta);
+    DatabaseMetaData databaseMetaData = null;
+    try {
+      db.connect();
+      databaseMetaData = db.getDatabaseMetaData();
+      if (databaseMetaData == null) {
+        logError("Couldn't get database metadata");
+        return new ArrayList<>();
+      }
+      List<String> sqlKeywords = new ArrayList<>();
+      try {
+        final ResultSet functionsResultSet = databaseMetaData.getFunctions(null, null, null);
+        while (functionsResultSet.next()) {
+          sqlKeywords.add(functionsResultSet.getString("FUNCTION_NAME"));
+        }
+        sqlKeywords.addAll(Arrays.asList(databaseMetaData.getSQLKeywords().split(",")));
+      } catch (SQLException e) {
+        logError("Couldn't extract keywords from database metadata. Proceding without them.");
+      }
+      return sqlKeywords;
+    } catch (HopDatabaseException e) {
+      logError("Couldn't extract keywords from database metadata. Proceding without them.");
+      return new ArrayList<>();
+    } finally {
+      db.disconnect();
+      db.close();
+    }
   }
 
   public void setPosition() {

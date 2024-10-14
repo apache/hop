@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -144,7 +145,12 @@ public class SQLStyledTextComp extends TextComposite {
 
   @Override
   public void addLineStyleListener() {
-    addLineStyleListener(new SQLValuesHighlight());
+    addLineStyleListener(new SQLValuesHighlight(List.of()));
+  }
+
+  @Override
+  public void addLineStyleListener(List<String> keywords) {
+    addLineStyleListener(new SQLValuesHighlight(keywords));
   }
 
   public void addKeyListener(KeyAdapter keyAdapter) {
