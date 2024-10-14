@@ -17,7 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.fileinput;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,6 +36,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
+import org.apache.hop.pipeline.transforms.csvinput.ICrLfMatcher;
+import org.apache.hop.pipeline.transforms.csvinput.SingleByteCrLfMatcher;
 
 /**
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
@@ -41,7 +46,23 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 @SuppressWarnings("java:S1104")
 public class TextFileInputData extends BaseTransformData implements ITransformData {
 
+  public FileChannel fc;
+
   public List<TextFileLine> lineBuffer;
+
+  public ICrLfMatcher crLfMatcher;
+
+  public ByteBuffer bb;
+
+  public byte[] byteBuffer;
+
+  public int endBuffer;
+
+  private int startBuffer;
+
+  public int preferredBufferSize;
+
+  private int bufferSize;
 
   public Object[] previousRow;
 
@@ -115,6 +136,7 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
   public boolean addUri;
   public boolean addRootUri;
 
+  public long totalBytesRead;
   public String shortFilename;
   public String path;
   public String extension;
@@ -146,6 +168,12 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
     lineStringBuilder = new StringBuilder(256);
 
     rejectedFiles = new HashMap<>();
+
+    crLfMatcher = new SingleByteCrLfMatcher();
+    byteBuffer = new byte[] {};
+    endBuffer = 0;
+    totalBytesRead = 0;
+    preferredBufferSize = 0;
   }
 
   public FileInputList getFiles() {
@@ -154,5 +182,113 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
 
   public void setFiles(FileInputList files) {
     this.files = files;
+  }
+
+  public boolean newLineFound() {
+    return crLfMatcher.isReturn(byteBuffer, endBuffer)
+        || crLfMatcher.isLineFeed(byteBuffer, endBuffer);
+  }
+
+  boolean moveEndBufferPointer() throws IOException {
+    return moveEndBufferPointer(true);
+  }
+
+  /**
+   * This method should be used very carefully. Moving pointer without increasing number of written
+   * bytes can lead to data corruption.
+   */
+  boolean moveEndBufferPointer(boolean increaseTotalBytes) throws IOException {
+    endBuffer++;
+    if (increaseTotalBytes) {
+      totalBytesRead++;
+    }
+    return resizeBufferIfNeeded();
+  }
+
+  private void resizeByteBufferArray() {
+    // What's the new size?
+    // It's (endBuffer-startBuffer)+size !!
+    // That way we can at least read one full block of data using NIO
+    //
+    bufferSize = endBuffer - startBuffer;
+    int newSize = bufferSize + preferredBufferSize;
+    byte[] newByteBuffer = new byte[newSize + 100];
+
+    // copy over the old data...
+    System.arraycopy(byteBuffer, startBuffer, newByteBuffer, 0, bufferSize);
+
+    // replace the old byte buffer...
+    byteBuffer = newByteBuffer;
+
+    // Adjust start and end point of data in the byte buffer
+    //
+    startBuffer = 0;
+    endBuffer = bufferSize;
+  }
+
+  boolean resizeBufferIfNeeded() throws IOException {
+    if (endOfBuffer()) {
+      // Oops, we need to read more data...
+      // Better resize this before we read other things in it...
+      //
+      resizeByteBufferArray();
+
+      // Also read another chunk of data, now that we have the variables for it...
+      //
+      int n = readBufferFromFile();
+
+      // If we didn't manage to read something, we return true to indicate we're done
+      //
+      return n < 0;
+    }
+
+    return false;
+  }
+
+  private int readBufferFromFile() throws IOException {
+    // See if the line is not longer than the buffer.
+    // In that case we need to increase the size of the byte buffer.
+    // Since this method doesn't get called every other character, I'm sure we can spend a bit of
+    // time here without
+    // major performance loss.
+    //
+    if (endBuffer >= bb.capacity()) {
+      resizeByteBuffer((int) (bb.capacity() * 1.5));
+    }
+
+    bb.position(endBuffer);
+    int n = fc.read(bb);
+    if (n >= 0) {
+
+      // adjust the highest used position...
+      //
+      bufferSize = endBuffer + n;
+
+      // Make sure we have room in the target byte buffer array
+      //
+      if (byteBuffer.length < bufferSize) {
+        byte[] newByteBuffer = new byte[bufferSize];
+        System.arraycopy(byteBuffer, 0, newByteBuffer, 0, byteBuffer.length);
+        byteBuffer = newByteBuffer;
+      }
+
+      // Store the data in our byte array
+      //
+      bb.position(endBuffer);
+      bb.get(byteBuffer, endBuffer, n);
+    }
+
+    return n;
+  }
+
+  private void resizeByteBuffer(int newSize) {
+    ByteBuffer newBuffer = ByteBuffer.allocateDirect(newSize); // Increase by 50%
+    newBuffer.position(0);
+    newBuffer.put(bb);
+    bb = newBuffer;
+  }
+
+  boolean endOfBuffer() {
+    return endBuffer >= bufferSize;
   }
 }

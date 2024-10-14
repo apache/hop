@@ -3522,7 +3522,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   @Override
-  public boolean processRow() throws HopException {
+  public boolean processRow() throws HopException, IOException {
     return false;
   }
 
