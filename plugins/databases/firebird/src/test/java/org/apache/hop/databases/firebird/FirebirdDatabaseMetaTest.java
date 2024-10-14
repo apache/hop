@@ -798,11 +798,11 @@ public class FirebirdDatabaseMetaTest {
         nativeMeta.getFieldDefinition(new ValueMetaInteger("FOO"), "", "FOO", false, false, false));
 
     assertEquals(
-        "DECIMAL(20)",
+        "DECIMAL(20,16)",
         nativeMeta.getFieldDefinition(
             new ValueMetaBigNumber("FOO", 20, 0), "", "", false, false, false));
     assertEquals(
-        "DECIMAL(7, 4)",
+        "DECIMAL(7,4)",
         nativeMeta.getFieldDefinition(
             new ValueMetaBigNumber("FOO", 7, 4), "", "", false, false, false));
 
@@ -866,7 +866,7 @@ public class FirebirdDatabaseMetaTest {
         nativeMeta.getFieldDefinition(
             new ValueMetaInternetAddress("FOO"), "", "", false, false, false));
     assertEquals(
-        "UNKNOWN" + System.getProperty("line.separator"),
+        "UNKNOWN" + System.lineSeparator(),
         nativeMeta.getFieldDefinition(
             new ValueMetaInternetAddress("FOO"), "", "", false, false, true));
   }
