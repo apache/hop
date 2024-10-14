@@ -264,6 +264,7 @@ public class GitGuiPlugin
   public void gitPull() {
     try {
       git.pull();
+      ExplorerPerspective.getInstance().refresh();
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
