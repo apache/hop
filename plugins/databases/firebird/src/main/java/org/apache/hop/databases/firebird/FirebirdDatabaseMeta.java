@@ -182,7 +182,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
             } else if (length < 10) {
               retval += CONST_INTEGER;
             } else {
-              retval += "DECIMAL(" + length + ",0)";
+              retval += "BIGINT";
             }
           } else if (type == IValueMeta.TYPE_BIGNUMBER) {
             // Fixed point value...
