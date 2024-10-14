@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -51,6 +52,7 @@ public class AccessOutputDialog extends BaseTransformDialog {
   private final AccessOutputMeta input;
 
   private TextVar wFileName;
+  private Combo wFileFormat;
   private Button wCreateFile;
 
   private TextVar wTableName;
@@ -96,7 +98,7 @@ public class AccessOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, 0);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, 0);
     wlTransformName.setLayoutData(fdlTransformName);
 
@@ -106,7 +108,7 @@ public class AccessOutputDialog extends BaseTransformDialog {
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
     wTransformName.addListener(SWT.DefaultSelection, e -> ok());
     FormData fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, margin);
+    fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, 0);
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
@@ -114,11 +116,12 @@ public class AccessOutputDialog extends BaseTransformDialog {
     // Filename line
     Label wlFileName = new Label(shell, SWT.RIGHT);
     wlFileName.setText(BaseMessages.getString(PKG, "AccessOutputDialog.Filename.Label"));
+    wlFileName.setToolTipText(BaseMessages.getString(PKG, "AccessOutputDialog.Filename.Tooltip"));
     PropsUi.setLook(wlFileName);
     FormData fdlFileName = new FormData();
     fdlFileName.left = new FormAttachment(0, 0);
     fdlFileName.top = new FormAttachment(wTransformName, margin);
-    fdlFileName.right = new FormAttachment(middle, 0);
+    fdlFileName.right = new FormAttachment(middle, -margin);
     wlFileName.setLayoutData(fdlFileName);
 
     Button wbbFileName = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -136,12 +139,31 @@ public class AccessOutputDialog extends BaseTransformDialog {
     wFileName.setToolTipText(BaseMessages.getString(PKG, "AccessOutputDialog.Filename.Tooltip"));
     wFileName.addListener(SWT.Modify, e -> input.setChanged());
     PropsUi.setLook(wFileName);
-
     FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment(middle, margin);
+    fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wbbFileName, -margin);
     fdFilename.top = new FormAttachment(wTransformName, margin);
     wFileName.setLayoutData(fdFilename);
+
+    // File format
+    Label wlFileFormat = new Label(shell, SWT.RIGHT);
+    wlFileFormat.setText(BaseMessages.getString(PKG, "AccessOutputDialog.FileFormat.Label"));
+    wlFileFormat.setToolTipText(
+        BaseMessages.getString(PKG, "AccessOutputDialog.FileFormat.Tooltip"));
+    PropsUi.setLook(wlFileFormat);
+    FormData fdlFileFormat = new FormData();
+    fdlFileFormat.left = new FormAttachment(0, 0);
+    fdlFileFormat.right = new FormAttachment(middle, -margin);
+    fdlFileFormat.top = new FormAttachment(wFileName, margin);
+    wlFileFormat.setLayoutData(fdlFileFormat);
+    wFileFormat = new Combo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wFileFormat.setItems(AccessFileFormat.getDescriptions());
+    PropsUi.setLook(wFileFormat);
+    FormData fdFileFormat = new FormData();
+    fdFileFormat.left = new FormAttachment(middle, 0);
+    fdFileFormat.top = new FormAttachment(wFileName, margin);
+    fdFileFormat.right = new FormAttachment(100, 0);
+    wFileFormat.setLayoutData(fdFileFormat);
 
     // Create file?
     Label wlCreateFile = new Label(shell, SWT.RIGHT);
@@ -151,16 +173,16 @@ public class AccessOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlCreateFile);
     FormData fdlCreateFile = new FormData();
     fdlCreateFile.left = new FormAttachment(0, 0);
-    fdlCreateFile.top = new FormAttachment(wFileName, margin);
-    fdlCreateFile.right = new FormAttachment(middle, 0);
+    fdlCreateFile.top = new FormAttachment(wFileFormat, margin);
+    fdlCreateFile.right = new FormAttachment(middle, -margin);
     wlCreateFile.setLayoutData(fdlCreateFile);
     wCreateFile = new Button(shell, SWT.CHECK);
     wCreateFile.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.CreateFile.Tooltip"));
     PropsUi.setLook(wCreateFile);
     FormData fdCreateFile = new FormData();
-    fdCreateFile.left = new FormAttachment(middle, margin);
-    fdCreateFile.top = new FormAttachment(wFileName, margin);
+    fdCreateFile.left = new FormAttachment(middle, 0);
+    fdCreateFile.top = new FormAttachment(wFileFormat, margin);
     fdCreateFile.right = new FormAttachment(100, 0);
     wCreateFile.setLayoutData(fdCreateFile);
     wCreateFile.addListener(SWT.Selection, e -> input.setChanged());
@@ -180,21 +202,20 @@ public class AccessOutputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "AccessOutputDialog.WaitFirstRowToCreateFile.Tooltip"));
     PropsUi.setLook(wWaitFirstRowToCreateFile);
     FormData fdWaitFirstRowToCreateFile = new FormData();
-    fdWaitFirstRowToCreateFile.left = new FormAttachment(middle, margin);
+    fdWaitFirstRowToCreateFile.left = new FormAttachment(middle, 0);
     fdWaitFirstRowToCreateFile.top = new FormAttachment(wCreateFile, margin);
     fdWaitFirstRowToCreateFile.right = new FormAttachment(100, 0);
     wWaitFirstRowToCreateFile.setLayoutData(fdWaitFirstRowToCreateFile);
     wWaitFirstRowToCreateFile.addListener(SWT.Selection, e -> input.setChanged());
 
     // Table line...
-
     Label wlTablename = new Label(shell, SWT.RIGHT);
     wlTablename.setText(BaseMessages.getString(PKG, "AccessOutputDialog.TargetTable.Label"));
     PropsUi.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
     fdlTablename.top = new FormAttachment(wWaitFirstRowToCreateFile, margin);
-    fdlTablename.right = new FormAttachment(middle, 0);
+    fdlTablename.right = new FormAttachment(middle, -margin);
     wlTablename.setLayoutData(fdlTablename);
 
     Button wbbTableName = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -211,7 +232,7 @@ public class AccessOutputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "AccessOutputDialog.TargetTable.Tooltip"));
     PropsUi.setLook(wTableName);
     FormData fdTablename = new FormData();
-    fdTablename.left = new FormAttachment(middle, margin);
+    fdTablename.left = new FormAttachment(middle, 0);
     fdTablename.right = new FormAttachment(wbbTableName, -margin);
     fdTablename.top = new FormAttachment(wWaitFirstRowToCreateFile, margin);
     wTableName.setLayoutData(fdTablename);
@@ -225,14 +246,14 @@ public class AccessOutputDialog extends BaseTransformDialog {
     FormData fdlCreateTable = new FormData();
     fdlCreateTable.left = new FormAttachment(0, 0);
     fdlCreateTable.top = new FormAttachment(wTableName, margin);
-    fdlCreateTable.right = new FormAttachment(middle, 0);
+    fdlCreateTable.right = new FormAttachment(middle, -margin);
     wlCreateTable.setLayoutData(fdlCreateTable);
     wCreateTable = new Button(shell, SWT.CHECK);
     wCreateTable.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.CreateTable.Tooltip"));
     PropsUi.setLook(wCreateTable);
     FormData fdCreateTable = new FormData();
-    fdCreateTable.left = new FormAttachment(middle, margin);
+    fdCreateTable.left = new FormAttachment(middle, 0);
     fdCreateTable.top = new FormAttachment(wTableName, margin);
     fdCreateTable.right = new FormAttachment(100, 0);
     wCreateTable.setLayoutData(fdCreateTable);
@@ -247,14 +268,14 @@ public class AccessOutputDialog extends BaseTransformDialog {
     FormData fdlTruncateTable = new FormData();
     fdlTruncateTable.left = new FormAttachment(0, 0);
     fdlTruncateTable.top = new FormAttachment(wCreateTable, margin);
-    fdlTruncateTable.right = new FormAttachment(middle, 0);
+    fdlTruncateTable.right = new FormAttachment(middle, -margin);
     wlTruncateTable.setLayoutData(fdlTruncateTable);
     wTruncateTable = new Button(shell, SWT.CHECK);
     wTruncateTable.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.TruncateTable.Tooltip"));
     PropsUi.setLook(wTruncateTable);
     FormData fdTruncateTable = new FormData();
-    fdTruncateTable.left = new FormAttachment(middle, margin);
+    fdTruncateTable.left = new FormAttachment(middle, 0);
     fdTruncateTable.top = new FormAttachment(wCreateTable, margin);
     fdTruncateTable.right = new FormAttachment(100, 0);
     wTruncateTable.setLayoutData(fdTruncateTable);
@@ -267,7 +288,7 @@ public class AccessOutputDialog extends BaseTransformDialog {
     FormData fdlCommitSize = new FormData();
     fdlCommitSize.left = new FormAttachment(0, 0);
     fdlCommitSize.top = new FormAttachment(wTruncateTable, margin);
-    fdlCommitSize.right = new FormAttachment(middle, 0);
+    fdlCommitSize.right = new FormAttachment(middle, -margin);
     wlCommitSize.setLayoutData(fdlCommitSize);
 
     wCommitSize = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -275,7 +296,7 @@ public class AccessOutputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "AccessOutputDialog.CommitSize.Tooltip"));
     PropsUi.setLook(wCommitSize);
     FormData fdCommitSize = new FormData();
-    fdCommitSize.left = new FormAttachment(middle, margin);
+    fdCommitSize.left = new FormAttachment(middle, 0);
     fdCommitSize.right = new FormAttachment(100, 0);
     fdCommitSize.top = new FormAttachment(wTruncateTable, margin);
     wCommitSize.setLayoutData(fdCommitSize);
@@ -296,7 +317,7 @@ public class AccessOutputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "AccessOutputMeta.AddToResultFile.Tooltip"));
     PropsUi.setLook(wAddToResultFile);
     FormData fdAddToResultFile = new FormData();
-    fdAddToResultFile.left = new FormAttachment(middle, margin);
+    fdAddToResultFile.left = new FormAttachment(middle, 0);
     fdAddToResultFile.top = new FormAttachment(wCommitSize, 2 * margin);
     fdAddToResultFile.right = new FormAttachment(100, 0);
     wAddToResultFile.setLayoutData(fdAddToResultFile);
@@ -324,6 +345,10 @@ public class AccessOutputDialog extends BaseTransformDialog {
     if (input.getFileName() != null) {
       wFileName.setText(input.getFileName());
     }
+    if (input.getFileFormat() != null) {
+      wFileFormat.select(input.getFileFormat().getIndex());
+    }
+
     if (input.getTableName() != null) {
       wTableName.setText(input.getTableName());
     }
@@ -349,6 +374,9 @@ public class AccessOutputDialog extends BaseTransformDialog {
 
   private void getInfo(AccessOutputMeta info) {
     info.setFileName(wFileName.getText());
+    if (wFileFormat.getSelectionIndex() != -1) {
+      input.setFileFormat(AccessFileFormat.lookupDescription(wFileFormat.getText()));
+    }
     info.setTableName(wTableName.getText());
     info.setCreateFile(wCreateFile.getSelection());
     info.setCreateTable(wCreateTable.getSelection());
