@@ -102,7 +102,8 @@ public class SystemDataDialog extends BaseTransformDialog {
 
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
+    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
     PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
