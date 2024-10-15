@@ -263,8 +263,17 @@ public class GitGuiPlugin
       image = "pull.svg")
   public void gitPull() {
     try {
-      git.pull();
-      ExplorerPerspective.getInstance().refresh();
+      List<String> branches = git.getBranches();
+      if (git.pull()) {
+        ExplorerPerspective.getInstance().refresh();
+        MessageBox pullSuccessful =
+            new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_INFORMATION);
+        pullSuccessful.setText(
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PullSuccessful.Header"));
+        pullSuccessful.setMessage(
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PullSuccessful.Message"));
+        pullSuccessful.open();
+      }
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
@@ -361,6 +370,11 @@ public class GitGuiPlugin
             git.revertPath(file);
           }
         }
+        MessageBox box =
+            new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
+        box.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.FilesReverted.Header"));
+        box.setMessage(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.FilesReverted.Message"));
+        box.open();
       }
     } catch (Exception e) {
       new ErrorDialog(
@@ -408,7 +422,9 @@ public class GitGuiPlugin
       if (gitConfig.exists()) {
         git = new UIGit();
         git.openRepo(rootFolder);
-        LogChannel.UI.logBasic("Found git project for: " + rootFolder);
+        ExplorerPerspective.getInstance().setRootName(rootName + " (" + git.getBranch() + ")");
+      } else {
+        git = null;
       }
     } catch (Exception e) {
       // This is not a git project...
@@ -525,7 +541,7 @@ public class GitGuiPlugin
           treeItem.setForeground(colorStaged);
           break;
         case ADD:
-          if (file.getIsStaged()) {
+          if (Boolean.TRUE.equals(file.getIsStaged())) {
             treeItem.setForeground(colorStaged);
           } else {
             treeItem.setForeground(colorUnstaged);

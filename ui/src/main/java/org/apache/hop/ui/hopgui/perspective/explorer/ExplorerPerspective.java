@@ -1659,4 +1659,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public Tree getTree() {
     return tree;
   }
+
+  public void setRootName(String rootName) {
+    this.rootName = rootName;
+  }
 }

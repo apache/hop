@@ -42,6 +42,7 @@ import org.apache.hop.git.model.revision.GitObjectRevision;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.DiffCommand;
@@ -523,6 +524,13 @@ public class UIGit extends VCS {
                   CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
           || e.getMessage()
               .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
+        if (e.getMessage().contains(CONST_NOT_AUTHORIZED)) {
+          new ErrorDialog(
+              HopGui.getInstance().getShell(),
+              "Git Error",
+              "Error Authenticating to Git service",
+              e);
+        }
         if (promptUsernamePassword()) {
           return pull();
         }
