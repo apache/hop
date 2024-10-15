@@ -15,17 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.hop.ui.core.widget;
+package org.apache.hop.ui.core.widget.highlight;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import org.apache.hop.core.database.SqlScriptStatement;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleEvent;
@@ -34,7 +30,7 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 
-public class SQLValuesHighlight implements LineStyleListener {
+public class JavaHighlight implements LineStyleListener {
   JavaScanner scanner = new JavaScanner();
   int[] tokenColors;
   Color[] colors;
@@ -54,22 +50,10 @@ public class SQLValuesHighlight implements LineStyleListener {
 
   public static final int MAXIMUM_TOKEN = 9;
 
-  private List<SqlScriptStatement> scriptStatements;
-
-  public SQLValuesHighlight() {
+  public JavaHighlight() {
     initializeColors();
-    scriptStatements = new ArrayList<SqlScriptStatement>();
     scanner = new JavaScanner();
-  }
-
-  public SQLValuesHighlight(List<String> sqlKeywords) {
-    String[] strArrSQLFunctions = new String[sqlKeywords.size()];
-    strArrSQLFunctions = sqlKeywords.toArray(strArrSQLFunctions);
-    initializeColors();
-    scriptStatements = new ArrayList<SqlScriptStatement>();
-    scanner = new JavaScanner();
-    scanner.setSQLKeywords(strArrSQLFunctions);
-    scanner.initializeSQLFunctions();
+    scanner.initializeUDJCFunctions();
   }
 
   Color getColor(int type) {
@@ -98,20 +82,21 @@ public class SQLValuesHighlight implements LineStyleListener {
   }
 
   void initializeColors() {
+    // Display display = Display.getDefault();
     colors =
         new Color[] {
           GuiResource.getInstance().getColorBlack(), // black
           GuiResource.getInstance().getColorRed(), // red
           GuiResource.getInstance().getColorGreen(), // green
           GuiResource.getInstance().getColorBlue(), // blue
-          GuiResource.getInstance().getColorMagenta() // SQL Functions / Rose
+          GuiResource.getInstance().getColorOrange() // orange
         };
     tokenColors = new int[MAXIMUM_TOKEN];
     tokenColors[WORD] = 0;
     tokenColors[WHITE] = 0;
     tokenColors[KEY] = 3;
-    tokenColors[COMMENT] = 2;
-    tokenColors[STRING] = 1;
+    tokenColors[COMMENT] = 1;
+    tokenColors[STRING] = 2;
     tokenColors[OTHER] = 0;
     tokenColors[NUMBER] = 0;
     tokenColors[FUNCTIONS] = 4;
@@ -129,7 +114,7 @@ public class SQLValuesHighlight implements LineStyleListener {
 
     if (inBlockComment(event.lineOffset, event.lineOffset + event.lineText.length())) {
       styles.addElement(
-          new StyleRange(event.lineOffset, event.lineText.length() + 4, colors[1], null));
+          new StyleRange(event.lineOffset, event.lineText.length() + 4, colors[2], null));
       event.styles = new StyleRange[styles.size()];
       styles.copyInto(event.styles);
       return;
@@ -158,9 +143,9 @@ public class SQLValuesHighlight implements LineStyleListener {
             StyleRange style =
                 new StyleRange(
                     scanner.getStartOffset() + event.lineOffset, scanner.getLength(), color, null);
-            // if ( token == KEY ) {
-            // style.fontStyle = SWT.BOLD;
-            // }
+            if (token == KEY) {
+              style.fontStyle = SWT.BOLD;
+            }
             if (styles.isEmpty()) {
               styles.addElement(style);
             } else {
@@ -177,34 +162,6 @@ public class SQLValuesHighlight implements LineStyleListener {
       }
       token = scanner.nextToken();
     }
-
-    // See which backgrounds to color...
-    //
-    if (scriptStatements != null) {
-      for (SqlScriptStatement statement : scriptStatements) {
-        // Leave non-executed statements alone.
-        //
-        StyleRange styleRange = new StyleRange();
-        styleRange.start = statement.getFromIndex();
-        styleRange.length = statement.getToIndex() - statement.getFromIndex();
-
-        if (statement.isComplete()) {
-          if (statement.isOk()) {
-            // GuiResource.getInstance().getColor(63, 127, 95), // green
-
-            styleRange.background = GuiResource.getInstance().getColor(244, 238, 224); // honey dew
-          } else {
-            styleRange.background =
-                GuiResource.getInstance().getColor(250, 235, 215); // Antique White
-          }
-        } else {
-          styleRange.background = GuiResource.getInstance().getColorWhite();
-        }
-
-        styles.add(styleRange);
-      }
-    }
-
     event.styles = new StyleRange[styles.size()];
     styles.copyInto(event.styles);
   }
@@ -272,11 +229,11 @@ public class SQLValuesHighlight implements LineStyleListener {
 
   /** A simple fuzzy scanner for Java */
   public class JavaScanner {
+
     protected Map<String, Integer> fgKeys = null;
     protected Map<?, ?> fgFunctions = null;
     protected Map<String, Integer> kfKeys = null;
     protected Map<?, ?> kfFunctions = null;
-
     protected StringBuilder fBuffer = new StringBuilder();
     protected String fDoc;
     protected int fPos;
@@ -284,383 +241,9 @@ public class SQLValuesHighlight implements LineStyleListener {
     protected int fStartToken;
     protected boolean fEofSeen = false;
 
-    private String[] kfKeywords = {
-      "getdate",
-      "case",
-      "convert",
-      "left",
-      "right",
-      "isnumeric",
-      "isdate",
-      "isnumber",
-      "number",
-      "finally",
-      "cast",
-      "var",
-      "fetch_status",
-      "isnull",
-      "charindex",
-      "difference",
-      "len",
-      "nchar",
-      "quotename",
-      "replicate",
-      "reverse",
-      "str",
-      "stuff",
-      "unicode",
-      "ascii",
-      "char",
-      "to_char",
-      "to_date",
-      "to_number",
-      "nvl",
-      "sysdate",
-      "corr",
-      "count",
-      "grouping",
-      "max",
-      "min",
-      "stdev",
-      "sum",
-      "concat",
-      "length",
-      "locate",
-      "ltrim",
-      "posstr",
-      "repeat",
-      "replace",
-      "rtrim",
-      "soundex",
-      "space",
-      "substr",
-      "substring",
-      "trunc",
-      "nextval",
-      "currval",
-      "getclobval",
-      "char_length",
-      "compare",
-      "patindex",
-      "sortkey",
-      "uscalar",
-      "current_date",
-      "current_time",
-      "current_timestamp",
-      "current_user",
-      "session_user",
-      "system_user",
-      "curdate",
-      "curtime",
-      "database",
-      "now",
-      "sysdate",
-      "today",
-      "user",
-      "version",
-      "coalesce",
-      "nullif",
-      "octet_length",
-      "datalength",
-      "decode",
-      "greatest",
-      "ifnull",
-      "least",
-      "||",
-      "char_length",
-      "character_length",
-      "collate",
-      "concatenate",
-      "like",
-      "lower",
-      "position",
-      "translate",
-      "upper",
-      "char_octet_length",
-      "character_maximum_length",
-      "character_octet_length",
-      "ilike",
-      "initcap",
-      "instr",
-      "lcase",
-      "lpad",
-      "patindex",
-      "rpad",
-      "ucase",
-      "bit_length",
-      "&",
-      "|",
-      "^",
-      "%",
-      "+",
-      "-",
-      "*",
-      "/",
-      "(",
-      ")",
-      "abs",
-      "asin",
-      "atan",
-      "ceiling",
-      "cos",
-      "cot",
-      "exp",
-      "floor",
-      "ln",
-      "log",
-      "log10",
-      "mod",
-      "pi",
-      "power",
-      "rand",
-      "round",
-      "sign",
-      "sin",
-      "sqrt",
-      "tan",
-      "trunc",
-      "extract",
-      "interval",
-      "overlaps",
-      "adddate",
-      "age",
-      "date_add",
-      "dateformat",
-      "date_part",
-      "date_sub",
-      "datediff",
-      "dateadd",
-      "datename",
-      "datepart",
-      "day",
-      "dayname",
-      "dayofmonth",
-      "dayofweek",
-      "dayofyear",
-      "hour",
-      "last_day",
-      "minute",
-      "month",
-      "month_between",
-      "monthname",
-      "next_day",
-      "second",
-      "sub_date",
-      "week",
-      "year",
-      "dbo",
-      "log",
-      "objectproperty"
-    };
-
-    private String[] fgKeywords = {
-      "create",
-      "procedure",
-      "as",
-      "set",
-      "nocount",
-      "on",
-      "declare",
-      "varchar",
-      "print",
-      "table",
-      "int",
-      "tintytext",
-      "select",
-      "from",
-      "where",
-      "and",
-      "or",
-      "insert",
-      "into",
-      "cursor",
-      "read_only",
-      "for",
-      "open",
-      "fetch",
-      "next",
-      "end",
-      "deallocate",
-      "table",
-      "drop",
-      "exec",
-      "begin",
-      "close",
-      "update",
-      "delete",
-      "truncate",
-      "inner",
-      "outer",
-      "join",
-      "union",
-      "all",
-      "float",
-      "when",
-      "nolock",
-      "with",
-      "false",
-      "datetime",
-      "dare",
-      "time",
-      "hour",
-      "array",
-      "minute",
-      "second",
-      "millisecond",
-      "view",
-      "function",
-      "catch",
-      "const",
-      "continue",
-      "compute",
-      "browse",
-      "option",
-      "date",
-      "default",
-      "do",
-      "raw",
-      "auto",
-      "explicit",
-      "xmldata",
-      "elements",
-      "binary",
-      "base64",
-      "read",
-      "outfile",
-      "asc",
-      "desc",
-      "else",
-      "eval",
-      "escape",
-      "having",
-      "limit",
-      "offset",
-      "of",
-      "intersect",
-      "except",
-      "using",
-      "variance",
-      "specific",
-      "language",
-      "body",
-      "returns",
-      "specific",
-      "deterministic",
-      "not",
-      "external",
-      "action",
-      "reads",
-      "static",
-      "inherit",
-      "called",
-      "order",
-      "group",
-      "by",
-      "natural",
-      "full",
-      "exists",
-      "between",
-      "some",
-      "any",
-      "unique",
-      "match",
-      "value",
-      "limite",
-      "minus",
-      "references",
-      "grant",
-      "on",
-      "top",
-      "index",
-      "bigint",
-      "text",
-      "char",
-      "use",
-      "move",
-      "exec",
-      "init",
-      "name",
-      "noskip",
-      "skip",
-      "noformat",
-      "format",
-      "stats",
-      "disk",
-      "from",
-      "to",
-      "rownum",
-      "alter",
-      "add",
-      "remove",
-      "move",
-      "alter",
-      "add",
-      "remove",
-      "lineno",
-      "modify",
-      "if",
-      "else",
-      "in",
-      "is",
-      "new",
-      "Number",
-      "null",
-      "string",
-      "switch",
-      "this",
-      "then",
-      "throw",
-      "true",
-      "false",
-      "try",
-      "return",
-      "with",
-      "while",
-      "start",
-      "connect",
-      "optimize",
-      "first",
-      "only",
-      "rows",
-      "sequence",
-      "blob",
-      "clob",
-      "image",
-      "binary",
-      "column",
-      "decimal",
-      "distinct",
-      "primary",
-      "key",
-      "timestamp",
-      "varbinary",
-      "nvarchar",
-      "nchar",
-      "longnvarchar",
-      "nclob",
-      "numeric",
-      "constraint",
-      "dbcc",
-      "backup",
-      "bit",
-      "clustered",
-      "pad_index",
-      "off",
-      "statistics_norecompute",
-      "ignore_dup_key",
-      "allow_row_locks",
-      "allow_page_locks",
-      "textimage_on",
-      "double",
-      "rollback",
-      "tran",
-      "transaction",
-      "commit"
-    };
-
     public JavaScanner() {
       initialize();
-      initializeSQLFunctions();
+      initializeUDJCFunctions();
     }
 
     /** Returns the ending location of the current token in the document. */
@@ -672,24 +255,16 @@ public class SQLValuesHighlight implements LineStyleListener {
     void initialize() {
       fgKeys = new Hashtable<String, Integer>();
       Integer k = Integer.valueOf(KEY);
-      for (int i = 0; i < fgKeywords.length; i++) {
-        fgKeys.put(fgKeywords[i], k);
+      for (int i = 0; i < JAVA_KEYWORDS.length; i++) {
+        fgKeys.put(JAVA_KEYWORDS[i], k);
       }
     }
 
-    public void setSQLKeywords(String[] kfKeywords) {
-      this.kfKeywords = kfKeywords;
-    }
-
-    public String[] getSQLKeywords() {
-      return kfKeywords;
-    }
-
-    public void initializeSQLFunctions() {
+    void initializeUDJCFunctions() {
       kfKeys = new Hashtable<String, Integer>();
       Integer k = Integer.valueOf(FUNCTIONS);
-      for (int i = 0; i < kfKeywords.length; i++) {
-        kfKeys.put(kfKeywords[i], k);
+      for (int i = 0; i < UDJC_FUNCTIONS.length; i++) {
+        kfKeys.put(UDJC_FUNCTIONS[i], k);
       }
     }
 
@@ -709,20 +284,6 @@ public class SQLValuesHighlight implements LineStyleListener {
           case '/': // comment
             c = read();
             if (c == '/') {
-              while (true) {
-                c = read();
-                if ((c == EOF) || (c == EOL)) {
-                  unread(c);
-                  return COMMENT;
-                }
-              }
-            } else {
-              unread(c);
-            }
-            return OTHER;
-          case '-': // comment
-            c = read();
-            if (c == '-') {
               while (true) {
                 c = read();
                 if ((c == EOF) || (c == EOL)) {
@@ -822,7 +383,7 @@ public class SQLValuesHighlight implements LineStyleListener {
     }
 
     public void setRange(String text) {
-      fDoc = text.toLowerCase();
+      fDoc = text;
       fPos = 0;
       fEnd = fDoc.length() - 1;
     }
@@ -834,28 +395,168 @@ public class SQLValuesHighlight implements LineStyleListener {
     }
   }
 
-  /**
-   * @return the scriptStatements
-   */
-  public List<SqlScriptStatement> getScriptStatements() {
-    return scriptStatements;
-  }
+  private static final String[] JAVA_KEYWORDS = {
+    "abstract",
+    "assert",
+    "boolean",
+    "break",
+    "byte",
+    "case",
+    "catch",
+    "char",
+    "class",
+    "const",
+    "continue",
+    "default",
+    "do",
+    "double",
+    "else",
+    "enum",
+    "extends",
+    "final",
+    "finally",
+    "float",
+    "for",
+    "goto",
+    "if",
+    "implements",
+    "import",
+    "instanceof",
+    "int",
+    "interface",
+    "long",
+    "native",
+    "new",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "return",
+    "short",
+    "static",
+    "strictfp",
+    "super",
+    "switch",
+    "synchronized",
+    "this",
+    "throw",
+    "throws",
+    "transient",
+    "try",
+    "void",
+    "volatile",
+    "while",
+  };
 
-  /**
-   * @param scriptStatements the scriptStatements to set
-   */
-  public void setScriptStatements(List<SqlScriptStatement> scriptStatements) {
-    this.scriptStatements = scriptStatements;
-  }
-
-  public void addKeyWords(String[] reservedWords) {
-    if (Utils.isEmpty(reservedWords)) {
-      return;
-    }
-
-    // List<String> keywords = new ArrayList<>(Arrays.asList(scanner.getSQLKeywords()));
-    // keywords.addAll(Arrays.asList(reservedWords));
-    scanner.setSQLKeywords(reservedWords);
-    scanner.initializeSQLFunctions();
-  }
+  // built from TransformClassBase.java with the following Vim commands:
+  // :v/ *public/d
+  // :%s/.\+\(\<[^(]\+\)(.*/\1/g
+  // :%s/.*/"&",/
+  private static final String[] UDJC_FUNCTIONS = {
+    "addResultFile",
+    "addRowListener",
+    "addStepListener",
+    "checkFeedback",
+    "cleanup",
+    "decrementLinesRead",
+    "decrementLinesWritten",
+    "dispose",
+    "findInputRowSet",
+    "findInputRowSet",
+    "findOutputRowSet",
+    "findOutputRowSet",
+    "getClusterSize",
+    "getCopy",
+    "getErrorRowMeta",
+    "getErrors",
+    "getFields",
+    "getInfoSteps",
+    "getInputRowMeta",
+    "getInputRowSets",
+    "getLinesInput",
+    "getLinesOutput",
+    "getLinesRead",
+    "getLinesRejected",
+    "getLinesSkipped",
+    "getLinesUpdated",
+    "getLinesWritten",
+    "getOutputRowSets",
+    "getPartitionID",
+    "getPartitionTargets",
+    "getProcessed",
+    "getRepartitioning",
+    "getResultFiles",
+    "getRow",
+    "getRowFrom",
+    "getRowListeners",
+    "getRuntime",
+    "getSlaveNr",
+    "getSocketRepository",
+    "getStatus",
+    "getStatusDescription",
+    "getStepDataInterface",
+    "getStepID",
+    "getStepListeners",
+    "getStepMeta",
+    "getStepname",
+    "getTrans",
+    "getTransMeta",
+    "getTypeId",
+    "getUniqueStepCountAcrossSlaves",
+    "getUniqueStepNrAcrossSlaves",
+    "getVariable",
+    "incrementLinesInput",
+    "incrementLinesOutput",
+    "incrementLinesRead",
+    "incrementLinesRejected",
+    "incrementLinesSkipped",
+    "incrementLinesUpdated",
+    "incrementLinesWritten",
+    "init",
+    "initBeforeStart",
+    "isDistributed",
+    "isInitialising",
+    "isPartitioned",
+    "isSafeModeEnabled",
+    "isStopped",
+    "isUsingThreadPriorityManagment",
+    "logBasic",
+    "logDebug",
+    "logDetailed",
+    "logError",
+    "logError",
+    "logMinimal",
+    "logRowlevel",
+    "logSummary",
+    "markStart",
+    "markStop",
+    "openRemoteInputStepSocketsOnce",
+    "openRemoteOutputStepSocketsOnce",
+    "outputIsDone",
+    "processRow",
+    "putError",
+    "putRow",
+    "putRowTo",
+    "removeRowListener",
+    "rowsetInputSize",
+    "rowsetOutputSize",
+    "safeModeChecking",
+    "setErrors",
+    "setInputRowMeta",
+    "setInputRowSets",
+    "setLinesInput",
+    "setLinesOutput",
+    "setLinesRead",
+    "setLinesRejected",
+    "setLinesSkipped",
+    "setLinesUpdated",
+    "setLinesWritten",
+    "setOutputDone",
+    "setOutputRowSets",
+    "setStepListeners",
+    "setVariable",
+    "stopAll",
+    "stopRunning",
+    "toString",
+  };
 }

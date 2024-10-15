@@ -358,6 +358,10 @@ public class TableInputDialog extends BaseTransformDialog {
 
   private List<String> getSqlKeywords() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
+      logError("Database connection not found. Proceding without keywords.");
+      return new ArrayList<>();
+    }
     Database db = new Database(loggingObject, variables, databaseMeta);
     DatabaseMetaData databaseMetaData = null;
     try {

@@ -61,8 +61,10 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.JavaStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -881,14 +883,15 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         item.setText(getNextName(tabName));
         break;
     }
-    final StyledTextComp wScript =
-        new StyledTextComp(
+    final TextComposite wScript =
+        new JavaStyledTextComp(
             variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, false);
     if ((tabCode != null) && tabCode.length() > 0) {
       wScript.setText(tabCode);
     } else {
       wScript.setText(snippitsHelper.getDefaultCode());
     }
+    wScript.addLineStyleListener();
 
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
     Listener listener = e -> setPosition(wScript);
@@ -1035,7 +1038,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     return strRC;
   }
 
-  public void setPosition(StyledTextComp widget) {
+  public void setPosition(TextComposite widget) {
     int lineNumber = widget.getLineNumber();
     int columnNumber = widget.getColumnNumber();
     wlPosition.setText(

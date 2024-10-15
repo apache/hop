@@ -25,7 +25,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.highlight.SQLValuesHighlight;
+import org.apache.hop.ui.core.widget.highlight.JavaHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyledText;
@@ -47,8 +47,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-public class SQLStyledTextComp extends TextComposite {
-  private static final Class<?> PKG = SQLStyledTextComp.class;
+public class JavaStyledTextComp extends TextComposite {
+  private static final Class<?> PKG = JavaStyledTextComp.class;
 
   // Modification for Undo/Redo on Styled Text
   private final StyledText textWidget;
@@ -56,16 +56,16 @@ public class SQLStyledTextComp extends TextComposite {
   private final Composite xParent;
   private Image image;
 
-  public SQLStyledTextComp(IVariables variables, Composite parent, int args) {
+  public JavaStyledTextComp(IVariables variables, Composite parent, int args) {
     this(variables, parent, args, true, false);
   }
 
-  public SQLStyledTextComp(
+  public JavaStyledTextComp(
       IVariables variables, Composite parent, int args, boolean varsSensitive) {
     this(variables, parent, args, varsSensitive, false);
   }
 
-  public SQLStyledTextComp(
+  public JavaStyledTextComp(
       IVariables variables,
       Composite parent,
       int args,
@@ -146,12 +146,16 @@ public class SQLStyledTextComp extends TextComposite {
 
   @Override
   public void addLineStyleListener() {
-    addLineStyleListener(new SQLValuesHighlight(List.of()));
+    addLineStyleListener(new JavaHighlight());
   }
 
   @Override
   public void addLineStyleListener(List<String> keywords) {
-    addLineStyleListener(new SQLValuesHighlight(keywords));
+    // No listener required
+  }
+
+  public void addLineStyleListener(LineStyleListener lineStyler) {
+    textWidget.addLineStyleListener(lineStyler);
   }
 
   public void addKeyListener(KeyAdapter keyAdapter) {
@@ -340,9 +344,5 @@ public class SQLStyledTextComp extends TextComposite {
 
   public int getCaretPosition() {
     return textWidget.getCaretOffset();
-  }
-
-  public void addLineStyleListener(LineStyleListener lineStyler) {
-    textWidget.addLineStyleListener(lineStyler);
   }
 }
