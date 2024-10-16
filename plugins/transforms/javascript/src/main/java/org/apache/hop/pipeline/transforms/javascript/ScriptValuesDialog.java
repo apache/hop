@@ -49,8 +49,10 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.JavaScriptStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -600,8 +602,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         item.setText(getNextName(cScriptName));
         break;
     }
-    StyledTextComp wScript =
-        new StyledTextComp(
+    TextComposite wScript =
+        new JavaScriptStyledTextComp(
             variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, false);
     if ((strScript != null) && strScript.length() > 0) {
       wScript.setText(strScript);
@@ -611,6 +613,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
               + Const.CR
               + Const.CR);
     }
+    wScript.addLineStyleListener();
 
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
 
@@ -762,7 +765,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     return strRC;
   }
 
-  public void setPosition(StyledTextComp wScript) {
+  public void setPosition(TextComposite wScript) {
     int lineNumber = wScript.getLineNumber();
     int columnNumber = wScript.getColumnNumber();
     wlPosition.setText(
