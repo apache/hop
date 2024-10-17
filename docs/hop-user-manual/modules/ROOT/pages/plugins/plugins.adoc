@@ -55,7 +55,6 @@ For Example, the neo4j plugins category contains plugins for actions, transforms
 * Value Types
 ** JSON
 
-
 Each type is explained in their own section.
 
 
