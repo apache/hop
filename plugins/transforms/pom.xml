@@ -57,6 +57,7 @@
         <module>delete</module>
         <module>denormaliser</module>
         <module>detectemptystream</module>
+        <module>detectlanguage</module>
         <module>detectlastrow</module>
         <module>dimensionlookup</module>
         <module>dorisbulkloader</module>
