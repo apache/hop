@@ -169,7 +169,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   private TreeEditor treeEditor;
   private CTabFolder tabFolder;
   private ToolBar toolBar;
-  private GuiToolbarWidgets toolBarWidgets;
+  private static GuiToolbarWidgets toolBarWidgets;
   private GuiMenuWidgets menuWidgets;
   private List<ExplorerFile> files = new ArrayList<>();
   private final ExplorerFileType explorerFileType;
@@ -1593,7 +1593,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
    *
    * @return value of toolBarWidgets
    */
-  public GuiToolbarWidgets getToolBarWidgets() {
+  public static GuiToolbarWidgets getToolBarWidgets() {
     return toolBarWidgets;
   }
 
@@ -1658,9 +1658,5 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
    */
   public Tree getTree() {
     return tree;
-  }
-
-  public void setRootName(String rootName) {
-    this.rootName = rootName;
   }
 }
