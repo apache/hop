@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>stanfordnlp</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2023/12/18 15:00:31.032</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2023/12/18 15:00:31.032</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Ubuntu</fontname>
+      <fontsize>11</fontsize>
+      <height>410</height>
+      <xloc>1088</xloc>
+      <yloc>64</yloc>
+      <note>Example - Given the following sentence:
+
+"She stopped at a small stall selling fresh flowers, admiring the vibrant colours of the roses and tulips."
+
+The breakdown of the sentence using TreeBank POS tags is as follows:
+
+    She: PRP (Personal Pronoun)
+    stopped: VBD (Verb, Past Tense)
+    at: IN (Preposition)
+    a: DT (Determiner)
+    small: JJ (Adjective)
+    stall: NN (Noun, Singular)
+    selling: VBG (Verb, Gerund/Present Participle)
+    fresh: JJ (Adjective)
+    flowers: NNS (Noun, Plural)
+    ,: , (Comma)
+    admiring: VBG (Verb, Gerund/Present Participle)
+    the: DT (Determiner)
+    vibrant: JJ (Adjective)
+    colours: NNS (Noun, Plural)
+    of: IN (Preposition)
+    the: DT (Determiner)
+    roses: NNS (Noun, Plural)
+    and: CC (Coordinating Conjunction)
+    tulips: NNS (Noun, Plural)</note>
+      <width>627</width>
+    </notepad>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Ubuntu</fontname>
+      <fontsize>11</fontsize>
+      <height>170</height>
+      <xloc>128</xloc>
+      <yloc>64</yloc>
+      <note>This plugin is designed to provide text analysis at the sentence level, powered by Stanford CoreNLP's Simple API.
+It processes paragraphs to deliver linguistic and statistical insights.
+
+Key Features:
+
+  -  Sentence Splitting: Automatically segments the paragraph into individual sentences.
+  -  Sentence Indexing: Identifies and returns the start and end indices of each sentence within the original paragraph.
+  -  Character and Word Count: Computes the total number of characters and words in each sentence.
+  -  TreeBank POS Tagging: Utilises TreeBank Part-of-Speech (POS) tagging for each word, offering detailed syntactic information.
+  -  POS Tag Frequency: Counts and summarises the occurrence of each POS tag (e.g., NN, VB, JJ) within each sentence, providing a thorough linguistic profile.</note>
+      <width>947</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Paragraphs</from>
+      <to>Analyse sentences</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Analyse sentences</from>
+      <to>Select values</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values</from>
+      <to>Text output</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Paragraphs</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>The sun was shining brightly as Emma walked through the bustling market. She stopped at a small stall selling fresh flowers, admiring the vibrant colours of the roses and tulips. After purchasing a bouquet, she continued down the narrow street, where vendors called out to potential customers, offering an array of fruits, vegetables, and handmade crafts. The scent of freshly baked bread filled the air, making her stomach rumble with hunger. Despite the crowd, Emma felt a sense of peace as she wandered aimlessly, taking in the sights and sounds of the lively marketplace.</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>corpus</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Select values</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>sentence_index</name>
+      </field>
+      <field>
+        <name>sentence_index_start</name>
+      </field>
+      <field>
+        <name>sentence_index_end</name>
+      </field>
+      <field>
+        <name>sentence_character_count</name>
+      </field>
+      <field>
+        <name>sentence_word_count</name>
+      </field>
+      <field>
+        <name>sentence_text</name>
+      </field>
+      <field>
+        <name>sentence_pos_tagged</name>
+      </field>
+      <field>
+        <name>sentence_pos_tags</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_CC</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_CD</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_DT</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_EX</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_FW</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_IN</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_JJ</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_JJR</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_JJS</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_LS</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_MD</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_NN</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_NNS</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_NNP</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_NNPS</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_PDT</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_POS</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_PRP</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_PRP$</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_RB</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_RBR</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_RBS</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_RP</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_SYM</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_TO</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_UH</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_VB</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_VBD</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_VBG</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_VBN</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_VBP</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_VBZ</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_WDT</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_WP</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_WP$</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_WRB</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_AFX</name>
+      </field>
+      <field>
+        <name>sentence_penn_treebank_pos_GW</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Analyse sentences</name>
+    <type>StanfordSimpleNlp</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <corpusField>corpus</corpusField>
+    <includePartOfSpeech>Y</includePartOfSpeech>
+    <parallelism>N</parallelism>
+    <outputFieldNamePrefix>sentence_</outputFieldNamePrefix>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Text output</name>
+    <type>TextFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <schema_definition/>
+    <separator>;</separator>
+    <enclosure>"</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding>UTF-8</encoding>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>stanfordnlp</name>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>Y</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery/>
+    </file>
+    <fields>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>800</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
