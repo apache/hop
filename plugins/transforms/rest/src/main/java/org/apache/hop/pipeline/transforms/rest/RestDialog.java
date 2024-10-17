@@ -26,14 +26,19 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.rest.fields.HeaderField;
+import org.apache.hop.pipeline.transforms.rest.fields.MatrixParameterField;
+import org.apache.hop.pipeline.transforms.rest.fields.ParameterField;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -59,12 +64,16 @@ import org.eclipse.swt.widgets.Text;
 public class RestDialog extends BaseTransformDialog {
   private static final Class<?> PKG = RestMeta.class;
 
+  public static final String CONST_ERROR = "Error";
+
   private ComboVar wApplicationType;
 
   private Label wlMethod;
+
   private ComboVar wMethod;
 
   private Label wlUrl;
+
   private TextVar wUrl;
 
   private TextVar wResult;
@@ -76,6 +85,7 @@ public class RestDialog extends BaseTransformDialog {
   private Button wUrlInField;
 
   private Label wlUrlField;
+
   private ComboVar wUrlField;
 
   private Button wMethodInField;
@@ -83,6 +93,7 @@ public class RestDialog extends BaseTransformDialog {
   private Button wPreemptive;
 
   private Label wlMethodField;
+
   private ComboVar wMethodField;
 
   private final RestMeta input;
@@ -90,9 +101,11 @@ public class RestDialog extends BaseTransformDialog {
   private final List<String> inputFields = new ArrayList<>();
 
   private Label wlBody;
+
   private ComboVar wBody;
 
   private ColumnInfo[] colinf;
+
   private ColumnInfo[] colinfoparams;
 
   private TextVar wConnectionTimeout;
@@ -108,11 +121,15 @@ public class RestDialog extends BaseTransformDialog {
   private TextVar wProxyPort;
 
   private Label wlParameters;
+
   private Label wlMatrixParameters;
+
   private TableView wParameters;
+
   private TableView wMatrixParameters;
 
   private TextVar wResponseTime;
+
   private TextVar wResponseHeader;
 
   private TextVar wTrustStorePassword;
@@ -124,6 +141,8 @@ public class RestDialog extends BaseTransformDialog {
   private Button wIgnoreSsl;
 
   private Button wMatrixGet;
+
+  private MetaSelectionLine wSelectionLine;
 
   public RestDialog(
       Shell parent, IVariables variables, RestMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -180,6 +199,7 @@ public class RestDialog extends BaseTransformDialog {
 
     Group gSettings = setupSettingGroup(wGeneralComp);
 
+    setupRestConnectionLine(lsMod, middle, margin, wGeneralComp, gSettings);
     setupUrlLine(lsMod, middle, margin, wGeneralComp, gSettings);
     setupUrlInFieldLine(middle, margin, gSettings);
     setupUrlFieldNameLine(lsMod, middle, margin, gSettings);
@@ -449,7 +469,7 @@ public class RestDialog extends BaseTransformDialog {
     fdMatrixGet.right = new FormAttachment(100, 0);
     wMatrixGet.setLayoutData(fdMatrixGet);
 
-    int matrixParametersRows = input.getMatrixParameterField().length;
+    int matrixParametersRows = input.getMatrixParameterFields().size();
 
     colinfoparams =
         new ColumnInfo[] {
@@ -514,7 +534,7 @@ public class RestDialog extends BaseTransformDialog {
     fdGet.right = new FormAttachment(100, 0);
     wGet.setLayoutData(fdGet);
 
-    final int ParametersRows = input.getParameterField().length;
+    final int ParametersRows = input.getParameterFields().size();
 
     colinfoparams =
         new ColumnInfo[] {
@@ -566,7 +586,7 @@ public class RestDialog extends BaseTransformDialog {
     fdGetHeaders.right = new FormAttachment(100, 0);
     wGetHeaders.setLayoutData(fdGetHeaders);
 
-    final int FieldsRows = input.getHeaderName().length;
+    final int FieldsRows = input.getHeaderFields().size();
 
     colinf =
         new ColumnInfo[] {
@@ -1174,15 +1194,42 @@ public class RestDialog extends BaseTransformDialog {
         });
   }
 
+  private void setupRestConnectionLine(
+      ModifyListener lsMod, int middle, int margin, Composite wGeneralComp, Group gSettings) {
+
+    wSelectionLine =
+        new MetaSelectionLine(
+            variables,
+            metadataProvider,
+            RestConnection.class,
+            gSettings,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            "REST Connection",
+            "The name of the REST connection to use.");
+    PropsUi.setLook(wSelectionLine);
+    FormData fdSelectionLine = new FormData();
+    fdSelectionLine.left = new FormAttachment(0, 0);
+    fdSelectionLine.top = new FormAttachment(wGeneralComp, margin);
+    fdSelectionLine.right = new FormAttachment(100, -margin);
+    wSelectionLine.setLayoutData(fdSelectionLine);
+    wSelectionLine.addListener(SWT.Selection, e -> input.setChanged(true));
+    try {
+      wSelectionLine.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(shell, CONST_ERROR, "Error getting list of REST connections", e);
+    }
+  }
+
   private void setupUrlLine(
       ModifyListener lsMod, int middle, int margin, Composite wGeneralComp, Group gSettings) {
+
     wlUrl = new Label(gSettings, SWT.RIGHT);
     wlUrl.setText(BaseMessages.getString(PKG, "RestDialog.URL.Label"));
     PropsUi.setLook(wlUrl);
     FormData fdlUrl = new FormData();
     fdlUrl.left = new FormAttachment(0, 0);
     fdlUrl.right = new FormAttachment(middle, -margin);
-    fdlUrl.top = new FormAttachment(wGeneralComp, margin * 2);
+    fdlUrl.top = new FormAttachment(wSelectionLine, margin * 2);
     wlUrl.setLayoutData(fdlUrl);
 
     wUrl = new TextVar(variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -1190,7 +1237,7 @@ public class RestDialog extends BaseTransformDialog {
     wUrl.addModifyListener(lsMod);
     FormData fdUrl = new FormData();
     fdUrl.left = new FormAttachment(middle, 0);
-    fdUrl.top = new FormAttachment(wGeneralComp, margin * 2);
+    fdUrl.top = new FormAttachment(wSelectionLine, margin * 2);
     fdUrl.right = new FormAttachment(100, 0);
     wUrl.setLayoutData(fdUrl);
   }
@@ -1302,38 +1349,42 @@ public class RestDialog extends BaseTransformDialog {
       logDebug(BaseMessages.getString(PKG, "RestDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getHeaderName() != null) {
-      for (int i = 0; i < input.getHeaderName().length; i++) {
+    if (!Utils.isEmpty(input.getConnectionName())) {
+      wSelectionLine.setText(input.getConnectionName());
+    }
+
+    if (!input.getHeaderFields().isEmpty()) {
+      for (int i = 0; i < input.getHeaderFields().size(); i++) {
         TableItem item = wFields.table.getItem(i);
-        if (input.getHeaderField()[i] != null) {
-          item.setText(1, input.getHeaderField()[i]);
+        if (input.getHeaderFields().get(i) != null) {
+          item.setText(1, input.getHeaderFields().get(i).getHeaderField());
         }
-        if (input.getHeaderName()[i] != null) {
-          item.setText(2, input.getHeaderName()[i]);
+        if (input.getHeaderFields().get(i) != null) {
+          item.setText(2, input.getHeaderFields().get(i).getName());
         }
       }
     }
 
-    if (input.getParameterField() != null) {
-      for (int i = 0; i < input.getParameterField().length; i++) {
+    if (!input.getParameterFields().isEmpty()) {
+      for (int i = 0; i < input.getParameterFields().size(); i++) {
         TableItem item = wParameters.table.getItem(i);
-        if (input.getParameterField()[i] != null) {
-          item.setText(1, input.getParameterField()[i]);
+        if (input.getParameterFields().get(i) != null) {
+          item.setText(1, input.getParameterFields().get(i).getHeaderField());
         }
-        if (input.getParameterName()[i] != null) {
-          item.setText(2, input.getParameterName()[i]);
+        if (input.getParameterFields().get(i) != null) {
+          item.setText(2, input.getParameterFields().get(i).getName());
         }
       }
     }
 
-    if (input.getMatrixParameterField() != null) {
-      for (int i = 0; i < input.getMatrixParameterField().length; i++) {
+    if (!input.getMatrixParameterFields().isEmpty()) {
+      for (int i = 0; i < input.getMatrixParameterFields().size(); i++) {
         TableItem item = wMatrixParameters.table.getItem(i);
-        if (input.getMatrixParameterField()[i] != null) {
-          item.setText(1, input.getMatrixParameterField()[i]);
+        if (input.getMatrixParameterFields().get(i) != null) {
+          item.setText(1, input.getMatrixParameterFields().get(i).getHeaderField());
         }
-        if (input.getMatrixParameterField()[i] != null) {
-          item.setText(2, input.getMatrixParameterField()[i]);
+        if (input.getMatrixParameterFields().get(i) != null) {
+          item.setText(2, input.getMatrixParameterFields().get(i).getName());
         }
       }
     }
@@ -1353,14 +1404,14 @@ public class RestDialog extends BaseTransformDialog {
     if (input.getUrlField() != null) {
       wUrlField.setText(input.getUrlField());
     }
-    if (input.getFieldName() != null) {
-      wResult.setText(input.getFieldName());
+    if (input.getResultField().getFieldName() != null) {
+      wResult.setText(input.getResultField().getFieldName());
     }
-    if (input.getResultCodeFieldName() != null) {
-      wResultCode.setText(input.getResultCodeFieldName());
+    if (input.getResultField().getCode() != null) {
+      wResultCode.setText(input.getResultField().getCode());
     }
-    if (input.getResponseTimeFieldName() != null) {
-      wResponseTime.setText(input.getResponseTimeFieldName());
+    if (input.getResultField().getResponseTime() != null) {
+      wResponseTime.setText(input.getResultField().getResponseTime());
     }
     if (input.getConnectionTimeout() != null) {
       wConnectionTimeout.setText(input.getConnectionTimeout());
@@ -1389,8 +1440,8 @@ public class RestDialog extends BaseTransformDialog {
       wTrustStorePassword.setText(input.getTrustStorePassword());
     }
     wIgnoreSsl.setSelection(input.isIgnoreSsl());
-    if (input.getResponseHeaderFieldName() != null) {
-      wResponseHeader.setText(input.getResponseHeaderFieldName());
+    if (input.getResultField().getResponseHeader() != null) {
+      wResponseHeader.setText(input.getResultField().getResponseHeader());
     }
 
     wApplicationType.setText(Const.NVL(input.getApplicationType(), ""));
@@ -1413,30 +1464,37 @@ public class RestDialog extends BaseTransformDialog {
       return;
     }
 
-    int nrheaders = wFields.nrNonEmpty();
-    int nrparams = wParameters.nrNonEmpty();
-    int nrmatrixparams = wMatrixParameters.nrNonEmpty();
-    input.allocate(nrheaders, nrparams, nrmatrixparams);
+    if (!Utils.isEmpty(wSelectionLine.getText())) {
+      input.setConnectionName(wSelectionLine.getText());
+    }
+
+    input.getHeaderFields().clear();
+    input.getParameterFields().clear();
+    input.getMatrixParameterFields().clear();
 
     if (isDebug()) {
       logDebug(
-          BaseMessages.getString(PKG, "RestDialog.Log.FoundArguments", String.valueOf(nrheaders)));
+          BaseMessages.getString(
+              PKG, "RestDialog.Log.FoundArguments", String.valueOf(wFields.nrNonEmpty())));
     }
-    for (int i = 0; i < nrheaders; i++) {
+    for (int i = 0; i < wFields.nrNonEmpty(); i++) {
       TableItem item = wFields.getNonEmpty(i);
-      input.getHeaderField()[i] = item.getText(1);
-      input.getHeaderName()[i] = item.getText(2);
+      HeaderField headerField = new HeaderField();
+      headerField.setHeaderField(item.getText(1));
+      headerField.setName(item.getText(2));
     }
-    for (int i = 0; i < nrparams; i++) {
+    for (int i = 0; i < wParameters.nrNonEmpty(); i++) {
       TableItem item = wParameters.getNonEmpty(i);
-      input.getParameterField()[i] = item.getText(1);
-      input.getParameterName()[i] = item.getText(2);
+      ParameterField parameterField = new ParameterField();
+      parameterField.setHeaderField(item.getText(1));
+      parameterField.setName(item.getText(2));
     }
 
-    for (int i = 0; i < nrmatrixparams; i++) {
+    for (int i = 0; i < wMatrixParameters.nrNonEmpty(); i++) {
       TableItem item = wMatrixParameters.getNonEmpty(i);
-      input.getMatrixParameterField()[i] = item.getText(1);
-      input.getMatrixParameterName()[i] = item.getText(2);
+      MatrixParameterField matrixParameterField = new MatrixParameterField();
+      matrixParameterField.setHeaderField(item.getText(1));
+      matrixParameterField.setName(item.getText(2));
     }
 
     input.setDynamicMethod(wMethodInField.getSelection());
@@ -1446,10 +1504,10 @@ public class RestDialog extends BaseTransformDialog {
     input.setUrlField(wUrlField.getText());
     input.setUrlInField(wUrlInField.getSelection());
     input.setBodyField(wBody.getText());
-    input.setFieldName(wResult.getText());
-    input.setResultCodeFieldName(wResultCode.getText());
-    input.setResponseTimeFieldName(wResponseTime.getText());
-    input.setResponseHeaderFieldName(wResponseHeader.getText());
+    input.getResultField().setFieldName(wResult.getText());
+    input.getResultField().setCode(wResultCode.getText());
+    input.getResultField().setResponseTime(wResponseTime.getText());
+    input.getResultField().setResponseHeader(wResponseHeader.getText());
     input.setConnectionTimeout(wConnectionTimeout.getText());
     input.setReadTimeout(wReadTimeout.getText());
     input.setHttpLogin(wHttpLogin.getText());
