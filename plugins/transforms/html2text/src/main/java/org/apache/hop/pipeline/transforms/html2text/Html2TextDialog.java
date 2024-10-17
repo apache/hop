@@ -103,7 +103,6 @@ public class Html2TextDialog extends BaseTransformDialog implements ITransformDi
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();
 
-
     wCleanOnly = new Button(shell, CHECK);
     wCleanOnly.setSelection(input.isCleanOnly());
 
