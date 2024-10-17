@@ -74,6 +74,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/delete.adoc[Delete]
 * xref:pipeline/transforms/serialize-de-from-file.adoc[De-Serialize From File]
 * xref:pipeline/transforms/detectemptystream.adoc[Detect Empty Stream]
+* xref:pipeline/transforms/detectlanguage.adoc[Detect Language]
 * xref:pipeline/transforms/dimensionlookup.adoc[Dimension lookup/update]
 * xref:pipeline/transforms/dummy.adoc[Dummy (do nothing)]
 * xref:pipeline/transforms/dynamicsqlrow.adoc[Dynamic SQL row]

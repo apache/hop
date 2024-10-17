@@ -17,41 +17,47 @@
 
 package org.apache.hop.pipeline.transforms.language;
 
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR;
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
 import static org.apache.hop.core.util.Utils.isEmpty;
-import static org.apache.hop.core.xml.XmlHandler.addTagValue;
-import static org.apache.hop.core.xml.XmlHandler.getTagValue;
 
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "DetectLanguage",
     image = "detectlanguage.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.DetectLanguage",
-    description = "i18n::BaseTransform.TypeTooltipDesc.DetectLanguage",
+    name = "i18n::DetectLanguage.Name",
+    description = "i18n::DetectLanguage.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::DetectLanguage.Keyword",
     documentationUrl = "/pipeline/transforms/detectlanguage.html")
 public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, DetectLanguageData> {
   private static final Class<?> PKG = DetectLanguageMeta.class;
 
+  @HopMetadataProperty(
+      key = "corpusField",
+      injectionKey = "FIELD",
+      injectionKeyDescription = "DetectLanguage.Injection.CorpusField")
   private String corpusField;
+
+  @HopMetadataProperty(
+      key = "parallelism",
+      injectionKey = "PARALLISM",
+      injectionKeyDescription = "DetectLanguage.Injection.Parallelism")
   private boolean parallelism = false;
 
   public DetectLanguageMeta() {
@@ -61,18 +67,6 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
   @Override
   public void setDefault() {
     parallelism = false;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      corpusField = getTagValue(transformNode, "corpusField");
-      parallelism = equalsIgnoreCase("Y", getTagValue(transformNode, "parallelism"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "DetectLanguageMeta.Exception.UnableToReadTransformMeta"), e);
-    }
   }
 
   @Override
@@ -99,14 +93,6 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
     IValueMeta sText = new ValueMetaNumber(metaName);
     sText.setOrigin(name);
     r.addValueMeta(sText);
-  }
-
-  @Override
-  public String getXml() {
-    return "    "
-        + addTagValue("corpusField", corpusField)
-        + "    "
-        + addTagValue("parallelism", parallelism);
   }
 
   @Override
