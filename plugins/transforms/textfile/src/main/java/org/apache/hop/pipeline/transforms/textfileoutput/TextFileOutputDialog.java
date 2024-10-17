@@ -1103,7 +1103,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
             input.setChanged();
           }
         });
-    setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
+    positionBottomButtons(wManualSchemaDefinition, new Button[] {wGet, wMinWidth}, margin, null);
 
     final int FieldsCols = 10;
     final int FieldsRows = input.getOutputFields().length;
