@@ -91,41 +91,34 @@ public class Message extends BaseMessage {
 
   public static boolean isRoleSystem(String role) {
     switch (role) {
-      case "context":
-      case "environment":
-      case "setup":
-      case "system":
+      case "context", "environment", "setup", "system" -> {
         return true;
-      default:
+      }
+      default -> {
         return false;
+      }
     }
   }
 
   public static boolean isRoleUser(String role) {
     switch (role) {
-      case "customer":
-      case "client":
-      case "consumer":
-      case "participant":
-      case "actor":
-      case "user":
+      case "customer", "client", "consumer", "participant", "actor", "user" -> {
         return true;
-      default:
+      }
+      default -> {
         return false;
+      }
     }
   }
 
   public static boolean isRoleAssistant(String role) {
     switch (role) {
-      case "agent":
-      case "bot":
-      case "adviser":
-      case "helper":
-      case "assistant":
-      case "ai":
+      case "agent", "bot", "adviser", "helper", "assistant", "ai" -> {
         return true;
-      default:
+      }
+      default -> {
         return false;
+      }
     }
   }
 

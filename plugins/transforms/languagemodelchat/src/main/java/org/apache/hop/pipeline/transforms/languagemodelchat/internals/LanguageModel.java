@@ -29,23 +29,12 @@ public class LanguageModel {
   public LanguageModel(LanguageModelChatMeta meta) {
     this.type = ModelType.valueOf(meta.getModelType());
     switch (this.type) {
-      case OPEN_AI:
-        name = meta.getOpenAiModelName();
-        break;
-      case ANTHROPIC:
-        name = meta.getAnthropicModelName();
-        break;
-      case OLLAMA:
-        name = meta.getOllamaModelName();
-        break;
-      case MISTRAL:
-        name = meta.getMistralModelName();
-        break;
-      case HUGGING_FACE:
-        name = meta.getHuggingFaceModelId();
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid model type");
+      case OPEN_AI -> name = meta.getOpenAiModelName();
+      case ANTHROPIC -> name = meta.getAnthropicModelName();
+      case OLLAMA -> name = meta.getOllamaModelName();
+      case MISTRAL -> name = meta.getMistralModelName();
+      case HUGGING_FACE -> name = meta.getHuggingFaceModelId();
+      default -> throw new IllegalArgumentException("Invalid model type");
     }
   }
 
