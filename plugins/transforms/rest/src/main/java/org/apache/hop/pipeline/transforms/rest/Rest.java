@@ -113,13 +113,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           .withConfig(data.config)
           .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
 
-      if (!Utils.isEmpty(data.trustStoreFile)) {
-        clientBuilder.sslContext(data.sslContext);
-      }
-
-      // Ignore SSL is selected disable hostname verifier
-      if (meta.isIgnoreSsl()) {
+      if (meta.isIgnoreSsl() || !Utils.isEmpty(data.trustStoreFile)) {
         clientBuilder.hostnameVerifier((s1, s2) -> true);
+        clientBuilder.sslContext(data.sslContext);
       }
 
       client = clientBuilder.build();
