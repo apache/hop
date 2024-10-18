@@ -33,29 +33,26 @@ import static org.eclipse.swt.SWT.RIGHT;
 import static org.eclipse.swt.SWT.SINGLE;
 import static org.eclipse.swt.SWT.Selection;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -69,9 +66,12 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
   private final DetectLanguageMeta input;
 
   public DetectLanguageDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (DetectLanguageMeta) in;
+      Shell parent,
+      IVariables variables,
+      DetectLanguageMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override
@@ -79,27 +79,27 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     Shell parent = getParent();
 
     shell = new Shell(parent, DIALOG_TRIM | RESIZE | MAX | MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod = e -> input.setChanged();
+    Listener lsMod = e -> input.setChanged();
 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(getString(PKG, "DetectLanguageDialog.Shell.Title"));
 
-    int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int middle = PropsUi.getInstance().getMiddlePct();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, RIGHT);
     wlTransformName.setText(getString(PKG, "DetectLanguageDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -107,8 +107,8 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SINGLE | LEFT | BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addListener(SWT.Modify, lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -118,7 +118,7 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     // CorpusFieldName field
     Label wlCorpusFieldName = new Label(shell, RIGHT);
     wlCorpusFieldName.setText(getString(PKG, "DetectLanguageDialog.CorpusFieldName.Label"));
-    props.setLook(wlCorpusFieldName);
+    PropsUi.setLook(wlCorpusFieldName);
     FormData fdlCorpusFieldName = new FormData();
     fdlCorpusFieldName.left = new FormAttachment(0, 0);
     fdlCorpusFieldName.right = new FormAttachment(middle, -margin);
@@ -126,12 +126,12 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     wlCorpusFieldName.setLayoutData(fdlCorpusFieldName);
 
     wCorpusFieldName = new CCombo(shell, BORDER | READ_ONLY);
-    props.setLook(wCorpusFieldName);
-    wCorpusFieldName.addModifyListener(lsMod);
+    PropsUi.setLook(wCorpusFieldName);
+    wCorpusFieldName.addListener(SWT.Modify, lsMod);
     FormData fdCorpusFieldName = new FormData();
     fdCorpusFieldName.left = new FormAttachment(middle, 0);
     fdCorpusFieldName.top = new FormAttachment(wTransformName, margin);
-    fdCorpusFieldName.right = new FormAttachment(100, -margin);
+    fdCorpusFieldName.right = new FormAttachment(100, 0);
     wCorpusFieldName.setLayoutData(fdCorpusFieldName);
     wCorpusFieldName.addFocusListener(
         new FocusListener() {
@@ -167,13 +167,7 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     fdParallelism.top = new FormAttachment(wCorpusFieldName, margin * 2);
     fdParallelism.right = new FormAttachment(100, 0);
     wParallelism.setLayoutData(fdParallelism);
-    wParallelism.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
+    wParallelism.addListener(SWT.Selection, lsMod);
 
     // THE BUTTONS
     wOk = new Button(shell, PUSH);
@@ -181,7 +175,7 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     wCancel = new Button(shell, PUSH);
     wCancel.setText(getString(PKG, "System.Button.Cancel"));
 
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wCorpusFieldName);
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // Add listeners
     wOk.addListener(Selection, e -> ok());
