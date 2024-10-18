@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::ExecInfo.Name",
     description = "i18n::ExecInfo.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-    keywords = "i18n::ExecInfo.keyword",
+    keywords = "i18n::ExecInfo.Keyword",
     documentationUrl = "/pipeline/transforms/execinfo.html")
 public class ExecInfoMeta extends BaseTransformMeta<ExecInfo, ExecInfoData> {
   private static final Class<?> PKG = ExecInfoMeta.class;
