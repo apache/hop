@@ -79,12 +79,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   private List<String> parameters;
 
   @picocli.CommandLine.Option(
-      names = {"-k", "--kill"},
-      description =
-          "Stop the running hopServer server.  This is only allowed when using the hostname/port form of the command. Use the -s and -u options to authenticate")
-  private boolean killServer;
-
-  @picocli.CommandLine.Option(
       names = {"-p", "--password"},
       description =
           "The server password.  Required for administrative operations only, not for starting the server.")
@@ -259,10 +253,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       // Load from an XML file that describes the complete configuration...
       //
       if (CollectionUtils.size(parameters) == 1) {
-        if (killServer) {
-          throw new HopServerCommandException(
-              BaseMessages.getString(PKG, "HopServer.Error.illegalStop"));
-        }
         setupByFileName();
       }
 
@@ -276,13 +266,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
             CollectionUtils.size(parameters) == 3
                 ? parameters.get(2)
                 : Integer.toString(WebServer.SHUTDOWN_PORT);
-
-        if (killServer) {
-          String user = variables.resolve(username);
-          String pwd = variables.resolve(this.password);
-          shutdown(hostname, port, shutdownPort, user, pwd);
-          System.exit(0);
-        }
 
         setupByHostNameAndPort(hostname, port, shutdownPort);
       }
@@ -747,22 +730,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
    */
   public void setSystemProperties(String[] systemProperties) {
     this.systemProperties = systemProperties;
-  }
-
-  /**
-   * Gets stopServer
-   *
-   * @return value of stopServer
-   */
-  public boolean isKillServer() {
-    return killServer;
-  }
-
-  /**
-   * @param killServer The stopServer to set
-   */
-  public void setKillServer(boolean killServer) {
-    this.killServer = killServer;
   }
 
   /**

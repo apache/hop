@@ -57,6 +57,7 @@
         <module>delete</module>
         <module>denormaliser</module>
         <module>detectemptystream</module>
+        <module>detectlanguage</module>
         <module>detectlastrow</module>
         <module>dimensionlookup</module>
         <module>dorisbulkloader</module>
@@ -85,6 +86,7 @@
         <module>gettablenames</module>
         <module>getvariable</module>
         <module>groupby</module>
+        <module>html2text</module>
         <module>http</module>
         <module>httppost</module>
         <module>ifnull</module>
@@ -147,6 +149,7 @@
         <module>sqlfileoutput</module>
         <module>ssh</module>
         <module>standardizephonenumber</module>
+        <module>stanfordnlp</module>
         <module>streamlookup</module>
         <module>streamschemamerge</module>
         <module>stringcut</module>

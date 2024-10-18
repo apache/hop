@@ -125,7 +125,8 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
     // Transform name line
     //
     Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
+    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
     wlTransformName.setLayoutData(new FormDataBuilder().right(middle, -margin).result());
     PropsUi.setLook(wlTransformName);
 

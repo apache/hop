@@ -294,12 +294,12 @@ public class DerbyDatabaseMetaTest {
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaBoolean("BAR"), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DOUBLE",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DECIMAL(10,16)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 0), "", false, "", false));
 
@@ -309,27 +309,27 @@ public class DerbyDatabaseMetaTest {
             "FOO", new ValueMetaInteger("BAR", 10, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR SMALLINT",
+        "ALTER TABLE FOO ADD BAR TINYINT",
         nativeMeta.getAddColumnStatement(
-            "FOO", new ValueMetaNumber("BAR", 0, 0), "", false, "", false));
+            "FOO", new ValueMetaInteger("BAR", 2, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR INTEGER",
+        "ALTER TABLE FOO ADD BAR DOUBLE",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR FLOAT",
+        "ALTER TABLE FOO ADD BAR DOUBLE",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR FLOAT",
+        "ALTER TABLE FOO ADD BAR DECIMAL(10,3)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR DECIMAL(21, 4)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(21,4)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 21, 4), "", false, "", false));
 
@@ -368,20 +368,20 @@ public class DerbyDatabaseMetaTest {
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR FLOAT",
+        "ALTER TABLE FOO ADD BAR DOUBLE",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, -7), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR DECIMAL(22, 7)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(22,7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 22, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD BAR FLOAT",
+        "ALTER TABLE FOO ADD BAR DOUBLE",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", -10, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD BAR FLOAT",
+        "ALTER TABLE FOO ADD BAR DOUBLE",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
     assertEquals(

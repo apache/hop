@@ -381,8 +381,7 @@ public class UIGitTest extends RepositoryTestCase {
   public void testDiff() throws Exception {
     File file = writeTrashFile("Test.txt", "Hello world");
 
-    String diff =
-        uiGit.diff(VCS.INDEX, uiGit.getShortenedName(VCS.WORKINGTREE, VCS.TYPE_COMMIT), "Test.txt");
+    String diff = uiGit.diff(VCS.INDEX, uiGit.getShortenedName(VCS.WORKINGTREE), "Test.txt");
     assertTrue(diff.contains("+Hello world"));
 
     git.add().addFilepattern("Test.txt").call();
@@ -393,8 +392,7 @@ public class UIGitTest extends RepositoryTestCase {
     assertTrue(diff.contains("+Hello world"));
 
     // abbreviated commit id should work
-    String diff2 =
-        uiGit.diff(null, uiGit.getShortenedName(commit1.getName(), VCS.TYPE_COMMIT), "Test.txt");
+    String diff2 = uiGit.diff(null, uiGit.getShortenedName(commit1.getName()), "Test.txt");
     assertEquals(diff, diff2);
 
     // Add another line

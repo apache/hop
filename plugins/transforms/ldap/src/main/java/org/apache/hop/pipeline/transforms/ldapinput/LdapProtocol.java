@@ -85,11 +85,11 @@ public class LdapProtocol {
    * @return the display name
    */
   // Suppress the LDAP connection warning
-  @SuppressWarnings("java:S4433")
   public static String getName() {
     return NAME;
   }
 
+  @SuppressWarnings("java:S4433")
   protected void setupEnvironment(Map<String, String> env, String username, String password)
       throws HopException {
     env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");

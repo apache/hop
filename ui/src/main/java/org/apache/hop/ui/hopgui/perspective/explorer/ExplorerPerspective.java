@@ -169,9 +169,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   private TreeEditor treeEditor;
   private CTabFolder tabFolder;
   private ToolBar toolBar;
-  private GuiToolbarWidgets toolBarWidgets;
+  private static GuiToolbarWidgets toolBarWidgets;
   private GuiMenuWidgets menuWidgets;
-  private boolean treeIsFresh;
   private List<ExplorerFile> files = new ArrayList<>();
   private final ExplorerFileType explorerFileType;
   private boolean showingHiddenFiles;
@@ -230,7 +229,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     this.selectionListeners = new ArrayList<>();
     this.typeImageMap = new HashMap<>();
     this.showingHiddenFiles = false;
-    this.treeIsFresh = false;
   }
 
   @Override
@@ -247,10 +245,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void perspectiveActivated() {
-    if (!treeIsFresh) {
-      this.refresh();
-    }
-
+    this.refresh();
     this.updateGui();
   }
 
@@ -1299,7 +1294,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           e);
     }
     updateSelection();
-    treeIsFresh = true;
   }
 
   @GuiToolbarElement(
@@ -1599,7 +1593,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
    *
    * @return value of toolBarWidgets
    */
-  public GuiToolbarWidgets getToolBarWidgets() {
+  public static GuiToolbarWidgets getToolBarWidgets() {
     return toolBarWidgets;
   }
 

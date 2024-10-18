@@ -26,12 +26,12 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -42,6 +42,7 @@ import org.apache.hop.git.model.revision.GitObjectRevision;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.DiffCommand;
@@ -63,7 +64,6 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.RenameDetector;
 import org.eclipse.jgit.dircache.DirCacheIterator;
-import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -185,9 +185,7 @@ public class UIGit extends VCS {
     ObjectId id = null;
     try {
       id = git.getRepository().resolve(revstr);
-    } catch (RevisionSyntaxException | AmbiguousObjectException | IncorrectObjectTypeException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
+    } catch (RevisionSyntaxException | IOException e) {
       e.printStackTrace();
     }
     if (id == null) {
@@ -215,6 +213,23 @@ public class UIGit extends VCS {
     }
   }
 
+  public List<String> listBranches() {
+    List<String> branches = new ArrayList<>();
+    try {
+      List<Ref> branchListCall = git.branchList().call();
+      for (Ref ref : branchListCall) {
+        branches.add(ref.getName());
+      }
+
+      // sort the list of branches
+      Collections.sort(branches);
+
+      return branches;
+    } catch (Exception e) {
+      return Collections.emptyList();
+    }
+  }
+
   public List<String> getLocalBranches() {
     return getBranches(null);
   }
@@ -234,7 +249,7 @@ public class UIGit extends VCS {
       return git.branchList().setListMode(mode).call().stream()
           .filter(ref -> !ref.getName().endsWith(Constants.HEAD))
           .map(ref -> Repository.shortenRefName(ref.getName()))
-          .collect(Collectors.toList());
+          .toList();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -516,13 +531,20 @@ public class UIGit extends VCS {
       // Pull = Fetch + Merge
       git.fetch().setCredentialsProvider(credentialsProvider).call();
       return mergeBranch(
-          Constants.DEFAULT_REMOTE_NAME + "/" + getBranch(), MergeStrategy.RECURSIVE.getName());
+          Constants.DEFAULT_REMOTE_NAME + "/" + getBranch(), MergeStrategy.RECURSIVE);
     } catch (TransportException e) {
       if (e.getMessage()
               .contains(
                   CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
           || e.getMessage()
               .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
+        if (e.getMessage().contains(CONST_NOT_AUTHORIZED)) {
+          new ErrorDialog(
+              HopGui.getInstance().getShell(),
+              "Git Error",
+              "Error Authenticating to Git service",
+              e);
+        }
         if (promptUsernamePassword()) {
           return pull();
         }
@@ -546,29 +568,26 @@ public class UIGit extends VCS {
     String name = null;
     List<String> names;
     EnterSelectionDialog esd;
-    switch (type) {
-      case VCS.TYPE_BRANCH:
-        names = getLocalBranches();
-        esd =
-            getEnterSelectionDialog(
-                names.toArray(new String[names.size()]),
-                "Select Branch",
-                "Select the branch to push...");
-        name = esd.open();
-        if (name == null) {
-          return false;
-        }
-        break;
-      case VCS.TYPE_TAG:
-        names = getTags();
-        esd =
-            getEnterSelectionDialog(
-                names.toArray(new String[names.size()]), "Select Tag", "Select the tag to push...");
-        name = esd.open();
-        if (name == null) {
-          return false;
-        }
-        break;
+    if (type.equals(VCS.TYPE_BRANCH)) {
+      names = getLocalBranches();
+      esd =
+          getEnterSelectionDialog(
+              names.toArray(new String[names.size()]),
+              "Select Branch",
+              "Select the branch to push...");
+      name = esd.open();
+      if (name == null) {
+        return false;
+      }
+    } else if (type.equals(VCS.TYPE_TAG)) {
+      names = getTags();
+      esd =
+          getEnterSelectionDialog(
+              names.toArray(new String[names.size()]), "Select Tag", "Select the tag to push...");
+      name = esd.open();
+      if (name == null) {
+        return false;
+      }
     }
     try {
       name = name == null ? null : getExpandedName(name, type);
@@ -794,11 +813,10 @@ public class UIGit extends VCS {
     }
   }
 
-  private boolean mergeBranch(String value, String mergeStrategy) throws HopException {
+  public boolean mergeBranch(String value, MergeStrategy mergeStrategy) throws HopException {
     try {
       ObjectId obj = git.getRepository().resolve(value);
-      MergeResult result =
-          git.merge().include(obj).setStrategy(MergeStrategy.get(mergeStrategy)).call();
+      MergeResult result = git.merge().include(obj).setStrategy(mergeStrategy).call();
       if (result.getMergeStatus().isSuccessful()) {
         return true;
       } else {
@@ -880,7 +898,7 @@ public class UIGit extends VCS {
     }
   }
 
-  public String getShortenedName(String name, String type) {
+  public String getShortenedName(String name) {
     if (name.length() == Constants.OBJECT_ID_STRING_LENGTH) {
       return name.substring(0, 7);
     } else {
@@ -901,7 +919,7 @@ public class UIGit extends VCS {
     try {
       return git.tagList().call().stream()
           .map(ref -> Repository.shortenRefName(ref.getName()))
-          .collect(Collectors.toList());
+          .toList();
     } catch (GitAPIException e) {
       e.printStackTrace();
     }
@@ -956,16 +974,12 @@ public class UIGit extends VCS {
     ObjectId id = null;
     try {
       id = git.getRepository().resolve(commitId);
-    } catch (RevisionSyntaxException | AmbiguousObjectException | IncorrectObjectTypeException e1) {
-      e1.printStackTrace();
-    } catch (IOException e1) {
+    } catch (RevisionSyntaxException | IOException e1) {
       e1.printStackTrace();
     }
     try (RevWalk rw = new RevWalk(git.getRepository())) {
       RevObject obj = rw.parseAny(id);
       return (RevCommit) obj;
-    } catch (MissingObjectException e) {
-      e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }

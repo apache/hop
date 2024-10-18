@@ -29,14 +29,16 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
 public class HopDiff {
-  public static String ATTR_GIT = "Git";
-  public static String ATTR_STATUS = "Status";
-  public static String ATTR_GIT_HOPS = "GitHops";
+  public static final String ATTR_GIT = "Git";
+  public static final String ATTR_STATUS = "Status";
+  public static final String ATTR_GIT_HOPS = "GitHops";
 
   public static final String UNCHANGED = "UNCHANGED";
   public static final String CHANGED = "CHANGED";
   public static final String REMOVED = "REMOVED";
   public static final String ADDED = "ADDED";
+
+  private HopDiff() {}
 
   public static PipelineMeta compareTransforms(
       PipelineMeta pipelineMeta1, PipelineMeta pipelineMeta2, boolean isForward) {

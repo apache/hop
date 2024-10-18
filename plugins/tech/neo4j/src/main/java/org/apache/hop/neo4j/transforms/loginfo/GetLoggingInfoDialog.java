@@ -117,7 +117,8 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
 
     // Transform name line
     Label wlTransformname = new Label(shell, SWT.RIGHT);
-    wlTransformname.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
+    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
     PropsUi.setLook(wlTransformname);
     FormData fdlTransformname = new FormData();
     fdlTransformname.left = new FormAttachment(0, 0);

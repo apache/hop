@@ -732,13 +732,14 @@ public class XmlHandler {
     }
   }
 
+  // False positive warning, external entities are disabled
+  @SuppressWarnings("java:S2755")
   public static TransformerFactory createSecureTransformerFactory() {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
     try {
       transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
       transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-      transformerFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-    } catch (IllegalArgumentException | TransformerException e) {
+    } catch (IllegalArgumentException e) {
       // Ignore this: the library doesn't support these features.
       // We don't need to disable them.
     }

@@ -37,8 +37,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 @Transform(
     id = "SnsNotify",
     image = "aws-sns.svg",
-    name = "i18n::System.Label.TransformName",
-    description = "i18n::SNSNotifyTransform.TooltipDesc",
+    name = "i18n::SNSNotify.Name",
+    description = "i18n::SNSNotify.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "",
     documentationUrl = "/pipeline/transforms/aws-sns-notify.html")

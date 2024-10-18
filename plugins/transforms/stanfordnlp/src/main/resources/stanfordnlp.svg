@@ -1,0 +1,18 @@
+<svg width="16" height="16" viewBox="0 0 128 128" id="stanfordnlp" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- Tree structure -->
+    <!-- Root node -->
+    <circle cx="64" cy="30" r="30" fill="#0E3A5A"/>
+    <text x="64" y="53" fill="#ffffff" font-size="65" font-weight="bolder" font-family="Arial, sans-serif" text-anchor="middle">S</text>
+
+
+    <rect x="5" y="74" width="46" height="48" fill="#0E3A5A" rx="4" ry="4"/>
+    <text x="28" y="116" fill="#ffffff" font-size="50" font-weight="bolder"  font-family="Arial, sans-serif" text-anchor="middle">N</text>
+
+    <rect x="77" y="74" width="46" height="48" fill="#0E3A5A" rx="4" ry="4"/>
+    <text x="100" y="116" fill="#ffffff" font-size="50"  font-weight="bolder" font-family="Arial, sans-serif" text-anchor="middle">V</text>
+
+    <!-- Connecting lines -->
+    <line x1="65" y1="58" x2="22" y2="78" stroke="#0E3A5A" stroke-width="6"/>
+    <line x1="62" y1="58" x2="105" y2="78" stroke="#0E3A5A" stroke-width="6"/>
+</svg>

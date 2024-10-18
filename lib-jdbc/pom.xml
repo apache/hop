@@ -37,7 +37,7 @@
         <mysql.version>9.0.0</mysql.version>
         <postgresql.version>42.7.2</postgresql.version>
         <redshift.version>2.1.0.29</redshift.version>
-        <snowflake.jdbc.version>3.17.0</snowflake.jdbc.version>
+        <snowflake.jdbc.version>3.19.0</snowflake.jdbc.version>
         <vertica.jdbc.version>23.3.0-0</vertica.jdbc.version>
     </properties>
 

@@ -17,7 +17,7 @@
 
 package org.apache.hop.git.model;
 
-import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.EnterUsernamePasswordDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -47,24 +47,14 @@ public abstract class VCS {
    * @return true on success
    */
   protected boolean promptUsernamePassword() {
-    EnterStringDialog userDialog =
-        new EnterStringDialog(
-            HopGui.getInstance().getShell(), "", "Username?", "Enter the git username to use");
-    String username = userDialog.open();
-    if (username == null) {
+    EnterUsernamePasswordDialog userDialog =
+        new EnterUsernamePasswordDialog(HopGui.getInstance().getShell());
+    String[] usernamePassword = userDialog.open();
+    if (usernamePassword == null) {
       return false;
     }
 
-    EnterStringDialog passDialog =
-        new EnterStringDialog(
-            HopGui.getInstance().getShell(), "", "Password?", "Enter the git password to use");
-    passDialog.setEchoChar('*');
-    String password = passDialog.open();
-    if (password == null) {
-      return false;
-    }
-
-    setCredential(username, password);
+    setCredential(usernamePassword[0], usernamePassword[1]);
     return true;
   }
 

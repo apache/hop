@@ -67,6 +67,12 @@ public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutp
   private String fileName;
 
   @HopMetadataProperty(
+      key = "fileformat",
+      storeWithCode = true,
+      injectionKeyDescription = "AccessOutputMeta.Injection.FILE_FORMAT")
+  private AccessFileFormat fileFormat;
+
+  @HopMetadataProperty(
       key = "tablename",
       injectionKeyDescription = "AccessOutputMeta.Injection.TABLE_NAME")
   private String tableName;
@@ -137,6 +143,7 @@ public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutp
   @Override
   public void setDefault() {
     createFile = true;
+    fileFormat = AccessFileFormat.V2019;
     createTable = true;
     truncateTable = false;
     commitSize = COMMIT_SIZE;
@@ -232,9 +239,7 @@ public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutp
 
   public static final IRowMeta getLayout(Table table) throws HopTransformException, IOException {
     IRowMeta row = new RowMeta();
-    List<Column> columns = (List<Column>) table.getColumns();
-    for (int i = 0; i < columns.size(); i++) {
-      Column column = columns.get(i);
+    for (Column column : table.getColumns()) {
 
       int valtype = IValueMeta.TYPE_STRING;
       int length = -1;
@@ -372,6 +377,14 @@ public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutp
    */
   public void setFileName(String filename) {
     this.fileName = filename;
+  }
+
+  public AccessFileFormat getFileFormat() {
+    return fileFormat;
+  }
+
+  public void setFileFormat(AccessFileFormat fileFormat) {
+    this.fileFormat = fileFormat;
   }
 
   /**

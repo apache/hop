@@ -377,16 +377,16 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
           String.format(
               CONST_S_S_S,
               pipelineMetaOld.getName(),
-              git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT),
-              git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT)));
+              git.getShortenedName(commitIdOld),
+              git.getShortenedName(commitIdNew)));
       pipelineMetaOld.setNameSynchronizedWithFilename(false);
 
       pipelineMetaNew.setName(
           String.format(
               CONST_S_S_S,
               pipelineMetaNew.getName(),
-              git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT),
-              git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT)));
+              git.getShortenedName(commitIdNew),
+              git.getShortenedName(commitIdOld)));
       pipelineMetaNew.setNameSynchronizedWithFilename(false);
 
       // Load both in the data orchestration perspective...
@@ -440,16 +440,16 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
           String.format(
               CONST_S_S_S,
               workflowMetaOld.getName(),
-              git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT),
-              git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT)));
+              git.getShortenedName(commitIdOld),
+              git.getShortenedName(commitIdNew)));
       workflowMetaOld.setNameSynchronizedWithFilename(false);
 
       workflowMetaNew.setName(
           String.format(
               CONST_S_S_S,
               workflowMetaNew.getName(),
-              git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT),
-              git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT)));
+              git.getShortenedName(commitIdNew),
+              git.getShortenedName(commitIdOld)));
       workflowMetaNew.setNameSynchronizedWithFilename(false);
 
       // Load both in the data orchestration perspective...
