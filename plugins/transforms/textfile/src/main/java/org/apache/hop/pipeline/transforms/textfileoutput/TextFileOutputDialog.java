@@ -63,7 +63,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -1047,12 +1046,38 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wFieldsTab.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.FieldsTab.TabTitle"));
 
     FormLayout fieldsLayout = new FormLayout();
-    fieldsLayout.marginWidth = PropsUi.getFormMargin();
-    fieldsLayout.marginHeight = PropsUi.getFormMargin();
+    fieldsLayout.marginWidth = 3;
+    fieldsLayout.marginHeight = 3;
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    wFieldsComp.setLayout(fieldsLayout);
     PropsUi.setLook(wFieldsComp);
+    wFieldsComp.setLayout(fieldsLayout);
+
+    Group fieldGroup = new Group(wFieldsComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(fieldGroup);
+    fieldGroup.setText(
+        BaseMessages.getString(PKG, "TextFileOutputDialog.ManualSchemaDefinition.Label"));
+
+    FormLayout fieldGroupGroupLayout = new FormLayout();
+    fieldGroupGroupLayout.marginWidth = 10;
+    fieldGroupGroupLayout.marginHeight = 10;
+    fieldGroup.setLayout(fieldGroupGroupLayout);
+
+    wGet = new Button(fieldGroup, SWT.PUSH);
+    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
+    wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
+
+    Button wMinWidth = new Button(fieldGroup, SWT.PUSH);
+    wMinWidth.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Button"));
+    wMinWidth.setToolTipText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Tooltip"));
+    wMinWidth.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
+    setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
     wSchemaDefinition =
         new MetaSelectionLine<>(
@@ -1079,93 +1104,58 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
     wSchemaDefinition.addSelectionListener(lsSelection);
 
-    Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wManualSchemaDefinition);
-    wManualSchemaDefinition.setText(
-        BaseMessages.getString(PKG, "TextFileOutputDialog.ManualSchemaDefinition.Label"));
-
-    FormLayout manualSchemaDefinitionLayout = new FormLayout();
-    manualSchemaDefinitionLayout.marginWidth = 10;
-    manualSchemaDefinitionLayout.marginHeight = 10;
-    wManualSchemaDefinition.setLayout(manualSchemaDefinitionLayout);
-
-    wGet = new Button(wManualSchemaDefinition, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
-    wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
-
-    Button wMinWidth = new Button(wManualSchemaDefinition, SWT.PUSH);
-    wMinWidth.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Button"));
-    wMinWidth.setToolTipText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Tooltip"));
-    wMinWidth.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
-    positionBottomButtons(wManualSchemaDefinition, new Button[] {wGet, wMinWidth}, margin, null);
-
-    final int FieldsCols = 10;
     final int FieldsRows = input.getOutputFields().length;
 
-    colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.NameColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_CCOMBO,
-            new String[] {""},
-            false);
-    colinf[1] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.TypeColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_CCOMBO,
-            ValueMetaFactory.getValueMetaNames());
-    colinf[2] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.FormatColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_FORMAT,
-            2);
-    colinf[3] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.LengthColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
-    colinf[4] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.PrecisionColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
-    colinf[5] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.CurrencyColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
-    colinf[6] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.DecimalColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
-    colinf[7] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.GroupColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
-    colinf[8] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.TrimTypeColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_CCOMBO,
-            ValueMetaBase.trimTypeDesc,
-            true);
-    colinf[9] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "TextFileOutputDialog.NullColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
+    colinf =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.NameColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[] {""},
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.TypeColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaFactory.getValueMetaNames()),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.FormatColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              2),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.LengthColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.PrecisionColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.CurrencyColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.DecimalColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.GroupColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.TrimTypeColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaBase.trimTypeDesc,
+              true),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.NullColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false)
+        };
 
     wFields =
         new TableView(
             variables,
-            wManualSchemaDefinition,
+            fieldGroup,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
@@ -1201,12 +1191,12 @@ public class TextFileOutputDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    FormData fdManualSchemaDefinitionComp = new FormData();
-    fdManualSchemaDefinitionComp.left = new FormAttachment(0, 0);
-    fdManualSchemaDefinitionComp.top = new FormAttachment(wSchemaDefinition, 0);
-    fdManualSchemaDefinitionComp.right = new FormAttachment(100, 0);
-    fdManualSchemaDefinitionComp.bottom = new FormAttachment(100, 0);
-    wManualSchemaDefinition.setLayoutData(fdManualSchemaDefinitionComp);
+    FormData fdFieldGroup = new FormData();
+    fdFieldGroup.left = new FormAttachment(0, margin);
+    fdFieldGroup.top = new FormAttachment(wSchemaDefinition, margin);
+    fdFieldGroup.right = new FormAttachment(100, -margin);
+    fdFieldGroup.bottom = new FormAttachment(100, 0);
+    fieldGroup.setLayoutData(fdFieldGroup);
 
     FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment(0, 0);
@@ -1247,15 +1237,6 @@ public class TextFileOutputDialog extends BaseTransformDialog {
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
                 },
                 true));
-
-    lsResize =
-        event -> {
-          Point size = shell.getSize();
-          wFields.setSize(size.x - 10, size.y - 50);
-          wFields.table.setSize(size.x - 10, size.y - 50);
-          wFields.redraw();
-        };
-    shell.addListener(SWT.Resize, lsResize);
 
     wTabFolder.setSelection(0);
 
