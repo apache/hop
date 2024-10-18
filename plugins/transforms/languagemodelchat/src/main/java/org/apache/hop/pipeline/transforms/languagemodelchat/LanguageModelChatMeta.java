@@ -82,11 +82,11 @@ public class LanguageModelChatMeta
   private String openAiModelName = OPENAI_GPT_4O.toString();
   private Double openAiTemperature = 0.7;
   private Double openAiTopP;
-  // private List<String> openAiStop;
+  // TODO private List<String> openAiStop;
   private Integer openAiMaxTokens;
   private Double openAiPresencePenalty;
   private Double openAiFrequencyPenalty;
-  // private Map<String, Integer> openAiLogitBias;
+  // TODO private Map<String, Integer> openAiLogitBias;
   private String openAiResponseFormat = "text"; // json_object
   private Integer openAiSeed;
   private String openAiUser;
@@ -97,7 +97,7 @@ public class LanguageModelChatMeta
   private Integer openAiProxyPort = 30000;
   private boolean openAiLogRequests = false;
   private boolean openAiLogResponses = false;
-  // private Tokenizer openAiTokenizer = new OpenAiTokenizer();
+  // TODO private Tokenizer openAiTokenizer = new OpenAiTokenizer();
 
   // HuggingFace
   private String huggingFaceAccessToken = "HF_ACCESS_TOKEN";
@@ -133,7 +133,7 @@ public class LanguageModelChatMeta
   private Integer ollamaSeed;
   private Integer ollamaNumPredict;
   private Integer ollamaNumCtx;
-  // private List<String> ollamaStop;
+  // TODO private List<String> ollamaStop;
   private String ollamaFormat;
   private Integer ollamaTimeout = 60;
   private Integer ollamaMaxRetries = 3;
@@ -147,7 +147,7 @@ public class LanguageModelChatMeta
   private Double anthropicTopP;
   private Integer anthropicTopK;
   private Integer anthropicMaxTokens = 1024;
-  // private List<String> anthropicStopSequences;
+  // TODO private List<String> anthropicStopSequences;
   private Integer anthropicTimeout = 15;
   private Integer anthropicMaxRetries = 3;
   private boolean anthropicLogRequests = false;

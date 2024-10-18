@@ -192,7 +192,7 @@ public class OllamaComposite extends AbstractModelComposite {
     meta.setOllamaSeed(trimIntegerToNull(seedInput.getText()));
     meta.setOllamaNumPredict(trimIntegerToNull(numPredictInput.getText()));
     meta.setOllamaNumCtx(trimIntegerToNull(numCtxInput.getText()));
-    // meta.setOllamaStop();
+    // TODO  meta.setOllamaStop();
     meta.setOllamaFormat(trimStringToNull(formatInput.getText())); // TODO Review
     meta.setOllamaTimeout(trimIntegerToNull(timeoutInput.getText()));
     meta.setOllamaMaxRetries(trimIntegerToNull(maxRetriesInput.getText()));
