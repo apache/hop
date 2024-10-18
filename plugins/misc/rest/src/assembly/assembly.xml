@@ -13,12 +13,14 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
+  ~
   -->
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <id>hop-transform-rest</id>
+
+    <id>hop-misc-rest</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -26,12 +28,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/rest</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>plugins/transforms/rest</outputDirectory>
+            <outputDirectory>plugins/misc/rest</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -46,15 +43,9 @@
     <dependencySets>
         <dependencySet>
             <includes>
-                <include>org.apache.hop:hop-transform-rest:jar</include>
+                <include>org.apache.hop:hop-misc-rest:jar</include>
             </includes>
-            <outputDirectory>plugins/transforms/rest</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.glassfish.jersey.connectors:jersey-apache-connector:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/rest/lib</outputDirectory>
+            <outputDirectory>plugins/misc/rest</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>
