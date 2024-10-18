@@ -103,12 +103,12 @@ public class AnthropicComposite extends AbstractModelComposite {
     stopSequencesInput = createTextVar();
     stopSequencesLabel.setVisible(false);
     stopSequencesInput.setVisible(false);
-    // prepare("StopSequences", stopSequencesLabel, stopSequencesInput);
+    // TODO prepare("StopSequences", stopSequencesLabel, stopSequencesInput);
 
     // Seed
     seedLabel = createLabel();
     seedInput = createTextVar();
-    // prepare("Seed", seedLabel, seedInput);
+    // TODO prepare("Seed", seedLabel, seedInput);
 
     // Timeout
     timeoutLabel = createLabel();
@@ -158,12 +158,15 @@ public class AnthropicComposite extends AbstractModelComposite {
     if (meta.getAnthropicMaxTokens() != null) {
       maxTokensInput.setText("" + meta.getAnthropicMaxTokens());
     }
-    // if (meta.getAnthropicStopSequences() != null) {
-    //   stopSequencesInput.setText(meta.getAnthropicStopSequences());
-    // }
-    // if (meta.getAnthropicSeed() != null) {
-    //    seedInput.setText("" + meta.getAnthropicSeed());
-    // }
+    /*
+    TODO
+     if (meta.getAnthropicStopSequences() != null) {
+       stopSequencesInput.setText(meta.getAnthropicStopSequences());
+     }
+     if (meta.getAnthropicSeed() != null) {
+        seedInput.setText("" + meta.getAnthropicSeed());
+     }
+     */
     if (meta.getAnthropicTimeout() != null) {
       timeoutInput.setText("" + meta.getAnthropicTimeout());
     }
@@ -204,8 +207,8 @@ public class AnthropicComposite extends AbstractModelComposite {
     meta.setAnthropicTopP(trimDoubleToNull(topPInput.getText()));
     meta.setAnthropicTopK(trimIntegerToNull(topKInput.getText()));
     meta.setAnthropicMaxTokens(trimIntegerToNull(maxTokensInput.getText()));
-    // meta.setAnthropicStopSequences(trimStringToNull(stopSequencesInput.getText()));
-    // meta.setAnthropicSeed(trimIntegerToNull(seedInput.getText()));
+    // TODO meta.setAnthropicStopSequences(trimStringToNull(stopSequencesInput.getText()));
+    // TODO meta.setAnthropicSeed(trimIntegerToNull(seedInput.getText()));
     meta.setAnthropicTimeout(trimIntegerToNull(timeoutInput.getText()));
     meta.setAnthropicMaxRetries(trimIntegerToNull(maxRetriesInput.getText()));
     meta.setAnthropicLogRequests(logRequestsButton.getSelection());

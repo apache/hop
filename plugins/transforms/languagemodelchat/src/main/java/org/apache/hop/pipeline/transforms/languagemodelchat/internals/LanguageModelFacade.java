@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.languagemodelchat.internals;
 
 import static com.squareup.moshi.Types.newParameterizedType;
 import static dev.langchain4j.data.message.UserMessage.userMessage;
+import static java.lang.String.format;
 import static java.lang.System.getenv;
 import static java.net.Proxy.Type.HTTP;
 import static java.time.Duration.ofSeconds;
@@ -52,56 +53,21 @@ import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMet
 public class LanguageModelFacade {
 
   private final LanguageModelChatMeta meta;
-  // private final MessageDigest digest = getSha3_512Digest();
-  // private final MessageDigest fastDigest = DigestUtils.getMd5Digest();
   private final JsonAdapter<List<Message>> inputJsonAdapter;
   private final JsonAdapter<List<BaseMessage>> outputJsonAdapter;
   private final LanguageModel lm;
-  // private final IRowMeta rowMeta;
-  // private final Object[] inputRow;
   private final IVariables variables;
   private ChatLanguageModel model;
-
-  //  Map<String, GenericContainer<? extends Container>> containers;
-  // private byte[][] state;
 
   public LanguageModelFacade(IVariables variables, LanguageModelChatMeta meta) {
     this.variables = variables;
     this.meta = (LanguageModelChatMeta) meta.clone();
-    //  this.containers = containers;
     this.lm = new LanguageModel(meta);
-    //   this.rowMeta = rowMeta;
-    //   this.inputRow = inputRow;
     inputJsonAdapter =
         new Moshi.Builder().build().adapter(newParameterizedType(List.class, Message.class));
     outputJsonAdapter =
         new Moshi.Builder().build().adapter(newParameterizedType(List.class, BaseMessage.class));
-
-    // checkState();
   }
-
-  /*
-     public void checkState() {
-         if (model == null || state == null || state.length == 0 || state[0].length == 0) {
-             createModel();
-         } else {
-             byte[] data = getBytes(meta.getXml(), UTF_8);
-             // Check fast, less accurate digest first
-             byte[] s0 = fastDigest.digest(data);
-
-             if (!Arrays.equals(this.state[0], s0)) {
-                 // Check accurate digest to rule out a collision
-                 byte[] s1 = digest.digest(data);
-                 if (!Arrays.equals(this.state[1], s1)) {
-                     createModel();
-                     this.state[0] = s0;
-                     this.state[1] = s1;
-                 }
-             }
-         }
-     }
-
-  */
 
   private void createModel() {
     switch (lm.getType()) {
@@ -121,34 +87,8 @@ public class LanguageModelFacade {
         model = createHuggingFaceModel();
         break;
     }
-    // byte[] data = getBytes(meta.getXml(), UTF_8);
-    // this.state = new byte[2][0];
-    //  this.state[0] = fastDigest.digest(data);
-    // this.state[1] = digest.digest(data);
   }
 
-  /*
-      private String stringParam(String field) {
-          field = meta.getOutputFieldNamePrefix() + field;
-          int idx = this.rowMeta.indexOfValue(field);
-
-          return idx >= 0 ? (String) inputRow[idx] : null;
-      }
-
-      private Integer intParam(String field) {
-          field = meta.getOutputFieldNamePrefix() + field;
-          int idx = this.rowMeta.indexOfValue(field);
-
-          return idx >= 0 ? ((Number) inputRow[idx]).intValue() : null;
-      }
-
-      private Double doubleParam(String field) {
-          field = meta.getOutputFieldNamePrefix() + field;
-          int idx = this.rowMeta.indexOfValue(field);
-
-          return idx >= 0 ? ((Number) inputRow[idx]).doubleValue() : null;
-      }
-  */
   private String resolve(String param) {
     return variables.resolve(trimToNull(param));
   }
@@ -172,25 +112,7 @@ public class LanguageModelFacade {
     Integer maxRetries = meta.getOpenAiMaxRetries();
     boolean logRequests = meta.isOpenAiLogRequests();
     boolean logResponses = meta.isOpenAiLogResponses();
-    /*
-            baseUrl = baseUrl != null ? baseUrl : stringParam("baseUrl");
-            apiKey = apiKey != null ? apiKey : stringParam("apiKey");
-            organizationId = organizationId != null ? organizationId : stringParam("organizationId");
-            modelName = modelName != null ? modelName : stringParam("modelName");
-            responseFormat = responseFormat != null ? responseFormat : stringParam("responseFormat");
-            user = user != null ? user : stringParam("user");
 
-            temperature = temperature != null ? temperature : doubleParam("temperature");
-            topP = topP != null ? topP : doubleParam("topP");
-            presencePenalty = presencePenalty != null ? presencePenalty : doubleParam("presencePenalty");
-            frequencyPenalty = frequencyPenalty != null ? frequencyPenalty : doubleParam("frequencyPenalty");
-
-            maxTokens = maxTokens != null ? maxTokens : intParam("maxTokens");
-            seed = seed != null ? seed : intParam("seed");
-            timeout = timeout != null ? timeout : intParam("timeout");
-            maxRetries = maxRetries != null ? maxRetries : intParam("maxRetries");
-
-    */
     OpenAiChatModel.OpenAiChatModelBuilder builder =
         OpenAiChatModel.builder()
             .baseUrl(baseUrl)
@@ -261,14 +183,11 @@ public class LanguageModelFacade {
   private ChatLanguageModel createOllamaModel() {
     String modelName = resolve(meta.getOllamaModelName());
 
-    //  modelName = modelName != null ? modelName : stringParam("modelName");
-
     if (isBlank(modelName)) {
       modelName = "phi3";
     }
 
     String imageEndpoint = resolve(meta.getOllamaImageEndpoint());
-    //  imageEndpoint = imageEndpoint != null ? imageEndpoint : stringParam("imageEndpoint");
 
     if (isBlank(imageEndpoint)) {
       switch (modelName) {
@@ -328,7 +247,7 @@ public class LanguageModelFacade {
     Integer maxRetries = meta.getOllamaMaxRetries();
 
     return OllamaChatModel.builder()
-        .baseUrl(baseUrl)
+        .baseUrl(imageEndpoint)
         .modelName(modelName)
         .temperature(temperature)
         .topP(topP)
@@ -467,7 +386,6 @@ public class LanguageModelFacade {
   }
 
   public ChatLanguageModel model() {
-    // checkState();
     if (model == null) {
       createModel();
     }
