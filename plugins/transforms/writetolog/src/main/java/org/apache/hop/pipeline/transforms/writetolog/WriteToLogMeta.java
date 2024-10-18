@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::WriteToLog.Name",
     description = "i18n::WriteToLog.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-    keywords = "i18n::WriteToLogMeta.Keyword",
+    keywords = "i18n::WriteToLog.Keyword",
     documentationUrl = "/pipeline/transforms/writetolog.html")
 public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData> {
   private static final Class<?> PKG = WriteToLogMeta.class;

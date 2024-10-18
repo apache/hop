@@ -30,11 +30,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "FileMetadataPlugin",
-    name = "i18n::FileMetadata.Name.Default",
+    name = "i18n::FileMetadata.Name",
     image = "filemetadata.svg",
-    description = "i18n::FileMetadata.Name.Desc",
+    description = "i18n::FileMetadata.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    keywords = "i18n::FileMetadataMeta.keyword",
+    keywords = "i18n::FileMetadata.Keyword",
     documentationUrl = "/pipeline/transforms/filemetadata.html")
 public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetadataData> {
   /** Stores the name of the file to examine */
