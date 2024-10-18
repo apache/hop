@@ -431,7 +431,7 @@ Claim: ${claim}</input_text>
     <huggingFaceAccessToken>${HF_TOKEN}</huggingFaceAccessToken>
     <huggingFaceModelId>meta-llama/Llama-3.1-70B-Instruct</huggingFaceModelId>
     <huggingFaceTemperature>0.7</huggingFaceTemperature>
-    <huggingFaceMaxNewTokens>30</huggingFaceMaxNewTokens>
+    <huggingFaceMaxNewTokens>50</huggingFaceMaxNewTokens>
     <huggingFaceReturnFullText>false</huggingFaceReturnFullText>
     <huggingFaceWaitForModel>false</huggingFaceWaitForModel>
     <mistralSafePrompt>false</mistralSafePrompt>
@@ -467,7 +467,7 @@ Claim: ${claim}</input_text>
     <openAiApiKey>${OPENAI_API_KEY}</openAiApiKey>
     <openAiModelName>gpt-4o-mini</openAiModelName>
     <openAiTemperature>0.7</openAiTemperature>
-    <openAiMaxTokens>30</openAiMaxTokens>
+    <openAiMaxTokens>50</openAiMaxTokens>
     <openAiResponseFormat>text</openAiResponseFormat>
     <openAiTimeout>60</openAiTimeout>
     <openAiMaxRetries>3</openAiMaxRetries>
