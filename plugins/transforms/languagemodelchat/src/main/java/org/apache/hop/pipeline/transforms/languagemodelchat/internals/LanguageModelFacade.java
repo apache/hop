@@ -191,49 +191,11 @@ public class LanguageModelFacade {
 
     if (isBlank(imageEndpoint)) {
       switch (modelName) {
-        case "mistral":
-        case "llama3":
-        case "llama2":
-        case "codellama":
-        case "phi":
-        case "orca-mini":
-        case "tinyllama":
-          imageEndpoint = String.format("langchain4j/ollama-%s:latest", modelName);
-          break;
-        default:
-          imageEndpoint = "ollama/ollama";
+        case "mistral", "llama3", "llama2", "codellama", "phi", "orca-mini", "tinyllama" ->
+            imageEndpoint = format("langchain4j/ollama-%s:latest", modelName);
+        default -> imageEndpoint = "ollama/ollama";
       }
     }
-
-    boolean url =
-        startsWithIgnoreCase(imageEndpoint, "http://")
-            || startsWithIgnoreCase(imageEndpoint, "https://");
-    String baseUrl = imageEndpoint;
-    /*
-    if (url) {
-        baseUrl = imageEndpoint;
-    } else {
-        int port = 11434;
-        String key = String.format("%s:%s", imageEndpoint, port);
-        OllamaContainer container = (OllamaContainer) containers.get(key);
-        if (container == null) {
-            try {
-                container = new OllamaContainer(DockerImageName.parse(imageEndpoint)
-                        .asCompatibleSubstituteFor("ollama/ollama"))
-                        .withExposedPorts(port)
-                        .waitingFor(Wait.forHttp("/"));
-                containers.put(key, container);
-                container.start();
-                container.execInContainer("ollama", "pull", modelName);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        }
-        baseUrl = String.format("http://%s:%d", container.getHost(), container.getFirstMappedPort());
-    }
-
-     */
 
     Double temperature = meta.getOllamaTemperature();
     Double topP = meta.getOllamaTopP();
@@ -340,15 +302,9 @@ public class LanguageModelFacade {
     for (ChatMessage c : chat) {
       String text = c.text();
       switch (c.type()) {
-        case SYSTEM:
-          messages.add(new BaseMessage(systemRoleName, text));
-          break;
-        case USER:
-          messages.add(new BaseMessage(userRoleName, text));
-          break;
-        case AI:
-          messages.add(new BaseMessage(assistantRoleName, text));
-          break;
+        case SYSTEM -> messages.add(new BaseMessage(systemRoleName, text));
+        case USER -> messages.add(new BaseMessage(userRoleName, text));
+        case AI -> messages.add(new BaseMessage(assistantRoleName, text));
       }
     }
 
