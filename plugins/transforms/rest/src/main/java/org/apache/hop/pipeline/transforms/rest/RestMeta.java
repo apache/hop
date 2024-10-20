@@ -149,7 +149,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   private String methodFieldName;
 
   /** Trust store */
-  @HopMetadataProperty(key = "trustStoreFiel", injectionKey = "TRUSTSTORE_FILE")
+  @HopMetadataProperty(key = "trustStoreFile", injectionKey = "TRUSTSTORE_FILE")
   private String trustStoreFile;
 
   @HopMetadataProperty(key = "trustStorePassword", injectionKey = "TRUSTSTORE_PASSWORD")
@@ -171,8 +171,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       injectionKey = "HEADERS",
       injectionGroupKey = "HEADER")
   private List<HeaderField> headerFields;
-
-  //  private String[] headerName;
 
   @HopMetadataProperty(
       key = "parameter",
