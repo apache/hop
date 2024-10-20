@@ -427,7 +427,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       } else {
         // Static URL
-        if (!meta.getConnectionName().isEmpty()) {
+        if (!Utils.isEmpty(meta.getConnectionName())) {
           data.realUrl = baseUrl + resolve(meta.getUrl());
         } else {
           data.realUrl = resolve(meta.getUrl());
@@ -447,7 +447,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
       // set Headers
-      if (!meta.getHeaderFields().isEmpty()) {
+      if (!Utils.isEmpty(meta.getHeaderFields())) {
         data.nrheader = meta.getHeaderFields().size();
         data.indexOfHeaderFields = new int[meta.getHeaderFields().size()];
         data.headerNames = new String[meta.getHeaderFields().size()];
