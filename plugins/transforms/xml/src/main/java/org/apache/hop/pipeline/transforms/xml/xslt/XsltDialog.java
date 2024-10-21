@@ -180,7 +180,7 @@ public class XsltDialog extends BaseTransformDialog {
     PropsUi.setLook(wField);
     wField.addModifyListener(lsMod);
     FormData fdField = new FormData();
-    fdField.left = new FormAttachment(middle, margin);
+    fdField.left = new FormAttachment(middle, 0);
     fdField.top = new FormAttachment(wTransformName, 2 * margin);
     fdField.right = new FormAttachment(100, -margin);
     wField.setLayoutData(fdField);

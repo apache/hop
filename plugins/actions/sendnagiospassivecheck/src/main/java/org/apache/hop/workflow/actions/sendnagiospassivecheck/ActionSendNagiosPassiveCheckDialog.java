@@ -130,6 +130,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Name.Label"),
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Name.Tooltip"));
     wName.addModifyListener(lsMod);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(0, 0);
     fdName.left = new FormAttachment(0, 0);
