@@ -46,11 +46,11 @@
             </includes>
             <outputDirectory>plugins/transforms/stanfordnlp</outputDirectory>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>edu.stanford.nlp:stanford-corenlp:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/stanfordnlp/lib</outputDirectory>
-        </dependencySet>
+<!--        <dependencySet>-->
+<!--            <includes>-->
+<!--                <include>edu.stanford.nlp:stanford-corenlp:jar</include>-->
+<!--            </includes>-->
+<!--            <outputDirectory>plugins/transforms/stanfordnlp/lib</outputDirectory>-->
+<!--        </dependencySet>-->
     </dependencySets>
 </assembly>

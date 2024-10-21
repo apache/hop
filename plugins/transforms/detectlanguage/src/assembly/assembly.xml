@@ -46,13 +46,13 @@
             </includes>
             <outputDirectory>plugins/transforms/detectlanguage</outputDirectory>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.github.pemistahl:lingua:jar</include>
-                <include>it.unimi.dsi:fastutil:jar</include>
-                <include>com.squareup.moshi:moshi:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/detectlanguage/lib</outputDirectory>
-        </dependencySet>
+<!--        <dependencySet>-->
+<!--            <includes>-->
+<!--                <include>com.github.pemistahl:lingua:jar</include>-->
+<!--                <include>it.unimi.dsi:fastutil:jar</include>-->
+<!--                <include>com.squareup.moshi:moshi:jar</include>-->
+<!--            </includes>-->
+<!--            <outputDirectory>plugins/transforms/detectlanguage/lib</outputDirectory>-->
+<!--        </dependencySet>-->
     </dependencySets>
 </assembly>
