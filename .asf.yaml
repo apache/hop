@@ -23,6 +23,7 @@ notifications:
   issues: issues@hop.apache.org
   pullrequests_status: issues@hop.apache.org
   pullrequests_comment: issues@hop.apache.org
+  discussions: users@hop.apache.org
 
 github:
   description: "Hop Orchestration Platform"
@@ -44,8 +45,6 @@ github:
     projects: true
     # Enable wiki for documentation
     wiki: false
-  collaborators:
-    - karta020500
 
   enabled_merge_buttons:
     squash: true
