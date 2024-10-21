@@ -319,7 +319,6 @@ Additionally, the following environment variables can help you to add even more 
 |HOP_SIMPLE_STACK_TRACES|N|System wide flag to log stack traces in a simpler, more human-readable format
 |===
 
-
 == Internal variables
 [%header, width="90%", cols="2,1,5"]
 |===
