@@ -32,6 +32,7 @@ For Example, the neo4j plugins category contains plugins for actions, transforms
 * xref:database/databases.adoc[Database Plugins]
 * Engines: the xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Apache Spark], xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Apache Flink] and xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Google Dataflow] run configurations are plugins that run through https://beam.apache.org[Apache Beam]
 * Miscellaneous Plugins
+** Async
 ** Debug
 ** xref:hop-gui/hop-gui-git.adoc[Git]
 ** Import
@@ -40,19 +41,19 @@ For Example, the neo4j plugins category contains plugins for actions, transforms
 ** Reflection
 ** Testing
 * Tech
+** Avro
+** AWS
+*** xref:vfs/aws-s3-vfs.adoc[AWS S3]
 ** Azure: a collection of plugins for Azure, including xref:vfs/azure-blob-storage-vfs.adoc[VFS Blob Storage], xref:pipeline/transforms/azure-event-hubs-listener.adoc[Azure Hubs Listener] and xref:pipeline/transforms/azure-event-hubs-writer.adoc[Azure Hubs Writer]
 ** Cassandra: xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection], xref:pipeline/transforms/cassandra-input.adoc[Cassandra Input] and xref:pipeline/transforms/cassandra-output.adoc[Cassandra Output]
+** Dropbox
 ** Google:
 *** VFS: xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage], xref:vfs/google-drive-vfs.adoc[Google Drive]
 ** Neo4j: a collection of Neo4j plugins
+** Parquet
 * xref:pipeline/transforms.adoc[Transform Plugins]
 * Value Types
 ** JSON
-* VFS
-** xref:vfs/aws-s3-vfs.adoc[AWS S3]
-** xref:vfs/azure-blob-storage-vfs.adoc[Azure Blob Storage],
-** xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage], xref:vfs/google-drive-vfs.adoc[Google Drive]
-
 
 Each type is explained in their own section.
 
