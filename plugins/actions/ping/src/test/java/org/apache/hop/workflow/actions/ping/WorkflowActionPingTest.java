@@ -41,7 +41,7 @@ public class WorkflowActionPingTest extends WorkflowActionLoadSaveTestSupport<Ac
     return toMap(
         "hostname", "getHostname",
         "nbrPackets", "getNbrPackets",
-        "timeout", "getTimeOut");
+        "timeout", "getTimeout");
   }
 
   @Override
@@ -49,6 +49,6 @@ public class WorkflowActionPingTest extends WorkflowActionLoadSaveTestSupport<Ac
     return toMap(
         "hostname", "setHostname",
         "nbrPackets", "setNbrPackets",
-        "timeout", "setTimeOut");
+        "timeout", "setTimeout");
   }
 }
