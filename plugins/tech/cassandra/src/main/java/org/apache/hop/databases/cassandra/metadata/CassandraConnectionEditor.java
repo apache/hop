@@ -75,13 +75,13 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin * 2);
     fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
-    fdName.left = new FormAttachment(middle, margin);
+    fdName.left = new FormAttachment(middle, 0);
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 

@@ -170,7 +170,7 @@ public class SplunkInputDialog extends BaseTransformDialog {
             metadataProvider,
             SplunkConnection.class,
             wComposite,
-            SWT.SINGLE | SWT.LEFT,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             "Splunk Connection",
             "Select, create or edit a Splunk Connection");
     PropsUi.setLook(wConnection);
