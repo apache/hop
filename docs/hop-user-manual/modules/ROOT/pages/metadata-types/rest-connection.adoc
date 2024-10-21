@@ -1,0 +1,49 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:page-pagination:
+:description:
+
+= REST connection
+
+image:icons/rest.svg[]
+
+A REST connection is a connection to a REST api that can be reused from transforms like the xref:pipeline/transforms/rest.adoc[REST client].
+
+The REST connection is a generic purpose metadata item. A transform or action that uses a REST connection can override its properties when required.
+
+== Related Plugins
+
+xref:pipeline/transforms/rest.adoc[REST client]
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name|The name to be used for this REST connection
+|Base URL|The URL to use as the base URL for any API calls. The base URL will need to be appended from client transforms or actions that use it to make detailed API calls.
+|Test URL|A full URL that can be used to test this REST connection. If no test URL is specified, the base URL will be used to perform connection tests.
+|Authorization header name|The Authentication/Authorization header name to use for the connection.
+|Authorization prefix|An (optional) prefix to use for the authentication/authorization header value (e.g. `Bearer`)
+|Authorization value|The Authentication/Authorization header value to use for the connection. This could be a token, an API key etc.
+|===
+
+Use the `Test` button to authenticate against the test or base URL, using the authentication/authorization header name, and (prefix + ) value.
+
+== Samples
+
+None
