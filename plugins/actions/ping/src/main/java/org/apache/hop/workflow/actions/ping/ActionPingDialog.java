@@ -119,7 +119,7 @@ public class ActionPingDialog extends ActionDialog {
     FormData fdlHostname = new FormData();
     fdlHostname.left = new FormAttachment(0, 0);
     fdlHostname.top = new FormAttachment(wName, margin);
-    fdlHostname.right = new FormAttachment(middle, 0);
+    fdlHostname.right = new FormAttachment(middle, -margin);
     wlHostname.setLayoutData(fdlHostname);
 
     wHostname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -180,7 +180,7 @@ public class ActionPingDialog extends ActionDialog {
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, 0);
     fdTimeOut.top = new FormAttachment(wPingType, margin);
-    fdTimeOut.right = new FormAttachment(100, 0);
+    fdTimeOut.right = new FormAttachment(100, -margin);
     wTimeOut.setLayoutData(fdTimeOut);
 
     // Nbr packets to send

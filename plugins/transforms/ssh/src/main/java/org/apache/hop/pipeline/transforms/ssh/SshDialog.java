@@ -574,7 +574,7 @@ public class SshDialog extends BaseTransformDialog {
     FormData fdlCommand = new FormData();
     fdlCommand.left = new FormAttachment(0, margin);
     fdlCommand.top = new FormAttachment(wCommandField, margin);
-    fdlCommand.right = new FormAttachment(middle, -2 * margin);
+    fdlCommand.right = new FormAttachment(middle, -margin);
     wlCommand.setLayoutData(fdlCommand);
 
     wCommand =

@@ -215,7 +215,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
     FormData fdlLookupField = new FormData();
     fdlLookupField.left = new FormAttachment(0, 0);
     fdlLookupField.top = new FormAttachment(wTransform, margin);
-    fdlLookupField.right = new FormAttachment(middle, -2 * margin);
+    fdlLookupField.right = new FormAttachment(middle, -margin);
     wlLookupField.setLayoutData(fdlLookupField);
 
     wLookupField = new ComboVar(variables, wLookupGroup, SWT.BORDER | SWT.READ_ONLY);
@@ -260,7 +260,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
     FormData fdlMainStreamField = new FormData();
     fdlMainStreamField.left = new FormAttachment(0, 0);
     fdlMainStreamField.top = new FormAttachment(wLookupGroup, margin);
-    fdlMainStreamField.right = new FormAttachment(middle, -2 * margin);
+    fdlMainStreamField.right = new FormAttachment(middle, -margin);
     wlMainStreamField.setLayoutData(fdlMainStreamField);
 
     wMainStreamField = new ComboVar(variables, wMainStreamGroup, SWT.BORDER | SWT.READ_ONLY);
@@ -324,7 +324,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
     FormData fdlCaseSensitive = new FormData();
     fdlCaseSensitive.left = new FormAttachment(0, 0);
     fdlCaseSensitive.top = new FormAttachment(wAlgorithm, margin);
-    fdlCaseSensitive.right = new FormAttachment(middle, -2 * margin);
+    fdlCaseSensitive.right = new FormAttachment(middle, -margin);
     wlCaseSensitive.setLayoutData(fdlCaseSensitive);
 
     wCaseSensitive = new Button(wSettingsGroup, SWT.CHECK);
@@ -343,7 +343,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
     FormData fdlGetCloserValue = new FormData();
     fdlGetCloserValue.left = new FormAttachment(0, 0);
     fdlGetCloserValue.top = new FormAttachment(wCaseSensitive, margin);
-    fdlGetCloserValue.right = new FormAttachment(middle, -2 * margin);
+    fdlGetCloserValue.right = new FormAttachment(middle, -margin);
     wlGetCloserValue.setLayoutData(fdlGetCloserValue);
 
     wGetCloserValue = new Button(wSettingsGroup, SWT.CHECK);

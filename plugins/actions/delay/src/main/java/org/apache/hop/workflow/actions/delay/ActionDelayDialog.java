@@ -99,7 +99,7 @@ public class ActionDelayDialog extends ActionDialog {
     PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, margin);
+    fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(0, margin);
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);

@@ -110,7 +110,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     //
     Label wlEnabled = new Label(parent, SWT.RIGHT);
     PropsUi.setLook(wlEnabled);
-    wlEnabled.setText("Enabled?");
+    wlEnabled.setText(BaseMessages.getString(PKG, "System.Button.Enabled"));
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment(0, 0);
     fdlEnabled.right = new FormAttachment(middle, -margin);
