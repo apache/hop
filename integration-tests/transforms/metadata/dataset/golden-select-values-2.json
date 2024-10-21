@@ -1,0 +1,80 @@
+{
+  "base_filename": "golden-select-values-2.csv",
+  "name": "golden-select-values-2",
+  "description": "track,singer,album,released,duration,liveness,Valence,Tempo,Popularity",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "track",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "singer",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "album",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "released",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "duration",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 1,
+      "field_precision": 4,
+      "field_name": "liveness",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 1,
+      "field_precision": 4,
+      "field_name": "Valence",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 1,
+      "field_precision": 4,
+      "field_name": "Tempo",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "Popularity",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
