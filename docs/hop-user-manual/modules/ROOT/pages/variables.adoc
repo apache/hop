@@ -318,3 +318,27 @@ Additionally, the following environment variables can help you to add even more 
 |HOP_REDIRECT_STDOUT|N|Set this variable to Y to redirect stdout to Hop logging.
 |HOP_SIMPLE_STACK_TRACES|N|System wide flag to log stack traces in a simpler, more human-readable format
 |===
+
+== Internal variables
+[%header, width="90%", cols="2,1,5"]
+|===
+|Variable |Default |Description
+|${Internal.Workflow.Filename.Folder} |N |The full directory path (folder) where the current workflow (.hwf) file is stored. This is useful for dynamically referencing the location of workflow files, especially when working across different environments or directories.
+|${Internal.Workflow.Filename.Name} |N |The name of the current workflow file (.hwf) without the folder path or extension. Useful for logging or dynamically referencing the workflow name in tasks.
+|${Internal.Workflow.Name} |N |The name of the current workflow as defined within the project, not the filename. This can be used to document or log workflow execution dynamically.
+|${Internal.Workflow.ID} |N |The unique ID of the current workflow execution. Useful for tracking execution instances in logs or within dynamic workflows.
+|${Internal.Workflow.ParentID} |N |The unique ID of the parent workflow if the current workflow was started by another workflow. This is helpful for tracing parent-child workflow relationships in logging.
+|${Internal.Entry.Current.Folder} |N |The folder where the currently running action (entry) resides. Useful for organizing logs or resources dynamically based on where actions are executed from.
+|${Internal.Pipeline.Filename.Directory} |N |The full directory path where the current pipeline (.hpl) file is located. Useful when building dynamic file paths or organizing files relative to the pipeline.
+|${Internal.Pipeline.Filename.Name} |N |The name of the current pipeline file (.hpl) without the folder path or extension. Useful for logging or referencing the pipeline name in scripts and configuration.
+|${Internal.Pipeline.Name} |N |The name of the current pipeline as defined within the project. This can be used for tracking or logging pipeline executions dynamically.
+|${Internal.Pipeline.ID} |N |The unique ID of the current pipeline execution. This ID is useful for referencing and tracking execution instances in logs or external systems.
+|${Internal.Pipeline.ParentID} |N |The unique ID of the parent pipeline if the current pipeline was started by another pipeline. Useful for tracking parent-child relationships between pipelines.
+|${Internal.Transform.Partition.ID} |N |The ID of the partition in a partitioned transform. It allows users to track or log data partitions during parallel processing.
+|${Internal.Transform.Partition.Number} |N |The partition number for partitioned processing in a transform. This is useful for distributing data processing tasks across multiple instances.
+|${Internal.Transform.Name} |N |The name of the currently executing transform within a pipeline. It helps in logging and identifying which transform is performing certain actions during execution.
+|${Internal.Transform.CopyNr} |N |The number of the transform copy that is executing. When transforms are run in parallel, this variable helps differentiate between the instances of the transform.
+|${Internal.Transform.ID} |N |The unique ID of the transform instance. Useful for tracking transform execution and debugging.
+|${Internal.Transform.BundleNr} |N |The bundle number for partitioned execution, helpful in load-balancing or distributing data across partitions.
+|${Internal.Action.ID} |N |The unique ID of the current action (entry) in a workflow. Useful for tracking specific actions within a larger workflow.
+|===
