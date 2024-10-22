@@ -431,11 +431,7 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <loglevel>log_level_basic</loglevel>
     <displayHeader>Y</displayHeader>
-    <limitRows>N</limitRows>
-    <limitRowsNumber>0</limitRowsNumber>
-    <logmessage>the following sample workflow or pipeline failed</logmessage>
     <fields>
       <field>
         <name>ExecutionTime</name>
@@ -480,6 +476,9 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <name>ExecutionLogChannelId</name>
       </field>
     </fields>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <logmessage>the following sample workflow or pipeline failed</logmessage>
     <attributes/>
     <GUI>
       <xloc>1392</xloc>
@@ -640,28 +639,28 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>process-files-with-mdi-template.hpl</item>
         <item>executed by process-files-with-mdi.hpl</item>
       </line>
+      <line>
+        <item>detectlanguage.hpl</item>
+        <item>Missing Libraries in default install</item>
+      </line>
+      <line>
+        <item>stanfordnlp.hpl</item>
+        <item>Missing Libraries in default install</item>
+      </line>
     </data>
     <fields>
       <field>
         <length>-1</length>
         <precision>-1</precision>
-        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>sample_name</name>
-        <format/>
-        <group/>
-        <decimal/>
         <type>String</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
-        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>reason</name>
-        <format/>
-        <group/>
-        <decimal/>
         <type>String</type>
       </field>
     </fields>
