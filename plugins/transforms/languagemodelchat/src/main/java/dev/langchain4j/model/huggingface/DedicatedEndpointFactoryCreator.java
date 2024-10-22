@@ -24,6 +24,8 @@ import dev.langchain4j.model.huggingface.spi.HuggingFaceClientFactory;
 
 class DedicatedEndpointFactoryCreator {
 
+  private DedicatedEndpointFactoryCreator() {}
+
   static final HuggingFaceClientFactory FACTORY = factory();
 
   private static HuggingFaceClientFactory factory() {

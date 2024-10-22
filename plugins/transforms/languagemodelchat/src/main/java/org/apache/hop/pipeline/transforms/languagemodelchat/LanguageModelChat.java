@@ -56,6 +56,9 @@ import org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageMo
 public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, LanguageModelChatData> {
   public static final int OVER_ALLOCATE_SIZE = 10;
   private static final Class<?> PKG = LanguageModelChat.class; // For Translator
+  public static final String CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD =
+      "LanguageModelChat.Exception.CouldnotFindField";
+  public static final String CONST_MODEL_TYPE = "model_type";
 
   private Map<LanguageModel, LanguageModelFacade> facadeMap = new ConcurrentHashMap<>();
 
@@ -115,7 +118,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
 
       // get the RowMeta
       data.previousRowMeta = getInputRowMeta().clone();
-      data.NrPrevFields = data.previousRowMeta.size();
+      data.nrPrevFields = data.previousRowMeta.size();
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
@@ -304,7 +307,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
       data.indexOfInputField = data.previousRowMeta.indexOfValue(meta.getInputField());
       if (data.indexOfInputField < 0) {
         throw new HopException(
-            i18n("LanguageModelChat.Exception.CouldnotFindField", meta.getInputField()));
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, meta.getInputField()));
       }
     }
     String outputPrefix = meta.getOutputFieldNamePrefix();
@@ -312,26 +315,29 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
     if (data.indexOfIdentifier < 0) {
       data.indexOfIdentifier = data.outputRowMeta.indexOfValue(outputPrefix + "identifier");
       if (data.indexOfIdentifier < 0) {
-        throw new HopException(i18n("LanguageModelChat.Exception.CouldnotFindField", "model_type"));
+        throw new HopException(
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, CONST_MODEL_TYPE));
       }
     }
     if (data.indexOfModelType < 0) {
-      data.indexOfModelType = data.outputRowMeta.indexOfValue(outputPrefix + "model_type");
+      data.indexOfModelType = data.outputRowMeta.indexOfValue(outputPrefix + CONST_MODEL_TYPE);
       if (data.indexOfModelType < 0) {
-        throw new HopException(i18n("LanguageModelChat.Exception.CouldnotFindField", "model_type"));
+        throw new HopException(
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, CONST_MODEL_TYPE));
       }
     }
     if (data.indexOfModelName < 0) {
       data.indexOfModelName = data.outputRowMeta.indexOfValue(outputPrefix + "model_name");
       if (data.indexOfModelName < 0) {
-        throw new HopException(i18n("LanguageModelChat.Exception.CouldnotFindField", "model_name"));
+        throw new HopException(
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, "model_name"));
       }
     }
     if (data.indexOfFinishReason < 0) {
       data.indexOfFinishReason = data.outputRowMeta.indexOfValue(outputPrefix + "finish_reason");
       if (data.indexOfFinishReason < 0) {
         throw new HopException(
-            i18n("LanguageModelChat.Exception.CouldnotFindField", "finish_reason"));
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, "finish_reason"));
       }
     }
     if (data.indexOfInputTokenCount < 0) {
@@ -339,7 +345,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
           data.outputRowMeta.indexOfValue(outputPrefix + "input_token_count");
       if (data.indexOfInputTokenCount < 0) {
         throw new HopException(
-            i18n("LanguageModelChat.Exception.CouldnotFindField", "input_token_count"));
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, "input_token_count"));
       }
     }
     if (data.indexOfOutputTokenCount < 0) {
@@ -347,7 +353,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
           data.outputRowMeta.indexOfValue(outputPrefix + "output_token_count");
       if (data.indexOfOutputTokenCount < 0) {
         throw new HopException(
-            i18n("LanguageModelChat.Exception.CouldnotFindField", "output_token_count"));
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, "output_token_count"));
       }
     }
     if (data.indexOfTotalTokenCount < 0) {
@@ -355,20 +361,21 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
           data.outputRowMeta.indexOfValue(outputPrefix + "total_token_count");
       if (data.indexOfTotalTokenCount < 0) {
         throw new HopException(
-            i18n("LanguageModelChat.Exception.CouldnotFindField", "total_token_count"));
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, "total_token_count"));
       }
     }
     if (data.indexOfInferenceTime < 0) {
       data.indexOfInferenceTime = data.outputRowMeta.indexOfValue(outputPrefix + "inference_time");
       if (data.indexOfInferenceTime < 0) {
         throw new HopException(
-            i18n("LanguageModelChat.Exception.CouldnotFindField", "inference_time"));
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, "inference_time"));
       }
     }
     if (data.indexOfOutput < 0) {
       data.indexOfOutput = data.outputRowMeta.indexOfValue(outputPrefix + "output");
       if (data.indexOfOutput < 0) {
-        throw new HopException(i18n("LanguageModelChat.Exception.CouldnotFindField", "output"));
+        throw new HopException(
+            i18n(CONST_LANGUAGE_MODEL_CHAT_EXCEPTION_COULDNOT_FIND_FIELD, "output"));
       }
     }
   }

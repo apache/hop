@@ -291,8 +291,7 @@ public class LanguageModelFacade {
         .build();
   }
 
-  public String messagesToOutput(List<ChatMessage> chat, String assistant)
-      throws HopValueException {
+  public String messagesToOutput(List<ChatMessage> chat, String assistant) {
     // TODO fetch these from the meta, hard code for now
     String systemRoleName = "system";
     String userRoleName = "user";

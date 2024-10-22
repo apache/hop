@@ -63,7 +63,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/languagemodelchat.html")
 public class LanguageModelChatMeta
     extends BaseTransformMeta<LanguageModelChat, LanguageModelChatData> {
-  private static Class<?> PKG = LanguageModelChatMeta.class; // For Translator
+  private static final Class<?> PKG = LanguageModelChatMeta.class; // For Translator
 
   private String inputField = "input";
   private boolean inputChatJson = false;

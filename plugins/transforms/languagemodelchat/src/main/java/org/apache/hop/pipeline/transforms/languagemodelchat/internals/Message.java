@@ -42,6 +42,8 @@ import org.apache.hop.core.exception.HopValueException;
 public class Message extends BaseMessage {
 
   private static final Collection<String> ACCEPTED_DETAILS = List.of("LOW", "HIGH", "AUTO");
+  public static final String CONST_MESSAGE_ROLE = "Message role '";
+  public static final String CONST_AT_INDEX = "' at index ";
 
   private String imageBase64Data;
   private String imageDetailLevel;
@@ -164,11 +166,13 @@ public class Message extends BaseMessage {
       String content = trimToNull(m.getContent());
       if (isRoleSystem(role)) {
         notNull(
-            content, "Message role '" + role + "' at index " + i + " does not have 'content' set");
+            content,
+            CONST_MESSAGE_ROLE + role + CONST_AT_INDEX + i + " does not have 'content' set");
         messages.add(systemMessage(content));
       } else if (isRoleAssistant(role)) {
         notNull(
-            content, "Message role '" + role + "' at index " + i + " does not have 'content' set");
+            content,
+            CONST_MESSAGE_ROLE + role + CONST_AT_INDEX + i + " does not have 'content' set");
         messages.add(aiMessage(content));
       } else if (isRoleUser(role)) {
         String uri = trimToNull(m.getImageUri());
@@ -182,9 +186,9 @@ public class Message extends BaseMessage {
           boolean v = ACCEPTED_DETAILS.contains(detail);
           isTrue(
               v,
-              "Message role '"
+              CONST_MESSAGE_ROLE
                   + role
-                  + "' at index "
+                  + CONST_AT_INDEX
                   + i
                   + " does not have a valid 'imageDetailLevel' set. Must be either low, high, or auto.");
           detailLevel = ImageContent.DetailLevel.valueOf(detail);
@@ -194,9 +198,9 @@ public class Message extends BaseMessage {
           boolean v = isNotBlank(base64) && isNotBlank(mime);
           isTrue(
               v,
-              "Message role '"
+              CONST_MESSAGE_ROLE
                   + role
-                  + "' at index "
+                  + CONST_AT_INDEX
                   + i
                   + " does not have both 'imageBase64Data' and 'imageMimeType' set. When either one is set, both are required.");
           ImageContent image =
@@ -217,9 +221,9 @@ public class Message extends BaseMessage {
             messages.add(userMessage);
           } catch (Exception e) {
             String err =
-                "Message role '"
+                CONST_MESSAGE_ROLE
                     + role
-                    + "' at index "
+                    + CONST_AT_INDEX
                     + i
                     + " has a problem with 'imageUri': "
                     + getRootCauseMessage(e);

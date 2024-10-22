@@ -21,6 +21,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class LanguageModelChatData extends BaseTransformData implements ITransformData {
   public int indexOfInputField;
   public int indexOfIdentifier;
@@ -36,7 +37,7 @@ public class LanguageModelChatData extends BaseTransformData implements ITransfo
 
   public IRowMeta previousRowMeta;
   public IRowMeta outputRowMeta;
-  public int NrPrevFields;
+  public int nrPrevFields;
 
   public LanguageModelChatData() {
     super();
