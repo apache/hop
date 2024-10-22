@@ -129,7 +129,7 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wTransformName, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     addRulesTab(wTabFolder, margin);
@@ -180,8 +180,8 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
     wlRuleFilePath.setText(BaseMessages.getString(PKG, "RulesDialog.RulesFile.Label"));
     FormData fdlTransformation = new FormData();
     fdlTransformation.left = new FormAttachment(0, 0);
-    fdlTransformation.top = new FormAttachment(0, 20);
-    fdlTransformation.right = new FormAttachment(50, 0);
+    fdlTransformation.top = new FormAttachment(0, margin);
+    fdlTransformation.right = new FormAttachment(100, 0);
     wlRuleFilePath.setLayoutData(fdlTransformation);
 
     wbBrowse = new Button(wRulesComp, SWT.PUSH);
@@ -206,7 +206,7 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
     FormData fdRuleFilePath = new FormData();
     fdRuleFilePath.left = new FormAttachment(0, 0);
     fdRuleFilePath.top = new FormAttachment(wlRuleFilePath, 5);
-    fdRuleFilePath.right = new FormAttachment(wbBrowse, -PropsUi.getMargin());
+    fdRuleFilePath.right = new FormAttachment(wbBrowse, -margin);
     wRuleFilePath.setLayoutData(fdRuleFilePath);
 
     wbRulesInEditor = new Button(wRulesComp, SWT.CHECK);
@@ -215,7 +215,7 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "RulesDialog.RuleDefinition.EnableScriptEditor.Label"));
     FormData fdPipelineNameInField = new FormData();
     fdPipelineNameInField.left = new FormAttachment(0, 0);
-    fdPipelineNameInField.top = new FormAttachment(wRuleFilePath, margin);
+    fdPipelineNameInField.top = new FormAttachment(wRuleFilePath, 2 * margin);
     wbRulesInEditor.setLayoutData(fdPipelineNameInField);
     wbRulesInEditor.addSelectionListener(
         new SelectionAdapter() {
@@ -233,9 +233,9 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
 
     FormData fdRulesEditor = new FormData();
     fdRulesEditor.left = new FormAttachment(0, 0);
-    fdRulesEditor.top = new FormAttachment(wbRulesInEditor, 5);
-    fdRulesEditor.right = new FormAttachment(100, -2 * margin);
-    fdRulesEditor.bottom = new FormAttachment(100, -12 * margin);
+    fdRulesEditor.top = new FormAttachment(wbRulesInEditor, margin);
+    fdRulesEditor.right = new FormAttachment(100, 0);
+    fdRulesEditor.bottom = new FormAttachment(100, 0);
     wRulesEditor.setLayoutData(fdRulesEditor);
 
     wRulesEditor.addModifyListener(lsMod);
@@ -364,9 +364,9 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
 
     FormData fdResultFields = new FormData();
     fdResultFields.left = new FormAttachment(0, 0);
-    fdResultFields.top = new FormAttachment(0, 5);
+    fdResultFields.top = new FormAttachment(0, margin);
     fdResultFields.right = new FormAttachment(100, 0);
-    fdResultFields.bottom = new FormAttachment(100, -margin * 8);
+    fdResultFields.bottom = new FormAttachment(100, -margin);
     wResultColumnsFields.setLayoutData(fdResultFields);
     wResultColumnsFields.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 25, 25));
 
