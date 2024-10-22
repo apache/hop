@@ -17,28 +17,18 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins</artifactId>
+        <artifactId>hop-plugins-misc</artifactId>
         <version>2.11.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hop-plugins-misc</artifactId>
-    <packaging>pom</packaging>
-    <name>Hop Plugins Miscellaneous</name>
+    <artifactId>hop-misc-rest</artifactId>
 
-    <modules>
-        <module>async</module>
-        <module>debug</module>
-        <module>git</module>
-        <module>import</module>
-        <module>passwords</module>
-        <module>projects</module>
-        <module>reflection</module>
-        <module>rest</module>
-        <module>static-schema</module>
-        <module>testing</module>
-    </modules>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
 </project>

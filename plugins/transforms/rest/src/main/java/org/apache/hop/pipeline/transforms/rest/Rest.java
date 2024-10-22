@@ -43,6 +43,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -60,6 +61,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   private static final Class<?> PKG = RestMeta.class;
   public static final String CONST_REST_EXCEPTION_ERROR_FINDING_FIELD =
       "Rest.Exception.ErrorFindingField";
+  private String baseUrl = "";
+  private RestConnection connection;
 
   public Rest(
       TransformMeta transformMeta,
@@ -87,10 +90,16 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
    */
   @SuppressWarnings("java:S5527")
   protected Object[] callRest(Object[] rowData) throws HopException {
+
     // get dynamic url ?
     if (meta.isUrlInField()) {
-      data.realUrl = data.inputRowMeta.getString(rowData, data.indexOfUrlField);
+      if (!Utils.isEmpty(meta.getConnectionName())) {
+        data.realUrl = baseUrl + data.inputRowMeta.getString(rowData, data.indexOfUrlField);
+      } else {
+        data.realUrl = data.inputRowMeta.getString(rowData, data.indexOfUrlField);
+      }
     }
+
     // get dynamic method?
     if (meta.isDynamicMethod()) {
       data.method = data.inputRowMeta.getString(rowData, data.indexOfMethod);
@@ -162,6 +171,16 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         logDebug(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", webResource.getUri()));
       }
       Invocation.Builder invocationBuilder = webResource.request();
+
+      // set the Authentication/Authorization header from the connection first, if available.
+      // this transform's headers will override this value if available.
+      if (connection != null) {
+        if (!Utils.isEmpty(connection.getAuthorizationHeaderName())) {
+          invocationBuilder.header(
+              connection.getAuthorizationHeaderName(), connection.getAuthorizationHeaderValue());
+        }
+      }
+
       String contentType = null; // media type override, if not null
       if (data.useHeaders) {
         // Add headers
@@ -408,7 +427,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       } else {
         // Static URL
-        data.realUrl = resolve(meta.getUrl());
+        if (!Utils.isEmpty(meta.getConnectionName())) {
+          data.realUrl = baseUrl + resolve(meta.getUrl());
+        } else {
+          data.realUrl = resolve(meta.getUrl());
+        }
       }
       // Check Method
       if (meta.isDynamicMethod()) {
@@ -424,15 +447,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
       // set Headers
-      int nrargs = meta.getHeaderName() == null ? 0 : meta.getHeaderName().length;
-      if (nrargs > 0) {
-        data.nrheader = nrargs;
-        data.indexOfHeaderFields = new int[nrargs];
-        data.headerNames = new String[nrargs];
-        for (int i = 0; i < nrargs; i++) {
+      if (!Utils.isEmpty(meta.getHeaderFields())) {
+        data.nrheader = meta.getHeaderFields().size();
+        data.indexOfHeaderFields = new int[meta.getHeaderFields().size()];
+        data.headerNames = new String[meta.getHeaderFields().size()];
+        for (int i = 0; i < meta.getHeaderFields().size(); i++) {
           // split into body / header
-          data.headerNames[i] = resolve(meta.getHeaderName()[i]);
-          String field = resolve(meta.getHeaderField()[i]);
+          data.headerNames[i] = resolve(meta.getHeaderFields().get(i).getName());
+          String field = resolve(meta.getHeaderFields().get(i).getHeaderField());
           if (Utils.isEmpty(field)) {
             throw new HopException(BaseMessages.getString(PKG, "Rest.Exception.HeaderFieldEmpty"));
           }
@@ -446,14 +468,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
       if (RestMeta.isActiveParameters(meta.getMethod())) {
         // Parameters
-        int nrparams = meta.getParameterField() == null ? 0 : meta.getParameterField().length;
+        int nrparams = meta.getParameterFields() != null ? 0 : meta.getParameterFields().size();
         if (nrparams > 0) {
           data.nrParams = nrparams;
           data.paramNames = new String[nrparams];
           data.indexOfParamFields = new int[nrparams];
           for (int i = 0; i < nrparams; i++) {
-            data.paramNames[i] = resolve(meta.getParameterName()[i]);
-            String field = resolve(meta.getParameterField()[i]);
+            data.paramNames[i] = resolve(meta.getParameterFields().get(i).getName());
+            String field = resolve(meta.getParameterFields().get(i).getHeaderField());
             if (Utils.isEmpty(field)) {
               throw new HopException(BaseMessages.getString(PKG, "Rest.Exception.ParamFieldEmpty"));
             }
@@ -466,14 +488,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           data.useParams = true;
         }
         int nrmatrixparams =
-            meta.getMatrixParameterField() == null ? 0 : meta.getMatrixParameterField().length;
+            meta.getMatrixParameterFields() == null ? 0 : meta.getMatrixParameterFields().size();
         if (nrmatrixparams > 0) {
           data.nrMatrixParams = nrmatrixparams;
           data.matrixParamNames = new String[nrmatrixparams];
           data.indexOfMatrixParamFields = new int[nrmatrixparams];
           for (int i = 0; i < nrmatrixparams; i++) {
-            data.matrixParamNames[i] = resolve(meta.getMatrixParameterName()[i]);
-            String field = resolve(meta.getMatrixParameterField()[i]);
+            data.matrixParamNames[i] = resolve(meta.getMatrixParameterFields().get(i).getName());
+            String field = resolve(meta.getMatrixParameterFields().get(i).getHeaderField());
             if (Utils.isEmpty(field)) {
               throw new HopException(
                   BaseMessages.getString(PKG, "Rest.Exception.MatrixParamFieldEmpty"));
@@ -533,10 +555,27 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   public boolean init() {
 
     if (super.init()) {
-      data.resultFieldName = resolve(meta.getFieldName());
-      data.resultCodeFieldName = resolve(meta.getResultCodeFieldName());
-      data.resultResponseFieldName = resolve(meta.getResponseTimeFieldName());
-      data.resultHeaderFieldName = resolve(meta.getResponseHeaderFieldName());
+
+      // use the information from the selection line if we have one.
+      if (!Utils.isEmpty(meta.getConnectionName())) {
+        try {
+          for (RestConnection connection :
+              metadataProvider.getSerializer(RestConnection.class).loadAll()) {
+            if (connection.getName().equals(meta.getConnectionName())) {
+              this.connection = connection;
+              baseUrl = resolve(connection.getBaseUrl());
+            }
+          }
+        } catch (HopException e) {
+          throw new RuntimeException(
+              "REST connection " + meta.getConnectionName() + " could not be found");
+        }
+      }
+
+      data.resultFieldName = resolve(meta.getResultField().getFieldName());
+      data.resultCodeFieldName = resolve(meta.getResultField().getCode());
+      data.resultResponseFieldName = resolve(meta.getResultField().getResponseTime());
+      data.resultHeaderFieldName = resolve(meta.getResultField().getResponseHeader());
 
       data.realConnectionTimeout = Const.toInt(resolve(meta.getConnectionTimeout()), -1);
       data.realReadTimeout = Const.toInt(resolve(meta.getReadTimeout()), -1);

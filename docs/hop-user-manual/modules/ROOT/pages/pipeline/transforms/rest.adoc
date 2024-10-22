@@ -27,6 +27,11 @@ under the License.
 
 The REST Client transform enables you to consume RESTfull services. Representational State Transfer (REST) is a key design idiom that embraces a stateless client-server architecture in which the web services are viewed as resources and can be identified by their URLs.
 
+The REST client transform can use a pre-defined xref:metadata-types/rest-connection.adoc[REST connection] or use full URLs directly. +
+When using a REST connection, the URL (hard-coded or accepted from a field) will be considered a path relative to the base URL defined in the REST connection. Header values that are specified in the `Headers` tab of the transform will overwrite any headers with the same name that were defined in the REST connection.
+
+When used without a REST connection, the full URL needs to be specified.
+
 == Example
 The REST client Transform returns a "result" field (can change the name), and the field is often used in the next transform. For example, it can be read in by a JSON input transform that extracts the fields specified on the Fields tab.
 
@@ -52,6 +57,7 @@ The General tab is where you enter basic connection information for accessing a 
 |===
 |Option|Description
 |Transform name|Name of this transform as it appears in the pipeline workspace
+|REST Connection|The (optional) xref:metadata-types/rest-connection.adoc[REST connection] to use for the base URL and authentication/authorization header name and value.
 |URL|Indicates the path to a resource
 |Accept URL from field|Designates the path to a resource is defined from a field
 |URL field name|Indicates the field from which the path to a resource is defined
