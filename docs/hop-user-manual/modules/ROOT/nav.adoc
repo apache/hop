@@ -442,7 +442,7 @@ under the License.
 //::=START AUTO GENERATED LINKS PASSWORDS
 ** xref:password/passwords/aespasswords.adoc[AES Two way password encoder]
 //::=END AUTO GENERATED LINKS PASSWORDS
-* xref:plugins/external-plugins.adoc[Plugins]
+* xref:plugins/plugins.adoc[Plugins]
 //::=START AUTO GENERATED LINKS
 //::=END AUTO GENERATED LINKS
 ** xref:plugins/external-plugins.adoc[External Plugins]
