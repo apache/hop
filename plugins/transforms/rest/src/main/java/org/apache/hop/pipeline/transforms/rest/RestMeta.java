@@ -152,7 +152,10 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @HopMetadataProperty(key = "trustStoreFile", injectionKey = "TRUSTSTORE_FILE")
   private String trustStoreFile;
 
-  @HopMetadataProperty(key = "trustStorePassword", injectionKey = "TRUSTSTORE_PASSWORD")
+  @HopMetadataProperty(
+      key = "trustStorePassword",
+      injectionKey = "TRUSTSTORE_PASSWORD",
+      password = true)
   private String trustStorePassword;
 
   @HopMetadataProperty(key = "connectionTimeout", injectionKey = "CONNECTION_TIMEOUT")
