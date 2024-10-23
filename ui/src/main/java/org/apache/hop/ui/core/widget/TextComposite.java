@@ -63,6 +63,10 @@ public abstract class TextComposite extends Composite {
 
   public abstract void addLineStyleListener(List<String> sqlKeywords);
 
+  public void addLineStyleListener(String scriptEngine) {
+    throw new UnsupportedOperationException("Cannot specify a script engine");
+  }
+
   public abstract int getLineNumber();
 
   public abstract int getColumnNumber();

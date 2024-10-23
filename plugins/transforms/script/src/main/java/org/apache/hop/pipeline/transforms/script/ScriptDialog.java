@@ -37,8 +37,10 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ScriptStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -90,6 +92,8 @@ public class ScriptDialog extends BaseTransformDialog {
       };
 
   private CCombo wEngines;
+
+  private TextComposite wScript;
 
   private ModifyListener lsMod;
 
@@ -181,7 +185,11 @@ public class ScriptDialog extends BaseTransformDialog {
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    lsMod = e -> input.setChanged();
+    lsMod =
+        e -> {
+          input.setChanged();
+          // wScript.removeLi
+        };
     changed = input.hasChanged();
 
     shell.setLayout(props.createFormLayout());
@@ -243,6 +251,7 @@ public class ScriptDialog extends BaseTransformDialog {
       }
     }
     wEngines.select(0);
+
     PropsUi.setLook(wEngines);
     wEngines.addModifyListener(lsMod);
     FormData fdEngines = new FormData();
@@ -568,12 +577,11 @@ public class ScriptDialog extends BaseTransformDialog {
     } else {
       item.setText(getNextName(cScriptName));
     }
-    StyledTextComp wScript =
-        new StyledTextComp(
+    wScript =
+        new ScriptStyledTextComp(
             variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, false);
-
     wScript.setText(Const.NVL(strScript, ""));
-
+    wScript.addLineStyleListener(wEngines.getText());
     item.setImage(imageInactiveScript);
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
 
@@ -728,17 +736,17 @@ public class ScriptDialog extends BaseTransformDialog {
     }
   }
 
-  private StyledTextComp getStyledTextComp() {
+  private ScriptStyledTextComp getStyledTextComp() {
     CTabItem item = folder.getSelection();
     if (item.getControl().isDisposed()) {
       return null;
     } else {
-      return (StyledTextComp) item.getControl();
+      return (ScriptStyledTextComp) item.getControl();
     }
   }
 
-  private StyledTextComp getStyledTextComp(CTabItem item) {
-    return (StyledTextComp) item.getControl();
+  private ScriptStyledTextComp getStyledTextComp(CTabItem item) {
+    return (ScriptStyledTextComp) item.getControl();
   }
 
   private String getNextName(String strActualName) {
@@ -757,7 +765,7 @@ public class ScriptDialog extends BaseTransformDialog {
   }
 
   public void setPosition() {
-    StyledTextComp wScript = getStyledTextComp();
+    ScriptStyledTextComp wScript = getStyledTextComp();
     if (wScript == null) {
       return;
     }
