@@ -1010,17 +1010,17 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
   }
 
-  private StyledTextComp getStyledTextComp() {
+  private JavaStyledTextComp getStyledTextComp() {
     CTabItem item = folder.getSelection();
     if (item.getControl().isDisposed()) {
       return null;
     } else {
-      return (StyledTextComp) item.getControl();
+      return (JavaStyledTextComp) item.getControl();
     }
   }
 
-  private StyledTextComp getStyledTextComp(CTabItem item) {
-    return (StyledTextComp) item.getControl();
+  private JavaStyledTextComp getStyledTextComp(CTabItem item) {
+    return (JavaStyledTextComp) item.getControl();
   }
 
   private String getNextName(String strActualName) {
@@ -1602,7 +1602,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   // Adds the Current item to the current Position
   private void treeDblClick(Event event) {
-    StyledTextComp wScript = getStyledTextComp();
+    JavaStyledTextComp wScript = getStyledTextComp();
     Point point = new Point(event.x, event.y);
     TreeItem item = wTree.getItem(point);
 
@@ -1611,7 +1611,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
       if (item.getParentItem().equals(wTreeClassesItem)) {
         setActiveCtab(item.getText());
       } else if (!item.getData().equals("Snippit")) {
-        int iStart = wScript.getTextWidget().getCaretPosition();
+        int iStart = wScript.getTextWidget().getCaretOffset();
         int selCount = wScript.getSelectionCount(); // this selection
         // will be replaced
         // by wScript.insert

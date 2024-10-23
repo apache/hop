@@ -613,7 +613,6 @@ public class ScriptValuesDialog extends BaseTransformDialog {
               + Const.CR
               + Const.CR);
     }
-    wScript.addLineStyleListener();
 
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
 
@@ -737,17 +736,17 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     }
   }
 
-  private StyledTextComp getStyledTextComp() {
+  private JavaScriptStyledTextComp getStyledTextComp() {
     CTabItem item = folder.getSelection();
     if (item.getControl().isDisposed()) {
       return null;
     } else {
-      return (StyledTextComp) item.getControl();
+      return (JavaScriptStyledTextComp) item.getControl();
     }
   }
 
-  private StyledTextComp getStyledTextComp(CTabItem item) {
-    return (StyledTextComp) item.getControl();
+  private JavaScriptStyledTextComp getStyledTextComp(CTabItem item) {
+    return (JavaScriptStyledTextComp) item.getControl();
   }
 
   private String getNextName(String strActualName) {
@@ -1140,7 +1139,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   private boolean test(boolean getvars, boolean popup) {
     boolean retval = true;
-    StyledTextComp wScript = getStyledTextComp();
+    JavaScriptStyledTextComp wScript = getStyledTextComp();
     String scr = wScript.getText();
     HopException testException = null;
 
@@ -1156,7 +1155,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     // Adding the existing Scripts to the Context
     for (int i = 0; i < folder.getItemCount(); i++) {
-      StyledTextComp sItem = getStyledTextComp(folder.getItem(i));
+      JavaScriptStyledTextComp sItem = getStyledTextComp(folder.getItem(i));
       Scriptable jsR = Context.toObject(sItem.getText(), jsscope);
       jsscope.put(folder.getItem(i).getText(), jsscope, jsR);
     }
@@ -1571,7 +1570,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   // Adds the Current item to the current Position
   private void treeDblClick(Event event) {
-    StyledTextComp wScript = getStyledTextComp();
+    JavaScriptStyledTextComp wScript = getStyledTextComp();
     Point point = new Point(event.x, event.y);
     TreeItem item = wTree.getItem(point);
 
@@ -1580,7 +1579,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       if (item.getParentItem().equals(wTreeScriptsItem)) {
         setActiveCtab(item.getText());
       } else if (!item.getData().equals(CONST_FUNCTION)) {
-        int iStart = wScript.getTextWidget().getCaretPosition();
+        int iStart = wScript.getTextWidget().getCaretOffset();
         int selCount =
             wScript.getSelectionCount(); // this selection will be replaced by wScript.insert
         iStart =
