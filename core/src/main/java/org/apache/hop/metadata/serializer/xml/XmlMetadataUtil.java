@@ -165,6 +165,8 @@ public class XmlMetadataUtil {
         }
       } else if (value instanceof Long longValue) {
         xml += XmlHandler.addTagValue(tag, longValue);
+      } else if (value instanceof Double doubleValue) {
+        xml += XmlHandler.addTagValue(tag, doubleValue);
       } else if (value instanceof Date date) {
         xml += XmlHandler.addTagValue(tag, date);
       } else if (value.getClass().isEnum()) {
@@ -480,6 +482,10 @@ public class XmlMetadataUtil {
     } else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
       if (elementNode != null) {
         return Long.valueOf(elementString);
+      }
+    } else if (fieldType.equals(double.class) || fieldType.equals(Double.class)) {
+      if (elementNode != null) {
+        return Double.valueOf(elementString);
       }
     } else if (fieldType.equals(Date.class)) {
       if (elementNode != null) {
