@@ -119,6 +119,7 @@ under the License.
 *** xref:pipeline/transforms/delete.adoc[Delete]
 *** xref:pipeline/transforms/serialize-de-from-file.adoc[De-Serialize From File]
 *** xref:pipeline/transforms/detectemptystream.adoc[Detect Empty Stream]
+*** xref:pipeline/transforms/detectlanguage.adoc[Detect Language]
 *** xref:pipeline/transforms/dimensionlookup.adoc[Dimension lookup/update]
 *** xref:pipeline/transforms/dorisbulkloader.adoc[Doris Bulk Loader]
 *** xref:pipeline/transforms/rulesaccumulator.adoc[Drools Rule Accumulator]
