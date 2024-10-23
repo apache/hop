@@ -188,7 +188,6 @@ public class ScriptDialog extends BaseTransformDialog {
     lsMod =
         e -> {
           input.setChanged();
-          // wScript.removeLi
         };
     changed = input.hasChanged();
 
@@ -585,6 +584,12 @@ public class ScriptDialog extends BaseTransformDialog {
     item.setImage(imageInactiveScript);
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
 
+    wEngines.addModifyListener(
+        e -> {
+          wScript.addLineStyleListener(wEngines.getText());
+          wScript.setText(wScript.getText() + " ");
+        });
+
     wScript.addKeyListener(
         new KeyAdapter() {
           @Override
@@ -832,6 +837,7 @@ public class ScriptDialog extends BaseTransformDialog {
   }
 
   // Setting default active Script
+
   private void refresh() {
     for (int i = 0; i < folder.getItemCount(); i++) {
       CTabItem item = folder.getItem(i);
@@ -1192,6 +1198,7 @@ public class ScriptDialog extends BaseTransformDialog {
   }
 
   // This function is for a Windows Like renaming inside the tree
+
   private void renameFunction(TreeItem tItem) {
     final TreeItem item = tItem;
     if (item != null
@@ -1271,5 +1278,11 @@ public class ScriptDialog extends BaseTransformDialog {
       text.setFocus();
     }
     lastItem[0] = item;
+  }
+
+  private void checkAndUpdateScript() {
+    if (wScript != null) {
+      wScript.addLineStyleListener(wEngines.getText());
+    }
   }
 }

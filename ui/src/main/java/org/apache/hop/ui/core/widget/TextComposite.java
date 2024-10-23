@@ -61,7 +61,7 @@ public abstract class TextComposite extends Composite {
 
   public abstract void addLineStyleListener();
 
-  public abstract void addLineStyleListener(List<String> sqlKeywords);
+  public abstract void addLineStyleListener(List<String> keywords);
 
   public void addLineStyleListener(String scriptEngine) {
     throw new UnsupportedOperationException("Cannot specify a script engine");
@@ -73,7 +73,7 @@ public abstract class TextComposite extends Composite {
 
   public abstract String getText();
 
-  public abstract void setText(String sql);
+  public abstract void setText(String text);
 
   public abstract String getSelectionText();
 }

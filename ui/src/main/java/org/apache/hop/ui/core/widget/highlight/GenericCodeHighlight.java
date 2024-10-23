@@ -199,7 +199,7 @@ public class GenericCodeHighlight implements LineStyleListener {
               done = true;
               break;
             }
-          case '/', '#':
+          case '/':
             {
               ch = buffer.read();
               if ((ch == '*') && (!blkComment)) {
