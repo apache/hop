@@ -1,0 +1,96 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
+    <id>hop-transform-languagemodelchat</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <baseDirectory>.</baseDirectory>
+    <files>
+        <file>
+            <source>${project.basedir}/src/main/resources/version.xml</source>
+            <outputDirectory>plugins/transforms/languagemodelchat</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+    </files>
+
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-transform-languagemodelchat:jar</include>
+            </includes>
+            <outputDirectory>plugins/transforms/languagemodelchat</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.squareup.retrofit2:retrofit:jar</include>
+                <include>com.squareup.okhttp3:okhttp:jar</include>
+                <include>org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar</include>
+                <include>org.jetbrains.kotlin:kotlin-stdlib:jar</include>
+                <include>org.jetbrains.kotlin:kotlin-stdlib-common:jar</include>
+                <include>org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar</include>
+                <include>org.apache.opennlp:opennlp-tools:jar</include>
+                <!--<include>org.jsoup:jsoup:jar</include>-->
+                <include>dev.ai4j:openai4j:jar</include>
+                <include>com.knuddels:jtokkit:jar</include>
+                <include>com.squareup.retrofit2:converter-gson:jar</include>
+                <include>com.squareup.moshi:moshi:jar</include>
+                <include>com.squareup.okhttp3:okhttp-sse:jar</include>
+                <include>dev.langchain4j:langchain4j:jar</include>
+                <include>dev.langchain4j:langchain4j-core:jar</include>
+                <include>dev.langchain4j:langchain4j-mistral-ai:jar</include>
+                <include>dev.langchain4j:langchain4j-open-ai:jar</include>
+                <include>dev.langchain4j:langchain4j-hugging-face:jar</include>
+                <include>dev.langchain4j:langchain4j-anthropic:jar</include>
+                <include>dev.langchain4j:langchain4j-ollama:jar</include>
+                <!-- Ollama test containers
+                <include>org.testcontainers:testcontainers:jar</include>
+                <include>org.testcontainers:ollama:jar</include>
+                <include>junit:junit:jar</include>
+                <include>org.rnorth.duct-tape:duct-tape:jar</include>
+                <include>org.jetbrains:annotations:jar</include>
+                <include>com.github.docker-java:docker-java-api:jar</include>
+                <include>com.github.docker-java:docker-java-transport-zerodep:jar</include>
+                <include>com.github.docker-java:docker-java-transport:jar</include>
+                <include>net.java.dev.jna:jna:jar</include>
+                <include>org.testcontainers:junit-jupiter:jar</include>
+                <include>org.junit.jupiter:junit-jupiter-engine:jar</include>
+                <include>org.junit.platform:junit-platform-engine:jar</include>
+                <include>org.opentest4j:opentest4j:jar</include>
+                <include>org.junit.platform:junit-platform-commons:jar</include>
+                <include>org.junit.jupiter:junit-jupiter-api:jar</include>
+                <include>org.apiguardian:apiguardian-api:jar</include>
+                <include>org.tinylog:tinylog-impl:jar</include>
+                <include>org.tinylog:tinylog-api:jar</include>
+                <include>org.tinylog:slf4j-tinylog:jar</include>
+                -->
+            </includes>
+            <outputDirectory>plugins/transforms/languagemodelchat/lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+</assembly>

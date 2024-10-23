@@ -171,6 +171,7 @@ under the License.
 *** xref:pipeline/transforms/jsonoutput.adoc[JSON Output]
 *** xref:pipeline/transforms/kafkaconsumer.adoc[Kafka Consumer]
 *** xref:pipeline/transforms/kafkaproducer.adoc[Kafka Producer]
+*** xref:pipeline/transforms/languagemodelchat.adoc[Language Model Chat]
 *** xref:pipeline/transforms/ldapinput.adoc[LDAP Input]
 *** xref:pipeline/transforms/ldapoutput.adoc[LDAP Output]
 *** xref:pipeline/transforms/loadfileinput.adoc[Load file content in memory]
