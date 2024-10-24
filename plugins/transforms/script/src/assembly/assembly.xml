@@ -51,15 +51,15 @@
                 <include>org.apache.groovy:groovy:jar</include>
                 <include>org.apache.groovy:groovy-jsr223:jar</include>
                 <include>org.python:jython-standalone:jar</include>
-                <include>org.ow2.asm:asm-commons:jar</include>
-                <include>org.ow2.asm:asm-tree:jar</include>
-                <include>org.ow2.asm:asm-util:jar</include>
             </includes>
             <outputDirectory>plugins/transforms/script/lib</outputDirectory>
         </dependencySet>
         <dependencySet>
             <includes>
                 <include>org.ow2.asm:asm:jar</include>
+                <include>org.ow2.asm:asm-commons:jar</include>
+                <include>org.ow2.asm:asm-tree:jar</include>
+                <include>org.ow2.asm:asm-util:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
