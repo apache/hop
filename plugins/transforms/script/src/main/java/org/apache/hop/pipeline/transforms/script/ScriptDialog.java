@@ -37,8 +37,10 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ScriptStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -90,6 +92,8 @@ public class ScriptDialog extends BaseTransformDialog {
       };
 
   private CCombo wEngines;
+
+  private TextComposite wScript;
 
   private ModifyListener lsMod;
 
@@ -181,7 +185,10 @@ public class ScriptDialog extends BaseTransformDialog {
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    lsMod = e -> input.setChanged();
+    lsMod =
+        e -> {
+          input.setChanged();
+        };
     changed = input.hasChanged();
 
     shell.setLayout(props.createFormLayout());
@@ -243,6 +250,7 @@ public class ScriptDialog extends BaseTransformDialog {
       }
     }
     wEngines.select(0);
+
     PropsUi.setLook(wEngines);
     wEngines.addModifyListener(lsMod);
     FormData fdEngines = new FormData();
@@ -568,14 +576,19 @@ public class ScriptDialog extends BaseTransformDialog {
     } else {
       item.setText(getNextName(cScriptName));
     }
-    StyledTextComp wScript =
-        new StyledTextComp(
+    wScript =
+        new ScriptStyledTextComp(
             variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, false);
-
     wScript.setText(Const.NVL(strScript, ""));
-
+    wScript.addLineStyleListener(wEngines.getText());
     item.setImage(imageInactiveScript);
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
+
+    wEngines.addModifyListener(
+        e -> {
+          wScript.addLineStyleListener(wEngines.getText());
+          wScript.setText(wScript.getText() + " ");
+        });
 
     wScript.addKeyListener(
         new KeyAdapter() {
@@ -728,17 +741,17 @@ public class ScriptDialog extends BaseTransformDialog {
     }
   }
 
-  private StyledTextComp getStyledTextComp() {
+  private ScriptStyledTextComp getStyledTextComp() {
     CTabItem item = folder.getSelection();
     if (item.getControl().isDisposed()) {
       return null;
     } else {
-      return (StyledTextComp) item.getControl();
+      return (ScriptStyledTextComp) item.getControl();
     }
   }
 
-  private StyledTextComp getStyledTextComp(CTabItem item) {
-    return (StyledTextComp) item.getControl();
+  private ScriptStyledTextComp getStyledTextComp(CTabItem item) {
+    return (ScriptStyledTextComp) item.getControl();
   }
 
   private String getNextName(String strActualName) {
@@ -757,7 +770,7 @@ public class ScriptDialog extends BaseTransformDialog {
   }
 
   public void setPosition() {
-    StyledTextComp wScript = getStyledTextComp();
+    ScriptStyledTextComp wScript = getStyledTextComp();
     if (wScript == null) {
       return;
     }
@@ -824,6 +837,7 @@ public class ScriptDialog extends BaseTransformDialog {
   }
 
   // Setting default active Script
+
   private void refresh() {
     for (int i = 0; i < folder.getItemCount(); i++) {
       CTabItem item = folder.getItem(i);
@@ -1184,6 +1198,7 @@ public class ScriptDialog extends BaseTransformDialog {
   }
 
   // This function is for a Windows Like renaming inside the tree
+
   private void renameFunction(TreeItem tItem) {
     final TreeItem item = tItem;
     if (item != null
@@ -1263,5 +1278,11 @@ public class ScriptDialog extends BaseTransformDialog {
       text.setFocus();
     }
     lastItem[0] = item;
+  }
+
+  private void checkAndUpdateScript() {
+    if (wScript != null) {
+      wScript.addLineStyleListener(wEngines.getText());
+    }
   }
 }

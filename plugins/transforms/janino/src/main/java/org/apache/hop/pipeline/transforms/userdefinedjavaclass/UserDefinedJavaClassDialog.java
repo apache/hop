@@ -61,8 +61,10 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.JavaStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -881,14 +883,15 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         item.setText(getNextName(tabName));
         break;
     }
-    final StyledTextComp wScript =
-        new StyledTextComp(
+    final TextComposite wScript =
+        new JavaStyledTextComp(
             variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, false);
     if ((tabCode != null) && tabCode.length() > 0) {
       wScript.setText(tabCode);
     } else {
       wScript.setText(snippitsHelper.getDefaultCode());
     }
+    wScript.addLineStyleListener();
 
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
     Listener listener = e -> setPosition(wScript);
@@ -1007,17 +1010,17 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
   }
 
-  private StyledTextComp getStyledTextComp() {
+  private JavaStyledTextComp getStyledTextComp() {
     CTabItem item = folder.getSelection();
     if (item.getControl().isDisposed()) {
       return null;
     } else {
-      return (StyledTextComp) item.getControl();
+      return (JavaStyledTextComp) item.getControl();
     }
   }
 
-  private StyledTextComp getStyledTextComp(CTabItem item) {
-    return (StyledTextComp) item.getControl();
+  private JavaStyledTextComp getStyledTextComp(CTabItem item) {
+    return (JavaStyledTextComp) item.getControl();
   }
 
   private String getNextName(String strActualName) {
@@ -1035,7 +1038,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     return strRC;
   }
 
-  public void setPosition(StyledTextComp widget) {
+  public void setPosition(TextComposite widget) {
     int lineNumber = widget.getLineNumber();
     int columnNumber = widget.getColumnNumber();
     wlPosition.setText(
@@ -1599,7 +1602,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   // Adds the Current item to the current Position
   private void treeDblClick(Event event) {
-    StyledTextComp wScript = getStyledTextComp();
+    JavaStyledTextComp wScript = getStyledTextComp();
     Point point = new Point(event.x, event.y);
     TreeItem item = wTree.getItem(point);
 
@@ -1608,7 +1611,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
       if (item.getParentItem().equals(wTreeClassesItem)) {
         setActiveCtab(item.getText());
       } else if (!item.getData().equals("Snippit")) {
-        int iStart = wScript.getTextWidget().getCaretPosition();
+        int iStart = wScript.getTextWidget().getCaretOffset();
         int selCount = wScript.getSelectionCount(); // this selection
         // will be replaced
         // by wScript.insert
