@@ -43,6 +43,13 @@
             <excludes>
                 <exclude>org.apache.hop:hop-tech-cassandra:jar</exclude>
                 <exclude>com.github.spotbugs:spotbugs-annotations:jar</exclude>
+                <exclude>org.antlr:antlr-runtime:jar</exclude>
+                <exclude>org.ow2.asm:asm:jar</exclude>
+                <exclude>org.ow2.asm:asm-commons:jar</exclude>
+                <exclude>org.ow2.asm:asm-tree:jar</exclude>
+                <exclude>org.ow2.asm:asm-util:jar</exclude>
+                <exclude>org.lz4:lz4-java:jar</exclude>
+                <exclude>org.yaml:snakeyaml:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/cassandra/lib</outputDirectory>
         </dependencySet>
@@ -50,6 +57,13 @@
             <scope>provided</scope>
             <includes>
                 <include>org.apache.commons:commons-math3:jar</include>
+                <include>org.yaml:snakeyaml:jar</include>
+                <include>org.antlr:antlr-runtime:jar</include>
+                <include>org.ow2.asm:asm:jar</include>
+                <include>org.ow2.asm:asm-commons:jar</include>
+                <include>org.ow2.asm:asm-tree:jar</include>
+                <include>org.ow2.asm:asm-util:jar</include>
+                <include>org.lz4:lz4-java:jar</include>
                 <include>org.yaml:snakeyaml:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>

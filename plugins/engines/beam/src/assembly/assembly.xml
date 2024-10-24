@@ -52,6 +52,10 @@
                 <exclude>org.yaml:snakeyaml:jar</exclude>
                 <exclude>com.google.protobuf:protobuf-java:jar</exclude>
                 <exclude>com.google.protobuf:protobuf-java-util:jar</exclude>
+                <exclude>org.jetbrains:annotations:jar</exclude>
+                <exclude>com.google.auto.value:auto-value-annotations:jar</exclude>
+                <exclude>org.apache.beam:beam-vendor-guava-32_1_2-jre:jar</exclude>
+                <exclude>com.github.luben:zstd-jni:jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -63,6 +67,10 @@
                 <include>org.yaml:snakeyaml:jar</include>
                 <include>com.google.protobuf:protobuf-java:jar</include>
                 <include>com.google.protobuf:protobuf-java-util:jar</include>
+                <include>org.jetbrains:annotations:jar</include>
+                <include>com.google.auto.value:auto-value-annotations:jar</include>
+                <include>org.apache.beam:beam-vendor-guava-32_1_2-jre:jar</include>
+                <include>com.github.luben:zstd-jni:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

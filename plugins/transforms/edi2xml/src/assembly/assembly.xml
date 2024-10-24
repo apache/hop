@@ -50,8 +50,16 @@
             <scope>runtime</scope>
             <excludes>
                 <exclude>org.apache.hop:hop-transform-edi2xml:jar</exclude>
+                <exclude>org.antlr:antlr-runtime:jar</exclude>
             </excludes>
             <outputDirectory>plugins/transforms/edi2xml/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>provided</scope>
+            <includes>
+                <include>org.antlr:antlr-runtime:jar</include>
+            </includes>
+            <outputDirectory>/lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>
