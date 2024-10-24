@@ -123,6 +123,11 @@ public class JavaStyledTextComp extends TextComposite {
     return textWidget.getSelectionText();
   }
 
+  @Override
+  public int getCaretOffset() {
+    return textWidget.getCaretOffset();
+  }
+
   public String getText() {
     return textWidget.getText();
   }

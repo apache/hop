@@ -57,6 +57,7 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -602,9 +603,25 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         item.setText(getNextName(cScriptName));
         break;
     }
-    TextComposite wScript =
-        new JavaScriptStyledTextComp(
-            variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, false);
+
+    TextComposite wScript;
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      wScript =
+          new StyledTextComp(
+              variables,
+              item.getParent(),
+              SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
+              false);
+    } else {
+      wScript =
+          new JavaScriptStyledTextComp(
+              variables,
+              item.getParent(),
+              SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
+              false);
+      wScript.addLineStyleListener();
+    }
+
     if ((strScript != null) && strScript.length() > 0) {
       wScript.setText(strScript);
     } else {
@@ -736,17 +753,17 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     }
   }
 
-  private JavaScriptStyledTextComp getStyledTextComp() {
+  private TextComposite getStyledTextComp() {
     CTabItem item = folder.getSelection();
     if (item.getControl().isDisposed()) {
       return null;
     } else {
-      return (JavaScriptStyledTextComp) item.getControl();
+      return (TextComposite) item.getControl();
     }
   }
 
-  private JavaScriptStyledTextComp getStyledTextComp(CTabItem item) {
-    return (JavaScriptStyledTextComp) item.getControl();
+  private TextComposite getStyledTextComp(CTabItem item) {
+    return (TextComposite) item.getControl();
   }
 
   private String getNextName(String strActualName) {
@@ -1139,7 +1156,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   private boolean test(boolean getvars, boolean popup) {
     boolean retval = true;
-    JavaScriptStyledTextComp wScript = getStyledTextComp();
+    TextComposite wScript = getStyledTextComp();
     String scr = wScript.getText();
     HopException testException = null;
 
@@ -1155,7 +1172,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     // Adding the existing Scripts to the Context
     for (int i = 0; i < folder.getItemCount(); i++) {
-      JavaScriptStyledTextComp sItem = getStyledTextComp(folder.getItem(i));
+      TextComposite sItem = getStyledTextComp(folder.getItem(i));
       Scriptable jsR = Context.toObject(sItem.getText(), jsscope);
       jsscope.put(folder.getItem(i).getText(), jsscope, jsR);
     }
@@ -1570,7 +1587,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   // Adds the Current item to the current Position
   private void treeDblClick(Event event) {
-    JavaScriptStyledTextComp wScript = getStyledTextComp();
+    TextComposite wScript = getStyledTextComp();
     Point point = new Point(event.x, event.y);
     TreeItem item = wTree.getItem(point);
 
@@ -1579,7 +1596,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       if (item.getParentItem().equals(wTreeScriptsItem)) {
         setActiveCtab(item.getText());
       } else if (!item.getData().equals(CONST_FUNCTION)) {
-        int iStart = wScript.getTextWidget().getCaretOffset();
+        // int iStart = wScript.getTextWidget().getCaretOffset();
+        int iStart = wScript.getCaretOffset();
         int selCount =
             wScript.getSelectionCount(); // this selection will be replaced by wScript.insert
         iStart =

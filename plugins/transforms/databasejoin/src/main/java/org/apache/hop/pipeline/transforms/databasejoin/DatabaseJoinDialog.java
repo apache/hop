@@ -17,11 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -201,7 +207,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
                 variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)
             : new SQLStyledTextComp(
                 variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    wSql.addLineStyleListener();
+    wSql.addLineStyleListener(getSqlReservedWords());
     PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
     FormData fdSql = new FormData();
@@ -415,6 +421,41 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private List<String> getSqlReservedWords() {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
+      logError("Database connection not found. Proceding without keywords.");
+      return new ArrayList<>();
+    }
+    Database db = new Database(loggingObject, variables, databaseMeta);
+    DatabaseMetaData databaseMetaData = null;
+    try {
+      db.connect();
+      databaseMetaData = db.getDatabaseMetaData();
+      if (databaseMetaData == null) {
+        logError("Couldn't get database metadata");
+        return new ArrayList<>();
+      }
+      List<String> sqlKeywords = new ArrayList<>();
+      try {
+        final ResultSet functionsResultSet = databaseMetaData.getFunctions(null, null, null);
+        while (functionsResultSet.next()) {
+          sqlKeywords.add(functionsResultSet.getString("FUNCTION_NAME"));
+        }
+        sqlKeywords.addAll(Arrays.asList(databaseMetaData.getSQLKeywords().split(",")));
+      } catch (SQLException e) {
+        logError("Couldn't extract keywords from database metadata. Proceding without them.");
+      }
+      return sqlKeywords;
+    } catch (HopDatabaseException e) {
+      logError("Couldn't extract keywords from database metadata. Proceding without them.");
+      return new ArrayList<>();
+    } finally {
+      db.disconnect();
+      db.close();
+    }
   }
 
   private void enableFields() {

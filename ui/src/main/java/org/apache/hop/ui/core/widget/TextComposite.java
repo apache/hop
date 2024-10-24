@@ -76,4 +76,12 @@ public abstract class TextComposite extends Composite {
   public abstract void setText(String text);
 
   public abstract String getSelectionText();
+
+  public abstract int getCaretOffset();
+
+  public abstract void insert(String strInsert);
+
+  public abstract void setSelection(int iStart, int length);
+
+  public abstract int getSelectionCount();
 }

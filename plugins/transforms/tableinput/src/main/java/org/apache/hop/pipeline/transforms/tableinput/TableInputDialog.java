@@ -345,7 +345,7 @@ public class TableInputDialog extends BaseTransformDialog {
     wDataFrom.addListener(SWT.Selection, e -> setFlags());
     wDataFrom.addListener(SWT.FocusOut, e -> setFlags());
 
-    final List<String> sqlKeywords = getSqlKeywords();
+    final List<String> sqlKeywords = getSqlReservedWords();
 
     wSql.addLineStyleListener(sqlKeywords);
     getData();
@@ -356,7 +356,7 @@ public class TableInputDialog extends BaseTransformDialog {
     return transformName;
   }
 
-  private List<String> getSqlKeywords() {
+  private List<String> getSqlReservedWords() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
     if (databaseMeta == null) {
       logError("Database connection not found. Proceding without keywords.");

@@ -120,6 +120,11 @@ public class StyledTextComp extends TextComposite {
     return textWidget.getSelectionText();
   }
 
+  @Override
+  public int getCaretOffset() {
+    return textWidget.getCaretPosition();
+  }
+
   public String getText() {
     return textWidget.getText();
   }
