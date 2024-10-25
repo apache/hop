@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -50,6 +52,8 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     keywords = "i18n::ActionPing.keyword",
     documentationUrl = "/workflow/actions/ping.html")
 @SuppressWarnings("java:S1104")
+@Getter
+@Setter
 public class ActionPing extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPing.class;
   public static final String CONST_ACTION_PING_OK_LABEL = "ActionPing.OK.Label";
@@ -66,6 +70,10 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "nbrPackets")
   private String nbrPackets;
+
+  // Here for backwards compatibility with old writing method
+  @HopMetadataProperty(key = "nbr_packets")
+  private String oldNbrPackets;
 
   private static final String WINDOWS_CHAR = "-n";
   private static final String NIX_CHAR = "-c";
@@ -99,48 +107,16 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getNbrPackets() {
-    return nbrPackets;
-  }
-
   public String getRealNbrPackets() {
     return resolve(getNbrPackets());
-  }
-
-  public void setNbrPackets(String nbrPackets) {
-    this.nbrPackets = nbrPackets;
-  }
-
-  public void setHostname(String hostname) {
-    this.hostname = hostname;
-  }
-
-  public String getHostname() {
-    return hostname;
   }
 
   public String getRealHostname() {
     return resolve(getHostname());
   }
 
-  public String getTimeout() {
-    return timeout;
-  }
-
   public String getRealTimeout() {
     return resolve(getTimeout());
-  }
-
-  public void setTimeout(String timeout) {
-    this.timeout = timeout;
-  }
-
-  public String getPingtype() {
-    return pingtype;
-  }
-
-  public void setPingtype(String pingtype) {
-    this.pingtype = pingtype;
   }
 
   @Override
@@ -304,5 +280,13 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
             CONST_HOSTNAME,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+  }
+
+  // Here for backwards compatibility with old writing method
+  public void setOldNbrPackets(String oldNbrPackets) {
+    if (oldNbrPackets != null) {
+      this.nbrPackets = oldNbrPackets;
+    }
+    this.oldNbrPackets = null;
   }
 }
