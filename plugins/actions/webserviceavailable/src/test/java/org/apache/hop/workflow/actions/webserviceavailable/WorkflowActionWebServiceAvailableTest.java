@@ -40,7 +40,7 @@ public class WorkflowActionWebServiceAvailableTest
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "url", "getURL",
+        "url", "getUrl",
         "connectTimeOut", "getConnectTimeOut",
         "readTimeOut", "getReadTimeOut");
   }
@@ -48,7 +48,7 @@ public class WorkflowActionWebServiceAvailableTest
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "url", "setURL",
+        "url", "setUrl",
         "connectTimeOut", "setConnectTimeOut",
         "readTimeOut", "setReadTimeOut");
   }

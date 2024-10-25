@@ -20,18 +20,16 @@ package org.apache.hop.workflow.actions.webserviceavailable;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
 
 /** This defines a webservice available action. */
 @Action(
@@ -42,13 +40,17 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     keywords = "i18n::ActionWebServiceAvailable.keyword",
     documentationUrl = "/workflow/actions/webserviceavailable.html")
+@Getter
+@Setter
 public class ActionWebServiceAvailable extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWebServiceAvailable.class;
   public static final String CONST_SPACES = "      ";
 
-  private String url;
-  private String connectTimeOut;
-  private String readTimeOut;
+  @HopMetadataProperty private String url;
+
+  @HopMetadataProperty private String connectTimeOut;
+
+  @HopMetadataProperty private String readTimeOut;
 
   public ActionWebServiceAvailable(String n) {
     super(n, "");
@@ -68,63 +70,11 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(50);
-
-    retval.append(super.getXml());
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("url", url));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("connectTimeOut", connectTimeOut));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("readTimeOut", readTimeOut));
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      url = XmlHandler.getTagValue(entrynode, "url");
-      connectTimeOut = XmlHandler.getTagValue(entrynode, "connectTimeOut");
-      readTimeOut = XmlHandler.getTagValue(entrynode, "readTimeOut");
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG,
-              "ActionWebServiceAvailable.ERROR_0001_Cannot_Load_Workflow_Action_From_Xml_Node"),
-          xe);
-    }
-  }
-
-  public void setURL(String url) {
-    this.url = url;
-  }
-
-  public String getURL() {
-    return url;
-  }
-
-  public void setConnectTimeOut(String timeout) {
-    this.connectTimeOut = timeout;
-  }
-
-  public String getConnectTimeOut() {
-    return connectTimeOut;
-  }
-
-  public void setReadTimeOut(String timeout) {
-    this.readTimeOut = timeout;
-  }
-
-  public String getReadTimeOut() {
-    return readTimeOut;
-  }
-
-  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
 
-    String realURL = resolve(getURL());
+    String realURL = resolve(getUrl());
 
     if (!Utils.isEmpty(realURL)) {
       int connectTimeOut = Const.toInt(resolve(getConnectTimeOut()), 0);

@@ -201,7 +201,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
-    wURL.setText(Const.nullToEmpty(action.getURL()));
+    wURL.setText(Const.nullToEmpty(action.getUrl()));
     wConnectTimeOut.setText(Const.NVL(action.getConnectTimeOut(), "0"));
     wReadTimeOut.setText(Const.NVL(action.getReadTimeOut(), "0"));
 
@@ -224,7 +224,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setURL(wURL.getText());
+    action.setUrl(wURL.getText());
     action.setConnectTimeOut(wConnectTimeOut.getText());
     action.setReadTimeOut(wReadTimeOut.getText());
     dispose();
