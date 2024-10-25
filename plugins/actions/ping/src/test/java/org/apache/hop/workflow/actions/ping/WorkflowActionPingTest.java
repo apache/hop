@@ -16,6 +16,7 @@
  */
 package org.apache.hop.workflow.actions.ping;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -50,5 +51,10 @@ public class WorkflowActionPingTest extends WorkflowActionLoadSaveTestSupport<Ac
         "hostname", "setHostname",
         "nbrPackets", "setNbrPackets",
         "timeout", "setTimeout");
+  }
+
+  @Override
+  protected List<String> ignoreAttributes() {
+    return new ArrayList<>(List.of("oldNbrPackets"));
   }
 }

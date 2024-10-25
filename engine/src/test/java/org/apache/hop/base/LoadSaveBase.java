@@ -48,6 +48,7 @@ public abstract class LoadSaveBase<T> {
 
   protected final Class<T> clazz;
   protected final List<String> attributes;
+  protected final List<String> ignoreAttributes;
   protected final JavaBeanManipulator<T> manipulator;
   protected final IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
   protected final IInitializer<T> initializer;
@@ -56,6 +57,7 @@ public abstract class LoadSaveBase<T> {
   public LoadSaveBase(
       Class<T> clazz,
       List<String> attributes,
+      List<String> ignoredAttributes,
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
@@ -64,6 +66,7 @@ public abstract class LoadSaveBase<T> {
       throws HopException {
     this.clazz = clazz;
     this.attributes = new ArrayList(attributes);
+    this.ignoreAttributes = new ArrayList(ignoredAttributes);
 
     // Add automatically determinable attributes from the HopMetadataProperty annotation
     addHopMetadataPropertyCommonAttributes();
@@ -87,6 +90,7 @@ public abstract class LoadSaveBase<T> {
   public LoadSaveBase(
       Class<T> clazz,
       List<String> attributes,
+      List<String> ignoredAttributes,
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
@@ -95,6 +99,26 @@ public abstract class LoadSaveBase<T> {
     this(
         clazz,
         attributes,
+        ignoredAttributes,
+        getterMap,
+        setterMap,
+        fieldLoadSaveValidatorAttributeMap,
+        fieldLoadSaveValidatorTypeMap,
+        null);
+  }
+
+  public LoadSaveBase(
+      Class<T> clazz,
+      List<String> attributes,
+      Map<String, String> getterMap,
+      Map<String, String> setterMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap)
+      throws HopException {
+    this(
+        clazz,
+        attributes,
+        new ArrayList<>(),
         getterMap,
         setterMap,
         fieldLoadSaveValidatorAttributeMap,
@@ -111,6 +135,10 @@ public abstract class LoadSaveBase<T> {
       List<Field> fields = new ArrayList(Arrays.asList(clazz.getFields()));
       fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
       for (Field field : fields) {
+        if (ignoreAttributes.contains(field.getName())) {
+          // Ignore attributes that need to be ignored
+          continue;
+        }
         // Skip transient fields
         if (Modifier.isTransient(field.getModifiers())) {
           continue;

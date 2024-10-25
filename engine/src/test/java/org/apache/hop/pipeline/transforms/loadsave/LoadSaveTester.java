@@ -42,6 +42,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
   public LoadSaveTester(
       Class<T> clazz,
       List<String> attributes,
+      List<String> ignoreAttributes,
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
@@ -51,6 +52,27 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
     super(
         clazz,
         attributes,
+        ignoreAttributes,
+        getterMap,
+        setterMap,
+        fieldLoadSaveValidatorAttributeMap,
+        fieldLoadSaveValidatorTypeMap,
+        metaInitializerIFace);
+  }
+
+  public LoadSaveTester(
+      Class<T> clazz,
+      List<String> attributes,
+      Map<String, String> getterMap,
+      Map<String, String> setterMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
+      IInitializer<T> metaInitializerIFace)
+      throws HopException {
+    this(
+        clazz,
+        attributes,
+        new ArrayList<>(),
         getterMap,
         setterMap,
         fieldLoadSaveValidatorAttributeMap,
@@ -69,6 +91,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
     this(
         clazz,
         attributes,
+        new ArrayList<>(),
         getterMap,
         setterMap,
         fieldLoadSaveValidatorAttributeMap,
