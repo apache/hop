@@ -52,15 +52,11 @@
             <outputDirectory>plugins/actions/xml</outputDirectory>
         </dependencySet>
         <dependencySet>
-            <includes>
-                <include>net.sf.saxon:saxon:jar</include>
-            </includes>
-            <outputDirectory>plugins/actions/xml/lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
+            <scope>provided</scope>
             <includes>
                 <include>xerces:xercesImpl:jar</include>
                 <include>xml-apis:xml-apis:jar</include>
+                <include>net.sf.saxon:*:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

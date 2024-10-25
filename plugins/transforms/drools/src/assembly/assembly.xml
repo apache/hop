@@ -49,6 +49,7 @@
             <scope>runtime</scope>
             <excludes>
                 <exclude>org.apache.hop:hop-transform-drools:jar</exclude>
+                <exclude>org.antlr:antlr-runtime:jar</exclude>
             </excludes>
             <outputDirectory>plugins/transforms/drools/lib</outputDirectory>
         </dependencySet>
@@ -59,6 +60,7 @@
                 <include>com.zaxxer:*</include>
                 <include>org.apache.xmlbeans:*</include>
                 <include>com.github.virtuald:*</include>
+                <include>org.antlr:antlr-runtime:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

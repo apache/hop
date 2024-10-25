@@ -29,10 +29,6 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Actions XML</name>
 
-    <properties>
-        <saxon.version>8.7</saxon.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -47,15 +43,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>saxon</artifactId>
-            <version>${saxon.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-xml</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>saxon</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>

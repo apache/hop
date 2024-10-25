@@ -76,6 +76,10 @@
                     <artifactId>jsr305</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.errorprone</groupId>
                     <artifactId>error_prone_annotations</artifactId>
                 </exclusion>
@@ -86,6 +90,10 @@
                 <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.j2objc</groupId>
+                    <artifactId>j2objc-annotations</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
@@ -138,12 +146,24 @@
             <artifactId>google-cloud-bigtable</artifactId>
             <exclusions>
                 <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.errorprone</groupId>
                     <artifactId>error_prone_annotations</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>failureaccess</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.j2objc</groupId>
+                    <artifactId>j2objc-annotations</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
@@ -154,12 +174,20 @@
                     <artifactId>protobuf-java-util</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.checkerframework</groupId>
                     <artifactId>checker-qual</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.conscrypt</groupId>
+                    <artifactId>conscrypt-openjdk-uber</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -170,6 +198,20 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java-util</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.j2objc</groupId>
+                    <artifactId>j2objc-annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
@@ -178,6 +220,10 @@
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -214,6 +260,10 @@
                     <artifactId>jsr305</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
                 </exclusion>
@@ -240,6 +290,10 @@
                 <exclusion>
                     <groupId>commons-io</groupId>
                     <artifactId>commons-io</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -329,11 +383,19 @@
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
+                    <artifactId>failureaccess</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>listenablefuture</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.j2objc</groupId>
+                    <artifactId>j2objc-annotations</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
@@ -342,6 +404,10 @@
                 <exclusion>
                     <groupId>commons-codec</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>net.bytebuddy</groupId>
@@ -396,6 +462,10 @@
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -608,6 +678,10 @@
                     <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>net.bytebuddy</groupId>
                     <artifactId>byte-buddy</artifactId>
                 </exclusion>
@@ -712,6 +786,10 @@
                     <artifactId>gapic-google-cloud-storage-v2</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.errorprone</groupId>
                     <artifactId>error_prone_annotations</artifactId>
                 </exclusion>
@@ -724,12 +802,28 @@
                     <artifactId>guava</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.google.j2objc</groupId>
+                    <artifactId>j2objc-annotations</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.protobuf</groupId>
                     <artifactId>protobuf-java</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
                     <artifactId>protobuf-java-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.avro</groupId>
@@ -776,6 +870,10 @@
                     <artifactId>checker-qual</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.conscrypt</groupId>
+                    <artifactId>conscrypt-openjdk-uber</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
@@ -814,6 +912,10 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.apache.beam</groupId>
                     <artifactId>beam-sdks-java-core</artifactId>
                 </exclusion>
@@ -846,6 +948,10 @@
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -885,6 +991,10 @@
                 <exclusion>
                     <groupId>com.google.code.findbugs</groupId>
                     <artifactId>jsr305</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
@@ -993,20 +1103,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.lz4</groupId>
-                    <artifactId>lz4-java</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.xerial.snappy</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-core</artifactId>
             <scope>provided</scope>
@@ -1078,14 +1174,45 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.lz4</groupId>
+                    <artifactId>lz4-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.xerial.snappy</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.12</artifactId>
             <version>${spark.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.protobuf</groupId>
                     <artifactId>protobuf-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>

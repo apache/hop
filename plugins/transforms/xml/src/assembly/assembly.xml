@@ -50,12 +50,16 @@
             <scope>runtime</scope>
             <excludes>
                 <exclude>org.apache.hop:hop-transform-xml:jar</exclude>
+                <exclude>xerces:xercesImpl:jar</exclude>
+                <exclude>net.sf.saxon:*:jar</exclude>
             </excludes>
             <outputDirectory>plugins/transforms/xml/lib</outputDirectory>
         </dependencySet>
         <dependencySet>
+            <scope>provided</scope>
             <includes>
                 <include>xerces:xercesImpl:jar</include>
+                <include>net.sf.saxon:*:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
