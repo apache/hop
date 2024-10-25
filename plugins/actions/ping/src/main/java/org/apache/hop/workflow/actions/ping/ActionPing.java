@@ -22,15 +22,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -40,7 +41,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
 
 /** This defines a ping action. */
 @Action(
@@ -52,20 +52,31 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionPing.keyword",
     documentationUrl = "/workflow/actions/ping.html")
 @SuppressWarnings("java:S1104")
+@Getter
+@Setter
 public class ActionPing extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPing.class;
   public static final String CONST_ACTION_PING_OK_LABEL = "ActionPing.OK.Label";
   public static final String CONST_ACTION_PING_NOK_LABEL = "ActionPing.NOK.Label";
-  public static final String CONST_SPACES = "      ";
   public static final String CONST_HOSTNAME = "hostname";
 
+  @HopMetadataProperty(key = "hostname")
   private String hostname;
+
+  @HopMetadataProperty(key = "timeout")
   private String timeout;
-  public String defaultTimeOut = "3000";
+
+  public String defaultTimeout = "3000";
+
+  @HopMetadataProperty(key = "nbrPackets")
   private String nbrPackets;
+
+  // Here for backwards compatibility with old writing method
+  @HopMetadataProperty(key = "nbr_packets")
+  private String oldNbrPackets;
+
   private static final String WINDOWS_CHAR = "-n";
   private static final String NIX_CHAR = "-c";
-
   public String classicPing = "classicPing";
   public int iclassicPing = 0;
   public String systemPing = "systemPing";
@@ -73,7 +84,9 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
   public String bothPings = "bothPings";
   public int ibothPings = 2;
 
+  @HopMetadataProperty(key = "pingtype")
   public String pingtype;
+
   public int ipingtype;
 
   public ActionPing(String n) {
@@ -81,7 +94,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     pingtype = classicPing;
     hostname = null;
     nbrPackets = "2";
-    timeout = defaultTimeOut;
+    timeout = defaultTimeout;
   }
 
   public ActionPing() {
@@ -94,92 +107,16 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(100);
-
-    retval.append(super.getXml());
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_HOSTNAME, hostname));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("nbr_packets", nbrPackets));
-
-    // TODO: The following line may be removed 3 versions after 2.5.0
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("nbrpaquets", nbrPackets));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("timeout", timeout));
-
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("pingtype", pingtype));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      String nbrPaquets;
-      super.loadXml(entrynode);
-      hostname = XmlHandler.getTagValue(entrynode, CONST_HOSTNAME);
-      nbrPackets = XmlHandler.getTagValue(entrynode, "nbr_packets");
-
-      // TODO: The following lines may be removed 3 versions after 2.5.0
-      nbrPaquets = XmlHandler.getTagValue(entrynode, "nbrpaquets");
-      if (nbrPackets == null && nbrPaquets != null) {
-        // if only nbrpaquets exists this means that the file was
-        // save by a version 2.5.0 ping action
-        nbrPackets = nbrPaquets;
-      }
-      timeout = XmlHandler.getTagValue(entrynode, "timeout");
-      pingtype = XmlHandler.getTagValue(entrynode, "pingtype");
-      if (Utils.isEmpty(pingtype)) {
-        pingtype = classicPing;
-        ipingtype = iclassicPing;
-      } else {
-        if (pingtype.equals(systemPing)) {
-          ipingtype = isystemPing;
-        } else if (pingtype.equals(bothPings)) {
-          ipingtype = ibothPings;
-        } else {
-          ipingtype = iclassicPing;
-        }
-      }
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load action of type 'ping' from XML node", xe);
-    }
-  }
-
-  public String getNbrPackets() {
-    return nbrPackets;
-  }
-
   public String getRealNbrPackets() {
     return resolve(getNbrPackets());
-  }
-
-  public void setNbrPackets(String nbrPackets) {
-    this.nbrPackets = nbrPackets;
-  }
-
-  public void setHostname(String hostname) {
-    this.hostname = hostname;
-  }
-
-  public String getHostname() {
-    return hostname;
   }
 
   public String getRealHostname() {
     return resolve(getHostname());
   }
 
-  public String getTimeOut() {
-    return timeout;
-  }
-
-  public String getRealTimeOut() {
-    return resolve(getTimeOut());
-  }
-
-  public void setTimeOut(String timeout) {
-    this.timeout = timeout;
+  public String getRealTimeout() {
+    return resolve(getTimeout());
   }
 
   @Override
@@ -190,7 +127,7 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     result.setResult(false);
 
     String hostname = getRealHostname();
-    int timeoutInt = Const.toInt(getRealTimeOut(), 300);
+    int timeoutInt = Const.toInt(getRealTimeout(), 300);
     int packets = Const.toInt(getRealNbrPackets(), 2);
     boolean status = false;
 
@@ -343,5 +280,13 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
             CONST_HOSTNAME,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+  }
+
+  // Here for backwards compatibility with old writing method
+  public void setOldNbrPackets(String oldNbrPackets) {
+    if (oldNbrPackets != null) {
+      this.nbrPackets = oldNbrPackets;
+    }
+    this.oldNbrPackets = null;
   }
 }

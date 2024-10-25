@@ -19,6 +19,7 @@ package org.apache.hop.workflow.action.loadsave;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
   public LoadSaveTester(
       Class<T> clazz,
       List<String> attributes,
+      List<String> ignoreAttributes,
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
@@ -45,6 +47,7 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
     super(
         clazz,
         attributes,
+        ignoreAttributes,
         getterMap,
         setterMap,
         fieldLoadSaveValidatorAttributeMap,
@@ -62,6 +65,27 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
     this(
         clazz,
         attributes,
+        new ArrayList<>(),
+        getterMap,
+        setterMap,
+        fieldLoadSaveValidatorAttributeMap,
+        fieldLoadSaveValidatorTypeMap,
+        null);
+  }
+
+  public LoadSaveTester(
+      Class<T> clazz,
+      List<String> attributes,
+      List<String> ignoreAttributes,
+      Map<String, String> getterMap,
+      Map<String, String> setterMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap)
+      throws HopException {
+    this(
+        clazz,
+        attributes,
+        ignoreAttributes,
         getterMap,
         setterMap,
         fieldLoadSaveValidatorAttributeMap,

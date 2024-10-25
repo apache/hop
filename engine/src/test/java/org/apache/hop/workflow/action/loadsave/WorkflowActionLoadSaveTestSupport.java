@@ -41,6 +41,7 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
   @Before
   public void setUp() throws Exception {
     List<String> attributes = listAttributes();
+    List<String> ignoreAttributes = ignoreAttributes();
     Map<String, String> getters = createGettersMap();
     Map<String, String> setters = createSettersMap();
     Map<String, IFieldLoadSaveValidator<?>> attributeValidators = createAttributeValidatorsMap();
@@ -48,7 +49,13 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
     tester =
         new LoadSaveTester<>(
-            getActionClass(), attributes, getters, setters, attributeValidators, typeValidators);
+            getActionClass(),
+            attributes,
+            ignoreAttributes,
+            getters,
+            setters,
+            attributeValidators,
+            typeValidators);
   }
 
   @Test
@@ -68,6 +75,10 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
   protected Map<String, String> createSettersMap() {
     return Collections.emptyMap();
+  }
+
+  protected List<String> ignoreAttributes() {
+    return Collections.emptyList();
   }
 
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
