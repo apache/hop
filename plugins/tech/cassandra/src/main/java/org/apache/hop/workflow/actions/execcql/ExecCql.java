@@ -25,27 +25,26 @@ import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.type.DataType;
 import java.util.Iterator;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.datastax.DriverCqlRowHandler;
 import org.apache.hop.databases.cassandra.datastax.TableMetaData;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
 
 @Action(
     id = "CASSANDRA_EXEC_CQL",
@@ -55,12 +54,17 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
     keywords = "i18n::ExecCql.keyword",
     documentationUrl = "/workflow/actions/cassandra-exec-cql.html")
+@Getter
+@Setter
 public class ExecCql extends ActionBase implements IAction {
 
+  @HopMetadataProperty(key = "connection")
   private String connectionName;
 
+  @HopMetadataProperty(key = "script")
   private String script;
 
+  @HopMetadataProperty(key = "replace_variables")
   private boolean replacingVariables;
 
   public ExecCql() {
@@ -73,30 +77,6 @@ public class ExecCql extends ActionBase implements IAction {
 
   public ExecCql(String name, String description) {
     super(name, description);
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-    // Add action name, type, ...
-    //
-    xml.append(super.getXml());
-
-    xml.append(XmlHandler.addTagValue("connection", connectionName));
-    xml.append(XmlHandler.addTagValue("script", script));
-    xml.append(XmlHandler.addTagValue("replace_variables", replacingVariables ? "Y" : "N"));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node node, IHopMetadataProvider iHopMetadataProvider, IVariables iVariables)
-      throws HopXmlException {
-    super.loadXml(node);
-
-    connectionName = XmlHandler.getTagValue(node, "connection");
-    script = XmlHandler.getTagValue(node, "script");
-    replacingVariables = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "replace_variables"));
   }
 
   @Override
@@ -241,53 +221,5 @@ public class ExecCql extends ActionBase implements IAction {
   @Override
   public boolean isUnconditional() {
     return false;
-  }
-
-  /**
-   * Gets connectionName
-   *
-   * @return value of connectionName
-   */
-  public String getConnectionName() {
-    return connectionName;
-  }
-
-  /**
-   * @param connectionName The connectionName to set
-   */
-  public void setConnectionName(String connectionName) {
-    this.connectionName = connectionName;
-  }
-
-  /**
-   * Gets script
-   *
-   * @return value of script
-   */
-  public String getScript() {
-    return script;
-  }
-
-  /**
-   * @param script The script to set
-   */
-  public void setScript(String script) {
-    this.script = script;
-  }
-
-  /**
-   * Gets replacingVariables
-   *
-   * @return value of replacingVariables
-   */
-  public boolean isReplacingVariables() {
-    return replacingVariables;
-  }
-
-  /**
-   * @param replacingVariables The replacingVariables to set
-   */
-  public void setReplacingVariables(boolean replacingVariables) {
-    this.replacingVariables = replacingVariables;
   }
 }
