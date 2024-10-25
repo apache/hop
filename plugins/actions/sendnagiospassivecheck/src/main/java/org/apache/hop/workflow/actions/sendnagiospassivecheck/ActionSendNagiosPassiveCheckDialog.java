@@ -325,7 +325,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
 
     PropsUi.setLook(wEncryptionMode);
     FormData fdEncryptionMode = new FormData();
-    fdEncryptionMode.left = new FormAttachment(middle, margin);
+    fdEncryptionMode.left = new FormAttachment(middle, 0);
     fdEncryptionMode.top = new FormAttachment(wSenderServiceName, margin);
     fdEncryptionMode.right = new FormAttachment(100, 0);
     wEncryptionMode.setLayoutData(fdEncryptionMode);
@@ -352,7 +352,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
 
     PropsUi.setLook(wLevelMode);
     FormData fdLevelMode = new FormData();
-    fdLevelMode.left = new FormAttachment(middle, margin);
+    fdLevelMode.left = new FormAttachment(middle, 0);
     fdLevelMode.top = new FormAttachment(wEncryptionMode, margin);
     fdLevelMode.right = new FormAttachment(100, 0);
     wLevelMode.setLayoutData(fdLevelMode);
@@ -405,7 +405,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
     FormData fdMessage = new FormData();
     fdMessage.left = new FormAttachment(middle, 0);
     fdMessage.top = new FormAttachment(wSenderSettings, margin);
-    fdMessage.right = new FormAttachment(100, -2 * margin);
+    fdMessage.right = new FormAttachment(100, 0);
     fdMessage.bottom = new FormAttachment(100, -margin);
     wMessage.setLayoutData(fdMessage);
 

@@ -61,7 +61,7 @@ public class LabelCombo extends Composite {
 
     wCombo = new CCombo(this, textFlags);
     FormData fdText = new FormData();
-    fdText.left = new FormAttachment(middle, margin);
+    fdText.left = new FormAttachment(middle, 0);
     fdText.right = new FormAttachment(100, 0);
     wCombo.setLayoutData(fdText);
     wCombo.setToolTipText(toolTipText);
@@ -71,7 +71,7 @@ public class LabelCombo extends Composite {
     wLabel.setText(labelText);
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
-    fdLabel.right = new FormAttachment(middle, 0);
+    fdLabel.right = new FormAttachment(middle, -margin);
     fdLabel.top = new FormAttachment(wCombo, 0, SWT.CENTER);
     wLabel.setLayoutData(fdLabel);
     wLabel.setToolTipText(toolTipText);

@@ -229,7 +229,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
     fdSchema.top = new FormAttachment(lastControl, margin * 2);
-    fdSchema.right = new FormAttachment(100, 0);
+    fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
 
     lastControl = wSchema;
@@ -281,7 +281,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(lastControl, margin);
+    fdTabFolder.top = new FormAttachment(lastControl, 2 * margin);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -499,7 +499,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
     FormData fdCopyFromFile = new FormData();
     fdCopyFromFile.top = new FormAttachment(lastControl, margin);
     fdCopyFromFile.left = new FormAttachment(middle, 0);
-    fdCopyFromFile.right = new FormAttachment(100, -margin);
+    fdCopyFromFile.right = new FormAttachment(100, 0);
     wCopyFromFilename.setLayoutData(fdCopyFromFile);
 
     FormData fdGeneralComp = new FormData();

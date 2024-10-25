@@ -205,7 +205,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wTransformName.setText(transformName);
     PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
-    fdTransformName.right = new FormAttachment(wicon, -5);
+    fdTransformName.right = new FormAttachment(wicon, 0);
     fdTransformName.left = new FormAttachment(middle, margin);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     wTransformName.setLayoutData(fdTransformName);
@@ -238,7 +238,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPath);
     FormData fdTransformation = new FormData();
-    fdTransformation.left = new FormAttachment(middle, margin);
+    fdTransformation.left = new FormAttachment(middle, 0);
     fdTransformation.top = new FormAttachment(wlPath, 0, SWT.CENTER);
     fdTransformation.right = new FormAttachment(wbBrowse, -margin);
     wPath.setLayoutData(fdTransformation);
@@ -248,7 +248,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wbPipelineNameInField.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.PipelineNameInField.Label"));
     FormData fdPipelineNameInField = new FormData();
-    fdPipelineNameInField.left = new FormAttachment(middle, margin);
+    fdPipelineNameInField.left = new FormAttachment(middle, 0);
     fdPipelineNameInField.top = new FormAttachment(wPath, margin);
     wbPipelineNameInField.setLayoutData(fdPipelineNameInField);
     wbPipelineNameInField.addSelectionListener(
@@ -275,7 +275,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     PropsUi.setLook(wPipelineNameField);
     wPipelineNameField.addModifyListener(lsMod);
     FormData fdPipelineNameField = new FormData();
-    fdPipelineNameField.left = new FormAttachment(middle, margin);
+    fdPipelineNameField.left = new FormAttachment(middle, 0);
     fdPipelineNameField.top = new FormAttachment(wlPipelineNameField, 0, SWT.CENTER);
     fdPipelineNameField.right = new FormAttachment(100, 0);
     wPipelineNameField.setLayoutData(fdPipelineNameField);
@@ -311,7 +311,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wlRunConfiguration);
     FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.left = new FormAttachment(middle, margin);
+    fdRunConfiguration.left = new FormAttachment(middle, 0);
     fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, 0, SWT.CENTER);
     fdRunConfiguration.right = new FormAttachment(100, 0);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
@@ -822,7 +822,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     FormData fdGroupSize = new FormData();
     fdGroupSize.right = new FormAttachment(100);
     fdGroupSize.top = new FormAttachment(wlGroupSize, 0, SWT.CENTER);
-    fdGroupSize.left = new FormAttachment(middle, margin);
+    fdGroupSize.left = new FormAttachment(middle, 0);
     wGroupSize.setLayoutData(fdGroupSize);
     // Enable/Disable fields base on the size of the group
     wGroupSize.addListener(SWT.Modify, e -> setFlags());
@@ -843,7 +843,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     FormData fdGroupField = new FormData();
     fdGroupField.right = new FormAttachment(100);
     fdGroupField.top = new FormAttachment(wlGroupField, 0, SWT.CENTER);
-    fdGroupField.left = new FormAttachment(middle, margin);
+    fdGroupField.left = new FormAttachment(middle, 0);
     wGroupField.setLayoutData(fdGroupField);
     // Enable/Disable widgets when this field changes
     wGroupField.addListener(SWT.Modify, e -> setFlags());
@@ -864,7 +864,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     FormData fdGroupTime = new FormData();
     fdGroupTime.right = new FormAttachment(100);
     fdGroupTime.top = new FormAttachment(wlGroupTime, 0, SWT.CENTER);
-    fdGroupTime.left = new FormAttachment(wlGroupTime, margin);
+    fdGroupTime.left = new FormAttachment(middle, 0);
     wGroupTime.setLayoutData(fdGroupTime);
 
     wTab.setControl(wInputComposite);
@@ -905,7 +905,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     FormData fdExecutionResultTarget = new FormData();
     fdExecutionResultTarget.right = new FormAttachment(100);
     fdExecutionResultTarget.top = new FormAttachment(wlExecutionResultTarget, 0, SWT.CENTER);
-    fdExecutionResultTarget.left = new FormAttachment(middle, margin);
+    fdExecutionResultTarget.left = new FormAttachment(middle, 0);
     wExecutionResultTarget.setLayoutData(fdExecutionResultTarget);
 
     ColumnInfo[] executionResultColumns =
@@ -1051,9 +1051,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wResultFilesTarget = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wResultFilesTarget);
     FormData fdResultFilesTarget = new FormData();
-    fdResultFilesTarget.width = 250;
+    fdResultFilesTarget.right = new FormAttachment(100);
     fdResultFilesTarget.top = new FormAttachment(wlResultFilesTarget, 0, SWT.CENTER);
-    fdResultFilesTarget.left = new FormAttachment(wlResultFilesTarget, margin);
+    fdResultFilesTarget.left = new FormAttachment(middle, 0);
     wResultFilesTarget.setLayoutData(fdResultFilesTarget);
 
     // ResultFileNameField
@@ -1074,7 +1074,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     FormData fdResultFileNameField = new FormData();
     fdResultFileNameField.width = 250;
     fdResultFileNameField.top = new FormAttachment(wlResultFileNameField, 0, SWT.CENTER);
-    fdResultFileNameField.left = new FormAttachment(wlResultFileNameField, margin);
+    fdResultFileNameField.left = new FormAttachment(middle, 0);
     fdResultFileNameField.right = new FormAttachment(100);
     wResultFileNameField.setLayoutData(fdResultFileNameField);
 
@@ -1125,7 +1125,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     FormData fdResultRowsTarget = new FormData();
     fdResultRowsTarget.right = new FormAttachment(100);
     fdResultRowsTarget.top = new FormAttachment(wlResultRowsTarget, 0, SWT.CENTER);
-    fdResultRowsTarget.left = new FormAttachment(middle, margin);
+    fdResultRowsTarget.left = new FormAttachment(middle, 0);
     wOutputRowsSource.setLayoutData(fdResultRowsTarget);
 
     Label wlOutputFields = new Label(wInputComposite, SWT.NONE);

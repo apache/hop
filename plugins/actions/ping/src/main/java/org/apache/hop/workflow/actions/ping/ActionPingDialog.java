@@ -140,7 +140,7 @@ public class ActionPingDialog extends ActionDialog {
     PropsUi.setLook(wlPingType);
     FormData fdlPingType = new FormData();
     fdlPingType.left = new FormAttachment(0, 0);
-    fdlPingType.right = new FormAttachment(middle, 0);
+    fdlPingType.right = new FormAttachment(middle, -margin);
     fdlPingType.top = new FormAttachment(wHostname, margin);
     wlPingType.setLayoutData(fdlPingType);
     wPingType = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -169,7 +169,7 @@ public class ActionPingDialog extends ActionDialog {
     PropsUi.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
-    fdlTimeOut.right = new FormAttachment(middle, 0);
+    fdlTimeOut.right = new FormAttachment(middle, -margin);
     fdlTimeOut.top = new FormAttachment(wPingType, margin);
     wlTimeOut.setLayoutData(fdlTimeOut);
 
@@ -180,7 +180,7 @@ public class ActionPingDialog extends ActionDialog {
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, 0);
     fdTimeOut.top = new FormAttachment(wPingType, margin);
-    fdTimeOut.right = new FormAttachment(100, -margin);
+    fdTimeOut.right = new FormAttachment(100, 0);
     wTimeOut.setLayoutData(fdTimeOut);
 
     // Nbr packets to send
@@ -189,7 +189,7 @@ public class ActionPingDialog extends ActionDialog {
     PropsUi.setLook(wlNbrPackets);
     FormData fdlNbrPackets = new FormData();
     fdlNbrPackets.left = new FormAttachment(0, 0);
-    fdlNbrPackets.right = new FormAttachment(middle, 0);
+    fdlNbrPackets.right = new FormAttachment(middle, -margin);
     fdlNbrPackets.top = new FormAttachment(wTimeOut, margin);
     wlNbrPackets.setLayoutData(fdlNbrPackets);
 

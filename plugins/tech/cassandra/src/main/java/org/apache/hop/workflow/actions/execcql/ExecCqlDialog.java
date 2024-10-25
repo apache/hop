@@ -142,7 +142,7 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
     fdlReplaceVariables.right = new FormAttachment(middle, -margin);
     fdlReplaceVariables.bottom = new FormAttachment(wOk, -margin * 2);
     wlReplaceVariables.setLayoutData(fdlReplaceVariables);
-    wReplaceVariables = new Button(shell, SWT.CHECK | SWT.BORDER);
+    wReplaceVariables = new Button(shell, SWT.CHECK);
     PropsUi.setLook(wReplaceVariables);
     FormData fdReplaceVariables = new FormData();
     fdReplaceVariables.left = new FormAttachment(middle, 0);

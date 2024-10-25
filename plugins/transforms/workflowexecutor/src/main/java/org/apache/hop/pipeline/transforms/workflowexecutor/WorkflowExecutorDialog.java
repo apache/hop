@@ -242,7 +242,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wlRunConfiguration);
     FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.left = new FormAttachment(middle, margin);
+    fdRunConfiguration.left = new FormAttachment(middle, 0);
     fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, 0, SWT.CENTER);
     fdRunConfiguration.right = new FormAttachment(wbBrowse, -margin);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
@@ -702,7 +702,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     FormData fdGroupSize = new FormData();
     fdGroupSize.width = 250;
     fdGroupSize.top = new FormAttachment(wlGroupSize, 0, SWT.CENTER);
-    fdGroupSize.left = new FormAttachment(middle, margin);
+    fdGroupSize.left = new FormAttachment(middle, 0);
     fdGroupSize.right = new FormAttachment(100, 0);
     wGroupSize.setLayoutData(fdGroupSize);
     // Enable/Disable fields base on the size of the group
@@ -724,7 +724,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     FormData fdGroupField = new FormData();
     fdGroupField.width = 250;
     fdGroupField.top = new FormAttachment(wlGroupField, 0, SWT.CENTER);
-    fdGroupField.left = new FormAttachment(middle, margin);
+    fdGroupField.left = new FormAttachment(middle, 0);
     fdGroupField.right = new FormAttachment(100, 0);
     wGroupField.setLayoutData(fdGroupField);
     // Enable/Disable widgets when this field changes
@@ -746,7 +746,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     FormData fdGroupTime = new FormData();
     fdGroupTime.width = 250;
     fdGroupTime.top = new FormAttachment(wlGroupTime, 0, SWT.CENTER);
-    fdGroupTime.left = new FormAttachment(middle, margin);
+    fdGroupTime.left = new FormAttachment(middle, 0);
     fdGroupTime.right = new FormAttachment(100, 0);
     wGroupTime.setLayoutData(fdGroupTime);
 
@@ -936,7 +936,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     FormData fdResultFilesTarget = new FormData();
     fdResultFilesTarget.width = 250;
     fdResultFilesTarget.top = new FormAttachment(wlResultFilesTarget, 0, SWT.CENTER);
-    fdResultFilesTarget.left = new FormAttachment(middle, margin);
+    fdResultFilesTarget.left = new FormAttachment(middle, 0);
     fdResultFilesTarget.right = new FormAttachment(100, 0);
     wResultFilesTarget.setLayoutData(fdResultFilesTarget);
 
@@ -958,7 +958,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     FormData fdResultFileNameField = new FormData();
     fdResultFileNameField.width = 250;
     fdResultFileNameField.top = new FormAttachment(wlResultFileNameField, 0, SWT.CENTER);
-    fdResultFileNameField.left = new FormAttachment(middle, margin);
+    fdResultFileNameField.left = new FormAttachment(middle, 0);
     fdResultFileNameField.right = new FormAttachment(100, 0);
     wResultFileNameField.setLayoutData(fdResultFileNameField);
 
@@ -1009,7 +1009,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     FormData fdResultRowsTarget = new FormData();
     fdResultRowsTarget.width = 250;
     fdResultRowsTarget.top = new FormAttachment(wlResultRowsTarget, 0, SWT.CENTER);
-    fdResultRowsTarget.left = new FormAttachment(middle, margin);
+    fdResultRowsTarget.left = new FormAttachment(middle, 0);
     fdResultRowsTarget.right = new FormAttachment(100, 0);
     wResultRowsTarget.setLayoutData(fdResultRowsTarget);
 

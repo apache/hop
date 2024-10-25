@@ -189,7 +189,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wlCache, margin * 2);
+    fdlSql.top = new FormAttachment(wCacheSize, margin * 2);
     wlSql.setLayoutData(fdlSql);
 
     wSql =

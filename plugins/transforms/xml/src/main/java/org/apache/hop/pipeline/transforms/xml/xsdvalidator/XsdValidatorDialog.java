@@ -182,7 +182,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     wXMLSourceFile.setToolTipText(
         BaseMessages.getString(PKG, "XsdValidatorDialog.XMLSourceFile.Tooltip"));
     FormData fdXMLSourceFile = new FormData();
-    fdXMLSourceFile.left = new FormAttachment(middle, margin);
+    fdXMLSourceFile.left = new FormAttachment(middle, 0);
     fdXMLSourceFile.top = new FormAttachment(wlXMLSourceFile, 0, SWT.CENTER);
     wXMLSourceFile.setLayoutData(fdXMLSourceFile);
     wXMLSourceFile.addSelectionListener(new ComponentSelectionListener(input));
@@ -201,7 +201,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     PropsUi.setLook(wXMLStream);
     wXMLStream.addModifyListener(lsMod);
     FormData fdXMLStream = new FormData();
-    fdXMLStream.left = new FormAttachment(middle, margin);
+    fdXMLStream.left = new FormAttachment(middle, 0);
     fdXMLStream.top = new FormAttachment(wXMLSourceFile, margin);
     fdXMLStream.right = new FormAttachment(100, -margin);
     wXMLStream.setLayoutData(fdXMLStream);
@@ -275,7 +275,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     wOutputStringField.setToolTipText(
         BaseMessages.getString(PKG, "XsdValidatorDialog.OutputStringField.Tooltip"));
     FormData fdOutputStringField = new FormData();
-    fdOutputStringField.left = new FormAttachment(middle, margin);
+    fdOutputStringField.left = new FormAttachment(middle, 0);
     fdOutputStringField.top = new FormAttachment(wlOutputStringField, 0, SWT.CENTER);
     wOutputStringField.setLayoutData(fdOutputStringField);
     wOutputStringField.addSelectionListener(
@@ -332,7 +332,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     wAddValidationMsg.setToolTipText(
         BaseMessages.getString(PKG, "XsdValidatorDialog.AddValidationMsg.Tooltip"));
     FormData fdAddValidationMsg = new FormData();
-    fdAddValidationMsg.left = new FormAttachment(middle, margin);
+    fdAddValidationMsg.left = new FormAttachment(middle, 0);
     fdAddValidationMsg.top = new FormAttachment(wlAddValidationMsg, 0, SWT.CENTER);
     wAddValidationMsg.setLayoutData(fdAddValidationMsg);
     wAddValidationMsg.addSelectionListener(
@@ -395,7 +395,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     wAllowExternalEntities = new Button(wXSD, SWT.CHECK);
     PropsUi.setLook(wAllowExternalEntities);
     FormData fdAllowExternalEntities = new FormData();
-    fdAllowExternalEntities.left = new FormAttachment(middle, margin);
+    fdAllowExternalEntities.left = new FormAttachment(middle, 0);
     fdAllowExternalEntities.top = new FormAttachment(wlAllowExternalEntities, 0, SWT.CENTER);
     fdAllowExternalEntities.right = new FormAttachment(100, -margin);
     wAllowExternalEntities.setLayoutData(fdAllowExternalEntities);
@@ -421,7 +421,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     PropsUi.setLook(wXSDSource);
     wXSDSource.addModifyListener(lsMod);
     FormData fdXSDSource = new FormData();
-    fdXSDSource.left = new FormAttachment(middle, margin);
+    fdXSDSource.left = new FormAttachment(middle, 0);
     fdXSDSource.top = new FormAttachment(wAllowExternalEntities, margin);
     fdXSDSource.right = new FormAttachment(100, -margin);
     wXSDSource.setLayoutData(fdXSDSource);
@@ -460,7 +460,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment(middle, margin);
+    fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wbbFilename, -margin);
     fdFilename.top = new FormAttachment(wXSDSource, margin);
     wFilename.setLayoutData(fdFilename);
@@ -480,7 +480,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     PropsUi.setLook(wXSDDefinedColumn);
     wXSDDefinedColumn.addModifyListener(lsMod);
     FormData fdXSDDefinedColumn = new FormData();
-    fdXSDDefinedColumn.left = new FormAttachment(middle, margin);
+    fdXSDDefinedColumn.left = new FormAttachment(middle, 0);
     fdXSDDefinedColumn.top = new FormAttachment(wFilename, 2 * margin);
     fdXSDDefinedColumn.right = new FormAttachment(100, -margin);
     wXSDDefinedColumn.setLayoutData(fdXSDDefinedColumn);

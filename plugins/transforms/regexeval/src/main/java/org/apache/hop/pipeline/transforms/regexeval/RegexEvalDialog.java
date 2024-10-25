@@ -200,7 +200,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
     PropsUi.setLook(wFieldEvaluate);
     wFieldEvaluate.addModifyListener(lsMod);
     FormData fdfieldevaluate = new FormData();
-    fdfieldevaluate.left = new FormAttachment(middle, margin);
+    fdfieldevaluate.left = new FormAttachment(middle, 0);
     fdfieldevaluate.top = new FormAttachment(wTransformName, margin);
     fdfieldevaluate.right = new FormAttachment(100, -margin);
     wFieldEvaluate.setLayoutData(fdfieldevaluate);
@@ -254,7 +254,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "RegexEvalDialog.AllowCaptureGroups.Tooltip"));
     PropsUi.setLook(wAllowCaptureGroups);
     FormData fdAllowCaptureGroups = new FormData();
-    fdAllowCaptureGroups.left = new FormAttachment(middle, margin);
+    fdAllowCaptureGroups.left = new FormAttachment(middle, 0);
     fdAllowCaptureGroups.top = new FormAttachment(wlAllowCaptureGroups, 0, SWT.CENTER);
     fdAllowCaptureGroups.right = new FormAttachment(100, 0);
     wAllowCaptureGroups.setLayoutData(fdAllowCaptureGroups);
@@ -282,7 +282,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "RegexEvalDialog.ReplaceFields.Tooltip"));
     PropsUi.setLook(wReplaceFields);
     FormData fdReplaceFields = new FormData();
-    fdReplaceFields.left = new FormAttachment(middle, margin);
+    fdReplaceFields.left = new FormAttachment(middle, 0);
     fdReplaceFields.top = new FormAttachment(wlReplaceFields, 0, SWT.CENTER);
     fdReplaceFields.right = new FormAttachment(100, 0);
     wReplaceFields.setLayoutData(fdReplaceFields);

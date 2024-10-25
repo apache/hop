@@ -106,7 +106,7 @@ public class PipelineLoggingDialog extends BaseTransformDialog {
     wLoggingTransforms = new Button(shell, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wLoggingTransforms);
     FormData fdLoggingTransforms = new FormData();
-    fdLoggingTransforms.left = new FormAttachment(middle, margin);
+    fdLoggingTransforms.left = new FormAttachment(middle, 0);
     fdLoggingTransforms.top = new FormAttachment(wlLoggingTransforms, 0, SWT.CENTER);
     fdLoggingTransforms.right = new FormAttachment(100, 0);
     wLoggingTransforms.setLayoutData(fdLoggingTransforms);

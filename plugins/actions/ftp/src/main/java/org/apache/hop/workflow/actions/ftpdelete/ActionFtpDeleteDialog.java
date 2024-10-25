@@ -179,6 +179,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     fdName.left = new FormAttachment(0, 0);
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
+    PropsUi.setLook(wName);
 
     // The buttons at the bottom...
     //
@@ -232,7 +233,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     FormData fdlProtocol = new FormData();
     fdlProtocol.left = new FormAttachment(0, 0);
     fdlProtocol.top = new FormAttachment(wName, margin);
-    fdlProtocol.right = new FormAttachment(middle, 0);
+    fdlProtocol.right = new FormAttachment(middle, -margin);
     wlProtocol.setLayoutData(fdlProtocol);
     wProtocol = new Combo(wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wProtocol.setToolTipText(BaseMessages.getString(PKG, "ActionFtpDelete.Protocol.Tooltip"));
@@ -240,7 +241,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     wProtocol.add(ActionFtpDelete.PROTOCOL_SFTP);
     PropsUi.setLook(wProtocol);
     FormData fdProtocol = new FormData();
-    fdProtocol.left = new FormAttachment(middle, margin);
+    fdProtocol.left = new FormAttachment(middle, 0);
     fdProtocol.top = new FormAttachment(wName, margin);
     fdProtocol.right = new FormAttachment(100, 0);
     wProtocol.setLayoutData(fdProtocol);
@@ -332,13 +333,13 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     FormData fdlUseProxy = new FormData();
     fdlUseProxy.left = new FormAttachment(0, 0);
     fdlUseProxy.top = new FormAttachment(wPassword, margin);
-    fdlUseProxy.right = new FormAttachment(middle, 0);
+    fdlUseProxy.right = new FormAttachment(middle, -margin);
     wlUseProxy.setLayoutData(fdlUseProxy);
     wUseProxy = new Button(wServerSettings, SWT.CHECK);
     PropsUi.setLook(wUseProxy);
     wUseProxy.setToolTipText(BaseMessages.getString(PKG, "ActionFtpDelete.useProxy.Tooltip"));
     FormData fdUseProxy = new FormData();
-    fdUseProxy.left = new FormAttachment(middle, margin);
+    fdUseProxy.left = new FormAttachment(middle, 0);
     fdUseProxy.top = new FormAttachment(wlUseProxy, 0, SWT.CENTER);
     fdUseProxy.right = new FormAttachment(100, 0);
     wUseProxy.setLayoutData(fdUseProxy);
@@ -430,14 +431,14 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     FormData fdlusePublicKey = new FormData();
     fdlusePublicKey.left = new FormAttachment(0, 0);
     fdlusePublicKey.top = new FormAttachment(wProxyPassword, margin);
-    fdlusePublicKey.right = new FormAttachment(middle, 0);
+    fdlusePublicKey.right = new FormAttachment(middle, -margin);
     wlUsePublicKey.setLayoutData(fdlusePublicKey);
     wUsePublicKey = new Button(wServerSettings, SWT.CHECK);
     wUsePublicKey.setToolTipText(
         BaseMessages.getString(PKG, "ActionFtpDelete.usePublicKeyFiles.Tooltip"));
     PropsUi.setLook(wUsePublicKey);
     FormData fdusePublicKey = new FormData();
-    fdusePublicKey.left = new FormAttachment(middle, margin);
+    fdusePublicKey.left = new FormAttachment(middle, 0);
     fdusePublicKey.top = new FormAttachment(wlUsePublicKey, 0, SWT.CENTER);
     fdusePublicKey.right = new FormAttachment(100, 0);
     wUsePublicKey.setLayoutData(fdusePublicKey);
@@ -473,7 +474,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     PropsUi.setLook(wKeyFilename);
     wKeyFilename.addModifyListener(lsMod);
     FormData fdKeyFilename = new FormData();
-    fdKeyFilename.left = new FormAttachment(middle, margin);
+    fdKeyFilename.left = new FormAttachment(middle, 0);
     fdKeyFilename.top = new FormAttachment(wlKeyFilename, 0, SWT.CENTER);
     fdKeyFilename.right = new FormAttachment(wbKeyFilename, -margin);
     wKeyFilename.setLayoutData(fdKeyFilename);
@@ -594,13 +595,13 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     FormData fdlActive = new FormData();
     fdlActive.left = new FormAttachment(0, 0);
     fdlActive.top = new FormAttachment(wTimeout, margin);
-    fdlActive.right = new FormAttachment(middle, 0);
+    fdlActive.right = new FormAttachment(middle, -margin);
     wlActive.setLayoutData(fdlActive);
     wActive = new Button(wAdvancedSettings, SWT.CHECK);
     wActive.setToolTipText(BaseMessages.getString(PKG, "ActionFtpDelete.ActiveConns.Tooltip"));
     PropsUi.setLook(wActive);
     FormData fdActive = new FormData();
-    fdActive.left = new FormAttachment(middle, margin);
+    fdActive.left = new FormAttachment(middle, 0);
     fdActive.top = new FormAttachment(wlActive, 0, SWT.CENTER);
     fdActive.right = new FormAttachment(100, 0);
     wActive.setLayoutData(fdActive);
@@ -635,13 +636,13 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     FormData fdlGetPrevious = new FormData();
     fdlGetPrevious.left = new FormAttachment(0, 0);
     fdlGetPrevious.top = new FormAttachment(wAdvancedSettings, margin);
-    fdlGetPrevious.right = new FormAttachment(middle, 0);
+    fdlGetPrevious.right = new FormAttachment(middle, -margin);
     wlGetPrevious.setLayoutData(fdlGetPrevious);
     wGetPrevious = new Button(wRemoteSettings, SWT.CHECK);
     PropsUi.setLook(wGetPrevious);
     wGetPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionFtpDelete.getPrevious.Tooltip"));
     FormData fdGetPrevious = new FormData();
-    fdGetPrevious.left = new FormAttachment(middle, margin);
+    fdGetPrevious.left = new FormAttachment(middle, 0);
     fdGetPrevious.top = new FormAttachment(wlGetPrevious, 0, SWT.CENTER);
     fdGetPrevious.right = new FormAttachment(100, 0);
     wGetPrevious.setLayoutData(fdGetPrevious);
@@ -661,7 +662,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     FormData fdlFtpDirectory = new FormData();
     fdlFtpDirectory.left = new FormAttachment(0, 0);
     fdlFtpDirectory.top = new FormAttachment(wlGetPrevious, 2 * margin);
-    fdlFtpDirectory.right = new FormAttachment(middle, 0);
+    fdlFtpDirectory.right = new FormAttachment(middle, -margin);
     wlFtpDirectory.setLayoutData(fdlFtpDirectory);
 
     // Test remote folder button ...
@@ -684,7 +685,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     PropsUi.setLook(wFtpDirectory);
     wFtpDirectory.addModifyListener(lsMod);
     FormData fdFtpDirectory = new FormData();
-    fdFtpDirectory.left = new FormAttachment(middle, margin);
+    fdFtpDirectory.left = new FormAttachment(middle, 0);
     fdFtpDirectory.top = new FormAttachment(wGetPrevious, margin);
     fdFtpDirectory.right = new FormAttachment(wbTestChangeFolderExists, -margin);
     wFtpDirectory.setLayoutData(fdFtpDirectory);
@@ -784,7 +785,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     FormData fdNrErrorsLessThan = new FormData();
     fdNrErrorsLessThan.left = new FormAttachment(middle, 0);
     fdNrErrorsLessThan.top = new FormAttachment(wSuccessCondition, margin);
-    fdNrErrorsLessThan.right = new FormAttachment(100, -margin);
+    fdNrErrorsLessThan.right = new FormAttachment(100, 0);
     wNrErrorsLessThan.setLayoutData(fdNrErrorsLessThan);
 
     FormData fdSuccessOn = new FormData();
