@@ -79,7 +79,7 @@
                 <include>org.mortbay.jetty:jetty-util:jar</include>
                 <include>org.mortbay.jetty:servlet-api:jar</include>
                 <include>org.threeten:threetenbp:jar</include>
-                <include>com.google.code.gson:gson</include>
+
                 <include>com.google.analytics:google-analytics-data:jar</include>
                 <include>com.google.api.grpc:proto-google-analytics-data-v1beta:jar</include>
             </includes>
@@ -87,6 +87,7 @@
         </dependencySet>
         <dependencySet>
             <includes>
+                <include>com.google.code.gson:gson</include>
                 <include>com.google.protobuf:protobuf-java:jar</include>
                 <include>com.google.protobuf:protobuf-java-util:jar</include>
             </includes>
