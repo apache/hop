@@ -39,8 +39,7 @@ import org.apache.hop.workflow.action.IAction;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     keywords = "i18n::CheckConnections.keyword",
     documentationUrl = "/workflow/actions/neo4j-checkconnections.html",
-    actionTransformTypes = { ActionTransformType.ENV_CHECK, ActionTransformType.GRAPH }
-)
+    actionTransformTypes = {ActionTransformType.ENV_CHECK, ActionTransformType.GRAPH})
 public class CheckConnections extends ActionBase implements IAction {
 
   public static final String CONST_CONNECTIONS = "connections";
