@@ -28,6 +28,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
@@ -44,7 +45,8 @@ import org.apache.hop.mongo.wrapper.MongoWrapperClientFactory;
     name = "i18n::MongoDbConnection.name",
     description = "i18n::MongoDbConnection.description",
     image = "MongoDB_Leaf_FullColor_RGB.svg",
-    documentationUrl = "/metadata-types/mongodb-connection.html")
+    documentationUrl = "/metadata-types/mongodb-connection.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.MONGODB_CONNECTION)
 public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
 
   public static final String WIDGET_ID_HOSTNAME = "10000-hostname";

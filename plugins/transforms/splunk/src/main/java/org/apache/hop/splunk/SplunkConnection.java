@@ -27,6 +27,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
@@ -34,7 +35,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::SplunkConnection.name",
     description = "i18n::SplunkConnection.description",
     image = "splunk.svg",
-    documentationUrl = "/metadata-types/splunk-connection.html")
+    documentationUrl = "/metadata-types/splunk-connection.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.SPLUNK_CONNECTION)
 public class SplunkConnection extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty private String hostname;

@@ -25,6 +25,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
@@ -32,7 +33,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::AsynWebService.name",
     description = "i18n::AsynWebService.description",
     image = "ui/images/server.svg",
-    documentationUrl = "metadata-types/async-web-service.html")
+    documentationUrl = "metadata-types/async-web-service.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.SERVER_WEB_SERVICE_ASYNC)
 public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;

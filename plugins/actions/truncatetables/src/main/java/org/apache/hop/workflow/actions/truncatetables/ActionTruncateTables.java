@@ -27,6 +27,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -49,7 +50,8 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   @HopMetadataProperty(key = "arg_from_previous")
   private boolean argFromPrevious;
 
-  @HopMetadataProperty private String connection;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+  private String connection;
 
   @HopMetadataProperty(key = "field", groupKey = "fields")
   private List<TruncateTableItem> items;

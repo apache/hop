@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
@@ -34,7 +35,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::RestConnection.name",
     description = "i18n::RestConnection.description",
     image = "rest.svg",
-    documentationUrl = "/metadata-types/rest-connection.html")
+    documentationUrl = "/metadata-types/rest-connection.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
 public class RestConnection extends HopMetadataBase implements IHopMetadata {
 
   private ClientBuilder builder;

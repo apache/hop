@@ -34,6 +34,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -80,7 +81,9 @@ public class ExcelWriterTransformMeta
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendEmpty.Field")
   private int appendEmpty = 0;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.SchemaDefinition.Field")
+  @HopMetadataProperty(
+      injectionKeyDescription = "ExcelWriterMeta.Injection.SchemaDefinition.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.STATIC_SCHEMA_DEFINITION)
   private String schemaDefinition;
 
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendOmitHeader.Field")

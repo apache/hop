@@ -49,6 +49,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.www.GetPipelineStatusServlet;
@@ -103,7 +104,8 @@ import org.w3c.dom.Node;
     name = "i18n::HopServer.name",
     description = "i18n::HopServer.description",
     image = "ui/images/server.svg",
-    documentationUrl = "/metadata-types/hop-server.html")
+    documentationUrl = "/metadata-types/hop-server.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.SERVER_DEFINITION)
 public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
   private static final Class<?> PKG = HopServerMeta.class;
   public static final String STRING_HOP_SERVER = "Hop Server";

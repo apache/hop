@@ -33,6 +33,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.testing.util.DataSetConst;
@@ -43,7 +44,8 @@ import org.apache.hop.testing.util.DataSetConst;
     name = "i18n::PipelineUnitTest.name",
     description = "i18n::PipelineUnitTest.description",
     image = "Test_tube_icon.svg",
-    documentationUrl = "/metadata-types/pipeline-unit-test.html")
+    documentationUrl = "/metadata-types/pipeline-unit-test.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_UNIT_TEST)
 public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty private String description;

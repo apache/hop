@@ -25,6 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -43,7 +44,8 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "connection",
-      injectionKeyDescription = "GraphOutput.Injection.CONNECTION")
+      injectionKeyDescription = "GraphOutput.Injection.CONNECTION",
+      hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
   private String connectionName;
 
   @HopMetadataProperty(

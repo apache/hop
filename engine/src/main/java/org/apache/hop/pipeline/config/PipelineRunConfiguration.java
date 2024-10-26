@@ -27,6 +27,7 @@ import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
@@ -35,7 +36,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     name = "i18n::PipelineRunConfiguration.name",
     description = "i18n::PipelineRunConfiguration.description",
     image = "ui/images/pipeline_run_config.svg",
-    documentationUrl = "/metadata-types/pipeline-run-config.html")
+    documentationUrl = "/metadata-types/pipeline-run-config.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG)
 public class PipelineRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID =

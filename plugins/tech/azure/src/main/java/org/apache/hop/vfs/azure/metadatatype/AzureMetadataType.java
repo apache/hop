@@ -20,6 +20,7 @@ import java.io.Serializable;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
@@ -27,7 +28,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::AzureMetadataType.Name",
     description = "i18n::AzureMetadataType.Description",
     image = "ui/images/authentication.svg",
-    documentationUrl = "/metadata-types/azure-authentication.html")
+    documentationUrl = "/metadata-types/azure-authentication.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.VFS_AZURE_CONNECTION)
 public class AzureMetadataType extends HopMetadataBase implements Serializable, IHopMetadata {
 
   private static final Class<?> PKG = AzureMetadataType.class;

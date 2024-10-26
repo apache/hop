@@ -28,6 +28,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -44,7 +45,8 @@ import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
     documentationUrl = "/pipeline/transforms/schemamapping.html")
 public class SchemaMappingMeta extends BaseTransformMeta<SchemaMapping, SchemaMappingData> {
 
-  @HopMetadataProperty private String schemaName;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.STATIC_SCHEMA_DEFINITION)
+  private String schemaName;
 
   @HopMetadataProperty(
       groupKey = "mappings",

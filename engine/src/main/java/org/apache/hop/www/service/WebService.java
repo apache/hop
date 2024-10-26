@@ -21,6 +21,7 @@ package org.apache.hop.www.service;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
@@ -28,7 +29,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::WebService.name",
     description = "i18n::WebService.description",
     image = "ui/images/webservice.svg",
-    documentationUrl = "/metadata-types/web-service.html")
+    documentationUrl = "/metadata-types/web-service.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.SERVER_WEB_SERVICE)
 public class WebService extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;

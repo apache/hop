@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
@@ -30,7 +31,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::WorkflowLog.name",
     description = "i18n::WorkflowLog.description",
     image = "workflow-log.svg",
-    documentationUrl = "/metadata-types/workflow-log.html")
+    documentationUrl = "/metadata-types/workflow-log.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_LOG)
 public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
