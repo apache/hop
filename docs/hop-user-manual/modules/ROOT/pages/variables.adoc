@@ -248,7 +248,7 @@ The transform will close/reopen files as necessary to insure the max is not exce
 It defines the max number of milliseconds between flushes of files opened by the transform.
 |HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT|N|Set this variable to N to preserve global log variables defined in pipeline / workflow Properties -> Log panel.
 Changing it to true will clear it when export pipeline / workflow.
-|HOP_JSON_INPUT_INCLUDE_NULLS|N|Name of te variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is "Y" then nulls will be included otherwise they will not be included (default behavior)
+|HOP_JSON_INPUT_INCLUDE_NULLS|Y|Name of te variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is "Y" then nulls will be included otherwise they will not be included (default behavior)
 |HOP_LENIENT_STRING_TO_NUMBER_CONVERSION|N|System wide flag to allow lenient string to number conversion for backward compatibility.
 If this setting is set to "Y", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol).
 The default (N) will be to throw an error if non-numeric symbols are found in the string.
@@ -264,7 +264,7 @@ Set to 0 to keep all rows (default)
 |HOP_MAX_LOG_TIMEOUT_IN_MINUTES|1440|The maximum age (in minutes) of a log line while being kept internally by Hop.
 Set to 0 to keep all rows indefinitely (default)
 |HOP_MAX_TAB_LENGTH|-|A variable to configure Tab size
-|HOP_MAX_WORKFLOW_TRACKER_SIZE|5000|The maximum number of workflow trackers kept in memory
+|HOP_MAX_WORKFLOW_TRACKER_SIZE|5000|The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)
 |HOP_PASSWORD_ENCODER_PLUGIN|Hop|Specifies the password encoder plugin to use by ID (Hop is the default).
 |HOP_PIPELINE_ROWSET_SIZE|-|Name of the environment variable that contains the size of the pipeline rowset size. This overwrites values that you set pipeline settings
 |HOP_PLUGIN_CLASSES||A comma delimited list of classes to scan for plugin annotations
@@ -274,9 +274,9 @@ This only makes a difference for extremely short lived pipelines.
 This only makes a difference for extremely short lived pipelines.
 |HOP_S3_VFS_PART_SIZE|5MB|The default part size for multi-part uploads of new files to S3 (added and used by by the xref:vfs/aws-s3-vfs.adoc[AWS S3] VFS plugin)
 |HOP_SERVER_DETECTION_TIMER|-|The name of the variable that defines the timer used for detecting server nodes
-|HOP_SERVER_JETTY_ACCEPTORS||A variable to configure jetty option: acceptors for Carte
-|HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE||A variable to configure jetty option: acceptQueueSize for Carte
-|HOP_SERVER_JETTY_RES_MAX_IDLE_TIME||A variable to configure jetty option: lowResourcesMaxIdleTime for Carte
+|HOP_SERVER_JETTY_ACCEPTORS||A variable to configure jetty option: acceptors for Hop Server
+|HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE||A variable to configure jetty option: acceptQueueSize for Hop Server
+|HOP_SERVER_JETTY_RES_MAX_IDLE_TIME||A variable to configure jetty option: lowResourcesMaxIdleTime for Hop Server
 |HOP_SERVER_OBJECT_TIMEOUT_MINUTES|1440|This project variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up.
 The default value is 1440 (one day).
 |HOP_SERVER_REFRESH_STATUS|-|A variable to configure refresh for Hop server workflow/pipeline status page
@@ -287,6 +287,7 @@ Hostname lookup is performed by Hop so that it is capable of logging the server 
 |HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT|0|The maximum number of transform performance snapshots to keep in memory.
 Set to 0 to keep all snapshots indefinitely (default)
 |HOP_USE_NATIVE_FILE_DIALOG|N|Set this value to Y if you want to use the system file open/save dialog when browsing files
+|HOP_ZIP_MAX_ENTRY_SIZE|-|A variable to configure the maximum file size of a single zip entry
 |HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING||
 |HOP_ZIP_MAX_TEXT_SIZE|-|A variable to configure the maximum number of characters of text that are extracted before an exception is thrown during extracting text from documents
 |HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING|-|
