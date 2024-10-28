@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -37,13 +39,12 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -53,7 +54,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
 
 /** This defines a 'unzip' action. Its main use would be to unzip files in a directory */
 @Action(
@@ -65,62 +65,80 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionUnZip.keyword",
     documentationUrl = "/workflow/actions/unzip.html")
 @SuppressWarnings("java:S1104")
+@Getter
+@Setter
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionUnZip.class;
   public static final String CONST_ACTION_UN_ZIP_ERROR_SUCCESS_CONDITIONBROKEN =
       "ActionUnZip.Error.SuccessConditionbroken";
   public static final String CONST_SPACES = "      ";
 
+  @HopMetadataProperty(key = "zipfilename")
   private String zipFilename;
-  public int afterunzip;
+
+  @HopMetadataProperty(key = "afterunzip")
+  public int afterUnzip;
+
+  @HopMetadataProperty(key = "wildcard")
   private String wildcard;
+
+  @HopMetadataProperty(key = "wildcardexclude")
   private String wildcardExclude;
-  private String sourcedirectory; // targetdirectory on screen
-  private String movetodirectory;
-  private boolean addfiletoresult;
-  private boolean isfromprevious;
-  private boolean adddate;
-  private boolean addtime;
+
+  @HopMetadataProperty(key = "targetdirectory")
+  private String sourceDirectory; // targetdirectory on screen
+
+  @HopMetadataProperty(key = "movetodirectory")
+  private String moveToDirectory;
+
+  @HopMetadataProperty(key = "addfiletoresult")
+  private boolean addFileToResult;
+
+  @HopMetadataProperty(key = "isfromprevious")
+  private boolean fromPrevious;
+
+  @HopMetadataProperty(key = "adddate")
+  private boolean addDate;
+
+  @HopMetadataProperty(key = "addtime")
+  private boolean addTime;
+
+  @HopMetadataProperty(key = "SpecifyFormat")
   private boolean specifyFormat;
+
+  @HopMetadataProperty(key = "date_time_format")
   private String dateTimeFormat;
-  private boolean rootzip;
-  private boolean createfolder;
+
+  @HopMetadataProperty(key = "rootzip")
+  private boolean rootZip;
+
+  @HopMetadataProperty(key = "createfolder")
+  private boolean createFolder;
+
+  @HopMetadataProperty(key = "nr_limit")
   private String nrLimit;
+
+  @HopMetadataProperty(key = "wildcardSource")
   private String wildcardSource;
-  private int iffileexist;
+
+  @HopMetadataProperty(key = "iffileexists", storeWithCode = true)
+  private FileExistsEnum ifFileExist;
+
+  @HopMetadataProperty(key = "create_move_to_directory")
   private boolean createMoveToDirectory;
 
+  @HopMetadataProperty(key = "addOriginalTimestamp")
   private boolean addOriginalTimestamp;
+
+  @HopMetadataProperty(key = "setOriginalModificationDate")
   private boolean setOriginalModificationDate;
 
   public static final String SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED = "success_when_at_least";
   public static final String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
   public static final String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
+
+  @HopMetadataProperty(key = "success_condition")
   private String successCondition;
-
-  public static final int IF_FILE_EXISTS_SKIP = 0;
-  public static final int IF_FILE_EXISTS_OVERWRITE = 1;
-  public static final int IF_FILE_EXISTS_UNIQ = 2;
-  public static final int IF_FILE_EXISTS_FAIL = 3;
-  public static final int IF_FILE_EXISTS_OVERWRITE_DIFF_SIZE = 4;
-  public static final int IF_FILE_EXISTS_OVERWRITE_EQUAL_SIZE = 5;
-  public static final int IF_FILE_EXISTS_OVERWRITE_ZIP_BIG = 6;
-  public static final int IF_FILE_EXISTS_OVERWRITE_ZIP_BIG_EQUAL = 7;
-  public static final int IF_FILE_EXISTS_OVERWRITE_ZIP_SMALL = 8;
-  public static final int IF_FILE_EXISTS_OVERWRITE_ZIP_SMALL_EQUAL = 9;
-
-  public static final String[] typeIfFileExistsCode = /* WARNING: DO NOT TRANSLATE THIS. */ {
-    "SKIP",
-    "OVERWRITE",
-    "UNIQ",
-    "FAIL",
-    "OVERWRITE_DIFF_SIZE",
-    "OVERWRITE_EQUAL_SIZE",
-    "OVERWRITE_ZIP_BIG",
-    "OVERWRITE_ZIP_BIG_EQUAL",
-    "OVERWRITE_ZIP_BIG_SMALL",
-    "OVERWRITE_ZIP_BIG_SMALL_EQUAL",
-  };
 
   public static final String[] typeIfFileExistsDesc = {
     BaseMessages.getString(PKG, "ActionUnZip.Skip.Label"),
@@ -147,21 +165,21 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   public ActionUnZip(String n) {
     super(n, "");
     zipFilename = null;
-    afterunzip = 0;
+    afterUnzip = 0;
     wildcard = null;
     wildcardExclude = null;
-    sourcedirectory = null;
-    movetodirectory = null;
-    addfiletoresult = false;
-    isfromprevious = false;
-    adddate = false;
-    addtime = false;
+    sourceDirectory = null;
+    moveToDirectory = null;
+    addFileToResult = false;
+    fromPrevious = false;
+    addDate = false;
+    addTime = false;
     specifyFormat = false;
-    rootzip = false;
-    createfolder = false;
+    rootZip = false;
+    createFolder = false;
     nrLimit = "10";
     wildcardSource = null;
-    iffileexist = IF_FILE_EXISTS_SKIP;
+    ifFileExist = FileExistsEnum.SKIP;
     successCondition = SUCCESS_IF_NO_ERRORS;
     createMoveToDirectory = false;
 
@@ -180,84 +198,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(550); // 450 chars in just spaces and tag names alone
-
-    retval.append(super.getXml());
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("zipfilename", zipFilename));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("targetdirectory", sourcedirectory));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("movetodirectory", movetodirectory));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("afterunzip", afterunzip));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("isfromprevious", isfromprevious));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("adddate", adddate));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("addtime", addtime));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("addOriginalTimestamp", addOriginalTimestamp));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("rootzip", rootzip));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("createfolder", createfolder));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("nr_limit", nrLimit));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("wildcardSource", wildcardSource));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("success_condition", successCondition));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("iffileexists", getIfFileExistsCode(iffileexist)));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("create_move_to_directory", createMoveToDirectory));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("setOriginalModificationDate", setOriginalModificationDate));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      zipFilename = XmlHandler.getTagValue(entrynode, "zipfilename");
-      afterunzip = Const.toInt(XmlHandler.getTagValue(entrynode, "afterunzip"), -1);
-
-      wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
-      wildcardExclude = XmlHandler.getTagValue(entrynode, "wildcardexclude");
-      sourcedirectory = XmlHandler.getTagValue(entrynode, "targetdirectory");
-      movetodirectory = XmlHandler.getTagValue(entrynode, "movetodirectory");
-      addfiletoresult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addfiletoresult"));
-      isfromprevious = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "isfromprevious"));
-      adddate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "adddate"));
-      addtime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addtime"));
-      addOriginalTimestamp =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addOriginalTimestamp"));
-      specifyFormat = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "SpecifyFormat"));
-      dateTimeFormat = XmlHandler.getTagValue(entrynode, "date_time_format");
-      rootzip = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "rootzip"));
-      createfolder = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "createfolder"));
-      nrLimit = XmlHandler.getTagValue(entrynode, "nr_limit");
-      wildcardSource = XmlHandler.getTagValue(entrynode, "wildcardSource");
-      successCondition = XmlHandler.getTagValue(entrynode, "success_condition");
-      if (Utils.isEmpty(successCondition)) {
-        successCondition = SUCCESS_IF_NO_ERRORS;
-      }
-      iffileexist = getIfFileExistsInt(XmlHandler.getTagValue(entrynode, "iffileexists"));
-      createMoveToDirectory =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "create_move_to_directory"));
-      setOriginalModificationDate =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "setOriginalModificationDate"));
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load action of type 'unzip' from XML node", xe);
-    }
-  }
-
-  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -270,16 +210,16 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     String realWildcardSource = resolve(wildcardSource);
     String realWildcard = resolve(wildcard);
     String realWildcardExclude = resolve(wildcardExclude);
-    String realTargetdirectory = resolve(sourcedirectory);
-    String realMovetodirectory = resolve(movetodirectory);
+    String realTargetdirectory = resolve(sourceDirectory);
+    String realMovetodirectory = resolve(moveToDirectory);
 
-    limitFiles = Const.toInt(resolve(getLimit()), 10);
+    limitFiles = Const.toInt(resolve(getNrLimit()), 10);
     nrErrors = 0;
     nrSuccess = 0;
     successConditionBroken = false;
     successConditionBrokenExit = false;
 
-    if (isfromprevious) {
+    if (fromPrevious) {
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
@@ -318,7 +258,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       targetdir = HopVfs.getFileObject(realTargetdirectory, getVariables());
 
       if (!targetdir.exists()) {
-        if (createfolder) {
+        if (createFolder) {
           targetdir.createFolder();
           if (isDetailed()) {
             logDetailed(
@@ -347,8 +287,8 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
       // If user want to move zip files after process
       // movetodirectory must be provided
-      if (afterunzip == 2) {
-        if (Utils.isEmpty(movetodirectory)) {
+      if (afterUnzip == 2) {
+        if (Utils.isEmpty(moveToDirectory)) {
           logError(BaseMessages.getString(PKG, "ActionUnZip.MoveToDirectoryEmpty.Label"));
           exitaction = true;
         } else {
@@ -374,7 +314,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         return result;
       }
 
-      if (isfromprevious) {
+      if (fromPrevious) {
         if (rows != null) { // Copy the input row to the (command line) arguments
           for (int iteration = 0;
               iteration < rows.size() && !parentWorkflow.isStopped();
@@ -429,7 +369,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           logDetailed(
               BaseMessages.getString(PKG, "ActionUnZip.Zip_FileExists.Label", realFilenameSource));
         }
-        if (Utils.isEmpty(sourcedirectory)) {
+        if (Utils.isEmpty(sourceDirectory)) {
           logError(BaseMessages.getString(PKG, "ActionUnZip.SourceFolderNotFound.Label"));
           return result;
         }
@@ -607,7 +547,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
       // Do you create a root folder?
       //
-      if (rootzip) {
+      if (rootZip) {
         String shortSourceFilename = sourceFileObject.getName().getBaseName();
         int lenstring = shortSourceFilename.length();
         int lastindexOfDot = shortSourceFilename.lastIndexOf('.');
@@ -740,7 +680,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                           newFileName));
                 }
 
-                if (iffileexist == IF_FILE_EXISTS_UNIQ) {
+                if (ifFileExist == FileExistsEnum.UNIQ) {
                   // Create file with unique name
 
                   int lenstring = newFileName.length();
@@ -833,7 +773,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       // be deleted anymore. This is a known problem in the JVM.
 
       // Unzip done...
-      if (afterunzip > 0) {
+      if (afterUnzip > 0) {
         doUnzipPostProcessing(sourceFileObject, movetodir, realMovetodirectory);
       }
       retval = true;
@@ -852,7 +792,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private void doUnzipPostProcessing(
       FileObject sourceFileObject, FileObject movetodir, String realMovetodirectory)
       throws FileSystemException {
-    if (afterunzip == 1) {
+    if (afterUnzip == 1) {
       // delete zip file
       boolean deleted = sourceFileObject.delete();
       if (!deleted) {
@@ -867,7 +807,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             BaseMessages.getString(
                 PKG, "ActionUnZip.File_Deleted.Label", sourceFileObject.toString()));
       }
-    } else if (afterunzip == 2) {
+    } else if (afterUnzip == 2) {
       FileObject destFile = null;
       // Move File
       try {
@@ -910,7 +850,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private void addFilenameToResultFilenames(
       Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow, String newfile)
       throws Exception {
-    if (addfiletoresult) {
+    if (addFileToResult) {
       // Add file to result files name
       ResultFile resultFile =
           new ResultFile(
@@ -969,20 +909,20 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "ActionUnZip.Log.FileExists", destinationFile));
     }
-    if (iffileexist == IF_FILE_EXISTS_SKIP) {
+    if (ifFileExist == FileExistsEnum.SKIP) {
       if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "ActionUnZip.Log.FileSkip", destinationFile));
       }
       return false;
     }
-    if (iffileexist == IF_FILE_EXISTS_FAIL) {
+    if (ifFileExist == FileExistsEnum.FAIL) {
       updateErrors();
       logError(
           BaseMessages.getString(PKG, "ActionUnZip.Log.FileError", destinationFile, "" + nrErrors));
       return false;
     }
 
-    if (iffileexist == IF_FILE_EXISTS_OVERWRITE) {
+    if (ifFileExist == FileExistsEnum.OVERWRITE) {
       if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "ActionUnZip.Log.FileOverwrite", destinationFile));
       }
@@ -992,7 +932,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     Long entrySize = sourceFile.getContent().getSize();
     Long destinationSize = destination.length();
 
-    if (iffileexist == IF_FILE_EXISTS_OVERWRITE_DIFF_SIZE) {
+    if (ifFileExist == FileExistsEnum.OVERWRITE_DIFF_SIZE) {
       if (entrySize != destinationSize) {
         if (isDebug()) {
           logDebug(
@@ -1019,7 +959,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         return false;
       }
     }
-    if (iffileexist == IF_FILE_EXISTS_OVERWRITE_EQUAL_SIZE) {
+    if (ifFileExist == FileExistsEnum.OVERWRITE_EQUAL_SIZE) {
       if (entrySize == destinationSize) {
         if (isDebug()) {
           logDebug(
@@ -1046,7 +986,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         return false;
       }
     }
-    if (iffileexist == IF_FILE_EXISTS_OVERWRITE_ZIP_BIG) {
+    if (ifFileExist == FileExistsEnum.OVERWRITE_ZIP_BIG) {
       if (entrySize > destinationSize) {
         if (isDebug()) {
           logDebug(
@@ -1073,7 +1013,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         return false;
       }
     }
-    if (iffileexist == IF_FILE_EXISTS_OVERWRITE_ZIP_BIG_EQUAL) {
+    if (ifFileExist == FileExistsEnum.OVERWRITE_ZIP_BIG_EQUAL) {
       if (entrySize >= destinationSize) {
         if (isDebug()) {
           logDebug(
@@ -1100,7 +1040,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         return false;
       }
     }
-    if (iffileexist == IF_FILE_EXISTS_OVERWRITE_ZIP_SMALL) {
+    if (ifFileExist == FileExistsEnum.OVERWRITE_ZIP_BIG_SMALL) {
       if (entrySize < destinationSize) {
         if (isDebug()) {
           logDebug(
@@ -1127,7 +1067,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         return false;
       }
     }
-    if (iffileexist == IF_FILE_EXISTS_OVERWRITE_ZIP_SMALL_EQUAL) {
+    if (ifFileExist == FileExistsEnum.OVERWRITE_ZIP_BIG_SMALL_EQUAL) {
       if (entrySize <= destinationSize) {
         if (isDebug()) {
           logDebug(
@@ -1154,7 +1094,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         return false;
       }
     }
-    if (iffileexist == IF_FILE_EXISTS_UNIQ) {
+    if (ifFileExist == FileExistsEnum.UNIQ) {
       // Create file with unique name
       return true;
     }
@@ -1165,185 +1105,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   @Override
   public boolean isEvaluation() {
     return true;
-  }
-
-  public static final int getIfFileExistsInt(String desc) {
-    for (int i = 0; i < typeIfFileExistsCode.length; i++) {
-      if (typeIfFileExistsCode[i].equalsIgnoreCase(desc)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  public static final String getIfFileExistsCode(int i) {
-    if (i < 0 || i >= typeIfFileExistsCode.length) {
-      return null;
-    }
-    return typeIfFileExistsCode[i];
-  }
-
-  /**
-   * @return Returns the iffileexist.
-   */
-  public int getIfFileExist() {
-    return iffileexist;
-  }
-
-  public void setIfFileExists(int iffileexist) {
-    this.iffileexist = iffileexist;
-  }
-
-  public boolean isCreateMoveToDirectory() {
-    return createMoveToDirectory;
-  }
-
-  public void setCreateMoveToDirectory(boolean createMoveToDirectory) {
-    this.createMoveToDirectory = createMoveToDirectory;
-  }
-
-  public void setZipFilename(String zipFilename) {
-    this.zipFilename = zipFilename;
-  }
-
-  public void setWildcard(String wildcard) {
-    this.wildcard = wildcard;
-  }
-
-  public void setWildcardExclude(String wildcardExclude) {
-    this.wildcardExclude = wildcardExclude;
-  }
-
-  public void setSourceDirectory(String targetdirectoryin) {
-    this.sourcedirectory = targetdirectoryin;
-  }
-
-  public void setMoveToDirectory(String movetodirectory) {
-    this.movetodirectory = movetodirectory;
-  }
-
-  public String getSourceDirectory() {
-    return sourcedirectory;
-  }
-
-  public String getMoveToDirectory() {
-    return movetodirectory;
-  }
-
-  public String getZipFilename() {
-    return zipFilename;
-  }
-
-  public String getWildcardSource() {
-    return wildcardSource;
-  }
-
-  public void setWildcardSource(String wildcardSource) {
-    this.wildcardSource = wildcardSource;
-  }
-
-  public String getWildcard() {
-    return wildcard;
-  }
-
-  public String getWildcardExclude() {
-    return wildcardExclude;
-  }
-
-  public void setAddFileToResult(boolean addfiletoresultin) {
-    this.addfiletoresult = addfiletoresultin;
-  }
-
-  public boolean isAddFileToResult() {
-    return addfiletoresult;
-  }
-
-  public void setDateInFilename(boolean adddate) {
-    this.adddate = adddate;
-  }
-
-  public void setAddOriginalTimestamp(boolean addOriginalTimestamp) {
-    this.addOriginalTimestamp = addOriginalTimestamp;
-  }
-
-  public boolean isOriginalTimestamp() {
-    return addOriginalTimestamp;
-  }
-
-  public void setOriginalModificationDate(boolean setOriginalModificationDate) {
-    this.setOriginalModificationDate = setOriginalModificationDate;
-  }
-
-  public boolean isOriginalModificationDate() {
-    return setOriginalModificationDate;
-  }
-
-  public boolean isDateInFilename() {
-    return adddate;
-  }
-
-  public void setTimeInFilename(boolean addtime) {
-    this.addtime = addtime;
-  }
-
-  public boolean isTimeInFilename() {
-    return addtime;
-  }
-
-  public boolean isSpecifyFormat() {
-    return specifyFormat;
-  }
-
-  public void setSpecifyFormat(boolean specifyFormat) {
-    this.specifyFormat = specifyFormat;
-  }
-
-  public String getDateTimeFormat() {
-    return dateTimeFormat;
-  }
-
-  public void setDateTimeFormat(String dateTimeFormat) {
-    this.dateTimeFormat = dateTimeFormat;
-  }
-
-  public void setDatafromprevious(boolean isfromprevious) {
-    this.isfromprevious = isfromprevious;
-  }
-
-  public boolean getDatafromprevious() {
-    return isfromprevious;
-  }
-
-  public void setCreateRootFolder(boolean rootzip) {
-    this.rootzip = rootzip;
-  }
-
-  public boolean isCreateRootFolder() {
-    return rootzip;
-  }
-
-  public void setCreateFolder(boolean createfolder) {
-    this.createfolder = createfolder;
-  }
-
-  public boolean isCreateFolder() {
-    return createfolder;
-  }
-
-  public void setLimit(String nrLimitin) {
-    this.nrLimit = nrLimitin;
-  }
-
-  public String getLimit() {
-    return nrLimit;
-  }
-
-  public void setSuccessCondition(String successCondition) {
-    this.successCondition = successCondition;
-  }
-
-  public String getSuccessCondition() {
-    return successCondition;
   }
 
   protected String getTargetFilename(FileObject file) throws FileSystemException {
@@ -1358,7 +1119,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       return retval;
     }
 
-    if (!specifyFormat && !adddate && !addtime) {
+    if (!specifyFormat && !addDate && !addTime) {
       return retval;
     }
 
@@ -1387,14 +1148,14 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       retval += dt;
     } else {
 
-      if (adddate) {
+      if (addDate) {
         if (!dateFormatSet) {
           daf.applyPattern("yyyyMMdd");
         }
         String d = daf.format(timestamp);
         retval += "_" + d;
       }
-      if (addtime) {
+      if (addTime) {
         if (!dateFormatSet) {
           daf.applyPattern("HHmmssSSS");
         }
@@ -1427,7 +1188,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
     ActionValidatorUtils.andValidator().validate(this, "zipFilename", remarks, ctx1);
 
-    if (2 == afterunzip) {
+    if (2 == afterUnzip) {
       // setting says to move
       ActionValidatorUtils.andValidator()
           .validate(

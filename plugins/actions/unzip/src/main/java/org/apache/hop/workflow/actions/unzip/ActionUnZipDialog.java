@@ -1018,24 +1018,24 @@ public class ActionUnZipDialog extends ActionDialog {
     wTargetDirectory.setText(Const.nullToEmpty(action.getSourceDirectory()));
     wMovetoDirectory.setText(Const.nullToEmpty(action.getMoveToDirectory()));
 
-    if (action.afterunzip >= 0) {
-      wAfterUnZip.select(action.afterunzip);
+    if (action.afterUnzip >= 0) {
+      wAfterUnZip.select(action.afterUnzip);
     } else {
       wAfterUnZip.select(0); // NOTHING
     }
 
     wAddFileToResult.setSelection(action.isAddFileToResult());
-    wArgsPrevious.setSelection(action.getDatafromprevious());
-    wAddDate.setSelection(action.isDateInFilename());
-    wAddTime.setSelection(action.isTimeInFilename());
+    wArgsPrevious.setSelection(action.isFromPrevious());
+    wAddDate.setSelection(action.isAddDate());
+    wAddTime.setSelection(action.isAddTime());
 
     wDateTimeFormat.setText(Const.nullToEmpty(action.getDateTimeFormat()));
     wSpecifyFormat.setSelection(action.isSpecifyFormat());
 
-    wRootZip.setSelection(action.isCreateRootFolder());
+    wRootZip.setSelection(action.isRootZip());
     wCreateFolder.setSelection(action.isCreateFolder());
 
-    wNrErrorsLessThan.setText(Const.NVL(action.getLimit(), "10"));
+    wNrErrorsLessThan.setText(Const.NVL(action.getNrLimit(), "10"));
 
     if (action.getSuccessCondition() != null) {
       if (action.getSuccessCondition().equals(action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED)) {
@@ -1049,9 +1049,9 @@ public class ActionUnZipDialog extends ActionDialog {
       wSuccessCondition.select(0);
     }
 
-    wAddOriginalTimestamp.setSelection(action.isOriginalTimestamp());
-    wSetModificationDateToOriginal.setSelection(action.isOriginalModificationDate());
-    wIfFileExists.select(action.getIfFileExist());
+    wAddOriginalTimestamp.setSelection(action.isAddOriginalTimestamp());
+    wSetModificationDateToOriginal.setSelection(action.isSetOriginalModificationDate());
+    wIfFileExists.select(action.getIfFileExist().getOrignalCode());
     wCreateMoveToDirectory.setSelection(action.isCreateMoveToDirectory());
 
     wName.selectAll();
@@ -1082,19 +1082,19 @@ public class ActionUnZipDialog extends ActionDialog {
 
     action.setMoveToDirectory(wMovetoDirectory.getText());
 
-    action.afterunzip = wAfterUnZip.getSelectionIndex();
+    action.afterUnzip = wAfterUnZip.getSelectionIndex();
 
     action.setAddFileToResult(wAddFileToResult.getSelection());
 
-    action.setDatafromprevious(wArgsPrevious.getSelection());
-    action.setDateInFilename(wAddDate.getSelection());
-    action.setTimeInFilename(wAddTime.getSelection());
+    action.setFromPrevious(wArgsPrevious.getSelection());
+    action.setAddDate(wAddDate.getSelection());
+    action.setAddTime(wAddTime.getSelection());
     action.setSpecifyFormat(wSpecifyFormat.getSelection());
     action.setDateTimeFormat(wDateTimeFormat.getText());
 
-    action.setCreateRootFolder(wRootZip.getSelection());
+    action.setRootZip(wRootZip.getSelection());
     action.setCreateFolder(wCreateFolder.getSelection());
-    action.setLimit(wNrErrorsLessThan.getText());
+    action.setNrLimit(wNrErrorsLessThan.getText());
 
     if (wSuccessCondition.getSelectionIndex() == 1) {
       action.setSuccessCondition(action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED);
@@ -1104,10 +1104,12 @@ public class ActionUnZipDialog extends ActionDialog {
       action.setSuccessCondition(action.SUCCESS_IF_NO_ERRORS);
     }
 
-    action.setIfFileExists(wIfFileExists.getSelectionIndex());
+    FileExistsEnum fileExistsEnum =
+        FileExistsEnum.getFileExistsEnum(wIfFileExists.getSelectionIndex());
+    action.setIfFileExist(fileExistsEnum);
     action.setCreateMoveToDirectory(wCreateMoveToDirectory.getSelection());
     action.setAddOriginalTimestamp(wAddOriginalTimestamp.getSelection());
-    action.setOriginalModificationDate(wSetModificationDateToOriginal.getSelection());
+    action.setSetOriginalModificationDate(wSetModificationDateToOriginal.getSelection());
     dispose();
   }
 }
