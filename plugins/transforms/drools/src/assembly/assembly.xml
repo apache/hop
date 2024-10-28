@@ -54,7 +54,6 @@
             <outputDirectory>plugins/transforms/drools/lib</outputDirectory>
         </dependencySet>
         <dependencySet>
-            <scope>provided</scope>
             <includes>
                 <include>org.apache.poi:*</include>
                 <include>com.zaxxer:*</include>
