@@ -498,7 +498,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
     wSenderServiceName.setText(Const.NVL(action.getSenderServiceName(), ""));
     wMessage.setText(Const.NVL(action.getMessage(), ""));
     wEncryptionMode.setText(
-        ActionSendNagiosPassiveCheck.getEncryptionModeDesc(action.getEncryptionMode()));
+        ActionSendNagiosPassiveCheck.getEncryptionModeDesc(
+            action.getEncryptionMode().getOriginalCode()));
     wLevelMode.setText(ActionSendNagiosPassiveCheck.getLevelDesc(action.getLevel()));
 
     wName.selectAll();
@@ -527,9 +528,10 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
     action.setSenderServerName(wSenderServerName.getText());
     action.setSenderServiceName(wSenderServiceName.getText());
     action.setMessage(wMessage.getText());
-    action.setEncryptionMode(
-        ActionSendNagiosPassiveCheck.getEncryptionModeByDesc(wEncryptionMode.getText()));
-    action.setLevel(ActionSendNagiosPassiveCheck.getLevelByDesc(wLevelMode.getText()));
+    EncryptionModeEnum encryptionModeEnum =
+        EncryptionModeEnum.getEncruptionModeEnum(wEncryptionMode.getSelectionIndex());
+    action.setEncryptionMode(encryptionModeEnum);
+    action.setLevel(wLevelMode.getSelectionIndex());
     action.setPassword(wPassword.getText());
 
     dispose();
