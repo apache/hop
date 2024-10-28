@@ -261,7 +261,7 @@ public class ActionSNMPTrapDialog extends ActionDialog {
 
     PropsUi.setLook(wTargetType);
     FormData fdTargetType = new FormData();
-    fdTargetType.left = new FormAttachment(middle, margin);
+    fdTargetType.left = new FormAttachment(middle, 0);
     fdTargetType.top = new FormAttachment(wServerSettings, margin);
     fdTargetType.right = new FormAttachment(100, 0);
     wTargetType.setLayoutData(fdTargetType);
@@ -402,7 +402,7 @@ public class ActionSNMPTrapDialog extends ActionDialog {
     FormData fdMessage = new FormData();
     fdMessage.left = new FormAttachment(middle, 0);
     fdMessage.top = new FormAttachment(wComString, margin);
-    fdMessage.right = new FormAttachment(100, -2 * margin);
+    fdMessage.right = new FormAttachment(100, 0);
     fdMessage.bottom = new FormAttachment(100, -margin);
     wMessage.setLayoutData(fdMessage);
 

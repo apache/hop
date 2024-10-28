@@ -186,7 +186,7 @@ public class RepeatDialog extends ActionDialog {
     PropsUi.setLook(wlVariableName);
     FormData fdlVariableName = new FormData();
     fdlVariableName.left = new FormAttachment(0, 0);
-    fdlVariableName.right = new FormAttachment(middle, 0);
+    fdlVariableName.right = new FormAttachment(middle, -margin);
     fdlVariableName.top = new FormAttachment(lastControl, margin);
     wlVariableName.setLayoutData(fdlVariableName);
     wVariableName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);

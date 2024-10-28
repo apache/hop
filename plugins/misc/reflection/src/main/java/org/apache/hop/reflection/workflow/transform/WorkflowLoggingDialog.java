@@ -106,7 +106,7 @@ public class WorkflowLoggingDialog extends BaseTransformDialog {
     wLoggingActionResults = new Button(shell, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wLoggingActionResults);
     FormData fdLoggingActionResults = new FormData();
-    fdLoggingActionResults.left = new FormAttachment(middle, margin);
+    fdLoggingActionResults.left = new FormAttachment(middle, 0);
     fdLoggingActionResults.top = new FormAttachment(wlLoggingActionResults, 0, SWT.CENTER);
     fdLoggingActionResults.right = new FormAttachment(100, 0);
     wLoggingActionResults.setLayoutData(fdLoggingActionResults);

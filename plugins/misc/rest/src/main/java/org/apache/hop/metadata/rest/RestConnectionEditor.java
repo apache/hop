@@ -89,7 +89,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlBaseUrl.left = new FormAttachment(0, 0);
     fdlBaseUrl.right = new FormAttachment(middle, -margin);
     wlBaseUrl.setLayoutData(fdlBaseUrl);
-    wBaseUrl = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT);
+    wBaseUrl = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBaseUrl);
     FormData fdBaseUrl = new FormData();
     fdBaseUrl.top = new FormAttachment(wlBaseUrl, 0, SWT.CENTER);
@@ -106,7 +106,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlTestUrl.left = new FormAttachment(0, 0);
     fdlTestUrl.right = new FormAttachment(middle, -margin);
     wlTestUrl.setLayoutData(fdlTestUrl);
-    wTestUrl = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT);
+    wTestUrl = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTestUrl);
     FormData fdTestUrl = new FormData();
     fdTestUrl.top = new FormAttachment(wlTestUrl, 0, SWT.CENTER);
@@ -124,7 +124,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlAuthorizationName.left = new FormAttachment(0, 0);
     fdlAuthorizationName.right = new FormAttachment(middle, -margin);
     wlAuthorizationName.setLayoutData(fdlAuthorizationName);
-    wAuthorizationName = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT);
+    wAuthorizationName = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationName);
     FormData fdAuthorizationName = new FormData();
     fdAuthorizationName.top = new FormAttachment(wlAuthorizationName, 0, SWT.CENTER);
@@ -143,7 +143,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlAuthorizationPrefix.right = new FormAttachment(middle, -margin);
     wlAuthorizationPrefix.setLayoutData(fdlAuthorizationPrefix);
 
-    wAuthorizationPrefix = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT);
+    wAuthorizationPrefix = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationPrefix);
     FormData fdAuthorizationPrefix = new FormData();
     fdAuthorizationPrefix.top = new FormAttachment(wlAuthorizationPrefix, 0, SWT.CENTER);
@@ -161,7 +161,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlAuthorizationValue.left = new FormAttachment(0, 0);
     fdlAuthorizationValue.right = new FormAttachment(middle, -margin);
     wlAuthorizationValue.setLayoutData(fdlAuthorizationValue);
-    wAuthorizationValue = new PasswordTextVar(variables, composite, SWT.SINGLE | SWT.LEFT);
+    wAuthorizationValue =
+        new PasswordTextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationValue);
     FormData fdAuthorizationValue = new FormData();
     fdAuthorizationValue.top = new FormAttachment(wlAuthorizationValue, 0, SWT.CENTER);

@@ -100,9 +100,9 @@ public class DelayDialog extends BaseTransformDialog {
     PropsUi.setLook(wTimeout);
     wTimeout.addModifyListener(lsMod);
     FormData fdTimeout = new FormData();
-    fdTimeout.left = new FormAttachment(0, -margin);
+    fdTimeout.left = new FormAttachment(0, 0);
     fdTimeout.top = new FormAttachment(wTransformName, margin);
-    fdTimeout.right = new FormAttachment(100, -margin);
+    fdTimeout.right = new FormAttachment(100, 0);
     wTimeout.setLayoutData(fdTimeout);
 
     // Whenever something changes, set the tooltip to the expanded version:

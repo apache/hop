@@ -664,14 +664,13 @@ public class ActionUnZipDialog extends ActionDialog {
     PropsUi.setLook(wlAfterUnZip);
     FormData fdlAfterUnZip = new FormData();
     fdlAfterUnZip.left = new FormAttachment(0, 0);
-    fdlAfterUnZip.right = new FormAttachment(middle, 0);
+    fdlAfterUnZip.right = new FormAttachment(middle, -margin);
     fdlAfterUnZip.top = new FormAttachment(wIfFileExists, margin);
     wlAfterUnZip.setLayoutData(fdlAfterUnZip);
     wAfterUnZip = new CCombo(wUnzippedFiles, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wAfterUnZip.add(BaseMessages.getString(PKG, "ActionUnZip.Do_Nothing_AfterUnZip.Label"));
     wAfterUnZip.add(BaseMessages.getString(PKG, "ActionUnZip.Delete_Files_AfterUnZip.Label"));
     wAfterUnZip.add(BaseMessages.getString(PKG, "ActionUnZip.Move_Files_AfterUnZip.Label"));
-
     wAfterUnZip.select(0); // +1: starts at -1
 
     PropsUi.setLook(wAfterUnZip);

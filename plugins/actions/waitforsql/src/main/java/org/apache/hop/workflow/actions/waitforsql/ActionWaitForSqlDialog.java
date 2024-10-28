@@ -178,7 +178,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     PropsUi.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
-    fdlSchemaname.right = new FormAttachment(middle, 0);
+    fdlSchemaname.right = new FormAttachment(middle, -margin);
     fdlSchemaname.top = new FormAttachment(wConnection, margin);
     wlSchemaname.setLayoutData(fdlSchemaname);
 
@@ -198,7 +198,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     PropsUi.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
-    fdlTablename.right = new FormAttachment(middle, 0);
+    fdlTablename.right = new FormAttachment(middle, -margin);
     fdlTablename.top = new FormAttachment(wSchemaname, margin);
     wlTablename.setLayoutData(fdlTablename);
 

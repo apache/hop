@@ -133,7 +133,7 @@ public class ActionDelayDialog extends ActionDialog {
 
     PropsUi.setLook(wScaleTime);
     FormData fdScaleTime = new FormData();
-    fdScaleTime.left = new FormAttachment(middle, margin);
+    fdScaleTime.left = new FormAttachment(middle, 0);
     fdScaleTime.top = new FormAttachment(wMaximumTimeout, margin);
     fdScaleTime.right = new FormAttachment(100, 0);
     wScaleTime.setLayoutData(fdScaleTime);

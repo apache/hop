@@ -191,14 +191,14 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.top = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
 
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(0, 0);
-    fdName.left = new FormAttachment(middle, margin);
+    fdName.left = new FormAttachment(middle, 0);
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 

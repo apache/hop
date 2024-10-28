@@ -405,6 +405,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
     wFieldEnclosure = new Combo(wMonetDBmclientParamGroup, SWT.SINGLE | SWT.CENTER | SWT.BORDER);
     wFieldEnclosure.setItems(fieldEnclosures);
     wFieldEnclosure.addModifyListener(lsMod);
+    PropsUi.setLook(wFieldEnclosure);
 
     Label wlNULLrepresentation = new Label(wMonetDBmclientParamGroup, SWT.RIGHT);
     wlNULLrepresentation.setText(
@@ -417,7 +418,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
         new Combo(wMonetDBmclientParamGroup, SWT.SINGLE | SWT.CENTER | SWT.BORDER);
     wNULLrepresentation.setItems(nullRepresentations);
     wNULLrepresentation.addModifyListener(lsMod);
-
+    PropsUi.setLook(wNULLrepresentation);
     //
     // Control encoding line (MonetDB API Settings tab -> Parameter Group)
     //
@@ -544,7 +545,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
     // Database schema (Edit box layout)
     FormData fdSchema = new FormData();
     fdSchema.top = new FormAttachment(wlSchema, 0, SWT.CENTER);
-    fdSchema.left = new FormAttachment(middle, margin);
+    fdSchema.left = new FormAttachment(middle, 0);
     fdSchema.right = new FormAttachment(100, -margin);
     wSchema.setLayoutData(fdSchema);
 
@@ -570,7 +571,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
     // - tied to the right edge of the general Browse tables button
     FormData fdTable = new FormData();
     fdTable.top = new FormAttachment(wSchema, margin);
-    fdTable.left = new FormAttachment(middle, margin);
+    fdTable.left = new FormAttachment(middle, 0);
     fdTable.right = new FormAttachment(wbTable, -margin);
     wTable.setLayoutData(fdTable);
 
@@ -583,7 +584,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdBufferSize = new FormData();
     fdBufferSize.top = new FormAttachment(wTable, margin);
-    fdBufferSize.left = new FormAttachment(middle, margin);
+    fdBufferSize.left = new FormAttachment(middle, 0);
     fdBufferSize.right = new FormAttachment(100, -margin);
     wBufferSize.setLayoutData(fdBufferSize);
 
@@ -600,10 +601,9 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
     wbLogFile.setLayoutData(fdbLogFile);
 
     FormData fdLogFile = new FormData();
-    fdLogFile.left = new FormAttachment(middle, margin);
+    fdLogFile.left = new FormAttachment(middle, 0);
     fdLogFile.top = new FormAttachment(wBufferSize, margin);
     fdLogFile.right = new FormAttachment(wbLogFile, -margin);
-    fdLogFile.right = new FormAttachment(middle, -margin);
     wLogFile.setLayoutData(fdLogFile);
 
     FormData fdlTruncate = new FormData();
@@ -614,7 +614,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdTruncate = new FormData();
     fdTruncate.top = new FormAttachment(wlTruncate, 0, SWT.CENTER);
-    fdTruncate.left = new FormAttachment(wlTruncate, margin);
+    fdTruncate.left = new FormAttachment(middle, 0);
     fdTruncate.right = new FormAttachment(100, -margin);
     wTruncate.setLayoutData(fdTruncate);
 
@@ -626,7 +626,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdFullyQuoteSQL = new FormData();
     fdFullyQuoteSQL.top = new FormAttachment(wlFullyQuoteSQL, 0, SWT.CENTER);
-    fdFullyQuoteSQL.left = new FormAttachment(wlFullyQuoteSQL, margin);
+    fdFullyQuoteSQL.left = new FormAttachment(middle, 0);
     fdFullyQuoteSQL.right = new FormAttachment(100, -margin);
     wFullyQuoteSQL.setLayoutData(fdFullyQuoteSQL);
     //
@@ -660,7 +660,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdFieldSeparator = new FormData();
     fdFieldSeparator.top = new FormAttachment(wMonetDBmclientSettingsComp, 3 * margin);
-    fdFieldSeparator.left = new FormAttachment(middle, margin);
+    fdFieldSeparator.left = new FormAttachment(middle, 0);
     fdFieldSeparator.width = fieldWidth;
     wFieldSeparator.setLayoutData(fdFieldSeparator);
 
@@ -672,7 +672,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdFieldEnclosure = new FormData();
     fdFieldEnclosure.top = new FormAttachment(wFieldSeparator, 2 * margin);
-    fdFieldEnclosure.left = new FormAttachment(middle, margin);
+    fdFieldEnclosure.left = new FormAttachment(middle, 0);
     fdFieldEnclosure.width = fieldWidth;
     wFieldEnclosure.setLayoutData(fdFieldEnclosure);
 
@@ -684,7 +684,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdNULLrepresentation = new FormData();
     fdNULLrepresentation.top = new FormAttachment(wFieldEnclosure, 2 * margin);
-    fdNULLrepresentation.left = new FormAttachment(middle, margin);
+    fdNULLrepresentation.left = new FormAttachment(middle, 0);
     fdNULLrepresentation.width = fieldWidth;
     wNULLrepresentation.setLayoutData(fdNULLrepresentation);
 
@@ -697,7 +697,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdEncoding = new FormData();
     fdEncoding.top = new FormAttachment(wNULLrepresentation, 2 * margin);
-    fdEncoding.left = new FormAttachment(middle, margin);
+    fdEncoding.left = new FormAttachment(middle, 0);
     fdEncoding.width = fieldWidth;
     wEncoding.setLayoutData(fdEncoding);
 

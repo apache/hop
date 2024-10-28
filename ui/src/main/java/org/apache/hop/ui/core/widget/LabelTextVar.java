@@ -48,7 +48,7 @@ public class LabelTextVar extends Composite {
       String labelText,
       String toolTipText,
       boolean passwordField) {
-    this(variables, composite, SWT.NONE, labelText, toolTipText, passwordField, true);
+    this(variables, composite, SWT.NONE, labelText, toolTipText, passwordField, false);
   }
 
   public LabelTextVar(
@@ -90,7 +90,7 @@ public class LabelTextVar extends Composite {
     }
     FormData fdText = new FormData();
     if (rightAligned) {
-      fdText.left = new FormAttachment(middle, margin);
+      fdText.left = new FormAttachment(middle, -margin);
     } else {
       fdText.left = new FormAttachment(middle, 0);
     }

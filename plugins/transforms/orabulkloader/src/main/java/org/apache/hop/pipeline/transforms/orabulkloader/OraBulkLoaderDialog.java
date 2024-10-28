@@ -199,7 +199,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
 
     // Tab folder
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_DEFAULT);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
