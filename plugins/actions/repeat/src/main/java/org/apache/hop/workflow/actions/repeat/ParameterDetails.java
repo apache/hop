@@ -17,46 +17,24 @@
 
 package org.apache.hop.workflow.actions.repeat;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+
+@Getter
+@Setter
 public class ParameterDetails {
+
+  @HopMetadataProperty(key = "name")
   private String name;
+
+  @HopMetadataProperty(key = "value")
   private String field;
 
   public ParameterDetails() {}
 
   public ParameterDetails(String name, String field) {
     this.name = name;
-    this.field = field;
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * Gets field
-   *
-   * @return value of field
-   */
-  public String getField() {
-    return field;
-  }
-
-  /**
-   * @param field The field to set
-   */
-  public void setField(String field) {
     this.field = field;
   }
 }

@@ -24,13 +24,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannelFileWriter;
@@ -40,6 +41,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -53,7 +55,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 @Action(
     id = "Repeat",
@@ -63,47 +64,56 @@ import org.w3c.dom.Node;
     keywords = "i18n::Repeat.keywords",
     image = "repeat.svg",
     documentationUrl = "/workflow/actions/repeat.html")
+@Getter
+@Setter
 public class Repeat extends ActionBase implements IAction, Cloneable {
 
   public static final String REPEAT_END_LOOP = "_REPEAT_END_LOOP_";
 
-  public static final String FILENAME = "filename";
-  public static final String RUN_CONFIGURATION = "run_configuration";
-  public static final String VARIABLE_NAME = "variable_name";
-  public static final String VARIABLE_VALUE = "variable_value";
-  public static final String DELAY = "delay";
-  public static final String KEEP_VALUES = "keep_values";
-
-  public static final String LOGFILE_ENABLED = "logfile_enabled";
-  public static final String LOGFILE_APPENDED = "logfile_appended";
-  public static final String LOGFILE_BASE = "logfile_base";
-  public static final String LOGFILE_EXTENSION = "logfile_extension";
-  public static final String LOGFILE_ADD_DATE = "logfile_add_date";
-  public static final String LOGFILE_ADD_TIME = "logfile_add_time";
-  public static final String LOGFILE_ADD_REPETITION = "logfile_add_repetition";
-  public static final String LOGFILE_UPDATE_INTERVAL = "logfile_update_interval";
-
-  public static final String PARAMETERS = "parameters";
-  public static final String PARAMETER = "parameter";
-
+  @HopMetadataProperty(key = "filename")
   private String filename;
+
+  @HopMetadataProperty(key = "parameter", groupKey = "parameters")
   private List<ParameterDetails> parameters;
+
+  @HopMetadataProperty(key = "variable_name")
   private String variableName;
+
+  @HopMetadataProperty(key = "variable_value")
   private String variableValue;
+
+  @HopMetadataProperty(key = "delay")
   private String delay;
+
+  @HopMetadataProperty(key = "keep_values")
   private boolean keepingValues;
 
   private String runConfigurationName;
 
   // Here is a list of options to log to a file
   //
+  @HopMetadataProperty(key = "logfile_enabled")
   private boolean logFileEnabled;
+
+  @HopMetadataProperty(key = "logfile_base")
   private String logFileBase;
+
+  @HopMetadataProperty(key = "logfile_extension")
   private String logFileExtension = "log";
+
+  @HopMetadataProperty(key = "logfile_appended")
   private boolean logFileAppended = true;
+
+  @HopMetadataProperty(key = "logfile_add_date")
   private boolean logFileDateAdded = true;
+
+  @HopMetadataProperty(key = "logfile_add_time")
   private boolean logFileTimeAdded = false;
+
+  @HopMetadataProperty(key = "logfile_add_repetition")
   private boolean logFileRepetitionAdded = false;
+
+  @HopMetadataProperty(key = "logfile_update_interval")
   private String logFileUpdateInterval = "5000";
 
   private class ExecutionResult {
@@ -468,72 +478,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-
-    xml.append(super.getXml());
-
-    xml.append(XmlHandler.addTagValue(FILENAME, filename));
-    xml.append(XmlHandler.addTagValue(RUN_CONFIGURATION, runConfigurationName));
-    xml.append(XmlHandler.addTagValue(VARIABLE_NAME, variableName));
-    xml.append(XmlHandler.addTagValue(VARIABLE_VALUE, variableValue));
-    xml.append(XmlHandler.addTagValue(DELAY, delay));
-    xml.append(XmlHandler.addTagValue(KEEP_VALUES, keepingValues));
-
-    xml.append(XmlHandler.addTagValue(LOGFILE_ENABLED, logFileEnabled));
-    xml.append(XmlHandler.addTagValue(LOGFILE_APPENDED, logFileAppended));
-    xml.append(XmlHandler.addTagValue(LOGFILE_BASE, logFileBase));
-    xml.append(XmlHandler.addTagValue(LOGFILE_EXTENSION, logFileExtension));
-    xml.append(XmlHandler.addTagValue(LOGFILE_ADD_DATE, logFileDateAdded));
-    xml.append(XmlHandler.addTagValue(LOGFILE_ADD_TIME, logFileTimeAdded));
-    xml.append(XmlHandler.addTagValue(LOGFILE_ADD_REPETITION, logFileRepetitionAdded));
-    xml.append(XmlHandler.addTagValue(LOGFILE_UPDATE_INTERVAL, logFileUpdateInterval));
-
-    xml.append(XmlHandler.openTag(PARAMETERS));
-    for (ParameterDetails parameter : parameters) {
-      xml.append(XmlHandler.openTag(PARAMETER));
-      xml.append(XmlHandler.addTagValue("name", parameter.getName()));
-      xml.append(XmlHandler.addTagValue("value", parameter.getField()));
-      xml.append(XmlHandler.closeTag(PARAMETER));
-    }
-    xml.append(XmlHandler.closeTag(PARAMETERS));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    super.loadXml(actionNode);
-
-    filename = XmlHandler.getTagValue(actionNode, FILENAME);
-    runConfigurationName = XmlHandler.getTagValue(actionNode, RUN_CONFIGURATION);
-    variableName = XmlHandler.getTagValue(actionNode, VARIABLE_NAME);
-    variableValue = XmlHandler.getTagValue(actionNode, VARIABLE_VALUE);
-    delay = XmlHandler.getTagValue(actionNode, DELAY);
-    keepingValues = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, KEEP_VALUES));
-
-    logFileEnabled = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_ENABLED));
-    logFileAppended = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_APPENDED));
-    logFileDateAdded = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_ADD_DATE));
-    logFileTimeAdded = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_ADD_TIME));
-    logFileRepetitionAdded =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, LOGFILE_ADD_REPETITION));
-    logFileBase = XmlHandler.getTagValue(actionNode, LOGFILE_BASE);
-    logFileExtension = XmlHandler.getTagValue(actionNode, LOGFILE_EXTENSION);
-    logFileUpdateInterval = XmlHandler.getTagValue(actionNode, LOGFILE_UPDATE_INTERVAL);
-
-    Node parametersNode = XmlHandler.getSubNode(actionNode, PARAMETERS);
-    List<Node> parameterNodes = XmlHandler.getNodes(parametersNode, PARAMETER);
-    parameters = new ArrayList<>();
-    for (Node parameterNode : parameterNodes) {
-      String name = XmlHandler.getTagValue(parameterNode, "name");
-      String field = XmlHandler.getTagValue(parameterNode, "value");
-      parameters.add(new ParameterDetails(name, field));
-    }
-  }
-
-  @Override
   public String[] getReferencedObjectDescriptions() {
     String referenceDescription;
     if (StringUtils.isEmpty(filename)) {
@@ -660,236 +604,5 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   @Override
   public String getFilename() {
     return filename;
-  }
-
-  /**
-   * @param filename The filename to set
-   */
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  /**
-   * Gets parameters
-   *
-   * @return value of parameters
-   */
-  public List<ParameterDetails> getParameters() {
-    return parameters;
-  }
-
-  /**
-   * @param parameters The parameters to set
-   */
-  public void setParameters(List<ParameterDetails> parameters) {
-    this.parameters = parameters;
-  }
-
-  /**
-   * Gets variableName
-   *
-   * @return value of variableName
-   */
-  public String getVariableName() {
-    return variableName;
-  }
-
-  /**
-   * @param variableName The variableName to set
-   */
-  public void setVariableName(String variableName) {
-    this.variableName = variableName;
-  }
-
-  /**
-   * Gets variableValue
-   *
-   * @return value of variableValue
-   */
-  public String getVariableValue() {
-    return variableValue;
-  }
-
-  /**
-   * @param variableValue The variableValue to set
-   */
-  public void setVariableValue(String variableValue) {
-    this.variableValue = variableValue;
-  }
-
-  /**
-   * Gets delay
-   *
-   * @return value of delay
-   */
-  public String getDelay() {
-    return delay;
-  }
-
-  /**
-   * @param delay The delay to set
-   */
-  public void setDelay(String delay) {
-    this.delay = delay;
-  }
-
-  /**
-   * Gets keepingValues
-   *
-   * @return value of keepingValues
-   */
-  public boolean isKeepingValues() {
-    return keepingValues;
-  }
-
-  /**
-   * @param keepingValues The keepingValues to set
-   */
-  public void setKeepingValues(boolean keepingValues) {
-    this.keepingValues = keepingValues;
-  }
-
-  /**
-   * Gets logFileEnabled
-   *
-   * @return value of logFileEnabled
-   */
-  public boolean isLogFileEnabled() {
-    return logFileEnabled;
-  }
-
-  /**
-   * @param logFileEnabled The logFileEnabled to set
-   */
-  public void setLogFileEnabled(boolean logFileEnabled) {
-    this.logFileEnabled = logFileEnabled;
-  }
-
-  /**
-   * Gets logFileBase
-   *
-   * @return value of logFileBase
-   */
-  public String getLogFileBase() {
-    return logFileBase;
-  }
-
-  /**
-   * @param logFileBase The logFileBase to set
-   */
-  public void setLogFileBase(String logFileBase) {
-    this.logFileBase = logFileBase;
-  }
-
-  /**
-   * Gets logFileExtension
-   *
-   * @return value of logFileExtension
-   */
-  public String getLogFileExtension() {
-    return logFileExtension;
-  }
-
-  /**
-   * @param logFileExtension The logFileExtension to set
-   */
-  public void setLogFileExtension(String logFileExtension) {
-    this.logFileExtension = logFileExtension;
-  }
-
-  /**
-   * Gets logFileAppended
-   *
-   * @return value of logFileAppended
-   */
-  public boolean isLogFileAppended() {
-    return logFileAppended;
-  }
-
-  /**
-   * @param logFileAppended The logFileAppended to set
-   */
-  public void setLogFileAppended(boolean logFileAppended) {
-    this.logFileAppended = logFileAppended;
-  }
-
-  /**
-   * Gets logFileDateAdded
-   *
-   * @return value of logFileDateAdded
-   */
-  public boolean isLogFileDateAdded() {
-    return logFileDateAdded;
-  }
-
-  /**
-   * @param logFileDateAdded The logFileDateAdded to set
-   */
-  public void setLogFileDateAdded(boolean logFileDateAdded) {
-    this.logFileDateAdded = logFileDateAdded;
-  }
-
-  /**
-   * Gets logFileTimeAdded
-   *
-   * @return value of logFileTimeAdded
-   */
-  public boolean isLogFileTimeAdded() {
-    return logFileTimeAdded;
-  }
-
-  /**
-   * @param logFileTimeAdded The logFileTimeAdded to set
-   */
-  public void setLogFileTimeAdded(boolean logFileTimeAdded) {
-    this.logFileTimeAdded = logFileTimeAdded;
-  }
-
-  /**
-   * Gets logFileRepetitionAdded
-   *
-   * @return value of logFileRepetitionAdded
-   */
-  public boolean isLogFileRepetitionAdded() {
-    return logFileRepetitionAdded;
-  }
-
-  /**
-   * @param logFileRepetitionAdded The logFileRepetitionAdded to set
-   */
-  public void setLogFileRepetitionAdded(boolean logFileRepetitionAdded) {
-    this.logFileRepetitionAdded = logFileRepetitionAdded;
-  }
-
-  /**
-   * Gets logFileUpdateInterval
-   *
-   * @return value of logFileUpdateInterval
-   */
-  public String getLogFileUpdateInterval() {
-    return logFileUpdateInterval;
-  }
-
-  /**
-   * @param logFileUpdateInterval The logFileUpdateInterval to set
-   */
-  public void setLogFileUpdateInterval(String logFileUpdateInterval) {
-    this.logFileUpdateInterval = logFileUpdateInterval;
-  }
-
-  /**
-   * Gets runConfigurationName
-   *
-   * @return value of runConfigurationName
-   */
-  public String getRunConfigurationName() {
-    return runConfigurationName;
-  }
-
-  /**
-   * @param runConfigurationName The runConfigurationName to set
-   */
-  public void setRunConfigurationName(String runConfigurationName) {
-    this.runConfigurationName = runConfigurationName;
   }
 }

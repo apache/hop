@@ -20,12 +20,8 @@ package org.apache.hop.workflow.actions.repeat;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
 
 @Action(
     id = "EndRepeat",
@@ -79,22 +75,5 @@ public class EndRepeat extends ActionBase implements IAction, Cloneable {
   @Override
   public boolean isUnconditional() {
     return false;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-    xml.append(super.getXml());
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(actionNode);
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load End Repeat workflow entry metadata from XML", e);
-    }
   }
 }
