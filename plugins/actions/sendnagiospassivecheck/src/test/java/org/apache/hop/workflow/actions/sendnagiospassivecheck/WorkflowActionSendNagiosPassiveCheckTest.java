@@ -16,6 +16,7 @@
  */
 package org.apache.hop.workflow.actions.sendnagiospassivecheck;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -69,5 +70,9 @@ public class WorkflowActionSendNagiosPassiveCheckTest
         "senderServerName", "setSenderServerName",
         "senderServiceName", "setSenderServiceName",
         "message", "setMessage");
+  }
+
+  protected List<String> ignoreAttributes() {
+    return new ArrayList<>(List.of("encryptionMode"));
   }
 }

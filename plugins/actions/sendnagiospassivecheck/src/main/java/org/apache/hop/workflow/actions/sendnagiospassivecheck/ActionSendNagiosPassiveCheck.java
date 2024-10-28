@@ -25,16 +25,17 @@ import com.googlecode.jsendnsca.builders.MessagePayloadBuilder;
 import com.googlecode.jsendnsca.builders.NagiosSettingsBuilder;
 import com.googlecode.jsendnsca.encryption.Encryption;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -44,7 +45,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
 
 /** This defines an SendNagiosPassiveCheck action. */
 @Action(
@@ -55,21 +55,40 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     keywords = "i18n::ActionSendNagiosPassiveCheck.keyword",
     documentationUrl = "/workflow/actions/sendnagiospassivecheck.html")
+@Getter
+@Setter
 public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class;
   public static final String CONST_SPACES = "      ";
 
+  @HopMetadataProperty(key = "servername")
   private String serverName;
+
+  @HopMetadataProperty(key = "port")
   private String port;
+
+  @HopMetadataProperty(key = "responseTimeOut")
   private String responseTimeOut;
+
+  @HopMetadataProperty(key = "connectionTimeOut")
   private String connectionTimeOut;
 
+  @HopMetadataProperty(key = "message")
   private String message;
+
+  @HopMetadataProperty(key = "senderServerName")
   private String senderServerName;
+
+  @HopMetadataProperty(key = "senderServiceName")
   private String senderServiceName;
-  private int encryptionMode;
+
+  @HopMetadataProperty(key = "encryptionMode", storeWithCode = true)
+  private EncryptionModeEnum encryptionMode;
+
+  @HopMetadataProperty(key = "level")
   private int level;
 
+  @HopMetadataProperty(key = "password", password = true)
   private String password;
 
   /** Default responseTimeOut to 1000 milliseconds */
@@ -87,11 +106,6 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.TripleDES"),
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.XOR")
       };
-  public static final String[] encryptionModeCode = new String[] {"none", "tripledes", "xor"};
-
-  public static final int ENCRYPTION_MODE_NONE = 0;
-  public static final int ENCRYPTION_MODE_TRIPLEDES = 1;
-  public static final int ENCRYPTION_MODE_XOR = 2;
 
   public static final String[] levelTypeDesc =
       new String[] {
@@ -100,8 +114,6 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Warning"),
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Critical")
       };
-  public static final String[] levelTypeCode =
-      new String[] {"unknown", "ok", "warning", "critical"};
 
   public static final int LEVEL_TYPE_UNKNOWN = 0;
   public static final int LEVEL_TYPE_OK = 1;
@@ -117,7 +129,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     message = null;
     senderServerName = null;
     senderServiceName = null;
-    encryptionMode = ENCRYPTION_MODE_NONE;
+    encryptionMode = EncryptionModeEnum.NONE;
     level = LEVEL_TYPE_UNKNOWN;
     password = null;
   }
@@ -132,21 +144,6 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return je;
   }
 
-  public static int getEncryptionModeByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < encryptionModeDesc.length; i++) {
-      if (encryptionModeDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-
-    // If this fails, try to match using the code.
-    return getEncryptionModeByCode(tt);
-  }
-
   public static String getEncryptionModeDesc(int i) {
     if (i < 0 || i >= encryptionModeDesc.length) {
       return encryptionModeDesc[0];
@@ -159,241 +156,6 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
       return levelTypeDesc[0];
     }
     return levelTypeDesc[i];
-  }
-
-  public static int getLevelByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < levelTypeDesc.length; i++) {
-      if (levelTypeDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-
-    // If this fails, try to match using the code.
-    return getEncryptionModeByCode(tt);
-  }
-
-  private static String getEncryptionModeCode(int i) {
-    if (i < 0 || i >= encryptionModeCode.length) {
-      return encryptionModeCode[0];
-    }
-    return encryptionModeCode[i];
-  }
-
-  private String getLevelCode(int i) {
-    if (i < 0 || i >= levelTypeCode.length) {
-      return levelTypeCode[0];
-    }
-    return levelTypeCode[i];
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(super.getXml());
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("port", port));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("servername", serverName));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("password", password));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("responseTimeOut", responseTimeOut));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("connectionTimeOut", connectionTimeOut));
-
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("senderServerName", senderServerName));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("senderServiceName", senderServiceName));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("message", message));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("encryptionMode", getEncryptionModeCode(encryptionMode)));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("level", getLevelCode(level)));
-
-    return retval.toString();
-  }
-
-  private static int getEncryptionModeByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < encryptionModeCode.length; i++) {
-      if (encryptionModeCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  private static int getLevelByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < levelTypeCode.length; i++) {
-      if (levelTypeCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      port = XmlHandler.getTagValue(entrynode, "port");
-      serverName = XmlHandler.getTagValue(entrynode, "servername");
-      responseTimeOut = XmlHandler.getTagValue(entrynode, "responseTimeOut");
-      connectionTimeOut = XmlHandler.getTagValue(entrynode, "connectionTimeOut");
-      password = XmlHandler.getTagValue(entrynode, "password");
-
-      senderServerName = XmlHandler.getTagValue(entrynode, "senderServerName");
-      senderServiceName = XmlHandler.getTagValue(entrynode, "senderServiceName");
-      message = XmlHandler.getTagValue(entrynode, "message");
-
-      encryptionMode = getEncryptionModeByCode(XmlHandler.getTagValue(entrynode, "encryptionMode"));
-      level = getLevelByCode(XmlHandler.getTagValue(entrynode, "level"));
-
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          "Unable to load action of type 'SendNagiosPassiveCheck' from XML node", xe);
-    }
-  }
-
-  /**
-   * @return Returns the serverName.
-   */
-  public String getServerName() {
-    return serverName;
-  }
-
-  /**
-   * @param serverName The serverName to set.
-   */
-  public void setServerName(String serverName) {
-    this.serverName = serverName;
-  }
-
-  /**
-   * @return Returns the senderServerName.
-   */
-  public String getSenderServerName() {
-    return senderServerName;
-  }
-
-  /**
-   * @param senderServerName The senderServerName to set.
-   */
-  public void setSenderServerName(String senderServerName) {
-    this.senderServerName = senderServerName;
-  }
-
-  /**
-   * @return Returns the senderServiceName.
-   */
-  public String getSenderServiceName() {
-    return senderServiceName;
-  }
-
-  /**
-   * @param senderServiceName The senderServiceName to set.
-   */
-  public void setSenderServiceName(String senderServiceName) {
-    this.senderServiceName = senderServiceName;
-  }
-
-  /**
-   * @param password The password to set.
-   */
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  /**
-   * @return Returns the password.
-   */
-  public String getPassword() {
-    return password;
-  }
-
-  public int getEncryptionMode() {
-    return encryptionMode;
-  }
-
-  public void setEncryptionMode(int encryptionModein) {
-    this.encryptionMode = encryptionModein;
-  }
-
-  public int getLevel() {
-    return level;
-  }
-
-  public void setLevel(int levelMode) {
-    this.level = levelMode;
-  }
-
-  /**
-   * @param message The message to set.
-   */
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  /**
-   * @return Returns the comString.
-   */
-  public String getMessage() {
-    return message;
-  }
-
-  /**
-   * @return Returns the port.
-   */
-  public String getPort() {
-    return port;
-  }
-
-  /**
-   * @param port The port to set.
-   */
-  public void setPort(String port) {
-    this.port = port;
-  }
-
-  /**
-   * @param responseTimeOut The responseTimeOut to set.
-   */
-  public void setResponseTimeOut(String responseTimeOut) {
-    this.responseTimeOut = responseTimeOut;
-  }
-
-  /**
-   * @return Returns the responseTimeOut.
-   */
-  public String getResponseTimeOut() {
-    return responseTimeOut;
-  }
-
-  /**
-   * @param connectionTimeOut The connectionTimeOut to set.
-   */
-  public void setConnectionTimeOut(String connectionTimeOut) {
-    this.connectionTimeOut = connectionTimeOut;
-  }
-
-  /**
-   * @return Returns the connectionTimeOut.
-   */
-  public String getConnectionTimeOut() {
-    return connectionTimeOut;
   }
 
   @Override
@@ -445,10 +207,10 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
       }
       Encryption encr = Encryption.NONE;
       switch (getEncryptionMode()) {
-        case ENCRYPTION_MODE_TRIPLEDES:
+        case TRIPLEDES:
           encr = Encryption.TRIPLE_DES;
           break;
-        case ENCRYPTION_MODE_XOR:
+        case XOR:
           encr = Encryption.XOR;
           break;
         default:
