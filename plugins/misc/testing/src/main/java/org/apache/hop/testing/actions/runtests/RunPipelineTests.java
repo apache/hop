@@ -20,13 +20,14 @@ package org.apache.hop.testing.actions.runtests;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.testing.PipelineUnitTest;
@@ -34,7 +35,6 @@ import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.util.UnitTestUtil;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
 
 @Action(
     id = "RunPipelineTests",
@@ -44,12 +44,15 @@ import org.w3c.dom.Node;
     keywords = "i18n::RunPipelineTests.Keywords",
     image = "Test_tube_icon.svg",
     documentationUrl = "/workflow/actions/runpipelinetests.html")
+@Getter
+@Setter
 public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
 
   public static final String TEST_NAMES = "test_names";
   public static final String TEST_NAME = "test_name";
 
-  private List<String> testNames;
+  @HopMetadataProperty(key = TEST_NAME, groupKey = TEST_NAMES)
+  private List<RunPipelineTestsField> testNames;
 
   public RunPipelineTests(String name, String description) {
     super(name, description);
@@ -73,9 +76,9 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
 
     AtomicBoolean success = new AtomicBoolean(true);
 
-    for (String testName : testNames) {
+    for (RunPipelineTestsField testName : testNames) {
 
-      PipelineUnitTest test = testSerializer.load(testName);
+      PipelineUnitTest test = testSerializer.load(testName.getTestName());
 
       UnitTestUtil.executeUnitTest(
           test,
@@ -136,37 +139,6 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
   }
 
   @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-
-    xml.append(super.getXml());
-
-    xml.append(XmlHandler.openTag(TEST_NAMES));
-    for (String testName : testNames) {
-      xml.append(XmlHandler.openTag(TEST_NAME));
-      xml.append(XmlHandler.addTagValue("name", testName));
-      xml.append(XmlHandler.closeTag(TEST_NAME));
-    }
-    xml.append(XmlHandler.closeTag(TEST_NAMES));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node entryNode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    super.loadXml(entryNode);
-
-    Node testNamesNode = XmlHandler.getSubNode(entryNode, TEST_NAMES);
-    List<Node> testNameNodes = XmlHandler.getNodes(testNamesNode, TEST_NAME);
-    testNames = new ArrayList<>();
-    for (Node testNameNode : testNameNodes) {
-      String name = XmlHandler.getTagValue(testNameNode, "name");
-      testNames.add(name);
-    }
-  }
-
-  @Override
   public String[] getReferencedObjectDescriptions() {
     String[] descriptions = new String[testNames.size()];
     for (int i = 0; i < descriptions.length; i++) {
@@ -190,8 +162,8 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
 
     IHopMetadataSerializer<PipelineUnitTest> testSerializer =
         metadataProvider.getSerializer(PipelineUnitTest.class);
-    String testName = testNames.get(index);
-    PipelineUnitTest test = testSerializer.load(testName);
+    RunPipelineTestsField testName = testNames.get(index);
+    PipelineUnitTest test = testSerializer.load(testName.getTestName());
     if (test == null) {
       throw new HopException("Unit test '" + testName + "' could not be found");
     }
@@ -206,21 +178,5 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
   @Override
   public boolean isUnconditional() {
     return false;
-  }
-
-  /**
-   * Gets testNames
-   *
-   * @return value of testNames
-   */
-  public List<String> getTestNames() {
-    return testNames;
-  }
-
-  /**
-   * @param testNames The testNames to set
-   */
-  public void setTestNames(List<String> testNames) {
-    this.testNames = testNames;
   }
 }
