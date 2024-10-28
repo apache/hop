@@ -18,21 +18,21 @@
 package org.apache.hop.workflow.actions.msgboxinfo;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.GuiFactory;
 import org.apache.hop.core.gui.IThreadDialogs;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.w3c.dom.Node;
 
 /** Action type to display a message box. */
 @Action(
@@ -43,14 +43,19 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     keywords = "i18n::ActionMsgBoxInfo.keyword",
     documentationUrl = "/workflow/actions/msgboxinfo.html")
+@Getter
+@Setter
 public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
-  private String bodymessage;
-  private String titremessage;
+  @HopMetadataProperty(key = "bodymessage")
+  private String bodyMessage;
+
+  @HopMetadataProperty(key = "titremessage")
+  private String titleMessage;
 
   public ActionMsgBoxInfo(String n, String scr) {
     super(n, "");
-    bodymessage = null;
-    titremessage = null;
+    bodyMessage = null;
+    titleMessage = null;
   }
 
   public ActionMsgBoxInfo() {
@@ -61,29 +66,6 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
   public Object clone() {
     ActionMsgBoxInfo je = (ActionMsgBoxInfo) super.clone();
     return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(50);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("bodymessage", bodymessage));
-    retval.append("      ").append(XmlHandler.addTagValue("titremessage", titremessage));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      bodymessage = XmlHandler.getTagValue(entrynode, "bodymessage");
-      titremessage = XmlHandler.getTagValue(entrynode, "titremessage");
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load action of type 'Msgbox Info' from XML node", e);
-    }
   }
 
   /** Display the Message Box. */
@@ -98,7 +80,10 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
       if (dialogs != null) {
         response =
             dialogs.threadMessageBox(
-                getRealBodyMessage() + Const.CR, getRealTitleMessage(), true, Const.INFO);
+                Const.NVL(getRealBodyMessage(), "") + Const.CR,
+                Const.NVL(getRealTitleMessage(), ""),
+                true,
+                Const.INFO);
       }
 
       return response;
@@ -146,30 +131,6 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
 
   public String getRealBodyMessage() {
     return resolve(getBodyMessage());
-  }
-
-  public String getTitleMessage() {
-    if (titremessage == null) {
-      titremessage = "";
-    }
-    return titremessage;
-  }
-
-  public String getBodyMessage() {
-    if (bodymessage == null) {
-      bodymessage = "";
-    }
-    return bodymessage;
-  }
-
-  public void setBodyMessage(String s) {
-
-    bodymessage = s;
-  }
-
-  public void setTitleMessage(String s) {
-
-    titremessage = s;
   }
 
   @Override
