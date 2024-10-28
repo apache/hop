@@ -227,9 +227,9 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     wName.setText(Const.NVL(action.getName(), ""));
 
     int rowNr = 0;
-    for (String testName : action.getTestNames()) {
+    for (RunPipelineTestsField testName : action.getTestNames()) {
       TableItem item = wTestNames.table.getItem(rowNr++);
-      item.setText(1, Const.NVL(testName, ""));
+      item.setText(1, Const.NVL(testName.getTestName(), ""));
     }
     wTestNames.setRowNums();
     wTestNames.optWidth(true);
@@ -247,7 +247,9 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     action.getTestNames().clear();
     for (int i = 0; i < wTestNames.nrNonEmpty(); i++) {
       TableItem item = wTestNames.getNonEmpty(i);
-      action.getTestNames().add(item.getText(1));
+      RunPipelineTestsField testName = new RunPipelineTestsField();
+      testName.setTestName(item.getText(1));
+      action.getTestNames().add(testName);
     }
 
     action.setChanged();
