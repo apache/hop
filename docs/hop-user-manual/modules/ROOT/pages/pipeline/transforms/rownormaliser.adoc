@@ -47,14 +47,62 @@ You can use this transform to normalize repeating groups of columns.
 [options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform this name has to be unique in a single pipeline.
-|Typefield|The name of the type field (product in the example above).
-|Fields table a|
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Typefield|The name of the type field (**key** in the example below).
+|Fields table|
 A list of the fields you want to normalize; you must set the following properties for each selected field:
 
-* Fieldname: Name of the fields to normalize (Product A ?
-C in the example).
-* Type: Give a string to classify the field (A, B or C in our example).
-* New field: You can give one or more fields where the new value should transferred to (sales in our example).
+* Fieldname: Name of the fields to normalize, as you get them from the input transform.
+* Type: Give a string to classify the field (you can use the same field names, or input custom strings).
+* New field: You can give one or more fields where the new value should transferred to (**value** in our example).
 |Get Fields|Click to retrieve a list of all fields coming in on the stream(s).
+|===
+
+== Example
+
+=== Input data
+
+[options="header"]
+|===
+|RecordID|FirstName|LastName|City
+|345-12-0000|Mitchel|Runolfsdottir|Jerryside
+|976-67-7113|Elden|Welch|Lake Jamaal
+|824-21-0000|Rory|Ledner|Scottieview
+|===
+
+=== Normalized data (example 1)
+Set **Typefield** = "key" and use the **Get Fields** button to load all the fields for normalization, set also **New field** = "value" in all rows. The result is:
+
+[options="header"]
+|===
+|key|value
+|RecordID|345-12-0000
+|FirstName|Mitchel
+|LastName|Runolfsdottir
+|City|Jerryside
+|RecordID|976-67-7113
+|FirstName|Elden
+|LastName|Welch
+|City|Lake Jamaal
+|RecordID|824-21-0000
+|FirstName|Rory
+|LastName|Ledner
+|City|Scottieview
+|===
+
+=== Normalized data (example 2)
+Similar to example 1, but remove the **RecordID** field from the **Fields table**. The result is:
+
+[options="header"]
+|===
+|RecordID|key|value
+|345-12-0000|FirstName|Mitchel
+|345-12-0000|LastName|Runolfsdottir
+|345-12-0000|City|Jerryside
+|976-67-7113|FirstName|Elden
+|976-67-7113|LastName|Welch
+|976-67-7113|City|Lake Jamaal
+|824-21-0000|FirstName|Rory
+|824-21-0000|LastName|Ledner
+|824-21-0000|City|Scottieview
 |===
