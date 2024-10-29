@@ -232,7 +232,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
           break;
         default:
           String value = data.inputRowMeta.getString(row, data.fieldIndexes[i]);
-          if (putBlank) {
+          if (putBlank && !outputField.isJSONFragment()) {
             itemNode.put(jsonAttributeName, value);
           } else if (value != null) {
             if (outputField.isJSONFragment()) {

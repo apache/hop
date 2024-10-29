@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-enhanced-json-fragment.csv",
+  "name": "golden-enhanced-json-fragment",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "outputValue",
+      "field_format": ""
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}
