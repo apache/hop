@@ -88,6 +88,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   @HopMetadataProperty(key = "keep_values")
   private boolean keepingValues;
 
+  @HopMetadataProperty(key = "run_configuration")
   private String runConfigurationName;
 
   // Here is a list of options to log to a file
