@@ -17,9 +17,18 @@
 
 package org.apache.hop.workflow.actions.sql;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -27,9 +36,12 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -67,7 +79,7 @@ public class ActionSqlDialog extends ActionDialog {
 
   private Label wlSql;
 
-  private StyledTextComp wSql;
+  private TextComposite wSql;
 
   private Label wlPosition;
 
@@ -266,8 +278,12 @@ public class ActionSqlDialog extends ActionDialog {
     wlSql.setLayoutData(fdlSql);
 
     wSql =
-        new StyledTextComp(
-            action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        EnvironmentUtils.getInstance().isWeb()
+            ? new StyledTextComp(
+                action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)
+            : new SQLStyledTextComp(
+                action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    wSql.addLineStyleListener(getSqlReservedWords());
     PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
@@ -290,6 +306,43 @@ public class ActionSqlDialog extends ActionDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
+  }
+
+  private List<String> getSqlReservedWords() {
+    DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
+    if (databaseMeta == null) {
+
+      return new ArrayList<>();
+    }
+    Database db = new Database(loggingObject, variables, databaseMeta);
+    DatabaseMetaData databaseMetaData = null;
+    try {
+      db.connect();
+      databaseMetaData = db.getDatabaseMetaData();
+      if (databaseMetaData == null) {
+        LogChannel.UI.logError("Couldn't get database metadata");
+        return new ArrayList<>();
+      }
+      List<String> sqlKeywords = new ArrayList<>();
+      try {
+        final ResultSet functionsResultSet = databaseMetaData.getFunctions(null, null, null);
+        while (functionsResultSet.next()) {
+          sqlKeywords.add(functionsResultSet.getString("FUNCTION_NAME"));
+        }
+        sqlKeywords.addAll(Arrays.asList(databaseMetaData.getSQLKeywords().split(",")));
+      } catch (SQLException e) {
+        LogChannel.UI.logError(
+            "Couldn't extract keywords from database metadata. Proceding without them.");
+      }
+      return sqlKeywords;
+    } catch (HopDatabaseException e) {
+      LogChannel.UI.logError(
+          "Couldn't extract keywords from database metadata. Proceding without them.");
+      return new ArrayList<>();
+    } finally {
+      db.disconnect();
+      db.close();
+    }
   }
 
   public void setPosition() {
