@@ -34,7 +34,7 @@ public class JavaHighlight implements LineStyleListener {
   JavaScanner scanner = new JavaScanner();
   int[] tokenColors;
   Color[] colors;
-  Vector<int[]> blockComments = new Vector<int[]>();
+  Vector<int[]> blockComments = new Vector<>();
 
   public static final int EOF = -1;
   public static final int EOL = 10;
@@ -82,7 +82,6 @@ public class JavaHighlight implements LineStyleListener {
   }
 
   void initializeColors() {
-    // Display display = Display.getDefault();
     colors =
         new Color[] {
           GuiResource.getInstance().getColorBlack(), // black
@@ -108,7 +107,7 @@ public class JavaHighlight implements LineStyleListener {
    * background color (output)
    */
   public void lineGetStyle(LineStyleEvent event) {
-    Vector<StyleRange> styles = new Vector<StyleRange>();
+    Vector<StyleRange> styles = new Vector<>();
     int token;
     StyleRange lastStyle;
 
@@ -167,7 +166,7 @@ public class JavaHighlight implements LineStyleListener {
   }
 
   public void parseBlockComments(String text) {
-    blockComments = new Vector<int[]>();
+    blockComments = new Vector<>();
     StringReader buffer = new StringReader(text);
     int ch;
     boolean blkComment = false;
@@ -253,7 +252,7 @@ public class JavaHighlight implements LineStyleListener {
 
     /** Initialize the lookup table. */
     void initialize() {
-      fgKeys = new Hashtable<String, Integer>();
+      fgKeys = new Hashtable<>();
       Integer k = Integer.valueOf(KEY);
       for (int i = 0; i < JAVA_KEYWORDS.length; i++) {
         fgKeys.put(JAVA_KEYWORDS[i], k);
@@ -261,7 +260,7 @@ public class JavaHighlight implements LineStyleListener {
     }
 
     void initializeUDJCFunctions() {
-      kfKeys = new Hashtable<String, Integer>();
+      kfKeys = new Hashtable<>();
       Integer k = Integer.valueOf(FUNCTIONS);
       for (int i = 0; i < UDJC_FUNCTIONS.length; i++) {
         kfKeys.put(UDJC_FUNCTIONS[i], k);
@@ -329,16 +328,7 @@ public class JavaHighlight implements LineStyleListener {
               }
             }
 
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9':
+          case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
             do {
               c = read();
             } while (Character.isDigit((char) c));

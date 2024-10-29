@@ -38,7 +38,7 @@ public class SQLValuesHighlight implements LineStyleListener {
   JavaScanner scanner = new JavaScanner();
   int[] tokenColors;
   Color[] colors;
-  Vector<int[]> blockComments = new Vector<int[]>();
+  Vector<int[]> blockComments = new Vector<>();
 
   public static final int EOF = -1;
   public static final int EOL = 10;
@@ -58,7 +58,7 @@ public class SQLValuesHighlight implements LineStyleListener {
 
   public SQLValuesHighlight() {
     initializeColors();
-    scriptStatements = new ArrayList<SqlScriptStatement>();
+    scriptStatements = new ArrayList<>();
     scanner = new JavaScanner();
   }
 
@@ -66,7 +66,7 @@ public class SQLValuesHighlight implements LineStyleListener {
     String[] strArrSQLFunctions = new String[sqlKeywords.size()];
     strArrSQLFunctions = sqlKeywords.toArray(strArrSQLFunctions);
     initializeColors();
-    scriptStatements = new ArrayList<SqlScriptStatement>();
+    scriptStatements = new ArrayList<>();
     scanner = new JavaScanner();
     scanner.setSQLKeywords(strArrSQLFunctions);
     scanner.initializeSQLFunctions();
@@ -123,7 +123,7 @@ public class SQLValuesHighlight implements LineStyleListener {
    * background color (output)
    */
   public void lineGetStyle(LineStyleEvent event) {
-    Vector<StyleRange> styles = new Vector<StyleRange>();
+    Vector<StyleRange> styles = new Vector<>();
     int token;
     StyleRange lastStyle;
 
@@ -158,9 +158,6 @@ public class SQLValuesHighlight implements LineStyleListener {
             StyleRange style =
                 new StyleRange(
                     scanner.getStartOffset() + event.lineOffset, scanner.getLength(), color, null);
-            // if ( token == KEY ) {
-            // style.fontStyle = SWT.BOLD;
-            // }
             if (styles.isEmpty()) {
               styles.addElement(style);
             } else {
@@ -210,7 +207,7 @@ public class SQLValuesHighlight implements LineStyleListener {
   }
 
   public void parseBlockComments(String text) {
-    blockComments = new Vector<int[]>();
+    blockComments = new Vector<>();
     StringReader buffer = new StringReader(text);
     int ch;
     boolean blkComment = false;
@@ -670,7 +667,7 @@ public class SQLValuesHighlight implements LineStyleListener {
 
     /** Initialize the lookup table. */
     void initialize() {
-      fgKeys = new Hashtable<String, Integer>();
+      fgKeys = new Hashtable<>();
       Integer k = Integer.valueOf(KEY);
       for (int i = 0; i < fgKeywords.length; i++) {
         fgKeys.put(fgKeywords[i], k);
@@ -686,7 +683,7 @@ public class SQLValuesHighlight implements LineStyleListener {
     }
 
     public void initializeSQLFunctions() {
-      kfKeys = new Hashtable<String, Integer>();
+      kfKeys = new Hashtable<>();
       Integer k = Integer.valueOf(FUNCTIONS);
       for (int i = 0; i < kfKeywords.length; i++) {
         kfKeys.put(kfKeywords[i], k);
@@ -768,16 +765,7 @@ public class SQLValuesHighlight implements LineStyleListener {
               }
             }
 
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9':
+          case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
             do {
               c = read();
             } while (Character.isDigit((char) c));
@@ -853,8 +841,6 @@ public class SQLValuesHighlight implements LineStyleListener {
       return;
     }
 
-    // List<String> keywords = new ArrayList<>(Arrays.asList(scanner.getSQLKeywords()));
-    // keywords.addAll(Arrays.asList(reservedWords));
     scanner.setSQLKeywords(reservedWords);
     scanner.initializeSQLFunctions();
   }
