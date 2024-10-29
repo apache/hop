@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "outputValue",
+          "data_set_field": "outputValue"
+        }
+      ],
+      "field_order": [
+        "outputValue"
+      ],
+      "data_set_name": "golden-enhanced-json-fragment",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-enhanced-json-output-json-fragment UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0006-enhanced-json-output-json-fragment.hpl",
+  "test_type": "UNIT_TEST"
+}
