@@ -837,9 +837,9 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
       for (int i = 0; i < input.getNodeFromField().getProperties().size(); i++) {
         TableItem item = wFromPropsGrid.table.getItem(i);
         item.setText(
-            1, Const.NVL(input.getNodeFromField().getProperties().get(i).getPropertyName(), ""));
+            1, Const.NVL(input.getNodeFromField().getProperties().get(i).getPropertyValue(), ""));
         item.setText(
-            2, Const.NVL(input.getNodeFromField().getProperties().get(i).getPropertyValue(), ""));
+            2, Const.NVL(input.getNodeFromField().getProperties().get(i).getPropertyName(), ""));
         item.setText(
             3, Const.NVL(input.getNodeFromField().getProperties().get(i).getPropertyType(), ""));
         item.setText(
@@ -861,9 +861,9 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
       for (int i = 0; i < input.getNodeToField().getProperties().size(); i++) {
         TableItem item = wToPropsGrid.table.getItem(i);
         item.setText(
-            1, Const.NVL(input.getNodeToField().getProperties().get(i).getPropertyName(), ""));
+            1, Const.NVL(input.getNodeToField().getProperties().get(i).getPropertyValue(), ""));
         item.setText(
-            2, Const.NVL(input.getNodeToField().getProperties().get(i).getPropertyValue(), ""));
+            2, Const.NVL(input.getNodeToField().getProperties().get(i).getPropertyName(), ""));
         item.setText(
             3, Const.NVL(input.getNodeToField().getProperties().get(i).getPropertyType(), ""));
         item.setText(
@@ -877,8 +877,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     if (input.getRelProps() != null) {
       for (int i = 0; i < input.getRelProps().size(); i++) {
         TableItem item = wRelPropsGrid.table.getItem(i);
-        item.setText(1, Const.NVL(input.getRelProps().get(i).getPropertyName(), ""));
-        item.setText(2, Const.NVL(input.getRelProps().get(i).getPropertyValue(), ""));
+        item.setText(1, Const.NVL(input.getRelProps().get(i).getPropertyValue(), ""));
+        item.setText(2, Const.NVL(input.getRelProps().get(i).getPropertyName(), ""));
         item.setText(3, Const.NVL(input.getRelProps().get(i).getPropertyType(), ""));
       }
     }
@@ -931,8 +931,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     for (int i = 0; i < nbFromPropLines; i++) {
       TableItem item = wFromPropsGrid.table.getItem(i);
       PropertyField nodePropertyField = new PropertyField();
-      nodePropertyField.setPropertyName(item.getText(1));
-      nodePropertyField.setPropertyValue(item.getText(2));
+      nodePropertyField.setPropertyValue(item.getText(1));
+      nodePropertyField.setPropertyName(item.getText(2));
       nodePropertyField.setPropertyType(item.getText(3));
       nodePropertyField.setPropertyPrimary("Y".equalsIgnoreCase(item.getText(4)));
       fromNodeProps.add(nodePropertyField);
@@ -944,8 +944,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     for (int i = 0; i < wToPropsGrid.nrNonEmpty(); i++) {
       TableItem item = wToPropsGrid.table.getItem(i);
       PropertyField nodePropertyField = new PropertyField();
-      nodePropertyField.setPropertyName(item.getText(1));
-      nodePropertyField.setPropertyValue(item.getText(2));
+      nodePropertyField.setPropertyValue(item.getText(1));
+      nodePropertyField.setPropertyName(item.getText(2));
       nodePropertyField.setPropertyType(item.getText(3));
       nodePropertyField.setPropertyPrimary("Y".equalsIgnoreCase(item.getText(4)));
       toNodeProps.add(nodePropertyField);
@@ -960,8 +960,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     for (int i = 0; i < nbRelProps; i++) {
       TableItem item = wRelPropsGrid.table.getItem(i);
       PropertyField relPropField = new PropertyField();
-      relPropField.setPropertyName(item.getText(1));
-      relPropField.setPropertyValue(item.getText(2));
+      relPropField.setPropertyValue(item.getText(1));
+      relPropField.setPropertyName(item.getText(2));
       relPropField.setPropertyType(item.getText(3));
       relProps.add(relPropField);
     }

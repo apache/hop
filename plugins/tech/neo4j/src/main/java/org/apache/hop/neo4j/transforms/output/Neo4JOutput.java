@@ -87,13 +87,13 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       for (int i = 0; i < meta.getNodeFromField().getProperties().size(); i++) {
         data.fromNodePropIndexes[i] =
             data.outputRowMeta.indexOfValue(
-                meta.getNodeFromField().getProperties().get(i).getPropertyName());
+                meta.getNodeFromField().getProperties().get(i).getPropertyValue());
         if (data.fromNodePropIndexes[i] < 0) {
           throw new HopException(
               "From node: Unable to find field '"
                   + meta.getNodeFromField().getProperties().get(i).getPropertyValue()
                   + "' for property name '"
-                  + meta.getNodeFromField().getProperties().get(i).getPropertyValue()
+                  + meta.getNodeFromField().getProperties().get(i).getPropertyName()
                   + "'");
         }
         data.fromNodePropTypes[i] =
@@ -111,42 +111,38 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
               "From node : please provide either a static label value or a field name to determine the label");
         }
       }
-      if (!Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabelField())
-          && !Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabel())) {
-        data.toNodePropIndexes = new int[meta.getNodeToField().getProperties().size()];
-        data.toNodePropTypes = new GraphPropertyType[meta.getNodeToField().getProperties().size()];
-        for (int i = 0; i < meta.getNodeToField().getProperties().size(); i++) {
-          data.toNodePropIndexes[i] =
-              data.outputRowMeta.indexOfValue(
-                  meta.getNodeToField().getProperties().get(i).getPropertyName());
-          data.toNodePropTypes[i] =
-              GraphPropertyType.parseCode(
-                  meta.getNodeToField().getProperties().get(i).getPropertyType());
-        }
+      data.toNodePropIndexes = new int[meta.getNodeToField().getProperties().size()];
+      data.toNodePropTypes = new GraphPropertyType[meta.getNodeToField().getProperties().size()];
+      for (int i = 0; i < meta.getNodeToField().getProperties().size(); i++) {
+        data.toNodePropIndexes[i] =
+            data.outputRowMeta.indexOfValue(
+                meta.getNodeToField().getProperties().get(i).getPropertyValue());
+        data.toNodePropTypes[i] =
+            GraphPropertyType.parseCode(
+                meta.getNodeToField().getProperties().get(i).getPropertyType());
+      }
+      if (Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabel())
+          && Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabelField())) {
+        data.toNodeLabelIndexes = new int[0];
+      } else {
         data.toNodeLabelIndexes = new int[meta.getNodeToField().getLabels().size()];
-        if (data.toNodeLabelIndexes.length > 0) {
-          for (int i = 0; i < meta.getNodeToField().getLabels().size(); i++) {
-            data.toNodeLabelIndexes[i] =
-                data.outputRowMeta.indexOfValue(
-                    meta.getNodeToField().getLabels().get(i).getLabelField());
-            if (data.toNodeLabelIndexes[i] < 0
-                && StringUtils.isEmpty(meta.getNodeToField().getLabels().get(i).getLabelField())) {
-              throw new HopException(
-                  "To node : please provide either a static label value or a field name to determine the label");
-            }
+        for (int i = 0; i < meta.getNodeToField().getLabels().size(); i++) {
+          data.toNodeLabelIndexes[i] =
+              data.outputRowMeta.indexOfValue(
+                  meta.getNodeToField().getLabels().get(i).getLabelField());
+          if (data.toNodeLabelIndexes[i] < 0
+              && StringUtils.isEmpty(meta.getNodeToField().getLabels().get(i).getLabel())) {
+            throw new HopException(
+                "To node : please provide either a static label value or a field name to determine the label");
           }
         }
-      } else {
-        data.toNodePropIndexes = new int[0];
-        data.toNodePropTypes = new GraphPropertyType[0];
-        data.toNodeLabelIndexes = new int[0];
       }
 
       data.relPropIndexes = new int[meta.getRelProps().size()];
       data.relPropTypes = new GraphPropertyType[meta.getRelProps().size()];
       for (int i = 0; i < meta.getRelProps().size(); i++) {
         data.relPropIndexes[i] =
-            data.outputRowMeta.indexOfValue(meta.getRelProps().get(i).getPropertyName());
+            data.outputRowMeta.indexOfValue(meta.getRelProps().get(i).getPropertyValue());
         data.relPropTypes[i] =
             GraphPropertyType.parseCode(meta.getRelProps().get(i).getPropertyType());
       }
@@ -200,7 +196,9 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
       // No 'To' Node activity?
       //
-      if (meta.getNodeToField().getLabels().isEmpty()) {
+      if (meta.getNodeToField().getLabels().isEmpty()
+          || (Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabel())
+              && Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabelField()))) {
         data.toOperationType = OperationType.NONE;
       }
       // No relationship activity?
@@ -584,7 +582,8 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     }
 
     if (data.toOperationType != OperationType.NONE) {
-      if (data.toLabelsClause == null || data.dynamicToLabels) {
+      if ((data.toLabelsClause == null || data.dynamicToLabels)
+          && data.toNodeLabelIndexes.length > 0) {
         List<String> tLabels =
             getNodeLabels(
                 meta.getNodeToField().getLabels(), getInputRowMeta(), row, data.toNodeLabelIndexes);
