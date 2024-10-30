@@ -20,42 +20,59 @@ limitations under the License.
 <pipeline>
   <info>
     <name>neo4j-output-create-nodes-relationship</name>
-    <name_sync_with_filename>N</name_sync_with_filename>
     <description/>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
+    <directory>/</directory>
     <parameters>
     </parameters>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    
+    
+    
+    
     <created_user>-</created_user>
     <created_date>2019/08/06 16:10:49.753</created_date>
     <modified_user>-</modified_user>
     <modified_date>2019/08/06 16:10:49.753</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
-      <backgroundcolorblue>112</backgroundcolorblue>
-      <backgroundcolorgreen>205</backgroundcolorgreen>
-      <backgroundcolorred>255</backgroundcolorred>
-      <bordercolorblue>100</bordercolorblue>
-      <bordercolorgreen>100</bordercolorgreen>
-      <bordercolorred>100</bordercolorred>
-      <fontbold>N</fontbold>
-      <fontcolorblue>0</fontcolorblue>
-      <fontcolorgreen>0</fontcolorgreen>
-      <fontcolorred>0</fontcolorred>
-      <fontitalic>N</fontitalic>
-      <fontname>Sans</fontname>
-      <fontsize>6</fontsize>
-      <height>20</height>
+      <note>Commit size set to 123 to check for dangling records</note>
       <xloc>640</xloc>
       <yloc>48</yloc>
-      <note>Commit size set to 123 to check for dangling records</note>
       <width>383</width>
+      <heigth>27</heigth>
+      <fontname>Sans</fontname>
+      <fontsize>6</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>0</fontcolorred>
+      <fontcolorgreen>0</fontcolorgreen>
+      <fontcolorblue>0</fontcolorblue>
+      <backgroundcolorred>255</backgroundcolorred>
+      <backgroundcolorgreen>205</backgroundcolorgreen>
+      <backgroundcolorblue>112</backgroundcolorblue>
+      <bordercolorred>100</bordercolorred>
+      <bordercolorgreen>100</bordercolorgreen>
+      <bordercolorblue>100</bordercolorblue>
+      <drawshadow>Y</drawshadow>
     </notepad>
   </notepads>
   <order>
@@ -66,12 +83,12 @@ limitations under the License.
     </hop>
     <hop>
       <from>labels</from>
-      <to>(:Customer)-[:LIVES_IN]->(:State)</to>
+      <to>(:Customer)-[:LIVES_IN]-&gt;(:State)</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>(:Customer)-[:LIVES_IN]->(:State)</name>
+    <name>(:Customer)-[:LIVES_IN]-&gt;(:State)</name>
     <type>Neo4JOutput</type>
     <description/>
     <distribute>Y</distribute>
@@ -81,10 +98,16 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <batch_size>123</batch_size>
     <connection>Test</connection>
+    <batch_size>123</batch_size>
+    <key/>
     <create_indexes>N</create_indexes>
+    <use_create>Y</use_create>
+    <only_create_relationships>N</only_create_relationships>
+    <returning_graph>N</returning_graph>
+    <return_graph_field>graph</return_graph_field>
     <from>
+      <read_only_from_node>N</read_only_from_node>
       <labels>
         <label>labelCustomer</label>
         <value/>
@@ -92,69 +115,56 @@ limitations under the License.
       <properties>
         <property>
           <name>id</name>
-          <primary>Y</primary>
+          <value>id</value>
           <type>Integer</type>
-          <value/>
+          <primary>Y</primary>
         </property>
         <property>
           <name>name</name>
-          <primary>N</primary>
+          <value>name</value>
           <type>String</type>
-          <value/>
+          <primary>N</primary>
         </property>
         <property>
           <name>firstname</name>
-          <primary>N</primary>
+          <value>firstname</value>
           <type>String</type>
-          <value/>
+          <primary>N</primary>
         </property>
         <property>
           <name>zip</name>
-          <primary>N</primary>
+          <value>zip</value>
           <type>Integer</type>
-          <value/>
+          <primary>N</primary>
         </property>
         <property>
           <name>city</name>
-          <primary>N</primary>
+          <value>city</value>
           <type>String</type>
-          <value/>
+          <primary>N</primary>
         </property>
         <property>
           <name>birthdate</name>
-          <primary>N</primary>
+          <value>birthdate</value>
           <type>LocalDateTime</type>
-          <value/>
+          <primary>N</primary>
         </property>
         <property>
           <name>street</name>
-          <primary>N</primary>
+          <value>street</value>
           <type>String</type>
-          <value/>
+          <primary>N</primary>
         </property>
         <property>
           <name>housenr</name>
-          <primary>N</primary>
+          <value>housenr</value>
           <type>Integer</type>
-          <value/>
+          <primary>N</primary>
         </property>
       </properties>
-      <read_only_from_node>N</read_only_from_node>
     </from>
-    <only_create_relationships>N</only_create_relationships>
-    <relationship>labelLivesIn</relationship>
-    <relationship_value/>
-    <relprops>
-      <relprop>
-        <name>id</name>
-        <primary>N</primary>
-        <type>Integer</type>
-        <value>customerId</value>
-      </relprop>
-    </relprops>
-    <return_graph_field>graph</return_graph_field>
-    <returning_graph>N</returning_graph>
     <to>
+      <read_only_to_node>N</read_only_to_node>
       <labels>
         <label>labelState</label>
         <value/>
@@ -162,29 +172,39 @@ limitations under the License.
       <properties>
         <property>
           <name>stateCode</name>
-          <primary>Y</primary>
-          <type>String</type>
           <value>stateCode</value>
+          <type>String</type>
+          <primary>Y</primary>
         </property>
         <property>
           <name>state</name>
-          <primary>N</primary>
-          <type>String</type>
           <value>state</value>
+          <type>String</type>
+          <primary>N</primary>
         </property>
       </properties>
-      <read_only_to_node>N</read_only_to_node>
     </to>
-    <use_create>Y</use_create>
+    <relationship>labelLivesIn</relationship>
+    <relationship_value/>
+    <relprops>
+      <relprop>
+        <name>customerId</name>
+        <value>id</value>
+        <type>Integer</type>
+      </relprop>
+    </relprops>
     <attributes/>
+    <cluster_schema/>
+    
     <GUI>
       <xloc>528</xloc>
       <yloc>144</yloc>
+      <draw>Y</draw>
     </GUI>
   </transform>
   <transform>
     <name>customers-1k.txt</name>
-    <type>CSVInput</type>
+    <type>CsvInput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -201,7 +221,6 @@ limitations under the License.
     <enclosure>"</enclosure>
     <header>Y</header>
     <buffer_size>50000</buffer_size>
-    <schemaDefinition/>
     <lazy_conversion>N</lazy_conversion>
     <add_filename_result>N</add_filename_result>
     <parallel>N</parallel>
@@ -320,9 +339,12 @@ limitations under the License.
       </field>
     </fields>
     <attributes/>
+    <cluster_schema/>
+    
     <GUI>
       <xloc>160</xloc>
       <yloc>144</yloc>
+      <draw>Y</draw>
     </GUI>
   </transform>
   <transform>
@@ -338,37 +360,55 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <length>-1</length>
         <name>labelCustomer</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
         <nullif>Customer</nullif>
+        <length>-1</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
-        <type>String</type>
       </field>
       <field>
-        <length>-1</length>
         <name>labelState</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
         <nullif>State</nullif>
+        <length>-1</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
-        <type>String</type>
       </field>
       <field>
-        <length>-1</length>
         <name>labelLivesIn</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
         <nullif>LIVES_IN</nullif>
+        <length>-1</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
-        <type>String</type>
       </field>
     </fields>
     <attributes/>
+    <cluster_schema/>
+    
     <GUI>
       <xloc>352</xloc>
       <yloc>144</yloc>
+      <draw>Y</draw>
     </GUI>
   </transform>
   <transform_error_handling>
   </transform_error_handling>
+  
+  
   <attributes/>
 </pipeline>
+
