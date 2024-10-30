@@ -37,7 +37,7 @@ There are various things you can do to help Hop continue moving forward quickly:
 
 - Log bugs, request features in [GitHub](https://github.com/apache/hop/issues)
 - Ask questions in the [mailing lists](https://hop.apache.org/community/mailing-list/)
-  or [mattermost](https://chat.project-hop.org/hop/channels/dev)
+  or [GitHub Discussions](https://github.com/apache/hop/discussions)
 - Help us write or fix documentation (lot of opportunities)
 - Translate Hop. See our [i18n guide](https://hop.apache.org/dev-manual/latest/internationalisation.html).
 - help fix some [sonar issues](https://sonarcloud.io/dashboard?id=apache_hop)

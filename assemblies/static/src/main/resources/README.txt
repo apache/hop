@@ -16,7 +16,7 @@
  */
 
 When finding issues please log a bug in GitHub https://github.com/apache/hop/issues
-When you have a question you can use our mailing list (http://hop.apache.org/community/mailing-list/) or Mattermost Chat (https://chat.project-hop.org/hop/channels/dev)
+When you have a question you can use our mailing list (http://hop.apache.org/community/mailing-list/) or GitHub Discussions (https://github.com/apache/hop/discussions)
 
 
 Installation Instruction:
