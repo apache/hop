@@ -23,7 +23,7 @@ Apache Hop is developed by an open and friendly community. Everybody is cordiall
 ## What do you want to do?
 Contributing to Hop goes beyond writing code for the project. Below, we list different opportunities to help the project:
 
-* To report a problem with Hop, open a Hop's [GitHub Issue](https://github.com/apache/hop/issues), log in if necessary, and click on the "+" in the left side bar (Shortcut "c").
+* To report a problem with Hop, open a Hop's [GitHub Issue](https://github.com/apache/hop/issues), log in if necessary, and click on the `New issue` button at the top of the page.
 Please give detailed information about the problem you encountered and, if possible, add a description that helps to reproduce the problem. For more information go to our [info](https://hop.apache.org/community/contribution-guides/github-guide/) page. 
 * Read the [Code Contribution Guide](https://hop.apache.org/community/contribution-guides/code-contribution-guide/)
 * Help With Code Reviews [Code Review Guide](https://hop.apache.org/community/contribution-guides/code-review-guide/)
@@ -31,16 +31,17 @@ Please give detailed information about the problem you encountered and, if possi
 * Contribute with Documentation [Documentation Contribution Guide](https://hop.apache.org/community/contribution-guides/documentation-contribution-guide/)
 * Translate Hop [Translation Contribution Guide](https://hop.apache.org/community/contribution-guides/translation-contribution-guide/)
 * Support Hop Users
-  * Join us on our [Mattermost](https://chat.project-hop.org/) server and answer questions
+  * Check out our [GitHub Discussions](https://github.com/apache/hop/discussions) and help someone out
+  * Join us on our Slack more information on how to join [here](https://hop.apache.org/community/tools/)
   * Reply to Hop related questions on Stack Overflow with the hop tag or the Hop forums
   * Check the latest issues in GtiHub Issues for tickets which are actually user questions
 * Improve the Website [Website Contribution Guide](https://hop.apache.org/community/contribution-guides/website-contribution-guide/)
 * Spread the Word about Hop
   * Organize or attend a Hop Meetup
-  * Contribute to the Hop blog (coming soon)
+  * Contribute to the [Hop blog](https://hop.apache.org/blog/)
 
 
-Any other questions? Reach out on the Hop [chat](https://chat.project-hop.org/) to get help.
+Any other questions? Reach out on the Hop [Mailing lists](https://hop.apache.org/community/mailing-list/) to get help.
 
 ## Further Reading
 ### Submit a Contributor License Agreement

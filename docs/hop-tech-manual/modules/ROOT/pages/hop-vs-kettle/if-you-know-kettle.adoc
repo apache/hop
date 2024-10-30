@@ -25,7 +25,7 @@ under the License.
 
 Hop wants to allow data engineers to be able to deliver high quality work, deliver that work fast and integrated with bleeding edge technology.
 
-We want Hop to be completely open source, and are eager to hear your feedback on our https://chat.project-hop.org[chat] and just as eager to see your bug tickets and feature request in https://github.com/apache/hop/issues[Github Issues].
+We want Hop to be completely open source, and are eager to hear your feedback on our https://github.com/apache/hop/discussions[Github Discussions] and just as eager to see your bug tickets and feature request in https://github.com/apache/hop/issues[Github Issues].
 
 As an open source first project, we started the https://www.apache.org/[Apache Software Foundation] https://incubator.apache.org/[incubation] process in September 2020 and graduated as and ASF https://projects.apache.org/[top level project] in December 2021.
 
