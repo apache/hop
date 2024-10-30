@@ -63,39 +63,6 @@ public class CheckConnections extends ActionBase implements IAction {
     connectionNames = new ArrayList<>();
   }
 
-  /*
-    @Override
-    public String getXml() {
-      StringBuilder xml = new StringBuilder();
-      // Add action name, type, ...
-      //
-      xml.append(super.getXml());
-
-      xml.append(XmlHandler.openTag(CONST_CONNECTIONS));
-
-      for (String connectionName : connectionNames) {
-        xml.append(XmlHandler.addTagValue("connection", connectionName));
-      }
-
-      xml.append(XmlHandler.closeTag(CONST_CONNECTIONS));
-      return xml.toString();
-    }
-
-    @Override
-    public void loadXml(Node node, IHopMetadataProvider iHopMetadataProvider, IVariables iVariables)
-        throws HopXmlException {
-      super.loadXml(node);
-
-      connectionNames = new ArrayList<>();
-      Node connectionsNode = XmlHandler.getSubNode(node, CONST_CONNECTIONS);
-      List<Node> connectionNodes = XmlHandler.getNodes(connectionsNode, "connection");
-      for (Node connectionNode : connectionNodes) {
-        String connectionName = XmlHandler.getNodeValue(connectionNode);
-        connectionNames.add(connectionName);
-      }
-    }
-  */
-
   @Override
   public Result execute(Result result, int nr) throws HopException {
 
