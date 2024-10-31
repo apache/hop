@@ -18,8 +18,10 @@
 
 package org.apache.hop.neo4j.transforms.loginfo;
 
+import lombok.Getter;
 import org.apache.hop.i18n.BaseMessages;
 
+@Getter
 public enum GetLoggingInfoTypes {
   TYPE_SYSTEM_INFO_NONE("", ""),
 
@@ -42,15 +44,11 @@ public enum GetLoggingInfoTypes {
       "Specified workflow: Previous success date", "Types.Desc.WorkflowPreviousSuccessDate"),
   ;
 
-  private String code;
-  private String description;
+  private final String code;
+  private final String description;
 
   private static Class<?> PKG =
       GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
-
-  public String getCode() {
-    return code;
-  }
 
   public String lookupDescription() {
     return description;
@@ -59,7 +57,7 @@ public enum GetLoggingInfoTypes {
   public static GetLoggingInfoTypes getTypeFromString(String typeStr) {
     for (GetLoggingInfoTypes type : GetLoggingInfoTypes.values()) {
       // attempting to purge this typo from KTRs
-      if ("previous result nr lines rejeted".equalsIgnoreCase(typeStr)) {
+      if ("previous result nr lines rejected".equalsIgnoreCase(typeStr)) {
         typeStr = "previous result nr lines rejected";
       }
 

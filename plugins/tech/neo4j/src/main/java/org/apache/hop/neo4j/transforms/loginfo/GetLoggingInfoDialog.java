@@ -54,7 +54,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       GetLoggingInfo.class; // for i18n purposes, needed by Translator2!!
 
-  private Text wTransformname;
+  private Text wTransformName;
 
   private TableView wFields;
 
@@ -116,35 +116,35 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
     isReceivingInput = !pipelineMeta.findPreviousTransforms(transformMeta).isEmpty();
 
     // Transform name line
-    Label wlTransformname = new Label(shell, SWT.RIGHT);
+    Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
     wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformname);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformname = new FormData();
     fdlTransformname.left = new FormAttachment(0, 0);
     fdlTransformname.right = new FormAttachment(middle, -margin);
     fdlTransformname.top = new FormAttachment(0, margin);
-    wlTransformname.setLayoutData(fdlTransformname);
-    wTransformname = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformname.setText(transformName);
-    PropsUi.setLook(wTransformname);
-    wTransformname.addModifyListener(lsMod);
+    wlTransformName.setLayoutData(fdlTransformname);
+    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformName.setText(transformName);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
     FormData fdTransformname = new FormData();
     fdTransformname.left = new FormAttachment(middle, 0);
     fdTransformname.top = new FormAttachment(0, margin);
     fdTransformname.right = new FormAttachment(100, 0);
-    wTransformname.setLayoutData(fdTransformname);
+    wTransformName.setLayoutData(fdTransformname);
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "GetLoggingInfoDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wTransformname, margin);
+    fdlFields.top = new FormAttachment(wTransformName, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 3;
-    final int FieldsRows = input.getFieldName().length;
+    final int FieldsRows = input.getFields().size();
 
     final String[] functionDesc = new String[GetLoggingInfoTypes.values().length - 1];
     for (int i = 1; i < GetLoggingInfoTypes.values().length; i++) {
@@ -214,21 +214,22 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wTransformname.setText(transformName);
+    wTransformName.setText(transformName);
 
-    for (int i = 0; i < input.getFieldName().length; i++) {
+    for (int i = 0; i < input.getFields().size(); i++) {
       TableItem item = wFields.table.getItem(i);
 
-      item.setText(1, Const.NVL(input.getFieldName()[i], ""));
-      item.setText(2, Const.NVL(input.getFieldType()[i].lookupDescription(), ""));
-      item.setText(3, Const.NVL(input.getFieldArgument()[i], ""));
+      item.setText(1, Const.NVL(input.getFields().get(i).getFieldName(), ""));
+      GetLoggingInfoTypes type = input.getFields().get(i).getFieldType();
+      item.setText(2, Const.NVL(type.getDescription(), ""));
+      item.setText(3, Const.NVL(input.getFields().get(i).getFieldArgument(), ""));
     }
 
     wFields.setRowNums();
     wFields.optWidth(true);
 
-    wTransformname.selectAll();
-    wTransformname.setFocus();
+    wTransformName.selectAll();
+    wTransformName.setFocus();
   }
 
   private void cancel() {
@@ -238,7 +239,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
   }
 
   private void ok() {
-    if (StringUtils.isEmpty(wTransformname.getText())) {
+    if (StringUtils.isEmpty(wTransformName.getText())) {
       return;
     }
 
@@ -256,15 +257,19 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
 
   private void getInfo(GetLoggingInfoMeta in) throws HopException {
 
-    transformName = wTransformname.getText(); // return value
+    transformName = wTransformName.getText(); // return value
     int count = wFields.nrNonEmpty();
-    in.allocate(count);
+
+    in.getFields().clear();
 
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      in.getFieldName()[i] = item.getText(1);
-      in.getFieldType()[i] = GetLoggingInfoTypes.getTypeFromString(item.getText(2));
-      in.getFieldArgument()[i] = item.getText(3);
+      GetLoggingInfoField field = new GetLoggingInfoField();
+      field.setFieldName(item.getText(1));
+      GetLoggingInfoTypes type = GetLoggingInfoTypes.getTypeFromString(item.getText(2));
+      field.setFieldType(type);
+      field.setFieldArgument(item.getText(3));
+      in.getFields().add(field);
     }
   }
 
@@ -276,7 +281,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
 
       PipelineMeta previewMeta =
           PipelinePreviewFactory.generatePreviewPipeline(
-              metadataProvider, oneMeta, wTransformname.getText());
+              metadataProvider, oneMeta, wTransformName.getText());
 
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(
@@ -292,7 +297,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
                 shell,
                 variables,
                 previewMeta,
-                new String[] {wTransformname.getText()},
+                new String[] {wTransformName.getText()},
                 new int[] {previewSize});
         progressDialog.open();
 
@@ -317,9 +322,9 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
                   shell,
                   variables,
                   SWT.NONE,
-                  wTransformname.getText(),
-                  progressDialog.getPreviewRowsMeta(wTransformname.getText()),
-                  progressDialog.getPreviewRows(wTransformname.getText()),
+                  wTransformName.getText(),
+                  progressDialog.getPreviewRowsMeta(wTransformName.getText()),
+                  progressDialog.getPreviewRows(wTransformName.getText()),
                   loggingText);
           prd.open();
         }
