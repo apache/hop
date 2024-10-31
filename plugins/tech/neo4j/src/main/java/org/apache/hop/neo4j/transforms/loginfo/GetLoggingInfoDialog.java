@@ -220,8 +220,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
       TableItem item = wFields.table.getItem(i);
 
       item.setText(1, Const.NVL(input.getFields().get(i).getFieldName(), ""));
-      GetLoggingInfoTypes type = input.getFields().get(i).getFieldType();
-      item.setText(2, Const.NVL(type.getDescription(), ""));
+      item.setText(2, Const.NVL(input.getFields().get(i).getFieldType(), ""));
       item.setText(3, Const.NVL(input.getFields().get(i).getFieldArgument(), ""));
     }
 
@@ -266,8 +265,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
       TableItem item = wFields.getNonEmpty(i);
       GetLoggingInfoField field = new GetLoggingInfoField();
       field.setFieldName(item.getText(1));
-      GetLoggingInfoTypes type = GetLoggingInfoTypes.getTypeFromString(item.getText(2));
-      field.setFieldType(type);
+      field.setFieldType(item.getText(2));
       field.setFieldArgument(item.getText(3));
       in.getFields().add(field);
     }

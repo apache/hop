@@ -62,6 +62,7 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
 
   public GetLoggingInfoMeta() {
     super(); // allocate BaseTransformMeta
+    fields = new ArrayList<>();
   }
 
   @Override
@@ -78,22 +79,22 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
 
     GetLoggingInfoField f1 = new GetLoggingInfoField();
     f1.setFieldName("startOfPipelineDelta");
-    f1.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM);
+    f1.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM.getCode());
     fields.add(f1);
 
     GetLoggingInfoField f2 = new GetLoggingInfoField();
-    f2.setFieldName("");
-    f2.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_PIPELINE_DATE_TO);
+    f2.setFieldName("endOfPipelineDelta");
+    f2.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_PIPELINE_DATE_TO.getCode());
     fields.add(f2);
 
     GetLoggingInfoField f3 = new GetLoggingInfoField();
     f3.setFieldName("startOfWorkflowDelta");
-    f3.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_WORKFLOW_DATE_TO);
+    f3.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_WORKFLOW_DATE_TO.getCode());
     fields.add(f3);
 
     GetLoggingInfoField f4 = new GetLoggingInfoField();
     f4.setFieldName("endOfWorkflowDelta");
-    f4.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_WORKFLOW_DATE_TO);
+    f4.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_WORKFLOW_DATE_TO.getCode());
     fields.add(f4);
   }
 
@@ -109,7 +110,7 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
     for (int i = 0; i < fields.size(); i++) {
       IValueMeta v;
 
-      switch (fields.get(i).getFieldType()) {
+      switch (GetLoggingInfoTypes.getTypeFromString(fields.get(i).getFieldType())) {
         case TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM,
             TYPE_SYSTEM_INFO_PIPELINE_DATE_TO,
             TYPE_SYSTEM_INFO_WORKFLOW_DATE_FROM,
@@ -143,7 +144,7 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
     // See if we have input streams leading to this transform!
     int nrRemarks = remarks.size();
     for (int i = 0; i < fields.size(); i++) {
-      if (fields.get(i).getFieldType().ordinal()
+      if (GetLoggingInfoTypes.getTypeFromString(fields.get(i).getFieldType()).ordinal()
           <= GetLoggingInfoTypes.TYPE_SYSTEM_INFO_NONE.ordinal()) {
         CheckResult cr =
             new CheckResult(

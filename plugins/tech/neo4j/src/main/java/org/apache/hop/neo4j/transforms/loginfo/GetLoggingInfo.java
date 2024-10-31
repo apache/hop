@@ -75,7 +75,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
         argument = resolve(argument);
       }
 
-      switch (meta.getFields().get(i).getFieldType()) {
+      switch (GetLoggingInfoTypes.getTypeFromString(meta.getFields().get(i).getFieldType())) {
         case TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM:
           {
             Date previousSuccess = getPreviousPipelineSuccess(argument);
