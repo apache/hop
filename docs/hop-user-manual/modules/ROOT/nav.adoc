@@ -478,4 +478,5 @@ under the License.
 ** xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop]
 ** xref:how-to-guides/workflows-parallel-execution.adoc[Parallel execution in workflows]
 ** xref:how-to-guides/run-hop-in-apache-airflow.adoc[Run Hop workflows and pipelines in Apache Airflow]
+** xref:how-to-guides/avoiding-deadlocks-when-using-stream-lookup.adoc[Avoiding deadlocks when using Stream Lookup]
 * xref:community-blogs/index.adoc[Community Posts]
