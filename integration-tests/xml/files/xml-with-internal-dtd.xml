@@ -1,0 +1,18 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE tutorials [
+<!ELEMENT tutorials (tutorial)+>
+<!ELEMENT tutorial (name,url)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT url (#PCDATA)>
+<!ATTLIST tutorials type CDATA #REQUIRED>
+]>
+<tutorials type="web">
+  <tutorial>
+    <name>XML Tutorial</name>
+    <url>https://www.quackit.com/xml/tutorial</url>
+  </tutorial>
+  <tutorial>
+    <name>HTML Tutorial</name>
+    <url>https://www.quackit.com/html/tutorial</url>
+  </tutorial>
+</tutorials>
