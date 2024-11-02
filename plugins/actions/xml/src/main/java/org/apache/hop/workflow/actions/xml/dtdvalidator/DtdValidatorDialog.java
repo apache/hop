@@ -253,13 +253,13 @@ public class DtdValidatorDialog extends ActionDialog {
     if (action.getName() != null) {
       wName.setText(action.getName());
     }
-    if (action.getxmlFilename() != null) {
-      wxmlFilename.setText(action.getxmlFilename());
+    if (action.getXmlFilename() != null) {
+      wxmlFilename.setText(action.getXmlFilename());
     }
-    if (action.getdtdFilename() != null) {
-      wdtdFilename.setText(action.getdtdFilename());
+    if (action.getDtdFilename() != null) {
+      wdtdFilename.setText(action.getDtdFilename());
     }
-    wDTDIntern.setSelection(action.getDTDIntern());
+    wDTDIntern.setSelection("Y".equals(action.getDtdIntern()));
 
     wName.selectAll();
     wName.setFocus();
@@ -280,10 +280,10 @@ public class DtdValidatorDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setxmlFilename(wxmlFilename.getText());
-    action.setdtdFilename(wdtdFilename.getText());
+    action.setXmlFilename(wxmlFilename.getText());
+    action.setDtdFilename(wdtdFilename.getText());
 
-    action.setDTDIntern(wDTDIntern.getSelection());
+    action.setDtdIntern(wDTDIntern.getSelection() ? "Y" : "N");
 
     dispose();
   }

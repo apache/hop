@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.xml.xmlwellformed;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -375,9 +377,9 @@ public class XmlWellFormedDialog extends ActionDialog {
     int rows =
         action.getSourceFileFolders() == null
             ? 1
-            : (action.getSourceFileFolders().length == 0
+            : (action.getSourceFileFolders().size() == 0
                 ? 0
-                : action.getSourceFileFolders().length);
+                : action.getSourceFileFolders().size());
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -688,14 +690,14 @@ public class XmlWellFormedDialog extends ActionDialog {
     wName.setText(Const.nullToEmpty(action.getName()));
 
     if (action.getSourceFileFolders() != null) {
-      for (int i = 0; i < action.getSourceFileFolders().length; i++) {
+      for (int i = 0; i < action.getSourceFileFolders().size(); i++) {
         TableItem ti = wFields.table.getItem(i);
-        if (action.getSourceFileFolders()[i] != null) {
-          ti.setText(1, action.getSourceFileFolders()[i]);
+        if (action.getSourceFileFolders().get(i) != null) {
+          ti.setText(1, action.getSourceFileFolders().get(i).getSourceFilefolder());
         }
 
-        if (action.getSourceWildcards()[i] != null) {
-          ti.setText(2, action.getSourceWildcards()[i]);
+        if (action.getSourceFileFolders().get(i).getWildcard() != null) {
+          ti.setText(2, action.getSourceFileFolders().get(i).getWildcard());
         }
       }
       wFields.setRowNums();
@@ -786,17 +788,18 @@ public class XmlWellFormedDialog extends ActionDialog {
     String[] sourceFilefolder = new String[nr];
     String[] wildcard = new String[nr];
     nr = 0;
+    List<XmlWellFormedField> fieldList = new ArrayList<XmlWellFormedField>();
     for (int i = 0; i < nritems; i++) {
+      XmlWellFormedField field = new XmlWellFormedField();
       String source = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
       if (source != null && source.length() != 0) {
-        sourceFilefolder[nr] = source;
-        wildcard[nr] = wild;
+        field.setSourceFilefolder(source);
+        field.setWildcard(wild);
+        fieldList.add(field);
         nr++;
       }
     }
-    action.setSourceFileFolders(sourceFilefolder);
-    action.setSourceWildcards(wildcard);
     dispose();
   }
 }
