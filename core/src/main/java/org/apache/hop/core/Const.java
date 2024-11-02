@@ -301,6 +301,10 @@ public class Const {
   /** Default we store our information in Unicode UTF-8 character set. */
   public static final String XML_ENCODING = "UTF-8";
 
+  /** Allow or disallow doctype declarations in XML. " */
+  @Variable(value = "N", description = "A variable allow or disallow doctype declarations in XML")
+  public static final String XML_ALLOW_DOCTYPE_DECL = "XML_ALLOW_DOCTYPE_DECL";
+
   /** Name of the hop configuration file */
   public static final String HOP_CONFIG = "hop-config.json";
 
