@@ -42,7 +42,6 @@ Note: make sure to check the notes on this transform in the xref:pipeline/beam/g
 
 == Options
 
-[options="header"]
 |===
 |Transform name|Name of the transform.
 This name has to be unique in a single pipeline.
@@ -72,13 +71,37 @@ All fields can be injected, the values used for the aggregation field are the fo
 
 == Example
 
+=== Input data
+The input data must be ordered by the grouping keys (**RecordID** in this example), use a xref:pipeline/transforms/sort.adoc[Sort rows] transform if needed:
 [options="header"]
 |===
-|CustomerId|Key|Value
-|101|COUSINS_FIRST_NAME|Mary
-|101|COUSINS_SECOND_NAME|J.
-|101|COUSINS_LAST_NAME|Blige
-|101|COUSINS_BIRTH_DATE|1969/02/14
-|101|COUSINS_INCOME|1723.86
-|101|...45 more keys...|...
+|RecordID|key|value
+|345-12-0000|FirstName|Mitchel
+|345-12-0000|LastName|Runolfsdottir
+|345-12-0000|City|Jerryside
+|976-67-7113|FirstName|Elden
+|976-67-7113|LastName|Welch
+|976-67-7113|City|Lake Jamaal
+|824-21-0000|FirstName|Rory
+|824-21-0000|LastName|Ledner
+|824-21-0000|City|Scottieview
+|===
+
+=== Denormalized data
+Set **The key field** = "key" and add **RecordID** in **The fields that make up the grouping**.
+Compile the **Target fields** table as follows:
+[options="header"]
+|===
+|Target fieldname|Value fieldname|Key value|Type
+|FirstName|value|FirstName|String
+|LastName|value|LastName|String
+|City|value|City|String
+|===
+The result is:
+[options="header"]
+|===
+|RecordID|FirstName|LastName|City
+|345-12-0000|Mitchel|Runolfsdottir|Jerryside
+|976-67-7113|Elden|Welch|Lake Jamaal
+|824-21-0000|Rory|Ledner|Scottieview
 |===
