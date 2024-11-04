@@ -502,10 +502,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           @Override
           public void dragStart(DragSourceEvent event) {
             ExplorerFile file = getSelectedFile();
+            String metadataFolder = hopGui.getVariables().getVariable(Const.HOP_METADATA_FOLDER);
             // Avoid moving root folder, metadata folder or hidden file (like .git)
             if (file == null
                 || file.getFilename().equals(rootFolder)
-                || file.getFilename().equals("metadata")
+                || file.getFilename().contains(metadataFolder)
                 || file.getName().startsWith(".")) {
               event.doit = false;
               return;
@@ -1372,10 +1373,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
         for (FileObject child : children) {
 
           String childName = child.getName().getBaseName();
+          String metadataFolder = hopGui.getVariables().getVariable(Const.HOP_METADATA_FOLDER);
 
           // Skip hidden files or folders
           if (!showingHiddenFiles
-              && (child.isHidden() || childName.startsWith(".") || childName.equals("metadata"))) {
+              && (child.isHidden()
+                  || childName.startsWith(".")
+                  || child.toString().contains(metadataFolder))) {
             continue;
           }
 
