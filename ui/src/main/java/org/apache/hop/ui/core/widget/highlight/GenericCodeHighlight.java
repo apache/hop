@@ -91,7 +91,7 @@ public class GenericCodeHighlight implements LineStyleListener {
         new Color[] {
           guiResource.getColorBlack(),
           guiResource.getColorRed(),
-          guiResource.getColorGreen(),
+          guiResource.getColorDarkGreen(),
           guiResource.getColorBlue(),
           guiResource.getColorOrange()
         };

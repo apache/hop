@@ -178,6 +178,7 @@ public class ExecSqlDialog extends BaseTransformDialog {
     // Connection line
     wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
+    wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
 
     // Table line...
     Label wlSql = new Label(shell, SWT.LEFT);
@@ -561,6 +562,16 @@ public class ExecSqlDialog extends BaseTransformDialog {
   }
 
   private List<String> getSqlReservedWords() {
+    // Do not search keywords when connection is empty
+    if (wConnection.getText() == null || wConnection.getText().isEmpty()) {
+      return new ArrayList<>();
+    }
+
+    // If connection is a variable that can't be resolved
+    if (variables.resolve(wConnection.getText()).startsWith("${")) {
+      return new ArrayList<>();
+    }
+
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
     if (databaseMeta == null) {
       logError("Database connection not found. Proceding without keywords.");

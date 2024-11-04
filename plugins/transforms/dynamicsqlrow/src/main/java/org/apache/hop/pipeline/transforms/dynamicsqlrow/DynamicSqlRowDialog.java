@@ -143,6 +143,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
       wConnection.select(0);
     }
     wConnection.addModifyListener(lsMod);
+    wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
 
     // SQLFieldName field
     Label wlSqlFieldName = new Label(shell, SWT.RIGHT);
@@ -370,6 +371,16 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
   }
 
   private List<String> getSqlReservedWords() {
+    // Do not search keywords when connection is empty
+    if (wConnection.getText() == null || wConnection.getText().isEmpty()) {
+      return new ArrayList<>();
+    }
+
+    // If connection is a variable that can't be resolved
+    if (variables.resolve(wConnection.getText()).startsWith("${")) {
+      return new ArrayList<>();
+    }
+
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
     if (databaseMeta == null) {
       logError("Database connection not found. Proceding without keywords.");

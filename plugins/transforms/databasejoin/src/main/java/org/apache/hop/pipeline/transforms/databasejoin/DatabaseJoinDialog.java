@@ -147,6 +147,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
 
     // Connection line
     wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
 
     // ICache?
     Label wlCache = new Label(shell, SWT.RIGHT);
@@ -424,6 +425,17 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
   }
 
   private List<String> getSqlReservedWords() {
+
+    // Do not search keywords when connection is empty
+    if (wConnection.getText() == null || wConnection.getText().isEmpty()) {
+      return new ArrayList<>();
+    }
+
+    // If connection is a variable that can't be resolved
+    if (variables.resolve(wConnection.getText()).startsWith("${")) {
+      return new ArrayList<>();
+    }
+
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
     if (databaseMeta == null) {
       logError("Database connection not found. Proceding without keywords.");

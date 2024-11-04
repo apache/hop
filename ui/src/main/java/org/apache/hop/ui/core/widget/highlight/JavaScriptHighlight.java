@@ -94,7 +94,7 @@ public class JavaScriptHighlight implements LineStyleListener {
         new Color[] {
           guiResource.getColorBlack(),
           guiResource.getColorRed(),
-          guiResource.getColorGreen(),
+          guiResource.getColorDarkGreen(),
           guiResource.getColorBlue(),
           guiResource.getColorOrange()
         };
