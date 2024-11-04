@@ -1,0 +1,102 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[AvoidingDeadlocksWhenUsingStreamLookup]]
+:imagesdir: ../../assets/images
+:description: This guide provides an overview of strategies to avoid deadlocks when using the Stream Lookup transform in Apache Hop.
+:openvar: ${
+:closevar: }
+
+= Avoiding Deadlocks with the Stream Lookup Transform
+
+In Apache Hop certain pipeline designs can run into deadlocks (also known as blocking, stalling, or hanging). A common cause of deadlock arises when using the xref:pipeline/transforms/streamlookup.adoc[Stream Lookup]  transform in pipelines with large datasets. This guide explains how to identify, understand, and resolve deadlock issues involving xref:pipeline/transforms/streamlookup.adoc[Stream Lookup].
+
+== Understanding Pipeline Deadlocks
+
+Deadlocks in Apache Hop occur when different transforms within a pipeline prevent each other from completing, causing the pipeline to stall indefinitely. The following factors often lead to deadlocks:
+
+* **External locks**: When a database places locks on a table, it can prevent the pipeline from progressing.
+* **Pipeline design issues**: Transforms that block until previous transforms complete can create deadlocks, especially when processing large datasets locally.
+* **Buffer limits and rowset size**: Pipelines with splits and rejoining streams depend on appropriate rowset sizes to avoid deadlocks.
+
+== How the Stream Lookup Transform Can Cause Deadlocks
+
+Deadlocks often occur with the xref:pipeline/transforms/streamlookup.adoc[Stream Lookup] transform in pipelines processing a high volume of rows. Here’s a scenario illustrating how deadlocks occur:
+
+image:how-to-guides/deadlocks-stream-lookup/deadlock-sample-stream-lookup-pipeline.png[Deadlocks in pipelines using Stream lookup - sample pipeline, width="100%"]
+
+1. **Pipeline configuration**: The pipeline includes a `Generate Rows` transform that splits data into two streams, one going directly to the xref:pipeline/transforms/streamlookup.adoc[Stream Lookup] transform and the other passing through an intermediate transform, like `Group By`.
+2. **Rowset limit**: Assume the Rowset size for the local Pipeline Run Configuration is set to 10,000 rows, meaning each hop can temporarily store up to 10,000 rows between transforms.
+3. **Overflow**: If the pipeline generates 10,001 rows, the rowset buffer will reach its 10,000-row capacity, causing the pipeline to halt until downstream transforms process some rows.
+
+image:how-to-guides/deadlocks-stream-lookup/deadlock-sample-stream-lookup-rowset-size.png[Deadlocks in pipelines using Stream lookup - rowset size, width="100%"]
+
+When xref:pipeline/transforms/streamlookup.adoc[Stream Lookup] waits for data from both streams but encounters a full buffer in one stream, both streams are unable to proceed, causing the entire pipeline to deadlock.
+
+== Solutions to Avoid Deadlocks
+
+=== 1. Adjust Rowset size(with caution)
+
+Increasing the rowset size can offer a short-term fix by buffering more rows, but it should be used cautiously. Larger rowsets increase memory usage and may reduce performance for large datasets.
+
+image:how-to-guides/deadlocks-stream-lookup/deadlock-stream-lookup-adjust-rowset-size.png[Deadlocks in pipelines using Stream lookup - adjust rowset size, width="100%"]
+
+* A pipeline uses a Pipeline Run Configuration, which specifies the engine type.
+* If using the `Local` engine type, you can modify the `Rowset size` option to match your dataset and pipeline design requirements.
+
+=== 2. Separate input streams
+
+image:how-to-guides/deadlocks-stream-lookup/deadlock-stream-lookup-separate-input-streams.png[Deadlocks in pipelines using Stream lookup - separate input streams, width="100%"]
+
+A more effective solution is to split input data streams into two independent copies, allowing each stream to operate separately. This avoids the deadlock from bottlenecked transforms in a single stream and allows xref:pipeline/transforms/streamlookup.adoc[Stream Lookup] to function smoothly.
+
+=== 3. Divide pipeline into smaller units
+
+image:how-to-guides/deadlocks-stream-lookup/deadlock-stream-lookup-divide-in-pipelines.png[Deadlocks in pipelines using Stream lookup - divide pipelines, width="100%"]
+
+Dividing the pipeline into smaller, separate pipelines allows you to process data in stages, using intermediate tables or files for data handoff. This modular approach is highly effective in avoiding buffer-related deadlocks, especially in pipelines with multiple stream joins.
+
+=== 4. Use the blocking transform
+
+For pipelines requiring sequential processing, the "Blocking" transform can manage flow control by ensuring one stream fully completes before moving to the next. 
+
+image:how-to-guides/deadlocks-stream-lookup/deadlock-stream-lookup-use-blocking-transform.png[Deadlocks in pipelines using Stream lookup - blocking transform, width="100%"]
+
+* Configure the Blocking transform with the `Pass all rows` option to handle streams in a sequential manner.
+* Adjust settings like cache size within the Blocking transform for optimal performance.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

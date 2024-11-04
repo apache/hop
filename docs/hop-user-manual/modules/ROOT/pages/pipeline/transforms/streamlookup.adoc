@@ -64,3 +64,7 @@ Cannot be combined with the "Key and value are exactly one integer field" option
 |Get lookup fields|Automatically inserts the names of all the available fields on the lookup side (B).
 You can then delete the fields you don't want to retrieve
 |===
+
+
+For guidance on preventing deadlocks when using the Stream Lookup transform, refer to this how-to guide: 
+**xref:how-to-guides/avoiding-deadlocks-when-using-stream-lookup.adoc[Avoiding deadlocks when using Stream Lookup]**
