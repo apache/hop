@@ -128,7 +128,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog {
     FormData fdFieldName = new FormData();
     fdFieldName.left = new FormAttachment(middle, 0);
     fdFieldName.top = new FormAttachment(wTransformName, margin);
-    fdFieldName.right = new FormAttachment(100, -margin);
+    fdFieldName.right = new FormAttachment(100, 0);
     wFieldName.setLayoutData(fdFieldName);
     wFieldName.addFocusListener(
         new FocusListener() {

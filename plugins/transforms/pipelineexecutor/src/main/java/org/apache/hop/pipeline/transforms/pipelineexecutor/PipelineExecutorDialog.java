@@ -206,7 +206,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.right = new FormAttachment(wicon, 0);
-    fdTransformName.left = new FormAttachment(middle, margin);
+    fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     wTransformName.setLayoutData(fdTransformName);
 

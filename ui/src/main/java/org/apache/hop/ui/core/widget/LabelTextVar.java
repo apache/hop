@@ -32,8 +32,6 @@ import org.eclipse.swt.widgets.Text;
 
 /** Adds a line of text with a label and a variable to a composite (like a dialog shell) */
 public class LabelTextVar extends Composite {
-  private static final PropsUi props = PropsUi.getInstance();
-
   private Label wLabel;
   private TextVar wText;
 
@@ -53,7 +51,7 @@ public class LabelTextVar extends Composite {
 
   public LabelTextVar(
       IVariables variables, Composite composite, int flags, String labelText, String toolTipText) {
-    this(variables, composite, flags, labelText, toolTipText, false, true);
+    this(variables, composite, flags, labelText, toolTipText, false, false);
   }
 
   public LabelTextVar(
@@ -67,7 +65,7 @@ public class LabelTextVar extends Composite {
     super(composite, SWT.NONE);
     PropsUi.setLook(this);
 
-    int middle = props.getMiddlePct();
+    int middle = PropsUi.getInstance().getMiddlePct();
     int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();

@@ -394,9 +394,9 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     PropsUi.setLook(wModule);
     wModule.addModifyListener(lsMod);
     FormData fdModule = new FormData();
-    fdModule.left = new FormAttachment(middle, margin);
+    fdModule.left = new FormAttachment(middle, 0);
     fdModule.top = new FormAttachment(wlModule, 0, SWT.CENTER);
-    fdModule.right = new FormAttachment(100, -margin);
+    fdModule.right = new FormAttachment(100, 0);
     wModule.setLayoutData(fdModule);
     wModule.addFocusListener(
         new FocusListener() {
@@ -432,7 +432,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlCondition.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.Condition.Label"));
     PropsUi.setLook(wlCondition);
     FormData fdlCondition = new FormData();
-    fdlCondition.left = new FormAttachment(0, -margin);
+    fdlCondition.left = new FormAttachment(0, 0);
     fdlCondition.top = new FormAttachment(wModule, margin);
     fdlCondition.right = new FormAttachment(middle, -margin);
     wlCondition.setLayoutData(fdlCondition);
@@ -447,9 +447,9 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     PropsUi.setLook(wCondition, Props.WIDGET_STYLE_FIXED);
     wCondition.addModifyListener(lsMod);
     FormData fdCondition = new FormData();
-    fdCondition.left = new FormAttachment(middle, margin);
+    fdCondition.left = new FormAttachment(middle, 0);
     fdCondition.top = new FormAttachment(wModule, margin);
-    fdCondition.right = new FormAttachment(100, -margin);
+    fdCondition.right = new FormAttachment(100, 0);
     fdCondition.bottom = new FormAttachment(wlPosition, -margin);
     wCondition.setLayoutData(fdCondition);
     wCondition.addModifyListener(

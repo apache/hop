@@ -146,7 +146,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -168,7 +168,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
-    fdlSchemaname.right = new FormAttachment(middle, 0);
+    fdlSchemaname.right = new FormAttachment(middle, -margin);
     fdlSchemaname.top = new FormAttachment(wConnection, margin);
     wlSchemaname.setLayoutData(fdlSchemaname);
 
@@ -189,7 +189,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
-    fdlTablename.right = new FormAttachment(middle, 0);
+    fdlTablename.right = new FormAttachment(middle, -margin);
     fdlTablename.top = new FormAttachment(wSchemaname, margin);
     wlTablename.setLayoutData(fdlTablename);
 
@@ -294,7 +294,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlPriorityValue);
     FormData fdlPriorityValue = new FormData();
     fdlPriorityValue.left = new FormAttachment(0, 0);
-    fdlPriorityValue.right = new FormAttachment(middle, 0);
+    fdlPriorityValue.right = new FormAttachment(middle, -margin);
     fdlPriorityValue.top = new FormAttachment(wlLocalInfile, 2 * margin);
     wlPriorityValue.setLayoutData(fdlPriorityValue);
     wPriorityValue = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -316,7 +316,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlSeparator);
     FormData fdlSeparator = new FormData();
     fdlSeparator.left = new FormAttachment(0, 0);
-    fdlSeparator.right = new FormAttachment(middle, 0);
+    fdlSeparator.right = new FormAttachment(middle, -margin);
     fdlSeparator.top = new FormAttachment(wPriorityValue, margin);
     wlSeparator.setLayoutData(fdlSeparator);
 
@@ -336,7 +336,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlEnclosed);
     FormData fdlEnclosed = new FormData();
     fdlEnclosed.left = new FormAttachment(0, 0);
-    fdlEnclosed.right = new FormAttachment(middle, 0);
+    fdlEnclosed.right = new FormAttachment(middle, -margin);
     fdlEnclosed.top = new FormAttachment(wSeparator, margin);
     wlEnclosed.setLayoutData(fdlEnclosed);
 
@@ -356,7 +356,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlEscaped);
     FormData fdlEscaped = new FormData();
     fdlEscaped.left = new FormAttachment(0, 0);
-    fdlEscaped.right = new FormAttachment(middle, 0);
+    fdlEscaped.right = new FormAttachment(middle, -margin);
     fdlEscaped.top = new FormAttachment(wEnclosed, margin);
     wlEscaped.setLayoutData(fdlEscaped);
 
@@ -377,7 +377,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlLinestarted);
     FormData fdlLinestarted = new FormData();
     fdlLinestarted.left = new FormAttachment(0, 0);
-    fdlLinestarted.right = new FormAttachment(middle, 0);
+    fdlLinestarted.right = new FormAttachment(middle, -margin);
     fdlLinestarted.top = new FormAttachment(wEscaped, margin);
     wlLinestarted.setLayoutData(fdlLinestarted);
 
@@ -398,7 +398,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlLineterminated);
     FormData fdlLineterminated = new FormData();
     fdlLineterminated.left = new FormAttachment(0, 0);
-    fdlLineterminated.right = new FormAttachment(middle, 0);
+    fdlLineterminated.right = new FormAttachment(middle, -margin);
     fdlLineterminated.top = new FormAttachment(wLinestarted, margin);
     wlLineterminated.setLayoutData(fdlLineterminated);
 
@@ -418,7 +418,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlListattribut);
     FormData fdlListattribut = new FormData();
     fdlListattribut.left = new FormAttachment(0, 0);
-    fdlListattribut.right = new FormAttachment(middle, 0);
+    fdlListattribut.right = new FormAttachment(middle, -margin);
     fdlListattribut.top = new FormAttachment(wLineterminated, margin);
     wlListattribut.setLayoutData(fdlListattribut);
 
@@ -482,7 +482,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlIgnorelines);
     FormData fdlIgnorelines = new FormData();
     fdlIgnorelines.left = new FormAttachment(0, 0);
-    fdlIgnorelines.right = new FormAttachment(middle, 0);
+    fdlIgnorelines.right = new FormAttachment(middle, -margin);
     fdlIgnorelines.top = new FormAttachment(wlReplaceData, 2 * margin);
     wlIgnorelines.setLayoutData(fdlIgnorelines);
 

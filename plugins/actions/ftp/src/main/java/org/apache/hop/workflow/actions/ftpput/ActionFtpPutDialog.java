@@ -144,7 +144,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();
 
-    // Filename line
+    // Action name line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionFtpPut.Name.Label"));
     PropsUi.setLook(wlName);
@@ -213,13 +213,13 @@ public class ActionFtpPutDialog extends ActionDialog {
     FormData fdlServerName = new FormData();
     fdlServerName.left = new FormAttachment(0, 0);
     fdlServerName.top = new FormAttachment(wName, margin);
-    fdlServerName.right = new FormAttachment(middle, 0);
+    fdlServerName.right = new FormAttachment(middle, -margin);
     wlServerName.setLayoutData(fdlServerName);
     wServerName = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wServerName);
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
-    fdServerName.left = new FormAttachment(middle, margin);
+    fdServerName.left = new FormAttachment(middle, 0);
     fdServerName.top = new FormAttachment(wName, margin);
     fdServerName.right = new FormAttachment(100, 0);
     wServerName.setLayoutData(fdServerName);
@@ -231,14 +231,14 @@ public class ActionFtpPutDialog extends ActionDialog {
     FormData fdlServerPort = new FormData();
     fdlServerPort.left = new FormAttachment(0, 0);
     fdlServerPort.top = new FormAttachment(wServerName, margin);
-    fdlServerPort.right = new FormAttachment(middle, 0);
+    fdlServerPort.right = new FormAttachment(middle, -margin);
     wlServerPort.setLayoutData(fdlServerPort);
     wServerPort = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wServerPort);
     wServerPort.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.Port.Tooltip"));
     wServerPort.addModifyListener(lsMod);
     FormData fdServerPort = new FormData();
-    fdServerPort.left = new FormAttachment(middle, margin);
+    fdServerPort.left = new FormAttachment(middle, 0);
     fdServerPort.top = new FormAttachment(wServerName, margin);
     fdServerPort.right = new FormAttachment(100, 0);
     wServerPort.setLayoutData(fdServerPort);
@@ -250,13 +250,13 @@ public class ActionFtpPutDialog extends ActionDialog {
     FormData fdlUserName = new FormData();
     fdlUserName.left = new FormAttachment(0, 0);
     fdlUserName.top = new FormAttachment(wServerPort, margin);
-    fdlUserName.right = new FormAttachment(middle, 0);
+    fdlUserName.right = new FormAttachment(middle, -margin);
     wlUserName.setLayoutData(fdlUserName);
     wUserName = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wUserName);
     wUserName.addModifyListener(lsMod);
     FormData fdUserName = new FormData();
-    fdUserName.left = new FormAttachment(middle, margin);
+    fdUserName.left = new FormAttachment(middle, 0);
     fdUserName.top = new FormAttachment(wServerPort, margin);
     fdUserName.right = new FormAttachment(100, 0);
     wUserName.setLayoutData(fdUserName);
@@ -268,13 +268,13 @@ public class ActionFtpPutDialog extends ActionDialog {
     FormData fdlPassword = new FormData();
     fdlPassword.left = new FormAttachment(0, 0);
     fdlPassword.top = new FormAttachment(wUserName, margin);
-    fdlPassword.right = new FormAttachment(middle, 0);
+    fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
     wPassword = new PasswordTextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
     FormData fdPassword = new FormData();
-    fdPassword.left = new FormAttachment(middle, margin);
+    fdPassword.left = new FormAttachment(middle, 0);
     fdPassword.top = new FormAttachment(wUserName, margin);
     fdPassword.right = new FormAttachment(100, 0);
     wPassword.setLayoutData(fdPassword);
@@ -390,7 +390,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     FormData fdlBinaryMode = new FormData();
     fdlBinaryMode.left = new FormAttachment(0, 0);
     fdlBinaryMode.top = new FormAttachment(wServerSettings, margin);
-    fdlBinaryMode.right = new FormAttachment(middle, 0);
+    fdlBinaryMode.right = new FormAttachment(middle, -margin);
     wlBinaryMode.setLayoutData(fdlBinaryMode);
     wBinaryMode = new Button(wAdvancedSettings, SWT.CHECK);
     PropsUi.setLook(wBinaryMode);
@@ -408,7 +408,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     FormData fdlTimeout = new FormData();
     fdlTimeout.left = new FormAttachment(0, 0);
     fdlTimeout.top = new FormAttachment(wlBinaryMode, 2 * margin);
-    fdlTimeout.right = new FormAttachment(middle, 0);
+    fdlTimeout.right = new FormAttachment(middle, -margin);
     wlTimeout.setLayoutData(fdlTimeout);
     wTimeout =
         new TextVar(
@@ -431,7 +431,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     FormData fdlActive = new FormData();
     fdlActive.left = new FormAttachment(0, 0);
     fdlActive.top = new FormAttachment(wTimeout, margin);
-    fdlActive.right = new FormAttachment(middle, 0);
+    fdlActive.right = new FormAttachment(middle, -margin);
     wlActive.setLayoutData(fdlActive);
     wActive = new Button(wAdvancedSettings, SWT.CHECK);
     wActive.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.ActiveConns.Tooltip"));
@@ -453,7 +453,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     FormData fdlControlEncoding = new FormData();
     fdlControlEncoding.left = new FormAttachment(0, 0);
     fdlControlEncoding.top = new FormAttachment(wlActive, 2 * margin);
-    fdlControlEncoding.right = new FormAttachment(middle, 0);
+    fdlControlEncoding.right = new FormAttachment(middle, -margin);
     wlControlEncoding.setLayoutData(fdlControlEncoding);
     wControlEncoding = new Combo(wAdvancedSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wControlEncoding.setToolTipText(
@@ -599,7 +599,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     FormData fdlOnlyNew = new FormData();
     fdlOnlyNew.left = new FormAttachment(0, 0);
     fdlOnlyNew.top = new FormAttachment(wlRemove, 2 * margin);
-    fdlOnlyNew.right = new FormAttachment(middle, 0);
+    fdlOnlyNew.right = new FormAttachment(middle, -margin);
     wlOnlyNew.setLayoutData(fdlOnlyNew);
     wOnlyNew = new Button(wSourceSettings, SWT.CHECK);
     wOnlyNew.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.DontOverwrite.Tooltip"));

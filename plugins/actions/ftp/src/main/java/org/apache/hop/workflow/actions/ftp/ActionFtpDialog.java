@@ -418,13 +418,13 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlBinaryMode = new FormData();
     fdlBinaryMode.left = new FormAttachment(0, 0);
     fdlBinaryMode.top = new FormAttachment(wgServerSettings, margin);
-    fdlBinaryMode.right = new FormAttachment(middle, 0);
+    fdlBinaryMode.right = new FormAttachment(middle, -margin);
     wlBinaryMode.setLayoutData(fdlBinaryMode);
     wBinaryMode = new Button(wAdvancedSettings, SWT.CHECK);
     PropsUi.setLook(wBinaryMode);
     wBinaryMode.setToolTipText(BaseMessages.getString(PKG, "ActionFtp.BinaryMode.Tooltip"));
     FormData fdBinaryMode = new FormData();
-    fdBinaryMode.left = new FormAttachment(middle, margin);
+    fdBinaryMode.left = new FormAttachment(middle, 0);
     fdBinaryMode.top = new FormAttachment(wlBinaryMode, 0, SWT.CENTER);
     fdBinaryMode.right = new FormAttachment(100, 0);
     wBinaryMode.setLayoutData(fdBinaryMode);
@@ -454,13 +454,13 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlActive = new FormData();
     fdlActive.left = new FormAttachment(0, 0);
     fdlActive.top = new FormAttachment(wTimeout, margin);
-    fdlActive.right = new FormAttachment(middle, 0);
+    fdlActive.right = new FormAttachment(middle, -margin);
     wlActive.setLayoutData(fdlActive);
     wActive = new Button(wAdvancedSettings, SWT.CHECK);
     wActive.setToolTipText(BaseMessages.getString(PKG, "ActionFtp.ActiveConns.Tooltip"));
     PropsUi.setLook(wActive);
     FormData fdActive = new FormData();
-    fdActive.left = new FormAttachment(middle, margin);
+    fdActive.left = new FormAttachment(middle, 0);
     fdActive.top = new FormAttachment(wlActive, 0, SWT.CENTER);
     fdActive.right = new FormAttachment(100, 0);
     wActive.setLayoutData(fdActive);
@@ -476,7 +476,7 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlControlEncoding = new FormData();
     fdlControlEncoding.left = new FormAttachment(0, 0);
     fdlControlEncoding.top = new FormAttachment(wlActive, 2 * margin);
-    fdlControlEncoding.right = new FormAttachment(middle, 0);
+    fdlControlEncoding.right = new FormAttachment(middle, -margin);
     wlControlEncoding.setLayoutData(fdlControlEncoding);
     wControlEncoding = new Combo(wAdvancedSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wControlEncoding.setToolTipText(
@@ -484,13 +484,13 @@ public class ActionFtpDialog extends ActionDialog {
     wControlEncoding.setItems(encodings);
     PropsUi.setLook(wControlEncoding);
     FormData fdControlEncoding = new FormData();
-    fdControlEncoding.left = new FormAttachment(middle, margin);
-    fdControlEncoding.top = new FormAttachment(wlActive, 2 * margin);
+    fdControlEncoding.left = new FormAttachment(middle, 0);
+    fdControlEncoding.top = new FormAttachment(wlActive, margin);
     fdControlEncoding.right = new FormAttachment(100, 0);
     wControlEncoding.setLayoutData(fdControlEncoding);
 
     FormData fdAdvancedSettings = new FormData();
-    fdAdvancedSettings.left = new FormAttachment(0, margin);
+    fdAdvancedSettings.left = new FormAttachment(0, 0);
     fdAdvancedSettings.top = new FormAttachment(wgServerSettings, margin);
     fdAdvancedSettings.right = new FormAttachment(100, -margin);
     wAdvancedSettings.setLayoutData(fdAdvancedSettings);
@@ -549,7 +549,7 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlFtpDirectory = new FormData();
     fdlFtpDirectory.left = new FormAttachment(0, 0);
     fdlFtpDirectory.top = new FormAttachment(0, margin);
-    fdlFtpDirectory.right = new FormAttachment(middle, 0);
+    fdlFtpDirectory.right = new FormAttachment(middle, -margin);
     wlFtpDirectory.setLayoutData(fdlFtpDirectory);
 
     // Test remote folder button ...
@@ -571,7 +571,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wFtpDirectory);
     wFtpDirectory.addModifyListener(lsMod);
     FormData fdFtpDirectory = new FormData();
-    fdFtpDirectory.left = new FormAttachment(middle, margin);
+    fdFtpDirectory.left = new FormAttachment(middle, 0);
     fdFtpDirectory.top = new FormAttachment(0, margin);
     fdFtpDirectory.right = new FormAttachment(wbTestChangeFolderExists, -margin);
     wFtpDirectory.setLayoutData(fdFtpDirectory);
@@ -601,13 +601,13 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlRemove = new FormData();
     fdlRemove.left = new FormAttachment(0, 0);
     fdlRemove.top = new FormAttachment(wWildcard, margin);
-    fdlRemove.right = new FormAttachment(middle, 0);
+    fdlRemove.right = new FormAttachment(middle, -margin);
     wlRemove.setLayoutData(fdlRemove);
     wRemove = new Button(wgRemoteSettings, SWT.CHECK);
     wRemove.setToolTipText(BaseMessages.getString(PKG, "ActionFtp.RemoveFiles.Tooltip"));
     PropsUi.setLook(wRemove);
     FormData fdRemove = new FormData();
-    fdRemove.left = new FormAttachment(middle, margin);
+    fdRemove.left = new FormAttachment(middle, 0);
     fdRemove.top = new FormAttachment(wlRemove, 0, SWT.CENTER);
     fdRemove.right = new FormAttachment(100, 0);
     wRemove.setLayoutData(fdRemove);
@@ -636,7 +636,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wMove);
     wMove.setToolTipText(BaseMessages.getString(PKG, "ActionFtp.MoveFiles.Tooltip"));
     FormData fdMove = new FormData();
-    fdMove.left = new FormAttachment(middle, margin);
+    fdMove.left = new FormAttachment(middle, 0);
     fdMove.top = new FormAttachment(wlMove, 0, SWT.CENTER);
     fdMove.right = new FormAttachment(100, 0);
     wMove.setLayoutData(fdMove);
@@ -658,7 +658,7 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlMoveToDirectory = new FormData();
     fdlMoveToDirectory.left = new FormAttachment(0, 0);
     fdlMoveToDirectory.top = new FormAttachment(wMove, margin);
-    fdlMoveToDirectory.right = new FormAttachment(middle, 0);
+    fdlMoveToDirectory.right = new FormAttachment(middle, -margin);
     wlMoveToDirectory.setLayoutData(fdlMoveToDirectory);
 
     // Test remote folder button ...
@@ -680,7 +680,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wMoveToDirectory);
     wMoveToDirectory.addModifyListener(lsMod);
     FormData fdMoveToDirectory = new FormData();
-    fdMoveToDirectory.left = new FormAttachment(middle, margin);
+    fdMoveToDirectory.left = new FormAttachment(middle, 0);
     fdMoveToDirectory.top = new FormAttachment(wMove, margin);
     fdMoveToDirectory.right = new FormAttachment(wbTestFolderExists, -margin);
     wMoveToDirectory.setLayoutData(fdMoveToDirectory);
@@ -692,14 +692,14 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlCreateMoveFolder = new FormData();
     fdlCreateMoveFolder.left = new FormAttachment(0, 0);
     fdlCreateMoveFolder.top = new FormAttachment(wMoveToDirectory, margin);
-    fdlCreateMoveFolder.right = new FormAttachment(middle, 0);
+    fdlCreateMoveFolder.right = new FormAttachment(middle, -margin);
     wlCreateMoveFolder.setLayoutData(fdlCreateMoveFolder);
     wCreateMoveFolder = new Button(wgRemoteSettings, SWT.CHECK);
     wCreateMoveFolder.setToolTipText(
         BaseMessages.getString(PKG, "ActionFtp.CreateMoveFolder.Tooltip"));
     PropsUi.setLook(wCreateMoveFolder);
     FormData fdCreateMoveFolder = new FormData();
-    fdCreateMoveFolder.left = new FormAttachment(middle, margin);
+    fdCreateMoveFolder.left = new FormAttachment(middle, 0);
     fdCreateMoveFolder.top = new FormAttachment(wlCreateMoveFolder, 0, SWT.CENTER);
     fdCreateMoveFolder.right = new FormAttachment(100, 0);
     wCreateMoveFolder.setLayoutData(fdCreateMoveFolder);
@@ -757,7 +757,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wTargetDirectory);
     wTargetDirectory.addModifyListener(lsMod);
     FormData fdTargetDirectory = new FormData();
-    fdTargetDirectory.left = new FormAttachment(middle, margin);
+    fdTargetDirectory.left = new FormAttachment(middle, 0);
     fdTargetDirectory.top = new FormAttachment(wlTargetDirectory, 0, SWT.CENTER);
     fdTargetDirectory.right = new FormAttachment(wbTargetDirectory, -margin);
     wTargetDirectory.setLayoutData(fdTargetDirectory);
@@ -775,7 +775,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wAddDate);
     wAddDate.setToolTipText(BaseMessages.getString(PKG, "ActionFtp.AddDate.Tooltip"));
     FormData fdAddDate = new FormData();
-    fdAddDate.left = new FormAttachment(middle, margin);
+    fdAddDate.left = new FormAttachment(middle, 0);
     fdAddDate.top = new FormAttachment(wlAddDate, 0, SWT.CENTER);
     fdAddDate.right = new FormAttachment(100, 0);
     wAddDate.setLayoutData(fdAddDate);
@@ -799,7 +799,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wAddTime);
     wAddTime.setToolTipText(BaseMessages.getString(PKG, "ActionFtp.AddTime.Tooltip"));
     FormData fdAddTime = new FormData();
-    fdAddTime.left = new FormAttachment(middle, margin);
+    fdAddTime.left = new FormAttachment(middle, 0);
     fdAddTime.top = new FormAttachment(wlAddTime, 0, SWT.CENTER);
     fdAddTime.right = new FormAttachment(100, 0);
     wAddTime.setLayoutData(fdAddTime);
@@ -824,7 +824,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wSpecifyFormat);
     wSpecifyFormat.setToolTipText(BaseMessages.getString(PKG, "ActionFtp.SpecifyFormat.Tooltip"));
     FormData fdSpecifyFormat = new FormData();
-    fdSpecifyFormat.left = new FormAttachment(middle, margin);
+    fdSpecifyFormat.left = new FormAttachment(middle, 0);
     fdSpecifyFormat.top = new FormAttachment(wlSpecifyFormat, 0, SWT.CENTER);
     fdSpecifyFormat.right = new FormAttachment(100, 0);
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
@@ -855,7 +855,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wDateTimeFormat);
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
-    fdDateTimeFormat.left = new FormAttachment(middle, margin);
+    fdDateTimeFormat.left = new FormAttachment(middle, 0);
     fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
     fdDateTimeFormat.right = new FormAttachment(100, 0);
     wDateTimeFormat.setLayoutData(fdDateTimeFormat);
@@ -878,7 +878,7 @@ public class ActionFtpDialog extends ActionDialog {
     wAddDateBeforeExtension.setToolTipText(
         BaseMessages.getString(PKG, "ActionFtp.AddDateBeforeExtension.Tooltip"));
     FormData fdAddDateBeforeExtension = new FormData();
-    fdAddDateBeforeExtension.left = new FormAttachment(middle, margin);
+    fdAddDateBeforeExtension.left = new FormAttachment(middle, 0);
     fdAddDateBeforeExtension.top = new FormAttachment(wlAddDateBeforeExtension, 0, SWT.CENTER);
     fdAddDateBeforeExtension.right = new FormAttachment(100, 0);
     wAddDateBeforeExtension.setLayoutData(fdAddDateBeforeExtension);
@@ -897,13 +897,13 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlOnlyNew = new FormData();
     fdlOnlyNew.left = new FormAttachment(0, 0);
     fdlOnlyNew.top = new FormAttachment(wlAddDateBeforeExtension, margin);
-    fdlOnlyNew.right = new FormAttachment(middle, 0);
+    fdlOnlyNew.right = new FormAttachment(middle, -margin);
     wlOnlyNew.setLayoutData(fdlOnlyNew);
     wOnlyNew = new Button(wgLocalSettings, SWT.CHECK);
     wOnlyNew.setToolTipText(BaseMessages.getString(PKG, "ActionFtp.DontOverwrite.Tooltip"));
     PropsUi.setLook(wOnlyNew);
     FormData fdOnlyNew = new FormData();
-    fdOnlyNew.left = new FormAttachment(middle, margin);
+    fdOnlyNew.left = new FormAttachment(middle, 0);
     fdOnlyNew.top = new FormAttachment(wlOnlyNew, 0, SWT.CENTER);
     fdOnlyNew.right = new FormAttachment(100, 0);
     wOnlyNew.setLayoutData(fdOnlyNew);
@@ -922,7 +922,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
-    fdlIfFileExists.right = new FormAttachment(middle, 0);
+    fdlIfFileExists.right = new FormAttachment(middle, -margin);
     fdlIfFileExists.top = new FormAttachment(wlOnlyNew, 2 * margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
     wIfFileExists = new CCombo(wgLocalSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -934,7 +934,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wIfFileExists);
 
     FormData fdIfFileExists = new FormData();
-    fdIfFileExists.left = new FormAttachment(middle, margin);
+    fdIfFileExists.left = new FormAttachment(middle, 0);
     fdIfFileExists.top = new FormAttachment(wlIfFileExists, 0, SWT.CENTER);
     fdIfFileExists.right = new FormAttachment(100, 0);
     wIfFileExists.setLayoutData(fdIfFileExists);
@@ -955,14 +955,14 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlAddFilenameToResult = new FormData();
     fdlAddFilenameToResult.left = new FormAttachment(0, 0);
     fdlAddFilenameToResult.top = new FormAttachment(wIfFileExists, 2 * margin);
-    fdlAddFilenameToResult.right = new FormAttachment(middle, 0);
+    fdlAddFilenameToResult.right = new FormAttachment(middle, -margin);
     wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
     wAddFilenameToResult = new Button(wgLocalSettings, SWT.CHECK);
     wAddFilenameToResult.setToolTipText(
         BaseMessages.getString(PKG, "ActionFtp.AddFilenameToResult.Tooltip"));
     PropsUi.setLook(wAddFilenameToResult);
     FormData fdAddFilenameToResult = new FormData();
-    fdAddFilenameToResult.left = new FormAttachment(middle, margin);
+    fdAddFilenameToResult.left = new FormAttachment(middle, 0);
     fdAddFilenameToResult.top = new FormAttachment(wlAddFilenameToResult, 0, SWT.CENTER);
     fdAddFilenameToResult.right = new FormAttachment(100, 0);
     wAddFilenameToResult.setLayoutData(fdAddFilenameToResult);
@@ -1054,8 +1054,7 @@ public class ActionFtpDialog extends ActionDialog {
 
     // Success when number of errors less than
     wlNrErrorsLessThan = new Label(wSuccessOn, SWT.RIGHT);
-    wlNrErrorsLessThan.setText(
-        BaseMessages.getString(PKG, "ActionFtp.NrBadFormedLessThan.Label") + " ");
+    wlNrErrorsLessThan.setText(BaseMessages.getString(PKG, "ActionFtp.NrBadFormedLessThan.Label"));
     PropsUi.setLook(wlNrErrorsLessThan);
     FormData fdlNrErrorsLessThan = new FormData();
     fdlNrErrorsLessThan.left = new FormAttachment(0, 0);
@@ -1074,7 +1073,7 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdNrErrorsLessThan = new FormData();
     fdNrErrorsLessThan.left = new FormAttachment(middle, 0);
     fdNrErrorsLessThan.top = new FormAttachment(wSuccessCondition, margin);
-    fdNrErrorsLessThan.right = new FormAttachment(100, -margin);
+    fdNrErrorsLessThan.right = new FormAttachment(100, 0);
     wNrErrorsLessThan.setLayoutData(fdNrErrorsLessThan);
 
     FormData fdSuccessOn = new FormData();
