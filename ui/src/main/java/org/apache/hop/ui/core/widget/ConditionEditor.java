@@ -193,7 +193,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     white = GuiResource.getInstance().getColorWhite();
     black = GuiResource.getInstance().getColorBlack();
     red = GuiResource.getInstance().getColorRed();
-    green = GuiResource.getInstance().getColorGreen();
+    green = GuiResource.getInstance().getColorDarkGreen();
     blue = GuiResource.getInstance().getColorBlue();
     gray = GuiResource.getInstance().getColorDarkGray();
 

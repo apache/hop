@@ -106,10 +106,7 @@ public class TableInputDialog extends BaseTransformDialog {
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod =
-        e -> {
-          input.setChanged();
-        };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -142,6 +139,7 @@ public class TableInputDialog extends BaseTransformDialog {
     wTransformName.setLayoutData(fdTransformName);
 
     wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -357,6 +355,16 @@ public class TableInputDialog extends BaseTransformDialog {
   }
 
   private List<String> getSqlReservedWords() {
+    // Do not search keywords when connection is empty
+    if (input.getConnection() == null || input.getConnection().isEmpty()) {
+      return new ArrayList<>();
+    }
+
+    // If connection is a variable that can't be resolved
+    if (variables.resolve(input.getConnection()).startsWith("${")) {
+      return new ArrayList<>();
+    }
+
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
     if (databaseMeta == null) {
       logError("Database connection not found. Proceding without keywords.");

@@ -148,6 +148,7 @@ public class ActionSqlDialog extends ActionDialog {
     // Connection line
     DatabaseMeta databaseMeta = workflowMeta.findDatabase(action.getConnection(), variables);
     wConnection = addConnectionLine(shell, wName, databaseMeta, null);
+    wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
 
     // SQL from file?
     Label wlSqlFromFile = new Label(shell, SWT.RIGHT);
@@ -309,6 +310,16 @@ public class ActionSqlDialog extends ActionDialog {
   }
 
   private List<String> getSqlReservedWords() {
+    // Do not search keywords when connection is empty
+    if (wConnection.getText() == null || wConnection.getText().isEmpty()) {
+      return new ArrayList<>();
+    }
+
+    // If connection is a variable that can't be resolved
+    if (variables.resolve(wConnection.getText()).startsWith("${")) {
+      return new ArrayList<>();
+    }
+
     DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
     if (databaseMeta == null) {
 
