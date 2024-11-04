@@ -19,11 +19,13 @@
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class KeyField {
   @HopMetadataProperty(
       injectionKey = "KEY_FIELD",
-      injectionKeyDescription = "CombinationLookup.Injection.KEY_FIELD")
+      injectionKeyDescription = "CombinationLookup.Injection.KEY_FIELD",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   String name;
 
   @HopMetadataProperty(

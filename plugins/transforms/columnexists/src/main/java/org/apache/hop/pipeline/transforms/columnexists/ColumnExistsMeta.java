@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.columnexists;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -29,6 +30,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -41,7 +43,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::ColumnExists.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::ColumnExistsMeta.keyword",
-    documentationUrl = "/pipeline/transforms/columnexists.html")
+    documentationUrl = "/pipeline/transforms/columnexists.html",
+    actionTransformTypes = {ActionTransformType.RDBMS})
 public class ColumnExistsMeta extends BaseTransformMeta<ColumnExists, ColumnExistsData> {
 
   private static final Class<?> PKG = ColumnExistsMeta.class;
@@ -49,29 +52,34 @@ public class ColumnExistsMeta extends BaseTransformMeta<ColumnExists, ColumnExis
   /** database connection */
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "ColumnExists.Injection.ConnectionName")
+      injectionKeyDescription = "ColumnExists.Injection.ConnectionName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String databaseName;
 
   @HopMetadataProperty(
       key = "schemaname",
-      injectionKeyDescription = "ColumnExists.Injection.SchemaName")
+      injectionKeyDescription = "ColumnExists.Injection.SchemaName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaname;
 
   @HopMetadataProperty(
       key = "tablename",
-      injectionKeyDescription = "ColumnExists.Injection.TableName")
+      injectionKeyDescription = "ColumnExists.Injection.TableName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   /** dynamic tablename */
   @HopMetadataProperty(
       key = "tablenamefield",
-      injectionKeyDescription = "ColumnExists.Injection.TableNameField")
+      injectionKeyDescription = "ColumnExists.Injection.TableNameField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tablenamefield;
 
   /** dynamic columnname */
   @HopMetadataProperty(
       key = "columnnamefield",
-      injectionKeyDescription = "ColumnExists.Injection.ColumnNameField")
+      injectionKeyDescription = "ColumnExists.Injection.ColumnNameField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String columnnamefield;
 
   /** function result: new value name */

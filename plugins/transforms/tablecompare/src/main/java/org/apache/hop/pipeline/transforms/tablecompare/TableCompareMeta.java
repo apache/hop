@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.tablecompare;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -29,6 +30,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -41,38 +43,45 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::BaseTransform.TypeLongDesc.TableCompare",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::TableCompareMeta.keyword",
-    documentationUrl = "/pipeline/transforms/tablecompare.html")
+    documentationUrl = "/pipeline/transforms/tablecompare.html",
+    actionTransformTypes = {ActionTransformType.RDBMS})
 public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class;
 
   @HopMetadataProperty(
       key = "reference_connection",
-      injectionKeyDescription = "TableCompareMeta.Injection.ReferenceConnection")
+      injectionKeyDescription = "TableCompareMeta.Injection.ReferenceConnection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String referenceConnection;
 
   @HopMetadataProperty(
       key = "reference_schema_field",
-      injectionKeyDescription = "TableCompareMeta.Injection.ReferenceSchemaField")
+      injectionKeyDescription = "TableCompareMeta.Injection.ReferenceSchemaField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String referenceSchemaField;
 
   @HopMetadataProperty(
       key = "reference_table_field",
-      injectionKeyDescription = "TableCompareMeta.Injection.ReferenceTableField")
+      injectionKeyDescription = "TableCompareMeta.Injection.ReferenceTableField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String referenceTableField;
 
   @HopMetadataProperty(
       key = "compare_connection",
-      injectionKeyDescription = "TableCompareMeta.Injection.CompareConnection")
+      injectionKeyDescription = "TableCompareMeta.Injection.CompareConnection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String compareConnection;
 
   @HopMetadataProperty(
       key = "compare_schema_field",
-      injectionKeyDescription = "TableCompareMeta.Injection.CompareSchemaField")
+      injectionKeyDescription = "TableCompareMeta.Injection.CompareSchemaField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String compareSchemaField;
 
   @HopMetadataProperty(
       key = "compare_table_field",
-      injectionKeyDescription = "TableCompareMeta.Injection.CompareTableField")
+      injectionKeyDescription = "TableCompareMeta.Injection.CompareTableField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String compareTableField;
 
   @HopMetadataProperty(

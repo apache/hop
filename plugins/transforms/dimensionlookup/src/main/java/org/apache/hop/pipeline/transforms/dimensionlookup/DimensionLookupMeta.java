@@ -26,6 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -42,6 +43,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -58,7 +60,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     keywords = "i18n::DimensionLookupMeta.keyword",
-    documentationUrl = "/pipeline/transforms/dimensionlookup.html")
+    documentationUrl = "/pipeline/transforms/dimensionlookup.html",
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.LOOKUP})
 public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData> {
   private static final Class<?> PKG = DimensionLookupMeta.class;
   public static final String CONST_DIMENSION_LOOKUP_META_CHECK_RESULT_KEY_HAS_PROBLEM =
@@ -69,21 +72,24 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   @HopMetadataProperty(
       key = "schema",
       injectionKey = "TARGET_SCHEMA",
-      injectionKeyDescription = "DimensionLookup.Injection.TARGET_SCHEMA")
+      injectionKeyDescription = "DimensionLookup.Injection.TARGET_SCHEMA",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   /** The lookup table */
   @HopMetadataProperty(
       key = "table",
       injectionKey = "TARGET_TABLE",
-      injectionKeyDescription = "DimensionLookup.Injection.TARGET_TABLE")
+      injectionKeyDescription = "DimensionLookup.Injection.TARGET_TABLE",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   /** The database connection */
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTION_NAME",
-      injectionKeyDescription = "DimensionLookup.Injection.CONNECTION_NAME")
+      injectionKeyDescription = "DimensionLookup.Injection.CONNECTION_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** Update the dimension or just lookup? */
@@ -1405,7 +1411,8 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     @HopMetadataProperty(
         key = "name",
         injectionKey = "TECHNICAL_KEY_FIELD",
-        injectionKeyDescription = "DimensionLookup.Injection.TECHNICAL_KEY_FIELD")
+        injectionKeyDescription = "DimensionLookup.Injection.TECHNICAL_KEY_FIELD",
+        hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
     private String keyField;
 
     @HopMetadataProperty(
@@ -1521,7 +1528,8 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     @HopMetadataProperty(
         key = "lookup",
         injectionKey = "DATABASE_FIELDNAME",
-        injectionKeyDescription = "DimensionLookup.Injection.DATABASE_FIELDNAME")
+        injectionKeyDescription = "DimensionLookup.Injection.DATABASE_FIELDNAME",
+        hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
     private String lookup;
 
     /** The type of update to perform on the fields: insert, update, punch-through */

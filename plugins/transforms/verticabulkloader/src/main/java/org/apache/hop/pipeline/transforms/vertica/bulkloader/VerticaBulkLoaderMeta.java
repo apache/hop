@@ -23,6 +23,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -35,6 +36,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -49,7 +51,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     documentationUrl = "pipeline/transforms/verticabulkloader.html",
     isIncludeJdbcDrivers = true,
-    classLoaderGroup = "vertica5")
+    classLoaderGroup = "vertica5",
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 public class VerticaBulkLoaderMeta
     extends BaseTransformMeta<VerticaBulkLoader, VerticaBulkLoaderData> {
   private static final Class<?> PKG = VerticaBulkLoaderMeta.class;
@@ -57,25 +60,29 @@ public class VerticaBulkLoaderMeta
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTIONNAME",
-      injectionKeyDescription = "VerticaBulkLoader.Injection.CONNECTIONNAME")
+      injectionKeyDescription = "VerticaBulkLoader.Injection.CONNECTIONNAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(
       key = "schema",
       injectionKey = "SCHEMANAME",
-      injectionKeyDescription = "VerticaBulkLoader.Injection.SCHEMANAME")
+      injectionKeyDescription = "VerticaBulkLoader.Injection.SCHEMANAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   @HopMetadataProperty(
       key = "table",
       injectionKey = "TABLENAME",
-      injectionKeyDescription = "VerticaBulkLoader.Injection.TABLENAME")
+      injectionKeyDescription = "VerticaBulkLoader.Injection.TABLENAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tablename;
 
   @HopMetadataProperty(
       key = "truncate",
       injectionKey = "TRUNCATE_TABLE",
-      injectionKeyDescription = "VerticaBulkLoader.Injection.TruncateTable.Field")
+      injectionKeyDescription = "VerticaBulkLoader.Injection.TruncateTable.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TRUNCATE)
   private boolean truncateTable;
 
   @HopMetadataProperty(

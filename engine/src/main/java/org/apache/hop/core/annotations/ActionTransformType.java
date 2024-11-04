@@ -28,5 +28,9 @@ public enum ActionTransformType {
   FILE,
   RDBMS,
   GRAPH,
-  NOSQL
+  NOSQL,
+
+  HOP_FILE,
+  HOP_PIPELINE,
+  HOP_WORKFLOW
 }

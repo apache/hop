@@ -23,6 +23,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -35,6 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -50,7 +52,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::PGBulkLoaderMeta.keyword",
     documentationUrl = "/pipeline/transforms/postgresbulkloader.html",
     classLoaderGroup = "postgres-db",
-    isIncludeJdbcDrivers = true)
+    isIncludeJdbcDrivers = true,
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoaderData> {
 
   private static final Class<?> PKG = PGBulkLoaderMeta.class;
@@ -58,19 +61,22 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
   /** what's the schema for the target? */
   @HopMetadataProperty(
       key = "schema",
-      injectionKeyDescription = "PGBulkLoader.Injection.Schema.Label")
+      injectionKeyDescription = "PGBulkLoader.Injection.Schema.Label",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   /** what's the table for the target? */
   @HopMetadataProperty(
       key = "table",
-      injectionKeyDescription = "PGBulkLoader.Injection.Table.Label")
+      injectionKeyDescription = "PGBulkLoader.Injection.Table.Label",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   /** database connection */
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "PGBulkLoader.Injection.Connection.Label")
+      injectionKeyDescription = "PGBulkLoader.Injection.Connection.Label",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** Field value to dateMask after lookup */

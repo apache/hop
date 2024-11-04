@@ -22,6 +22,7 @@ public enum HopMetadataPropertyType {
   NONE,
 
   // MISC
+  HOP_FILE,
   EXEC_INFO_LOCATION,
   EXEC_INFO_DATA_PROFILE,
   PARTITION_SCHEMA,
@@ -30,6 +31,7 @@ public enum HopMetadataPropertyType {
   SPLUNK_CONNECTION,
 
   // PIPELINE
+  PIPELINE_FILE,
   PIPELINE_RUN_CONFIG,
   PIPELINE_LOG,
   PIPELINE_PROBE,
@@ -40,6 +42,7 @@ public enum HopMetadataPropertyType {
   BEAM_FILE_DEFINITION,
 
   // WORKFLOW
+  WORKFLOW_FILE,
   WORKFLOW_RUN_CONFIG,
   WORKFLOW_LOG,
 

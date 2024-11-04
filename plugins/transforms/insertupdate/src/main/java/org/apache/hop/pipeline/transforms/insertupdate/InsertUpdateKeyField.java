@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.insertupdate;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class InsertUpdateKeyField {
 
@@ -32,7 +33,8 @@ public class InsertUpdateKeyField {
   @HopMetadataProperty(
       key = "field",
       injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_LOOKUP",
-      injectionKey = "KEY_LOOKUP")
+      injectionKey = "KEY_LOOKUP",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String keyLookup;
 
   /** Comparator: =, <>, BETWEEN, ... */
