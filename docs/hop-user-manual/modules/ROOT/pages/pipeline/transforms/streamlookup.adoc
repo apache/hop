@@ -67,4 +67,4 @@ You can then delete the fields you don't want to retrieve
 
 
 For guidance on preventing deadlocks when using the Stream Lookup transform, refer to this how-to guide: 
-**xref:how-to-guides/avoiding-deadlocks-when-using-stream-lookup.adoc[Avoiding deadlocks when using Stream Lookup]**
+**xref:how-to-guides/avoiding-deadlocks.adoc[Avoiding deadlocks]**

@@ -14,13 +14,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-[[AvoidingDeadlocksWhenUsingStreamLookup]]
+[[AvoidingDeadlocks]]
 :imagesdir: ../../assets/images
-:description: This guide provides an overview of strategies to avoid deadlocks when using the Stream Lookup transform in Apache Hop.
+:description: This guide provides an overview of strategies to avoid deadlocks in Apache Hop.
 :openvar: ${
 :closevar: }
 
-= Avoiding Deadlocks with the Stream Lookup Transform
+= Avoiding Deadlocks
 
 In Apache Hop certain pipeline designs can run into deadlocks (also known as blocking, stalling, or hanging). A common cause of deadlock arises when using the xref:pipeline/transforms/streamlookup.adoc[Stream Lookup]  transform in pipelines with large datasets. This guide explains how to identify, understand, and resolve deadlock issues involving xref:pipeline/transforms/streamlookup.adoc[Stream Lookup].
 
@@ -77,6 +77,45 @@ image:how-to-guides/deadlocks-stream-lookup/deadlock-stream-lookup-use-blocking-
 
 * Configure the Blocking transform with the `Pass all rows` option to handle streams in a sequential manner.
 * Adjust settings like cache size within the Blocking transform for optimal performance.
+
+=== How the Merge Join Transform Can Cause Deadlocks
+
+Deadlocks can also occur with the xref:pipeline/transforms/mergejoin.adoc[Merge Join] transform, particularly when processing large datasets or running pipelines locally. Here’s an example scenario that demonstrates how deadlocks might arise with the *Merge Join* transform:
+
+image:how-to-guides/deadlocks-merge-join/deadlock-sample-merge-join-pipeline.png[Deadlocks in pipelines using Merge Join - sample pipeline, width="100%"]
+
+1. **Pipeline Configuration**: The pipeline generates rows, splits into two streams, and merges back at the xref:pipeline/transforms/mergejoin.adoc[Merge Join] transform. One stream goes directly to *Merge Join*, while the other passes through an *Add Constants* transform and then a *Sort Rows* transform.
+2. **Rowset Limit**: Suppose the Rowset size for the local Pipeline Run Configuration is set to 10,000 rows. If this pipeline generates 20,003 rows, the two streams might exceed the combined buffer capacity of 20,000 rows (10,000 for each hop), resulting in a pipeline stall.
+3. **Deadlock Trigger**: As the rowset fills up, *Merge Join* may wait for rows from both sorted streams. However, if one stream's buffer is full, neither stream can proceed, leading to a deadlock.
+
+==== Solutions to Avoid Deadlocks with Merge Join
+
+===== 1. Adjust Rowset Size (with Caution)
+
+As we mentioned in the previous example, increasing the rowset size can temporarily buffer more rows, which may prevent deadlocks in smaller data volumes. However, larger rowsets increase memory usage and can reduce performance, especially with larger datasets.
+
+image:how-to-guides/deadlocks-stream-lookup/deadlock-stream-lookup-adjust-rowset-size.png[Deadlocks in pipelines using Merge Join - rowset size, width="100%"]
+
+* Open the pipeline’s Pipeline Run Configuration, which sets the engine type.
+* When using the `Local` engine type, adjust the `Rowset size` option to fit your data size and pipeline design.
+
+===== 2. Sort Both Streams Before Merging
+
+Ensure that both input streams are sorted before they reach the *Merge Join* transform. Sorting allows rows to flow smoothly and sequentially, reducing the likelihood of a buffer overflow and subsequent deadlock.
+
+image:how-to-guides/deadlocks-merge-join/deadlock-merge-join-sort-both-streams.png[Deadlocks in pipelines using Merge Join - sort both streams, width="100%"]
+
+* Use the *Sort Rows* transform on each stream before joining them.
+* If the data comes from a database and uses consistent data types, sorting within the database may be sufficient.
+
+===== 3. Use the Blocking Transform
+
+For pipelines where sequential processing is essential, the xref:pipeline/transforms/blockingtransform.adoc[Blocking] transform can help manage flow control. Configure it to process all rows in one stream before releasing them to the next transform.
+
+image:how-to-guides/deadlocks-merge-join/deadlock-merge-join-blocking-transform.png[Deadlocks in pipelines using Merge Join - blocking transform, width="100%"]
+
+* Set the Blocking transform’s *Pass all rows* option to enable sequential row processing.
+* Fine-tune the *cache size* in the Blocking transform settings as necessary for optimal performance.
 
 
 
