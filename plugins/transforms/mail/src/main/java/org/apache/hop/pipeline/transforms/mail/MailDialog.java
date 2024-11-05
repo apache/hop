@@ -538,7 +538,7 @@ public class MailDialog extends BaseTransformDialog {
     FormData fdlPerson = new FormData();
     fdlPerson.left = new FormAttachment(0, -margin);
     fdlPerson.top = new FormAttachment(wReplyToAddresses, 2 * margin);
-    fdlPerson.right = new FormAttachment(middle, -2 * margin);
+    fdlPerson.right = new FormAttachment(middle, -margin);
     wlPerson.setLayoutData(fdlPerson);
 
     wPerson = new CCombo(wGeneralComp, SWT.BORDER | SWT.READ_ONLY);

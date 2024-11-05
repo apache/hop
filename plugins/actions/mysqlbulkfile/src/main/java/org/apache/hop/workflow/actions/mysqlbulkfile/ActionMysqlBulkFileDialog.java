@@ -137,13 +137,13 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
-    // Filename line
+    // Action name line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionMysqlBulkFile.Name.Label"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -164,7 +164,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     PropsUi.setLook(wlSchemaName);
     FormData fdlSchemaName = new FormData();
     fdlSchemaName.left = new FormAttachment(0, 0);
-    fdlSchemaName.right = new FormAttachment(middle, 0);
+    fdlSchemaName.right = new FormAttachment(middle, -margin);
     fdlSchemaName.top = new FormAttachment(wConnection, margin);
     wlSchemaName.setLayoutData(fdlSchemaName);
 
@@ -184,7 +184,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     PropsUi.setLook(wlTableName);
     FormData fdlTableName = new FormData();
     fdlTableName.left = new FormAttachment(0, 0);
-    fdlTableName.right = new FormAttachment(middle, 0);
+    fdlTableName.right = new FormAttachment(middle, -margin);
     fdlTableName.top = new FormAttachment(wSchemaName, margin);
     wlTableName.setLayoutData(fdlTableName);
 
@@ -281,7 +281,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     PropsUi.setLook(wlOutDumpValue);
     FormData fdlOutDumpValue = new FormData();
     fdlOutDumpValue.left = new FormAttachment(0, 0);
-    fdlOutDumpValue.right = new FormAttachment(middle, 0);
+    fdlOutDumpValue.right = new FormAttachment(middle, -margin);
     fdlOutDumpValue.top = new FormAttachment(wlHighPriority, 2 * margin);
     wlOutDumpValue.setLayoutData(fdlOutDumpValue);
     wOutDumpValue = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -303,7 +303,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     PropsUi.setLook(wlSeparator);
     FormData fdlSeparator = new FormData();
     fdlSeparator.left = new FormAttachment(0, 0);
-    fdlSeparator.right = new FormAttachment(middle, 0);
+    fdlSeparator.right = new FormAttachment(middle, -margin);
     fdlSeparator.top = new FormAttachment(wOutDumpValue, margin);
     wlSeparator.setLayoutData(fdlSeparator);
     wSeparator = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -321,7 +321,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     PropsUi.setLook(wlEnclosed);
     FormData fdlEnclosed = new FormData();
     fdlEnclosed.left = new FormAttachment(0, 0);
-    fdlEnclosed.right = new FormAttachment(middle, 0);
+    fdlEnclosed.right = new FormAttachment(middle, -margin);
     fdlEnclosed.top = new FormAttachment(wSeparator, margin);
     wlEnclosed.setLayoutData(fdlEnclosed);
     wEnclosed = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -361,7 +361,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     PropsUi.setLook(wlLineTerminated);
     FormData fdlLineTerminated = new FormData();
     fdlLineTerminated.left = new FormAttachment(0, 0);
-    fdlLineTerminated.right = new FormAttachment(middle, 0);
+    fdlLineTerminated.right = new FormAttachment(middle, -margin);
     fdlLineTerminated.top = new FormAttachment(wlOptionEnclosed, 2 * margin);
     wlLineTerminated.setLayoutData(fdlLineTerminated);
     wLineTerminated = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -379,7 +379,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     PropsUi.setLook(wlListColumn);
     FormData fdlListColumn = new FormData();
     fdlListColumn.left = new FormAttachment(0, 0);
-    fdlListColumn.right = new FormAttachment(middle, 0);
+    fdlListColumn.right = new FormAttachment(middle, -margin);
     fdlListColumn.top = new FormAttachment(wLineTerminated, margin);
     wlListColumn.setLayoutData(fdlListColumn);
     Button wbListColumns = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -407,7 +407,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     PropsUi.setLook(wlLimitLines);
     FormData fdlLimitLines = new FormData();
     fdlLimitLines.left = new FormAttachment(0, 0);
-    fdlLimitLines.right = new FormAttachment(middle, 0);
+    fdlLimitLines.right = new FormAttachment(middle, -margin);
     fdlLimitLines.top = new FormAttachment(wListColumn, margin);
     wlLimitLines.setLayoutData(fdlLimitLines);
 
@@ -428,7 +428,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     PropsUi.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
-    fdlIfFileExists.right = new FormAttachment(middle, 0);
+    fdlIfFileExists.right = new FormAttachment(middle, -margin);
     fdlIfFileExists.top = new FormAttachment(wLimitLines, margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
     wIfFileExists = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -487,7 +487,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     wAddFileToResult.setLayoutData(fdAddFileToResult);
 
     FormData fdFileResult = new FormData();
-    fdFileResult.left = new FormAttachment(0, margin);
+    fdFileResult.left = new FormAttachment(0, 0);
     fdFileResult.top = new FormAttachment(wIfFileExists, margin);
     fdFileResult.right = new FormAttachment(100, -margin);
     fdFileResult.bottom = new FormAttachment(wOk, -2 * margin);

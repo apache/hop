@@ -186,7 +186,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, margin);
+    fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(0, margin);
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
@@ -233,7 +233,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
-    fdlSchemaname.right = new FormAttachment(middle, 0);
+    fdlSchemaname.right = new FormAttachment(middle, -margin);
     fdlSchemaname.top = new FormAttachment(wConnection, margin);
     wlSchemaname.setLayoutData(fdlSchemaname);
 
@@ -254,7 +254,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
-    fdlTablename.right = new FormAttachment(middle, 0);
+    fdlTablename.right = new FormAttachment(middle, -margin);
     fdlTablename.top = new FormAttachment(wSchemaname, margin);
     wlTablename.setLayoutData(fdlTablename);
 
@@ -422,7 +422,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlFieldTerminator);
     FormData fdlFieldTerminator = new FormData();
     fdlFieldTerminator.left = new FormAttachment(0, 0);
-    fdlFieldTerminator.right = new FormAttachment(middle, 0);
+    fdlFieldTerminator.right = new FormAttachment(middle, -margin);
     fdlFieldTerminator.top = new FormAttachment(wDataFileGroup, 3 * margin);
     wlFieldTerminator.setLayoutData(fdlFieldTerminator);
 
@@ -445,7 +445,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlLineterminated);
     FormData fdlLineterminated = new FormData();
     fdlLineterminated.left = new FormAttachment(0, 0);
-    fdlLineterminated.right = new FormAttachment(middle, 0);
+    fdlLineterminated.right = new FormAttachment(middle, -margin);
     fdlLineterminated.top = new FormAttachment(wFieldTerminator, margin);
     wlLineterminated.setLayoutData(fdlLineterminated);
 
@@ -498,7 +498,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlCodePage);
     FormData fdlCodePage = new FormData();
     fdlCodePage.left = new FormAttachment(0, 0);
-    fdlCodePage.right = new FormAttachment(middle, 0);
+    fdlCodePage.right = new FormAttachment(middle, -margin);
     fdlCodePage.top = new FormAttachment(0, margin);
     wlCodePage.setLayoutData(fdlCodePage);
     wCodePage = new CCombo(wAdvancedComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -770,7 +770,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlOrderBy);
     FormData fdlOrderBy = new FormData();
     fdlOrderBy.left = new FormAttachment(0, 0);
-    fdlOrderBy.right = new FormAttachment(middle, 0);
+    fdlOrderBy.right = new FormAttachment(middle, -margin);
     fdlOrderBy.top = new FormAttachment(wEndFile, margin);
     wlOrderBy.setLayoutData(fdlOrderBy);
 
@@ -892,7 +892,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlMaxErrors);
     FormData fdlMaxErrors = new FormData();
     fdlMaxErrors.left = new FormAttachment(0, 0);
-    fdlMaxErrors.right = new FormAttachment(middle, 0);
+    fdlMaxErrors.right = new FormAttachment(middle, -margin);
     fdlMaxErrors.top = new FormAttachment(wlAddDateTime, 2 * margin);
     wlMaxErrors.setLayoutData(fdlMaxErrors);
 

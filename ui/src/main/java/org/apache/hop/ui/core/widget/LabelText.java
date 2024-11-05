@@ -58,7 +58,6 @@ public class LabelText extends Composite {
       int middle,
       int margin) {
     super(composite, SWT.NONE);
-    PropsUi.setLook(this);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -66,6 +65,7 @@ public class LabelText extends Composite {
     this.setLayout(formLayout);
 
     wText = new Text(this, textStyle);
+    PropsUi.setLook(wText);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(middle, 0);
     fdText.right = new FormAttachment(100, 0);

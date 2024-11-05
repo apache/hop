@@ -351,7 +351,7 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wKeyfilePass);
     wKeyfilePass.addModifyListener(lsMod);
     FormData fdkeyfilePass = new FormData();
-    fdkeyfilePass.left = new FormAttachment(0, -2 * margin);
+    fdkeyfilePass.left = new FormAttachment(0, 0);
     fdkeyfilePass.top = new FormAttachment(wKeyFilename, margin);
     fdkeyfilePass.right = new FormAttachment(100, 0);
     wKeyfilePass.setLayoutData(fdkeyfilePass);
@@ -396,7 +396,7 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wProxyHost);
     wProxyHost.addModifyListener(lsMod);
     FormData fdProxyHost = new FormData();
-    fdProxyHost.left = new FormAttachment(0, -2 * margin);
+    fdProxyHost.left = new FormAttachment(0, 0);
     fdProxyHost.top = new FormAttachment(wProxyType, margin);
     fdProxyHost.right = new FormAttachment(100, 0);
     wProxyHost.setLayoutData(fdProxyHost);
@@ -414,7 +414,7 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wProxyPort);
     wProxyPort.addModifyListener(lsMod);
     FormData fdProxyPort = new FormData();
-    fdProxyPort.left = new FormAttachment(0, -2 * margin);
+    fdProxyPort.left = new FormAttachment(0, 0);
     fdProxyPort.top = new FormAttachment(wProxyHost, margin);
     fdProxyPort.right = new FormAttachment(100, 0);
     wProxyPort.setLayoutData(fdProxyPort);
@@ -432,7 +432,7 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wProxyUsername);
     wProxyUsername.addModifyListener(lsMod);
     FormData fdProxyUsername = new FormData();
-    fdProxyUsername.left = new FormAttachment(0, -2 * margin);
+    fdProxyUsername.left = new FormAttachment(0, 0);
     fdProxyUsername.top = new FormAttachment(wProxyPort, margin);
     fdProxyUsername.right = new FormAttachment(100, 0);
     wProxyUsername.setLayoutData(fdProxyUsername);
@@ -450,7 +450,7 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wProxyPassword);
     wProxyPassword.addModifyListener(lsMod);
     FormData fdProxyPasswd = new FormData();
-    fdProxyPasswd.left = new FormAttachment(0, -2 * margin);
+    fdProxyPasswd.left = new FormAttachment(0, 0);
     fdProxyPasswd.top = new FormAttachment(wProxyUsername, margin);
     fdProxyPasswd.right = new FormAttachment(100, 0);
     wProxyPassword.setLayoutData(fdProxyPasswd);
