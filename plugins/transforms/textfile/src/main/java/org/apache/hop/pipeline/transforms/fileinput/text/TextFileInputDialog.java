@@ -692,6 +692,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wbShowFiles.setLayoutData(fdbShowFiles);
 
     wFirst = new Button(wFileComp, SWT.PUSH);
+    PropsUi.setLook(wFirst);
     wFirst.setText(BaseMessages.getString(PKG, "TextFileInputDialog.First.Button"));
     FormData fdFirst = new FormData();
     fdFirst.left = new FormAttachment(wbShowFiles, margin * 2);
@@ -699,6 +700,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFirst.setLayoutData(fdFirst);
 
     wFirstHeader = new Button(wFileComp, SWT.PUSH);
+    PropsUi.setLook(wFirstHeader);
     wFirstHeader.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FirstHeader.Button"));
     FormData fdFirstHeader = new FormData();
     fdFirstHeader.left = new FormAttachment(wFirst, margin * 2);
