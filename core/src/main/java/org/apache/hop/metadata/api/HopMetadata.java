@@ -51,4 +51,12 @@ public @interface HopMetadata {
    * @return the type of metadata this property represents.
    */
   HopMetadataPropertyType hopMetadataPropertyType() default HopMetadataPropertyType.NONE;
+
+  /**
+   * A boolean flag, represented as a string, which tells whether the given HopMetadata
+   * implementation has to be shown into a tree of folders
+   *
+   * @return a boolean as string flag that will enable the UI to allow folders creation
+   */
+  String subfoldersEnabled() default "false";
 }
