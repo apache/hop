@@ -20,9 +20,13 @@ package org.apache.hop.pipeline.transforms.datagrid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class DataGridDataMeta implements Cloneable {
 
   @HopMetadataProperty(key = "item")
@@ -51,28 +55,8 @@ public class DataGridDataMeta implements Cloneable {
     return new DataGridDataMeta(this);
   }
 
-  public List<String> getDatalines() {
-    return datalines;
-  }
-
-  public void setDatalines(List<String> datalines) {
-    this.datalines = datalines;
-  }
-
-  public String getInjectionDatalines() {
-    return injectionDatalines;
-  }
-
-  public void setInjectionDatalines(String injectionDatalines) {
-    this.injectionDatalines = injectionDatalines;
-    this.datalines = Arrays.asList(injectionDatalines.split(Const.NVL(splitter, ",")));
-  }
-
-  public String getSplitter() {
-    return splitter;
-  }
-
   public void setSplitter(String splitter) {
+    this.datalines = Arrays.asList(injectionDatalines.split(Const.NVL(splitter, ",")));
     this.splitter = splitter;
   }
 }
