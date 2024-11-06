@@ -533,7 +533,7 @@ public class CsvInputDialog extends BaseTransformDialog
     wSchemaDefinition.setLayoutData(fdSchemaDefinition);
 
     try {
-      wSchemaDefinition.fillItems();
+      wSchemaDefinition.fillTreeItems();
     } catch (Exception e) {
       log.logError("Error getting schema definition items", e);
     }
