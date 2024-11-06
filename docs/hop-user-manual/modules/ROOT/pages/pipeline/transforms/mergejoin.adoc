@@ -53,3 +53,5 @@ Join options include INNER, LEFT OUTER, RIGHT OUTER, and FULL OUTER.
 |Key Field | The fields used for the join key, this only supports equal joins (key first transform = key second transform)
 |===
 
+For guidance on preventing deadlocks when using the Merge Join transform, refer to this how-to guide: 
+**xref:how-to-guides/avoiding-deadlocks.adoc[Avoiding deadlocks]**
