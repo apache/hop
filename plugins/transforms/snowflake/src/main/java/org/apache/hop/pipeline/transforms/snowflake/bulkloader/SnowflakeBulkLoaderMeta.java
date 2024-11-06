@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "SnowflakeBulkLoader",
-    image = "snowflake.svg",
+    image = "snowflakebulkloader.svg",
     name = "i18n::SnowflakeBulkLoader.Name",
     description = "i18n::SnowflakeBulkLoader.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
