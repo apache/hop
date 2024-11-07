@@ -143,7 +143,7 @@ Example: `./hop-server.sh 0.0.0.0 8080`
 
 Example: `hop-server.bat 192.168.1.221 8081`
 
-Example: `./ -e aura-gcp gs://apachehop/hop-server-config.xml`
+Example: `./hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml`
 
 Example: `hop-server.bat 127.0.0.1 8080 --userName cluster --password cluster`
 
