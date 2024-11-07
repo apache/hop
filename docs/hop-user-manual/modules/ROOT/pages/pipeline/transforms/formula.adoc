@@ -285,7 +285,7 @@ The kettle import process is able to migrate the existing Formula steps containe
 
 |===
 |*description*|Construct date from year, month, and day of month.
-|*syntax*|DATE( Integer Year ; Integer Month ; Integer Day )
+|*syntax*|DATE( Integer Year , Integer Month , Integer Day )
 |*returns*|Date
 |*semantics*|This computes the date's serial number given Year, Month, and Day. Fractional values are truncated. The value of the serial number depends on the current epoch. Note that some applications may not handle correctly dates before 1904; in particular, many spreadsheets incorrectly claim that 1900 is a leap year (it was not; there was no 1900-02-29).
 |*constraints*|1 <= Month <= 12; 1 <= Day <= 31
@@ -294,21 +294,21 @@ The kettle import process is able to migrate the existing Formula steps containe
 *Examples*
 |===
 |expression|result|comment
-|DATE(2005;1;31)=[.C7] |True|Simple date value.
-|DATE(2005;12;31)-DATE(1904;1;1) |37255|Date differences are computed correctly.
-|DATE(2004;2;29)=DATE(2004;2;28)+1 |True|2004 was a leap year.
-|DATE(2000;2;29)=DATE(2000;2;28)+1 |True|2000 was a leap year.
-|DATE(2005;3;1)=DATE(2005;2;28)+1 |True|2005 was not a leap year.
-|DATE(2017.5; 1; 2)=DATE(2017; 1; 2) |True|Fractional values for year are truncated
-|DATE(2006; 2.5; 3)=DATE(2006; 2; 3) |True|Fractional values for month are truncated
-|DATE(2006; 1; 3.5)=DATE(2006; 1; 3) |True|Fractional values for day are truncated
-|DATE(2006; 13; 3)=DATE(2007; 1; 3) |True|Months > 12 roll over to year
-|DATE(2006; 1; 32)=DATE(2006; 2; 1) |True|Days greater than month limit roll over to month
-|DATE(2006; 25; 34)=DATE(2008;2;3) |True|Days and months roll over transitively
-|DATE(2006;-1; 1)=DATE(2005;11;1) |True|Negative months roll year backward
-|DATE(2006;4;-1)=DATE(2006;3;30) |True|Negative days roll month backward
-|DATE(2006;-4;-1)=DATE(2005;7;30) |True|Negative days and months roll backward transitively
-|DATE(2003;2;29)=DATE(2003;3;1) |True|Non-leap year rolls forward
+|DATE(2005,1,31)=[.C7] |True|Simple date value.
+|DATE(2005,12,31)-DATE(1904,1,1) |37255|Date differences are computed correctly.
+|DATE(2004,2,29)=DATE(2004,2,28)+1 |True|2004 was a leap year.
+|DATE(2000,2,29)=DATE(2000,2,28)+1 |True|2000 was a leap year.
+|DATE(2005,3,1)=DATE(2005,2,28)+1 |True|2005 was not a leap year.
+|DATE(2017.5, 1, 2)=DATE(2017, 1, 2) |True|Fractional values for year are truncated
+|DATE(2006, 2.5, 3)=DATE(2006, 2, 3) |True|Fractional values for month are truncated
+|DATE(2006, 1, 3.5)=DATE(2006, 1, 3) |True|Fractional values for day are truncated
+|DATE(2006, 13, 3)=DATE(2007, 1, 3) |True|Months > 12 roll over to year
+|DATE(2006, 1, 32)=DATE(2006, 2, 1) |True|Days greater than month limit roll over to month
+|DATE(2006, 25, 34)=DATE(2008,2,3) |True|Days and months roll over transitively
+|DATE(2006,-1, 1)=DATE(2005,11,1) |True|Negative months roll year backward
+|DATE(2006,4,-1)=DATE(2006,3,30) |True|Negative days roll month backward
+|DATE(2006,-4,-1)=DATE(2005,7,30) |True|Negative days and months roll backward transitively
+|DATE(2003,2,29)=DATE(2003,3,1) |True|Non-leap year rolls forward
 |===
 
 
@@ -326,8 +326,8 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 *Examples*
 |===
 |expression|result|comment
-|DATEVALUE("2004-12-25")=DATE(2004;12;25) |True|DATEVALUE
-|DATEVALUE("2004-12-25 12:34:56")=DATE(2004;12;25) |True|Only the integer part is returned
+|DATEVALUE("2004-12-25")=DATE(2004,12,25) |True|DATEVALUE
+|DATEVALUE("2004-12-25 12:34:56")=DATE(2004,12,25) |True|Only the integer part is returned
 |DATEVALUE("2004-12-25 12:34:56") |2004-12-25|Only the date part of the date time is returned
 |===
 
@@ -344,7 +344,7 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 *Examples*
 |===
 |expression|result|comment
-|DAY(DATE(2006;5;21)) |21|Basic extraction.
+|DAY(DATE(2006,5,21)) |21|Basic extraction.
 |DAY("2006-12-15") |12|Text allowed too, since it's a DateParam
 |===
 
@@ -352,7 +352,7 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 
 |===
 |*description*|Calculates the number of days between two dates.
-|*syntax*|DAYS( Date endDate; Date startDate )
+|*syntax*|DAYS( Date endDate, Date startDate )
 |*returns*|Integer
 |*semantics*|Computers the number of days between 2 dates
 |*constraints*|None
@@ -361,8 +361,8 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 *Examples*
 |===
 |expression|result|comment
-|DAYS(DATEVALUE("2004-12-23");DATEVALUE("2004-12-25")) |2|DAYS
-|DAYS(DATEVALUE("2004-12-25");DATEVALUE("2004-12-23")) |-2|DAYS
+|DAYS(DATEVALUE("2004-12-23"),DATEVALUE("2004-12-25")) |2|DAYS
+|DAYS(DATEVALUE("2004-12-25"),DATEVALUE("2004-12-23")) |-2|DAYS
 |===
 
 ==== DAYS360
@@ -378,7 +378,7 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 *Examples*
 |===
 |expression|result|comment
-|DAY(DATE(2006;5;21)) |21|Basic extraction.
+|DAY(DATE(2006,5,21)) |21|Basic extraction.
 |DAY("2006-12-15") |12|Text allowed too, since it's a DateParam
 |===
 
@@ -465,7 +465,7 @@ Hour=INT(DayFraction*24)
 |===
 |expression|result|comment
 |MONTH([.C7]) |1|Month extraction from date in cell.
-|MONTH(DATE(2006;5;21)) |5|Month extraction from DATE() value.
+|MONTH(DATE(2006,5,21)) |5|Month extraction from DATE() value.
 |===
 
 ==== MONTHEND
@@ -514,7 +514,7 @@ Hour=INT(DayFraction*24)
 *Examples*
 |===
 |expression|result|comment
-|NOW()>DATE(2006;1;3) |True|NOW constantly changes, but we know it's beyond this date.
+|NOW()>DATE(2006,1,3) |True|NOW constantly changes, but we know it's beyond this date.
 |INT(NOW())=TODAY() |True|NOW() is part of TODAY(). WARNING: this test is allowed to fail if the locale transitions through midnight while computing this test; this failure is incredibly unlikely to occur in practice.
 |===
 
@@ -573,7 +573,7 @@ Hour=INT(DayFraction*24)
 
 |===
 |*description*|Construct time from hours, minutes, and seconds.
-|*syntax*|TIME( Number hours ; Number minutes ; Number seconds )
+|*syntax*|TIME( Number hours , Number minutes , Number seconds )
 |*returns*|Time
 |*semantics*|Returns the fraction of the day consumed by the given time, i.e.:
 ((hours*60*60)+(minutes*60)+seconds)/(24*60*60)
@@ -586,12 +586,12 @@ Hour=INT(DayFraction*24)
 *Examples*
 |===
 |expression|result|comment
-|TIME(0;0;0) |0|All zero arguments becomes midnight, 12:00:00 AM.
-|TIME(23;59;59)*60*60*24 |86399±ε|This is 11:59:59 PM.
-|TIME(11;125;144)*60*60*24 |47244±ε|Seconds and minutes roll over transitively; this is 1:07:24 PM.
-|TIME(11;0; -117)*60*60*24 |39483±ε|Negative seconds roll minutes backwards, 10:58:03 AM
-|TIME(11;-117;0)*60*60*24 |32580±ε|Negative minutes roll hours backwards, 9:03:00 AM
-|TIME(11;-125;-144)*60*60*24 |-31956±ε|Negative seconds and minutes roll backwards transitively, 8:52:36 AM
+|TIME(0,0,0) |0|All zero arguments becomes midnight, 12:00:00 AM.
+|TIME(23,59,59)*60*60*24 |86399±ε|This is 11:59:59 PM.
+|TIME(11,125,144)*60*60*24 |47244±ε|Seconds and minutes roll over transitively, this is 1:07:24 PM.
+|TIME(11,0, -117)*60*60*24 |39483±ε|Negative seconds roll minutes backwards, 10:58:03 AM
+|TIME(11,-117,0)*60*60*24 |32580±ε|Negative minutes roll hours backwards, 9:03:00 AM
+|TIME(11,-125,-144)*60*60*24 |-31956±ε|Negative seconds and minutes roll backwards transitively, 8:52:36 AM
 |===
 
 ==== TIMEVALUE
@@ -624,7 +624,7 @@ Hour=INT(DayFraction*24)
 *Examples*
 |===
 |expression|result|comment
-|TODAY()>DATE(2006;1;3) |True|Every date TODAY() changes, but we know it's beyond this date.
+|TODAY()>DATE(2006,1,3) |True|Every date TODAY() changes, but we know it's beyond this date.
 |INT(TODAY())=TODAY() |True|TODAY() returns an integer. WARNING: this test is allowed to fail if the locale transitions through midnight while computing this test; because TODAY() is referenced twice, in some implementations this would result in a race condition) This is incredibly unlikely to occur in practice.
 |===
 
@@ -632,7 +632,7 @@ Hour=INT(DayFraction*24)
 
 |===
 |*description*|Extract the day of the week from a date; if text, uses current locale to convert to a date.
-|*syntax*|WEEKDAY( DateParam Date [ ; Integer Type = 1 ] )
+|*syntax*|WEEKDAY( DateParam Date [ , Integer Type = 1 ] )
 |*returns*|Number
 |*semantics*|Returns the day of the week from a date, as a number from 0 through 7. The exact meaning depends on the value of Type:
 1.When Type is 1, Sunday is the first day of the week, with value 1; Saturday has value 7.
@@ -645,11 +645,11 @@ Hour=INT(DayFraction*24)
 *Examples*
 |===
 |expression|result|comment
-|WEEKDAY(DATE(2006;5;21)) |1|Year-month-date format
-|WEEKDAY(DATE(2005;1;1)) |7|Saturday.
-|WEEKDAY(DATE(2005;1;1);1) |7|Saturday.
-|WEEKDAY(DATE(2005;1;1);2) |6|Saturday.
-|WEEKDAY(DATE(2005;1;1);3) |5|Saturday.
+|WEEKDAY(DATE(2006,5,21)) |1|Year-month-date format
+|WEEKDAY(DATE(2005,1,1)) |7|Saturday.
+|WEEKDAY(DATE(2005,1,1),1) |7|Saturday.
+|WEEKDAY(DATE(2005,1,1),2) |6|Saturday.
+|WEEKDAY(DATE(2005,1,1),3) |5|Saturday.
 |===
 
 ==== WEEKNUM
@@ -704,7 +704,7 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 *Examples*
 |===
 |expression|result|comment
-|YEAR(DATE(1904;1;1)) |1904|Extracts year from a given date.
+|YEAR(DATE(1904,1,1)) |1904|Extracts year from a given date.
 |===
 
 ==== YEARFRAC
@@ -765,7 +765,7 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 |===
 |*description*|Uses an index to return a value from a list of values. Uses index_num to return a value from the list of value arguments. Use CHOOSE to select one of up to 254 values based on the index number. For example, if value1 through value7 are the days of the week, CHOOSE returns one of the days when a number between 1 and 7 is used as index_num.
-|*syntax*|CHOOSE( Integer Index ; { Any Value }+ )
+|*syntax*|CHOOSE( Integer Index , { Any Value }+ )
 |*returns*|Any
 |*semantics*|Uses Index to determine which value, from a list of values, to return. If Index is 1, CHOOSE returns the first Value; if Index is 2, CHOOSE returns the second value, and so on. Note that the Values may be formula expressions. Expression paths of parameters other than the one chosen are not calculated or evaluated for side effects.
 |*constraints*|Returns an error if Index < 1 or if there is no corresponding value in the list of Values.
@@ -774,11 +774,11 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 *Examples*
 |===
 |expression|result|comment
-|CHOOSE(3;"Apple";"Orange";"Grape";"Perry") |"Grape"|Simple selection.
-|CHOOSE(0;"Apple";"Orange";"Grape";"Perry") |Error|Index has to be at least 1.
-|CHOOSE(5;"Apple";"Orange";"Grape";"Perry") |Error|Index can't refer to non-existent entry.
-|CHOOSE(2;SUM([.B4:.B5]);SUM([.B5])) |3|Simple selection, using a set of formulas.
-|SUM(CHOOSE(2;[.B4:.B5];[.B5])) |3|CHOOSE can pass references
+|CHOOSE(3,"Apple","Orange","Grape","Perry") |"Grape"|Simple selection.
+|CHOOSE(0,"Apple","Orange","Grape","Perry") |Error|Index has to be at least 1.
+|CHOOSE(5,"Apple","Orange","Grape","Perry") |Error|Index can't refer to non-existent entry.
+|CHOOSE(2,SUM([.B4:.B5]),SUM([.B5])) |3|Simple selection, using a set of formulas.
+|SUM(CHOOSE(2,[.B4:.B5],[.B5])) |3|CHOOSE can pass references
 |===
 
 ==== COUNT
@@ -794,7 +794,7 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 *Examples*
 |===
 |expression|result|comment
-|COUNT(1;2;3) |3|Simple count.
+|COUNT(1,2,3) |3|Simple count.
 |COUNT("1","ABC","9EF") |1|Only counts parameters that are numbers.
 |===
 
@@ -829,10 +829,10 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 *Examples*
 |===
 |expression|result|comment
-|COUNTBLANK(1;;;2;3) |2|Simple count.
-|COUNTBLANK(1;2;3) |0|Simple count.
-|COUNTBLANK("1";"ABC";"9EF") |0|Simple count.
-|COUNTBLANK("1";"ABC";;"9EF") |1|Simple count.
+|COUNTBLANK(1,,,2,3) |2|Simple count.
+|COUNTBLANK(1,2,3) |0|Simple count.
+|COUNTBLANK("1","ABC","9EF") |0|Simple count.
+|COUNTBLANK("1","ABC",,"9EF") |1|Simple count.
 |===
 
 ==== DELTA
@@ -857,7 +857,7 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 |===
 |*description*|Raises an evaluation error with the given message.
-|*syntax*|ERROR( Text errorMessage; Text errorCode )
+|*syntax*|ERROR( Text errorMessage, Text errorCode )
 |*returns*|Error
 |*semantics*|errorCode defaults to -1 if not set.
 |*constraints*|None
@@ -866,7 +866,7 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 *Examples*
 |===
 |expression|result|comment
-|ERROR("Threw an error";1) |Error|Simple error.
+|ERROR("Threw an error",1) |Error|Simple error.
 |===
 
 ==== ISBLANK
@@ -926,7 +926,7 @@ IF(ISNA(X),FALSE(),ISERROR(X))
 |ISERROR(NA()) |True|Even NA().
 |ISERROR("#N/A") |False|Text is not an error.
 |ISERROR(1) |False|Numbers are not an error.
-|ISERROR(CHOOSE(0; "Apple"; "Orange"; "Grape"; "Perry")) |True|If CHOOSE given out-of-range value, ISERROR needs to capture it.
+|ISERROR(CHOOSE(0, "Apple", "Orange", "Grape", "Perry")) |True|If CHOOSE given out-of-range value, ISERROR needs to capture it.
 |===
 
 ==== ISEVEN
@@ -1186,7 +1186,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 |===
 |expression|result|comment
 |FALSE() |False|Constant.
-|IF(ISNUMBER(FALSE()),FALSE()=0;FALSE()) |True|Applications that implement logical values as 0/1 must map FALSE() to 0
+|IF(ISNUMBER(FALSE()),FALSE()=0,FALSE()) |True|Applications that implement logical values as 0/1 must map FALSE() to 0
 |2+FALSE() |2|FALSE converts to 0 in Number context
 |===
 
@@ -1228,7 +1228,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 
 |===
 |*description*|Returns the value unless it is null, then return an alternate value
-|*syntax*|IFNA( Text string; Text alternateValue )
+|*syntax*|IFNA( Text string, Text alternateValue )
 |*returns*|Text
 |*semantics*|If string is not null return string, else return alternateValue.
 |*constraints*|None
@@ -1431,7 +1431,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 |===
 |*description*|Returns the arctangent, or inverse tangent, of the specified x- and y-coordinates. The arctangent is the angle from the x-axis to a line containing the origin (0, 0) and a point with coordinates (x_num, y_num). The angle is given in radians between -pi and pi, excluding -pi.
-|*syntax*|ATAN2( Number X; Number Y )
+|*syntax*|ATAN2( Number X, Number Y )
 |*returns*|Number
 |*semantics*|X is the x coordinate, Y is the y coordinate
 |*constraints*|None
@@ -1440,7 +1440,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 *Examples*
 |===
 |expression|result|comment
-|ATAN2(10;5) |0.785398163|
+|ATAN2(10,5) |0.785398163|
 |ATAN2(1, 1) |0.785398163|Arctangent of the point 1,1 in radians, pi/4
 |===
 
@@ -1493,7 +1493,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 *Examples*
 |===
 |expression|result|comment
-|AVERAGE(2;4) |3|Simple average
+|AVERAGE(2,4) |3|Simple average
 |===
 
 ==== CEILING
@@ -1697,9 +1697,9 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 |FIXED([NUMBER_FIELD]], 1) |1,234.6|Rounds the number in [NUMBER_FIELD] one digit to the right of the decimal point.
 |FIXED([NUMBER_FIELD]], -1, TRUE) |-1230|Rounds the number in [NUMBER_FIELD] one digit to the left of the decimal point, without commas (the TRUE argument).
 |FIXED("190") |190.000|Decimal places not specified
-|FIXED("190.89";1) |190.9|Rounds to 1 decimal place
-|FIXED("1190.89";1;TRUE()) |1190.9|No grouping character
-|FIXED("1190.89";1;FALSE()) |1,190.9|With grouping character
+|FIXED("190.89",1) |190.9|Rounds to 1 decimal place
+|FIXED("1190.89",1,TRUE()) |1190.9|No grouping character
+|FIXED("1190.89",1,FALSE()) |1,190.9|With grouping character
 |===
 
 ==== FLOOR
@@ -1906,7 +1906,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|MAX(2;4;1;-8) |4|Negative numbers are smaller than positive numbers.
+|MAX(2,4,1,-8) |4|Negative numbers are smaller than positive numbers.
 |MAX([.B4:.B5]) |3|The maximum of (2,3) is 3.
 |===
 
@@ -1924,7 +1924,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|MIN(2;4;1;-8) |-8|Negative numbers are smaller than positive numbers.
+|MIN(2,4,1,-8) |-8|Negative numbers are smaller than positive numbers.
 |MIN([.B4:.B5]) |2|The minimum of (2,3) is 2.
 |MIN([.B3]) |0|If no numbers are provided in all ranges, MIN returns 0
 |MIN("a") |Error|Non-numbers inline are NOT ignored.
@@ -2038,7 +2038,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|FIXED(PI();5) |3.14159|Constant
+|FIXED(PI(),5) |3.14159|Constant
 |===
 
 ==== POISSON
@@ -2073,7 +2073,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|POWER(2;3) |8|Simple POWER
+|POWER(2,3) |8|Simple POWER
 |===
 
 ==== QUOTIENT
@@ -2286,8 +2286,8 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|SUM(1;2;3) |6|Simple sum.
-|SUM(TRUE();2;3) |6|TRUE() is 1.
+|SUM(1,2,3) |6|Simple sum.
+|SUM(TRUE(),2,3) |6|TRUE() is 1.
 |SUM([.B4:.B5]) |5|2+3 is 5.
 |===
 
@@ -2467,7 +2467,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|VAR(10;5;1) |20.333333|Simple VAR
+|VAR(10,5,1) |20.333333|Simple VAR
 |===
 
 === Text
@@ -2547,7 +2547,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|The CONCAT function combines the text from multiple ranges and/or strings, but it doesn't provide delimiter or IgnoreEmpty arguments.
-|*syntax*|CONCAT( Text t1 ; Text t2; Text tN )
+|*syntax*|CONCAT( Text t1 , Text t2, Text tN )
 |*returns*|Text
 |*semantics*|Returns the text strings concatenated together
 |*constraints*|Requires one or more parameters
@@ -2556,8 +2556,8 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|CONCATENATE("A";"B") |AB|2 parameter concatenation.
-|CONCATENATE("AB";"CD";"EF") |ABCDEF|3 parameter concatenation
+|CONCATENATE("A","B") |AB|2 parameter concatenation.
+|CONCATENATE("AB","CD","EF") |ABCDEF|3 parameter concatenation
 |===
 
 ==== DOLLAR
@@ -2575,7 +2575,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 |===
 |expression|result|comment
 |DOLLAR("190") |$190.00|Decimal places not specified
-|DOLLAR("190.89";1) |$190.9|Rounds to 1 decimal place
+|DOLLAR("190.89",1) |$190.9|Rounds to 1 decimal place
 |===
 
 ==== EXACT
@@ -2583,7 +2583,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|Report if two text values are exactly equal using a case-sensitive comparison
-|*syntax*|EXACT( Text t1 ; Text t2 )
+|*syntax*|EXACT( Text t1 , Text t2 )
 |*returns*|Logical
 |*semantics*|Converts both sides to text, and then returns TRUE if the two text values are "exactly" equal, including case, otherwise it returns FALSE.
 |*constraints*|None
@@ -2592,15 +2592,15 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|EXACT("A";"A") |True|Trivial comparison.
-|EXACT("A";"a") |False|EXACT, unlike "=", considers different cases different.
-|EXACT(1;1) |True|EXACT does work with numbers.
-|EXACT((1/3)*3;1) |True|Numerical comparisons ignore "trivial" differences that depend only on numeric precision of finite numbers.
-|EXACT(TRUE();TRUE()) |True|Works with Logical values.
-|EXACT("1";2) |False|Different types with different values are different.
-|EXACT("h";1) |False|If text and number, and text can't be converted to a number, they are different and NOT an error.
-|EXACT("1";1) |True|If text and number, see if number converted to text is equal.
-|EXACT(“ 1”;1) |False|This converts 1 into the Text value “1”, the compares and finds that it's not the same as “ 1” (note the leading space).
+|EXACT("A","A") |True|Trivial comparison.
+|EXACT("A","a") |False|EXACT, unlike "=", considers different cases different.
+|EXACT(1,1) |True|EXACT does work with numbers.
+|EXACT((1/3)*3,1) |True|Numerical comparisons ignore "trivial" differences that depend only on numeric precision of finite numbers.
+|EXACT(TRUE(),TRUE()) |True|Works with Logical values.
+|EXACT("1",2) |False|Different types with different values are different.
+|EXACT("h",1) |False|If text and number, and text can't be converted to a number, they are different and NOT an error.
+|EXACT("1",1) |True|If text and number, see if number converted to text is equal.
+|EXACT(“ 1”,1) |False|This converts 1 into the Text value “1”, the compares and finds that it's not the same as “ 1” (note the leading space).
 |===
 
 ==== FIND
@@ -2608,7 +2608,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|Return the starting position of a given text.
-|*syntax*|FIND( Text Search ; Text T [ ; Integer Start = 1 ] )
+|*syntax*|FIND( Text Search , Text T [ , Integer Start = 1 ] )
 |*returns*|Number
 |*semantics*|
 |*constraints*|Start >= 1
@@ -2617,14 +2617,14 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|FIND("b";"abcabc") |2|Simple FIND()
-|FIND("b";"abcabcabc"; 3) |5|Start changes the start of the search
-|FIND("b";"ABC";1) |Error|Matching is case-sensitive.
-|FIND("b";"bbbb") |1|Simple FIND(), default is 1
-|FIND("b";"bbbb";2) |2|
-|FIND("b";"bbbb";2.9) |2|INT(Start) used as starting position
-|FIND("b";"bbbb";0) |Error|Start >= 0
-|FIND("b";"bbbb";0.9) |Error|
+|FIND("b","abcabc") |2|Simple FIND()
+|FIND("b","abcabcabc", 3) |5|Start changes the start of the search
+|FIND("b","ABC",1) |Error|Matching is case-sensitive.
+|FIND("b","bbbb") |1|Simple FIND(), default is 1
+|FIND("b","bbbb",2) |2|
+|FIND("b","bbbb",2.9) |2|INT(Start) used as starting position
+|FIND("b","bbbb",0) |Error|Start >= 0
+|FIND("b","bbbb",0.9) |Error|
 |===
 
 ==== FIXED
@@ -2644,9 +2644,9 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 |FIXED([NUMBER_FIELD]], 1) |1,234.6|Rounds the number in [NUMBER_FIELD] one digit to the right of the decimal point.
 |FIXED([NUMBER_FIELD]], -1, TRUE) |-1230|Rounds the number in [NUMBER_FIELD] one digit to the left of the decimal point, without commas (the TRUE argument).
 |FIXED("190") |190.000|Decimal places not specified
-|FIXED("190.89";1) |190.9|Rounds to 1 decimal place
-|FIXED("1190.89";1;TRUE()) |1190.9|No grouping character
-|FIXED("1190.89";1;FALSE()) |1,190.9|With grouping character
+|FIXED("190.89",1) |190.9|Rounds to 1 decimal place
+|FIXED("1190.89",1,TRUE()) |1190.9|No grouping character
+|FIXED("1190.89",1,FALSE()) |1,190.9|With grouping character
 |===
 
 ==== LEFT
@@ -2654,9 +2654,9 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|Return a selected number of text characters from the left.
-|*syntax*|LEFT( Text T [ ; Integer Length ] )
+|*syntax*|LEFT( Text T [ , Integer Length ] )
 |*returns*|Text
-|*semantics*|Returns the INT(Length) number of characters of text T, starting from the left. If Length is omitted, it defaults to 1; otherwise, it computes Length=INT(Length). If T has fewer than Length characters, it returns T. This means that if T is an empty string (which has length 0) or the parameter Length is 0, LEFT() will always return an empty string. Note that if Length<0, an Error is returned. This function must return the same string as MID(T; 1; Length).
+|*semantics*|Returns the INT(Length) number of characters of text T, starting from the left. If Length is omitted, it defaults to 1; otherwise, it computes Length=INT(Length). If T has fewer than Length characters, it returns T. This means that if T is an empty string (which has length 0) or the parameter Length is 0, LEFT() will always return an empty string. Note that if Length<0, an Error is returned. This function must return the same string as MID(T, 1, Length).
 
 |*constraints*|Length >= 0
 |===
@@ -2664,14 +2664,14 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|LEFT("Hello";2) |"He"|Simple LEFT().
-|LEFT("Hello";2.9) |"He"|INT(), not round to nearest or round towards positive infinity, must be used to convert length into an integer.
+|LEFT("Hello",2) |"He"|Simple LEFT().
+|LEFT("Hello",2.9) |"He"|INT(), not round to nearest or round towards positive infinity, must be used to convert length into an integer.
 |LEFT("Hello") |"H"|Length defaults to 1.
-|LEFT("Hello";20) |"Hello"|If Length is longer than T, returns T.
-|LEFT("Hello";0) |""|If Length 0, returns empty string.
-|LEFT("";4) |""|Given an empty string, always returns empty string.
-|LEFT("xxx";-0.1) |Error|It makes no sense to request a negative number of characters. Also, this tests to ensure that INT() is used to convert non-integers to integers; if -0.1 were incorrectly rounded to 0 (as it would be by round-to-nearest or round-toward-zero), this would incorrectly return a null string.
-|LEFT("Hello";2^15-1) |"Hello"|If Length > LEN(T) entire string is returned.
+|LEFT("Hello",20) |"Hello"|If Length is longer than T, returns T.
+|LEFT("Hello",0) |""|If Length 0, returns empty string.
+|LEFT("",4) |""|Given an empty string, always returns empty string.
+|LEFT("xxx",-0.1) |Error|It makes no sense to request a negative number of characters. Also, this tests to ensure that INT() is used to convert non-integers to integers; if -0.1 were incorrectly rounded to 0 (as it would be by round-to-nearest or round-toward-zero), this would incorrectly return a null string.
+|LEFT("Hello",2^15-1) |"Hello"|If Length > LEN(T) entire string is returned.
 |===
 
 ==== LEN
@@ -2726,16 +2726,16 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 |expression|result|comment
 |MID([FIELD],1,5) ||Returns 5 characters from the string in [FIELD], starting at the 1st character.
 |MID([FIELD],7,20) ||Returns 20 characters from the string in [FIELD], starting at the 7th character. Because the number of characters to return (20) is greater than the length of the string (10), all characters, beginning with the 7th, are returned. No empty characters (spaces) are added to the end.
-|MID("123456789";5;3) |"567"|Simple use of MID.
-|MID("123456789";20;3)
+|MID("123456789",5,3) |"567"|Simple use of MID.
+|MID("123456789",20,3)
 |""|If Start is beyond string, return empty string.
-|MID("123456789";-1;0)
-|Error|Start cannot be less than one; even if the length is 0
-|MID("123456789";1;0)
+|MID("123456789",-1,0)
+|Error|Start cannot be less than one, even if the length is 0
+|MID("123456789",1,0)
 |""|But otherwise, length=0 produces the empty string
-|MID("123456789";2.9;1)
+|MID("123456789",2.9,1)
 |"2"|INT(Start) is used
-|MID("123456789";2;2.9)
+|MID("123456789",2,2.9)
 |"23"|INT(Length) is used
 |===
 
@@ -2744,9 +2744,9 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|Returns extracted text, given an original text, starting position, and length.
-|*syntax*|MID( Text T ; Integer Start ; Integer Length )
+|*syntax*|MID( Text T , Integer Start , Integer Length )
 |*returns*|Text
-|*semantics*|Returns the characters from T, starting at character position Start, for up to Length characters. For the integer conversions, Start=INT(Start), and Length=INT(Length). If there are less than Length characters starting at start, it returns as many characters as it can beginning with Start. In particular, if Start > LEN(T), it returns the empty string (""). If Start < 0, it returns an Error. If Start >=0, and Length=0, it returns the empty string. Note that MID(T;1;Length) produces the same results as LEFT(T;Length).
+|*semantics*|Returns the characters from T, starting at character position Start, for up to Length characters. For the integer conversions, Start=INT(Start), and Length=INT(Length). If there are less than Length characters starting at start, it returns as many characters as it can beginning with Start. In particular, if Start > LEN(T), it returns the empty string (""). If Start < 0, it returns an Error. If Start >=0, and Length=0, it returns the empty string. Note that MID(T,1,Length) produces the same results as LEFT(T,Length).
 |*constraints*|Start >= 1, Length >= 0.
 |===
 
@@ -2755,16 +2755,16 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 |expression|result|comment
 |MID([FIELD],1,5) ||Returns 5 characters from the string in [FIELD], starting at the 1st character.
 |MID([FIELD],7,20) ||Returns 20 characters from the string in [FIELD], starting at the 7th character. Because the number of characters to return (20) is greater than the length of the string (10), all characters, beginning with the 7th, are returned. No empty characters (spaces) are added to the end.
-|MID("123456789";5;3) |"567"|Simple use of MID.
-|MID("123456789";20;3)
+|MID("123456789",5,3) |"567"|Simple use of MID.
+|MID("123456789",20,3)
 |""|If Start is beyond string, return empty string.
-|MID("123456789";-1;0)
+|MID("123456789",-1,0)
 |Error|Start cannot be less than one; even if the length is 0
-|MID("123456789";1;0)
+|MID("123456789",1,0)
 |""|But otherwise, length=0 produces the empty string
-|MID("123456789";2.9;1)
+|MID("123456789",2.9,1)
 |"2"|INT(Start) is used
-|MID("123456789";2;2.9)
+|MID("123456789",2,2.9)
 |"23"|INT(Length) is used
 |===
 
@@ -2790,7 +2790,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|Returns text where an old text is substituted with a new text.
-|*syntax*|REPLACE( Text T ; Number Start ; Number Len ; Text New )
+|*syntax*|REPLACE( Text T , Number Start , Number Len , Text New )
 |*returns*|Text
 |*semantics*|Returns text T, but remove the characters starting at character position Start for Len characters, and instead replace them with New. Character positions defined by Start begin at 1 (for the leftmost character). If Len=0, the text New is inserted before character position Start, and all the text before and after Start is retained.
 |*constraints*|Start >= 1.
@@ -2799,8 +2799,8 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|REPLACE("123456789";5;3;"Q") |"1234Q89"|Replacement text may have different length.
-|REPLACE("123456789";5;0;"Q") |"1234Q56789"|If Len=0, 0 characters removed.
+|REPLACE("123456789",5,3,"Q") |"1234Q89"|Replacement text may have different length.
+|REPLACE("123456789",5,0,"Q") |"1234Q56789"|If Len=0, 0 characters removed.
 |===
 
 ==== REPT
@@ -2808,7 +2808,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|Return text repeated Count times.
-|*syntax*|REPT( Text T ; Integer Count )
+|*syntax*|REPT( Text T , Integer Count )
 |*returns*|Text
 |*semantics*|Returns text T repeated Count number of times; if Count is zero, an empty string is returned. If Count < 0, the result is Error.
 |*constraints*|Count >= 0
@@ -2817,11 +2817,11 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|REPT("X";3) |"XXX"|
-|REPT("XY";2) |"XYXY"|Repeated text can have length > 1.
-|REPT("X";2.9) |"XX"|INT(Count) used if count is a fraction
-|REPT("X";0) |""|If Count is zero, empty string
-|REPT("X";-1) |Error|If Count is negative, Error.
+|REPT("X",3) |"XXX"|
+|REPT("XY",2) |"XYXY"|Repeated text can have length > 1.
+|REPT("X",2.9) |"XX"|INT(Count) used if count is a fraction
+|REPT("X",0) |""|If Count is zero, empty string
+|REPT("X",-1) |Error|If Count is negative, Error.
 |===
 
 ==== RIGHT
@@ -2829,7 +2829,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|Return a selected number of text characters from the right.
-|*syntax*|RIGHT( Text T [ ; Integer Length ] )
+|*syntax*|RIGHT( Text T [ , Integer Length ] )
 |*returns*|Text
 |*semantics*|Returns the Length number of characters of text T, starting from the right. If Length is omitted, it defaults to 1; otherwise, it computes Length=INT(Length). If T has fewer than Length characters, it returns T (unchanged). This means that if T is an empty string (which has length 0) or the parameter Length is 0, RIGHT() will always return an empty string. Note that if Length<0, an Error is returned.
 |*constraints*|Length >= 0
@@ -2838,14 +2838,14 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|RIGHT("Hello";2) |"lo"|Simple RIGHT().
+|RIGHT("Hello",2) |"lo"|Simple RIGHT().
 |RIGHT("Hello") |"o"|Length defaults to 1.
-|RIGHT("Hello";20) |"Hello"|If Length is longer than T, returns T.
-|RIGHT("Hello";0) |""|If Length 0, returns empty string.
-|RIGHT("Hello";2^15-1) |“Hello”|If Length is larger than T and is very large, it still returns the original short string.
-|RIGHT("";4) |""|Given an empty string, always returns empty string.
-|RIGHT("Hello";-1) |Error|It makes no sense to request a negative number of characters.
-|RIGHT("Hello";-0.1) |Error|Must use INT, not round-to-nearest or round-towards zero, to convert Length to Integer
+|RIGHT("Hello",20) |"Hello"|If Length is longer than T, returns T.
+|RIGHT("Hello",0) |""|If Length 0, returns empty string.
+|RIGHT("Hello",2^15-1) |“Hello”|If Length is larger than T and is very large, it still returns the original short string.
+|RIGHT("",4) |""|Given an empty string, always returns empty string.
+|RIGHT("Hello",-1) |Error|It makes no sense to request a negative number of characters.
+|RIGHT("Hello",-0.1) |Error|Must use INT, not round-to-nearest or round-towards zero, to convert Length to Integer
 |===
 
 ==== ROMAN
@@ -2883,8 +2883,8 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|SEARCH("p";"Apple") |2|
-|SEARCH("p";"Apple";3) |3|Starts searching at index 3
+|SEARCH("p","Apple") |2|
+|SEARCH("p","Apple",3) |3|Starts searching at index 3
 |===
 
 ==== STRINGCOUNT
@@ -2901,8 +2901,8 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|STRINGCOUNT("Apple";"p") |2|
-|STRINGCOUNT("APPLE";"p") |0|Function is case sensitive
+|STRINGCOUNT("Apple","p") |2|
+|STRINGCOUNT("APPLE","p") |0|Function is case sensitive
 |===
 
 ==== SUBSTITUTE
@@ -2910,7 +2910,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|Returns text where an old text is substituted with a new text.
-|*syntax*|SUBSTITUTE( Text T ; Text Old ; Text New [ ; Number Which ] )
+|*syntax*|SUBSTITUTE( Text T , Text Old , Text New [ , Number Which ] )
 |*returns*|Text
 |*semantics*|Returns text T, but with text Old replaced by text New (when searching from the left). If Which is omitted, every occurrence of Old is replaced with New; if Which is provided, only that occurrence of Old is replaced by New (starting the count from 1). If there is no match, or if Old has length 0, the value of T is returned. Note that Old and New may have different lengths. If Which is present and Which < 1, returns Error.
 |*constraints*|Which >= 1 (when provided)
@@ -2919,12 +2919,12 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 *Examples*
 |===
 |expression|result|comment
-|SUBSTITUTE("121212";"2";"ab") |"1ab1ab1ab"|Without Which, all replaced.
-|SUBSTITUTE("121212";"2";"ab";2) |"121ab12"|Which starts counting from 1.
-|SUBSTITUTE("Hello";"x";"ab") |"Hello"|If not found, returns unchanged.
-|SUBSTITUTE("xyz";"";"ab") |"xyz"|Returns T if Old is Length 0.
-|SUBSTITUTE("";"";"ab") |""|Returns T if Old is Length 0, even if T is empty (it does not consider an empty T to “match” an empty Old).
-|SUBSTITUTE("Hello"; "H"; "J"; 0) |Error|Which cannot be less than 1.
+|SUBSTITUTE("121212","2","ab") |"1ab1ab1ab"|Without Which, all replaced.
+|SUBSTITUTE("121212","2","ab",2) |"121ab12"|Which starts counting from 1.
+|SUBSTITUTE("Hello","x","ab") |"Hello"|If not found, returns unchanged.
+|SUBSTITUTE("xyz","","ab") |"xyz"|Returns T if Old is Length 0.
+|SUBSTITUTE("","","ab") |""|Returns T if Old is Length 0, even if T is empty (it does not consider an empty T to “match” an empty Old).
+|SUBSTITUTE("Hello", "H", "J", 0) |Error|Which cannot be less than 1.
 |===
 
 ==== T
@@ -2951,7 +2951,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 |===
 |*description*|Return the value converted to a text.
-|*syntax*|TEXT( Scalar X ; Text FormatCode )
+|*syntax*|TEXT( Scalar X , Text FormatCode )
 |*returns*|Text
 |*semantics*|Converts the value X to a text according to the rules of a number format code passed as FormatCode and returns it.
 |*constraints*|The FormatCode is a sequence of characters with an application-defined meaning.
@@ -2961,8 +2961,8 @@ Portable Contraints: The result of this function may change across locales. If s
 *Examples*
 |===
 |expression|result|comment
-|TEXT(12345.6789;"#,##0.00") |"12,345.68"|Non-text converted to text. This is locale-specific.
-|TEXT(3;"0"" good things""") |"3 good things"|
+|TEXT(12345.6789,"#,##0.00") |"12,345.68"|Non-text converted to text. This is locale-specific.
+|TEXT(3,"0"" good things""") |"3 good things"|
 |===
 
 ==== TRIM
@@ -3030,7 +3030,7 @@ Portable Contraints: The result of this function may change across locales. If s
 *Examples*
 |===
 |expression|result|comment
-|UPPER("Habc7") |"HABC7"|Lowercase converted to upper case; other characters just copied to result.
+|UPPER("Habc7") |"HABC7"|Lowercase converted to upper case, other characters just copied to result.
 |===
 
 ==== URLENCODE
