@@ -294,17 +294,6 @@ public class XsltDialog extends ActionDialog {
                 FILETYPES_XSL,
                 true));
 
-    // Browse Source folders button ...
-    Button wbOutputDirectory = new Button(wFiles, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbOutputDirectory);
-    wbOutputDirectory.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
-    FormData fdbOutputDirectory = new FormData();
-    fdbOutputDirectory.right = new FormAttachment(100, 0);
-    fdbOutputDirectory.top = new FormAttachment(wXSLTFactory, margin);
-    wbOutputDirectory.setLayoutData(fdbOutputDirectory);
-    wbOutputDirectory.addListener(
-        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wOutputFilename, variables));
-
     // OutputFilename
     wlOutputFilename = new Label(wFiles, SWT.RIGHT);
     wlOutputFilename.setText(BaseMessages.getString(PKG, "ActionXSLT.OutputFilename.Label"));
@@ -331,8 +320,8 @@ public class XsltDialog extends ActionDialog {
     wOutputFilename.addModifyListener(lsMod);
     FormData fdOutputFilename = new FormData();
     fdOutputFilename.left = new FormAttachment(middle, 0);
-    fdOutputFilename.top = new FormAttachment(wxslFilename, margin);
-    fdOutputFilename.right = new FormAttachment(wbMovetoDirectory, -margin);
+    fdOutputFilename.top = new FormAttachment(wbMovetoDirectory, 0, SWT.CENTER);
+    fdOutputFilename.right = new FormAttachment(wbMovetoDirectory);
     wOutputFilename.setLayoutData(fdOutputFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
