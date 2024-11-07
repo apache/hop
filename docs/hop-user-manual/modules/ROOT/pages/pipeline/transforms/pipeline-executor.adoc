@@ -151,6 +151,72 @@ If the value changes the pipeline will be executed and the accumulated rows will
 You can specify result fields and to which transform to send them.
 If you don't need a certain result simply leave a blank input field.
 
+[options="header"]
+|===
+|Option |Description |Default Value
+
+|Target transform for the execution results
+|Use the drop-down menu to select a transform in the current pipeline as the target transform to receive the results from the specified pipeline.
+|N/A
+
+|Execution time (ms)
+|Specify the field name for the pipeline execution time.
+|ExecutionTime
+
+|Execution result
+|Specify the field name for the pipeline execution result.
+|ExecutionResult
+
+|Number of errors
+|Specify the field name for the number of errors during the execution of the pipeline.
+|ExecutionNrErrors
+
+|Number of rows read
+|Specify the field name for the total number of rows read during the execution of the pipeline.
+|ExecutionLinesRead
+
+|Number of rows written
+|Specify the field name for the total number of rows written during the execution of the pipeline.
+|ExecutionLinesWritten
+
+|Number of rows input
+|Specify the field name for the total number of input rows during the execution of the pipeline.
+|ExecutionLinesInput
+
+|Number of rows output
+|Specify the field name for the total number of output rows during the execution of the pipeline.
+|ExecutionLinesOutput
+
+|Number of rows rejected
+|Specify the field name for the total number of rows rejected during the execution of the pipeline.
+|ExecutionLinesRejected
+
+|Number of rows updated
+|Specify the field name for the total number of rows updated during the execution of the pipeline.
+|ExecutionLinesUpdated
+
+|Number of rows deleted
+|Specify the field name for the total number of rows deleted during the execution of the pipeline.
+|ExecutionLinesDeleted
+
+|Number of files retrieved
+|Specify the field name for the total number of files retrieved during the execution of the pipeline.
+|ExecutionFilesRetrieved
+
+|Exit status
+|Specify the field name for the exit status of the execution of the pipeline.
+|ExecutionExitStatus
+
+|Execution logging text
+|Specify the field name for the logging text from the execution of the pipeline.
+|ExecutionLogText
+
+|Log channel ID
+|Specify the field name for the log channel ID used during the execution of the pipeline.
+|ExecutionLogChannelID
+|===
+
+
 === Result Rows Tab
 
 In the "Result rows" tab you can specify the layout of the expected result rows of this pipeline and to which transform to send them after execution.
