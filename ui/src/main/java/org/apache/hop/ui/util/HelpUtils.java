@@ -25,6 +25,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -60,6 +61,7 @@ public class HelpUtils {
 
   private static Button newButton(final Composite parent) {
     Button button = new Button(parent, SWT.PUSH);
+    PropsUi.setLook(button);
     button.setImage(GuiResource.getInstance().getImageHelpWeb());
     button.setText(BaseMessages.getString(PKG, "System.Button.Help"));
     button.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Help"));
