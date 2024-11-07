@@ -18,7 +18,7 @@ under the License.
 :language: en_US
 :description: The Snowflake Bulk Loader transform utilizes the Snowflake Copy command to load data as opposed to sending individual insert statements through the Table Output transform
 
-= image:transforms/icons/snowflake.svg[Snowflake Bulk Loader transform Icon, role="image-doc-icon"] Snowflake Bulk Loader
+= image:transforms/icons/snowflakebulkloader.svg[Snowflake Bulk Loader transform Icon, role="image-doc-icon"] Snowflake Bulk Loader
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===

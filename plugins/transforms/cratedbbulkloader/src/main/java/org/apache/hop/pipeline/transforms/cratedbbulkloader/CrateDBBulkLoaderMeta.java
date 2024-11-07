@@ -49,7 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "CrateDBBulkLoader",
-    image = "CrateDBBulkLoader.svg",
+    image = "cratedbbulkloader.svg",
     name = "i18n::BaseTransform.TypeLongDesc.CrateDBBulkLoaderMessage",
     description = "i18n::BaseTransform.TypeTooltipDesc.CrateDBBulkLoaderMessage",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",

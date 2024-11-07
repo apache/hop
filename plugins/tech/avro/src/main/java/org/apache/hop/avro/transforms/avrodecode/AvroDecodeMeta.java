@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "Avro Decode",
     description = "Decodes Avro data types into Hop fields",
     image = "avro_decode.svg",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/avro-decode.html",
     keywords = "i18n::AvroDecodeMeta.keyword")
 public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData> {

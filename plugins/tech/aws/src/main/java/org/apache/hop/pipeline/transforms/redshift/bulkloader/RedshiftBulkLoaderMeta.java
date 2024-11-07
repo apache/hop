@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "RedshiftBulkLoader",
-    image = "redshift.svg",
+    image = "redshiftbulkloader.svg",
     name = "i18n::BaseTransform.TypeLongDesc.RedshiftBulkLoaderMessage",
     description = "i18n::BaseTransform.TypeTooltipDesc.RedshiftBulkLoaderMessage",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
