@@ -98,8 +98,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
   private PipelineMeta executorPipelineMeta = null;
 
-  protected boolean jobModified;
-
   private Button wInheritAll;
 
   private TableView wPipelineExecutorParameters;
@@ -151,7 +149,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
     pipelineExecutorMeta = transformMeta;
-    jobModified = false;
   }
 
   @Override
@@ -1230,30 +1227,37 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
     transformName = wTransformName.getText(); // return value
 
-    if (Utils.isEmpty(wPath.getText())) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.FilenameMissing.Header"));
-      mb.setMessage(BaseMessages.getString(PKG, "PipelineExecutorDialog.FilenameMissing.Message"));
-      mb.open();
-      return;
-    }
-    if (isSelfReferencing()) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.SelfReference.Header"));
-      mb.setMessage(BaseMessages.getString(PKG, "PipelineExecutorDialog.SelfReference.Message"));
-      mb.open();
-      return;
-    }
+    // No check if the pipeline to be executed comes from the stream field.
+    if (!wbPipelineNameInField.getSelection()) {
 
-    try {
-      loadPipeline();
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Title"),
-          BaseMessages.getString(
-              PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Message"),
-          e);
+      if (Utils.isEmpty(wPath.getText())) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.FilenameMissing.Header"));
+        mb.setMessage(
+            BaseMessages.getString(PKG, "PipelineExecutorDialog.FilenameMissing.Message"));
+        mb.open();
+        return;
+      }
+
+      if (isSelfReferencing()) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.SelfReference.Header"));
+        mb.setMessage(BaseMessages.getString(PKG, "PipelineExecutorDialog.SelfReference.Message"));
+        mb.open();
+        return;
+      }
+
+      try {
+        loadPipeline();
+      } catch (HopException e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(
+                PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Title"),
+            BaseMessages.getString(
+                PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Message"),
+            e);
+      }
     }
 
     pipelineExecutorMeta.setFilename(wPath.getText());
