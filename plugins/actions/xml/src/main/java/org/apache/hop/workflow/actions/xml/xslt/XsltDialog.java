@@ -147,7 +147,6 @@ public class XsltDialog extends ActionDialog {
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wName);
@@ -157,6 +156,7 @@ public class XsltDialog extends ActionDialog {
     fdName.top = new FormAttachment(0, margin);
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
+    fdlName.top = new FormAttachment(wName, 0, SWT.CENTER);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -196,7 +196,6 @@ public class XsltDialog extends ActionDialog {
     PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
-    fdlPrevious.top = new FormAttachment(wName, margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wFiles, SWT.CHECK);
@@ -207,6 +206,7 @@ public class XsltDialog extends ActionDialog {
     fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
     fdPrevious.right = new FormAttachment(100, 0);
     wPrevious.setLayoutData(fdPrevious);
+    fdlPrevious.top = new FormAttachment(wPrevious, 0, SWT.CENTER);
     wPrevious.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -222,7 +222,6 @@ public class XsltDialog extends ActionDialog {
     PropsUi.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
-    fdlxmlFilename.top = new FormAttachment(wlPrevious, 2 * margin);
     fdlxmlFilename.right = new FormAttachment(middle, -margin);
     wlxmlFilename.setLayoutData(fdlxmlFilename);
     wbxmlFilename = new Button(wFiles, SWT.PUSH | SWT.CENTER);
@@ -237,9 +236,10 @@ public class XsltDialog extends ActionDialog {
     wxmlFilename.addModifyListener(lsMod);
     FormData fdxmlFilename = new FormData();
     fdxmlFilename.left = new FormAttachment(middle, 0);
-    fdxmlFilename.top = new FormAttachment(wlPrevious, 2 * margin);
-    fdxmlFilename.right = new FormAttachment(wbxmlFilename, -margin);
+    fdxmlFilename.top = new FormAttachment(wbxmlFilename, 0, SWT.CENTER);
+    fdxmlFilename.right = new FormAttachment(wbxmlFilename);
     wxmlFilename.setLayoutData(fdxmlFilename);
+    fdlxmlFilename.top = new FormAttachment(wbxmlFilename, 0, SWT.CENTER);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wxmlFilename.addModifyListener(
@@ -261,7 +261,6 @@ public class XsltDialog extends ActionDialog {
     PropsUi.setLook(wlxslFilename);
     FormData fdlxslFilename = new FormData();
     fdlxslFilename.left = new FormAttachment(0, 0);
-    fdlxslFilename.top = new FormAttachment(wxmlFilename, margin);
     fdlxslFilename.right = new FormAttachment(middle, -margin);
     wlxslFilename.setLayoutData(fdlxslFilename);
     wbxslFilename = new Button(wFiles, SWT.PUSH | SWT.CENTER);
@@ -276,9 +275,10 @@ public class XsltDialog extends ActionDialog {
     wxslFilename.addModifyListener(lsMod);
     FormData fdxslFilename = new FormData();
     fdxslFilename.left = new FormAttachment(middle, 0);
-    fdxslFilename.top = new FormAttachment(wxmlFilename, margin);
-    fdxslFilename.right = new FormAttachment(wbxslFilename, -margin);
+    fdxslFilename.top = new FormAttachment(wbxslFilename, 0, SWT.CENTER);
+    fdxslFilename.right = new FormAttachment(wbxslFilename);
     wxslFilename.setLayoutData(fdxslFilename);
+    fdlxslFilename.top = new FormAttachment(wbxslFilename, 0, SWT.CENTER);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wxslFilename.addModifyListener(
@@ -300,7 +300,6 @@ public class XsltDialog extends ActionDialog {
     PropsUi.setLook(wlOutputFilename);
     FormData fdlOutputFilename = new FormData();
     fdlOutputFilename.left = new FormAttachment(0, 0);
-    fdlOutputFilename.top = new FormAttachment(wxslFilename, margin);
     fdlOutputFilename.right = new FormAttachment(middle, -margin);
     wlOutputFilename.setLayoutData(fdlOutputFilename);
 
@@ -314,6 +313,7 @@ public class XsltDialog extends ActionDialog {
     wbMovetoDirectory.setLayoutData(fdbMovetoDirectory);
     wbMovetoDirectory.addListener(
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wOutputFilename, variables));
+    fdlOutputFilename.top = new FormAttachment(wbMovetoDirectory, 0, SWT.CENTER);
 
     wOutputFilename = new TextVar(variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wOutputFilename);
@@ -357,7 +357,6 @@ public class XsltDialog extends ActionDialog {
     PropsUi.setLook(wlXSLTFactory);
     FormData fdlXSLTFactory = new FormData();
     fdlXSLTFactory.left = new FormAttachment(0, 0);
-    fdlXSLTFactory.top = new FormAttachment(wFiles, margin);
     fdlXSLTFactory.right = new FormAttachment(middle, -margin);
     wlXSLTFactory.setLayoutData(fdlXSLTFactory);
     wXSLTFactory = new CCombo(wFileResult, SWT.BORDER | SWT.READ_ONLY);
@@ -371,6 +370,7 @@ public class XsltDialog extends ActionDialog {
     wXSLTFactory.setLayoutData(fdXSLTFactory);
     wXSLTFactory.add("JAXP");
     wXSLTFactory.add("SAXON");
+    fdlXSLTFactory.top = new FormAttachment(wXSLTFactory, 0, SWT.CENTER);
 
     // IF File Exists
     Label wlIfFileExists = new Label(wFileResult, SWT.RIGHT);
@@ -379,13 +379,13 @@ public class XsltDialog extends ActionDialog {
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
-    fdlIfFileExists.top = new FormAttachment(wXSLTFactory, margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
     wIfFileExists = new CCombo(wFileResult, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wIfFileExists.add(BaseMessages.getString(PKG, "ActionXSLT.Create_NewFile_IfFileExists.Label"));
     wIfFileExists.add(BaseMessages.getString(PKG, "ActionXSLT.Do_Nothing_IfFileExists.Label"));
     wIfFileExists.add(BaseMessages.getString(PKG, "ActionXSLT.Fail_IfFileExists.Label"));
     wIfFileExists.select(1); // +1: starts at -1
+    fdlIfFileExists.top = new FormAttachment(wIfFileExists, 0, SWT.CENTER);
 
     PropsUi.setLook(wIfFileExists);
     FormData fdIfFileExists = new FormData();
@@ -406,7 +406,6 @@ public class XsltDialog extends ActionDialog {
     PropsUi.setLook(wlAddFileToResult);
     FormData fdlAddFileToResult = new FormData();
     fdlAddFileToResult.left = new FormAttachment(0, 0);
-    fdlAddFileToResult.top = new FormAttachment(wIfFileExists, margin);
     fdlAddFileToResult.right = new FormAttachment(middle, -margin);
     wlAddFileToResult.setLayoutData(fdlAddFileToResult);
     wAddFileToResult = new Button(wFileResult, SWT.CHECK);
@@ -415,7 +414,7 @@ public class XsltDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionXSLT.AddFileToResult.Tooltip"));
     FormData fdAddFileToResult = new FormData();
     fdAddFileToResult.left = new FormAttachment(middle, 0);
-    fdAddFileToResult.top = new FormAttachment(wlAddFileToResult, 0, SWT.CENTER);
+    fdAddFileToResult.top = new FormAttachment(wIfFileExists, margin);
     fdAddFileToResult.right = new FormAttachment(100, 0);
     wAddFileToResult.setLayoutData(fdAddFileToResult);
     wAddFileToResult.addSelectionListener(
@@ -425,6 +424,7 @@ public class XsltDialog extends ActionDialog {
             action.setChanged();
           }
         });
+    fdlAddFileToResult.top = new FormAttachment(wAddFileToResult, 0, SWT.CENTER);
 
     FormData fdFileResult = new FormData();
     fdFileResult.left = new FormAttachment(0, margin);
