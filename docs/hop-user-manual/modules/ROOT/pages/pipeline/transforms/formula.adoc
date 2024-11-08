@@ -92,6 +92,7 @@ TIP: The formula will not evaluate a field unless the field pre-exists. Either s
 |Length|field length
 |Precision|field precision
 |Replace value|select a pipeline field from the dropdown to replace that field's value with the formula result. It is not recommended to pre-create a field with a NULL value in a "Get variables" transform as that is considered a hack and is not supported behavior.
+| Set Null to #N/A | By default, Null values will create a blank cell during the calculation. Use this option to insert `#N/A` in the cell
 |===
 
 == Formula Editor

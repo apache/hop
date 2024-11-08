@@ -121,7 +121,11 @@ public class FormulaParser {
           cell.setCellValue(rowMeta.getString(dataRow, fieldPosition));
         }
       } else {
-        cell.setBlank();
+        if (formulaMetaFunction.isSetNa()) {
+          cell.setCellFormula("NA()");
+        } else {
+          cell.setBlank();
+        }
       }
 
       fieldIndex++;
