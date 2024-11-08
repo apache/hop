@@ -774,8 +774,6 @@ public class CombinationLookupDialog extends BaseTransformDialog {
       return;
     }
 
-    CombinationLookupMeta oldMetaState = input.clone();
-
     getInfo(input);
     transformName = wTransformName.getText(); // return value
 
@@ -786,9 +784,6 @@ public class CombinationLookupDialog extends BaseTransformDialog {
       mb.setText(
           BaseMessages.getString(PKG, "CombinationLookupDialog.NoValidConnection.DialogTitle"));
       mb.open();
-    }
-    if (!input.equals(oldMetaState)) {
-      input.setChanged();
     }
     dispose();
   }
