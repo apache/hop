@@ -18,9 +18,13 @@
 package org.apache.hop.pipeline.transforms.formula;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class FormulaMetaFunction {
   public static final String XML_TAG = "formula";
 
@@ -54,6 +58,9 @@ public class FormulaMetaFunction {
       injectionKeyDescription = "FormulaMeta.Injection.ReplaceField")
   private String replaceField;
 
+  @HopMetadataProperty(key = "set_na", injectionKeyDescription = "FormulaMeta.Injection.setNa")
+  private boolean setNa;
+
   /** This value will be discovered on runtime and need not to be persisted into xml or rep. */
   @SuppressWarnings("java:S2065") // disable sonar warning on transient
   private transient boolean needDataConversion = false;
@@ -72,13 +79,15 @@ public class FormulaMetaFunction {
       int valueType,
       int valueLength,
       int valuePrecision,
-      String replaceField) {
+      String replaceField,
+      boolean setNa) {
     this.fieldName = fieldName;
     this.formula = formula;
     this.valueType = valueType;
     this.valueLength = valueLength;
     this.valuePrecision = valuePrecision;
     this.replaceField = replaceField;
+    this.setNa = setNa;
 
     ValueMetaFactory.getIdForValueMeta("Boolean");
   }
@@ -90,7 +99,8 @@ public class FormulaMetaFunction {
 
   @Override
   public int hashCode() {
-    return Objects.hash(fieldName, formula, valueType, valueLength, valuePrecision, replaceField);
+    return Objects.hash(
+        fieldName, formula, valueType, valueLength, valuePrecision, replaceField, setNa);
   }
 
   @Override
@@ -101,103 +111,5 @@ public class FormulaMetaFunction {
     } catch (CloneNotSupportedException e) {
       return null;
     }
-  }
-
-  /**
-   * @return Returns the fieldName.
-   */
-  public String getFieldName() {
-    return fieldName;
-  }
-
-  /**
-   * @param fieldName The fieldName to set.
-   */
-  public void setFieldName(String fieldName) {
-    this.fieldName = fieldName;
-  }
-
-  /**
-   * @return Returns the valueLength.
-   */
-  public int getValueLength() {
-    return valueLength;
-  }
-
-  /**
-   * @param valueLength The valueLength to set.
-   */
-  public void setValueLength(int valueLength) {
-    this.valueLength = valueLength;
-  }
-
-  /**
-   * @return Returns the valuePrecision.
-   */
-  public int getValuePrecision() {
-    return valuePrecision;
-  }
-
-  /**
-   * @param valuePrecision The valuePrecision to set.
-   */
-  public void setValuePrecision(int valuePrecision) {
-    this.valuePrecision = valuePrecision;
-  }
-
-  /**
-   * @return Returns the valueType.
-   */
-  public int getValueType() {
-    return valueType;
-  }
-
-  /**
-   * @param valueType The valueType to set.
-   */
-  public void setValueType(int valueType) {
-    this.valueType = valueType;
-  }
-
-  /**
-   * @return the formula
-   */
-  public String getFormula() {
-    return formula;
-  }
-
-  /**
-   * @param formula the formula to set
-   */
-  public void setFormula(String formula) {
-    this.formula = formula;
-  }
-
-  /**
-   * @return the replaceField
-   */
-  public String getReplaceField() {
-    return replaceField;
-  }
-
-  /**
-   * @param replaceField the replaceField to set
-   */
-  public void setReplaceField(String replaceField) {
-    this.replaceField = replaceField;
-  }
-
-  /**
-   * @return the needDataConversion
-   */
-  public boolean isNeedDataConversion() {
-    return needDataConversion;
-  }
-
-  /**
-   * @param needDataConversion the needDataConversion to set
-   */
-  public void setNeedDataConversion(boolean needDataConversion) {
-    this.needDataConversion = needDataConversion;
   }
 }

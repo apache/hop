@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class FormulaDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FormulaDialog.class;
+  public static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private TableView wFields;
 
@@ -151,8 +152,12 @@ public class FormulaDialog extends BaseTransformDialog {
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "FormulaDialog.Replace.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "FormulaDialog.NA.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {}),
+              BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
+              BaseMessages.getString(PKG, "System.Combo.No")),
         };
 
     wFields =
@@ -305,6 +310,11 @@ public class FormulaDialog extends BaseTransformDialog {
           item.setText(5, "" + fn.getValuePrecision());
         }
         item.setText(6, Const.NVL(fn.getReplaceField(), ""));
+        item.setText(
+            7,
+            Boolean.TRUE.equals(fn.isSetNa())
+                ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, "System.Combo.No"));
       }
     }
 
@@ -340,12 +350,20 @@ public class FormulaDialog extends BaseTransformDialog {
       int valueLength = Const.toInt(item.getText(4), -1);
       int valuePrecision = Const.toInt(item.getText(5), -1);
       String replaceField = item.getText(6);
+      boolean setNa =
+          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(7));
 
       currentMeta
           .getFormulas()
           .add(
               new FormulaMetaFunction(
-                  fieldName, formulaString, valueType, valueLength, valuePrecision, replaceField));
+                  fieldName,
+                  formulaString,
+                  valueType,
+                  valueLength,
+                  valuePrecision,
+                  replaceField,
+                  setNa));
     }
 
     if (!originalMeta.equals(currentMeta)) {
