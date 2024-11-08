@@ -29,7 +29,7 @@ Hop Server is a lightweight server to run workflows and pipelines with the xref:
 Hop Server is available as a script in your Hop installation directory.
 
 Run Hop Server without any parameters to display its usage options.
-On Windows, this is `hop-server.bat`, on Mac and Linux, run `hop-server.sh`.
+On Windows, this is `hop-server.bat`, on Mac and Linux, run `./hop-server.sh`.
 
 &nbsp; +
 
@@ -139,11 +139,11 @@ This is provided for by the 'projects' plugin.
 
 Hop Server can be started with hostname or ip address and port number as unnamed arguments:
 
-Example: `hop-server.sh 0.0.0.0 8080`
+Example: `./hop-server.sh 0.0.0.0 8080`
 
 Example: `hop-server.bat 192.168.1.221 8081`
 
-Example: `hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml`
+Example: `./hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml`
 
 Example: `hop-server.bat 127.0.0.1 8080 --userName cluster --password cluster`
 
@@ -171,15 +171,15 @@ Linux, macOS::
 +
 --
 [source,shell]
-hop-server.sh 127.0.0.1 8080
+ ./hop-server.sh 127.0.0.1 8080
 
 [source,shell]
-hop-server.sh 192.168.1.221 8081
+ ./hop-server.sh 192.168.1.221 8081
 
 Listen to all interfaces on the server:
 
 [source,shell]
-hop-server.sh 0.0.0.0 8080--
+ ./hop-server.sh 0.0.0.0 8080--
 --
 ====
 
@@ -258,17 +258,17 @@ Linux, macOS::
 +
 --
 [source,shell]
-hop-server.sh /foo/bar/hop-server-config.xml
+ ./hop-server.sh /foo/bar/hop-server-config.xml
 
 Or with a remote configuration file:
 
 [source,shell]
-hop-server.sh http://www.example.com/hop-server-config.xml
+ ./hop-server.sh http://www.example.com/hop-server-config.xml
 
 You can also enable a project lifecyfle environment for the Hop server:
 
 [source,shell]
-hop-server.sh -e graph-aws hop-server.xml
+ ./hop-server.sh -e graph-aws hop-server.xml
 
 --
 ====
@@ -411,7 +411,7 @@ Linux, macOS::
 +
 --
 [source,shell]
-hop-server.sh 127.0.0.1 8080 -k -u cluster -p cluster
+ ./hop-server.sh 127.0.0.1 8080 -k -u cluster -p cluster
 --
 ====
 
@@ -430,7 +430,7 @@ Linux, macOS::
 +
 --
 [source,shell]
-hop-server.sh 127.0.0.1 8080 8079 -k -u cluster -p cluster
+ ./hop-server.sh 127.0.0.1 8080 8079 -k -u cluster -p cluster
 --
 ====
 
