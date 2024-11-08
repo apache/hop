@@ -86,17 +86,34 @@ The `Get Parameters` button in the lower right corner of the tab that will inser
 The `Map Parameters` button in the lower right corner of the tab lets you map fields in the current pipeline to parameters in the child workflow.
 
 
-
-
 === Row Grouping Tab
 
 On this tab you can specify the amount of input rows that are passed to the workflow in the form of result rows.
-You can use the result rows in a workflow or Pipeline workflow action to loop over or you can get the records themselves in a Get rows from result transform in a pipeline.
 
-- The number of rows to send to the workflow: after every X rows the workflow will be executed and these X rows will be passed to the workflow.
-- Field to group rows on: Rows will be accumulated in a group as long as the field value stays the same.
+Specify how to group the result rows by using one of the following methods:
+
+* Specific number of rows.
+* Specific field.
+* Specified duration of time.
+
+You can use the result rows in a pipeline or workflow action, or you can retrieve the records directly by using the *Get rows from result* action in a pipeline.
+
+To access the *Field to group rows on* or *Duration time when collecting rows* options, remove the default value (1) in the *Number of rows to send to pipeline* option.
+
+[cols="1,3", options="header"]
+|===
+| Option | Description
+
+| *Number of rows to send to pipeline*
+| Specify a number. After every *n* number of rows, the workflow will be executed, and these *n* rows will be passed to the pipeline. Default value: 1
+
+| *Field to group rows on*
+| Specify a field for grouping rows. Rows will be accumulated in a group as long as the field value stays the same.
 If the value changes the workflow will be executed and the accumulated rows will be passed to the workflow.
-- The time to wait collecting rows before execution: This is time the transform will spend accumulating rows prior to the execution of the workflow.
+
+| *Duration time when collecting rows*
+| Specify a duration in milliseconds. This is time the transform will spend accumulating rows prior to the execution of the workflow.
+|===
 
 Please note that you can only specify one method of grouping.
 
