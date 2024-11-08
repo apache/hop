@@ -817,6 +817,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
                         e);
                   } finally {
                     text.dispose();
+                    refresh();
                   }
                 }
                 break;

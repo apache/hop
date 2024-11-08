@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -52,6 +54,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     keywords = "i18n::CombinationLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/combinationlookup.html")
+@Getter
+@Setter
 public class CombinationLookupMeta
     extends BaseTransformMeta<CombinationLookup, CombinationLookupData> {
 
@@ -139,8 +143,9 @@ public class CombinationLookupMeta
   }
 
   @Override
-  public CombinationLookupMeta clone() {
-    return new CombinationLookupMeta(this);
+  public Object clone() {
+    CombinationLookupMeta retval = (CombinationLookupMeta) super.clone();
+    return retval;
   }
 
   @Override
@@ -701,189 +706,5 @@ public class CombinationLookupMeta
       extraFields = db.getTableFields(schemaTable);
     }
     return extraFields;
-  }
-
-  Database createDatabaseObject(IVariables variables) {
-    return new Database(loggingObject, variables, databaseMeta);
-  }
-
-  /**
-   * Gets schemaName
-   *
-   * @return value of schemaName
-   */
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  /**
-   * Sets schema name
-   *
-   * @param schemaName value of schemaName
-   */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
-  /**
-   * Returns the table name
-   *
-   * @return value of table name
-   */
-  public String getTableName() {
-    return tableName;
-  }
-
-  /**
-   * Sets tableName
-   *
-   * @param tableName value of tableName
-   */
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  /**
-   * Gets databaseMeta
-   *
-   * @return value of databaseMeta
-   */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /**
-   * Sets databaseMeta
-   *
-   * @param databaseMeta value of databaseMeta
-   */
-  public void setDatabaseMeta(DatabaseMeta databaseMeta) {
-    this.databaseMeta = databaseMeta;
-  }
-
-  /**
-   * Gets replaceFields
-   *
-   * @return value of replaceFields
-   */
-  public boolean isReplaceFields() {
-    return replaceFields;
-  }
-
-  /**
-   * Sets replaceFields
-   *
-   * @param replaceFields value of replaceFields
-   */
-  public void setReplaceFields(boolean replaceFields) {
-    this.replaceFields = replaceFields;
-  }
-
-  /**
-   * Gets useHash
-   *
-   * @return value of useHash
-   */
-  public boolean isUseHash() {
-    return useHash;
-  }
-
-  /**
-   * Sets useHash
-   *
-   * @param useHash value of useHash
-   */
-  public void setUseHash(boolean useHash) {
-    this.useHash = useHash;
-  }
-
-  /**
-   * Gets hashField
-   *
-   * @return value of hashField
-   */
-  public String getHashField() {
-    return hashField;
-  }
-
-  /**
-   * Sets hashField
-   *
-   * @param hashField value of hashField
-   */
-  public void setHashField(String hashField) {
-    this.hashField = hashField;
-  }
-
-  /**
-   * Gets commitSize
-   *
-   * @return value of commitSize
-   */
-  public int getCommitSize() {
-    return commitSize;
-  }
-
-  /**
-   * Sets commitSize
-   *
-   * @param commitSize value of commitSize
-   */
-  public void setCommitSize(int commitSize) {
-    this.commitSize = commitSize;
-  }
-
-  /**
-   * Gets preloadCache
-   *
-   * @return value of preloadCache
-   */
-  public boolean isPreloadCache() {
-    return preloadCache;
-  }
-
-  /**
-   * Sets preloadCache
-   *
-   * @param preloadCache value of preloadCache
-   */
-  public void setPreloadCache(boolean preloadCache) {
-    this.preloadCache = preloadCache;
-  }
-
-  /**
-   * Gets cacheSize
-   *
-   * @return value of cacheSize
-   */
-  public int getCacheSize() {
-    return cacheSize;
-  }
-
-  /**
-   * Sets cacheSize
-   *
-   * @param cacheSize value of cacheSize
-   */
-  public void setCacheSize(int cacheSize) {
-    this.cacheSize = cacheSize;
-  }
-
-  /**
-   * Gets fields
-   *
-   * @return value of fields
-   */
-  public CFields getFields() {
-    return fields;
-  }
-
-  /**
-   * Sets fields
-   *
-   * @param fields value of fields
-   */
-  public void setFields(CFields fields) {
-    this.fields = fields;
   }
 }

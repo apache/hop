@@ -794,4 +794,9 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     names.add("Mysql");
     return names;
   }
+
+  @Override
+  public boolean isSupportsTimestampDataType() {
+    return true;
+  }
 }
