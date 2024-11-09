@@ -71,3 +71,66 @@ You can change this behavior with the options:
 * `--skip-hidden` : Don't copy hidden files and folders like `.git`, `.gitignore` and so on
 * `--skip-existing` : Only copy files which haven't been copied yet
 
+== Import Form Options
+
+When using the *Import from Kettle* form in the Hop GUI, the following options are available:
+
+[cols="1,2,1", options="header"]
+|===
+| **Option** | **Description** | **Default Value**
+
+| *Import from*
+| Select the source Kettle directory or project.
+| -
+
+| *Import in existing project*
+| Choose whether to import into an already existing Hop project.
+| Selected
+
+| *Import in project*
+| Specify the target project for the imported data.
+| -
+
+| *Import to folder*
+| Define the folder path where imported files will be stored.
+| -
+
+To enable this option, deselect the *Import in existing project* option
+
+| *Path to `kettle.properties`*
+| Specify the path to the `kettle.properties` file if it's not in the default location.
+| -
+
+| *Path to `shared.xml`*
+| Indicate the path to the `shared.xml` file if necessary.
+| -
+
+| *Path to `jdbc.properties`*
+| Provide the path to the `jdbc.properties` file if needed.
+| -
+
+| *Skip existing target files?*
+| Enable this option to skip copying files that are already present in the target directory.
+| Selected
+
+| *Skip hidden files and folders?*
+| Choose to exclude hidden files and folders during the import.
+| Selected
+
+| *Skip folders in the source?*
+| Opt to exclude sub-folders from being imported.
+| Selected
+
+| *Target environment variables config file*
+| Specify the name of the environment configuration file where variables from `kettle.properties` will be stored.
+| `imported-env-conf.json`
+
+| *Pipeline default run configuration*
+| Set the default run configuration for imported pipelines.
+| -
+
+| *Workflow default run configuration*
+| Set the default run configuration for imported workflows.
+| -
+|===
+
