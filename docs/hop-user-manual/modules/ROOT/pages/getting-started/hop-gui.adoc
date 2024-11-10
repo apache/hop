@@ -27,15 +27,22 @@ The Apache Hop GUI is your local development environment to build, run, preview 
 
 As we've seen in xref:getting-started/hop-tools.adoc[Hop Tools], starting Hop-Gui is easy:
 
-On Linux or Mac:
-
-[source,bash]
-￼./hop-gui.sh
-
-On Windows:
-
-[source,shell script]
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
 hop-gui.bat
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+￼./hop-gui.sh
+--
+====
 
 == Walking through the Hop GUI
 
@@ -45,14 +52,30 @@ image:getting-started/gs-hop-gui-overview-1.png[Hop Gui Overview]
 
 {nbsp} +
 
-Let's divide the view into three parts:
+Let's divide the view into two parts:
 
 image:getting-started/gs-hop-gui-overview-2.png[Hop Gui Overview]
 ￼
 
-* the **menu bar** includes options mainly for managing pipelines and workflows and the Apache Hop GUI configuration.
-* the **main toolbar** includes the New option to create files (pipelines and workflows) and metadata, and the options to manage projects and environments.
-* the **perspectives toolbar** includes switcher icons between the various perspectives.
+* The **main toolbar** offers a range of functions, including creating new files (such as pipelines and workflows) and adding metadata. It also provides options for managing projects and environments, as well as tools specifically for handling pipelines, workflows, and project settings.
+* The **perspectives toolbar** includes switcher icons between the various perspectives.
+
+
+** image:icons/data_orch.svg[width="24px"] xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestration]
+
+** image:icons/execution.svg[width="24px"] xref:hop-gui/perspective-execution-information.adoc[Execution Information]
+
+** image:icons/gear.svg[width="24px"] xref:hop-gui/perspective-configuration.adoc[Configuration]
+
+** image:icons/metadata.svg[width="24px"] xref:hop-gui/perspective-metadata.adoc[Metadata]
+
+** image:icons/folder.svg[width="24px"] xref:hop-gui/perspective-file-explorer.adoc[File explorer]
+
+** image:icons/search.svg[width="24px"] xref:hop-gui/perspective-search.adoc[Search]
+
+** image:icons/plugin.svg[width="24px"] xref:hop-gui/perspective-plugin.adoc[Plugins explorer]
+
+** image:icons/neo4j_logo.svg[width="24px"] xref:hop-gui/perspective-neo4j.adoc[Neo4j]
 
 Let's see how we can use Hop Gui to do what Hop is all about: create pipelines and workflows!
 
