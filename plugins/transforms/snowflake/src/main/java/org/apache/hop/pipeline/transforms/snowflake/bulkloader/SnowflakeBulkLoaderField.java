@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.snowflake.bulkloader;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 /** Describes a single field mapping from the Hop stream to the Snowflake table */
 public class SnowflakeBulkLoaderField implements Cloneable {
@@ -28,7 +29,10 @@ public class SnowflakeBulkLoaderField implements Cloneable {
   private String streamField;
 
   /** The field name on the table */
-  @HopMetadataProperty(key = "table_field", injectionGroupKey = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "table_field",
+      injectionGroupKey = "OUTPUT_FIELDS",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String tableField;
 
   /**

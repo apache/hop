@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.vertica.bulkloader;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class VerticaBulkLoaderField {
 
@@ -38,7 +39,8 @@ public class VerticaBulkLoaderField {
   @HopMetadataProperty(
       key = "column_name",
       injectionKey = "DATABASE_FIELDNAME",
-      injectionKeyDescription = "VerticaBulkLoader.Inject.FIELDDATABASE")
+      injectionKeyDescription = "VerticaBulkLoader.Inject.FIELDDATABASE",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String fieldDatabase;
 
   public String getFieldStream() {

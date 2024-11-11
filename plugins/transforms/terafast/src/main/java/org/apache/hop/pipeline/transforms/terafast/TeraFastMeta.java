@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -49,7 +50,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::TeraFast.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::TeraFastMeta.keyword",
-    documentationUrl = "/pipeline/transforms/terafast.html")
+    documentationUrl = "/pipeline/transforms/terafast.html",
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformData> {
 
   public static final PluginMessages MESSAGES = PluginMessages.getMessages(TeraFastMeta.class);

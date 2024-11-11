@@ -22,6 +22,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.workflow.action.ActionBase;
@@ -39,7 +40,9 @@ import org.neo4j.driver.TransactionWork;
     keywords = "i18n::CypherScript.keyword",
     documentationUrl = "/workflow/actions/neo4j-cypherscript.html")
 public class CypherScript extends ActionBase implements IAction {
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
   private String connectionName;
 
   @HopMetadataProperty(key = "script")

@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.tableexists;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -32,6 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -44,18 +46,22 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::TableExists.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::TableExistsMeta.keyword",
-    documentationUrl = "/pipeline/transforms/tableexists.html")
+    documentationUrl = "/pipeline/transforms/tableexists.html",
+    actionTransformTypes = {ActionTransformType.RDBMS})
 public class TableExistsMeta extends BaseTransformMeta<TableExists, TableExistsData> {
   private static final Class<?> PKG = TableExistsMeta.class;
 
   /** database connection */
-  @HopMetadataProperty(injectionKeyDescription = "TableExistsMeta.Injection.Connection")
+  @HopMetadataProperty(
+      injectionKeyDescription = "TableExistsMeta.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** dynamic tablename */
   @HopMetadataProperty(
       key = "tablenamefield",
-      injectionKeyDescription = "TableExistsMeta.Injection.TableNameField")
+      injectionKeyDescription = "TableExistsMeta.Injection.TableNameField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableNameField;
 
   /** function result: new value name */
@@ -66,7 +72,8 @@ public class TableExistsMeta extends BaseTransformMeta<TableExists, TableExistsD
 
   @HopMetadataProperty(
       key = "schemaname",
-      injectionKeyDescription = "TableExistsMeta.Injection.SchemaName")
+      injectionKeyDescription = "TableExistsMeta.Injection.SchemaName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   public TableExistsMeta() {

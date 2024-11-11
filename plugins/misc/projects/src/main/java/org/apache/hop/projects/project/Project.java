@@ -25,6 +25,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -48,6 +51,9 @@ import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
@@ -453,6 +459,148 @@ public class Project extends ConfigFile implements IConfigFile {
     }
     Collections.sort(actionTypes);
     return actionTypes;
+  }
+
+  public List<String> getPipelinesForMetadataItem(IVariables variables, String metadataItemName)
+      throws HopException,
+          NoSuchMethodException,
+          InvocationTargetException,
+          IllegalAccessException,
+          IOException {
+
+    List<String> resultStrings = new ArrayList<>();
+    Map<HopMetadataPropertyType, String> metadataItems = new HashMap();
+
+    // get the metadata item(s) with the provided metadataItemName
+    List<Class<IHopMetadata>> metadataClasses = metadataProvider.getMetadataClasses();
+
+    // walk over all metadata classes, build a list of available metadata types for the provided
+    // metadata item.
+    for (Class<IHopMetadata> metadataClass : metadataClasses) {
+      IHopMetadataSerializer<IHopMetadata> metadataSerializer =
+          metadataProvider.getSerializer(metadataClass);
+
+      List<String> names = metadataSerializer.listObjectNames();
+
+      // add the available HopMetadataPropertyTypes from @HopMetadata and add to metadataItems
+      if (names.contains(metadataItemName)) {
+        if (metadataClass.isAnnotationPresent(HopMetadata.class)) {
+          HopMetadata annotation = metadataClass.getAnnotation(HopMetadata.class);
+          HopMetadataPropertyType hopMetadataPropertyType = annotation.hopMetadataPropertyType();
+          metadataItems.put(hopMetadataPropertyType, metadataItemName);
+        }
+      }
+    }
+
+    // build the map of transforms per pipeline if we don't have it available
+    if (pipelineTransformsMap == null || pipelineTransformsMap.size() == 0) {
+      getTransformTypes(variables);
+    }
+
+    // walk over all transforms in all pipelines, find occurrences of this metadata item.
+    for (PipelineMeta pipelineMeta : pipelineTransformsMap.keySet()) {
+      for (TransformMeta transformMeta : pipelineTransformsMap.get(pipelineMeta)) {
+
+        // walk over the fields in a transform and check their @HopMetadataProperty annotations for
+        // HopMetadataPropertyType
+        Field[] fields = transformMeta.getTransform().getClass().getDeclaredFields();
+        for (Field field : fields) {
+          if (field.isAnnotationPresent(HopMetadataProperty.class)) {
+            HopMetadataProperty annotation = field.getAnnotation(HopMetadataProperty.class);
+            HopMetadataPropertyType hopMetadataPropertyType = annotation.hopMetadataPropertyType();
+            if (metadataItems.keySet().contains(hopMetadataPropertyType)) {
+              Method method =
+                  transformMeta
+                      .getTransform()
+                      .getClass()
+                      .getMethod("get" + StringUtils.capitalize(field.getName()));
+              String resultStr = (String) method.invoke(transformMeta.getTransform());
+              resultStrings.add(
+                  pipelineMeta.getFilename()
+                      + " -> "
+                      + transformMeta.getName()
+                      + " -> "
+                      + resultStr
+                      + " ("
+                      + hopMetadataPropertyType
+                      + ")");
+            }
+          }
+        }
+      }
+    }
+    return resultStrings;
+  }
+
+  public List<String> getWorkflowsForMetadataItem(IVariables variables, String metadataItemName)
+      throws HopException,
+          NoSuchMethodException,
+          InvocationTargetException,
+          IllegalAccessException,
+          IOException {
+
+    List<String> resultStrings = new ArrayList<>();
+    Map<HopMetadataPropertyType, String> metadataItems = new HashMap();
+
+    // get the metadata item(s) with the provided metadataItemName
+    List<Class<IHopMetadata>> metadataClasses = metadataProvider.getMetadataClasses();
+
+    // walk over all metadata classes, build a list of available metadata types for the provided
+    // metadata item.
+    for (Class<IHopMetadata> metadataClass : metadataClasses) {
+      IHopMetadataSerializer<IHopMetadata> metadataSerializer =
+          metadataProvider.getSerializer(metadataClass);
+
+      List<String> names = metadataSerializer.listObjectNames();
+
+      // add the available HopMetadataPropertyTypes from @HopMetadata and add to metadataItems
+      if (names.contains(metadataItemName)) {
+        if (metadataClass.isAnnotationPresent(HopMetadata.class)) {
+          HopMetadata annotation = metadataClass.getAnnotation(HopMetadata.class);
+          HopMetadataPropertyType hopMetadataPropertyType = annotation.hopMetadataPropertyType();
+          metadataItems.put(hopMetadataPropertyType, metadataItemName);
+        }
+      }
+    }
+
+    // build the map of actions per workflow if we don't have it available
+    if (workflowActionsMap == null || workflowActionsMap.size() == 0) {
+      getActionTypes(variables);
+    }
+
+    // walk over all transforms in all pipelines, find occurrences of this metadata item.
+    for (WorkflowMeta workflowMeta : workflowActionsMap.keySet()) {
+      for (ActionMeta actionMeta : workflowActionsMap.get(workflowMeta)) {
+
+        // walk over the fields in a transform and check their @HopMetadataProperty annotations for
+        // HopMetadataPropertyType
+        Field[] fields = actionMeta.getAction().getClass().getDeclaredFields();
+        for (Field field : fields) {
+          if (field.isAnnotationPresent(HopMetadataProperty.class)) {
+            HopMetadataProperty annotation = field.getAnnotation(HopMetadataProperty.class);
+            HopMetadataPropertyType hopMetadataPropertyType = annotation.hopMetadataPropertyType();
+            if (metadataItems.keySet().contains(hopMetadataPropertyType)) {
+              Method method =
+                  actionMeta
+                      .getAction()
+                      .getClass()
+                      .getMethod("get" + StringUtils.capitalize(field.getName()));
+              String resultStr = (String) method.invoke(actionMeta.getAction());
+              resultStrings.add(
+                  workflowMeta.getFilename()
+                      + " -> "
+                      + actionMeta.getName()
+                      + " -> "
+                      + resultStr
+                      + " ("
+                      + hopMetadataPropertyType
+                      + ")");
+            }
+          }
+        }
+      }
+    }
+    return resultStrings;
   }
 
   /**

@@ -31,6 +31,7 @@ import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -42,6 +43,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -63,14 +65,19 @@ import org.w3c.dom.Document;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     keywords = "i18n::Repeat.keywords",
     image = "repeat.svg",
-    documentationUrl = "/workflow/actions/repeat.html")
+    documentationUrl = "/workflow/actions/repeat.html",
+    actionTransformTypes = {
+      ActionTransformType.HOP_FILE,
+      ActionTransformType.HOP_PIPELINE,
+      ActionTransformType.HOP_WORKFLOW
+    })
 @Getter
 @Setter
 public class Repeat extends ActionBase implements IAction, Cloneable {
 
   public static final String REPEAT_END_LOOP = "_REPEAT_END_LOOP_";
 
-  @HopMetadataProperty(key = "filename")
+  @HopMetadataProperty(key = "filename", hopMetadataPropertyType = HopMetadataPropertyType.HOP_FILE)
   private String filename;
 
   @HopMetadataProperty(key = "parameter", groupKey = "parameters")

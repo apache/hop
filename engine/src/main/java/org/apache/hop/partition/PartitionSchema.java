@@ -24,6 +24,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 /**
@@ -35,7 +36,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::PartitionSchema.name",
     description = "i18n::PartitionSchema.description",
     image = "ui/images/partition_schema.svg",
-    documentationUrl = "/metadata-types/partition-schema.html")
+    documentationUrl = "/metadata-types/partition-schema.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.PARTITION_SCHEMA)
 public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty private List<String> partitionIDs;

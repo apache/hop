@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class InsertUpdateLookupField {
 
@@ -46,14 +47,16 @@ public class InsertUpdateLookupField {
   @HopMetadataProperty(
       key = "schema",
       injectionKeyDescription = "InsertUpdateMeta.Injection.SCHEMA_NAME",
-      injectionKey = "SCHEMA_NAME")
+      injectionKey = "SCHEMA_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   /** The lookup table name */
   @HopMetadataProperty(
       key = "table",
       injectionKeyDescription = "InsertUpdateMeta.Injection.TABLE_NAME",
-      injectionKey = "TABLE_NAME")
+      injectionKey = "TABLE_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   public InsertUpdateLookupField() {

@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -61,7 +62,8 @@ import org.w3c.dom.Node;
     description = "i18n::PipelineExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/pipeline-executor.html",
-    keywords = "i18n::PipelineExecutorMeta.keyword")
+    keywords = "i18n::PipelineExecutorMeta.keyword",
+    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
 public class PipelineExecutorMeta
     extends TransformWithMappingMeta<PipelineExecutor, PipelineExecutorData>
     implements ISubPipelineAwareMeta {

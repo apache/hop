@@ -31,6 +31,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
@@ -44,6 +45,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -70,7 +72,8 @@ import org.apache.hop.workflow.engine.WorkflowEngineFactory;
     description = "i18n::ActionWorkflow.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     keywords = "i18n::ActionWorkflow.keyword",
-    documentationUrl = "/workflow/actions/workflow.html")
+    documentationUrl = "/workflow/actions/workflow.html",
+    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_WORKFLOW})
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWorkflow.class;
 
@@ -134,7 +137,9 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  @HopMetadataProperty(key = "filename")
+  @HopMetadataProperty(
+      key = "filename",
+      hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_FILE)
   private String filename;
 
   @HopMetadataProperty(key = "params_from_previous")

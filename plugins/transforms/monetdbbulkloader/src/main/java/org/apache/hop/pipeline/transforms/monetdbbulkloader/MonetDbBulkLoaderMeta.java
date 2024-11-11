@@ -21,6 +21,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -53,7 +54,8 @@ import org.w3c.dom.Node;
     keywords = "i18n::MonetDbBulkLoaderMeta.keyword",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     isIncludeJdbcDrivers = true,
-    classLoaderGroup = "monetdb")
+    classLoaderGroup = "monetdb",
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 @InjectionSupported(localizationPrefix = "MonetDBBulkLoaderDialog.Injection.")
 public class MonetDbBulkLoaderMeta
     extends BaseTransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {

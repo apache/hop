@@ -24,6 +24,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -39,6 +40,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -53,7 +55,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     keywords = "i18n::CombinationLookupMeta.keyword",
-    documentationUrl = "/pipeline/transforms/combinationlookup.html")
+    documentationUrl = "/pipeline/transforms/combinationlookup.html",
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.LOOKUP})
 @Getter
 @Setter
 public class CombinationLookupMeta
@@ -68,14 +71,16 @@ public class CombinationLookupMeta
   @HopMetadataProperty(
       key = "schema",
       injectionKey = "SCHEMA_NAME",
-      injectionKeyDescription = "CombinationLookup.Injection.SCHEMA_NAME")
+      injectionKeyDescription = "CombinationLookup.Injection.SCHEMA_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   /** what's the lookup table? */
   @HopMetadataProperty(
       key = "table",
       injectionKey = "TABLE_NAME",
-      injectionKeyDescription = "CombinationLookup.Injection.TABLE_NAME")
+      injectionKeyDescription = "CombinationLookup.Injection.TABLE_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   /** database connection */
@@ -83,7 +88,8 @@ public class CombinationLookupMeta
       key = "connection",
       storeWithName = true,
       injectionKey = "CONNECTIONNAME",
-      injectionKeyDescription = "CombinationLookup.Injection.CONNECTION_NAME")
+      injectionKeyDescription = "CombinationLookup.Injection.CONNECTION_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private DatabaseMeta databaseMeta;
 
   /** replace fields with technical key? */

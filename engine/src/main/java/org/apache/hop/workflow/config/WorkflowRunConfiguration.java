@@ -21,6 +21,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
@@ -29,7 +30,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     name = "i18n::WorkflowRunConfiguration.name",
     description = "i18n::WorkflowRunConfiguration.description",
     image = "ui/images/workflow_run_config.svg",
-    documentationUrl = "/metadata-types/workflow-run-config.html")
+    documentationUrl = "/metadata-types/workflow-run-config.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_RUN_CONFIG)
 public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID =
