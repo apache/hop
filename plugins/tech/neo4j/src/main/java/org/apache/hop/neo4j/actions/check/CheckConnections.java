@@ -22,16 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
 
 @Action(
     id = "NEO4J_CHECK_CONNECTIONS",
@@ -40,10 +38,16 @@ import org.w3c.dom.Node;
     image = "neo4j_check.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     keywords = "i18n::CheckConnections.keyword",
-    documentationUrl = "/workflow/actions/neo4j-checkconnections.html")
+    documentationUrl = "/workflow/actions/neo4j-checkconnections.html",
+    actionTransformTypes = {ActionTransformType.ENV_CHECK, ActionTransformType.GRAPH})
 public class CheckConnections extends ActionBase implements IAction {
 
   public static final String CONST_CONNECTIONS = "connections";
+
+  @HopMetadataProperty(
+      key = "connection",
+      groupKey = "connections",
+      hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
   private List<String> connectionNames;
 
   public CheckConnections() {
@@ -57,37 +61,6 @@ public class CheckConnections extends ActionBase implements IAction {
   public CheckConnections(String name, String description) {
     super(name, description);
     connectionNames = new ArrayList<>();
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-    // Add action name, type, ...
-    //
-    xml.append(super.getXml());
-
-    xml.append(XmlHandler.openTag(CONST_CONNECTIONS));
-
-    for (String connectionName : connectionNames) {
-      xml.append(XmlHandler.addTagValue("connection", connectionName));
-    }
-
-    xml.append(XmlHandler.closeTag(CONST_CONNECTIONS));
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node node, IHopMetadataProvider iHopMetadataProvider, IVariables iVariables)
-      throws HopXmlException {
-    super.loadXml(node);
-
-    connectionNames = new ArrayList<>();
-    Node connectionsNode = XmlHandler.getSubNode(node, CONST_CONNECTIONS);
-    List<Node> connectionNodes = XmlHandler.getNodes(connectionsNode, "connection");
-    for (Node connectionNode : connectionNodes) {
-      String connectionName = XmlHandler.getNodeValue(connectionNode);
-      connectionNames.add(connectionName);
-    }
   }
 
   @Override
