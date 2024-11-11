@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :description: Even though Hop developers will spend the majority of their time in Hop Gui, Hop has a lot more tools to offer. This page provides an overview of the tools that are available in the platform.
-== Hop Tools
+= Hop Tools
 
 Even though Hop developers will spend the majority of their time in Hop Gui, Hop has a lot more tools to offer.
 
