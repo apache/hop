@@ -287,8 +287,8 @@ public class XsdValidatorDialog extends ActionDialog {
       }
     }
 
-    wxmlFilename.setText(Const.nullToEmpty(action.getxmlFilename()));
-    wxsdFilename.setText(Const.nullToEmpty(action.getxsdFilename()));
+    wxmlFilename.setText(Const.nullToEmpty(action.getXmlFilename()));
+    wxsdFilename.setText(Const.nullToEmpty(action.getXsdFilename()));
 
     wName.selectAll();
     wName.setFocus();
@@ -310,8 +310,8 @@ public class XsdValidatorDialog extends ActionDialog {
     }
     action.setName(wName.getText());
     action.setAllowExternalEntities(wAllowExternalEntities.getSelection());
-    action.setxmlFilename(wxmlFilename.getText());
-    action.setxsdFilename(wxsdFilename.getText());
+    action.setXmlFilename(wxmlFilename.getText());
+    action.setXsdFilename(wxsdFilename.getText());
 
     if (wXSDSource.getSelectionIndex() == 0) {
       action.setXsdSource(XsdValidator.SPECIFY_FILENAME);

@@ -31,6 +31,8 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -38,12 +40,11 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceReference;
@@ -52,9 +53,10 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+@Getter
+@Setter
 /** This defines a 'xsdvalidator' job entry. */
 @Action(
     id = "XSD_VALIDATOR",
@@ -77,16 +79,18 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
   public static final String NO_NEED = "noneed";
   public static final String CONST_SPACES = "      ";
 
-  private String xsdSource;
-  private String xmlfilename;
-  private String xsdfilename;
+  @HopMetadataProperty() private String xsdSource;
 
-  private boolean allowExternalEntities;
+  @HopMetadataProperty() private String xmlFilename;
+
+  @HopMetadataProperty() private String xsdFilename;
+
+  @HopMetadataProperty private boolean allowExternalEntities;
 
   public XsdValidator(String n) {
     super(n, "");
-    xmlfilename = null;
-    xsdfilename = null;
+    xmlFilename = null;
+    xsdFilename = null;
     allowExternalEntities =
         Boolean.valueOf(
             System.getProperties()
@@ -105,43 +109,12 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  @Override
-  public String getXml() {
-    StringBuffer xml = new StringBuffer(50);
-
-    xml.append(super.getXml());
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xsdsource", xsdSource));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xsdfilename", xsdfilename));
-    xml.append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("allowExternalEntities", allowExternalEntities));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      xsdSource = XmlHandler.getTagValue(entrynode, "xsdsource");
-      xmlfilename = XmlHandler.getTagValue(entrynode, "xmlfilename");
-      xsdfilename = XmlHandler.getTagValue(entrynode, "xsdfilename");
-      allowExternalEntities =
-          YES.equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "allowExternalEntities"));
-
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          "Unable to load job entry of type 'xsdvalidator' from XML node", xe);
-    }
-  }
-
   public String getRealxmlfilename() {
-    return resolve(getxmlFilename());
+    return resolve(getXmlFilename());
   }
 
   public String getRealxsdfilename() {
-    return resolve(getxsdFilename());
+    return resolve(getXsdFilename());
   }
 
   @Override
@@ -153,7 +126,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     FileObject xsdfile = null;
     Schema schemaXSD;
 
-    validateNonNullFileName(xmlfilename, "ActionXSDValidator.XmlFileNotNull.Label", result);
+    validateNonNullFileName(xmlFilename, "ActionXSDValidator.XmlFileNotNull.Label", result);
 
     try {
 
@@ -164,7 +137,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
           SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
 
       if (xsdSource.equals(SPECIFY_FILENAME)) {
-        validateNonNullFileName(xsdfilename, "ActionXSDValidator.XsdFileNotNull.Label", result);
+        validateNonNullFileName(xsdFilename, "ActionXSDValidator.XsdFileNotNull.Label", result);
         String realXsdFileName = getRealxsdfilename();
         xsdfile = getFile(realXsdFileName);
         File xsdFile = new File(HopVfs.getFilename(xsdfile));
@@ -251,45 +224,13 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  public void setxmlFilename(String filename) {
-    this.xmlfilename = filename;
-  }
-
-  public String getxmlFilename() {
-    return xmlfilename;
-  }
-
-  public void setxsdFilename(String filename) {
-    this.xsdfilename = filename;
-  }
-
-  public String getxsdFilename() {
-    return xsdfilename;
-  }
-
-  public boolean isAllowExternalEntities() {
-    return allowExternalEntities;
-  }
-
-  public String getXsdSource() {
-    return xsdSource;
-  }
-
-  public void setXsdSource(String xsdSource) {
-    this.xsdSource = xsdSource;
-  }
-
-  public void setAllowExternalEntities(boolean allowExternalEntities) {
-    this.allowExternalEntities = allowExternalEntities;
-  }
-
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if ((!Utils.isEmpty(xsdfilename)) && (!Utils.isEmpty(xmlfilename))) {
-      String realXmlFileName = resolve(xmlfilename);
-      String realXsdFileName = resolve(xsdfilename);
+    if ((!Utils.isEmpty(xsdFilename)) && (!Utils.isEmpty(xmlFilename))) {
+      String realXmlFileName = resolve(xmlFilename);
+      String realXsdFileName = resolve(xsdFilename);
       ResourceReference reference = new ResourceReference(this);
       reference
           .getEntries()

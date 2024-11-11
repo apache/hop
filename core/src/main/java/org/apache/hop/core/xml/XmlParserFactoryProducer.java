@@ -21,6 +21,7 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.hop.core.Const;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
@@ -40,7 +41,9 @@ public class XmlParserFactoryProducer {
       throws ParserConfigurationException {
     DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
     docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-    docBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    docBuilderFactory.setFeature(
+        "http://apache.org/xml/features/disallow-doctype-decl",
+        "N".equals(Const.XML_ALLOW_DOCTYPE_DECL));
 
     return docBuilderFactory;
   }

@@ -18,9 +18,12 @@
 package org.apache.hop.workflow.actions.xml.xmlwellformed;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -32,13 +35,12 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlCheck;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -48,9 +50,10 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
 import org.xml.sax.helpers.DefaultHandler;
 
+@Getter
+@Setter
 /** This defines a 'xml well formed' workflow action. */
 @Action(
     id = "XML_WELL_FORMED",
@@ -80,19 +83,22 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
    * @deprecated no longer used
    */
   @Deprecated(since = "2.0")
+  @HopMetadataProperty(key = "arg_from_previous")
   public boolean argFromPrevious;
 
   /**
    * @deprecated no longer used
    */
   @Deprecated(since = "2.0")
+  @HopMetadataProperty(key = "include_subfolders")
   public boolean includeSubfolders;
 
   /**
    * @deprecated no longer used
    */
   @Deprecated(since = "2.0")
-  public String[] sourceFileFolders;
+  @HopMetadataProperty(key = "field", groupKey = "fields")
+  private List<XmlWellFormedField> sourceFileFolders;
 
   /**
    * @deprecated no longer used
@@ -100,8 +106,13 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   @Deprecated(since = "2.0")
   public String[] wildcard;
 
+  @HopMetadataProperty(key = "nr_errors_less_than")
   private String nrErrorsLessThan;
+
+  @HopMetadataProperty(key = "success_condition")
   private String successCondition;
+
+  @HopMetadataProperty(key = "resultfilenames")
   private String resultFilenames;
 
   int nrAllErrors = 0;
@@ -117,7 +128,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     super(n, "");
     resultFilenames = ADD_ALL_FILENAMES;
     argFromPrevious = false;
-    sourceFileFolders = null;
+    sourceFileFolders = new ArrayList<>();
     wildcard = null;
     includeSubfolders = false;
     nrErrorsLessThan = "10";
@@ -132,69 +143,6 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   public Object clone() {
     XmlWellFormed je = (XmlWellFormed) super.clone();
     return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(300);
-
-    xml.append(super.getXml());
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    xml.append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
-    xml.append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("success_condition", successCondition));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("resultfilenames", resultFilenames));
-    xml.append(CONST_SPACES).append(XmlHandler.openTag(CONST_FIELDS)).append(Const.CR);
-    if (sourceFileFolders != null) {
-      for (int i = 0; i < sourceFileFolders.length; i++) {
-        xml.append("        ").append(XmlHandler.openTag(CONST_FIELD)).append(Const.CR);
-        xml.append("          ")
-            .append(XmlHandler.addTagValue("source_filefolder", sourceFileFolders[i]));
-        xml.append("          ").append(XmlHandler.addTagValue("wildcard", wildcard[i]));
-        xml.append("        ").append(XmlHandler.closeTag(CONST_FIELD)).append(Const.CR);
-      }
-    }
-    xml.append(CONST_SPACES).append(XmlHandler.closeTag(CONST_FIELDS)).append(Const.CR);
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-
-      argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-      includeSubfolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-
-      nrErrorsLessThan = XmlHandler.getTagValue(entrynode, "nr_errors_less_than");
-      successCondition = XmlHandler.getTagValue(entrynode, "success_condition");
-      resultFilenames = XmlHandler.getTagValue(entrynode, "resultfilenames");
-
-      Node fields = XmlHandler.getSubNode(entrynode, CONST_FIELDS);
-
-      // How many field arguments?
-      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
-      sourceFileFolders = new String[nrFields];
-      wildcard = new String[nrFields];
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-
-        sourceFileFolders[i] = XmlHandler.getTagValue(fnode, "source_filefolder");
-        wildcard[i] = XmlHandler.getTagValue(fnode, "wildcard");
-      }
-    } catch (HopXmlException xe) {
-
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionXMLWellFormed.Error.Exception.UnableLoadXML"), xe);
-    }
   }
 
   @Override
@@ -214,8 +162,8 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     successConditionBrokenExit = false;
 
     // Get source and destination files, also wildcard
-    String[] vSourceFileFolder = sourceFileFolders;
-    String[] vwildcard = wildcard;
+    List<XmlWellFormedField> vSourceFileFolder = sourceFileFolders;
+    //    String[] vwildcard = wildcard;
 
     if (argFromPrevious && isDetailed()) {
       logDetailed(
@@ -260,7 +208,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
         processFileFolder(vSourceFileFolderPrevious, vWildcardPrevious, parentWorkflow, result);
       }
     } else if (vSourceFileFolder != null) {
-      for (int i = 0; i < vSourceFileFolder.length && !parentWorkflow.isStopped(); i++) {
+      for (int i = 0; i < vSourceFileFolder.size() && !parentWorkflow.isStopped(); i++) {
         if (successConditionBroken) {
           if (!successConditionBrokenExit) {
             logError(
@@ -281,11 +229,15 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
               BaseMessages.getString(
                   PKG,
                   "ActionXMLWellFormed.Log.ProcessingRow",
-                  vSourceFileFolder[i],
-                  vwildcard[i]));
+                  vSourceFileFolder.get(i),
+                  vSourceFileFolder.get(i).getWildcard()));
         }
 
-        processFileFolder(vSourceFileFolder[i], vwildcard[i], parentWorkflow, result);
+        processFileFolder(
+            vSourceFileFolder.get(i).getSourceFilefolder(),
+            vSourceFileFolder.get(i).getWildcard(),
+            parentWorkflow,
+            result);
       }
     }
 
@@ -601,62 +553,6 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     return getIt;
   }
 
-  public boolean isIncludeSubfolders() {
-    return includeSubfolders;
-  }
-
-  public void setIncludeSubfolders(boolean includeSubfolders) {
-    this.includeSubfolders = includeSubfolders;
-  }
-
-  public boolean isArgFromPrevious() {
-    return argFromPrevious;
-  }
-
-  public void setArgFromPrevious(boolean argFromPrevious) {
-    this.argFromPrevious = argFromPrevious;
-  }
-
-  public void setNrErrorsLessThan(String nrErrorsLessThan) {
-    this.nrErrorsLessThan = nrErrorsLessThan;
-  }
-
-  public String[] getSourceFileFolders() {
-    return sourceFileFolders;
-  }
-
-  public void setSourceFileFolders(String[] sourceFileFolders) {
-    this.sourceFileFolders = sourceFileFolders;
-  }
-
-  public String[] getSourceWildcards() {
-    return wildcard;
-  }
-
-  public void setSourceWildcards(String[] wildcards) {
-    this.wildcard = wildcards;
-  }
-
-  public String getNrErrorsLessThan() {
-    return nrErrorsLessThan;
-  }
-
-  public void setSuccessCondition(String successCondition) {
-    this.successCondition = successCondition;
-  }
-
-  public String getSuccessCondition() {
-    return successCondition;
-  }
-
-  public void setResultFilenames(String resultFilenames) {
-    this.resultFilenames = resultFilenames;
-  }
-
-  public String getResultFilenames() {
-    return resultFilenames;
-  }
-
   @Override
   public boolean isEvaluation() {
     return true;
@@ -685,7 +581,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
 
-    for (int i = 0; i < sourceFileFolders.length; i++) {
+    for (int i = 0; i < sourceFileFolders.size(); i++) {
       ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks, ctx);
     }
   }
