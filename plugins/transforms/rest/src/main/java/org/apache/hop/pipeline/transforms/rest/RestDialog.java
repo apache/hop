@@ -391,7 +391,7 @@ public class RestDialog extends BaseTransformDialog {
     wParametersComp.setLayout(playout);
     PropsUi.setLook(wParametersComp);
 
-    setupParameterTabContent(lsMod, margin, wParametersComp);
+    setupParameterTabContent(lsMod, margin, wParametersTab, wParametersComp);
 
     FormData fdParametersComp = new FormData();
     fdParametersComp.left = new FormAttachment(0, 0);
@@ -518,7 +518,7 @@ public class RestDialog extends BaseTransformDialog {
   }
 
   private void setupParameterTabContent(
-      ModifyListener lsMod, int margin, Composite wParametersComp) {
+      ModifyListener lsMod, int margin, CTabItem wParametersTab, Composite wParametersComp) {
     wlParameters = new Label(wParametersComp, SWT.NONE);
     wlParameters.setText(BaseMessages.getString(PKG, "RestDialog.Parameters.Label"));
     PropsUi.setLook(wlParameters);
@@ -534,7 +534,7 @@ public class RestDialog extends BaseTransformDialog {
     fdGet.right = new FormAttachment(100, 0);
     wGet.setLayoutData(fdGet);
 
-    final int ParametersRows = input.getParameterFields().size();
+    int ParametersRows = input.getParameterFields().size();
 
     colinfoparams =
         new ColumnInfo[] {
@@ -565,6 +565,9 @@ public class RestDialog extends BaseTransformDialog {
     fdParameters.right = new FormAttachment(wGet, -margin);
     fdParameters.bottom = new FormAttachment(100, -margin);
     wParameters.setLayoutData(fdParameters);
+
+    wParametersComp.layout();
+    wParametersTab.setControl(wParametersComp);
 
     wGet.addListener(SWT.Selection, e -> getParametersFields(wParameters));
   }
@@ -1482,12 +1485,14 @@ public class RestDialog extends BaseTransformDialog {
       HeaderField headerField = new HeaderField();
       headerField.setHeaderField(item.getText(1));
       headerField.setName(item.getText(2));
+      input.getHeaderFields().add(headerField);
     }
     for (int i = 0; i < wParameters.nrNonEmpty(); i++) {
       TableItem item = wParameters.getNonEmpty(i);
       ParameterField parameterField = new ParameterField();
       parameterField.setHeaderField(item.getText(1));
       parameterField.setName(item.getText(2));
+      input.getParameterFields().add(parameterField);
     }
 
     for (int i = 0; i < wMatrixParameters.nrNonEmpty(); i++) {
@@ -1495,6 +1500,7 @@ public class RestDialog extends BaseTransformDialog {
       MatrixParameterField matrixParameterField = new MatrixParameterField();
       matrixParameterField.setHeaderField(item.getText(1));
       matrixParameterField.setName(item.getText(2));
+      input.getMatrixParameterFields().add(matrixParameterField);
     }
 
     input.setDynamicMethod(wMethodInField.getSelection());
