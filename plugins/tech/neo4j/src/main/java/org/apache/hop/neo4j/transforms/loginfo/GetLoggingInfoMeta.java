@@ -17,28 +17,26 @@
 
 package org.apache.hop.neo4j.transforms.loginfo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "GetLoggingInfo",
@@ -48,125 +46,56 @@ import org.w3c.dom.Node;
     image = "systeminfo.svg",
     keywords = "i18n::GetLoggingInfoMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-getloginfo.html")
-@InjectionSupported(localizationPrefix = "GetLoggingInfoMeta.Injection.")
+@Getter
+@Setter
 public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLoggingInfoData> {
   private static final Class<?> PKG =
       GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
   public static final String CONST_SPACES = "        ";
 
-  @Injection(name = "FIELD_NAME")
-  private String[] fieldName;
-
-  @Injection(name = "FIELD_TYPE", converter = GetLoggingInfoMetaInjectionTypeConverter.class)
-  private GetLoggingInfoTypes[] fieldType;
-
-  @Injection(name = "FIELD_ARGUMENT")
-  private String[] fieldArgument;
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionKey = "FIELD",
+      injectionGroupKey = "FIELDS")
+  private List<GetLoggingInfoField> fields;
 
   public GetLoggingInfoMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  /**
-   * @return Returns the fieldName.
-   */
-  public String[] getFieldName() {
-    return fieldName;
-  }
-
-  /**
-   * @param fieldName The fieldName to set.
-   */
-  public void setFieldName(String[] fieldName) {
-    this.fieldName = fieldName;
-  }
-
-  /**
-   * @return Returns the fieldType.
-   */
-  public GetLoggingInfoTypes[] getFieldType() {
-    return fieldType;
-  }
-
-  /**
-   * @param fieldType The fieldType to set.
-   */
-  public void setFieldType(GetLoggingInfoTypes[] fieldType) {
-    this.fieldType = fieldType;
-  }
-
-  /**
-   * Gets fieldArgument
-   *
-   * @return value of fieldArgument
-   */
-  public String[] getFieldArgument() {
-    return fieldArgument;
-  }
-
-  /**
-   * @param fieldArgument The fieldArgument to set
-   */
-  public void setFieldArgument(String[] fieldArgument) {
-    this.fieldArgument = fieldArgument;
-  }
-
-  public void allocate(int count) {
-    fieldName = new String[count];
-    fieldType = new GetLoggingInfoTypes[count];
-    fieldArgument = new String[count];
+    fields = new ArrayList<>();
   }
 
   @Override
   public Object clone() {
     GetLoggingInfoMeta retval = (GetLoggingInfoMeta) super.clone();
 
-    int count = fieldName.length;
-
-    retval.allocate(count);
-
-    System.arraycopy(fieldName, 0, retval.fieldName, 0, count);
-    System.arraycopy(fieldType, 0, retval.fieldType, 0, count);
-    System.arraycopy(fieldArgument, 0, retval.fieldArgument, 0, count);
-
     return retval;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int count = XmlHandler.countNodes(fields, "field");
-      String type;
-
-      allocate(count);
-
-      for (int i = 0; i < count; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        fieldName[i] = XmlHandler.getTagValue(fnode, "name");
-        type = XmlHandler.getTagValue(fnode, "type");
-        fieldType[i] = GetLoggingInfoTypes.getTypeFromString(type);
-        fieldArgument[i] = XmlHandler.getTagValue(fnode, "argument");
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to read transform information from Xml", e);
-    }
-  }
-
-  @Override
   public void setDefault() {
-    allocate(4);
 
-    fieldName[0] = "startOfPipelineDelta";
-    fieldType[0] = GetLoggingInfoTypes.TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM;
-    fieldName[1] = "endOfPipelineDelta";
-    fieldType[1] = GetLoggingInfoTypes.TYPE_SYSTEM_INFO_PIPELINE_DATE_TO;
-    fieldName[2] = "startOfWorkflowDelta";
-    fieldType[2] = GetLoggingInfoTypes.TYPE_SYSTEM_INFO_WORKFLOW_DATE_FROM;
-    fieldName[3] = "endOfWorkflowDelta";
-    fieldType[3] = GetLoggingInfoTypes.TYPE_SYSTEM_INFO_WORKFLOW_DATE_TO;
+    fields = new ArrayList<>();
+
+    GetLoggingInfoField f1 = new GetLoggingInfoField();
+    f1.setFieldName("startOfPipelineDelta");
+    f1.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM.getCode());
+    fields.add(f1);
+
+    GetLoggingInfoField f2 = new GetLoggingInfoField();
+    f2.setFieldName("endOfPipelineDelta");
+    f2.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_PIPELINE_DATE_TO.getCode());
+    fields.add(f2);
+
+    GetLoggingInfoField f3 = new GetLoggingInfoField();
+    f3.setFieldName("startOfWorkflowDelta");
+    f3.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_WORKFLOW_DATE_TO.getCode());
+    fields.add(f3);
+
+    GetLoggingInfoField f4 = new GetLoggingInfoField();
+    f4.setFieldName("endOfWorkflowDelta");
+    f4.setFieldType(GetLoggingInfoTypes.TYPE_SYSTEM_INFO_WORKFLOW_DATE_TO.getCode());
+    fields.add(f4);
   }
 
   @Override
@@ -178,10 +107,10 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
       IVariables space,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    for (int i = 0; i < fieldName.length; i++) {
+    for (int i = 0; i < fields.size(); i++) {
       IValueMeta v;
 
-      switch (fieldType[i]) {
+      switch (GetLoggingInfoTypes.getTypeFromString(fields.get(i).getFieldType())) {
         case TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM,
             TYPE_SYSTEM_INFO_PIPELINE_DATE_TO,
             TYPE_SYSTEM_INFO_WORKFLOW_DATE_FROM,
@@ -190,35 +119,15 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
             TYPE_SYSTEM_INFO_PIPELINE_PREVIOUS_SUCCESS_DATE,
             TYPE_SYSTEM_INFO_WORKFLOW_PREVIOUS_EXECUTION_DATE,
             TYPE_SYSTEM_INFO_WORKFLOW_PREVIOUS_SUCCESS_DATE:
-          v = new ValueMetaDate(fieldName[i]);
+          v = new ValueMetaDate(fields.get(i).getFieldName());
           break;
         default:
-          v = new ValueMetaNone(fieldName[i]);
+          v = new ValueMetaNone(fields.get(i).getFieldName());
           break;
       }
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    <fields>" + Const.CR);
-
-    for (int i = 0; i < fieldName.length; i++) {
-      retval.append("      <field>" + Const.CR);
-      retval.append(CONST_SPACES + XmlHandler.addTagValue("name", fieldName[i]));
-      retval.append(
-          CONST_SPACES
-              + XmlHandler.addTagValue("type", fieldType[i] != null ? fieldType[i].getCode() : ""));
-      retval.append(CONST_SPACES + XmlHandler.addTagValue("argument", fieldArgument[i]));
-      retval.append("        </field>" + Const.CR);
-    }
-    retval.append("      </fields>" + Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -234,13 +143,14 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
       IHopMetadataProvider metadataProvider) {
     // See if we have input streams leading to this transform!
     int nrRemarks = remarks.size();
-    for (int i = 0; i < fieldName.length; i++) {
-      if (fieldType[i].ordinal() <= GetLoggingInfoTypes.TYPE_SYSTEM_INFO_NONE.ordinal()) {
+    for (int i = 0; i < fields.size(); i++) {
+      if (GetLoggingInfoTypes.getTypeFromString(fields.get(i).getFieldType()).ordinal()
+          <= GetLoggingInfoTypes.TYPE_SYSTEM_INFO_NONE.ordinal()) {
         CheckResult cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
-                    PKG, "SystemDataMeta.CheckResult.FieldHasNoType", fieldName[i]),
+                    PKG, "SystemDataMeta.CheckResult.FieldHasNoType", fields.get(i).getFieldName()),
                 transformMeta);
         remarks.add(cr);
       }
@@ -265,20 +175,13 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
     }
     GetLoggingInfoMeta that = (GetLoggingInfoMeta) o;
 
-    if (!Arrays.equals(fieldName, that.fieldName)) {
-      return false;
-    }
-    if (!Arrays.equals(fieldType, that.fieldType)) {
-      return false;
-    }
-
-    return true;
+    return fields.equals(that.fields);
   }
 
   @Override
   public int hashCode() {
-    int result = Arrays.hashCode(fieldName);
-    result = 31 * result + Arrays.hashCode(fieldType);
+    int result = Arrays.asList(fields).hashCode();
+    result = 31 * result + Arrays.asList().hashCode();
     return result;
   }
 }
