@@ -17,6 +17,8 @@
 
 package org.apache.hop.neo4j.transforms.output;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -30,6 +32,8 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.core.Neo4jUtil;
 import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.transforms.output.fields.LabelField;
+import org.apache.hop.neo4j.transforms.output.fields.PropertyField;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -346,7 +350,9 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdlFromLabels.top = new FormAttachment(lastFromControl, margin);
     wlFromLabel.setLayoutData(fdlFromLabels);
     final int fromLabelRows =
-        (input.getFromNodeLabels() != null ? input.getFromNodeLabels().length : 10);
+        (!input.getNodeFromField().getLabels().isEmpty()
+            ? input.getNodeFromField().getLabels().size()
+            : 10);
     ColumnInfo[] fromLabelInf =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -406,7 +412,9 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdlFromFields.top = new FormAttachment(lastFromControl, margin);
     wlFromFields.setLayoutData(fdlFromFields);
     final int fromPropsRows =
-        (input.getFromNodeProps() != null ? input.getFromNodeProps().length : 10);
+        (input.getNodeFromField().getProperties() != null
+            ? input.getNodeFromField().getProperties().size()
+            : 10);
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -462,7 +470,6 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdFromPropsGrid.top = new FormAttachment(lastFromControl, margin);
     fdFromPropsGrid.bottom = new FormAttachment(100, 0);
     wFromPropsGrid.setLayoutData(fdFromPropsGrid);
-    lastFromControl = wFromPropsGrid;
 
     FormData fdFromComp = new FormData();
     fdFromComp.left = new FormAttachment(0, 0);
@@ -512,7 +519,10 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdlToLabels.right = new FormAttachment(middle, 0);
     fdlToLabels.top = new FormAttachment(lastToControl, margin);
     wlToLabel.setLayoutData(fdlToLabels);
-    final int toLabelRows = (input.getToNodeLabels() != null ? input.getToNodeLabels().length : 10);
+    final int toLabelRows =
+        (input.getNodeToField().getLabels() != null
+            ? input.getNodeToField().getLabels().size()
+            : 10);
     ColumnInfo[] toLabelInf =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -570,7 +580,10 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdlToFields.right = new FormAttachment(middle, 0);
     fdlToFields.top = new FormAttachment(lastToControl, margin);
     wlToFields.setLayoutData(fdlToFields);
-    final int toPropsRows = (input.getToNodeProps() != null ? input.getToNodeProps().length : 10);
+    final int toPropsRows =
+        (input.getNodeToField().getProperties() != null
+            ? input.getNodeToField().getProperties().size()
+            : 10);
     ColumnInfo[] toColinf =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -702,7 +715,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdlRelProps.right = new FormAttachment(middle, -margin);
     wlRelProps.setLayoutData(fdlRelProps);
 
-    final int relPropsRows = (input.getRelProps() != null ? input.getRelProps().length : 10);
+    final int relPropsRows = (input.getRelProps() != null ? input.getRelProps().size() : 10);
     ColumnInfo[] relPropsInf =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -805,49 +818,55 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     wReturnGraph.setSelection(input.isReturningGraph());
     wReturnGraphField.setText(Const.NVL(input.getReturnGraphField(), ""));
 
-    wReadOnlyFromNode.setSelection(input.isReadOnlyFromNode());
-    wReadOnlyToNode.setSelection(input.isReadOnlyToNode());
+    wReadOnlyFromNode.setSelection(input.getNodeFromField().isReadOnly());
+    wReadOnlyToNode.setSelection(input.getNodeToField().isReadOnly());
 
-    if (input.getFromNodeLabels() != null) {
-      String[] fromNodeLabels = input.getFromNodeLabels();
-      String[] fromNodeLabelValues = input.getFromNodeLabelValues();
+    if (input.getNodeFromField().getLabels() != null) {
+      List<LabelField> labels = input.getNodeFromField().getLabels();
 
-      for (int i = 0; i < fromNodeLabels.length; i++) {
+      for (int i = 0; i < labels.size(); i++) {
         TableItem item = wFromLabelGrid.table.getItem(i);
-        item.setText(1, Const.NVL(fromNodeLabels[i], ""));
-        item.setText(2, Const.NVL(fromNodeLabelValues[i], ""));
+        item.setText(1, Const.NVL(labels.get(i).getLabelField(), ""));
+        item.setText(2, Const.NVL(labels.get(i).getLabel(), ""));
       }
     }
 
-    if (input.getFromNodeProps() != null) {
+    if (input.getNodeFromField().getProperties() != null) {
 
-      for (int i = 0; i < input.getFromNodeProps().length; i++) {
+      for (int i = 0; i < input.getNodeFromField().getProperties().size(); i++) {
         TableItem item = wFromPropsGrid.table.getItem(i);
-        item.setText(1, Const.NVL(input.getFromNodeProps()[i], ""));
-        item.setText(2, Const.NVL(input.getFromNodePropNames()[i], ""));
-        item.setText(3, Const.NVL(input.getFromNodePropTypes()[i], ""));
-        item.setText(4, input.getFromNodePropPrimary()[i] ? "Y" : "N");
+        item.setText(
+            1, Const.NVL(input.getNodeFromField().getProperties().get(i).getPropertyValue(), ""));
+        item.setText(
+            2, Const.NVL(input.getNodeFromField().getProperties().get(i).getPropertyName(), ""));
+        item.setText(
+            3, Const.NVL(input.getNodeFromField().getProperties().get(i).getPropertyType(), ""));
+        item.setText(
+            4, input.getNodeFromField().getProperties().get(i).isPropertyPrimary() ? "Y" : "N");
       }
     }
 
-    if (input.getToNodeLabels() != null) {
-      String[] toNodeLabels = input.getToNodeLabels();
-      String[] toNodeLabelValues = input.getToNodeLabelValues();
+    if (input.getNodeToField().getLabels() != null) {
+      List<LabelField> toLabels = input.getNodeToField().getLabels();
 
-      for (int i = 0; i < toNodeLabels.length; i++) {
+      for (int i = 0; i < toLabels.size(); i++) {
         TableItem item = wToLabelGrid.table.getItem(i);
-        item.setText(1, Const.NVL(toNodeLabels[i], ""));
-        item.setText(2, Const.NVL(toNodeLabelValues[i], ""));
+        item.setText(1, Const.NVL(toLabels.get(i).getLabelField(), ""));
+        item.setText(2, Const.NVL(toLabels.get(i).getLabel(), ""));
       }
     }
 
-    if (input.getToNodeProps() != null) {
-      for (int i = 0; i < input.getToNodeProps().length; i++) {
+    if (input.getNodeToField().getProperties() != null) {
+      for (int i = 0; i < input.getNodeToField().getProperties().size(); i++) {
         TableItem item = wToPropsGrid.table.getItem(i);
-        item.setText(1, Const.NVL(input.getToNodeProps()[i], ""));
-        item.setText(2, Const.NVL(input.getToNodePropNames()[i], ""));
-        item.setText(3, Const.NVL(input.getToNodePropTypes()[i], ""));
-        item.setText(4, input.getToNodePropPrimary()[i] ? "Y" : "N");
+        item.setText(
+            1, Const.NVL(input.getNodeToField().getProperties().get(i).getPropertyValue(), ""));
+        item.setText(
+            2, Const.NVL(input.getNodeToField().getProperties().get(i).getPropertyName(), ""));
+        item.setText(
+            3, Const.NVL(input.getNodeToField().getProperties().get(i).getPropertyType(), ""));
+        item.setText(
+            4, input.getNodeToField().getProperties().get(i).isPropertyPrimary() ? "Y" : "N");
       }
     }
 
@@ -855,11 +874,11 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     wRelValue.setText(Const.NVL(input.getRelationshipValue(), ""));
 
     if (input.getRelProps() != null) {
-      for (int i = 0; i < input.getRelProps().length; i++) {
+      for (int i = 0; i < input.getRelProps().size(); i++) {
         TableItem item = wRelPropsGrid.table.getItem(i);
-        item.setText(1, Const.NVL(input.getRelProps()[i], ""));
-        item.setText(2, Const.NVL(input.getRelPropNames()[i], ""));
-        item.setText(3, Const.NVL(input.getRelPropTypes()[i], ""));
+        item.setText(1, Const.NVL(input.getRelProps().get(i).getPropertyValue(), ""));
+        item.setText(2, Const.NVL(input.getRelProps().get(i).getPropertyName(), ""));
+        item.setText(3, Const.NVL(input.getRelProps().get(i).getPropertyType(), ""));
       }
     }
 
@@ -883,81 +902,68 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     input.setReturningGraph(wReturnGraph.getSelection());
     input.setReturnGraphField(wReturnGraphField.getText());
 
-    input.setReadOnlyFromNode(wReadOnlyFromNode.getSelection());
-    input.setReadOnlyToNode(wReadOnlyToNode.getSelection());
+    input.getNodeFromField().setReadOnly(wReadOnlyFromNode.getSelection());
+    input.getNodeToField().setReadOnly(wReadOnlyToNode.getSelection());
 
-    String[] fromNodeLabels = new String[wFromLabelGrid.nrNonEmpty()];
-    String[] fromNodeLabelValues = new String[wFromLabelGrid.nrNonEmpty()];
-    for (int i = 0; i < fromNodeLabels.length; i++) {
+    List<LabelField> fromNodeLabels = new ArrayList<>();
+    for (int i = 0; i < wFromLabelGrid.nrNonEmpty(); i++) {
       TableItem item = wFromLabelGrid.table.getItem(i);
-      fromNodeLabels[i] = item.getText(1);
-      fromNodeLabelValues[i] = item.getText(2);
+      LabelField labelField = new LabelField();
+      labelField.setLabelField(item.getText(1));
+      labelField.setLabel(item.getText(2));
+      fromNodeLabels.add(labelField);
     }
-    input.setFromNodeLabels(fromNodeLabels);
-    input.setFromNodeLabelValues(fromNodeLabelValues);
+    input.getNodeFromField().setLabels(fromNodeLabels);
 
-    String[] toNodeLabels = new String[wToLabelGrid.nrNonEmpty()];
-    String[] toNodeLabelValues = new String[wToLabelGrid.nrNonEmpty()];
-    for (int i = 0; i < toNodeLabels.length; i++) {
+    List<LabelField> toNodeLabels = new ArrayList<>();
+    for (int i = 0; i < wToLabelGrid.nrNonEmpty(); i++) {
       TableItem item = wToLabelGrid.table.getItem(i);
-      toNodeLabels[i] = item.getText(1);
-      toNodeLabelValues[i] = item.getText(2);
+      LabelField labelField = new LabelField();
+      labelField.setLabelField(item.getText(1));
+      labelField.setLabel(item.getText(2));
+      toNodeLabels.add(labelField);
     }
-    input.setToNodeLabels(toNodeLabels);
-    input.setToNodeLabelValues(toNodeLabelValues);
+    input.getNodeToField().setLabels(toNodeLabels);
 
     int nbFromPropLines = wFromPropsGrid.nrNonEmpty();
-    String[] fromNodeProps = new String[nbFromPropLines];
-    String[] fromNodePropNames = new String[nbFromPropLines];
-    String[] fromNodePropTypes = new String[nbFromPropLines];
-    boolean[] fromNodePropPrimary = new boolean[nbFromPropLines];
-
-    for (int i = 0; i < fromNodeProps.length; i++) {
+    List<PropertyField> fromNodeProps = new ArrayList<>();
+    for (int i = 0; i < nbFromPropLines; i++) {
       TableItem item = wFromPropsGrid.table.getItem(i);
-      fromNodeProps[i] = item.getText(1);
-      fromNodePropNames[i] = item.getText(2);
-      fromNodePropTypes[i] = item.getText(3);
-      fromNodePropPrimary[i] = "Y".equalsIgnoreCase(item.getText(4));
+      PropertyField nodePropertyField = new PropertyField();
+      nodePropertyField.setPropertyValue(item.getText(1));
+      nodePropertyField.setPropertyName(item.getText(2));
+      nodePropertyField.setPropertyType(item.getText(3));
+      nodePropertyField.setPropertyPrimary("Y".equalsIgnoreCase(item.getText(4)));
+      fromNodeProps.add(nodePropertyField);
     }
-    input.setFromNodeProps(fromNodeProps);
-    input.setFromNodePropNames(fromNodePropNames);
-    input.setFromNodePropTypes(fromNodePropTypes);
-    input.setFromNodePropPrimary(fromNodePropPrimary);
+    input.getNodeFromField().setProperties(fromNodeProps);
 
-    int nbToPropLines = wToPropsGrid.nrNonEmpty();
-    String[] toNodeProps = new String[nbToPropLines];
-    String[] toNodePropNames = new String[nbToPropLines];
-    String[] toNodePropTypes = new String[nbToPropLines];
-    boolean[] toNodePropPrimary = new boolean[nbToPropLines];
-
-    for (int i = 0; i < toNodeProps.length; i++) {
+    List<PropertyField> toNodeProps = new ArrayList<>();
+    for (int i = 0; i < wToPropsGrid.nrNonEmpty(); i++) {
       TableItem item = wToPropsGrid.table.getItem(i);
-      toNodeProps[i] = item.getText(1);
-      toNodePropNames[i] = item.getText(2);
-      toNodePropTypes[i] = item.getText(3);
-      toNodePropPrimary[i] = "Y".equalsIgnoreCase(item.getText(4));
+      PropertyField nodePropertyField = new PropertyField();
+      nodePropertyField.setPropertyValue(item.getText(1));
+      nodePropertyField.setPropertyName(item.getText(2));
+      nodePropertyField.setPropertyType(item.getText(3));
+      nodePropertyField.setPropertyPrimary("Y".equalsIgnoreCase(item.getText(4)));
+      toNodeProps.add(nodePropertyField);
     }
-    input.setToNodeProps(toNodeProps);
-    input.setToNodePropNames(toNodePropNames);
-    input.setToNodePropTypes(toNodePropTypes);
-    input.setToNodePropPrimary(toNodePropPrimary);
+    input.getNodeToField().setProperties(toNodeProps);
 
     input.setRelationship(wRel.getText());
     input.setRelationshipValue(wRelValue.getText());
 
     int nbRelProps = wRelPropsGrid.nrNonEmpty();
-    String[] relProps = new String[nbRelProps];
-    String[] relPropNames = new String[nbRelProps];
-    String[] relPropTypes = new String[nbRelProps];
-    for (int i = 0; i < relProps.length; i++) {
+    List<PropertyField> relProps = new ArrayList<>();
+    for (int i = 0; i < nbRelProps; i++) {
       TableItem item = wRelPropsGrid.table.getItem(i);
-      relProps[i] = item.getText(1);
-      relPropNames[i] = item.getText(2);
-      relPropTypes[i] = item.getText(3);
+      PropertyField relPropField = new PropertyField();
+      relPropField.setPropertyValue(item.getText(1));
+      relPropField.setPropertyName(item.getText(2));
+      relPropField.setPropertyType(item.getText(3));
+      relProps.add(relPropField);
     }
     input.setRelProps(relProps);
-    input.setRelPropNames(relPropNames);
-    input.setRelPropTypes(relPropTypes);
 
     // Mark transform as changed
     transformMeta.setChanged();

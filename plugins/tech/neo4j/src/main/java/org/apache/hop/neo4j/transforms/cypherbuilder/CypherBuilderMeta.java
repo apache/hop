@@ -30,6 +30,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.transforms.cypherbuilder.operation.IOperation;
 import org.apache.hop.neo4j.transforms.cypherbuilder.operation.ReturnOperation;
@@ -48,7 +49,8 @@ public class CypherBuilderMeta extends BaseTransformMeta<CypherBuilder, CypherBu
   public static final String ROWS_UNWIND_MAP_ENTRY = "rows";
 
   /** The name of the Neo4j Connection to use. */
-  @HopMetadataProperty private String connectionName;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
+  private String connectionName;
 
   /** How many cypher statements do we execute at once? */
   @HopMetadataProperty private String batchSize;

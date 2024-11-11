@@ -22,6 +22,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -31,6 +32,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -43,7 +45,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::ExecSqlRow.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::ExecSqlRowMeta.keyword",
-    documentationUrl = "/pipeline/transforms/execsqlrow.html")
+    documentationUrl = "/pipeline/transforms/execsqlrow.html",
+    actionTransformTypes = {ActionTransformType.RDBMS})
 public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData> {
   private static final Class<?> PKG = ExecSqlRowMeta.class;
 
@@ -52,7 +55,8 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
   @HopMetadataProperty(
       key = "sql_field",
       injectionKey = "SQL_FIELD_NAME",
-      injectionKeyDescription = "ExecSqlRowMeta.Injection.SQL_FIELD_NAME")
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.SQL_FIELD_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SQL)
   private String sqlField;
 
   @HopMetadataProperty(
@@ -101,7 +105,8 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
 
   @HopMetadataProperty(
       injectionKey = "CONNECTION_NAME",
-      injectionKeyDescription = "ExecSqlRowMeta.Injection.CONNECTION_NAME")
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.CONNECTION_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   public ExecSqlRowMeta() {

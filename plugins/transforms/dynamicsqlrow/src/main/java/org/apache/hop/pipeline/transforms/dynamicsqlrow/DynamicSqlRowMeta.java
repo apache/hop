@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -33,6 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -46,25 +48,31 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::DynamicSQLRow.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::DynamicSqlRowMeta.keyword",
-    documentationUrl = "/pipeline/transforms/dynamicsqlrow.html")
+    documentationUrl = "/pipeline/transforms/dynamicsqlrow.html",
+    actionTransformTypes = {ActionTransformType.RDBMS})
 public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicSqlRowData> {
   private static final Class<?> PKG = DynamicSqlRowMeta.class;
 
   /** database connection */
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "DynamicSQLRow.Injection.Connection")
+      injectionKeyDescription = "DynamicSQLRow.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   private DatabaseMeta databaseMeta;
 
   /** SQL Statement */
-  @HopMetadataProperty(key = "sql", injectionKeyDescription = "DynamicSQLRow.Injection.Sql")
+  @HopMetadataProperty(
+      key = "sql",
+      injectionKeyDescription = "DynamicSQLRow.Injection.Sql",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SQL)
   private String sql;
 
   @HopMetadataProperty(
       key = "sql_fieldname",
-      injectionKeyDescription = "DynamicSQLRow.Injection.SqlFieldName")
+      injectionKeyDescription = "DynamicSQLRow.Injection.SqlFieldName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SQL)
   private String sqlFieldName;
 
   /** Number of rows to return (0=ALL) */

@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -36,6 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -48,12 +50,15 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::CallDBProcedure.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::DBProcMeta.keyword",
-    documentationUrl = "/pipeline/transforms/calldbproc.html")
+    documentationUrl = "/pipeline/transforms/calldbproc.html",
+    actionTransformTypes = ActionTransformType.RDBMS)
 public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
   private static final Class<?> PKG = DBProcMeta.class;
 
   /** database connection */
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** procedure name to be called */

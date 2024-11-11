@@ -35,7 +35,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -43,13 +42,12 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceReference;
@@ -58,7 +56,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
 
 /** This defines a 'xslt' job entry. */
 @Action(
@@ -78,14 +75,17 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
       "ActionXSLT.OuputFileExists1.Label";
   public static final String CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_2_LABEL =
       "ActionXSLT.OuputFileExists2.Label";
-  public static final String CONST_SPACES_LONG = "        ";
-  public static final String CONST_SPACES = "      ";
 
-  private String xmlfilename;
-  private String xslfilename;
-  private String outputfilename;
-  public int ifFileExists;
+  @HopMetadataProperty private String xmlfilename;
+
+  @HopMetadataProperty private String xslfilename;
+
+  @HopMetadataProperty private String outputfilename;
+
+  @HopMetadataProperty public int ifFileExists;
+
   private boolean addfiletoresult;
+
   private String xsltfactory;
   private boolean filenamesfromprevious;
 
@@ -163,88 +163,16 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  @Override
-  public String getXml() {
-    StringBuffer xml = new StringBuffer(50);
-
-    xml.append(super.getXml());
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xslfilename", xslfilename));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("outputfilename", outputfilename));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("iffileexists", ifFileExists));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
-    xml.append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("filenamesfromprevious", filenamesfromprevious));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xsltfactory", xsltfactory));
-
-    xml.append("    <parameters>").append(Const.CR);
-
-    for (int i = 0; i < parameterName.length; i++) {
-      xml.append("      <parameter>").append(Const.CR);
-      xml.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("field", parameterField[i]));
-      xml.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", parameterName[i]));
-      xml.append("      </parameter>").append(Const.CR);
-    }
-
-    xml.append("    </parameters>").append(Const.CR);
-    xml.append("    <outputproperties>").append(Const.CR);
-
-    for (int i = 0; i < outputPropertyName.length; i++) {
-      xml.append("      <outputproperty>").append(Const.CR);
-      xml.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", outputPropertyName[i]));
-      xml.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("value", outputPropertyValue[i]));
-      xml.append("      </outputproperty>").append(Const.CR);
-    }
-
-    xml.append("    </outputproperties>").append(Const.CR);
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      xmlfilename = XmlHandler.getTagValue(entrynode, "xmlfilename");
-      xslfilename = XmlHandler.getTagValue(entrynode, "xslfilename");
-      outputfilename = XmlHandler.getTagValue(entrynode, "outputfilename");
-      ifFileExists = Const.toInt(XmlHandler.getTagValue(entrynode, "iffileexists"), -1);
-      addfiletoresult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addfiletoresult"));
-      filenamesfromprevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "filenamesfromprevious"));
-      xsltfactory = XmlHandler.getTagValue(entrynode, "xsltfactory");
-      if (xsltfactory == null) {
-        xsltfactory = FACTORY_JAXP;
-      }
-      Node parametersNode = XmlHandler.getSubNode(entrynode, "parameters");
-      int nrparams = XmlHandler.countNodes(parametersNode, "parameter");
-
-      Node parametersOutputProps = XmlHandler.getSubNode(entrynode, "outputproperties");
-      int nroutputprops = XmlHandler.countNodes(parametersOutputProps, "outputproperty");
-      allocate(nrparams, nroutputprops);
-
-      for (int i = 0; i < nrparams; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(parametersNode, "parameter", i);
-        parameterField[i] = XmlHandler.getTagValue(anode, "field");
-        parameterName[i] = XmlHandler.getTagValue(anode, "name");
-      }
-      for (int i = 0; i < nroutputprops; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(parametersOutputProps, "outputproperty", i);
-        outputPropertyName[i] = XmlHandler.getTagValue(anode, "name");
-        outputPropertyValue[i] = XmlHandler.getTagValue(anode, "value");
-      }
-
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load job entry of type 'xslt' from XML node", xe);
-    }
-  }
-
   public String getXSLTFactory() {
     return xsltfactory;
   }
 
   public void setXSLTFactory(String xsltfactoryin) {
     xsltfactory = xsltfactoryin;
+  }
+
+  public void setFilenamesFromPrevious(boolean filenamesfromprevious) {
+    this.filenamesfromprevious = filenamesfromprevious;
   }
 
   public String getRealxmlfilename() {
@@ -255,16 +183,12 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return resolve(getoutputFilename());
   }
 
-  public boolean isFilenamesFromPrevious() {
-    return filenamesfromprevious;
-  }
-
-  public void setFilenamesFromPrevious(boolean filenamesfromprevious) {
-    this.filenamesfromprevious = filenamesfromprevious;
-  }
-
   public String getRealxslfilename() {
     return resolve(getxslFilename());
+  }
+
+  public boolean isFilenamesFromPrevious() {
+    return filenamesfromprevious;
   }
 
   @Override

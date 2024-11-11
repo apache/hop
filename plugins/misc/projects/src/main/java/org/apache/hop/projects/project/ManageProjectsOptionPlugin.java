@@ -17,7 +17,9 @@
 
 package org.apache.hop.projects.project;
 
+import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -137,19 +140,24 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   private String metadataJsonFilename;
 
   @CommandLine.Option(
-      names = {"-plt", "--list-transform-types-in-project"},
+      names = {"-plt", "--project-list-transform-types"},
       description = "List transform types used in this project")
   private boolean projectTransformTypes;
 
   @CommandLine.Option(
-      names = {"-pla", "--list-action-types-in-project"},
+      names = {"-pla", "--project-list-action-types"},
       description = "List action types used in this project")
   private boolean projectActionTypes;
 
   @CommandLine.Option(
-      names = {"-plm", "--list-metadata-types-in-project"},
+      names = {"-plm", "--project-list-metadata-types"},
       description = "List metadata types used in this project")
   private boolean projectMetadataTypes;
+
+  @CommandLine.Option(
+      names = {"-plmi", "--project-list-metadata-item-usages"},
+      description = "List all files that use a given metadata item in this project")
+  private String projectFilesForMetadataItem;
 
   @Override
   public boolean handleOption(
@@ -507,18 +515,53 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       ProjectsConfig config,
       IVariables variables,
       IHasHopMetadataProvider hasHopMetadataProvider)
-      throws HopException {
+      throws HopException,
+          InvocationTargetException,
+          NoSuchMethodException,
+          IllegalAccessException,
+          IOException {
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     Project project = projectConfig.loadProject(variables);
     ProjectsUtil.enableProject(
         log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);
+
+    // list pipelines and transforms where the provided metadata item was found.
     List<String> metadataTypeNames = project.getMetadataTypes();
-    if (metadataTypeNames.isEmpty()) {
-      log.logBasic("This project doesn't contain any metadata types");
-    } else {
-      log.logBasic("This project uses " + metadataTypeNames.size() + " metadata types");
-      for (String metadataTypeName : metadataTypeNames) {
-        log.logBasic("   " + metadataTypeName);
+    if (!Utils.isEmpty(projectFilesForMetadataItem)) {
+      List<String> hplUsageResults =
+          project.getPipelinesForMetadataItem(variables, projectFilesForMetadataItem);
+      if (!Utils.isEmpty(hplUsageResults)) {
+        log.logBasic(
+            "metadata item '"
+                + projectFilesForMetadataItem
+                + "' was found in the following pipelines: ");
+        for (String hplUsageResult : hplUsageResults) {
+          log.logBasic("   " + hplUsageResult);
+        }
+      }
+
+      // list workflows and actions where the provided metadata item was found.
+      List<String> hwfUsageResults =
+          project.getWorkflowsForMetadataItem(variables, projectFilesForMetadataItem);
+      if (!Utils.isEmpty(hwfUsageResults)) {
+        log.logBasic(
+            "metadata item '"
+                + projectFilesForMetadataItem
+                + "' was found in the following workflows: ");
+        for (String hwfUsageResult : hwfUsageResults) {
+          log.logBasic("   " + hwfUsageResult);
+        }
+      }
+    }
+
+    if (projectFilesForMetadataItem.isEmpty()) {
+      if (metadataTypeNames.isEmpty()) {
+        log.logBasic("This project doesn't contain any metadata types");
+      } else {
+        log.logBasic("This project uses " + metadataTypeNames.size() + " metadata types");
+        for (String metadataTypeName : metadataTypeNames) {
+          log.logBasic("   " + metadataTypeName);
+        }
       }
     }
   }

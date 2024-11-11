@@ -33,6 +33,7 @@ import org.apache.hop.databases.cassandra.util.CassandraUtils;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @GuiPlugin
@@ -41,7 +42,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::CassandraConnection.name",
     description = "i18n::CassandraConnection.description",
     image = "Cassandra_logo.svg",
-    documentationUrl = "/metadata-types/cassandra/cassandra-connection.html")
+    documentationUrl = "/metadata-types/cassandra/cassandra-connection.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.CASSANDRA_CONNECTION)
 public class CassandraConnection extends HopMetadataBase implements IHopMetadata {
 
   public static final String WIDGET_ID_HOSTNAME = "10000-hostname";

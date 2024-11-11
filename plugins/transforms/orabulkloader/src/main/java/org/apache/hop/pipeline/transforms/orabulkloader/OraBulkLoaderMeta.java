@@ -22,6 +22,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -34,6 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -47,7 +49,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::OraBulkLoader.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::OraBulkLoader.Keywords",
-    documentationUrl = "/pipeline/transforms/orabulkloader.html")
+    documentationUrl = "/pipeline/transforms/orabulkloader.html",
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkLoaderData> {
   private static final Class<?> PKG =
       OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
@@ -60,21 +63,24 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
   /** Database connection */
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "OraBulkLoader.Injection.Connection")
+      injectionKeyDescription = "OraBulkLoader.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** Schema for the target */
   @HopMetadataProperty(
       key = "shema",
       injectionKey = "SCHEMA_NAME",
-      injectionKeyDescription = "OraBulkLoader.Injection.Schema")
+      injectionKeyDescription = "OraBulkLoader.Injection.Schema",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   /** Table for the target */
   @HopMetadataProperty(
       key = "table",
       injectionKey = "TABLE_NAME",
-      injectionKeyDescription = "OraBulkLoader.Injection.Table")
+      injectionKeyDescription = "OraBulkLoader.Injection.Table",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   /** Path to the sqlldr utility */

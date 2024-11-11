@@ -38,6 +38,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Config;
@@ -55,7 +56,8 @@ import org.neo4j.driver.Value;
     name = "i18n::NeoConnection.name",
     description = "i18n::NeoConnection.description",
     image = "neo4j_logo.svg",
-    documentationUrl = "/metadata-types/neo4j/neo4j-connection.html")
+    documentationUrl = "/metadata-types/neo4j/neo4j-connection.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
 public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private String server;

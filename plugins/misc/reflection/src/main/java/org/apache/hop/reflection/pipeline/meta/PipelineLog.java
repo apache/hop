@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
@@ -30,7 +31,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::PipelineLog.name",
     description = "i18n::PipelineLog.description",
     image = "pipeline-log.svg",
-    documentationUrl = "/metadata-types/pipeline-log.html")
+    documentationUrl = "/metadata-types/pipeline-log.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_LOG)
 public class PipelineLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;

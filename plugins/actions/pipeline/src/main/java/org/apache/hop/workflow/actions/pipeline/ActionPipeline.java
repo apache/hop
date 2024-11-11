@@ -30,6 +30,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
@@ -70,7 +71,8 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     description = "i18n::ActionPipeline.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     keywords = "i18n::ActionPipeline.keyword",
-    documentationUrl = "/workflow/actions/pipeline.html")
+    documentationUrl = "/workflow/actions/pipeline.html",
+    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPipeline.class;
 

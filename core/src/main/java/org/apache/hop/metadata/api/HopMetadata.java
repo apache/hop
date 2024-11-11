@@ -44,4 +44,11 @@ public @interface HopMetadata {
   String image() default "ui/images/folder.svg";
 
   String documentationUrl() default "";
+
+  /**
+   * A HopMetadataPropertyType provides information about the purpose of a HopMetadataProperty.
+   *
+   * @return the type of metadata this property represents.
+   */
+  HopMetadataPropertyType hopMetadataPropertyType() default HopMetadataPropertyType.NONE;
 }

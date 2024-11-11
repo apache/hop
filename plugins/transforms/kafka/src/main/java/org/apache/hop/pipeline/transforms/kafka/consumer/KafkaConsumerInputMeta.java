@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -61,7 +62,8 @@ import org.w3c.dom.Node;
     description = "i18n::KafkaConsumer.TypeTooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
     keywords = "i18n::KafkaConsumerInputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/kafkaconsumer.html")
+    documentationUrl = "/pipeline/transforms/kafkaconsumer.html",
+    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
 @InjectionSupported(
     localizationPrefix = "KafkaConsumerInputMeta.Injection.",
     groups = {"CONFIGURATION_PROPERTIES"})

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -60,7 +61,8 @@ import org.w3c.dom.Node;
     description = "i18n::MetaInject.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::MetaInjectMeta.keyword",
-    documentationUrl = "/pipeline/transforms/metainject.html")
+    documentationUrl = "/pipeline/transforms/metainject.html",
+    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
 @InjectionSupported(
     localizationPrefix = "MetaInject.Injection.",
     groups = {"SOURCE_OUTPUT_FIELDS", "MAPPING_FIELDS"})

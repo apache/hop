@@ -63,19 +63,19 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     for (int i = 0; i < inputRowMeta.size(); i++) {
       row[i] = inputRowData[i]; // no data is changed, clone is not needed here.
     }
-    for (int i = 0, index = inputRowMeta.size(); i < meta.getFieldName().length; i++, index++) {
+    for (int i = 0, index = inputRowMeta.size(); i < meta.getFields().size(); i++, index++) {
       Calendar cal;
 
       int argnr = 0;
 
-      String argument = meta.getFieldArgument()[i];
+      String argument = meta.getFields().get(i).getFieldArgument();
       if (StringUtils.isEmpty(argument)) {
         argument = getPipeline().getPipelineMeta().getName();
       } else {
         argument = resolve(argument);
       }
 
-      switch (meta.getFieldType()[i]) {
+      switch (GetLoggingInfoTypes.getTypeFromString(meta.getFields().get(i).getFieldType())) {
         case TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM:
           {
             Date previousSuccess = getPreviousPipelineSuccess(argument);

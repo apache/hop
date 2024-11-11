@@ -26,6 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -39,6 +40,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -54,7 +56,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/snowflakebulkloader.html",
     keywords = "i18n::SnowflakeBulkLoader.Keyword",
     classLoaderGroup = "snowflake",
-    isIncludeJdbcDrivers = true)
+    isIncludeJdbcDrivers = true,
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 public class SnowflakeBulkLoaderMeta
     extends BaseTransformMeta<SnowflakeBulkLoader, SnowflakeBulkLoaderData> {
 
@@ -100,15 +103,24 @@ public class SnowflakeBulkLoaderMeta
   private String fileDate;
 
   /** The database connection to use */
-  @HopMetadataProperty(key = "connection", injectionKeyDescription = "")
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKeyDescription = "",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** The schema to use */
-  @HopMetadataProperty(key = "target_schema", injectionKeyDescription = "")
+  @HopMetadataProperty(
+      key = "target_schema",
+      injectionKeyDescription = "",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String targetSchema;
 
   /** The table to load */
-  @HopMetadataProperty(key = "target_table", injectionKeyDescription = "")
+  @HopMetadataProperty(
+      key = "target_table",
+      injectionKeyDescription = "",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String targetTable;
 
   /** The location type (user, table, internal_stage) */

@@ -29,6 +29,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
@@ -36,7 +37,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::SchemaDefinition.Name",
     description = "i18n::SchemaDefinition.Description",
     image = "ui/images/folder.svg",
-    documentationUrl = "/metadata-types/static-schema-definition.html")
+    documentationUrl = "/metadata-types/static-schema-definition.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.STATIC_SCHEMA_DEFINITION)
 public class SchemaDefinition extends HopMetadataBase implements Serializable, IHopMetadata {
 
   private static final Class<?> PKG = SchemaDefinition.class;

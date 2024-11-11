@@ -17,20 +17,21 @@
 
 package org.apache.hop.neo4j.transforms.split;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+@Getter
+@Setter
 @Transform(
     id = "Neo4jSplitGraph",
     name = "i18n::SplitGraphMeta.name",
@@ -41,14 +42,16 @@ import org.w3c.dom.Node;
     documentationUrl = "/plugins/transforms/split-graph.html")
 public class SplitGraphMeta extends BaseTransformMeta<SplitGraph, SplitGraphData> {
 
-  public static final String GRAPH_FIELD = "graph_field";
-  public static final String TYPE_FIELD = "type_field";
-  public static final String ID_FIELD = "id_field";
-  public static final String PROPERTY_SET_FIELD = "property_set_field";
-
+  @HopMetadataProperty(key = "graph_field")
   protected String graphField;
+
+  @HopMetadataProperty(key = "type_field")
   protected String typeField;
+
+  @HopMetadataProperty(key = "id_field")
   protected String idField;
+
+  @HopMetadataProperty(key = "property_set_field")
   protected String propertySetField;
 
   @Override
@@ -83,88 +86,5 @@ public class SplitGraphMeta extends BaseTransformMeta<SplitGraph, SplitGraphData
       propertySetValueMeta.setOrigin(name);
       inputRowMeta.addValueMeta(propertySetValueMeta);
     }
-  }
-
-  @Override
-  public String getXml() throws HopException {
-    StringBuffer xml = new StringBuffer();
-    xml.append(XmlHandler.addTagValue(GRAPH_FIELD, graphField));
-    xml.append(XmlHandler.addTagValue(TYPE_FIELD, typeField));
-    xml.append(XmlHandler.addTagValue(ID_FIELD, idField));
-    xml.append(XmlHandler.addTagValue(PROPERTY_SET_FIELD, propertySetField));
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    graphField = XmlHandler.getTagValue(transformNode, GRAPH_FIELD);
-    typeField = XmlHandler.getTagValue(transformNode, TYPE_FIELD);
-    idField = XmlHandler.getTagValue(transformNode, ID_FIELD);
-    propertySetField = XmlHandler.getTagValue(transformNode, PROPERTY_SET_FIELD);
-  }
-
-  /**
-   * Gets graphField
-   *
-   * @return value of graphField
-   */
-  public String getGraphField() {
-    return graphField;
-  }
-
-  /**
-   * @param graphField The graphField to set
-   */
-  public void setGraphField(String graphField) {
-    this.graphField = graphField;
-  }
-
-  /**
-   * Gets typeField
-   *
-   * @return value of typeField
-   */
-  public String getTypeField() {
-    return typeField;
-  }
-
-  /**
-   * @param typeField The typeField to set
-   */
-  public void setTypeField(String typeField) {
-    this.typeField = typeField;
-  }
-
-  /**
-   * Gets idField
-   *
-   * @return value of idField
-   */
-  public String getIdField() {
-    return idField;
-  }
-
-  /**
-   * @param idField The idField to set
-   */
-  public void setIdField(String idField) {
-    this.idField = idField;
-  }
-
-  /**
-   * Gets propertySetField
-   *
-   * @return value of propertySetField
-   */
-  public String getPropertySetField() {
-    return propertySetField;
-  }
-
-  /**
-   * @param propertySetField The propertySetField to set
-   */
-  public void setPropertySetField(String propertySetField) {
-    this.propertySetField = propertySetField;
   }
 }

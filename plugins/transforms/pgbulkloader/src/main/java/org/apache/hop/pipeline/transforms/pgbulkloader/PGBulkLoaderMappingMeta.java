@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.pgbulkloader;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class PGBulkLoaderMappingMeta {
   private static final Class<?> PKG = PGBulkLoaderMeta.class;
@@ -26,7 +27,8 @@ public class PGBulkLoaderMappingMeta {
   /** Field value to dateMask after lookup */
   @HopMetadataProperty(
       key = "stream_name",
-      injectionKeyDescription = "PGBulkLoader.Injection.StreamName.Label")
+      injectionKeyDescription = "PGBulkLoader.Injection.StreamName.Label",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String fieldTable;
 
   /** Field name in the stream */

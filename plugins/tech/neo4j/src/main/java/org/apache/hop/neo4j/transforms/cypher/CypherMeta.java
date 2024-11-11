@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -46,7 +47,8 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "connection",
-      injectionKeyDescription = "Cypher.Injection.connection")
+      injectionKeyDescription = "Cypher.Injection.connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
   private String connectionName;
 
   @HopMetadataProperty(

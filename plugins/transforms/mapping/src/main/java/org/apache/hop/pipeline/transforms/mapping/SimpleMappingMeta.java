@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -52,7 +53,8 @@ import org.apache.hop.resource.ResourceReference;
     image = "MAP.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
     keywords = "i18n::SimpleMappingMeta.keyword",
-    documentationUrl = "/pipeline/transforms/simple-mapping.html")
+    documentationUrl = "/pipeline/transforms/simple-mapping.html",
+    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData>
     implements ISubPipelineAwareMeta {
 
