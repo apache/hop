@@ -574,10 +574,9 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
       if (data.dynamicFromLabels
           && data.previousFromLabelsClause != null
-          && data.fromLabelsClause != null) {
-        if (!data.fromLabelsClause.equals(data.previousFromLabelsClause)) {
-          changedLabel = true;
-        }
+          && data.fromLabelsClause != null
+          && !data.fromLabelsClause.equals(data.previousFromLabelsClause)) {
+        changedLabel = true;
       }
     }
 
@@ -591,10 +590,9 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
       if (data.dynamicToLabels
           && data.previousToLabelsClause != null
-          && data.toLabelsClause != null) {
-        if (!data.toLabelsClause.equals(data.previousToLabelsClause)) {
-          changedLabel = true;
-        }
+          && data.toLabelsClause != null
+          && !data.toLabelsClause.equals(data.previousToLabelsClause)) {
+        changedLabel = true;
       }
     }
 
@@ -608,10 +606,9 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
       if (data.dynamicRelLabel
           && data.previousRelationshipLabel != null
-          && data.relationshipLabel != null) {
-        if (!data.relationshipLabel.equals(data.previousRelationshipLabel)) {
-          changedLabel = true;
-        }
+          && data.relationshipLabel != null
+          && !data.relationshipLabel.equals(data.previousRelationshipLabel)) {
+        changedLabel = true;
       }
     }
 
@@ -639,13 +636,13 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       GraphNodeData targetNodeData = null;
       GraphRelationshipData relationshipData;
 
-      if (meta.getNodeFromField().getProperties().size() > 0) {
+      if (!meta.getNodeFromField().getProperties().isEmpty()) {
         sourceNodeData = createGraphNodeData(rowMeta, row, meta.getNodeFromField(), "from");
         if (!meta.isOnlyCreatingRelationships()) {
           graphData.getNodes().add(sourceNodeData);
         }
       }
-      if (meta.getNodeToField().getProperties().size() > 0) {
+      if (!meta.getNodeToField().getProperties().isEmpty()) {
         targetNodeData = createGraphNodeData(rowMeta, row, meta.getNodeToField(), "to");
         if (!meta.isOnlyCreatingRelationships()) {
           graphData.getNodes().add(targetNodeData);
@@ -902,8 +899,6 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     // Which labels to index?
     //
     Set<String> labels = new HashSet<>();
-    //
-    // Arrays.stream(nodeLabelValues).filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
 
     for (LabelField labelField : theNode.getLabels()) {
       if (!Utils.isEmpty(labelField.getLabel())) {
@@ -945,10 +940,8 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
   private void wrapUpTransaction() throws HopException {
 
-    if (!isStopped()) {
-      if (data.unwindList != null && !data.unwindList.isEmpty()) {
-        emptyUnwindList(); // force write!
-      }
+    if (!isStopped() && data.unwindList != null && !data.unwindList.isEmpty()) {
+      emptyUnwindList(); // force write!
     }
 
     // Allow gc

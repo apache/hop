@@ -470,7 +470,6 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdFromPropsGrid.top = new FormAttachment(lastFromControl, margin);
     fdFromPropsGrid.bottom = new FormAttachment(100, 0);
     wFromPropsGrid.setLayoutData(fdFromPropsGrid);
-    lastFromControl = wFromPropsGrid;
 
     FormData fdFromComp = new FormData();
     fdFromComp.left = new FormAttachment(0, 0);
@@ -939,7 +938,6 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     }
     input.getNodeFromField().setProperties(fromNodeProps);
 
-    int nbToPropLines = wToPropsGrid.nrNonEmpty();
     List<PropertyField> toNodeProps = new ArrayList<>();
     for (int i = 0; i < wToPropsGrid.nrNonEmpty(); i++) {
       TableItem item = wToPropsGrid.table.getItem(i);
