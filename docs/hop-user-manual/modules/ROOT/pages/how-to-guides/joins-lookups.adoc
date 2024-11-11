@@ -18,7 +18,7 @@ under the License.
 :imagesdir: ../../assets/images
 :description: This guide provides an overview of the various join and lookup transforms and helps you to choose which transform makes most sense for your use case.
 
-== Joins and lookups
+= Joins and lookups
 
 Hop offers a lot of options to enrich and combine data, among other things through joins and lookups. This guide explains the differences between the various joins and lookups, and will help you to choose the right transform for your pipelines.
 
