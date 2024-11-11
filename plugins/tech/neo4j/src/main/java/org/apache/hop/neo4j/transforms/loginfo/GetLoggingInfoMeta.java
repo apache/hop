@@ -175,11 +175,7 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
     }
     GetLoggingInfoMeta that = (GetLoggingInfoMeta) o;
 
-    if (!fields.equals(that.fields)) {
-      return false;
-    }
-
-    return true;
+    return fields.equals(that.fields);
   }
 
   @Override

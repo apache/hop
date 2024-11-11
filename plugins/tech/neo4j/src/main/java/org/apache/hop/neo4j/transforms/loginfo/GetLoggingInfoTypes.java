@@ -47,8 +47,7 @@ public enum GetLoggingInfoTypes {
   private final String code;
   private final String description;
 
-  private static Class<?> PKG =
-      GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> pkg = GetLoggingInfoMeta.class;
 
   public String lookupDescription() {
     return description;
@@ -72,10 +71,10 @@ public enum GetLoggingInfoTypes {
   }
 
   public static String lookupDescription(String i18nDescription) {
-    if (PKG == null) {
-      PKG = GetLoggingInfoMeta.class;
+    if (pkg == null) {
+      pkg = GetLoggingInfoMeta.class;
     }
-    return BaseMessages.getString(PKG, i18nDescription);
+    return BaseMessages.getString(pkg, i18nDescription);
   }
 
   GetLoggingInfoTypes(String code, String i18nDescription) {
