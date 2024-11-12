@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.util.EnvUtil;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
@@ -37,13 +38,14 @@ public class XmlParserFactoryProducer {
    *
    * @throws ParserConfigurationException if feature can't be enabled
    */
+  @SuppressWarnings("java:S2755")
   public static DocumentBuilderFactory createSecureDocBuilderFactory()
       throws ParserConfigurationException {
     DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
     docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     docBuilderFactory.setFeature(
         "http://apache.org/xml/features/disallow-doctype-decl",
-        "N".equals(Const.XML_ALLOW_DOCTYPE_DECL));
+        "N".equals(EnvUtil.getSystemProperty(Const.XML_ALLOW_DOCTYPE_DECL)));
 
     return docBuilderFactory;
   }
