@@ -139,7 +139,8 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
         transformRow[index++] = actionResult.getLogChannelId();
 
         // Logging text of action
-        transformRow[index++] = result.getLogText();
+        transformRow[index++] =
+            HopLogStore.getAppender().getBuffer(actionResult.getLogChannelId(), false).toString();
 
         // Errors
         transformRow[index++] = result.getNrErrors();
