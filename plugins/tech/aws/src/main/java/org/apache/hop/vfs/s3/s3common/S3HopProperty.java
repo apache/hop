@@ -23,8 +23,9 @@ import org.apache.hop.core.variables.Variable;
 /** Class that handles operations dealing with hop property file. */
 public class S3HopProperty {
 
-  // TODO: Provide variable description
-  @Variable(description = "")
+  @Variable(
+      description =
+          "Default part size for new files on S3, Acceptable are 5MB as a minimum and 5GB as a maximum value. (Default: 5MB)")
   public static final String HOP_S3_VFS_PART_SIZE = "HOP_S3_VFS_PART_SIZE";
 
   public String getPartSize() {
