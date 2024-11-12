@@ -18,7 +18,7 @@ under the License.
 :imagesdir: ../../assets/images
 :description: This page contains a collection of how-to guides to perform a variety of tasks, configurations etc with Apache Hop.
 
-== How-to guides
+= How-to guides
 
 This page contains a collection of how-to guides to perform a variety of tasks, configurations etc with Apache Hop.
 

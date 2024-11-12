@@ -19,7 +19,7 @@ under the License.
 :description: Hop Gui is Hop's visual development environment where you will mainly design, run and debug workflows and pipelines, but Hop Gui has a lot more to offer: you can configure all of your metadata items like database connections, run configurations etc. You can search, manage files, version control your work and more.
 
 
-== Hop Gui
+= Hop Gui
 
 Hop Gui is Hop's visual development environment. You'll spend a lot of time here in the various perspectives of Hop GUI.
 

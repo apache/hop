@@ -18,7 +18,7 @@ under the License.
 :imagesdir: ../assets/images
 :description: You'll perform a lot of operations on the pipeline canvas, but a lot of additional functionality is available from the pipeline editor's main toolbar
 
-== Toolbar
+= Toolbar
 
 You learned to create a pipeline in xref:pipeline/create-pipeline.adoc[Create a Pipeline]. You'll perform a lot of operations on the pipeline canvas, but a lot of additional functionality is available from the pipeline editor's main toolbar.
 

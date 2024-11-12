@@ -17,7 +17,7 @@ under the License.
 :description: Actions are used the objects that are executed in a workflow. They are logical operators that do not manipulate your data but create actions that have to be performed around your pipelines.
 
 [[actions-plugins]]
-== Action Plugins
+= Action Plugins
 
 Actions are used the objects that are executed in a workflow. They are logical operators that do not manipulate your data but create actions that have to be performed around your pipelines.
 

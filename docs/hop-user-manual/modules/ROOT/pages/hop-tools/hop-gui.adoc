@@ -16,7 +16,7 @@ under the License.
 ////
 :description: Hop Encrypt is a command line tool to encrypt (obfuscate) passwords for use in XML, password or Hop metadata files.Hop Gui is Hop’s visual development environment. You’ll spend a lot of time here in the various perspectives of Hop GUI.
 
-== Hop GUI
+= Hop GUI
 
 Hop GUI is the visual integrated development environment (IDE) for Apache Hop.
 

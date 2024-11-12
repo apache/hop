@@ -16,7 +16,7 @@ under the License.
 ////
 :imagesdir: ../assets/images
 
-== Plugin Perspective
+= Plugin Perspective
 
 Icon: image:icons/plugin.svg[width="24px"]
 
