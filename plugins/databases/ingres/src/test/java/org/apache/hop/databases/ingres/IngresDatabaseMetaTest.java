@@ -118,20 +118,20 @@ public class IngresDatabaseMetaTest {
         nativeMeta.getFieldDefinition(
             new ValueMetaInteger("FOO", 10, 0), "", "", false, false, false));
     assertEquals(
-        "INTEGER",
+        "DECIMAL(6,16)",
         nativeMeta.getFieldDefinition(
             new ValueMetaBigNumber("FOO", 6, 0), "", "", false, false, false));
     assertEquals(
-        "SMALLINT",
+        "FLOAT8",
         nativeMeta.getFieldDefinition(
             new ValueMetaNumber("FOO", 3, 0), "", "", false, false, false));
     assertEquals(
-        "INTEGER1",
+        "TINYINT",
         nativeMeta.getFieldDefinition(
             new ValueMetaInteger("FOO", 2, 0), "", "", false, false, false));
 
     assertEquals(
-        "FLOAT",
+        "DECIMAL(6,3)",
         nativeMeta.getFieldDefinition(
             new ValueMetaBigNumber("FOO", 6, 3), "", "", false, false, false));
 
