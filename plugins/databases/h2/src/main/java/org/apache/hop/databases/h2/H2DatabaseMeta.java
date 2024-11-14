@@ -74,7 +74,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   /**
-   * Checks whether or not the command setFetchSize() is supported by the JDBC driver...
+   * Checks whether the command setFetchSize() is supported by the JDBC driver...
    *
    * @return true is setFetchSize() is supported!
    */
@@ -179,27 +179,35 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         ) {
           retval += "IDENTITY";
         } else {
-          if (length > 0) {
-            if (precision > 0 || length > 18) {
-              retval += "DECIMAL(" + length + ", " + precision + ")";
+          if (type == IValueMeta.TYPE_INTEGER) {
+            // Integer values...
+            if (length < 3) {
+              retval += "TINYINT";
+            } else if (length < 5) {
+              retval += "SMALLINT";
+            } else if (length < 10) {
+              retval += "INT";
+            } else if (length < 20) {
+              retval += "BIGINT";
             } else {
-              if (length > 9) {
-                retval += "BIGINT";
-              } else {
-                if (length < 5) {
-                  if (length < 3) {
-                    retval += "TINYINT";
-                  } else {
-                    retval += "SMALLINT";
-                  }
-                } else {
-                  retval += "INTEGER";
-                }
-              }
+              retval += "DECIMAL(" + length + ")";
             }
-
+          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
+            // Fixed point value...
+            if (length
+                < 1) { // user configured no value for length. Use 16 digits, which is comparable to
+              // mantissa 2^53 of IEEE 754 binary64 "double".
+              length = 16;
+            }
+            if (precision
+                < 1) { // user configured no value for precision. Use 16 digits, which is comparable
+              // to IEEE 754 binary64 "double".
+              precision = 16;
+            }
+            retval += "DECIMAL(" + length + "," + precision + ")";
           } else {
-            retval += "DOUBLE";
+            // Floating point value with double precision...
+            retval += "DOUBLE PRECISION";
           }
         }
         break;
