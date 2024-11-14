@@ -59,7 +59,7 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDat
 
   @Override
   public String getExtraOptionsHelpText() {
-    return "https://cloud.google.com/bigquery/partners/simba-drivers/";
+    return "https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers";
   }
 
   @Override
@@ -89,13 +89,19 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDat
         break;
 
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
-        if (precision == 0) {
+        if (type == IValueMeta.TYPE_INTEGER) {
+          // Integer values...
           retval += "INT64";
+        } else if (type == IValueMeta.TYPE_BIGNUMBER) {
+          // Fixed point value...
+          if (v.getLength() < 39) {
+            retval += "NUMERIC";
+          } else {
+            retval += "BIGNUMERIC";
+          }
         } else {
+          // Floating point value with double precision...
           retval += "FLOAT64";
-        }
-        if (fieldname.equalsIgnoreCase(tk) || fieldname.equalsIgnoreCase(pk)) {
-          retval += " NOT NULL";
         }
         break;
 
@@ -110,6 +116,10 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDat
       default:
         retval += " UNKNOWN";
         break;
+    }
+
+    if (fieldname.equalsIgnoreCase(tk) || fieldname.equalsIgnoreCase(pk)) {
+      retval += " NOT NULL";
     }
 
     if (addCr) {
