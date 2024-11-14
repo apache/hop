@@ -1959,6 +1959,14 @@ public class TableView extends Composite {
       selectionIndicies = moveRowsUp(selectionIndicies);
     }
 
+    // Check if there is an active control (active textbox/combobox/...) and dispose it when
+    // deleting a row
+    Control activeControl = getActiveTableItem().getDisplay().getFocusControl();
+    // Check if the table is the parent
+    if (activeControl != null && activeControl.getParent().equals(table)) {
+      activeControl.dispose();
+    }
+
     activeTableRow = selectedIndex + offset;
     table.setSelection(activeTableRow);
     table.setSelection(selectionIndicies);
@@ -2246,6 +2254,15 @@ public class TableView extends Composite {
 
     // Which items do we delete?
     int[] items = table.getSelectionIndices();
+    table.setSelection(items);
+
+    // Check if there is an active control (active textbox/combobox/...) and dispose it when
+    // deleting a row
+    Control activeControl = getActiveTableItem().getDisplay().getFocusControl();
+    // Check if the table is the parent
+    if (activeControl != null && activeControl.getParent().equals(table)) {
+      activeControl.dispose();
+    }
 
     if (items.length == 0) {
       return;
@@ -2340,6 +2357,14 @@ public class TableView extends Composite {
     ChangeAction ta = new ChangeAction();
     ta.setDelete(before, itemsToDelete);
     addUndo(ta);
+
+    // Check if there is an active control (active textbox/combobox/...) and dispose it when
+    // deleting a row
+    Control activeControl = getActiveTableItem().getDisplay().getFocusControl();
+    // Check if the table is the parent
+    if (activeControl != null && activeControl.getParent().equals(table)) {
+      activeControl.dispose();
+    }
 
     // Delete non-selected items.
     table.remove(itemsToDelete);
