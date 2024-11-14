@@ -296,33 +296,35 @@ public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
             retval += "BIGINT NOT NULL PRIMARY KEY";
           }
         } else {
-          // Integer values...
-          if (precision == 0) {
-            if (length > 9) {
-              if (length < 19) {
-                // can hold signed values between -9223372036854775808 and 9223372036854775807
-                // 18 significant digits
-                retval += "BIGINT";
-              } else {
-                retval += "DECIMAL(" + length + ")";
-              }
-            } else {
+          if (type == IValueMeta.TYPE_INTEGER) {
+            // Integer values...
+            if (length < 3) {
+              retval += "TINYINT";
+            } else if (length < 5) {
+              retval += "SMALLINT";
+            } else if (length < 10) {
               retval += "INT";
-            }
-          } else {
-            // Floating point values...
-            if (length > 15) {
-              retval += "DECIMAL(" + length;
-              if (precision > 0) {
-                retval += ", " + precision;
-              }
-              retval += ")";
+            } else if (length < 20) {
+              retval += "BIGINT";
             } else {
-              // A double-precision floating-point number is accurate to approximately 15 decimal
-              // places.
-              // https://docs.cloudera.com/HDPDocuments/HDP2/HDP-2.0.0.2/ds_Hive/jdbc-hs2.html
-              retval += "DOUBLE";
+              retval += "DECIMAL(" + length + ")";
             }
+          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
+            // Fixed point value...
+            if (length
+                < 1) { // user configured no value for length. Use 16 digits, which is comparable to
+              // mantissa 2^53 of IEEE 754 binary64 "double".
+              length = 16;
+            }
+            if (precision
+                < 1) { // user configured no value for precision. Use 16 digits, which is comparable
+              // to IEEE 754 binary64 "double".
+              precision = 16;
+            }
+            retval += "DECIMAL(" + length + "," + precision + ")";
+          } else {
+            // Floating point value with double precision...
+            retval += "DOUBLE";
           }
         }
         break;
