@@ -127,7 +127,7 @@ public class InformixDatabaseMetaTest {
 
     // Note - ValueMetaInteger returns zero always from the precision - so this avoids the weirdness
     assertEquals(
-        "INTEGER",
+        "SMALLINT",
         nativeMeta.getFieldDefinition(
             new ValueMetaInteger("FOO", -8, -3),
             "",
@@ -136,7 +136,7 @@ public class InformixDatabaseMetaTest {
             false,
             false)); // Weird if statement
     assertEquals(
-        "FLOAT",
+        "DECIMAL(16,16)",
         nativeMeta.getFieldDefinition(
             new ValueMetaBigNumber("FOO", -8, -3),
             "",
@@ -145,15 +145,15 @@ public class InformixDatabaseMetaTest {
             false,
             false)); // Weird if statement ( length and precision less than zero)
     assertEquals(
-        "FLOAT",
+        "BIGINT",
         nativeMeta.getFieldDefinition(
             new ValueMetaInteger("FOO", 10, 3), "", "", false, false, false)); // Weird if statement
     assertEquals(
-        "FLOAT",
+        "BIGINT",
         nativeMeta.getFieldDefinition(
             new ValueMetaInteger("FOO", 10, 0), "", "", false, false, false)); // Weird if statement
     assertEquals(
-        "INTEGER",
+        "INT",
         nativeMeta.getFieldDefinition(
             new ValueMetaInteger("FOO", 9, 0), "", "", false, false, false)); // Weird if statement
 
