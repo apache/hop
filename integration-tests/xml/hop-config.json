@@ -229,6 +229,10 @@
       "name": "HOP_AUTO_CREATE_CONFIG",
       "value": "Y",
       "description": "Set this value to N if you don't want to automatically create a hop configuration file (hop-config.json) when it's missing"
+    }, {
+      "name" : "XML_ALLOW_DOCTYPE_DECL",
+      "value" : "Y",
+      "description" : "A variable allow or disallow doctype declarations in XML"
     }
   ],
   "LocaleDefault": "en_BE",
