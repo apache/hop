@@ -41,29 +41,11 @@ class SerializableMetadataProviderTest {
         source.getSerializer(HopServerMeta.class);
     HopServerMeta sourceServer1 =
         new HopServerMeta(
-            "server1",
-            "hostname1",
-            "8181",
-            "8182",
-            "username1",
-            "password1",
-            null,
-            null,
-            null,
-            false);
+            "server1", "hostname1", "8181", "username1", "password1", null, null, null, false);
     sourceSerializer.save(sourceServer1);
     HopServerMeta sourceServer2 =
         new HopServerMeta(
-            "server2",
-            "hostname2",
-            "8282",
-            "8283",
-            "username2",
-            "password2",
-            null,
-            null,
-            null,
-            true);
+            "server2", "hostname2", "8282", "username2", "password2", null, null, null, true);
     sourceSerializer.save(sourceServer2);
 
     SerializableMetadataProvider serializableMetadataProvider =

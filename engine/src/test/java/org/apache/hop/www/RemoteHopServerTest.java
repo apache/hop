@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.hop.server;
+package org.apache.hop.www;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -37,8 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.hc.client5.http.auth.AuthCache;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -60,7 +58,8 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.utils.TestUtils;
+import org.apache.hop.server.HopServerMeta;
+import org.apache.hop.server.ServerConnectionManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,12 +67,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
 /**
- * Tests for HopServer class
- *
- * @see HopServerMeta
+ * Tests for the {@link RemoteHopServer} client. The connection metadata is held by {@link
+ * HopServerMeta}; this test wraps it in a RemoteHopServer and exercises the HTTP interactions.
  */
-class HopServerTest {
-  HopServerMeta hopServer;
+class RemoteHopServerTest {
+  RemoteHopServer hopServer;
+  HopServerMeta serverMeta;
   IVariables variables;
 
   @BeforeAll
@@ -110,7 +109,8 @@ class HopServerTest {
         .when(httpClient)
         .execute(any(HttpPost.class), nullable(HttpClientContext.class));
 
-    hopServer = spy(new HopServerMeta());
+    serverMeta = new HopServerMeta();
+    hopServer = spy(new RemoteHopServer(serverMeta));
     variables = new Variables();
     doReturn(httpClient).when(hopServer).getHttpClient();
     doReturn("response_body").when(hopServer).getResponseBodyAsString(nullable(InputStream.class));
@@ -149,8 +149,8 @@ class HopServerTest {
     doReturn(httpGetMock)
         .when(hopServer)
         .buildExecuteServiceMethod(any(IVariables.class), anyString(), anyMap());
-    hopServer.setHostname("hostNameStub");
-    hopServer.setUsername("userNAmeStub");
+    serverMeta.setHostname("hostNameStub");
+    serverMeta.setUsername("userNAmeStub");
 
     assertThrows(
         HopException.class,
@@ -159,8 +159,8 @@ class HopServerTest {
 
   @Test
   void testSendXml() throws Exception {
-    hopServer.setHostname("hostNameStub");
-    hopServer.setUsername("userNAmeStub");
+    serverMeta.setHostname("hostNameStub");
+    serverMeta.setUsername("userNAmeStub");
     HttpPost httpPostMock = mock(HttpPost.class);
     URI uriMock = new URI("fake");
     doReturn(uriMock).when(httpPostMock).getUri();
@@ -173,8 +173,8 @@ class HopServerTest {
 
   @Test
   void testSendExport() throws Exception {
-    hopServer.setHostname("hostNameStub");
-    hopServer.setUsername("userNAmeStub");
+    serverMeta.setHostname("hostNameStub");
+    serverMeta.setUsername("userNAmeStub");
     HttpPost httpPostMock = mock(HttpPost.class);
     URI uriMock = new URI("fake");
     doReturn(uriMock).when(httpPostMock).getUri();
@@ -193,10 +193,10 @@ class HopServerTest {
 
   @Test
   void testSendExportOk() throws Exception {
-    hopServer.setUsername("uname");
-    hopServer.setPassword("passw");
-    hopServer.setHostname("hname");
-    hopServer.setPort("1111");
+    serverMeta.setUsername("uname");
+    serverMeta.setPassword("passw");
+    serverMeta.setHostname("hname");
+    serverMeta.setPort("1111");
     HttpPost httpPostMock = mock(HttpPost.class);
     URI uriMock = new URI("fake");
     final String responseContent = "baah";
@@ -224,21 +224,21 @@ class HopServerTest {
   @Test
   void testAddCredentials() {
     String testUser = "test_username";
-    hopServer.setUsername(testUser);
+    serverMeta.setUsername(testUser);
     String testPassword = "test_password";
-    hopServer.setPassword(testPassword);
+    serverMeta.setPassword(testPassword);
     String host = "somehost";
-    hopServer.setHostname(host);
+    serverMeta.setHostname(host);
     int port = 1000;
-    hopServer.setPort("" + port);
+    serverMeta.setPort("" + port);
 
     HttpClientContext auth = hopServer.getAuthContext(variables);
     var cred = auth.getCredentialsProvider().getCredentials(new AuthScope(host, port), null);
     assertEquals(testUser, cred.getUserPrincipal().getName());
 
     String user2 = "user2";
-    hopServer.setUsername(user2);
-    hopServer.setPassword("pass2");
+    serverMeta.setUsername(user2);
+    serverMeta.setPassword("pass2");
     auth = hopServer.getAuthContext(variables);
     cred = auth.getCredentialsProvider().getCredentials(new AuthScope(host, port), null);
     assertEquals(user2, cred.getUserPrincipal().getName());
@@ -246,11 +246,11 @@ class HopServerTest {
 
   @Test
   void testAuthCredentialsSchemeWithSSL() {
-    hopServer.setUsername("admin");
-    hopServer.setPassword("password");
-    hopServer.setHostname("localhost");
-    hopServer.setPort("8443");
-    hopServer.setSslMode(true);
+    serverMeta.setUsername("admin");
+    serverMeta.setPassword("password");
+    serverMeta.setHostname("localhost");
+    serverMeta.setPort("8443");
+    serverMeta.setSslMode(true);
 
     AuthCache cache = hopServer.getAuthContext(variables).getAuthCache();
     assertNotNull(cache.get(new HttpHost("https", "localhost", 8443)));
@@ -259,11 +259,11 @@ class HopServerTest {
 
   @Test
   void testAuthCredentialsSchemeWithoutSSL() {
-    hopServer.setUsername("admin");
-    hopServer.setPassword("password");
-    hopServer.setHostname("localhost");
-    hopServer.setPort("8080");
-    hopServer.setSslMode(false);
+    serverMeta.setUsername("admin");
+    serverMeta.setPassword("password");
+    serverMeta.setHostname("localhost");
+    serverMeta.setPort("8080");
+    serverMeta.setSslMode(false);
 
     AuthCache cache = hopServer.getAuthContext(variables).getAuthCache();
     assertNull(cache.get(new HttpHost("https", "localhost", 8080)));
@@ -271,36 +271,54 @@ class HopServerTest {
   }
 
   @Test
-  void testModifyingName() {
-    hopServer.setName("test");
-    List<HopServerMeta> list = new ArrayList<>();
-    list.add(hopServer);
+  void testConstructUrl() {
+    serverMeta.setHostname("localhost");
+    serverMeta.setPort("8080");
+    assertEquals(
+        "http://localhost:8080/hop/status", hopServer.constructUrl(variables, "/hop/status"));
 
-    HopServerMeta hopServer2 = spy(new HopServerMeta());
-    hopServer2.setName("test");
+    // https when ssl mode is enabled
+    serverMeta.setSslMode(true);
+    assertEquals(
+        "https://localhost:8080/hop/status", hopServer.constructUrl(variables, "/hop/status"));
+    serverMeta.setSslMode(false);
 
-    hopServer2.verifyAndModifyHopServerName(list, null);
+    // port 80 is left out of the URL
+    serverMeta.setPort("80");
+    assertEquals("http://localhost/hop/status", hopServer.constructUrl(variables, "/hop/status"));
+    serverMeta.setPort("8080");
 
-    assertNotEquals(hopServer.getName(), hopServer2.getName());
+    // the web application name is inserted before the service path
+    serverMeta.setWebAppName("web");
+    assertEquals(
+        "http://localhost:8080/web/hop/status", hopServer.constructUrl(variables, "/hop/status"));
+    serverMeta.setWebAppName(null);
+
+    // spaces are percent-encoded
+    assertEquals("http://localhost:8080/hop/a%20b", hopServer.constructUrl(variables, "/hop/a b"));
+
+    // localhost is rewritten to 127.0.0.1 when a proxy is configured
+    serverMeta.setProxyHostname("proxy.example.com");
+    assertEquals(
+        "http://127.0.0.1:8080/hop/status", hopServer.constructUrl(variables, "/hop/status"));
   }
 
   @Test
-  void testEqualsHashCodeConsistency() {
-    HopServerMeta server = new HopServerMeta();
-    server.setName("server");
-    TestUtils.checkEqualsHashCodeConsistency(server, server);
+  void testGetPortSpecification() {
+    serverMeta.setPort("8080");
+    assertEquals(":8080", hopServer.getPortSpecification(variables));
+    serverMeta.setPort("80");
+    assertEquals("", hopServer.getPortSpecification(variables));
+    serverMeta.setPort("");
+    assertEquals("", hopServer.getPortSpecification(variables));
+  }
 
-    HopServerMeta serverSame = new HopServerMeta();
-    serverSame.setName("server");
-    assertEquals(server, serverSame);
-    TestUtils.checkEqualsHashCodeConsistency(server, serverSame);
-
-    HopServerMeta serverCaps = new HopServerMeta();
-    serverCaps.setName("SERVER");
-    TestUtils.checkEqualsHashCodeConsistency(server, serverCaps);
-
-    HopServerMeta serverOther = new HopServerMeta();
-    serverOther.setName("something else");
-    TestUtils.checkEqualsHashCodeConsistency(server, serverOther);
+  @Test
+  void testGetDelay() {
+    // first attempt: backoff + a jitter of at most backoff/4
+    assertTrue(RemoteHopServer.getDelay(0, 1000) >= 1000);
+    assertTrue(RemoteHopServer.getDelay(0, 1000) < 1250);
+    // the delay grows (fibonacci-style) with the number of attempts
+    assertTrue(RemoteHopServer.getDelay(3, 1000) >= 3000);
   }
 }

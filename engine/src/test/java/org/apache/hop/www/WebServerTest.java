@@ -38,13 +38,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 class WebServerTest {
   private static final String EMPTY_STRING = "";
 
-  private static final boolean SHOULD_JOIN = false;
-
   private static final String HOST_NAME = "localhost";
 
   private static final int PORT = 8099;
-
-  private static final int SHUTDOEN_PORT = 8098;
 
   private static final String ACCEPTORS = "5";
 
@@ -76,15 +72,13 @@ class WebServerTest {
     when(trMapMock.getHopServerConfig()).thenReturn(sServerConfMock);
     when(sServer.getPassword()).thenReturn("cluster");
     when(sServer.getUsername()).thenReturn("cluster");
-    webServer =
-        new WebServer(
-            logMock, trMapMock, jbMapMock, HOST_NAME, PORT, SHUTDOEN_PORT, SHOULD_JOIN, null);
+    webServer = new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT, null);
+    webServer.start();
   }
 
   @AfterEach
   void tearDown() {
-    webServer.setWebServerShutdownHandler(null); // disable system.exit
-    webServer.stopServer();
+    webServer.stop();
 
     System.getProperties().remove(Const.HOP_SERVER_JETTY_ACCEPTORS);
     System.getProperties().remove(Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE);
@@ -112,9 +106,8 @@ class WebServerTest {
       throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, "TEST");
     try {
-      webServerNg =
-          new WebServer(
-              logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHUTDOEN_PORT, SHOULD_JOIN, null);
+      webServerNg = new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, null);
+      webServerNg.start();
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
@@ -122,17 +115,15 @@ class WebServerTest {
     for (ServerConnector sc : getSocketConnectors(webServerNg)) {
       assertEquals(sc.getAcceptors(), sc.getAcceptors());
     }
-    webServerNg.setWebServerShutdownHandler(null); // disable system.exit
-    webServerNg.stopServer();
+    webServerNg.stop();
   }
 
   @Test
   void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsEmpty() throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, EMPTY_STRING);
     try {
-      webServerNg =
-          new WebServer(
-              logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHUTDOEN_PORT, SHOULD_JOIN, null);
+      webServerNg = new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, null);
+      webServerNg.start();
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
@@ -140,8 +131,7 @@ class WebServerTest {
     for (ServerConnector sc : getSocketConnectors(webServerNg)) {
       assertEquals(sc.getAcceptors(), sc.getAcceptors());
     }
-    webServerNg.setWebServerShutdownHandler(null); // disable system.exit
-    webServerNg.stopServer();
+    webServerNg.stop();
   }
 
   private List<ServerConnector> getSocketConnectors(WebServer wServer) {

@@ -19,22 +19,13 @@ package org.apache.hop.www;
 
 import jakarta.servlet.Servlet;
 import java.awt.GraphicsEnvironment;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopRuntimeException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -76,8 +67,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 
 public class WebServer {
 
-  public static final int CONST_PORT = 80;
-  public static final int SHUTDOWN_PORT = 8079;
+  public static final int DEFAULT_PORT = 80;
   private static final int DEFAULT_DETECTION_TIMER = 20000;
   private static final Class<?> PKG = WebServer.class;
   public static final String CONST_WEB_SERVER_LOG_CONFIG_OPTIONS = "WebServer.Log.ConfigOptions";
@@ -94,15 +84,8 @@ public class WebServer {
   @Setter @Getter private String hostname;
 
   @Setter @Getter private int port;
-  private final int shutdownPort;
 
   private String passwordFile;
-  private final WebServerShutdownHook webServerShutdownHook;
-
-  /** Can be used to override the default shutdown behavior of performing a System.exit */
-  @Setter
-  private IWebServerShutdownHandler webServerShutdownHandler =
-      new DefaultWebServerShutdownHandler();
 
   private final SslConfiguration sslConfig;
 
@@ -112,11 +95,9 @@ public class WebServer {
       WorkflowMap workflowMap,
       String hostname,
       int port,
-      int shutdownPort,
-      boolean join,
       String passwordFile)
       throws Exception {
-    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, join, passwordFile, null);
+    this(log, pipelineMap, workflowMap, hostname, port, passwordFile, null);
   }
 
   public WebServer(
@@ -125,8 +106,6 @@ public class WebServer {
       WorkflowMap workflowMap,
       String hostname,
       int port,
-      int shutdownPort,
-      boolean join,
       String passwordFile,
       SslConfiguration sslConfig)
       throws Exception {
@@ -142,53 +121,22 @@ public class WebServer {
     }
     this.hostname = hostname;
     this.port = port;
-    this.shutdownPort = shutdownPort;
     this.passwordFile = passwordFile;
     this.sslConfig = sslConfig;
-
-    startServer();
-
-    webServerShutdownHook = new WebServerShutdownHook(this);
-    Runtime.getRuntime().addShutdownHook(webServerShutdownHook);
-
-    try {
-      ExtensionPointHandler.callExtensionPoint(
-          log, variables, HopExtensionPoint.HopServerStartup.id, this);
-    } catch (HopException e) {
-      // Log error but continue regular operations to make sure HopServer continues to run properly
-      //
-      log.logError("Error calling extension point HopServerStartup", e);
-    }
-
-    if (join) {
-      server.join();
-    }
   }
 
   public WebServer(
-      ILogChannel log,
-      PipelineMap pipelineMap,
-      WorkflowMap workflowMap,
-      String hostname,
-      int port,
-      int shutdownPort)
+      ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap, String hostname, int port)
       throws Exception {
-    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, true);
+    this(log, pipelineMap, workflowMap, hostname, port, null, null);
   }
 
-  public WebServer(
-      ILogChannel log,
-      PipelineMap pipelineMap,
-      WorkflowMap workflowMap,
-      String hostname,
-      int port,
-      int shutdownPort,
-      boolean join)
-      throws Exception {
-    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, join, null, null);
-  }
+  /** Start the web server. This method is idempotent: a started server is not started again. */
+  public synchronized void start() throws Exception {
+    if (server != null && (server.isStarting() || server.isStarted())) {
+      return;
+    }
 
-  public void startServer() throws Exception {
     server = new Server();
     HopServerMeta hopServer = pipelineMap.getHopServerConfig().getHopServer();
 
@@ -258,6 +206,9 @@ public class WebServer {
 
     server.setHandler(innerHandler);
 
+    // Setup timeout to allow graceful timeout of server components
+    server.setStopTimeout(1000L);
+
     // Start execution
     createListeners();
     server.start();
@@ -293,6 +244,16 @@ public class WebServer {
       servletContext.setAttribute("GraphicsEnvironment", graphicsEnvironment);
     }
 
+    // Shutdown servlet, used to gracefully stop the Hop server over HTTP.
+    ServletContextHandler shutdownContext =
+        new ServletContextHandler(ShutdownServlet.CONTEXT_PATH, ServletContextHandler.SESSIONS);
+    shutdownContext.setAllowNullPathInContext(true);
+    contexts.addHandler(shutdownContext);
+    ShutdownServlet shutdownServlet = new ShutdownServlet();
+    shutdownServlet.setup(pipelineMap, workflowMap);
+    shutdownServlet.setJettyMode(true);
+    shutdownContext.addServlet(new ServletHolder(shutdownServlet), "/*");
+
     // setup jersey (REST)
     ServletHolder jerseyServletHolder = new ServletHolder(ServletContainer.class);
     jerseyServletHolder.setInitParameter(
@@ -323,30 +284,19 @@ public class WebServer {
     server.join();
   }
 
-  public void stopServer() {
-
-    webServerShutdownHook.setShuttingDown(true);
-    log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.ShuttingDown"));
-    try {
-      ExtensionPointHandler.callExtensionPoint(
-          log, variables, HopExtensionPoint.HopServerShutdown.id, this);
-    } catch (HopException e) {
-      // Log error but continue regular operations to make sure HopServer can be shut down properly.
-      //
-      log.logError("Error calling extension point HopServerStartup", e);
+  /** Stop the web server. This method is idempotent: a stopped server is not stopped again. */
+  public synchronized void stop() {
+    if (server == null || server.isStopping() || server.isStopped()) {
+      return;
     }
 
-    try {
-      if (server != null) {
+    log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.ShuttingDown"));
 
-        // Stop the server...
-        //
-        server.stop();
-        HopEnvironment.shutdown();
-        if (webServerShutdownHandler != null) {
-          webServerShutdownHandler.shutdownWebServer();
-        }
-      }
+    try {
+      // Stop the server...
+      //
+      server.stop();
+      HopEnvironment.shutdown();
     } catch (Exception e) {
       log.logError(
           BaseMessages.getString(PKG, "WebServer.Error.FailedToStop.Title"),
@@ -406,7 +356,7 @@ public class WebServer {
   /**
    * Set up jetty options to the connector
    *
-   * @param connector
+   * @param connector the connector to configure
    */
   protected void setupJettyOptions(ServerConnector connector) {
     LowResourceMonitor lowResourceMonitor = new LowResourceMonitor(server);
@@ -489,37 +439,5 @@ public class WebServer {
     } catch (Error ignored) {
     }
     return false;
-  }
-
-  private static class MonitorThread extends Thread {
-
-    private final ServerSocket socket;
-    private final Server server;
-
-    public MonitorThread(Server server, String hostname, int shutdownPort) {
-      this.server = server;
-      setDaemon(true);
-      setName("StopMonitor");
-      try {
-        socket = new ServerSocket(shutdownPort, 1, InetAddress.getByName(hostname));
-      } catch (Exception e) {
-        throw new HopRuntimeException(e);
-      }
-    }
-
-    @Override
-    public void run() {
-      Socket accept;
-      try {
-        accept = socket.accept();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(accept.getInputStream()));
-        reader.readLine();
-        server.stop();
-        accept.close();
-        socket.close();
-      } catch (Exception e) {
-        throw new HopRuntimeException(e);
-      }
-    }
   }
 }

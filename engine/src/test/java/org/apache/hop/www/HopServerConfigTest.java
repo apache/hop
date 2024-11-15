@@ -223,7 +223,7 @@ class HopServerConfigTest {
   @Test
   void testSetInternalHopServerVariables_populatesAllVariables() {
     HopServerMeta meta =
-        new HopServerMeta("my-server", "host.example.com", "8181", "8180", "admin", "secret");
+        new HopServerMeta("my-server", "host.example.com", "8181", "admin", "secret");
     meta.setWebAppName("hop");
     meta.setSslMode(true);
     slServerConfig.setHopServer(meta);
@@ -242,7 +242,7 @@ class HopServerConfigTest {
 
   @Test
   void testSetInternalHopServerVariables_resolvedPortOverridesConfigured() {
-    HopServerMeta meta = new HopServerMeta("local8080", "localhost", "8080", "8079", null, null);
+    HopServerMeta meta = new HopServerMeta("local8080", "localhost", "8080", null, null);
     slServerConfig.setHopServer(meta);
 
     IVariables variables = new Variables();
@@ -281,7 +281,7 @@ class HopServerConfigTest {
 
   @Test
   void testSetInternalHopServerVariables_nullVariablesIsNoop() {
-    HopServerMeta meta = new HopServerMeta("server", "host", "8181", "8180", null, null);
+    HopServerMeta meta = new HopServerMeta("server", "host", "8181", null, null);
     slServerConfig.setHopServer(meta);
 
     // Should not throw on null variables.
