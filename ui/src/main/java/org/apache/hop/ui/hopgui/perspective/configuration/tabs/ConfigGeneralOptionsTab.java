@@ -229,7 +229,7 @@ public class ConfigGeneralOptionsTab {
             "EnterOptionsDialog.SortFieldByName.ToolTip",
             props.isSortFieldByName(),
             lastControl,
-            2 * margin);
+            margin);
     lastControl = wSortFieldByName;
 
     // Use global file bookmarks?
