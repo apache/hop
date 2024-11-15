@@ -21,7 +21,7 @@ import java.util.Map;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.www.IHopServerPlugin;
 
-/** This class represents the carte plugin type. */
+/** This class represents the Hop server plugin type. */
 @PluginMainClassType(IHopServerPlugin.class)
 @PluginAnnotationType(HopServerServlet.class)
 public class HopServerPluginType extends BasePluginType<HopServerServlet> {

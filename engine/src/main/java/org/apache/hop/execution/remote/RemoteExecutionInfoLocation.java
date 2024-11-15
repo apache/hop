@@ -46,6 +46,7 @@ import org.apache.hop.pipeline.engines.remote.HopServerTypeMetadata;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.www.GetExecutionInfoServlet;
 import org.apache.hop.www.RegisterExecutionInfoServlet;
+import org.apache.hop.www.RemoteHopServer;
 import org.apache.http.client.utils.URIBuilder;
 
 @GuiPlugin(description = "File execution information location GUI elements")
@@ -81,7 +82,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   @HopMetadataProperty(key = "location")
   protected String locationName;
 
-  private HopServerMeta server;
+  private RemoteHopServer server;
   private ExecutionInfoLocation location;
   private IVariables variables;
 
@@ -105,9 +106,11 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     this.variables = variables;
     try {
       if (StringUtils.isNotEmpty(serverName)) {
-        server =
+        HopServerMeta serverMeta =
             metadataProvider.getSerializer(HopServerMeta.class).load(variables.resolve(serverName));
+        server = new RemoteHopServer(serverMeta);
       }
+
       if (StringUtils.isNotEmpty(locationName)) {
         location =
             metadataProvider
@@ -489,15 +492,6 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   /**
-   * Gets server
-   *
-   * @return value of server
-   */
-  public HopServerMeta getServer() {
-    return server;
-  }
-
-  /**
    * Gets serverName
    *
    * @return value of serverName
@@ -549,15 +543,6 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
    */
   public void setVariables(IVariables variables) {
     this.variables = variables;
-  }
-
-  /**
-   * Sets server
-   *
-   * @param server value of server
-   */
-  public void setServer(HopServerMeta server) {
-    this.server = server;
   }
 
   /**

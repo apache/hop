@@ -105,9 +105,10 @@ public enum HopExtensionPoint {
   BeforeCheckTransform("Right before a transform is about to be verified."),
   AfterCheckTransform("After a transform has been checked for warnings/errors."),
 
-  HopServerInit("Right before the Hop webserver starts"),
-  HopServerStartup("Right after the Hop webserver has started and is fully functional"),
-  HopServerShutdown("Right before the Hop webserver will shut down"),
+  HopServerInit("Right before the Hop server starts"),
+  HopServerStartup("Right after the Hop server has started and is fully functional"),
+  HopServerShutdown("Right before the Hop server will shutdown"),
+  HopServerTerminate("Right after the Hop server shutdown"),
   HopServerCalculateFilename(
       "Right after the server configuration filename is determined, before it is used"),
 
