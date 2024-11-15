@@ -30,15 +30,15 @@
 
     <properties>
         <cratedb-jdbc.version>2.7.0</cratedb-jdbc.version>
-        <derby.version>10.16.1.1</derby.version>
-        <hsqldb.version>2.7.3</hsqldb.version>
+        <derby.version>10.17.1.0</derby.version>
+        <hsqldb.version>2.7.4</hsqldb.version>
         <jt400.version>20.0.7</jt400.version>
         <monetdb.version>3.3</monetdb.version>
-        <mysql.version>9.0.0</mysql.version>
-        <postgresql.version>42.7.2</postgresql.version>
-        <redshift.version>2.1.0.29</redshift.version>
-        <snowflake.jdbc.version>3.19.0</snowflake.jdbc.version>
-        <vertica.jdbc.version>23.3.0-0</vertica.jdbc.version>
+        <mysql.version>9.1.0</mysql.version>
+        <postgresql.version>42.7.4</postgresql.version>
+        <redshift.version>2.1.0.30</redshift.version>
+        <snowflake.jdbc.version>3.20.0</snowflake.jdbc.version>
+        <vertica.jdbc.version>24.4.0-0</vertica.jdbc.version>
     </properties>
 
     <dependencyManagement>
