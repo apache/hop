@@ -76,6 +76,7 @@ import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
 import org.apache.hop.www.HopServerWorkflowStatus;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterWorkflowServlet;
+import org.apache.hop.www.RemoteHopServer;
 import org.apache.hop.www.WebResult;
 
 @WorkflowEnginePlugin(
@@ -103,6 +104,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   protected ILogChannel logChannel;
   protected LoggingObject loggingObject;
   protected LogLevel logLevel;
+  protected long serverPollDelay;
+  protected long serverPollInterval;
+  protected RemoteHopServer hopServer;
   protected HopServerMeta hopServer;
   protected String containerId;
   protected int lastLogLineNr;
@@ -257,6 +261,14 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
       hopServer = metadataProvider.getSerializer(HopServerMeta.class).load(hopServerName);
       if (hopServer == null) {
+      serverPollDelay =
+          Const.toLong(resolve(remoteWorkflowRunConfiguration.getServerPollDelay()), 1000L);
+      serverPollInterval =
+          Const.toLong(resolve(remoteWorkflowRunConfiguration.getServerPollInterval()), 2000L);
+
+      HopServerMeta hopServerMeta =
+          metadataProvider.getSerializer(HopServerMeta.class).load(hopServerName);
+      if (hopServerMeta == null) {
         throw new HopException("Hop server '" + hopServerName + "' could not be found");
       }
 
@@ -324,7 +336,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     }
     try {
       workflowStatus =
-          hopServer.getWorkflowStatus(this, workflowMeta.getName(), containerId, lastLogLineNr);
+          hopServer.requestWorkflowStatus(this, workflowMeta.getName(), containerId, lastLogLineNr);
       lastLogLineNr = workflowStatus.getLastLoggingLineNr();
       if (StringUtils.isNotEmpty(workflowStatus.getLoggingString())) {
         // TODO implement detailed logging and add option to log at all
@@ -361,7 +373,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   @Override
   public void stopExecution() {
     try {
-      hopServer.stopWorkflow(this, workflowMeta.getName(), containerId);
+      hopServer.requestStopWorkflow(this, workflowMeta.getName(), containerId);
       getWorkflowStatus();
 
       fireExecutionStoppedListeners();
@@ -399,7 +411,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     }
 
     // Align logging levels between execution configuration and remote server
-    hopServer.getLogChannel().setLogLevel(executionConfiguration.getLogLevel());
+    hopServer.getLog().setLogLevel(executionConfiguration.getLogLevel());
 
     try {
       // Add current variables to the configuration
@@ -469,7 +481,8 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
       // Start the workflow
       //
-      WebResult webResult = hopServer.startWorkflow(this, workflowMeta.getName(), containerId);
+      WebResult webResult =
+          hopServer.requestStartWorkflow(this, workflowMeta.getName(), containerId);
       if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
         throw new HopException(
             "There was an error starting the workflow on the remote server: "

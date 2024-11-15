@@ -88,6 +88,7 @@ import org.apache.hop.www.HopServerPipelineStatus;
 import org.apache.hop.www.PrepareExecutionPipelineServlet;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterPipelineServlet;
+import org.apache.hop.www.RemoteHopServer;
 import org.apache.hop.www.SniffTransformServlet;
 import org.apache.hop.www.StartExecutionPipelineServlet;
 import org.apache.hop.www.WebResult;
@@ -127,7 +128,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected EngineMetrics engineMetrics;
   protected Result previousResult;
 
-  protected HopServerMeta hopServer;
+  protected RemoteHopServer hopServer;
 
   protected ILoggingObject parent;
   protected IPipelineEngine<PipelineMeta> parentPipeline;
@@ -243,10 +244,12 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       serverPollInterval =
           Const.toLong(resolve(remotePipelineRunConfiguration.getServerPollInterval()), 2000L);
 
-      hopServer = metadataProvider.getSerializer(HopServerMeta.class).load(hopServerName);
-      if (hopServer == null) {
+      HopServerMeta hopServerMeta =
+          metadataProvider.getSerializer(HopServerMeta.class).load(hopServerName);
+      if (hopServerMeta == null) {
         throw new HopException("Hop server '" + hopServerName + "' could not be found");
       }
+      hopServer = new RemoteHopServer(hopServerMeta);
 
       PipelineExecutionConfiguration pipelineExecutionConfiguration =
           new PipelineExecutionConfiguration();
@@ -309,7 +312,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
     executionConfiguration.getParametersMap().putAll(params);
 
-    hopServer.getLogChannel().setLogLevel(executionConfiguration.getLogLevel());
+    hopServer.getLog().setLogLevel(executionConfiguration.getLogLevel());
 
     try {
       if (remotePipelineRunConfiguration.isExportingResources()) {
@@ -503,7 +506,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   private synchronized void getPipelineStatus() throws RuntimeException {
     try {
       HopServerPipelineStatus pipelineStatus =
-          hopServer.getPipelineStatus(this, subject.getName(), containerId, lastLogLineNr);
+          hopServer.requestPipelineStatus(this, subject.getName(), containerId, lastLogLineNr);
       synchronized (engineMetrics) {
         hasHaltedComponents = false;
         engineMetrics.setStartDate(pipelineStatus.getExecutionStartDate());
@@ -656,7 +659,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   @Override
   public void stopAll() {
     try {
-      hopServer.stopPipeline(this, subject.getName(), containerId);
+      hopServer.requestStopPipeline(this, subject.getName(), containerId);
       getPipelineStatus();
     } catch (Exception e) {
       throw new RuntimeException(
@@ -672,7 +675,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   @Override
   public void pauseExecution() {
     try {
-      hopServer.pauseResumePipeline(this, subject.getName(), containerId);
+      hopServer.requestPauseResumePipeline(this, subject.getName(), containerId);
       getPipelineStatus();
     } catch (Exception e) {
       throw new RuntimeException(
@@ -1330,22 +1333,6 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   @Override
   public void setLogChannel(ILogChannel log) {
     this.logChannel = log;
-  }
-
-  /**
-   * Gets Hop server metadata
-   *
-   * @return value of Hop server
-   */
-  public HopServerMeta getHopServer() {
-    return hopServer;
-  }
-
-  /**
-   * @param hopServer The hopServer to set
-   */
-  public void setHopServer(HopServerMeta hopServer) {
-    this.hopServer = hopServer;
   }
 
   /**
