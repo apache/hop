@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
@@ -338,11 +337,9 @@ public class WriteToLogDialog extends BaseTransformDialog {
       wLogMessage.setText(input.getLogMessage());
     }
 
-    Table table = wFields.table;
-    table.removeAll();
     for (int i = 0; i < input.getLogFields().size(); i++) {
       LogField field = input.getLogFields().get(i);
-      TableItem ti = new TableItem(table, SWT.NONE);
+      TableItem ti = new TableItem(wFields.table, SWT.NONE);
       ti.setText(0, "" + (i + 1));
       ti.setText(1, field.getName());
     }
