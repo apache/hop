@@ -648,19 +648,12 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               if (destinationfile.getName().getURI().startsWith("azfs")) {
                 // Special handling for "azfs" URIs
                 destinationfile = HopVfs.getFileObject(destinationfilefoldername, getVariables());
-              } else if (destinationfile.getName().getURI().startsWith("azure")
-                  || destinationfile.getName().getURI().startsWith("file")) {
-                // Common handling for "azure" and "file" URIs
+              } else {
                 String destinationfilenamefull =
                     HopVfs.getFilename(destinationfile.getParent())
                         + Const.FILE_SEPARATOR
                         + shortfilename;
                 destinationfile = HopVfs.getFileObject(destinationfilenamefull, getVariables());
-              } else {
-                // Throw exception for unsupported URI schemes
-                throw new HopException(
-                    "Could not extract the file name from the URI: "
-                        + destinationfile.getName().getURI());
               }
 
               entrystatus =
