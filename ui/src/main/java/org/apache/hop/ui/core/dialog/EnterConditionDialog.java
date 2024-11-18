@@ -56,6 +56,7 @@ public class EnterConditionDialog extends Dialog {
   public Condition open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    shell.setMinimumSize(400, 200);
     PropsUi.setLook(shell);
     shell.setText(BaseMessages.getString(PKG, "EnterConditionDialog.Title"));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
@@ -65,7 +66,6 @@ public class EnterConditionDialog extends Dialog {
     formLayout.marginHeight = PropsUi.getFormMargin();
 
     int margin = PropsUi.getMargin() * 2;
-
     shell.setLayout(formLayout);
 
     // Condition widget
