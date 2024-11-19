@@ -68,6 +68,7 @@ Samples (samples project)
 |Option|Description
 |Transform name|Name of the transform.
 |Workflow|Use this option to specify a workflow stored in a file (.hwf file)
+|Run configuration|Specify the Workflow Run Configuration to be used for execution.
 |===
 
 === Parameters Tab
