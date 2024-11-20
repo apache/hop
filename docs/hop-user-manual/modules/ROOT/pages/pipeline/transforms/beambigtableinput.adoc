@@ -47,4 +47,9 @@ The Beam Bigtable Input transform can be used to input data from link:https://cl
 |Project ID|The Google Cloud project.
 |Instance ID|The Bigtable instance ID.
 |Table ID|The Bigtable ID.
+| Output key field name   | Name of the output field where the key (row key) will be stored.
+| Source columns to read  | Specify the columns to read from Bigtable in this table.
+| Source column (qualifier) | The specific Bigtable column qualifier to read.
+| Target Hop data type    | The data type for the corresponding field in Hop.
+| Target field name       | The name of the target field in Hop where the column value will be stored.
 |===
