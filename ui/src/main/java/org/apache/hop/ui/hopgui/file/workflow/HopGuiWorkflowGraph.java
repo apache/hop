@@ -810,6 +810,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             singleClick = true;
             singleClickType = SingleClickType.Action;
             singleClickAction = selectedAction;
+
+            // If the clicked action is not part of the current selection, cancel the
+            // current selection
+            if (!selectedAction.isSelected()) {
+              workflowMeta.unselectAll();
+              selectedAction.setSelected(true);
+            }
           }
         } else {
           // Find out which Transforms & Notes are selected

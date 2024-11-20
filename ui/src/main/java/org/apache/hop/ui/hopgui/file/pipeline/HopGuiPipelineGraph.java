@@ -958,6 +958,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             singleClick = true;
             singleClickType = SingleClickType.Transform;
             singleClickTransform = selectedTransform;
+
+            // If the clicked transform is not part of the current selection, cancel the
+            // current selection
+            if (!selectedTransform.isSelected()) {
+              pipelineMeta.unselectAll();
+              selectedTransform.setSelected(true);
+            }
           }
         } else {
           // Find out which Transforms & Notes are selected
