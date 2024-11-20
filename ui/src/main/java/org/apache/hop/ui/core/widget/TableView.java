@@ -1904,8 +1904,7 @@ public class TableView extends Composite {
     }
 
     if (id == SWT.YES) {
-      table.removeAll();
-      new TableItem(table, SWT.NONE);
+      removeAll();
       if (!readonly) {
         parent.getDisplay().asyncExec(() -> edit(0, 1));
       }
@@ -2289,7 +2288,8 @@ public class TableView extends Composite {
     table.remove(items);
 
     if (table.getItemCount() == 0) {
-      TableItem item = new TableItem(table, SWT.NONE);
+      removeAll();
+      TableItem item = table.getItem(0);
       // Save undo infomation!
       String[] stritem = getItemText(item);
       ta = new ChangeAction();
@@ -2370,7 +2370,8 @@ public class TableView extends Composite {
     table.remove(itemsToDelete);
 
     if (table.getItemCount() == 0) {
-      TableItem item = new TableItem(table, SWT.NONE);
+      removeAll();
+      TableItem item = table.getItem(0);
       // Save undo information!
       String[] strItem = getItemText(item);
       ta = new ChangeAction();
@@ -3050,8 +3051,7 @@ public class TableView extends Composite {
       }
     }
     if (table.getItemCount() == 0) { // At least one empty row!
-
-      new TableItem(table, SWT.NONE);
+      removeAll();
     }
   }
 
@@ -3529,14 +3529,14 @@ public class TableView extends Composite {
   public void remove(int index) {
     table.remove(index);
     if (table.getItemCount() == 0) {
-      new TableItem(table, SWT.NONE);
+      removeAll();
     }
   }
 
   public void remove(int[] index) {
     table.remove(index);
     if (table.getItemCount() == 0) {
-      new TableItem(table, SWT.NONE);
+      removeAll();
     }
   }
 
@@ -3587,6 +3587,7 @@ public class TableView extends Composite {
     table.removeAll();
     if (table.getItemCount() == 0) {
       new TableItem(table, SWT.NONE);
+      table.setItemCount(1);
     }
   }
 
