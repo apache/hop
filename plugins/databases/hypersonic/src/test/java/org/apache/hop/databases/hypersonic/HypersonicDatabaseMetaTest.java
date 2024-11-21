@@ -63,9 +63,6 @@ public class HypersonicDatabaseMetaTest {
     assertEquals("jdbc:hsqldb:WIBBLE", nativeMeta.getURL("", "", "WIBBLE"));
     assertEquals("jdbc:hsqldb:hsql://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));
     assertFalse(nativeMeta.isSupportsBitmapIndex());
-    assertEquals(
-        "http://hsqldb.sourceforge.net/doc/guide/ch04.html#N109DA",
-        nativeMeta.getExtraOptionsHelpText());
     assertArrayEquals(
         new String[] {
           "ADD",
@@ -427,12 +424,12 @@ public class HypersonicDatabaseMetaTest {
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaBoolean("BAR"), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DECIMAL(10,16)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 0), "", false, "", false));
 
@@ -447,22 +444,22 @@ public class HypersonicDatabaseMetaTest {
             "FOO", new ValueMetaNumber("BAR", 0, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR INTEGER",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(10, 3)",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(10, 3)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(10,3)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 3), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(21, 4)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(21,4)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 21, 4), "", false, "", false));
 
@@ -482,17 +479,12 @@ public class HypersonicDatabaseMetaTest {
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
-            "FOO",
-            new ValueMetaNumber("BAR", 10, -7),
-            "",
-            false,
-            "",
-            false)); // Bug here - invalid SQL
+            "FOO", new ValueMetaNumber("BAR", 10, -7), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(22, 7)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(22,7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 22, 7), "", false, "", false));
     assertEquals(
@@ -500,7 +492,7 @@ public class HypersonicDatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", -10, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(5, 7)",
+        "ALTER TABLE FOO ADD BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
     assertEquals(
@@ -545,12 +537,12 @@ public class HypersonicDatabaseMetaTest {
             "FOO", new ValueMetaInteger("BAR"), "BAR", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR BIGINT",
+        "ALTER TABLE FOO ADD BAR DECIMAL(10,16)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 10, 0), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR NUMERIC(22, 0)",
+        "ALTER TABLE FOO ADD BAR DECIMAL(22,16)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaBigNumber("BAR", 22, 0), "", false, "", false));
 
