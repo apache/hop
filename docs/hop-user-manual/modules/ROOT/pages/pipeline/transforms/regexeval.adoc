@@ -46,23 +46,27 @@ You can use this transform to parse a complex string of text and create new fiel
 
 == Usage
 
-For example, if you have an input field containing an author's name in quotes and the number of posts made by them, you can create two new fields in your pipeline - one for the name, and one for the number of posts as shown below:
+=== Pattern matching
 
-Text to parse:
+The primary usage for this transform is to check if an input field matches the given pattern: a boolean field is added to the stream, indicating whether there is match or not.
 
-[source,bash]
-----
-"Author, Ann" - 53 posts
-----
+The pattern is intended to match the entire input field, not just a part of it. For example, given the input:
 
-Regex to create two capture groups:
++++<pre>"Author, Ann" - 53 posts</pre>+++
 
-[source,bash]
-----
-^"([^"]*)" - (\d*) posts$
-----
+a regular expression like `\d* posts` would give no match, even if a part of the input (`53 posts`) indeed matches with the pattern. To get an actual match, you need to add `.*` in the pattern:
 
-The resulting field values are: Ann and 53.
++++<pre>.*\d* posts</pre>+++
+
+=== Capturing text
+
+This transform can also capture parts of the input and store them in new fields of the stream: to do so, just add the usual grouping operator (simple parentheses) in your regular expression.
+
+With the same input text as above, create a regular expression with two capture groups:
+
++++<pre>^"([^"]*)" - (\d*) posts$</pre>+++
+
+The transform will capture the values `Author, Ann` and `53`, so you can create two new fields in your pipeline (i.e. one for the name, and one for the number of posts).
 
 == Options
 
@@ -144,46 +148,60 @@ This action may improve performance, but your data can only contain US ASCII cha
 Only characters in the US-ASCII charset are matched.
 Unicode-aware case-insensitive matching can be enabled by specifying the 'Unicode-aware case...' flag in conjunction with this flag.
 
-* The execution flag is (?i).
-|Permit whitespace and comments in pattern a|Select to ignore whitespace and embedded comments starting with # through the end of the line.
-In this mode, you must use the \s token to match whitespace.
+* The execution flag is `(?i)`.
+|Permit whitespace and comments in pattern a|Select to ignore whitespace and embedded comments starting with `#` through the end of the line.
+In this mode, you must use the `\s` token to match whitespace.
 If this option is not enabled, whitespace characters appearing in the regular expression are matched as-is.
 
-* The execution flag is (?x).
-|Enable dotall mode|Select to include line terminators with the dot character expression match.
+* The execution flag is `(?x)`.
+|Enable dotall mode a|Select to include line terminators with the dot character expression match.
 
-The execution flag is (?s).
-|Enable multiline mode a|Select to match the start of a line '^' or the end of a line '$' of the input sequence.
+* The execution flag is `(?s)`.
+|Enable multiline mode a|Select to match the start of a line `^` or the end of a line `$` of the input sequence.
 By default, these expressions only match at the beginning and the end of the entire input sequence.
 
-* The execution flag is(?m)
+* The execution flag is `(?m)`.
 |Enable Unicode-aware case folding a|Select this option in conjunction with the Enables case-insensitive matching option to perform case-insensitive matching consistent with the Unicode standard.
 
-* The execution flag is (?u).
-|Enables Unix lines mode a|Select to only recognize the line terminator in the behavior of '.', '^', and '$'.\
+* The execution flag is `(?u)`.
+|Enables Unix lines mode a|Select to only recognize the line terminator in the behavior of `.`, `^`, and `$`.
 
-* The execution flag is (?d).
+* The execution flag is `(?d)`.
 |===
 
 == Examples
 
-Suppose your input field contains a text value like "Author, Ann" - 53 posts.
+=== Sub-text matching
+
+As mentioned earlier, the pattern is intended to match the entire input field, i.e. when the supplied input _is_ the pattern. 
+
+If you just need to test if your input _contains_ the pattern, you need to tweak your regular expression so that it matches the entire input field. You should also include the grouping operators (parentheses) to get the sub-text you intended to match, for example:
+
+* Input data: `THIS IS A TITLE <PROCESSING_TAG>`
+* RegEx 1: `+++<.*>+++` -> returns no match, because the pattern doesn't match the entire input
+* RegEx 2: `+++.*(<.*>)+++` -> returns a match and you can capture the value `<PROCESSING_TAG>` with the grouping operators
+
+As a consequence, you can consider the line delimiting operators `^` and `$` as implied in your regular expression: the examples above are equivalent to `+++^<.*>$+++` and `+++^.*(<.*>)$+++` respectively.
+
+=== Nested capture groups
+
+Suppose your input field contains a text value like `"Author, Ann" - 53 posts.`
+
 The following regular expression creates four capturing groups and can be used to parse out the different parts:
 
-[source,bash]
-----
-^"((["]), (["]))" - (\d+) posts\.$
-----
++++<pre>^"(([^"]+), ([^"])+)" - (\d+) posts\.$</pre>+++
 
 This expression creates the following four capturing groups, which become output fields:
 
-* Fullname: ((["]), (["]))
-* Lastname: ([^"]+)
-* Firstname: ([^"]+)
-* Number of posts: (\d+)
+[options="header"]
+|===
+|Field name|RegEx segment|Value
+|Fullname|`+++(([^"]+), ([^"]+))+++`|`Author, Ann`
+|Lastname|`+++([^"]+)+++` (first occurrence)|`Author`
+|Firstname|`+++([^"]+)+++` (second occurrence)|`Ann`
+|Number of posts|`+++(\d+)+++`|`53`
+|===
 
 In this example, a field definition must be present for each of these capturing groups.
 
 If the number of capture groups in the regular expression does not match the number of fields specified, the transform will fail and an error is written to the log.
-Capturing groups can be nested.
-In the example above the fields Lastname and Firstname correspond to the capturing groups that are themselves contained inside the Fullname capturing group.
