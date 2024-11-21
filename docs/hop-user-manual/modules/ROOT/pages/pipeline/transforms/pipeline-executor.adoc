@@ -100,6 +100,7 @@ The filename may contain variables (for example, you can use the built-in Intern
 |Pipeline field|When the previous option is enabled, you can specify the field that will contain the pipeline filename(s) at runtime. The filename may contain variables.
 
 *NOTE:* It must be considered that, by specifying the pipeline file name using this option, we can experience a little performance penalty because the pipeline that will be executed will be initialized at runtime and not during the initialization phase as usual. On the other side this option gives greater flexibility in specifying the pipeline filename dynamically and this could be useful for many use-cases.
+|Run configuration|Specify the Pipeline Run Configuration to be used for execution.
 
 |===
 
