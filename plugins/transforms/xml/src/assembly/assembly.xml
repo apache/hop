@@ -63,5 +63,11 @@
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.codehaus.woodstox:stax2-api:jar</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
     </dependencySets>
 </assembly>
