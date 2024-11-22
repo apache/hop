@@ -91,4 +91,8 @@ When multiple database connections with the same name but different configuratio
 This file contains a list of all jobs and transformations, with the connections they use.
 
 
+== Import from the CLI
 
+The `hop-import.sh/bat` CLI tool lets you import Kettle/PDI projects from the command line.
+
+Check the xref:hop-vs-kettle/hop-import.adoc[hop-import] page for details.
