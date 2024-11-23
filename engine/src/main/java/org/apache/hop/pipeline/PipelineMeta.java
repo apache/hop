@@ -2310,8 +2310,7 @@ public class PipelineMeta extends AbstractMeta
   public Point getMaximum() {
     int maxx = 0;
     int maxy = 0;
-    for (int i = 0; i < nrTransforms(); i++) {
-      TransformMeta transformMeta = getTransform(i);
+    for (TransformMeta transformMeta : getTransforms()) {
       Point loc = transformMeta.getLocation();
       if (loc.x > maxx) {
         maxx = loc.x;
@@ -2320,8 +2319,7 @@ public class PipelineMeta extends AbstractMeta
         maxy = loc.y;
       }
     }
-    for (int i = 0; i < nrNotes(); i++) {
-      NotePadMeta notePadMeta = getNote(i);
+    for (NotePadMeta notePadMeta : getNotes()) {
       Point loc = notePadMeta.getLocation();
       if (loc.x + notePadMeta.width > maxx) {
         maxx = loc.x + notePadMeta.width;
@@ -2342,8 +2340,7 @@ public class PipelineMeta extends AbstractMeta
   public Point getMinimum() {
     int minx = Integer.MAX_VALUE;
     int miny = Integer.MAX_VALUE;
-    for (int i = 0; i < nrTransforms(); i++) {
-      TransformMeta transformMeta = getTransform(i);
+    for (TransformMeta transformMeta : getTransforms()) {
       Point loc = transformMeta.getLocation();
       if (loc.x < minx) {
         minx = loc.x;
@@ -2352,8 +2349,7 @@ public class PipelineMeta extends AbstractMeta
         miny = loc.y;
       }
     }
-    for (int i = 0; i < nrNotes(); i++) {
-      NotePadMeta notePadMeta = getNote(i);
+    for (NotePadMeta notePadMeta : getNotes()) {
       Point loc = notePadMeta.getLocation();
       if (loc.x < minx) {
         minx = loc.x;

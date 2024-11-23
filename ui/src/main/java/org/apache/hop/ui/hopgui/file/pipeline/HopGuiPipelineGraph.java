@@ -59,6 +59,7 @@ import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
@@ -339,7 +340,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   protected int currentMouseY = 0;
 
-  protected NotePadMeta ni = null;
+  protected NotePadMeta currentNotePad = null;
 
   protected TransformMeta currentTransform;
 
@@ -399,11 +400,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private boolean avoidContextDialog;
 
   public void setCurrentNote(NotePadMeta ni) {
-    this.ni = ni;
+    this.currentNotePad = ni;
   }
 
   public NotePadMeta getCurrentNote() {
-    return ni;
+    return currentNotePad;
   }
 
   public TransformMeta getCurrentTransform() {
@@ -747,10 +748,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
 
         case NOTE:
-          ni = (NotePadMeta) areaOwner.getOwner();
+          currentNotePad = (NotePadMeta) areaOwner.getOwner();
           selectedNotes = pipelineMeta.getSelectedNotes();
-          selectedNote = ni;
-          Point loc = ni.getLocation();
+          selectedNote = currentNotePad;
+          Point loc = currentNotePad.getLocation();
 
           previousNoteLocations = pipelineMeta.getSelectedNoteLocations();
 
@@ -1491,26 +1492,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
       }
 
-      selectedNotes = pipelineMeta.getSelectedNotes();
-      selectedTransforms = pipelineMeta.getSelectedTransforms();
-
-      // Adjust location of selected transforms...
-      if (selectedTransforms != null) {
-        for (int i = 0; i < selectedTransforms.size(); i++) {
-          TransformMeta transformMeta = selectedTransforms.get(i);
-          PropsUi.setLocation(
-              transformMeta,
-              transformMeta.getLocation().x + dx,
-              transformMeta.getLocation().y + dy);
-        }
-      }
-      // Adjust location of selected hops...
-      if (selectedNotes != null) {
-        for (int i = 0; i < selectedNotes.size(); i++) {
-          NotePadMeta ni = selectedNotes.get(i);
-          PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
-        }
-      }
+      moveSelected(dx, dy);
 
       doRedraw = true;
     } else if ((startHopTransform != null && endHopTransform == null)
@@ -1576,26 +1558,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         int dx = note.x - selectedNote.getLocation().x;
         int dy = note.y - selectedNote.getLocation().y;
 
-        selectedNotes = pipelineMeta.getSelectedNotes();
-        selectedTransforms = pipelineMeta.getSelectedTransforms();
-
-        // Adjust location of selected transforms...
-        if (selectedTransforms != null) {
-          for (int i = 0; i < selectedTransforms.size(); i++) {
-            TransformMeta transformMeta = selectedTransforms.get(i);
-            PropsUi.setLocation(
-                transformMeta,
-                transformMeta.getLocation().x + dx,
-                transformMeta.getLocation().y + dy);
-          }
-        }
-        // Adjust location of selected hops...
-        if (selectedNotes != null) {
-          for (int i = 0; i < selectedNotes.size(); i++) {
-            NotePadMeta ni = selectedNotes.get(i);
-            PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
-          }
-        }
+        moveSelected(dx, dy);
 
         doRedraw = true;
       }
@@ -1634,6 +1597,50 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Show a tool tip upon mouse-over of an object on the canvas
     if (tip) {
       setToolTip(real.x, real.y, event.x, event.y);
+    }
+  }
+
+  protected void moveSelected(int dx, int dy) {
+    selectedNotes = pipelineMeta.getSelectedNotes();
+    selectedTransforms = pipelineMeta.getSelectedTransforms();
+
+    // Check minimum location of selected elements
+    if (selectedTransforms != null) {
+      for (TransformMeta transformMeta : selectedTransforms) {
+        Point location = transformMeta.getLocation();
+        if (location.x + dx < 0) {
+          dx = -location.x;
+        }
+        if (location.y + dy < 0) {
+          dy = -location.y;
+        }
+      }
+    }
+    if (selectedNotes != null) {
+      for (NotePadMeta notePad : selectedNotes) {
+        Point location = notePad.getLocation();
+        if (location.x + dx < 0) {
+          dx = -location.x;
+        }
+        if (location.y + dy < 0) {
+          dy = -location.y;
+        }
+      }
+    }
+
+    // Adjust location of selected transforms...
+    if (selectedTransforms != null) {
+      for (TransformMeta transformMeta : selectedTransforms) {
+        PropsUi.setLocation(
+            transformMeta, transformMeta.getLocation().x + dx, transformMeta.getLocation().y + dy);
+      }
+    }
+    // Adjust location of selected hops...
+    if (selectedNotes != null) {
+      for (NotePadMeta notePadMeta : selectedNotes) {
+        PropsUi.setLocation(
+            notePadMeta, notePadMeta.getLocation().x + dx, notePadMeta.getLocation().y + dy);
+      }
     }
   }
 
@@ -1970,41 +1977,33 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   /**
-   * Select all the transforms in a certain (screen) rectangle
+   * Select all the transforms and notes in a certain (screen) rectangle
    *
    * @param rect The selection area as a rectangle
    */
-  public void selectInRect(PipelineMeta pipelineMeta, org.apache.hop.core.gui.Rectangle rect) {
-    if (rect.height < 0 || rect.width < 0) {
-      org.apache.hop.core.gui.Rectangle rectified =
-          new org.apache.hop.core.gui.Rectangle(rect.x, rect.y, rect.width, rect.height);
+  public void selectInRect(PipelineMeta pipelineMeta, Rectangle rect) {
 
-      // Only for people not dragging from left top to right bottom
-      if (rectified.height < 0) {
-        rectified.y = rectified.y + rectified.height;
-        rectified.height = -rectified.height;
-      }
-      if (rectified.width < 0) {
-        rectified.x = rectified.x + rectified.width;
-        rectified.width = -rectified.width;
-      }
-      rect = rectified;
+    // Normalize the selection area
+    // Only for people not dragging from left top to right bottom
+    if (rect.height < 0) {
+      rect.y = rect.y + rect.height;
+      rect.height = -rect.height;
+    }
+    if (rect.width < 0) {
+      rect.x = rect.x + rect.width;
+      rect.width = -rect.width;
     }
 
-    for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
-      TransformMeta transformMeta = pipelineMeta.getTransform(i);
-      Point a = transformMeta.getLocation();
-      if (rect.contains(a.x, a.y)) {
-        transformMeta.setSelected(true);
+    for (TransformMeta transform : pipelineMeta.getTransforms()) {
+      if (rect.contains(transform.getLocation())) {
+        transform.setSelected(true);
       }
     }
-
-    for (int i = 0; i < pipelineMeta.nrNotes(); i++) {
-      NotePadMeta ni = pipelineMeta.getNote(i);
-      Point a = ni.getLocation();
-      Point b = new Point(a.x + ni.width, a.y + ni.height);
-      if (rect.contains(a.x, a.y) && rect.contains(b.x, b.y)) {
-        ni.setSelected(true);
+    for (NotePadMeta note : pipelineMeta.getNotes()) {
+      Point a = note.getLocation();
+      Point b = new Point(a.x + note.width, a.y + note.height);
+      if (rect.contains(a) && rect.contains(b)) {
+        note.setSelected(true);
       }
     }
   }

@@ -120,23 +120,19 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowPainterStart.id, this);
     } catch (HopException e) {
-      LogChannel.GENERAL.logError("Error in JobPainterStart extension point", e);
+      LogChannel.GENERAL.logError("Error in WorkflowPainterStart extension point", e);
     }
 
     // First draw the notes...
     gc.setFont(EFont.NOTE);
-
-    for (int i = 0; i < workflowMeta.nrNotes(); i++) {
-      NotePadMeta ni = workflowMeta.getNote(i);
-      drawNote(ni);
+    for (NotePadMeta notePad : workflowMeta.getNotes()) {
+      drawNote(notePad);
     }
 
+    // Second draw the hops on top of it...
     gc.setFont(EFont.GRAPH);
-
-    // ... and then the rest on top of it...
-    for (int i = 0; i < workflowMeta.nrWorkflowHops(); i++) {
-      WorkflowHopMeta hi = workflowMeta.getWorkflowHop(i);
-      drawWorkflowHop(hi, false);
+    for (WorkflowHopMeta hop : workflowMeta.getWorkflowHops()) {
+      drawWorkflowHop(hop, false);
     }
 
     EImage arrow;
@@ -194,12 +190,11 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       }
     }
 
-    for (int j = 0; j < workflowMeta.nrActions(); j++) {
-      ActionMeta je = workflowMeta.getAction(j);
-      drawAction(je);
+    for (ActionMeta actionMeta : workflowMeta.getActions()) {
+      drawAction(actionMeta);
     }
 
-    // Display an icon on the indicated location signaling to the user that the transform in
+    // Display an icon on the indicated location signaling to the user that the action in
     // question does not accept input
     //
     if (noInputAction != null) {
@@ -222,7 +217,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowPainterEnd.id, this);
     } catch (HopException e) {
-      LogChannel.GENERAL.logError("Error in JobPainterEnd extension point", e);
+      LogChannel.GENERAL.logError("Error in WorkflowPainterEnd extension point", e);
     }
 
     drawRect(selectionRectangle);

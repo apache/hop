@@ -464,16 +464,20 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     int areaHeight = (int) (area.y / magnification);
 
     // We want to show a rectangle depicting the total area of the pipeline/workflow graph.
-    // As such the area needs to be a certain percentage its size.
-    // Let's take 25%.
+    // This area must be adjusted to a maximum of 200 if it is too large.
     //
-    double graphWidth = 25.0 * maximum.x / 100.0;
-    double graphHeight = 25.0 * maximum.y / 100.0;
+    double graphWidth = maximum.x;
+    double graphHeight = maximum.y;
+    if (graphWidth > 200 || graphHeight > 200) {
+      double coefficient = 200 / Math.max(graphWidth, graphHeight);
+      graphWidth *= coefficient;
+      graphHeight *= coefficient;
+    }
 
     // Position it in the bottom right corner of the screen
     //
-    double graphX = area.x - graphWidth - 20.0;
-    double graphY = area.y - graphHeight - 20.0;
+    double graphX = area.x - graphWidth - 10.0;
+    double graphY = area.y - graphHeight - 10.0;
 
     int alpha = gc.getAlpha();
     gc.setAlpha(75);
@@ -486,7 +490,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     // Now draw a darker area inside showing the size of the view-screen in relation to the graph
     // surface. The view size is a fraction of the total graph area outlined above.
     //
-    double viewWidth = (graphWidth * (double) areaWidth) / Math.max(areaWidth, maximum.x);
+    double viewWidth = (graphWidth * areaWidth) / Math.max(areaWidth, maximum.x);
     double viewHeight = (graphHeight * areaHeight) / Math.max(areaHeight, maximum.y);
 
     // The offset is a part of the screen size.  The maximum offset is the graph size minus the area
