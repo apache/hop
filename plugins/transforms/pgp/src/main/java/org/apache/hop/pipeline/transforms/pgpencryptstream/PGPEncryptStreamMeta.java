@@ -34,7 +34,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.pgpdecryptstream.PGPDecryptStream;
 import org.w3c.dom.Node;
 
 @Transform(
@@ -45,9 +44,9 @@ import org.w3c.dom.Node;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
     keywords = "i18n::PGPEncryptStreamMeta.keyword",
-    documentationUrl = "/pipeline/transforms/pgpdecryptstream.html")
+    documentationUrl = "/pipeline/transforms/pgpencryptstream.html")
 public class PGPEncryptStreamMeta
-    extends BaseTransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
+    extends BaseTransformMeta<PGPEncryptStream, PGPEncryptStreamData> {
   private static final Class<?> PKG = PGPEncryptStreamMeta.class;
 
   /** GPG location */
