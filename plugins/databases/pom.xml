@@ -64,6 +64,7 @@
         <module>postgresql</module>
         <module>redshift</module>
         <module>sapdb</module>
+        <module>singlestore</module>
         <module>snowflake</module>
         <module>sqlbase</module>
         <module>sqlite</module>

@@ -1,0 +1,42 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[database-plugins-sapdb]]
+:documentationPath: /database/databases/
+:language: en_US
+
+= SingleStore (MemSQL)
+
+You can find out more about the SingleStore database at the https://www.singlestore.com/[SingleStore home page].
+SingleStore is syntactically a MySQL variant, and you can use actions like the MySQL bulk loader with SingleStore.
+
+More information about the SingleStore JDBC driver can be found here: https://docs.singlestore.com/cloud/developer-resources/connect-with-application-development-tools/connect-with-java-jdbc/the-singlestore-jdbc-driver/[The SingleStore JDBC Driver].
+
+*Important*: You need to download and install the SingleStore JDBC driver yourself.
+We suggest you place the driver JAR file either in the `lib/jdbc` folder or in the folder pointed to by the xref:snippets/variables/hop-shared-jdbc-folder.adoc[`HOP_SHARED_JDBC_FOLDERS`] variable.
+
+
+[cols="2*",options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Download from the SingleStore website
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://docs.singlestore.com/cloud/developer-resources/connect-with-application-development-tools/connect-with-java-jdbc/the-singlestore-jdbc-driver/[Documentation Link]
+|JDBC Url | jdbc:singlestore://<database_computer>[:<port>]/<database_name>
+|Driver folder | <Hop Installation>/lib/jdbc
+|===
