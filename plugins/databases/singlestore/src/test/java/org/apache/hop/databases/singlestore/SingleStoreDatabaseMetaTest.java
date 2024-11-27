@@ -31,7 +31,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -315,8 +314,9 @@ public class SingleStoreDatabaseMetaTest {
 
     assertEquals("`", nativeMeta.getStartQuote());
     assertEquals("`", nativeMeta.getEndQuote());
-    assertEquals("https://docs.singlestore.com/cloud/developer-resources/"
-                    + "connect-with-application-development-tools/connect-with-java-jdbc/the-singlestore-jdbc-driver/",
+    assertEquals(
+        "https://docs.singlestore.com/cloud/developer-resources/"
+            + "connect-with-application-development-tools/connect-with-java-jdbc/the-singlestore-jdbc-driver/",
         nativeMeta.getExtraOptionsHelpText());
     assertTrue(nativeMeta.isSystemTable("sysTest"));
     assertTrue(nativeMeta.isSystemTable("dtproperties"));
@@ -490,7 +490,7 @@ public class SingleStoreDatabaseMetaTest {
             "FOO", new ValueMetaBinary("BAR", 16777250, 0), "", false, "", false));
 
     assertEquals(
-        "LOCK TABLES FOO WRITE, BAR WRITE;"+ Const.CR,
+        "LOCK TABLES FOO WRITE, BAR WRITE;" + Const.CR,
         nativeMeta.getSqlLockTables(new String[] {"FOO", "BAR"}));
 
     assertEquals("UNLOCK TABLES", nativeMeta.getSqlUnlockTables(new String[] {}));

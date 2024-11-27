@@ -590,6 +590,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-databases-singlestore</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-snowflake</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
