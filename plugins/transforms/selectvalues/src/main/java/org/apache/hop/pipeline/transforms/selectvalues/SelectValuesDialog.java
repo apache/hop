@@ -638,7 +638,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
         } else {
           index++;
         }
-        item.setText(index++, change.getType());
+        item.setText(index++, change.getType() != null ? change.getType() : "-");
         item.setText(index++, change.getLength() < 0 ? "" : "" + change.getLength());
         item.setText(index++, change.getPrecision() < 0 ? "" : "" + change.getPrecision());
         item.setText(index++, change.getStorageType());
@@ -706,9 +706,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
     int nrremove = wRemove.nrNonEmpty();
     int nrmeta = wMeta.nrNonEmpty();
 
+    resetSelectOptions();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      var currentSelectFieldItem = input.getSelectOption().getSelectFields().get(i);
+
+      var currentSelectFieldItem = new SelectField();
       currentSelectFieldItem.setName(item.getText(1));
       currentSelectFieldItem.setRename(item.getText(2));
       if (currentSelectFieldItem.getRename() == null
@@ -722,14 +724,17 @@ public class SelectValuesDialog extends BaseTransformDialog {
         currentSelectFieldItem.setLength(-2);
       }
       if (currentSelectFieldItem.getPrecision() < -2) {
-        input.getSelectOption().getSelectFields().get(i).setPrecision(-2);
+        currentSelectFieldItem.setPrecision(-2);
       }
+      input.getSelectOption().getSelectFields().add(currentSelectFieldItem);
     }
     input.getSelectOption().setSelectingAndSortingUnspecifiedFields(wUnspecified.getSelection());
 
     for (int i = 0; i < nrremove; i++) {
       TableItem item = wRemove.getNonEmpty(i);
-      input.getSelectOption().getDeleteName().get(i).setName(item.getText(1));
+      var currentItemToDelete = new DeleteField();
+      currentItemToDelete.setName(item.getText(1));
+      input.getSelectOption().getDeleteName().add(currentItemToDelete);
     }
 
     for (int i = 0; i < nrmeta; i++) {
@@ -778,9 +783,15 @@ public class SelectValuesDialog extends BaseTransformDialog {
       change.setGroupingSymbol(item.getText(index++));
       change.setCurrencySymbol(item.getText(index++));
 
-      input.getSelectOption().getMeta().set(i, change);
+      input.getSelectOption().getMeta().add(change);
     }
     dispose();
+  }
+
+  private void resetSelectOptions() {
+    input.getSelectOption().getDeleteName().clear();
+    input.getSelectOption().getSelectFields().clear();
+    input.getSelectOption().getMeta().clear();
   }
 
   private void get() {
