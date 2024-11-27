@@ -33,7 +33,7 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-rest</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.connectors</groupId>
