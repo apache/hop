@@ -16,17 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Beam Input transform reads files using a file definition with the Beam execution engine.
+:description: The Beam File Output transform writes files using a file definition with the Beam execution engine.
 
-= image:transforms/icons/beam-input.svg[Beam Input Icon, role="image-doc-icon"] Beam Input
+= image:transforms/icons/beam-output.svg[Beam Output Icon, role="image-doc-icon"] Beam File Output
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Beam Input transform reads files using a file definition with the Beam execution engine.
-
+The Beam File Output transform writes files using a file definition with the Beam execution engine.
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -44,7 +43,11 @@ The Beam Input transform reads files using a file definition with the Beam execu
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
-|Input location|The location from which to read a file.
+|Output location|The output location.
+|File prefix|Text which has to precede the file name.
+|File suffix|Text which has to succeed the file name.
+|Windowed writes?|Writes a file per window.
+Use together with the Beam Window transform.
 |File definition to use|The file definition to use stored in a metastore.
 |Edit|Edits an existing file definition.
 |New|Creates a new file definition.
