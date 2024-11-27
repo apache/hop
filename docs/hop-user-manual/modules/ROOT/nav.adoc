@@ -444,8 +444,6 @@ under the License.
 //::=END AUTO GENERATED LINKS PASSWORDS
 //::=START AUTO GENERATED LINKS
 //::=END AUTO GENERATED LINKS
-** xref:plugins/external-plugins.adoc[External Plugins]
-** xref:plugins/import/kettle-import.adoc[Kettle/PDI Import]
 * xref:samples/samples.adoc[Samples]
 * xref:technology/technology.adoc[Technology]
 ** xref:technology/azure/index.adoc[Azure]
