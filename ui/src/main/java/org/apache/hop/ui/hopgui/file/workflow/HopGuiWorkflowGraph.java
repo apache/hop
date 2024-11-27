@@ -49,6 +49,7 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -299,7 +300,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   protected int currentMouseY = 0;
 
-  protected NotePadMeta ni = null;
+  private NotePadMeta currentNotePad = null;
 
   private SashForm sashForm;
 
@@ -601,10 +602,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             break;
 
           case NOTE:
-            ni = (NotePadMeta) areaOwner.getOwner();
+            currentNotePad = (NotePadMeta) areaOwner.getOwner();
             selectedNotes = workflowMeta.getSelectedNotes();
-            selectedNote = ni;
-            Point loc = ni.getLocation();
+            selectedNote = currentNotePad;
+            Point loc = currentNotePad.getLocation();
 
             previousNoteLocations = workflowMeta.getSelectedNoteLocations();
 
@@ -1126,7 +1127,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       hop = findWorkflowHop(real.x, real.y);
     }
 
-    // Mouse over the name of the transform
+    // Mouse over the name of the action
     //
     if (!PropsUi.getInstance().useDoubleClick()) {
       if (areaOwner != null && areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
@@ -1204,24 +1205,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         }
       }
 
-      selectedNotes = workflowMeta.getSelectedNotes();
-      selectedActions = workflowMeta.getSelectedActions();
-
-      // Adjust location of selected transforms...
-      if (selectedActions != null) {
-        for (int i = 0; i < selectedActions.size(); i++) {
-          ActionMeta actionCopy = selectedActions.get(i);
-          PropsUi.setLocation(
-              actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y + dy);
-        }
-      }
-      // Adjust location of selected hops...
-      if (selectedNotes != null) {
-        for (int i = 0; i < selectedNotes.size(); i++) {
-          NotePadMeta ni = selectedNotes.get(i);
-          PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
-        }
-      }
+      moveSelected(dx, dy);
 
       doRedraw = true;
     } else if ((startHopAction != null && endHopAction == null)
@@ -1267,7 +1251,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    // Move around notes & transforms
+    // Move around notes & actions
     //
     if (selectedNote != null && lastButton == 1 && !shift) {
       /*
@@ -1278,24 +1262,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       int dx = note.x - selectedNote.getLocation().x;
       int dy = note.y - selectedNote.getLocation().y;
 
-      selectedNotes = workflowMeta.getSelectedNotes();
-      selectedActions = workflowMeta.getSelectedActions();
-
-      // Adjust location of selected transforms...
-      if (selectedActions != null) {
-        for (int i = 0; i < selectedActions.size(); i++) {
-          ActionMeta actionCopy = selectedActions.get(i);
-          PropsUi.setLocation(
-              actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y + dy);
-        }
-      }
-      // Adjust location of selected hops...
-      if (selectedNotes != null) {
-        for (int i = 0; i < selectedNotes.size(); i++) {
-          NotePadMeta ni = selectedNotes.get(i);
-          PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
-        }
-      }
+      moveSelected(dx, dy);
 
       doRedraw = true;
     }
@@ -1637,24 +1604,34 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     redraw();
   }
 
-  public void selectInRect(WorkflowMeta workflowMeta, org.apache.hop.core.gui.Rectangle rect) {
-    int i;
-    for (i = 0; i < workflowMeta.nrActions(); i++) {
-      ActionMeta je = workflowMeta.getAction(i);
-      Point p = je.getLocation();
-      if (((p.x >= rect.x && p.x <= rect.x + rect.width)
-              || (p.x >= rect.x + rect.width && p.x <= rect.x))
-          && ((p.y >= rect.y && p.y <= rect.y + rect.height)
-              || (p.y >= rect.y + rect.height && p.y <= rect.y))) {
-        je.setSelected(true);
+  /**
+   * Select all the actions and notes in a certain (screen) rectangle
+   *
+   * @param rect The selection area as a rectangle
+   */
+  public void selectInRect(WorkflowMeta workflowMeta, Rectangle rect) {
+
+    // Normalize the selection area
+    // Only for people not dragging from left top to right bottom
+    if (rect.height < 0) {
+      rect.y = rect.y + rect.height;
+      rect.height = -rect.height;
+    }
+    if (rect.width < 0) {
+      rect.x = rect.x + rect.width;
+      rect.width = -rect.width;
+    }
+
+    for (ActionMeta action : workflowMeta.getActions()) {
+      if (rect.contains(action.getLocation())) {
+        action.setSelected(true);
       }
     }
-    for (i = 0; i < workflowMeta.nrNotes(); i++) {
-      NotePadMeta ni = workflowMeta.getNote(i);
-      Point a = ni.getLocation();
-      Point b = new Point(a.x + ni.width, a.y + ni.height);
-      if (rect.contains(a.x, a.y) && rect.contains(b.x, b.y)) {
-        ni.setSelected(true);
+    for (NotePadMeta note : workflowMeta.getNotes()) {
+      Point a = note.getLocation();
+      Point b = new Point(a.x + note.width, a.y + note.height);
+      if (rect.contains(a) && rect.contains(b)) {
+        note.setSelected(true);
       }
     }
   }
@@ -2100,12 +2077,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void setCurrentNote(NotePadMeta ni) {
-    this.ni = ni;
+  public void setCurrentNote(NotePadMeta notePad) {
+    this.currentNotePad = notePad;
   }
 
   public NotePadMeta getCurrentNote() {
-    return ni;
+    return currentNotePad;
   }
 
   @GuiContextAction(
@@ -2535,6 +2512,48 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               }
             });
     return checkedActions;
+  }
+
+  protected void moveSelected(int dx, int dy) {
+    selectedNotes = workflowMeta.getSelectedNotes();
+    selectedActions = workflowMeta.getSelectedActions();
+
+    // Check minimum location of selected elements
+    if (selectedActions != null) {
+      for (ActionMeta action : selectedActions) {
+        Point location = action.getLocation();
+        if (location.x + dx < 0) {
+          dx = -location.x;
+        }
+        if (location.y + dy < 0) {
+          dy = -location.y;
+        }
+      }
+    }
+    if (selectedNotes != null) {
+      for (NotePadMeta notePad : selectedNotes) {
+        Point location = notePad.getLocation();
+        if (location.x + dx < 0) {
+          dx = -location.x;
+        }
+        if (location.y + dy < 0) {
+          dy = -location.y;
+        }
+      }
+    }
+
+    // Adjust location of selected actions...
+    if (selectedActions != null) {
+      for (ActionMeta action : selectedActions) {
+        PropsUi.setLocation(action, action.getLocation().x + dx, action.getLocation().y + dy);
+      }
+    }
+    // Adjust location of selected notes...
+    if (selectedNotes != null) {
+      for (NotePadMeta notePad : selectedNotes) {
+        PropsUi.setLocation(notePad, notePad.getLocation().x + dx, notePad.getLocation().y + dy);
+      }
+    }
   }
 
   private void modalMessageDialog(String title, String message, int swtFlags) {

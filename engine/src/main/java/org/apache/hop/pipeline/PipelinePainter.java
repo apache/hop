@@ -223,20 +223,16 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       LogChannel.GENERAL.logError("Error in PipelinePainterStart extension point", e);
     }
 
-    gc.setFont(EFont.NOTE);
-
     // First the notes
-    for (int i = 0; i < pipelineMeta.nrNotes(); i++) {
-      NotePadMeta ni = pipelineMeta.getNote(i);
-      drawNote(ni);
+    gc.setFont(EFont.NOTE);
+    for (NotePadMeta notePad : pipelineMeta.getNotes()) {
+      drawNote(notePad);
     }
 
+    // Second draw the hops on top of it...
     gc.setFont(EFont.GRAPH);
-    gc.setBackground(EColor.BACKGROUND);
-
-    for (int i = 0; i < pipelineMeta.nrPipelineHops(); i++) {
-      PipelineHopMeta hi = pipelineMeta.getPipelineHop(i);
-      drawHop(hi);
+    for (PipelineHopMeta hop : pipelineMeta.getPipelineHops()) {
+      drawHop(hop);
     }
 
     EImage arrow;
@@ -295,24 +291,19 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
 
     // Draw regular transform appearance
-    for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
-      TransformMeta transformMeta = pipelineMeta.getTransform(i);
+    for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
       drawTransform(transformMeta);
     }
 
     if (slowTransformIndicatorEnabled) {
-
       // Highlight possible bottlenecks
-      for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
-        TransformMeta transformMeta = pipelineMeta.getTransform(i);
+      for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
         checkDrawSlowTransformIndicator(transformMeta);
       }
     }
 
     // Display after slow transform indicator
-    for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
-      TransformMeta transformMeta = pipelineMeta.getTransform(i);
-
+    for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
       // Draw transform information icon if description is available
       drawTransformInformationIndicator(transformMeta);
 
@@ -322,15 +313,13 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Draw data grid indicators (output data available)
     if (outputRowsMap != null && !outputRowsMap.isEmpty()) {
-      for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
-        TransformMeta transformMeta = pipelineMeta.getTransform(i);
+      for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
         drawTransformOutputIndicator(transformMeta);
       }
     }
 
     // Draw performance table for selected transform(s)
-    for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
-      TransformMeta transformMeta = pipelineMeta.getTransform(i);
+    for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
       drawTransformPerformanceTable(transformMeta);
     }
 

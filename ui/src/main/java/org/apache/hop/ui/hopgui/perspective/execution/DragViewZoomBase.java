@@ -109,6 +109,7 @@ public abstract class DragViewZoomBase extends Composite {
     if (magnification > 10f) {
       magnification = 10f;
     }
+    validateOffset();
     setZoomLabel();
     redraw();
   }
@@ -144,6 +145,7 @@ public abstract class DragViewZoomBase extends Composite {
                 / 100
                 * (viewHeight - oldViewHeight);
 
+    validateOffset();
     setZoomLabel();
     redraw();
   }
@@ -161,6 +163,7 @@ public abstract class DragViewZoomBase extends Composite {
     if (magnification < 0.1f) {
       magnification = 0.1f;
     }
+    validateOffset();
     setZoomLabel();
     redraw();
   }
@@ -193,6 +196,7 @@ public abstract class DragViewZoomBase extends Composite {
     offset.x = offset.x > 0 ? 0 : offset.x;
     offset.y = offset.y > 0 ? 0 : offset.y;
 
+    validateOffset();
     setZoomLabel();
     redraw();
   }
@@ -200,6 +204,7 @@ public abstract class DragViewZoomBase extends Composite {
   @GuiKeyboardShortcut(control = true, key = '0')
   public void zoom100Percent() {
     magnification = 1.0f;
+    validateOffset();
     setZoomLabel();
     redraw();
   }
@@ -319,30 +324,24 @@ public abstract class DragViewZoomBase extends Composite {
     double viewWidth = area.x / zoomFactor;
     double viewHeight = area.y / zoomFactor;
 
-    // As a percentage of the view area, how much can we go outside the graph area?
-    //
-    double overshootPct = 0.75;
-    double overshootWidth = viewWidth * overshootPct;
-    double overshootHeight = viewHeight * overshootPct;
-
     // Let's not move the graph off the screen to the top/left
     //
-    double minX = -graphWidth - overshootWidth;
+    double minX = -graphWidth + viewWidth;
     if (offset.x < minX) {
       offset.x = minX;
     }
-    double minY = -graphHeight - overshootHeight;
+    double minY = -graphHeight + viewHeight;
     if (offset.y < minY) {
       offset.y = minY;
     }
 
     // Are we moving the graph too far down/right?
     //
-    double maxX = overshootWidth;
+    double maxX = 0;
     if (offset.x > maxX) {
       offset.x = maxX;
     }
-    double maxY = overshootHeight;
+    double maxY = 0;
     if (offset.y > maxY) {
       offset.y = maxY;
     }

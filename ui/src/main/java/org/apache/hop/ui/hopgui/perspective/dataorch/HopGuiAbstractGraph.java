@@ -44,8 +44,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolTip;
 
 /**
- * The beginnings of a common graph object, used by JobGraph and HopGuiPipelineGraph to share common
- * behaviors.
+ * The beginnings of a common graph object, used by {@code HopGuiWorkflowGraph} and {@code
+ * HopGuiPipelineGraph} to share common behaviors.
  */
 public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     implements IGraphSnapAlignDistribute {
