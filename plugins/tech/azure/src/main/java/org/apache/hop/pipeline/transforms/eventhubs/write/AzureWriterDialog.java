@@ -168,8 +168,7 @@ public class AzureWriterDialog extends BaseTransformDialog {
     fdlSasKey.right = new FormAttachment(middle, -margin);
     fdlSasKey.top = new FormAttachment(lastControl, 2 * margin);
     wlSasKey.setLayoutData(fdlSasKey);
-    wSasKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wSasKey.setEchoChar('*');
+    wSasKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wSasKey);
     wSasKey.addModifyListener(lsMod);
     FormData fdSasKey = new FormData();

@@ -165,9 +165,9 @@ public class ActionAs400CommandDialog extends ActionDialog {
         new LabelTextVar(
             variables,
             systemGroup,
+            SWT.LEFT | SWT.BORDER | SWT.PASSWORD,
             BaseMessages.getString(PKG, "ActionAs400CommandDialog.Password.Label"),
             BaseMessages.getString(PKG, "ActionAs400CommandDialog.Password.Tooltip"));
-    wPassword.setEchoChar('*');
     wPassword.setLayoutData(new FormDataBuilder().top(wUserName).fullWidth().result());
     wPassword.addModifyListener(lsMod);
     PropsUi.setLook(wPassword);

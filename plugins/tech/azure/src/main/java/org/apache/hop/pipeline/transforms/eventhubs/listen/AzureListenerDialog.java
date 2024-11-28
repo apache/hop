@@ -186,8 +186,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
     fdlSasKey.right = new FormAttachment(middle, -margin);
     fdlSasKey.top = new FormAttachment(lastControl, 2 * margin);
     wlSasKey.setLayoutData(fdlSasKey);
-    wSasKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wSasKey.setEchoChar('*');
+    wSasKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wSasKey);
     wSasKey.addModifyListener(lsMod);
     FormData fdSasKey = new FormData();
@@ -241,8 +240,8 @@ public class AzureListenerDialog extends BaseTransformDialog {
     fdlStorageConnectionString.right = new FormAttachment(middle, -margin);
     fdlStorageConnectionString.top = new FormAttachment(lastControl, 2 * margin);
     wlStorageConnectionString.setLayoutData(fdlStorageConnectionString);
-    wStorageConnectionString = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wStorageConnectionString.setEchoChar('*');
+    wStorageConnectionString =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wStorageConnectionString);
     wStorageConnectionString.addModifyListener(lsMod);
     FormData fdStorageConnectionString = new FormData();

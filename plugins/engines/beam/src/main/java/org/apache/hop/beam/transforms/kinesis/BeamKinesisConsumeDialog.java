@@ -128,8 +128,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlAccessKey.top = new FormAttachment(lastControl, margin);
     fdlAccessKey.right = new FormAttachment(middle, -margin);
     wlAccessKey.setLayoutData(fdlAccessKey);
-    wAccessKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wAccessKey.setEchoChar('*');
+    wAccessKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wAccessKey);
     FormData fdAccessKey = new FormData();
     fdAccessKey.left = new FormAttachment(middle, 0);
