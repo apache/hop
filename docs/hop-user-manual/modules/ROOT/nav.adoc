@@ -395,6 +395,7 @@ under the License.
 ** xref:database/databases/kingbasees.adoc[Kingbase ES]
 ** xref:database/databases/mariadb.adoc[Mariadb]
 ** xref:database/databases/sapdb.adoc[MaxDB (SAP DB)]
+** xref:database/databases/singlestore.adoc[SingleStore (MemSQL)]
 ** xref:database/databases/access.adoc[Microsoft Access]
 ** xref:database/databases/monetdb.adoc[MonetDB]
 ** xref:database/databases/mssql.adoc[MS SqlServer]
