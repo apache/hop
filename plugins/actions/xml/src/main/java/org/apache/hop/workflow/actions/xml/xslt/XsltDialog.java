@@ -596,9 +596,9 @@ public class XsltDialog extends ActionDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
-    wxmlFilename.setText(Const.nullToEmpty(action.getxmlFilename()));
-    wxslFilename.setText(Const.nullToEmpty(action.getxslFilename()));
-    wOutputFilename.setText(Const.nullToEmpty(action.getoutputFilename()));
+    wxmlFilename.setText(Const.nullToEmpty(action.getXmlfilename()));
+    wxslFilename.setText(Const.nullToEmpty(action.getXslfilename()));
+    wOutputFilename.setText(Const.nullToEmpty(action.getoutputfilename()));
 
     if (action.ifFileExists >= 0) {
       wIfFileExists.select(action.ifFileExists);
@@ -606,7 +606,7 @@ public class XsltDialog extends ActionDialog {
       wIfFileExists.select(2); // NOTHING
     }
 
-    wAddFileToResult.setSelection(action.isAddFileToResult());
+    wAddFileToResult.setSelection(action.isAddfiletoresult());
     wPrevious.setSelection(action.isFilenamesFromPrevious());
     if (action.getXSLTFactory() != null) {
       wXSLTFactory.setText(action.getXSLTFactory());
@@ -647,12 +647,12 @@ public class XsltDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setxmlFilename(wxmlFilename.getText());
-    action.setxslFilename(wxslFilename.getText());
-    action.setoutputFilename(wOutputFilename.getText());
+    action.setXmlfilename(wxmlFilename.getText());
+    action.setXslfilename(wxslFilename.getText());
+    action.setOutputfilename(wOutputFilename.getText());
     action.ifFileExists = wIfFileExists.getSelectionIndex();
     action.setFilenamesFromPrevious(wPrevious.getSelection());
-    action.setAddFileToResult(wAddFileToResult.getSelection());
+    action.setAddfiletoresult(wAddFileToResult.getSelection());
     action.setXSLTFactory(wXSLTFactory.getText());
 
     int nrparams = wFields.nrNonEmpty();

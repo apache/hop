@@ -34,6 +34,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -57,6 +59,8 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
+@Getter
+@Setter
 /** This defines a 'xslt' job entry. */
 @Action(
     id = "XSLT",
@@ -176,15 +180,19 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealxmlfilename() {
-    return resolve(getxmlFilename());
+    return resolve(getXmlfilename());
   }
 
   public String getoutputfilename() {
-    return resolve(getoutputFilename());
+    return resolve(getOutputfilename());
+  }
+
+  public String getOutputfilename() {
+    return outputfilename;
   }
 
   public String getRealxslfilename() {
-    return resolve(getxslFilename());
+    return resolve(getXslfilename());
   }
 
   public boolean isFilenamesFromPrevious() {
@@ -409,7 +417,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             // Apply the xsl file to the source file and write the result to the output file
             xformer.transform(source, resultat);
 
-            if (isAddFileToResult()) {
+            if (isAddfiletoresult()) {
               // Add output filename to output files
               ResultFile resultFile =
                   new ResultFile(
@@ -492,37 +500,39 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  public void setxmlFilename(String filename) {
-    this.xmlfilename = filename;
-  }
+  /*
+    public void setXmlFilename(String filename) {
+      this.xmlfilename = filename;
+    }
 
-  public String getxmlFilename() {
-    return xmlfilename;
-  }
+    public String getXmlFilename() {
+      return xmlfilename;
+    }
 
-  public String getoutputFilename() {
-    return outputfilename;
-  }
+    public String getOutputFilename() {
+      return outputfilename;
+    }
 
-  public void setoutputFilename(String outputfilename) {
-    this.outputfilename = outputfilename;
-  }
+    public void setOutputfilename(String outputfilename) {
+      this.outputfilename = outputfilename;
+    }
 
-  public void setxslFilename(String filename) {
-    this.xslfilename = filename;
-  }
+    public void setxslFilename(String filename) {
+      this.xslfilename = filename;
+    }
 
-  public String getxslFilename() {
-    return xslfilename;
-  }
+    public String getxslFilename() {
+      return xslfilename;
+    }
 
-  public void setAddFileToResult(boolean addfiletoresultin) {
-    this.addfiletoresult = addfiletoresultin;
-  }
+    public void setAddFileToResult(boolean addfiletoresultin) {
+      this.addfiletoresult = addfiletoresultin;
+    }
 
-  public boolean isAddFileToResult() {
-    return addfiletoresult;
-  }
+    public boolean isAddFileToResult() {
+      return addfiletoresult;
+    }
+  */
 
   @Override
   public List<ResourceReference> getResourceDependencies(
