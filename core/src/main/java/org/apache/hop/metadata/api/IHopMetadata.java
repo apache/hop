@@ -52,4 +52,10 @@ public interface IHopMetadata {
    * @param metadataProviderName The source of metadata or null if it's not specified
    */
   void setMetadataProviderName(String metadataProviderName);
+
+  String getPath();
+
+  void setPath(String path);
+
+  String getFullName();
 }
