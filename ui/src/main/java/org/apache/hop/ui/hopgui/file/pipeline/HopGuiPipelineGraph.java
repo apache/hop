@@ -244,9 +244,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "HopGuiPipelineGraph-ToolBar-10500-Zoom-Level";
 
-  public static final String TOOLBAR_ITEM_ZOOM_IN = "HopGuiPipelineGraph-ToolBar-10510-Zoom-In";
+  public static final String TOOLBAR_ITEM_ZOOM_OUT = "HopGuiPipelineGraph-ToolBar-10510-Zoom-Out";
 
-  public static final String TOOLBAR_ITEM_ZOOM_OUT = "HopGuiPipelineGraph-ToolBar-10520-Zoom-Out";
+  public static final String TOOLBAR_ITEM_ZOOM_IN = "HopGuiPipelineGraph-ToolBar-10520-Zoom-In";
 
   public static final String TOOLBAR_ITEM_ZOOM_100PCT =
       "HopGuiPipelineGraph-ToolBar-10530-Zoom-100Pct";

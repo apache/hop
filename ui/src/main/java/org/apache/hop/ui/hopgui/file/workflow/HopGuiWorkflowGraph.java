@@ -211,9 +211,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "HopGuiWorkflowGraph-ToolBar-10500-Zoom-Level";
 
-  public static final String TOOLBAR_ITEM_ZOOM_IN = "HopGuiWorkflowGraph-ToolBar-10510-Zoom-In";
+  public static final String TOOLBAR_ITEM_ZOOM_OUT = "HopGuiWorkflowGraph-ToolBar-10510-Zoom-Out";
 
-  public static final String TOOLBAR_ITEM_ZOOM_OUT = "HopGuiWorkflowGraph-ToolBar-10520-Zoom-Out";
+  public static final String TOOLBAR_ITEM_ZOOM_IN = "HopGuiWorkflowGraph-ToolBar-10520-Zoom-In";
 
   public static final String TOOLBAR_ITEM_ZOOM_100PCT =
       "HopGuiWorkflowGraph-ToolBar-10530-Zoom-100Pct";
