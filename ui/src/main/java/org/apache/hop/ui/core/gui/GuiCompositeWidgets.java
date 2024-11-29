@@ -445,21 +445,23 @@ public class GuiCompositeWidgets {
     }
 
     if (guiElements.isVariablesEnabled()) {
-      TextVar textVar = new TextVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      PropsUi.setLook(textVar);
+      int style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
       if (guiElements.isPassword()) {
-        textVar.setEchoChar('*');
+        style |= SWT.PASSWORD;
       }
+      TextVar textVar = new TextVar(variables, parent, style);
+      PropsUi.setLook(textVar);
       widgetsMap.put(guiElements.getId(), textVar);
       addModifyListener(textVar.getTextWidget(), guiElements.getId());
       control = textVar;
       text = textVar.getTextWidget();
     } else {
-      text = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      PropsUi.setLook(text);
+      int style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
       if (guiElements.isPassword()) {
-        text.setEchoChar('*');
+        style |= SWT.PASSWORD;
       }
+      text = new Text(parent, style);
+      PropsUi.setLook(text);
       widgetsMap.put(guiElements.getId(), text);
       addModifyListener(text, guiElements.getId());
       control = text;

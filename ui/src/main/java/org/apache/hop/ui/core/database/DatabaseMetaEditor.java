@@ -333,8 +333,10 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
     wPassword =
-        new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wPassword.setEchoChar('*');
+        new TextVar(
+            manager.getVariables(),
+            wGeneralComp,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wPassword);
     FormData fdPassword = new FormData();
     fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
