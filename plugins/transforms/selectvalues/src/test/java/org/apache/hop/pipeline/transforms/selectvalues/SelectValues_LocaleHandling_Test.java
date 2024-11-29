@@ -29,22 +29,21 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.apache.hop.ui.hopgui.HopGuiEnvironment;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Note: In Europe (e.g. in UK), week starts on Monday. In USA, it starts on Sunday. */
 public class SelectValues_LocaleHandling_Test {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  private static HopGuiEnvironment env;
 
-  @BeforeClass
+  @BeforeAll
   public static void initHop() throws Exception {
+    env = new HopGuiEnvironment();
     HopEnvironment.init();
   }
 
@@ -52,7 +51,7 @@ public class SelectValues_LocaleHandling_Test {
   private Locale current;
   private TransformMockHelper<SelectValuesMeta, SelectValuesData> helper;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     current = Locale.getDefault();
     Locale.setDefault(Locale.UK);
@@ -63,7 +62,6 @@ public class SelectValues_LocaleHandling_Test {
     when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
   }
 
-  @Ignore("This test needs to be reviewed")
   private void configureTransform(SelectValuesMeta meta, SelectValuesData data)
       throws HopException {
     transform =
@@ -76,7 +74,7 @@ public class SelectValues_LocaleHandling_Test {
     doReturn(new Object[] {calendar.getTime()}).doReturn(null).when(transform).getRow();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     transform = null;
 
@@ -110,19 +108,19 @@ public class SelectValues_LocaleHandling_Test {
 
     SelectValuesMeta transformMeta = new SelectValuesMeta();
     //  transformMeta.allocate(1, 0, 1);
-    transformMeta
-        .getSelectOption()
-        .getSelectFields()
-        .addAll(SelectValueMetaTestFactory.getSelectFields("field"));
+    //    transformMeta
+    //        .getSelectOption()
+    //        .getSelectFields()
+    //        .addAll(SelectValueMetaTestFactory.getSelectFields("field"));
 
     transformMeta
         .getSelectOption()
         .getMeta()
         .add(
             new SelectMetadataChange(
-                "field", null, "String", -2, -2, "normal", "ww", false, locale, null, false, null,
-                null, null));
-
+                "field", null, "String", -2, -2, "", "ww", false, locale, null, false, null, null,
+                null));
+    transformMeta.getSelectOption().setSelectingAndSortingUnspecifiedFields(true);
     SelectValuesData transformData = new SelectValuesData();
     transformData.select = true;
     transformData.metadata = true;
