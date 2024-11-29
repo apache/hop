@@ -65,8 +65,6 @@
                 <include>org.apache.hadoop:*:jar</include>
                 <include>org.apache.hadoop.thirdparty:*:jar</include>
                 <include>org.yaml:snakeyaml:jar</include>
-                <include>com.google.protobuf:protobuf-java:jar</include>
-                <include>com.google.protobuf:protobuf-java-util:jar</include>
                 <include>org.jetbrains:annotations:jar</include>
                 <include>com.google.auto.value:auto-value-annotations:jar</include>
                 <include>org.apache.beam:beam-vendor-guava-32_1_2-jre:jar</include>

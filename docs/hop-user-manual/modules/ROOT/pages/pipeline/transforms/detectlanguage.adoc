@@ -27,6 +27,8 @@ under the License.
 
 The Detect Language transform examine text to identify the language.
 
+https://github.com/pemistahl/lingua?tab=readme-ov-file#3-which-languages-are-supported[list of supported languages]
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -47,3 +49,6 @@ The Detect Language transform examine text to identify the language.
 This name must be unique throughout the pipeline.
 |===
 
+NOTE: The dependencies for this transform are not included in the application to make this work you need to include following files in the /plugins/transforms/detectlanguage/lib folder +
+- https://repo1.maven.org/maven2/com/github/pemistahl/lingua/1.2.2/lingua-1.2.2.jar[Lingua] +
+- https://repo1.maven.org/maven2/it/unimi/dsi/fastutil/8.5.15/fastutil-8.5.15.jar[Fastutil] +
