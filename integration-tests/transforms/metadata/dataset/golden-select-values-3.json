@@ -1,0 +1,152 @@
+{
+  "base_filename": "golden-select-values-3.csv",
+  "name": "golden-select-values-3",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Track",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Artist",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Album",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "Year",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "Duration",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "Time_Signature",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 1,
+      "field_precision": 4,
+      "field_name": "Danceability",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 1,
+      "field_precision": 4,
+      "field_name": "Energy",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "Key",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 1,
+      "field_precision": 4,
+      "field_name": "Loudness",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "Mode",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 1,
+      "field_precision": 4,
+      "field_name": "Speechiness",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 1,
+      "field_precision": 4,
+      "field_name": "Acousticness",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 1,
+      "field_precision": 4,
+      "field_name": "Instrumentalness",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 1,
+      "field_precision": 1,
+      "field_name": "lvns",
+      "field_format": "#.#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "Valence",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "Tempo",
+      "field_format": "#######.####"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "Popularity",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
