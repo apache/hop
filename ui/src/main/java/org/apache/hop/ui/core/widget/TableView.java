@@ -638,6 +638,24 @@ public class TableView extends Composite {
     };
   }
 
+  private void applyAllChanges() {
+    if (activeTableItem != null
+        && !activeTableItem.isDisposed()
+        && editor != null
+        && editor.getEditor() != null
+        && !editor.getEditor().isDisposed()
+        && activeTableColumn > 0) {
+      switch (columns[activeTableColumn - 1].getType()) {
+        case ColumnInfo.COLUMN_TYPE_TEXT:
+          applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
+          break;
+        case ColumnInfo.COLUMN_TYPE_CCOMBO:
+          applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
+          break;
+      }
+    }
+  }
+
   private Listener createKeyUpListener() {
     return event -> {
       if (table.isDisposed()) {
@@ -1832,7 +1850,7 @@ public class TableView extends Composite {
       return;
     }
     int rowNr = table.indexOf(row);
-
+    applyAllChanges();
     insertRow(rowNr);
   }
 
@@ -1859,7 +1877,7 @@ public class TableView extends Composite {
       return;
     }
     int rowNr = table.indexOf(tableItem);
-
+    applyAllChanges();
     insertRow(rowNr + 1);
   }
 
@@ -2096,6 +2114,7 @@ public class TableView extends Composite {
       clipboard.dispose();
       clipboard = null;
     }
+    applyAllChanges();
 
     clipboard = new Clipboard(getDisplay());
     TextTransfer tran = TextTransfer.getInstance();
