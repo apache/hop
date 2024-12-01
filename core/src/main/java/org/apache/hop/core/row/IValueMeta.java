@@ -18,6 +18,7 @@
 package org.apache.hop.core.row;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -111,6 +112,12 @@ import org.w3c.dom.Node;
  * <td>java.lang.byte[</td>
  * <td>An array of bytes that contain any type of binary data.</td>
  * </tr>
+ * <tr>
+ * <td>Json</td>
+ * <td>TYPE_JSON</td>
+ * <td>com.fasterxml.jackson.databind.JsonNode</td>
+ * <td>A native Json object.</td>
+ * </tr>
  * </Table>
  *
  * <p><b>Storage Types</b>
@@ -185,6 +192,9 @@ public interface IValueMeta extends Cloneable {
   /** Value type indicating that the value contains an Internet address */
   int TYPE_INET = 10;
 
+  /** Value type indicating that the value contains a native JSON object */
+  int TYPE_JSON = 11;
+
   /** Value type indicating that the value contains an Avro Record */
   int TYPE_AVRO = 20;
 
@@ -202,6 +212,7 @@ public interface IValueMeta extends Cloneable {
         "Binary",
         "Timestamp",
         "Internet Address",
+        "Json"
       };
 
   /** The storage type is the same as the indicated value type */
@@ -892,6 +903,9 @@ public interface IValueMeta extends Cloneable {
 
   /** Convert the supplied data to a Boolean */
   Boolean getBoolean(Object object) throws HopValueException;
+
+  /** Convert the supplied data to a Json */
+  JsonNode getJson(Object object) throws HopValueException;
 
   /** Convert the supplied data to binary data */
   byte[] getBinary(Object object) throws HopValueException;
