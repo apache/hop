@@ -29,8 +29,6 @@
     <packaging>pom</packaging>
     <name>Hop Plugins Value Types</name>
 
-    <modules>
-        <module>json</module>
-    </modules>
+    <modules></modules>
 
 </project>
