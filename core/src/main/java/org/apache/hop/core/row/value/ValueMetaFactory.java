@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.row.value;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.math.BigDecimal;
@@ -211,7 +212,10 @@ public class ValueMetaFactory {
       return new ValueMetaBoolean();
     } else if (object instanceof byte[]) {
       return new ValueMetaBinary();
+    } else if (object instanceof JsonNode) {
+      return new ValueMetaJson();
     }
+
     // ask someone else
     return null;
   }

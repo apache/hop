@@ -21,7 +21,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
 @ValueMetaPlugin(id = "0", name = "None", description = "None")
-public class ValueMetaNone extends ValueMetaBase implements IValueMeta {
+public class ValueMetaNone extends ValueMetaBase {
 
   public ValueMetaNone() {
     this(null);

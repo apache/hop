@@ -21,7 +21,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
 @ValueMetaPlugin(id = "1", name = "Number", description = "Number", image = "images/number.svg")
-public class ValueMetaNumber extends ValueMetaBase implements IValueMeta {
+public class ValueMetaNumber extends ValueMetaBase {
 
   public ValueMetaNumber() {
     this(null);

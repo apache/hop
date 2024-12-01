@@ -49,7 +49,7 @@ import org.json.simple.parser.JSONParser;
     name = "Avro Record",
     description = "This type wraps around an Avro Record",
     image = "images/avro.svg")
-public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
+public class ValueMetaAvroRecord extends ValueMetaBase {
 
   private Schema schema;
   private static final String CONST_SCHEMA = "schema";
