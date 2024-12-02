@@ -394,7 +394,10 @@ public class TableView extends Composite {
         tableColumn[i + 1].setText(columnName);
       }
       if (columns[i].getToolTip() != null) {
-        tableColumn[i + 1].setToolTipText((columns[i].getToolTip()));
+        tableColumn[i + 1].setToolTipText(columns[i].getToolTip());
+      }
+      if (columns[i].getImage() != null) {
+        tableColumn[i + 1].setImage(columns[i].getImage());
       }
       IValueMeta valueMeta = columns[i].getValueMeta();
       if (valueMeta != null && valueMeta.isNumeric()) {

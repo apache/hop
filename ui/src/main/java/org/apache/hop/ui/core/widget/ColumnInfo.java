@@ -23,6 +23,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 
 /** Used to define the behaviour and the content of a Table column in a TableView object. */
 public class ColumnInfo {
@@ -41,6 +42,7 @@ public class ColumnInfo {
   private Supplier<String[]> comboValueSupplier = () -> comboValues;
   private boolean numeric;
   private String tooltip;
+  private Image image;
   private int alignment;
   private boolean readonly;
   private String buttonText;
@@ -239,6 +241,19 @@ public class ColumnInfo {
 
   public String getToolTip() {
     return tooltip;
+  }
+
+  public Image getImage() {
+    return image;
+  }
+
+  /**
+   * Sets the column's image to be displayed.
+   *
+   * @param image the image to display on the receiver (may be null)
+   */
+  public void setImage(Image image) {
+    this.image = image;
   }
 
   public int getAlignment() {
