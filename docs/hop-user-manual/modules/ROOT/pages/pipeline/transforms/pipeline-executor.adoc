@@ -222,9 +222,42 @@ If you don't need a certain result simply leave a blank input field.
 
 In the "Result rows" tab you can specify the layout of the expected result rows of this pipeline and to which transform to send them after execution.
 
+[cols="2", options="header"]
+|===
+|Option                |Description
+
+|Target transform for result rows  
+|Use the drop-down menu to select a transform in the current pipeline as the target transform.
+
+|Field name  
+|Specify the name of the field.
+
+|Data type  
+|Use the drop-down menu to specify the data type of the field, such as number, date, or string.
+
+|Length  
+|If applicable, specify the length of the data type specified.
+
+|Precision  
+|If applicable, specify the precision to use.
+|===
+
+
 Please note that this transform will verify that the data type of the result row fields are identical to what is specified.
 If there is a difference an error will be thrown.
 
 === Result Files Tab
 
 Here you can specify where to send the result files from the pipeline execution.
+
+[cols="2", options="header"]
+|===
+|Option                       |Description
+
+|Target transform for result files information  
+|Use the drop-down menu to select a transform in the pipeline as the target transform.
+
+|Result file name field  
+|Specify the name of the field for the result files.
+|===
+
