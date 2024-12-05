@@ -22,7 +22,7 @@ Hop Import is a command line tool to import and convert third party metadata to 
 
 See also these plugins:
 
-* xref:tech-manual:ROOT:hop-vs-kettle/hop-import.adoc[Kettle Import]
+* xref:tech-manual::hop-vs-kettle/hop-import.adoc[Kettle Import]
 
 == Usage
 
