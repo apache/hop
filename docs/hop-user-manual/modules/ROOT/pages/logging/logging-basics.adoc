@@ -118,7 +118,3 @@ Check xref:../hop-gui/perspective-neo4j.adoc[Neo4j Perspective] page for more de
 This transform writes information to the Hop logging system.
 
 Check the xref:../pipeline/transforms/writetolog.adoc[Write To Log] page for more details.
-
-=== External plugins 
-
-The xref:../plugins/external-plugins.adoc[external] hop-plugins repository contains the `Send information using syslog` action and `Send message to syslog` transforms.
