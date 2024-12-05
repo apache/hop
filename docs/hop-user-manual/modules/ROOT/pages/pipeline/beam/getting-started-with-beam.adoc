@@ -131,7 +131,7 @@ Important to remember is that Beam pipelines try to solve every action in an 'em
 === Beam specific transforms
 
 There are a number of Beam specific transforms available which only work on the provided Beam pipeline execution engines.
-For example: xref:pipeline/transforms/beaminput.adoc[Beam Input] which reads text file data from one or more files or xref:pipeline/transforms/beambigqueryoutput.adoc[Beam BigQuery Output] which writes data to BigQuery.
+For example: xref:pipeline/transforms/beamfileinput.adoc[Beam Input] which reads text file data from one or more files or xref:pipeline/transforms/beambigqueryoutput.adoc[Beam BigQuery Output] which writes data to BigQuery.
 
 You can find these transforms in the `Big Data` category and their names all start with `Beam` to make is easy to recognize them.
 
@@ -242,7 +242,7 @@ If you install or remove plugins or update Hop itself make sure to remember to g
 
 == Beam File definitions
 
-The xref:pipeline/transforms/beaminput.adoc[Beam Input] and xref:pipeline/transforms/beamoutput.adoc[Beam Output] transforms expect you to define the layout of the file(s) being read or written.
+The xref:pipeline/transforms/beamfileinput.adoc[Beam Input] and xref:pipeline/transforms/beamfileoutput.adoc[Beam Output] transforms expect you to define the layout of the file(s) being read or written.
 
 image::beam-getting-started-beam-file-definition.png[Beam File Definition example]
 

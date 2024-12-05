@@ -30,8 +30,8 @@ A Beam File Definition describes a file layout in a Beam pipeline and specifies 
 
 Transforms:
 
-* xref:pipeline/transforms/beaminput.adoc[Beam Input]
-* xref:pipeline/transforms/beamoutput.adoc[Beam Output]
+* xref:pipeline/transforms/beamfileinput.adoc[Beam Input]
+* xref:pipeline/transforms/beamfileoutput.adoc[Beam Output]
 
 == Options
 
