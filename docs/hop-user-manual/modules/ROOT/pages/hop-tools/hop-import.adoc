@@ -20,10 +20,6 @@ under the License.
 
 Hop Import is a command line tool to import and convert third party metadata to an Apache Hop format.
 
-See also these plugins:
-
-* xref:tech-manual::hop-vs-kettle/hop-import.adoc[Kettle Import]
-
 == Usage
 
 Usage help can be obtained by running hop-import with the `-h` option, even when other options are specified:
