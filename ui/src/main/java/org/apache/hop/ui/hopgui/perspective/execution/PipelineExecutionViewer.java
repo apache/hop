@@ -544,6 +544,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
                       valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, valueMeta.isNumeric());
               columnInfo.setValueMeta(valueMeta);
               columnInfo.setToolTip(valueMeta.toStringMeta());
+              columnInfo.setImage(GuiResource.getInstance().getImage(valueMeta));
               columns.add(columnInfo);
             }
 
