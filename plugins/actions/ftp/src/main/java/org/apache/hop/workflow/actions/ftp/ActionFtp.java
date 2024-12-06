@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.vfs2.FileObject;
@@ -434,6 +435,10 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
 
         if (!getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS)) {
           limitFiles = Const.toInt(resolve(getNrLimit()), 10);
+        }
+
+        if (binaryMode) {
+          ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         }
 
         // Get the files in the list...
