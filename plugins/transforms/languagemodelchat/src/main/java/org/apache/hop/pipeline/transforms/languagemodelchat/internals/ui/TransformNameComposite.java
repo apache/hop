@@ -51,6 +51,7 @@ public class TransformNameComposite implements IDialogComposite {
     setLook(inputField);
 
     label.setText(i18n("System.Label.TransformName"));
+    label.setToolTipText(i18n("System.TransformName.Tooltip"));
     inputField.setText(parameters.transformName());
 
     inputField.addModifyListener(e -> meta.setChanged());

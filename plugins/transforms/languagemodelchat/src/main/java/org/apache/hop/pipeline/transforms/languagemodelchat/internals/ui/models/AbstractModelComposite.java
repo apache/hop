@@ -98,7 +98,10 @@ public abstract class AbstractModelComposite implements IModelComposite {
     notNull(input, "An input control must be provided");
     int middle = parameters.middlePct();
     int margin = parameters.margin();
-    String i18nKey = i18n("LanguageModelChatDialog." + modelType.name() + "." + i18n + ".Label");
+    String i18nLabelKey =
+        i18n("LanguageModelChatDialog." + modelType.name() + "." + i18n + ".Label");
+    String i18nTooltipKey =
+        i18n("LanguageModelChatDialog." + modelType.name() + "." + i18n + ".Tooltip");
 
     setLook(input);
     layout.control(control);
@@ -106,10 +109,11 @@ public abstract class AbstractModelComposite implements IModelComposite {
 
     if (label == null) {
       isTrue(input instanceof Button, "Only buttons don't need a label");
-      ((Button) input).setText(i18nKey);
+      ((Button) input).setText(i18nLabelKey);
+      input.setToolTipText(i18nTooltipKey);
     } else {
-      setLook(label);
-      label.setText(i18nKey);
+      label.setText(i18nLabelKey);
+      label.setToolTipText(i18nTooltipKey);
       label.setLayoutData(layout.left(0, 0).right(middle, -margin).build());
     }
 
