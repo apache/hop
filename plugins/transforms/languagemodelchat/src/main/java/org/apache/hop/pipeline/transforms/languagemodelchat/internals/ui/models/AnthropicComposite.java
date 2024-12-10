@@ -45,10 +45,10 @@ public class AnthropicComposite extends AbstractModelComposite {
   private final TextVar topKInput;
   private final Label maxTokensLabel;
   private final TextVar maxTokensInput;
-  private final Label stopSequencesLabel;
-  private final TextVar stopSequencesInput;
-  private final Label seedLabel;
-  private final TextVar seedInput;
+  // TODO private final Label stopSequencesLabel;
+  // TODO private final TextVar stopSequencesInput;
+  // TODO private final Label seedLabel;
+  // TODO private final TextVar seedInput;
   private final Label timeoutLabel;
   private final TextVar timeoutInput;
   private final Label maxRetriesLabel;
@@ -99,16 +99,20 @@ public class AnthropicComposite extends AbstractModelComposite {
     prepare("MaxTokens", maxTokensLabel, maxTokensInput);
 
     // Stop Sequences
+    /*
+    TODO Implement anthropic Stop sequences
     stopSequencesLabel = createLabel();
     stopSequencesInput = createTextVar();
-    stopSequencesLabel.setVisible(false);
-    stopSequencesInput.setVisible(false);
-    // TODO prepare("StopSequences", stopSequencesLabel, stopSequencesInput);
+    prepare("StopSequences", stopSequencesLabel, stopSequencesInput);
+     */
 
     // Seed
+    /*
+    TODO Implement anthropic seed
     seedLabel = createLabel();
     seedInput = createTextVar();
-    // TODO prepare("Seed", seedLabel, seedInput);
+    prepare("Seed", seedLabel, seedInput);
+     */
 
     // Timeout
     timeoutLabel = createLabel();
@@ -271,14 +275,6 @@ public class AnthropicComposite extends AbstractModelComposite {
     return maxTokensInput;
   }
 
-  public Label getSeedLabel() {
-    return seedLabel;
-  }
-
-  public TextVar getSeedInput() {
-    return seedInput;
-  }
-
   public Label getTopKLabel() {
     return topKLabel;
   }
@@ -303,6 +299,8 @@ public class AnthropicComposite extends AbstractModelComposite {
     return maxRetriesInput;
   }
 
+  /*
+  TODO Implement Anthropic stop sequences and seed
   public Label getStopSequencesLabel() {
     return stopSequencesLabel;
   }
@@ -310,6 +308,15 @@ public class AnthropicComposite extends AbstractModelComposite {
   public TextVar getStopSequencesInput() {
     return stopSequencesInput;
   }
+
+  public Label getSeedLabel() {
+    return seedLabel;
+  }
+
+  public TextVar getSeedInput() {
+    return seedInput;
+  }
+   */
 
   public Button getLogRequestsButton() {
     return logRequestsButton;
