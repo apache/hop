@@ -73,6 +73,7 @@ public abstract class AbstractModelComposite implements IModelComposite {
     fd.right = new FormAttachment(100, 0);
     fd.bottom = new FormAttachment(100, 0);
     composite.setLayoutData(fd);
+    setLook(composite);
 
     control = composite;
     layout = buildFormData().margin(parameters.margin());
