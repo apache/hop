@@ -92,6 +92,7 @@ public class GeneralSettingsComposite implements IDialogComposite {
     setLook(inputChatJsonInput);
     layout.control(composite);
     inputChatJsonInput.setText(i18n("LanguageModelChatDialog.InputChatJson.Label"));
+    inputChatJsonInput.setToolTipText(i18n("LanguageModelChatDialog.InputChatJson.Tooltip"));
     inputChatJsonInput.setLayoutData(layout.left(middle, 0).right(100, 0).build());
 
     // Output Type JSON Checkbox
@@ -99,11 +100,13 @@ public class GeneralSettingsComposite implements IDialogComposite {
     setLook(outputChatJsonInput);
     layout.control(inputChatJsonInput);
     outputChatJsonInput.setText(i18n("LanguageModelChatDialog.OutputChatJson.Label"));
+    outputChatJsonInput.setToolTipText(i18n("LanguageModelChatDialog.OutputChatJson.Tooltip"));
     outputChatJsonInput.setLayoutData(layout.left(middle, 0).right(100, 0).build());
 
     // Input field
     inputFieldLabel = new Label(parameters.parent(), RIGHT);
     inputFieldLabel.setText(i18n("LanguageModelChatDialog.InputFieldName.Label"));
+    inputFieldLabel.setToolTipText(i18n("LanguageModelChatDialog.InputFieldName.Tooltip"));
     setLook(inputFieldLabel);
     layout.control(outputChatJsonInput);
     inputFieldLabel.setLayoutData(layout.left(0, 0).right(middle, -margin).build());
@@ -135,6 +138,8 @@ public class GeneralSettingsComposite implements IDialogComposite {
     layout.control(inputFieldInput);
     outputFieldNamePrefixLabel.setText(
         i18n("LanguageModelChatDialog.OutputFieldNamePrefixName.Label"));
+    outputFieldNamePrefixLabel.setToolTipText(
+        i18n("LanguageModelChatDialog.OutputFieldNamePrefixName.Tooltip"));
     outputFieldNamePrefixLabel.setLayoutData(layout.left(0, 0).right(middle, -margin).build());
     outputFieldNamePrefixInput.setLayoutData(layout.left(middle, 0).right(100, 0).build());
 
@@ -146,6 +151,7 @@ public class GeneralSettingsComposite implements IDialogComposite {
     setLook(identifierInput);
     layout.control(outputFieldNamePrefixInput);
     identifierLabel.setText(i18n("LanguageModelChatDialog.Identifier.Label"));
+    identifierLabel.setToolTipText(i18n("LanguageModelChatDialog.Identifier.Tooltip"));
     identifierLabel.setLayoutData(layout.left(0, 0).right(middle, -margin).build());
     identifierInput.setLayoutData(layout.left(middle, 0).right(100, 0).build());
 
@@ -157,6 +163,7 @@ public class GeneralSettingsComposite implements IDialogComposite {
     setLook(parallelismInput);
     layout.control(identifierInput);
     parallelismLabel.setText(i18n("LanguageModelChatDialog.Parallelism.Label"));
+    parallelismLabel.setToolTipText(i18n("LanguageModelChatDialog.Parallelism.Tooltip"));
     parallelismLabel.setLayoutData(layout.left(0, 0).right(middle, -margin).build());
     parallelismInput.setLayoutData(layout.left(middle, 0).right(100, 0).build());
 
@@ -165,6 +172,7 @@ public class GeneralSettingsComposite implements IDialogComposite {
     setLook(mockInput);
     layout.control(parallelismInput);
     mockInput.setText(i18n("LanguageModelChatDialog.Mock.Label"));
+    mockInput.setToolTipText(i18n("LanguageModelChatDialog.Mock.Tooltip"));
     mockInput.setLayoutData(layout.left(middle, 0).right(100, 0).build());
 
     // Mock output value
@@ -175,6 +183,7 @@ public class GeneralSettingsComposite implements IDialogComposite {
     setLook(mockOutputValueInput);
     layout.control(mockInput);
     mockOutputValueLabel.setText(i18n("LanguageModelChatDialog.MockOutputValue.Label"));
+    mockOutputValueLabel.setToolTipText(i18n("LanguageModelChatDialog.MockOutputValue.Tooltip"));
     mockOutputValueLabel.setLayoutData(layout.left(0, 0).right(middle, -margin).build());
     mockOutputValueInput.setLayoutData(layout.left(middle, 0).right(100, 0).build());
 
@@ -185,6 +194,7 @@ public class GeneralSettingsComposite implements IDialogComposite {
     setLook(modelTypeInput);
     layout.control(mockOutputValueInput);
     modelTypeLabel.setText(i18n("LanguageModelChatDialog.ModelType.Label"));
+    modelTypeLabel.setToolTipText(i18n("LanguageModelChatDialog.ModelType.Tooltip"));
     modelTypeLabel.setLayoutData(layout.left(0, 0).right(middle, -margin).build());
     modelTypeInput.setItems(modelTypeDescriptions());
     modelTypeInput.addModifyListener(e -> meta.setChanged());
