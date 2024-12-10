@@ -19,21 +19,19 @@ package org.apache.hop.pipeline.transforms.languagemodelchat;
 
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.CompositeParameters.Builder.buildCompositeParameters;
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.i18nUtil.i18n;
-import static org.apache.hop.ui.core.PropsUi.getFormMargin;
 import static org.apache.hop.ui.core.PropsUi.getMargin;
 import static org.apache.hop.ui.core.PropsUi.setLook;
 import static org.apache.hop.ui.core.dialog.BaseDialog.defaultShellHandling;
+import static org.eclipse.swt.SWT.BORDER;
 import static org.eclipse.swt.SWT.DIALOG_TRIM;
 import static org.eclipse.swt.SWT.MAX;
 import static org.eclipse.swt.SWT.MIN;
-import static org.eclipse.swt.SWT.NONE;
 import static org.eclipse.swt.SWT.RESIZE;
 
 import java.util.Collection;
 import java.util.List;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.CancelButton;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.CompositeParameters.Builder;
@@ -63,30 +61,35 @@ public class LanguageModelChatDialog extends BaseTransformDialog
   private Collection<IDialogComposite> composites;
 
   public LanguageModelChatDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (LanguageModelChatMeta) in;
+      Shell parent,
+      IVariables variables,
+      LanguageModelChatMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override
   public String open() {
     Shell parent = getParent();
-    shell = new Shell(parent, DIALOG_TRIM | RESIZE | MAX | MIN);
+
+    shell = new Shell(parent, DIALOG_TRIM | RESIZE | MIN | MAX);
     setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
 
+    int margin = getMargin();
+
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = getFormMargin();
-    formLayout.marginHeight = getFormMargin();
+    formLayout.marginWidth = margin;
+    formLayout.marginHeight = margin;
+
     shell.setLayout(formLayout);
     shell.setText(i18n("LanguageModelChatDialog.Shell.Title"));
 
-    int margin = getMargin();
-
     // Model Specific Composite
-    Composite modelComposite = new Composite(shell, NONE);
+    Composite modelComposite = new Composite(shell, BORDER);
 
     PopulateInputsAdapter modelCompositeInputsAdapter =
         new PopulateInputsAdapter() {
@@ -112,7 +115,7 @@ public class LanguageModelChatDialog extends BaseTransformDialog
     // Transform Name Row
     IDialogComposite tnc = new TransformNameComposite(params.build());
 
-    IDialogComposite gsc = new GeneralSettingsComposite(params.control(tnc.control()).build());
+    IDialogComposite gsc = new GeneralSettingsComposite(params.control(shell).build());
 
     // Model Specific Composite
     modelComposite.setLayout(new FormLayout());

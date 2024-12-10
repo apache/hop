@@ -73,6 +73,7 @@ public abstract class AbstractModelComposite implements IModelComposite {
     fd.right = new FormAttachment(100, 0);
     fd.bottom = new FormAttachment(100, 0);
     composite.setLayoutData(fd);
+    setLook(composite);
 
     control = composite;
     layout = buildFormData().margin(parameters.margin());
@@ -108,7 +109,6 @@ public abstract class AbstractModelComposite implements IModelComposite {
       isTrue(input instanceof Button, "Only buttons don't need a label");
       ((Button) input).setText(i18nKey);
     } else {
-      setLook(label);
       label.setText(i18nKey);
       label.setLayoutData(layout.left(0, 0).right(middle, -margin).build());
     }
