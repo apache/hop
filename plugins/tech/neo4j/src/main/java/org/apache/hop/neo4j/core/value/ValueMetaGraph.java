@@ -20,7 +20,6 @@ package org.apache.hop.neo4j.core.value;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPlugin;
@@ -32,7 +31,7 @@ import org.w3c.dom.Node;
     name = "Graph",
     image = "graph.svg",
     description = "Graph data type containing nodes, relationships and their properties")
-public class ValueMetaGraph extends ValueMetaBase implements IValueMeta {
+public class ValueMetaGraph extends ValueMetaBase {
 
   /**
    * 303 is the number of the room where the movie "The Matrix" starts and where Neo is short by
