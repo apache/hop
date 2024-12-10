@@ -227,6 +227,9 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
     LocalPipelineEngine loggingPipeline =
         new LocalPipelineEngine(loggingPipelineMeta, variables, pipeline);
 
+    // Link logged pipeline as parent
+    loggingPipeline.setParentPipeline(pipeline);
+
     // Flag it as a logging pipeline so we don't log ourselves...
     //
     loggingPipeline.getExtensionDataMap().put(PIPELINE_LOGGING_FLAG, "Y");

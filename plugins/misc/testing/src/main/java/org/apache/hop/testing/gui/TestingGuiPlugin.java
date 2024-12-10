@@ -1207,7 +1207,7 @@ public class TestingGuiPlugin {
   public static final PipelineUnitTest getCurrentUnitTest(PipelineMeta pipelineMeta) {
     // When rendering a pipeline on a server status page we never have a current unit test
     //
-    if ("Server".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
+    if (!"GUI".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
       return null;
     }
     Map<String, Object> stateMap = getStateMap(pipelineMeta);
