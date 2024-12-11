@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.metadata;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -116,8 +117,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   public static final String TOOLBAR_ITEM_DELETE = "MetadataPerspective-Toolbar-10050-Delete";
   public static final String TOOLBAR_ITEM_REFRESH = "MetadataPerspective-Toolbar-10100-Refresh";
 
-  // public static final String CONTEXT_MENU_OPEN = "MetadataPerspective-ContextMenu-10100-Open";
-
   public static final String KEY_HELP = "Help";
   private static final String SUBFOLDERS_ENABLED = "SubFoldersEnabled";
 
@@ -131,6 +130,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   private static final String CONTEXT_MENU_DELETE = "MetadataPerspective-ContextMenu-10050-Delete";
   private static final String CONTEXT_MENU_HELP = "MetadataPerspective-ContextMenu-10050-Help";
   public static final String PATH = "path";
+  public static final String CONST_FOLDER = "FOLDER";
+  public static final String CONST_ERROR = "Error";
 
   private static MetadataPerspective instance;
 
@@ -543,18 +544,18 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   @GuiOsxKeyboardShortcut(key = SWT.F3)
   public void onNewFolder() {
     String rootFolder = hopGui.getVariables().getVariable("HOP_METADATA_FOLDER");
-    if (!rootFolder.endsWith("/") && !rootFolder.endsWith("\\")) {
-      rootFolder += "/";
+    if (!rootFolder.endsWith(File.separator) && !rootFolder.endsWith("\\")) {
+      rootFolder += File.separator;
     }
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length == 0) {
       return;
     }
     TreeItem item = selection[0];
-    if (!Boolean.valueOf(item.getData(SUBFOLDERS_ENABLED).toString())) {
+    if (Boolean.FALSE.equals(Boolean.valueOf(item.getData(SUBFOLDERS_ENABLED).toString()))) {
       new ErrorDialog(
           getShell(),
-          "Error",
+          CONST_ERROR,
           "Could not create subfolder for this metadata category",
           new HopException("Could not create subfolder for this metadata category"));
       return;
@@ -624,7 +625,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
           hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
         } catch (Exception e) {
-          new ErrorDialog(getShell(), "Error", "Error editing metadata", e);
+          new ErrorDialog(getShell(), CONST_ERROR, "Error editing metadata", e);
         }
       }
 
@@ -718,19 +719,19 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     }
     String path = treeItem.getData(PATH).toString();
     TreeItem parent = treeItem.getParentItem();
-    if (showMetadataClassFolder) {
+    if (Boolean.TRUE.equals(showMetadataClassFolder)) {
       while (parent != null) {
         if (parent.getParentItem() == null) {
-          path = parent.getData() + "/" + path;
+          path = parent.getData() + File.separator + path;
         } else {
-          path = parent.getText(0) + "/" + path;
+          path = parent.getText(0) + File.separator + path;
         }
 
         parent = parent.getParentItem();
       }
     } else {
       while (parent != null && parent.getParentItem() != null) {
-        path = parent.getText(0) + "/" + path;
+        path = parent.getText(0) + File.separator + path;
         parent = parent.getParentItem();
       }
     }
@@ -745,12 +746,12 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   private String getMetadataObjectPath(TreeItem treeItem, Boolean showMetadataClassFolder) {
     String path = treeItem.getData(PATH).toString();
     TreeItem parent = treeItem.getParentItem();
-    if (showMetadataClassFolder) {
+    if (Boolean.TRUE.equals(showMetadataClassFolder)) {
       while (parent != null) {
         if (parent.getParentItem() == null) {
-          path = parent.getData() + "/" + path;
+          path = parent.getData() + File.separator + path;
         } else {
-          path = parent.getText(0) + "/" + path;
+          path = parent.getText(0) + File.separator + path;
         }
 
         parent = parent.getParentItem();
@@ -758,7 +759,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     } else {
       while (parent != null && parent.getParentItem() != null) {
         if (!path.startsWith(parent.getData(PATH).toString())) {
-          path = parent.getData(PATH) + "/" + path;
+          path = parent.getData(PATH) + File.separator + path;
         }
         parent = parent.getParentItem();
       }
@@ -851,7 +852,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
         hopGui.getEventsHandler().fire(HopGuiEvents.MetadataDeleted.name());
       } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error delete metadata", e);
+        new ErrorDialog(getShell(), CONST_ERROR, "Error delete metadata", e);
       }
     }
   }
@@ -886,7 +887,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());
         HelpUtils.openHelp(getShell(), plugin);
       } catch (Exception ex) {
-        new ErrorDialog(getShell(), "Error", "Error opening URL", ex);
+        new ErrorDialog(getShell(), CONST_ERROR, "Error opening URL", ex);
       }
     }
   }
@@ -963,9 +964,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         classItem.setImage(image);
         classItem.setExpanded(true);
         classItem.setData(annotation.key());
-        // classItem.setData(PATH, annotation.key());
         classItem.setData(KEY_HELP, annotation.description());
-        classItem.setData("type", "FOLDER");
+        classItem.setData("type", CONST_FOLDER);
         classItem.setData(SUBFOLDERS_ENABLED, Boolean.valueOf(annotation.subfoldersEnabled()));
 
         // level 1: object names: folders and definitions
@@ -1003,12 +1003,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
       item.setData(SUBFOLDERS_ENABLED, item.getParentItem().getData(SUBFOLDERS_ENABLED));
       switch (node.getType()) {
         case FILE:
-          item.setImage(GuiResource.getInstance().getImage("ui/images/file.svg"));
           item.setData("type", "FILE");
           break;
         case FOLDER:
           item.setImage(GuiResource.getInstance().getImage("ui/images/folder.svg"));
-          item.setData("type", "FOLDER");
+          item.setData("type", CONST_FOLDER);
           appendChildren(item, node, annotation);
           break;
         default:
@@ -1054,7 +1053,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
     if (tree.getSelectionCount() > 0) {
       TreeItem selectedItem = tree.getSelection()[0];
-      if (selectedItem.getData("type") == null || selectedItem.getData("type").equals("FOLDER")) {
+      if (selectedItem.getData("type") == null
+          || selectedItem.getData("type").equals(CONST_FOLDER)) {
         objectName = null;
         type = TreeItemType.FOLDER;
       } else {
@@ -1082,24 +1082,21 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
-    if (typeHandler instanceof MetadataEditor editor) {
-      if (editor.isCloseable()) {
+    if (typeHandler instanceof MetadataEditor editor && editor.isCloseable()) {
+      editors.remove(editor);
 
-        editors.remove(editor);
-
-        for (CTabItem item : tabFolder.getItems()) {
-          if (editor.equals(item.getData())) {
-            item.dispose();
-          }
+      for (CTabItem item : tabFolder.getItems()) {
+        if (editor.equals(item.getData())) {
+          item.dispose();
         }
-
-        // Refresh tree to remove bold
-        //
-        this.refresh();
-
-        // Update Gui menu and toolbar
-        this.updateGui();
       }
+
+      // Refresh tree to remove bold
+      //
+      this.refresh();
+
+      // Update Gui menu and toolbar
+      this.updateGui();
     }
 
     return false;
