@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +32,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.FileSystemNode;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -533,5 +535,54 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
    */
   public ToolBar getwToolBar() {
     return wToolBar;
+  }
+
+  /**
+   * Fills the list of metadata with a flat view of the metadata tree
+   *
+   * @throws HopException
+   */
+  public void fillTreeItems() throws HopException {
+    FileSystemNode rootNode = manager.getSerializer().getFileSystemTree();
+    String pathToStrip = getRootFolder(rootNode);
+    List<String> elementNames =
+        flattenTree(rootNode).stream()
+            .map(s -> s.replace(pathToStrip, ""))
+            .map(
+                s -> {
+                  if (s.endsWith(".json")) {
+                    return s.replace(".json", "");
+                  }
+                  return s;
+                })
+            .sorted()
+            .toList();
+
+    wCombo.setItems(elementNames.toArray(new String[0]));
+  }
+
+  private List<String> flattenTree(FileSystemNode rootNode) {
+    List<String> flatList = new ArrayList<>();
+    traverseNode(rootNode, flatList);
+    return flatList;
+  }
+
+  private String getRootFolder(FileSystemNode node) {
+    if (node.getChildren().size() != 1) {
+      return null;
+    }
+    return node.getChildren().get(0).getPath();
+  }
+
+  private void traverseNode(FileSystemNode node, List<String> flatList) {
+
+    if (node.isFile()) {
+      flatList.add(node.getPath());
+    }
+    if (node.isFolder()) {
+      for (FileSystemNode child : node.getChildren()) {
+        traverseNode(child, flatList);
+      }
+    }
   }
 }

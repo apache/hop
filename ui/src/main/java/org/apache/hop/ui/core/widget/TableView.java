@@ -2665,10 +2665,8 @@ public class TableView extends Composite {
     int strmax = TextSizeUtilFacade.textExtent(str).x + 20;
     int colmax = tableColumn[colNr].getWidth();
     if (strmax > colmax) {
-      if (!EnvironmentUtils.getInstance().isWeb()) {
-        if (Const.isOSX() || Const.isLinux()) {
-          strmax *= 1.4;
-        }
+      if (!EnvironmentUtils.getInstance().isWeb() && (Const.isOSX() || Const.isLinux())) {
+        strmax *= 1.4;
       }
       tableColumn[colNr].setWidth(strmax + 30);
 
@@ -3047,14 +3045,14 @@ public class TableView extends Composite {
     if (item != null) {
       if (colNr >= 0) {
         String str = item.getText(colNr);
-        if (str == null || str.length() == 0) {
+        if (str == null || str.isEmpty()) {
           empty = true;
         }
       } else {
         empty = true;
         for (int j = 1; j < table.getColumnCount(); j++) {
           String str = item.getText(j);
-          if (str != null && str.length() > 0) {
+          if (str != null && !str.isEmpty()) {
             empty = false;
           }
         }
