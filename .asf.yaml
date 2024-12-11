@@ -63,13 +63,10 @@ github:
     close_issue: "Re: [I] {title} ({repository})"
     catchall: "[GH] {title} ({repository})"
     new_discussion: "[D] {title} ({repository})"
-    edit_discussion: "Re: [D] {title} ({repository})"
     close_discussion: "Re: [D] {title} ({repository})"
     close_discussion_with_comment: "Re: [D] {title} ({repository})"
     reopen_discussion: "Re: [D] {title} ({repository})"
     new_comment_discussion: "Re: [D] {title} ({repository})"
-    edit_comment_discussion: "Re: [D] {title} ({repository})"
-    delete_comment_discussion: "Re: [D] {title} ({repository})"
 
   #remove ~ when enabling the protection
   protected_branches: ~
