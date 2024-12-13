@@ -22,7 +22,7 @@ under the License.
 
 Hop offers a lot of options to enrich and combine data, among other things through joins and lookups. This guide explains the differences between the various joins and lookups, and will help you to choose the right transform for your pipelines.
 
-=== Joins
+== Joins
 
 Joins are a way to merge data from two or more different streams in your pipeline. Joins typically require you to select a set of fields (the join keys) to join the streams on. The data in all streams that are involved in the join needs to be sorted on the join keys.
 
@@ -80,7 +80,7 @@ allows you to run a query against a database using data obtained from previous t
 
 |===
 
-=== Lookups
+== Lookups
 
 Lookups are a way to let you enrich your pipeline's stream with additional fields from external sources. The transforms allow you to choose which additional fields will be retrieved from the lookup source.
 
@@ -146,7 +146,7 @@ The stream lookup accepts data from any pipeline stream, but since the data need
 |===
 
 
-=== Lookup Caching
+== Lookup Caching
 
 The xref:pipeline/transforms/combinationlookup.adoc[Combination lookup/update], xref:pipeline/transforms/dimensionlookup.adoc[Dimension lookup/update] and xref:pipeline/transforms/databaselookup.adoc[Database lookup] allow you to cache data. Cached data is stored in memory to speed up the lookup process.
 
