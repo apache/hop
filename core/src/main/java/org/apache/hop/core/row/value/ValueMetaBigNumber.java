@@ -26,7 +26,7 @@ import org.apache.hop.core.row.IValueMeta;
     name = "BigNumber",
     description = "BigNumber",
     image = "images/number.svg")
-public class ValueMetaBigNumber extends ValueMetaBase implements IValueMeta {
+public class ValueMetaBigNumber extends ValueMetaBase {
 
   public ValueMetaBigNumber() {
     this(null);

@@ -52,11 +52,16 @@ The primary usage for this transform is to check if an input field matches the g
 
 The pattern is intended to match the entire input field, not just a part of it. For example, given the input:
 
-+++<pre>"Author, Ann" - 53 posts</pre>+++
+----
+"Author, Ann" - 53 posts
+----
 
 a regular expression like `\d* posts` would give no match, even if a part of the input (`53 posts`) indeed matches with the pattern. To get an actual match, you need to add `.*` in the pattern:
 
-+++<pre>.*\d* posts</pre>+++
+[source,regexp]
+----
+.*\d* posts
+----
 
 === Capturing text
 
@@ -64,7 +69,10 @@ This transform can also capture parts of the input and store them in new fields 
 
 With the same input text as above, create a regular expression with two capture groups:
 
-+++<pre>^"([^"]*)" - (\d*) posts$</pre>+++
+[source,regexp]
+----
+^"([^"]*)" - (\d*) posts$
+----
 
 The transform will capture the values `Author, Ann` and `53`, so you can create two new fields in your pipeline (i.e. one for the name, and one for the number of posts).
 
@@ -178,10 +186,10 @@ As mentioned earlier, the pattern is intended to match the entire input field, i
 If you just need to test if your input _contains_ the pattern, you need to tweak your regular expression so that it matches the entire input field. You should also include the grouping operators (parentheses) to get the sub-text you intended to match, for example:
 
 * Input data: `THIS IS A TITLE <PROCESSING_TAG>`
-* RegEx 1: `+++<.*>+++` -> returns no match, because the pattern doesn't match the entire input
-* RegEx 2: `+++.*(<.*>)+++` -> returns a match and you can capture the value `<PROCESSING_TAG>` with the grouping operators
+* RegEx 1: `<.*>` -> returns no match, because the pattern doesn't match the entire input
+* RegEx 2: `.*(<.*>)` -> returns a match and you can capture the value `<PROCESSING_TAG>` with the grouping operators
 
-As a consequence, you can consider the line delimiting operators `^` and `$` as implied in your regular expression: the examples above are equivalent to `+++^<.*>$+++` and `+++^.*(<.*>)$+++` respectively.
+As a consequence, you can consider the line delimiting operators `^` and `$` as implied in your regular expression: the examples above are equivalent to `^<.*>$` and `^.*(<.*>)$` respectively.
 
 === Nested capture groups
 
@@ -189,17 +197,20 @@ Suppose your input field contains a text value like `"Author, Ann" - 53 posts.`
 
 The following regular expression creates four capturing groups and can be used to parse out the different parts:
 
-+++<pre>^"(([^"]+), ([^"])+)" - (\d+) posts\.$</pre>+++
+[source,regexp]
+----
+^"(([^"]+), ([^"])+)" - (\d+) posts\.$
+----
 
 This expression creates the following four capturing groups, which become output fields:
 
 [options="header"]
 |===
 |Field name|RegEx segment|Value
-|Fullname|`+++(([^"]+), ([^"]+))+++`|`Author, Ann`
-|Lastname|`+++([^"]+)+++` (first occurrence)|`Author`
-|Firstname|`+++([^"]+)+++` (second occurrence)|`Ann`
-|Number of posts|`+++(\d+)+++`|`53`
+|Fullname|`(([^"]+), ([^"]+))`|`Author, Ann`
+|Lastname|`([^"]+)` (first occurrence)|`Author`
+|Firstname|`([^"]+)` (second occurrence)|`Ann`
+|Number of posts|`(\d+)`|`53`
 |===
 
 In this example, a field definition must be present for each of these capturing groups.

@@ -18,6 +18,14 @@
 package org.apache.hop.core.row.value;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.DecimalNode;
+import com.fasterxml.jackson.databind.node.DoubleNode;
+import com.fasterxml.jackson.databind.node.LongNode;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -58,6 +66,7 @@ import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IValueMeta;
@@ -1201,6 +1210,25 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
+  public String convertJsonToString(JsonNode jsonNode) throws HopValueException {
+    try {
+      ObjectMapper objectMapper = HopJson.newMapper();
+      return objectMapper.writeValueAsString(jsonNode);
+    } catch (Exception e) {
+      throw new HopValueException("Error converting JSON value to String", e);
+    }
+  }
+
+  public JsonNode convertStringToJson(String jsonString) throws HopValueException {
+    try {
+      ObjectMapper objectMapper =
+          JsonMapper.builder().enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES).build();
+      return objectMapper.readTree(jsonString);
+    } catch (Exception e) {
+      throw new HopValueException("Error converting string to JSON value: '" + jsonString + "'", e);
+    }
+  }
+
   @Override
   public synchronized SimpleDateFormat getDateFormat() {
     return getDateFormat(getType());
@@ -2197,6 +2225,127 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
+  @Override
+  public JsonNode getJson(Object object) throws HopValueException {
+    if (object == null) {
+      return null;
+    }
+
+    switch (type) {
+      case TYPE_JSON:
+        switch (storageType) {
+          case STORAGE_TYPE_NORMAL:
+            return (JsonNode) object;
+          case STORAGE_TYPE_BINARY_STRING:
+            return convertStringToJson(convertBinaryStringToString((byte[]) object));
+          case STORAGE_TYPE_INDEXED:
+            return (JsonNode) index[((Integer) object)];
+          default:
+            throw new HopValueException(
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
+        }
+      case TYPE_STRING:
+        switch (storageType) {
+          case STORAGE_TYPE_NORMAL:
+            return convertStringToJson((String) object);
+          case STORAGE_TYPE_BINARY_STRING:
+            return convertStringToJson((String) convertBinaryStringToNativeType((byte[]) object));
+          case STORAGE_TYPE_INDEXED:
+            return convertStringToJson((String) index[(Integer) object]);
+          default:
+            throw new HopValueException(
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
+        }
+      case TYPE_NUMBER:
+        Double number;
+        switch (storageType) {
+          case STORAGE_TYPE_NORMAL:
+            number = (Double) object;
+            break;
+          case STORAGE_TYPE_BINARY_STRING:
+            number = convertStringToNumber(convertBinaryStringToString((byte[]) object));
+            break;
+          case STORAGE_TYPE_INDEXED:
+            number = (Double) index[(Integer) object];
+            break;
+          default:
+            throw new HopValueException(
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
+        }
+        return new DoubleNode(number);
+
+      case TYPE_INTEGER:
+        Long integer;
+        switch (storageType) {
+          case STORAGE_TYPE_NORMAL:
+            integer = (Long) object;
+            break;
+          case STORAGE_TYPE_BINARY_STRING:
+            integer = (Long) convertBinaryStringToNativeType((byte[]) object);
+            break;
+          case STORAGE_TYPE_INDEXED:
+            integer = (Long) index[(Integer) object];
+            break;
+          default:
+            throw new HopValueException(
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
+        }
+        return new LongNode(integer);
+
+      case TYPE_BIGNUMBER:
+        BigDecimal bigDecimal;
+        switch (storageType) {
+          case STORAGE_TYPE_NORMAL:
+            bigDecimal = (BigDecimal) object;
+            break;
+          case STORAGE_TYPE_BINARY_STRING:
+            bigDecimal = (BigDecimal) convertBinaryStringToNativeType((byte[]) object);
+            break;
+          case STORAGE_TYPE_INDEXED:
+            bigDecimal = (BigDecimal) index[(Integer) object];
+            break;
+          default:
+            throw new HopValueException(
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
+        }
+        return new DecimalNode(bigDecimal);
+
+      case TYPE_BOOLEAN:
+        boolean bool;
+        switch (storageType) {
+          case STORAGE_TYPE_NORMAL:
+            bool = (Boolean) object;
+            break;
+          case STORAGE_TYPE_BINARY_STRING:
+            bool = (Boolean) convertBinaryStringToNativeType((byte[]) object);
+            break;
+          case STORAGE_TYPE_INDEXED:
+            bool = (Boolean) index[(Integer) object];
+            break;
+          default:
+            throw new HopValueException(
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
+        }
+        return BooleanNode.valueOf(bool);
+
+      case TYPE_DATE:
+        throw new HopValueException(
+            toString() + " : I don't know how to convert a date to a JSON object.");
+      case TYPE_TIMESTAMP:
+        throw new HopValueException(
+            toString() + " : I don't know how to convert a timestamp to a JSON object.");
+      case TYPE_BINARY:
+        throw new HopValueException(
+            toString() + " : I don't know how to convert a binary value to JSON object.");
+      case TYPE_SERIALIZABLE:
+        throw new HopValueException(
+            toString() + " : I don't know how to convert a serializable value to JSON object.");
+
+      default:
+        throw new HopValueException(toString() + " : Unknown type " + type + MSG_SPECIFIED);
+    }
+  }
+
   protected String trim(String string) {
     switch (getTrimType()) {
       case TRIM_TYPE_NONE:
@@ -2928,6 +3077,21 @@ public class ValueMetaBase implements IValueMeta {
                       + MSG_SPECIFIED);
           }
 
+        case TYPE_JSON:
+          switch (storageType) {
+            case STORAGE_TYPE_NORMAL:
+              return convertStringToBinaryString(getString(object));
+            case STORAGE_TYPE_BINARY_STRING:
+              return convertStringToBinaryString(
+                  getString(convertStringToJson(convertBinaryStringToString((byte[]) object))));
+            case STORAGE_TYPE_INDEXED:
+              return convertStringToBinaryString(
+                  convertJsonToString((JsonNode) index[((Integer) object)]));
+            default:
+              throw new HopValueException(
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
+          }
+
         case TYPE_SERIALIZABLE:
           switch (storageType) {
             case STORAGE_TYPE_NORMAL:
@@ -3191,6 +3355,9 @@ public class ValueMetaBase implements IValueMeta {
               case TYPE_BINARY:
                 writeBinary(outputStream, (byte[]) object);
                 break;
+              case TYPE_JSON:
+                writeJson(outputStream, (JsonNode) object);
+                break;
               case TYPE_INET:
                 writeBinary(outputStream, ((InetAddress) object).getAddress());
                 break;
@@ -3259,6 +3426,8 @@ public class ValueMetaBase implements IValueMeta {
               return readBoolean(inputStream);
             case TYPE_BINARY:
               return readBinary(inputStream);
+            case TYPE_JSON:
+              return readJson(inputStream);
             case TYPE_INET:
               return InetAddress.getByAddress(readBinary(inputStream));
             default:
@@ -3296,6 +3465,19 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
+  protected void writeJson(DataOutputStream outputStream, JsonNode jsonNode) throws IOException {
+    // Write the length and then the bytes
+    if (jsonNode == null) {
+      outputStream.writeInt(-1);
+    } else {
+      ObjectMapper objectMapper = new ObjectMapper();
+      String string = objectMapper.writeValueAsString(jsonNode);
+      byte[] chars = string.getBytes(Const.XML_ENCODING);
+      outputStream.writeInt(chars.length);
+      outputStream.write(chars);
+    }
+  }
+
   protected void writeBinaryString(DataOutputStream outputStream, byte[] binaryString)
       throws IOException {
     // Write the length and then the bytes
@@ -3320,8 +3502,22 @@ public class ValueMetaBase implements IValueMeta {
     return new String(chars, Const.XML_ENCODING);
   }
 
-  protected byte[] readBinaryString(DataInputStream inputStream) throws IOException {
+  protected JsonNode readJson(DataInputStream inputStream) throws IOException {
     // Read the inputLength and then the bytes
+    int inputLength = inputStream.readInt();
+    if (inputLength < 0) {
+      return null;
+    }
+
+    byte[] chars = new byte[inputLength];
+    inputStream.readFully(chars);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    return objectMapper.readTree(chars, 0, inputLength);
+  }
+
+  protected byte[] readBinaryString(DataInputStream inputStream) throws IOException {
+    // Read the length and then the bytes
     int inputLength = inputStream.readInt();
     if (inputLength < 0) {
       return null;
@@ -3439,6 +3635,9 @@ public class ValueMetaBase implements IValueMeta {
                     break;
                   case TYPE_BINARY:
                     writeBinary(outputStream, (byte[]) index[i]);
+                    break;
+                  case TYPE_JSON:
+                    writeJson(outputStream, (JsonNode) index[i]);
                     break;
                   default:
                     throw new HopFileException(
@@ -3577,6 +3776,9 @@ public class ValueMetaBase implements IValueMeta {
                   break;
                 case TYPE_BINARY:
                   index[i] = readBinary(inputStream);
+                  break;
+                case TYPE_JSON:
+                  index[i] = readJson(inputStream);
                   break;
                 default:
                   throw new HopFileException(
@@ -4291,6 +4493,8 @@ public class ValueMetaBase implements IValueMeta {
         return meta2.getBoolean(data2);
       case TYPE_BINARY:
         return meta2.getBinary(data2);
+      case TYPE_JSON:
+        return meta2.getJson(data2);
       default:
         throw new HopValueException(this + CONST_CANNOT_CONVERT + getType());
     }
@@ -4322,6 +4526,8 @@ public class ValueMetaBase implements IValueMeta {
         return meta2.getBoolean(data2);
       case TYPE_BINARY:
         return meta2.getBinary(data2);
+      case TYPE_JSON:
+        return meta2.getJson(data2);
       default:
         throw new HopValueException(this + CONST_CANNOT_CONVERT + getType());
     }
@@ -4349,7 +4555,6 @@ public class ValueMetaBase implements IValueMeta {
     // storageMetaData to get the correct conversion mask
     // That way we're always sure that a conversion works both ways.
     //
-
     switch (conversionMetadata.getType()) {
       case TYPE_STRING:
         return getString(data);
@@ -4367,6 +4572,8 @@ public class ValueMetaBase implements IValueMeta {
         return getBinary(data);
       case TYPE_TIMESTAMP:
         return getDate(data);
+      case TYPE_JSON:
+        return getJson(data);
       default:
         throw new HopValueException(this + CONST_CANNOT_CONVERT + conversionMetadata.getType());
     }
@@ -4557,6 +4764,8 @@ public class ValueMetaBase implements IValueMeta {
         case TYPE_INET:
           hash ^= 256;
           break;
+        case TYPE_JSON:
+          hash ^= 512;
         case TYPE_NONE:
           break;
         default:
@@ -4589,6 +4798,9 @@ public class ValueMetaBase implements IValueMeta {
           hash ^= object.hashCode();
           break;
         case TYPE_INET:
+          hash ^= object.hashCode();
+          break;
+        case TYPE_JSON:
           hash ^= object.hashCode();
           break;
         case TYPE_NONE:

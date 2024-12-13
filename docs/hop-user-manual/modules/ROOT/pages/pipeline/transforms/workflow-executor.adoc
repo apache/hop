@@ -195,8 +195,40 @@ In the "Result rows" tab you can specify the layout of the expected result rows 
 
 The workflow executor performs a consistency check over the fields we declared in this tab as the fields that want to receive in output. The check will be performed by making sure the fields we require are really present in the results stream and that type of each fields is really the type we expected to be. If there are any differences an error will be thrown. The error will give you the complete picture about which fields are missing and/or which fields were declared by considering a wrong datatype.
 
+[cols="2", options="header"]
+|===
+|Option                |Description
+
+|Target transform for result rows  
+|Use the drop-down menu to select a transform in the pipeline as the target transform.
+
+|Field name  
+|Specify the name of the field.
+
+|Data type  
+|Use the drop-down menu to specify the data type of the field, such as number, date, or string.
+
+|Length  
+|If applicable, specify the length of the field.
+
+|Precision  
+|If applicable, specify the precision to use.
+|===
+
+
 *Note*: remember that currently this transform always give you a result row back even if the pipelines started in the sub-workflow don't return any result. In this case, the result row that you will get back will contain only the fields provided by the flow as input of this transform.
 
 === Result Files Tab
 
 Here you can specify where to send the result files from the workflow execution.
+
+[cols="2", options="header"]
+|===
+|Option                       |Description
+
+|Target transform for result files information  
+|Use the drop-down menu to select a transform in the pipeline as the target transform.
+
+|Result file name field  
+|Specify the name of the field for the result files.
+|===

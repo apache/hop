@@ -35,23 +35,6 @@ public abstract class TextComposite extends Composite {
    * @param parent a widget which will be the parent of the new instance (cannot be null)
    * @param style the style of widget to construct
    * @throws IllegalArgumentException
-   *     <ul>
-   *       <li>ERROR_NULL_ARGUMENT - if the parent is null
-   *     </ul>
-   *
-   * @throws SWTException
-   *     <ul>
-   *       <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the parent
-   *     </ul>
-   *
-   * @see SWT#NO_BACKGROUND
-   * @see SWT#NO_FOCUS
-   * @see SWT#NO_MERGE_PAINTS
-   * @see SWT#NO_REDRAW_RESIZE
-   * @see SWT#NO_RADIO_GROUP
-   * @see SWT#EMBEDDED
-   * @see SWT#DOUBLE_BUFFERED
-   * @see Widget#getStyle
    */
   public TextComposite(Composite parent, int style) {
     super(parent, style);

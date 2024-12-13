@@ -34,8 +34,6 @@ We briefly touch upon them below.
 * xref:pipeline/transforms/beamgcppublisher.adoc[GCP Pub/Sub Publisher (Beam)]
 * xref:pipeline/transforms/beamgcpsubscriber.adoc[GCP Pub/Sub Subscriber (Beam)]
 
-Check the xref:plugins/external-plugins.adoc[external plugins] for more information on a number of additional Google plugins that can't be or won't be included with Apache Hop (Google Sheets Input and Output, Google Analytics)
-
 == VFS
 
 Apache xref:vfs.adoc[VFS Support] in Hop allows you to directly read from a multitude of file systems and protocols, including Google:

@@ -287,10 +287,12 @@ public class PreviewRowsDialog {
 
     ColumnInfo[] columns = new ColumnInfo[rowMeta.size()];
     for (int i = 0; i < rowMeta.size(); i++) {
-      IValueMeta v = rowMeta.getValueMeta(i);
-      columns[i] = new ColumnInfo(v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric());
-      columns[i].setToolTip(v.toStringMeta());
-      columns[i].setValueMeta(v);
+      IValueMeta valueMeta = rowMeta.getValueMeta(i);
+      columns[i] =
+          new ColumnInfo(valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, valueMeta.isNumeric());
+      columns[i].setToolTip(valueMeta.toStringMeta());
+      columns[i].setValueMeta(valueMeta);
+      columns[i].setImage(GuiResource.getInstance().getImage(valueMeta));
     }
 
     wFields =

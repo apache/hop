@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "beam-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamInputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beaminput.html")
+    documentationUrl = "/pipeline/transforms/beamfileinput.html")
 public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData>
     implements IBeamPipelineTransformHandler {
 

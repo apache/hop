@@ -22,7 +22,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
 @ValueMetaPlugin(id = "3", name = "Date", description = "Date", image = "images/date.svg")
-public class ValueMetaDate extends ValueMetaBase implements IValueMeta {
+public class ValueMetaDate extends ValueMetaBase {
 
   public ValueMetaDate() {
     this(null);
