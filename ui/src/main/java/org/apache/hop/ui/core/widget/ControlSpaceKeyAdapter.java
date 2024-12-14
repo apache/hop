@@ -36,12 +36,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormLayout;
@@ -54,8 +51,6 @@ import org.eclipse.swt.widgets.ToolTip;
 public class ControlSpaceKeyAdapter extends KeyAdapter {
 
   private static final Class<?> PKG = ControlSpaceKeyAdapter.class;
-
-  private static final PropsUi props = PropsUi.getInstance();
 
   private final IGetCaretPosition getCaretPositionInterface;
 
@@ -95,31 +90,31 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
    * in chinese window, Ctrl-SPACE is reversed by system for input chinese character. use
    * Ctrl-ALT-SPACE instead.
    *
-   * @param e the keyevent
+   * @param event the keyevent
    * @return true when ctrl-SPACE is pressed
    */
-  private boolean isHotKey(KeyEvent e) {
+  private boolean isHotKey(KeyEvent event) {
     if (System.getProperty("user.language").equals("zh")) {
-      return e.character == ' '
-          && ((e.stateMask & SWT.CONTROL) != 0)
-          && ((e.stateMask & SWT.ALT) != 0);
+      return event.character == ' '
+          && ((event.stateMask & SWT.CONTROL) != 0)
+          && ((event.stateMask & SWT.ALT) != 0);
     } else if (OsHelper.isMac()) {
       // character is empty when pressing special key in macOs
-      return e.keyCode == 32
-          && ((e.stateMask & SWT.CONTROL) != 0)
-          && ((e.stateMask & SWT.ALT) == 0);
+      return event.keyCode == 32
+          && ((event.stateMask & SWT.CONTROL) != 0)
+          && ((event.stateMask & SWT.ALT) == 0);
     } else {
-      return e.character == ' '
-          && ((e.stateMask & SWT.CONTROL) != 0)
-          && ((e.stateMask & SWT.ALT) == 0);
+      return event.character == ' '
+          && ((event.stateMask & SWT.CONTROL) != 0)
+          && ((event.stateMask & SWT.ALT) == 0);
     }
   }
 
   @Override
-  public void keyPressed(KeyEvent e) {
+  public void keyPressed(KeyEvent event) {
     // CTRL-<SPACE> --> Insert a variable
-    if (isHotKey(e)) {
-      e.doit = false;
+    if (isHotKey(event)) {
+      event.doit = false;
 
       // textField.setData(TRUE) indicates we have transitioned from the textbox to list mode...
       // This will be set to false when the list selection has been processed
@@ -136,11 +131,21 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       // Drop down a list of variables...
       //
       Rectangle bounds = control.getBounds();
-      Point location = GuiResource.calculateControlPosition(control);
+      Point location;
+      if (control instanceof StyledText styledText) {
+        // Position the list under the caret
+        location = styledText.getLocationAtOffset(styledText.getCaretOffset());
+        location.y += styledText.getLineHeight();
+        location = styledText.toDisplay(location);
+      } else {
+        // Position the list under the control
+        location = GuiResource.calculateControlPosition(control);
+        location.y += bounds.height;
+      }
 
       final Shell shell = new Shell(control.getShell(), SWT.NONE);
       shell.setSize(bounds.width > 300 ? bounds.width : 300, 200);
-      shell.setLocation(location.x, location.y + bounds.height);
+      shell.setLocation(location.x, location.y);
       shell.setLayout(new FormLayout());
       final List list = new List(shell, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
       PropsUi.setLook(list);
@@ -149,59 +154,50 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       final ToolTip toolTip = new ToolTip(list.getShell(), SWT.BALLOON);
       toolTip.setAutoHide(true);
 
-      list.addSelectionListener(
-          new SelectionAdapter() {
-            // Enter or double-click: picks the variable
-            //
-            @Override
-            public synchronized void widgetDefaultSelected(SelectionEvent e) {
+      // Double-click: picks the variable
+      list.addListener(
+          SWT.DefaultSelection,
+          e -> applyChanges(shell, list, control, position, insertTextInterface));
+
+      // Select a variable name: display the value in a tool tip
+      list.addListener(
+          SWT.Selection,
+          e -> {
+            if (list.getSelectionCount() <= 0) {
+              return;
+            }
+            String name = list.getSelection()[0];
+            String value = variables.getVariable(name);
+            Rectangle shellBounds = shell.getBounds();
+            String message =
+                BaseMessages.getString(PKG, "TextVar.VariableValue.Message", name, value);
+            if (name.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
+              message += BaseMessages.getString(PKG, "TextVar.InternalVariable.Message");
+            }
+            toolTip.setText(message);
+            toolTip.setVisible(false);
+            toolTip.setLocation(shell.getLocation().x, shell.getLocation().y + shellBounds.height);
+            toolTip.setVisible(true);
+          });
+
+      // Enter key pressed: picks the variable
+      list.addListener(
+          SWT.KeyDown,
+          e -> {
+            if (e.keyCode == SWT.CR
+                && ((e.stateMask & SWT.CONTROL) == 0)
+                && ((e.stateMask & SWT.SHIFT) == 0)) {
               applyChanges(shell, list, control, position, insertTextInterface);
             }
-
-            // Select a variable name: display the value in a tool tip
-            //
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-              if (list.getSelectionCount() <= 0) {
-                return;
-              }
-              String name = list.getSelection()[0];
-              String value = variables.getVariable(name);
-              Rectangle shellBounds = shell.getBounds();
-              String message =
-                  BaseMessages.getString(PKG, "TextVar.VariableValue.Message", name, value);
-              if (name.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
-                message += BaseMessages.getString(PKG, "TextVar.InternalVariable.Message");
-              }
-              toolTip.setText(message);
-              toolTip.setVisible(false);
-              toolTip.setLocation(
-                  shell.getLocation().x, shell.getLocation().y + shellBounds.height);
-              toolTip.setVisible(true);
-            }
           });
 
-      list.addKeyListener(
-          new KeyAdapter() {
-
-            @Override
-            public synchronized void keyPressed(KeyEvent e) {
-              if (e.keyCode == SWT.CR
-                  && ((e.keyCode & SWT.CONTROL) == 0)
-                  && ((e.keyCode & SWT.SHIFT) == 0)) {
-                applyChanges(shell, list, control, position, insertTextInterface);
-              }
-            }
-          });
-
-      list.addFocusListener(
-          new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent event) {
-              shell.dispose();
-              if (!control.isDisposed()) {
-                control.setData(Boolean.FALSE);
-              }
+      // Focus lost: close the list
+      list.addListener(
+          SWT.FocusOut,
+          e -> {
+            shell.dispose();
+            if (!control.isDisposed()) {
+              control.setData(Boolean.FALSE);
             }
           });
 
@@ -226,13 +222,13 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       if (list.getSelectionCount() <= 0) {
         return;
       }
-      if (control instanceof Text textControl) {
-        textControl.insert(extra);
+      if (control instanceof Text text) {
+        text.insert(extra);
       } else if (control instanceof CCombo combo) {
-        combo.setText(
-            extra); // We can't know the location of the cursor yet. All we can do is overwrite.
-      } else if (control instanceof StyledTextComp styledTextCompControl) {
-        styledTextCompControl.insert(extra);
+        // We can't know the location of the cursor yet. All we can do is overwrite.
+        combo.setText(extra);
+      } else if (control instanceof StyledText styledText) {
+        styledText.insert(extra);
       }
     }
     if (!shell.isDisposed()) {

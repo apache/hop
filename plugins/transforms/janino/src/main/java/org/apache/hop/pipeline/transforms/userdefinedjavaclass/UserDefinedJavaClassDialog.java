@@ -1626,7 +1626,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
       if (item.getParentItem().equals(wTreeClassesItem)) {
         setActiveCtab(item.getText());
       } else if (!item.getData().equals("Snippit")) {
-        int iStart = wScript.getCaretOffset();
+        int iStart = wScript.getCaretPosition();
         int selCount = wScript.getSelectionCount(); // this selection
         // will be replaced
         // by wScript.insert

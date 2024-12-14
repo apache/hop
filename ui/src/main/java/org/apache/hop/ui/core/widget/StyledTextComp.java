@@ -18,48 +18,39 @@
 package org.apache.hop.ui.core.widget;
 
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
 public class StyledTextComp extends TextComposite {
   private static final Class<?> PKG = StyledTextComp.class;
 
-  // Modification for Undo/Redo on Styled Text
   private final Text textWidget;
-  private final Menu styledTextPopupmenu;
-  private final Composite xParent;
-  private Image image;
+  private final Menu popupMenu;
 
-  public StyledTextComp(IVariables variables, Composite parent, int args) {
-    this(variables, parent, args, true, false);
+  public StyledTextComp(IVariables variables, Composite parent, int style) {
+    this(variables, parent, style, true, false);
   }
 
-  public StyledTextComp(IVariables variables, Composite parent, int args, boolean varsSensitive) {
-    this(variables, parent, args, varsSensitive, false);
+  public StyledTextComp(IVariables variables, Composite parent, int style, boolean varsSensitive) {
+    this(variables, parent, style, varsSensitive, false);
   }
 
   public StyledTextComp(
@@ -71,11 +62,11 @@ public class StyledTextComp extends TextComposite {
 
     super(parent, SWT.NONE);
     textWidget = new Text(this, args);
-    styledTextPopupmenu = new Menu(parent.getShell(), SWT.POP_UP);
-    xParent = parent;
+    popupMenu = new Menu(parent.getShell(), SWT.POP_UP);
+
     this.setLayout(new FormLayout());
 
-    buildingStyledTextMenu();
+    buildingStyledTextMenu(popupMenu);
 
     // Default layout without variables
     textWidget.setLayoutData(
@@ -84,12 +75,12 @@ public class StyledTextComp extends TextComposite {
     // Special layout for variables decorator
     if (varsSensitive) {
       textWidget.addKeyListener(new ControlSpaceKeyAdapter(variables, textWidget));
-      image = GuiResource.getInstance().getImageVariableMini();
+
       if (variableIconOnTop) {
         final Label wIcon = new Label(this, SWT.RIGHT);
         PropsUi.setLook(wIcon);
         wIcon.setToolTipText(BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
-        wIcon.setImage(image);
+        wIcon.setImage(GuiResource.getInstance().getImageVariableMini());
         wIcon.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
         textWidget.setLayoutData(
             new FormDataBuilder()
@@ -100,7 +91,7 @@ public class StyledTextComp extends TextComposite {
                 .result());
       } else {
         Label controlDecoration = new Label(this, SWT.NONE);
-        controlDecoration.setImage(image);
+        controlDecoration.setImage(GuiResource.getInstance().getImageVariableMini());
         controlDecoration.setToolTipText(
             BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
         PropsUi.setLook(controlDecoration);
@@ -116,23 +107,37 @@ public class StyledTextComp extends TextComposite {
     }
   }
 
+  @Override
   public String getSelectionText() {
     return textWidget.getSelectionText();
   }
 
   @Override
-  public int getCaretOffset() {
+  public int getCaretPosition() {
     return textWidget.getCaretPosition();
   }
 
+  @Override
+  public void setCaretPosition(int offset) {
+    // Does not exist in Text widget
+  }
+
+  @Override
+  public int getCharCount() {
+    return textWidget.getCharCount();
+  }
+
+  @Override
   public String getText() {
     return textWidget.getText();
   }
 
+  @Override
   public void setText(String text) {
     textWidget.setText(text);
   }
 
+  @Override
   public void insert(String strInsert) {
     textWidget.insert(strInsert);
   }
@@ -142,6 +147,7 @@ public class StyledTextComp extends TextComposite {
     textWidget.addListener(eventType, listener);
   }
 
+  @Override
   public void addModifyListener(ModifyListener lsMod) {
     textWidget.addModifyListener(lsMod);
   }
@@ -168,16 +174,29 @@ public class StyledTextComp extends TextComposite {
     textWidget.addMouseListener(mouseAdapter);
   }
 
+  @Override
+  public void addMenuDetectListener(MenuDetectListener listener) {
+    textWidget.addMenuDetectListener(listener);
+  }
+
+  @Override
   public int getSelectionCount() {
     return textWidget.getSelectionCount();
   }
 
-  public void setSelection(int arg0) {
-    textWidget.setSelection(arg0);
+  @Override
+  public void setSelection(int start) {
+    textWidget.setSelection(start);
   }
 
-  public void setSelection(int arg0, int arg1) {
-    textWidget.setSelection(arg0, arg1);
+  @Override
+  public void setSelection(int start, int end) {
+    textWidget.setSelection(start, end);
+  }
+
+  @Override
+  public boolean setFocus() {
+    return textWidget.setFocus();
   }
 
   @Override
@@ -197,150 +216,47 @@ public class StyledTextComp extends TextComposite {
     textWidget.setFont(fnt);
   }
 
-  private void buildingStyledTextMenu() {
-
-    final MenuItem cutItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
-    cutItem.setText(
-        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Cut")));
-    cutItem.setImage(
-        GuiResource.getInstance()
-            .getImage("ui/images/cut.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-    cutItem.addListener(SWT.Selection, e -> textWidget.cut());
-
-    final MenuItem copyItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
-    copyItem.setText(
-        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Copy")));
-    copyItem.setImage(
-        GuiResource.getInstance()
-            .getImage("ui/images/copy.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-    copyItem.addListener(SWT.Selection, e -> textWidget.copy());
-
-    final MenuItem pasteItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
-    pasteItem.setText(
-        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Paste")));
-    pasteItem.setImage(
-        GuiResource.getInstance()
-            .getImage("ui/images/paste.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-    pasteItem.addListener(SWT.Selection, e -> textWidget.paste());
-
-    new MenuItem(styledTextPopupmenu, SWT.SEPARATOR);
-
-    MenuItem selectAllItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
-    selectAllItem.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "WidgetDialog.Styled.SelectAll")));
-    selectAllItem.setImage(
-        GuiResource.getInstance()
-            .getImage(
-                "ui/images/select-all.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-    selectAllItem.addListener(SWT.Selection, e -> textWidget.selectAll());
-
-    textWidget.addMenuDetectListener(
-        e -> {
-          pasteItem.setEnabled(checkPaste());
-          if (textWidget.getSelectionCount() > 0) {
-            cutItem.setEnabled(true);
-            copyItem.setEnabled(true);
-          } else {
-            cutItem.setEnabled(false);
-            copyItem.setEnabled(false);
-          }
-        });
-    textWidget.setMenu(styledTextPopupmenu);
-  }
-
-  // Check if something is stored inside the Clipboard
-  private boolean checkPaste() {
-    try {
-      Clipboard clipboard = new Clipboard(xParent.getDisplay());
-      TextTransfer transfer = TextTransfer.getInstance();
-      String text = (String) clipboard.getContents(transfer);
-      if (text != null && text.length() > 0) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  public Image getImage() {
-    return image;
-  }
-
   public Text getTextWidget() {
     return textWidget;
   }
 
+  @Override
   public boolean isEditable() {
     return textWidget.getEditable();
   }
 
-  public void setEditable(boolean canEdit) {
-    textWidget.setEditable(canEdit);
+  @Override
+  public void setEditable(boolean editable) {
+    textWidget.setEditable(editable);
   }
 
   @Override
   public void setEnabled(boolean enabled) {
     textWidget.setEnabled(enabled);
-    if (Display.getDefault() != null) {
-      Color foreground =
-          Display.getDefault().getSystemColor(enabled ? SWT.COLOR_BLACK : SWT.COLOR_DARK_GRAY);
-      Color background =
-          Display.getDefault()
-              .getSystemColor(enabled ? SWT.COLOR_WHITE : SWT.COLOR_WIDGET_BACKGROUND);
-      GuiResource guiResource = GuiResource.getInstance();
-      textWidget.setForeground(
-          guiResource.getColor(foreground.getRed(), foreground.getGreen(), foreground.getBlue()));
-      textWidget.setBackground(
-          guiResource.getColor(background.getRed(), background.getGreen(), background.getBlue()));
-    }
   }
 
-  /**
-   * @return The caret line number, starting from 1.
-   */
-  public int getLineNumber() {
-    String text = textWidget.getText();
-    if (StringUtils.isEmpty(text)) {
-      return 1;
-    }
-
-    int rowNumber = 1;
-    int textPosition = textWidget.getCaretPosition();
-    while (textPosition > 0) {
-      if (text.charAt(textPosition - 1) == '\n') {
-        rowNumber++;
-      }
-      textPosition--;
-    }
-
-    return rowNumber;
+  @Override
+  public void cut() {
+    textWidget.cut();
   }
 
-  /**
-   * @return The caret column number, starting from 1.
-   */
-  public int getColumnNumber() {
-    String text = textWidget.getText();
-    if (StringUtils.isEmpty(text)) {
-      return 1;
-    }
-
-    int columnNumber = 1;
-    int textPosition = textWidget.getCaretPosition();
-    while (textPosition > 0
-        && text.charAt(textPosition - 1) != '\n'
-        && text.charAt(textPosition - 1) != '\r') {
-      textPosition--;
-      columnNumber++;
-    }
-
-    return columnNumber;
+  @Override
+  public void copy() {
+    textWidget.copy();
   }
 
-  public int getCaretPosition() {
-    return textWidget.getCaretPosition();
+  @Override
+  public void paste() {
+    textWidget.paste();
+  }
+
+  @Override
+  public void selectAll() {
+    textWidget.selectAll();
+  }
+
+  @Override
+  public void setMenu(Menu menu) {
+    textWidget.setMenu(menu);
   }
 }

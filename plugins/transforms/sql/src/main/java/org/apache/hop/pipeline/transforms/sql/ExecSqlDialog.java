@@ -267,7 +267,7 @@ public class ExecSqlDialog extends BaseTransformDialog {
     FormData fdlReadField = new FormData();
     fdlReadField.left = new FormAttachment(middle, margin);
     fdlReadField.right = new FormAttachment(middle * 2, -margin);
-    fdlReadField.bottom = new FormAttachment(wOk, -3 * margin);
+    fdlReadField.bottom = new FormAttachment(wOk, -margin);
     wlReadField.setLayoutData(fdlReadField);
     wReadField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wReadField);

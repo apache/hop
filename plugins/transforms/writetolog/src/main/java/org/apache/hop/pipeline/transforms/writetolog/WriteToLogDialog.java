@@ -210,7 +210,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
     FormData fdLogMessage = new FormData();
     fdLogMessage.left = new FormAttachment(middle, 0);
     fdLogMessage.top = new FormAttachment(wLimitRowsNumber, margin);
-    fdLogMessage.right = new FormAttachment(100, -2 * margin);
+    fdLogMessage.right = new FormAttachment(100, -margin);
     fdLogMessage.height = (int) (125 * props.getZoomFactor());
     wLogMessage.setLayoutData(fdLogMessage);
     wLogMessage.addListener(SWT.Modify, lsModify);

@@ -289,7 +289,7 @@ public class ActionSqlDialog extends ActionDialog {
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wlSql, margin);
-    fdSql.right = new FormAttachment(100, -20);
+    fdSql.right = new FormAttachment(100, -margin);
     fdSql.bottom = new FormAttachment(wlPosition, -margin);
     wSql.setLayoutData(fdSql);
     wSql.addListener(SWT.Modify, e -> setPosition());
