@@ -81,7 +81,8 @@ public class MetadataContextHandler implements IGuiContextHandler {
                 + " : "
                 + TranslateUtil.translate(hopMetadata.description(), metadataObjectClass),
             hopMetadata.image(),
-            (shiftClicked, controlClicked, parameters) -> metadataManager.newMetadataWithEditor());
+            (shiftClicked, controlClicked, parameters) ->
+                metadataManager.newMetadataWithEditor(""));
     newAction.setClassLoader(metadataObjectClass.getClassLoader());
     newAction.setCategory(CONST_METADATA);
     newAction.setCategoryOrder("2");

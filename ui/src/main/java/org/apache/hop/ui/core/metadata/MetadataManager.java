@@ -447,7 +447,7 @@ public class MetadataManager<T extends IHopMetadata> {
     }
   }
 
-  public T newMetadataWithEditor() {
+  public T newMetadataWithEditor(String virtualPath) {
     HopGui hopGui = HopGui.getInstance();
 
     try {
@@ -456,6 +456,7 @@ public class MetadataManager<T extends IHopMetadata> {
       //
       T element = managedClass.getDeclaredConstructor().newInstance();
       initializeElementVariables(element);
+      element.setVirtualPath(virtualPath);
 
       ExtensionPointHandler.callExtensionPoint(
           hopGui.getLog(),

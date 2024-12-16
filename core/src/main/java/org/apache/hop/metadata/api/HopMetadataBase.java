@@ -25,6 +25,9 @@ public class HopMetadataBase implements IHopMetadata {
   /** All metadata objects have a name to uniquely identify it. */
   @HopMetadataProperty protected String name;
 
+  /** All metadata objects can have a virtual path to organize them */
+  @HopMetadataProperty protected String virtualPath;
+
   /**
    * The metadata provider name is optionally used at runtime to figure out where the metadata came
    * from. Optionally used by plugins. It's volatile because it's never persisted.
@@ -36,6 +39,13 @@ public class HopMetadataBase implements IHopMetadata {
   public HopMetadataBase(String name) {
     this();
     this.name = name;
+    this.virtualPath = "";
+  }
+
+  public HopMetadataBase(String name, String virtualPath) {
+    this();
+    this.name = name;
+    this.virtualPath = virtualPath;
   }
 
   @Override
@@ -95,5 +105,42 @@ public class HopMetadataBase implements IHopMetadata {
   @Override
   public void setMetadataProviderName(String metadataProviderName) {
     this.metadataProviderName = metadataProviderName;
+  }
+
+  /**
+   * Get the virtual path set on a metadata item
+   *
+   * @return a String representing the virtual path
+   */
+  @Override
+  public String getVirtualPath() {
+    return virtualPath;
+  }
+
+  /**
+   * Set the virtual path on a metadata item
+   *
+   * @param virtualPath the virtual path to set to the metadata item
+   */
+  @Override
+  public void setVirtualPath(String virtualPath) {
+    this.virtualPath = virtualPath;
+  }
+
+  /**
+   * Return the virtual path and name of the object
+   *
+   * @return the virtual path and name of the object
+   */
+  @Override
+  public String getFullName() {
+    if (virtualPath == null || virtualPath.isEmpty()) {
+      return name;
+    }
+    if (virtualPath.endsWith("/")) {
+      return virtualPath + name;
+    } else {
+      return virtualPath + "/" + name;
+    }
   }
 }
