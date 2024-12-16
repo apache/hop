@@ -47,6 +47,7 @@
         <module>h2</module>
         <module>hive</module>
         <module>hypersonic</module>
+        <module>impala</module>
         <module>infobright</module>
         <module>informix</module>
         <module>ingres</module>
