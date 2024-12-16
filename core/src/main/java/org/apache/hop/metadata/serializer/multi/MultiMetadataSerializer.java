@@ -29,7 +29,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.metadata.serializer.FileSystemNode;
 
 public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMetadataSerializer<T> {
 
@@ -140,15 +139,6 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
       set.addAll(provider.getSerializer(managedClass).listObjectNames());
     }
     return new ArrayList<>(set);
-  }
-
-  @Override
-  public FileSystemNode getFileSystemTree() throws HopException {
-    FileSystemNode root = new FileSystemNode("root", "/", FileSystemNode.Type.FOLDER, null);
-    for (IHopMetadataProvider provider : multiProvider.getProviders()) {
-      root.addChild(provider.getSerializer(managedClass).getFileSystemTree());
-    }
-    return root;
   }
 
   @Override

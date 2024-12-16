@@ -22,8 +22,6 @@ import java.util.Objects;
 
 public class HopMetadataBase implements IHopMetadata {
 
-  @HopMetadataProperty protected String path;
-
   /** All metadata objects have a name to uniquely identify it. */
   @HopMetadataProperty protected String name;
 
@@ -38,13 +36,6 @@ public class HopMetadataBase implements IHopMetadata {
   public HopMetadataBase(String name) {
     this();
     this.name = name;
-    this.path = "";
-  }
-
-  public HopMetadataBase(String name, String path) {
-    this();
-    this.name = name;
-    this.path = path;
   }
 
   @Override
@@ -104,28 +95,5 @@ public class HopMetadataBase implements IHopMetadata {
   @Override
   public void setMetadataProviderName(String metadataProviderName) {
     this.metadataProviderName = metadataProviderName;
-  }
-
-  @Override
-  public String getPath() {
-    return path;
-  }
-
-  @Override
-  public void setPath(String path) {
-    this.path = path;
-  }
-
-  @Override
-  public String getFullName() {
-    if (path == null || path.isBlank()) {
-      return name;
-    } else {
-      if (path.endsWith("/")) {
-        return path + name;
-      } else {
-        return path + "/" + name;
-      }
-    }
   }
 }

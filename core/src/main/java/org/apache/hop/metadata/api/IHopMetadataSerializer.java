@@ -19,7 +19,6 @@ package org.apache.hop.metadata.api;
 
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.metadata.serializer.FileSystemNode;
 
 /**
  * This metadata interface describes how an object T can be serialized and analyzed.
@@ -67,11 +66,6 @@ public interface IHopMetadataSerializer<T extends IHopMetadata> {
    * @throws HopException
    */
   List<String> listObjectNames() throws HopException;
-
-  default FileSystemNode getFileSystemTree() throws HopException {
-    throw new UnsupportedOperationException(
-        "listObjectNames(String folderName, Boolean recursive) is not supported by this metadata serializer");
-  }
 
   /**
    * See if an object with the given name exists.

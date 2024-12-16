@@ -38,8 +38,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::SchemaDefinition.Description",
     image = "ui/images/folder.svg",
     documentationUrl = "/metadata-types/static-schema-definition.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.STATIC_SCHEMA_DEFINITION,
-    subfoldersEnabled = "true")
+    hopMetadataPropertyType = HopMetadataPropertyType.STATIC_SCHEMA_DEFINITION)
 public class SchemaDefinition extends HopMetadataBase implements Serializable, IHopMetadata {
 
   private static final Class<?> PKG = SchemaDefinition.class;

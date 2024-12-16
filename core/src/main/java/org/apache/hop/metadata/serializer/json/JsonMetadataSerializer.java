@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -40,7 +39,6 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.metadata.serializer.FileSystemNode;
 import org.json.simple.JSONObject;
 
 /**
@@ -142,11 +140,11 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
 
   @Override
   public void save(T t) throws HopException {
-    if (StringUtils.isEmpty(t.getFullName())) {
+    if (StringUtils.isEmpty(t.getName())) {
       throw new HopException("Error: To save a metadata object it needs to have a name");
     }
 
-    String filename = calculateFilename(t);
+    String filename = calculateFilename(t.getName());
     try {
 
       JSONObject jObject = parser.getJsonObject(t);
@@ -172,26 +170,8 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     }
   }
 
-  public String calculateFilename(T t) {
-    String prefix = t.getPath() == null ? baseFolder : t.getPath();
-    if (!prefix.endsWith("/")) {
-      prefix += "/";
-    }
-    return prefix + t.getName() + ".json";
-  }
-
   public String calculateFilename(String name) {
-    if (name.startsWith(baseFolder)) {
-      return name;
-    }
     return baseFolder + "/" + name + ".json";
-  }
-
-  public String calculateFolderName(String name) {
-    if (name.startsWith(baseFolder)) {
-      return name;
-    }
-    return baseFolder + "/" + name;
   }
 
   @Override
@@ -200,35 +180,19 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
       throw new HopException(
           "Error: you need to specify the name of the metadata object to delete");
     }
-    boolean exists = exists(name);
-    if (!exists) {
+    if (!exists(name)) {
       throw new HopException("Error: Object '" + name + "' doesn't exist");
     }
-
-    T t = null;
-    String objectName = null;
-    if (existsFolder(name)) {
-      objectName = calculateFolderName(name);
-    }
-    if (existsFile(name)) {
-      t = load(name);
-      objectName = calculateFilename(name);
-    }
-
+    T t = load(name);
+    String filename = calculateFilename(name);
     try {
-      var object = HopVfs.getFileObject(objectName);
-      boolean deleted = false;
-      if (object.isFolder()) {
-        deleted = object.deleteAll() > 0;
-      } else {
-        deleted = object.delete();
-      }
+      boolean deleted = HopVfs.getFileObject(filename).delete();
       if (!deleted) {
         throw new HopException(
-            "Error: Object '" + name + "' could not be deleted, name : " + objectName);
+            "Error: Object '" + name + "' could not be deleted, filename : " + filename);
       }
     } catch (FileSystemException e) {
-      throw new HopException("Error deleting Object '" + name + "' with name : " + objectName);
+      throw new HopException("Error deleting Object '" + name + "' with filename : " + filename);
     }
     return t;
   }
@@ -251,76 +215,8 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   }
 
   @Override
-  public FileSystemNode getFileSystemTree() throws HopException {
-    FileObject currentItem = HopVfs.getFileObject(baseFolder);
-    FileSystemNode root =
-        new FileSystemNode(
-            currentItem.getName().getBaseName(),
-            currentItem.getName().getPath(),
-            FileSystemNode.Type.FOLDER,
-            null);
-    return getFileSystemTree(root);
-  }
-
-  private FileSystemNode getFileSystemTree(FileSystemNode parent) throws HopException {
-    FileObject currentItem = HopVfs.getFileObject(parent.getPath());
-    try {
-      Arrays.asList(currentItem.getChildren()).stream()
-          .forEach(
-              f -> {
-                try {
-                  if (f.isFolder()) {
-                    FileSystemNode currentFolder =
-                        new FileSystemNode(
-                            f.getName().getBaseName(),
-                            f.getName().getPath(),
-                            FileSystemNode.Type.FOLDER,
-                            parent);
-                    getFileSystemTree(currentFolder); // Recursive call for the folder
-                  } else {
-                    if (f.getName().getExtension().equals("json")) {
-                      FileSystemNode currentFile =
-                          new FileSystemNode(
-                              f.getName().getBaseName().replaceAll("\\.json$", ""),
-                              f.getName().getPath(),
-                              FileSystemNode.Type.FILE,
-                              parent);
-                    }
-                  }
-                } catch (FileSystemException | HopException e) {
-                  throw new RuntimeException(e);
-                }
-              });
-    } catch (Exception e) {
-      throw new HopException("Error searching for JSON files", e);
-    }
-    return parent;
-  }
-
-  //    try {
-  //      List<FileObject> jsonFiles = HopVfs.findFiles(folder, "json", false);
-  //      List<String> names = new ArrayList<>();
-  //      for (FileObject jsonFile : jsonFiles) {
-  //        String baseName = jsonFile.getName().getBaseName();
-  //        names.add(baseName.replaceAll("\\.json$", ""));
-  //      }
-  //      return names;
-  //    } catch (Exception e) {
-  //      throw new HopException("Error searching for JSON files", e);
-  //    }
-  @Override
   public boolean exists(String name) throws HopException {
-    return existsFolder(name) || existsFile(name);
-  }
-
-  private boolean existsFile(String name) throws HopException {
-
-    return !existsFolder(name)
-        && (HopVfs.fileExists(name) || HopVfs.fileExists(calculateFilename(name)));
-  }
-
-  private boolean existsFolder(String name) throws HopException {
-    return HopVfs.fileExists(name) || HopVfs.fileExists(calculateFolderName(name));
+    return HopVfs.fileExists(calculateFilename(name));
   }
 
   /**
