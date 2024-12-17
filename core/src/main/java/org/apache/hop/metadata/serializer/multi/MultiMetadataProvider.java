@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -101,10 +102,12 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
               + HopMetadata.class.getName());
     }
 
+    String description = TranslateUtil.translate(hopMetadata.name(), managedClass);
+
     // Return the serializer for all providers
     // This makes sure we can list all objects across the list and so on...
     //
-    return new MultiMetadataSerializer<>(this, managedClass, variables, hopMetadata.name());
+    return new MultiMetadataSerializer<>(this, managedClass, variables, description);
   }
 
   @Override

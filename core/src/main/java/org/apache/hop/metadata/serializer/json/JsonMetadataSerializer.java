@@ -35,7 +35,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -69,11 +68,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
 
   @Override
   public String getDescription() {
-    HopMetadata hopMetadata = managedClass.getAnnotation(HopMetadata.class);
-    if (hopMetadata != null) {
-      return hopMetadata.description();
-    }
-    return null;
+    return description;
   }
 
   @Override
