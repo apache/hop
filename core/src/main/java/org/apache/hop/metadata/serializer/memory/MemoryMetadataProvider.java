@@ -23,6 +23,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -62,7 +63,7 @@ public class MemoryMetadataProvider extends BaseMetadataProvider implements IHop
       HopMetadata hopMetadata = managedClass.getAnnotation(HopMetadata.class);
       String description = managedClass.getSimpleName();
       if (hopMetadata != null) {
-        description = hopMetadata.name();
+        description = TranslateUtil.translate(hopMetadata.name(), managedClass);
       }
       serializer =
           (IHopMetadataSerializer<IHopMetadata>)

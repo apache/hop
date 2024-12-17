@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.search;
 
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 
@@ -28,7 +29,7 @@ public abstract class BaseMetadataSearchableAnalyser<T extends IHopMetadata>
   protected String getMetadataComponent() {
     HopMetadata annotation = getSearchableClass().getAnnotation(HopMetadata.class);
     if (annotation != null) {
-      return annotation.name();
+      return TranslateUtil.translate(annotation.name(), getSearchableClass());
     }
     return null;
   }
