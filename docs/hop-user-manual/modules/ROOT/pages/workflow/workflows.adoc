@@ -20,7 +20,7 @@ under the License.
 
 = Workflows
 
-=== Workflow overview
+== Workflow overview
 
 Workflows are one of the core building blocks in Apache Hop. Where pipelines do the heavy data lifting, workflows take care of the orchestration work: prepare the environment, fetch remote files, perform error handling and executing child workflows and pipelines.
 
@@ -35,7 +35,7 @@ Even though there is some visual resemblance, workflows and pipelines operate ve
 * Workflow actions do not pass data over hops. Each workflow action has a `success` or `failure` exit status. This exit status is used to choose the routing through the workflow.
 * Hops between actions in a workflow have a status: depending on the exit status of the previous action, a workflow hop can follow the success (green), failure (orange) or unconditional (black) hop. An unconditional hop ignores the exit status of the previous action and is followed whether the previous action failed or succeeded.
 
-=== Example workflow walk-through
+== Example workflow walk-through
 
 Like all workflows, the example workflow shown below starts with the `start` action.
 
@@ -51,7 +51,7 @@ If the temporary files are removed successfully, we move on to the "success" act
 
 image:hop-gui/workflow/basic-workflow.png[Workflows - basic workflows, width="65%"]
 
-=== Next steps
+== Next steps
 
 The following pages take you deeper into the process of building and running workflows:
 

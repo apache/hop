@@ -24,7 +24,7 @@ import org.apache.hop.core.row.IValueMeta;
     name = "Serializable",
     description = "Serializable",
     image = "images/binary.svg")
-public class ValueMetaSerializable extends ValueMetaBase implements IValueMeta {
+public class ValueMetaSerializable extends ValueMetaBase {
 
   public ValueMetaSerializable() {
     this(null);

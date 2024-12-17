@@ -191,6 +191,9 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
     LocalPipelineEngine loggingPipeline =
         new LocalPipelineEngine(loggingPipelineMeta, variables, workflow);
 
+    // Linked logged workflow as parent
+    loggingPipeline.setParentWorkflow(workflow);
+
     // Flag it as a logging pipeline so we don't log ourselves...
     //
     loggingPipeline.getExtensionDataMap().put(PipelineStartLoggingXp.PIPELINE_LOGGING_FLAG, "Y");
