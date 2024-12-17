@@ -217,7 +217,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
     wlFields.setLayoutData(fdlFields);
 
     final int fieldsCols = 4;
-    final int fieldsRows = input.getSelectFields().length;
+    final int fieldsRows = input.getSelectOption().getSelectFields().size();
 
     ColumnInfo[] colinf = new ColumnInfo[fieldsCols];
     colinf[0] =
@@ -318,7 +318,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
     wlRemove.setLayoutData(fdlRemove);
 
     final int RemoveCols = 1;
-    final int RemoveRows = input.getDeleteName().length;
+    final int RemoveRows = input.getSelectOption().getDeleteName().size();
 
     ColumnInfo[] colrem = new ColumnInfo[RemoveCols];
     colrem[0] =
@@ -393,7 +393,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
     fdlMeta.top = new FormAttachment(0, 0);
     wlMeta.setLayoutData(fdlMeta);
 
-    final int MetaRows = input.getMeta().length;
+    final int MetaRows = input.getSelectOption().getMeta().size();
 
     ColumnInfo[] colmeta =
         new ColumnInfo[] {
@@ -585,44 +585,37 @@ public class SelectValuesDialog extends BaseTransformDialog {
     /*
      * Select fields
      */
-    if (input.getSelectFields() != null && input.getSelectFields().length > 0) {
-      for (int i = 0; i < input.getSelectFields().length; i++) {
+    if (input.getSelectOption().getSelectFields() != null
+        && !input.getSelectOption().getSelectFields().isEmpty()) {
+      for (int i = 0; i < input.getSelectOption().getSelectFields().size(); i++) {
+        SelectField selectField = input.getSelectOption().getSelectFields().get(i);
         TableItem item = wFields.table.getItem(i);
-        if (input.getSelectFields()[i].getName() != null) {
-          item.setText(1, input.getSelectFields()[i].getName());
+        if (selectField.getName() != null) {
+          item.setText(1, selectField.getName());
         }
-        if (input.getSelectFields()[i].getRename() != null
-            && !input
-                .getSelectFields()[i]
-                .getRename()
-                .equals(input.getSelectFields()[i].getName())) {
-          item.setText(2, input.getSelectFields()[i].getRename());
+        if (selectField.getRename() != null
+            && !selectField.getRename().equals(selectField.getName())) {
+          item.setText(2, selectField.getRename());
         }
-        item.setText(
-            3,
-            input.getSelectFields()[i].getLength() < 0
-                ? ""
-                : "" + input.getSelectFields()[i].getLength());
-        item.setText(
-            4,
-            input.getSelectFields()[i].getPrecision() < 0
-                ? ""
-                : "" + input.getSelectFields()[i].getPrecision());
+        item.setText(3, selectField.getLength() < 0 ? "" : "" + selectField.getLength());
+        item.setText(4, selectField.getPrecision() < 0 ? "" : "" + selectField.getPrecision());
       }
       wFields.setRowNums();
       wFields.optWidth(true);
       wTabFolder.setSelection(0);
     }
-    wUnspecified.setSelection(input.isSelectingAndSortingUnspecifiedFields());
+    wUnspecified.setSelection(input.getSelectOption().isSelectingAndSortingUnspecifiedFields());
 
     /*
      * Remove certain fields...
      */
-    if (input.getDeleteName() != null && input.getDeleteName().length > 0) {
-      for (int i = 0; i < input.getDeleteName().length; i++) {
+    if (input.getSelectOption().getDeleteName() != null
+        && input.getSelectOption().getDeleteName().size() > 0) {
+      for (int i = 0; i < input.getSelectOption().getDeleteName().size(); i++) {
+        DeleteField deleteName = input.getSelectOption().getDeleteName().get(i);
         TableItem item = wRemove.table.getItem(i);
-        if (input.getDeleteName()[i] != null) {
-          item.setText(1, input.getDeleteName()[i]);
+        if (deleteName != null) {
+          item.setText(1, deleteName.getName());
         }
       }
       wRemove.setRowNums();
@@ -633,9 +626,9 @@ public class SelectValuesDialog extends BaseTransformDialog {
     /*
      * Change the meta-data of certain fields
      */
-    if (!Utils.isEmpty(input.getMeta())) {
-      for (int i = 0; i < input.getMeta().length; i++) {
-        SelectMetadataChange change = input.getMeta()[i];
+    if (!Utils.isEmpty(input.getSelectOption().getMeta())) {
+      for (int i = 0; i < input.getSelectOption().getMeta().size(); i++) {
+        SelectMetadataChange change = input.getSelectOption().getMeta().get(i);
 
         TableItem item = wMeta.table.getItem(i);
         int index = 1;
@@ -645,14 +638,10 @@ public class SelectValuesDialog extends BaseTransformDialog {
         } else {
           index++;
         }
-        item.setText(index++, ValueMetaFactory.getValueMetaName(change.getType()));
+        item.setText(index++, change.getType() != null ? change.getType() : "-");
         item.setText(index++, change.getLength() < 0 ? "" : "" + change.getLength());
         item.setText(index++, change.getPrecision() < 0 ? "" : "" + change.getPrecision());
-        item.setText(
-            index++,
-            change.getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL
-                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
-                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
+        item.setText(index++, change.getStorageType());
         item.setText(index++, Const.NVL(change.getConversionMask(), ""));
         item.setText(
             index++,
@@ -717,36 +706,39 @@ public class SelectValuesDialog extends BaseTransformDialog {
     int nrremove = wRemove.nrNonEmpty();
     int nrmeta = wMeta.nrNonEmpty();
 
-    input.allocate(nrFields, nrremove, nrmeta);
-
+    resetSelectOptions();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      input.getSelectFields()[i].setName(item.getText(1));
-      input.getSelectFields()[i].setRename(item.getText(2));
-      if (input.getSelectFields()[i].getRename() == null
-          || input.getSelectFields()[i].getName().length() == 0) {
-        input.getSelectFields()[i].setRename(input.getSelectFields()[i].getName());
-      }
-      input.getSelectFields()[i].setLength(Const.toInt(item.getText(3), -2));
-      input.getSelectFields()[i].setPrecision(Const.toInt(item.getText(4), -2));
 
-      if (input.getSelectFields()[i].getLength() < -2) {
-        input.getSelectFields()[i].setLength(-2);
+      var currentSelectFieldItem = new SelectField();
+      currentSelectFieldItem.setName(item.getText(1));
+      currentSelectFieldItem.setRename(item.getText(2));
+      if (currentSelectFieldItem.getRename() == null
+          || currentSelectFieldItem.getName().length() == 0) {
+        currentSelectFieldItem.setRename(currentSelectFieldItem.getName());
       }
-      if (input.getSelectFields()[i].getPrecision() < -2) {
-        input.getSelectFields()[i].setPrecision(-2);
+      currentSelectFieldItem.setLength(Const.toInt(item.getText(3), -2));
+      currentSelectFieldItem.setPrecision(Const.toInt(item.getText(4), -2));
+
+      if (currentSelectFieldItem.getLength() < -2) {
+        currentSelectFieldItem.setLength(-2);
       }
+      if (currentSelectFieldItem.getPrecision() < -2) {
+        currentSelectFieldItem.setPrecision(-2);
+      }
+      input.getSelectOption().getSelectFields().add(currentSelectFieldItem);
     }
-    input.setSelectingAndSortingUnspecifiedFields(wUnspecified.getSelection());
+    input.getSelectOption().setSelectingAndSortingUnspecifiedFields(wUnspecified.getSelection());
 
     for (int i = 0; i < nrremove; i++) {
       TableItem item = wRemove.getNonEmpty(i);
-      input.getDeleteName()[i] = item.getText(1);
+      var currentItemToDelete = new DeleteField();
+      currentItemToDelete.setName(item.getText(1));
+      input.getSelectOption().getDeleteName().add(currentItemToDelete);
     }
 
     for (int i = 0; i < nrmeta; i++) {
       SelectMetadataChange change = new SelectMetadataChange();
-      input.getMeta()[i] = change;
 
       TableItem item = wMeta.getNonEmpty(i);
 
@@ -756,7 +748,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       if (Utils.isEmpty(change.getRename())) {
         change.setRename(change.getName());
       }
-      change.setType(ValueMetaFactory.getIdForValueMeta(item.getText(index++)));
+      change.setType(item.getText(index++));
 
       change.setLength(Const.toInt(item.getText(index++), -2));
       change.setPrecision(Const.toInt(item.getText(index++), -2));
@@ -769,7 +761,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       }
       if (BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
           .equalsIgnoreCase(item.getText(index++))) {
-        change.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+        change.setStorageType(ValueMetaFactory.getValueMetaName(IValueMeta.STORAGE_TYPE_NORMAL));
       }
 
       change.setConversionMask(item.getText(index++));
@@ -790,8 +782,16 @@ public class SelectValuesDialog extends BaseTransformDialog {
       change.setDecimalSymbol(item.getText(index++));
       change.setGroupingSymbol(item.getText(index++));
       change.setCurrencySymbol(item.getText(index++));
+
+      input.getSelectOption().getMeta().add(change);
     }
     dispose();
+  }
+
+  private void resetSelectOptions() {
+    input.getSelectOption().getDeleteName().clear();
+    input.getSelectOption().getSelectFields().clear();
+    input.getSelectOption().getMeta().clear();
   }
 
   private void get() {

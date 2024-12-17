@@ -1,0 +1,101 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Track",
+          "data_set_field": "Track"
+        },
+        {
+          "transform_field": "Artist",
+          "data_set_field": "Artist"
+        },
+        {
+          "transform_field": "Album",
+          "data_set_field": "Album"
+        },
+        {
+          "transform_field": "Year",
+          "data_set_field": "Year"
+        },
+        {
+          "transform_field": "Time_Signature",
+          "data_set_field": "Time_Signature"
+        },
+        {
+          "transform_field": "Danceability",
+          "data_set_field": "Danceability"
+        },
+        {
+          "transform_field": "Popularity",
+          "data_set_field": "Popularity"
+        }
+      ],
+      "field_order": [
+        "Track",
+        "Artist",
+        "Album",
+        "Year",
+        "Time_Signature",
+        "Danceability",
+        "Popularity"
+      ],
+      "data_set_name": "golden-select-values",
+      "transform_name": "Dummy (do nothing)"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Track",
+          "data_set_field": "Track"
+        },
+        {
+          "transform_field": "Artist",
+          "data_set_field": "Artist"
+        },
+        {
+          "transform_field": "Album",
+          "data_set_field": "Album"
+        },
+        {
+          "transform_field": "Year",
+          "data_set_field": "Year"
+        },
+        {
+          "transform_field": "Time_Signature",
+          "data_set_field": "Time_Signature"
+        },
+        {
+          "transform_field": "Danceability",
+          "data_set_field": "Danceability"
+        },
+        {
+          "transform_field": "Popularity",
+          "data_set_field": "Popularity"
+        }
+      ],
+      "field_order": [
+        "Track",
+        "Artist",
+        "Album",
+        "Year",
+        "Time_Signature",
+        "Danceability",
+        "Popularity"
+      ],
+      "data_set_name": "golden-select-values",
+      "transform_name": "Assert"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0074-select-values-remove UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0074-select-values-remove.hpl",
+  "test_type": "UNIT_TEST"
+}
