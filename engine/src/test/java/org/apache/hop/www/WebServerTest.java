@@ -17,6 +17,7 @@
 package org.apache.hop.www;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,15 +39,17 @@ public class WebServerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   /** */
-  private static final String EMPTY_STRING = "";
+  private static final String PUBLIC_CONNECTOR_NAME = "webserver";
 
-  private static final boolean SHOULD_JOIN = false;
+  private static final String SHUTDOWN_CONNECTOR_NAME = "shutdown";
+
+  private static final String EMPTY_STRING = "";
 
   private static final String HOST_NAME = "localhost";
 
   private static final int PORT = 8099;
 
-  private static final int SHUTDOEN_PORT = 8098;
+  private static final int SHUTDOWN_PORT = 8098;
 
   private static final String ACCEPTORS = "5";
 
@@ -58,14 +61,12 @@ public class WebServerTest {
 
   private static final int EXPECTED_RES_MAX_IDLE_TIME = 200;
 
-  private static final int EXPECTED_CONNECTORS_SIZE = 1;
+  private static final int EXPECTED_CONNECTORS_SIZE = 2;
 
-  private WebServer webServer;
-  private WebServer webServerNg;
-  private PipelineMap trMapMock = mock(PipelineMap.class);
-  private HopServerConfig sServerConfMock = mock(HopServerConfig.class);
-  private HopServerMeta sServer = mock(HopServerMeta.class);
-  private WorkflowMap jbMapMock = mock(WorkflowMap.class);
+  private PipelineMap pipelineMapMock = mock(PipelineMap.class);
+  private HopServerConfig serverConfigMock = mock(HopServerConfig.class);
+  private HopServerMeta serverMeta = mock(HopServerMeta.class);
+  private WorkflowMap workflowMapMock = mock(WorkflowMap.class);
   private ILogChannel logMock = mock(ILogChannel.class);
 
   @Before
@@ -74,87 +75,110 @@ public class WebServerTest {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE);
     System.setProperty(Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME, RES_MAX_IDLE_TIME);
 
-    when(sServerConfMock.getHopServer()).thenReturn(sServer);
-    when(trMapMock.getHopServerConfig()).thenReturn(sServerConfMock);
-    when(sServer.getPassword()).thenReturn("cluster");
-    when(sServer.getUsername()).thenReturn("cluster");
-    webServer =
-        new WebServer(
-            logMock, trMapMock, jbMapMock, HOST_NAME, PORT, SHUTDOEN_PORT, SHOULD_JOIN, null);
+    when(serverConfigMock.getHopServer()).thenReturn(serverMeta);
+    when(pipelineMapMock.getHopServerConfig()).thenReturn(serverConfigMock);
+    when(serverMeta.getPassword()).thenReturn("cluster");
+    when(serverMeta.getUsername()).thenReturn("cluster");
   }
 
   @After
   public void tearDown() {
-    webServer.setWebServerShutdownHandler(null); // disable system.exit
-    webServer.stopServer();
-
     System.getProperties().remove(Const.HOP_SERVER_JETTY_ACCEPTORS);
     System.getProperties().remove(Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE);
     System.getProperties().remove(Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME);
   }
 
   @Test
-  public void testJettyOption_AcceptQueueSizeSetUp() {
-    assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServer).size());
-    for (ServerConnector sc : getSocketConnectors(webServer)) {
-      assertEquals(EXPECTED_ACCEPT_QUEUE_SIZE, sc.getAcceptQueueSize());
-    }
+  public void testSocketConnectors() throws Exception {
+    WebServer webserver =
+        new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, SHUTDOWN_PORT);
+    webserver.start();
+    assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webserver).size());
+    webserver.stop();
   }
 
   @Test
-  public void testJettyOption_LowResourceMaxIdleTimeSetUp() {
-    assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServer).size());
-    for (ServerConnector sc : getSocketConnectors(webServer)) {
-      assertEquals(EXPECTED_RES_MAX_IDLE_TIME, sc.getIdleTimeout());
+  public void testShutdownDisabled() throws Exception {
+    WebServer webserver =
+        new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, -1);
+    webserver.start();
+    assertEquals(1, getSocketConnectors(webserver).size());
+    webserver.stop();
+  }
+
+  @Test
+  public void testJettyOption() throws Exception {
+    WebServer webserver =
+        new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, -1);
+    webserver.start();
+
+    // AcceptQueueSizeSetUp
+    for (ServerConnector connector : getSocketConnectors(webserver, PUBLIC_CONNECTOR_NAME)) {
+      assertEquals(EXPECTED_ACCEPT_QUEUE_SIZE, connector.getAcceptQueueSize());
     }
+    for (ServerConnector connector : getSocketConnectors(webserver, SHUTDOWN_CONNECTOR_NAME)) {
+      assertEquals(1, connector.getAcceptQueueSize());
+    }
+
+    // LowResourceMaxIdleTimeSetUp
+    for (ServerConnector connector : getSocketConnectors(webserver, PUBLIC_CONNECTOR_NAME)) {
+      assertEquals(EXPECTED_RES_MAX_IDLE_TIME, connector.getIdleTimeout());
+    }
+
+    webserver.stop();
   }
 
   @Test
   public void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsInvalidValue()
       throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, "TEST");
+    WebServer webserver = null;
     try {
-      webServerNg =
-          new WebServer(
-              logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHUTDOEN_PORT, SHOULD_JOIN, null);
+      webserver =
+          new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, SHUTDOWN_PORT);
+      webserver.start();
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
-    assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServerNg).size());
-    for (ServerConnector sc : getSocketConnectors(webServerNg)) {
-      assertEquals(sc.getAcceptors(), sc.getAcceptors());
-    }
-    webServerNg.setWebServerShutdownHandler(null); // disable system.exit
-    webServerNg.stopServer();
+    assertTrue(webserver.getServer().isStarted());
+    webserver.stop();
   }
 
   @Test
   public void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsEmpty()
       throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, EMPTY_STRING);
+    WebServer webserver = null;
     try {
-      webServerNg =
-          new WebServer(
-              logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHUTDOEN_PORT, SHOULD_JOIN, null);
+      webserver =
+          new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, SHUTDOWN_PORT);
+      webserver.start();
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
-    assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServerNg).size());
-    for (ServerConnector sc : getSocketConnectors(webServerNg)) {
-      assertEquals(sc.getAcceptors(), sc.getAcceptors());
-    }
-    webServerNg.setWebServerShutdownHandler(null); // disable system.exit
-    webServerNg.stopServer();
+    assertTrue(webserver.getServer().isStarted());
+    webserver.stop();
   }
 
-  private List<ServerConnector> getSocketConnectors(WebServer wServer) {
-    List<ServerConnector> sConnectors = new ArrayList<>();
-    Connector[] connectors = wServer.getServer().getConnectors();
-    for (Connector cn : connectors) {
-      if (cn instanceof ServerConnector) {
-        sConnectors.add((ServerConnector) cn);
+  private List<ServerConnector> getSocketConnectors(WebServer webserver, String name) {
+    List<ServerConnector> connectors = new ArrayList<>();
+    for (Connector connector : webserver.getServer().getConnectors()) {
+      if (connector instanceof ServerConnector serverConnector) {
+        if (name.equals(serverConnector.getName())) {
+          connectors.add(serverConnector);
+        }
       }
     }
-    return sConnectors;
+    return connectors;
+  }
+
+  private List<ServerConnector> getSocketConnectors(WebServer webserver) {
+    List<ServerConnector> connectors = new ArrayList<>();
+    for (Connector connector : webserver.getServer().getConnectors()) {
+      if (connector instanceof ServerConnector serverConnector) {
+        connectors.add(serverConnector);
+      }
+    }
+    return connectors;
   }
 }
