@@ -284,7 +284,7 @@ public class TableInputDialog extends BaseTransformDialog {
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wbTable, margin);
-    fdSql.right = new FormAttachment(100, -2 * margin);
+    fdSql.right = new FormAttachment(100, -margin);
     fdSql.bottom = new FormAttachment(wlPosition, -margin);
     wSql.setLayoutData(fdSql);
     wSql.addModifyListener(

@@ -24,8 +24,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.JavaScriptStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -52,7 +55,7 @@ public class ActionEvalDialog extends ActionDialog {
 
   private Text wName;
 
-  private StyledTextComp wScript;
+  private TextComposite wScript;
 
   private Label wlPosition;
 
@@ -133,16 +136,30 @@ public class ActionEvalDialog extends ActionDialog {
     fdlScript.left = new FormAttachment(0, 0);
     fdlScript.top = new FormAttachment(wName, margin);
     wlScript.setLayoutData(fdlScript);
-    wScript =
-        new StyledTextComp(
-            action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      wScript =
+          new StyledTextComp(
+              action,
+              shell,
+              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+              false);
+    } else {
+      wScript =
+          new JavaScriptStyledTextComp(
+              action,
+              shell,
+              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+              false);
+      wScript.addLineStyleListener();
+    }
     wScript.setText(BaseMessages.getString(PKG, "ActionEval.Script.Default"));
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
     wScript.addModifyListener(lsMod);
     FormData fdScript = new FormData();
     fdScript.left = new FormAttachment(0, 0);
     fdScript.top = new FormAttachment(wlScript, margin);
-    fdScript.right = new FormAttachment(100, -10);
+    fdScript.right = new FormAttachment(100, 0);
     fdScript.bottom = new FormAttachment(wlPosition, -margin);
     wScript.setLayoutData(fdScript);
     wScript.addModifyListener(arg0 -> setPosition());

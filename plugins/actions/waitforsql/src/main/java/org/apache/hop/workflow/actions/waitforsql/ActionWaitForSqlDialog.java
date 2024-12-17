@@ -539,7 +539,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wbSqlTable, margin);
-    fdSql.right = new FormAttachment(100, -10);
+    fdSql.right = new FormAttachment(100, 0);
     fdSql.bottom = new FormAttachment(wlPosition, -margin);
     wSql.setLayoutData(fdSql);
 

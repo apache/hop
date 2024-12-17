@@ -40,7 +40,6 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.ControlSpaceKeyAdapter;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
@@ -744,7 +743,8 @@ public class LdapInputDialog extends BaseTransformDialog {
         new StyledTextComp(
             variables,
             wSearchGroup,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            true);
     wFilterString.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.FilterString.Tooltip"));
     PropsUi.setLook(wFilterString);
@@ -755,7 +755,6 @@ public class LdapInputDialog extends BaseTransformDialog {
     fdFilterString.right = new FormAttachment(100, -2 * margin);
     fdFilterString.bottom = new FormAttachment(100, -margin);
     wFilterString.setLayoutData(fdFilterString);
-    wFilterString.addKeyListener(new ControlSpaceKeyAdapter(variables, wFilterString));
 
     FormData fdSearchGroup = new FormData();
     fdSearchGroup.left = new FormAttachment(0, margin);
