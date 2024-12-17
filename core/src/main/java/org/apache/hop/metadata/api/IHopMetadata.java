@@ -53,9 +53,22 @@ public interface IHopMetadata {
    */
   void setMetadataProviderName(String metadataProviderName);
 
-  String getPath();
+  /**
+   * @return the virtual path for organizing metadata items
+   */
+  String getVirtualPath();
 
-  void setPath(String path);
+  /**
+   * Set the virtual path on a metadata item
+   *
+   * @param virtualPath the virtual path to set to the metadata item
+   */
+  void setVirtualPath(String virtualPath);
 
+  /**
+   * Get the complete name of the object (virtual path + name)
+   *
+   * @return the full name of the object
+   */
   String getFullName();
 }

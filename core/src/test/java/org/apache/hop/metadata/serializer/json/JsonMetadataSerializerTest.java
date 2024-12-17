@@ -41,11 +41,10 @@ public class JsonMetadataSerializerTest extends TestCase {
 
   @Override
   protected void setUp() throws Exception {
-    String tmpDir = System.getProperty("java.io.tmpdir");
-    if (!tmpDir.endsWith(Const.FILE_SEPARATOR)) {
-      tmpDir += Const.FILE_SEPARATOR;
-    }
-    String baseFolder = tmpDir + "metadata"; // UUID.randomUUID();
+    String baseFolder =
+        System.getProperty("java.io.tmpdir")
+            + Const.FILE_SEPARATOR
+            + "metadata"; // UUID.randomUUID();
     metadataProvider =
         new JsonMetadataProvider(
             new HopTwoWayPasswordEncoder(), baseFolder, Variables.getADefaultVariableSpace());
