@@ -1,0 +1,83 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "filename",
+          "data_set_field": "filename"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "lastname",
+          "data_set_field": "lastname"
+        },
+        {
+          "transform_field": "firstname",
+          "data_set_field": "firstname"
+        },
+        {
+          "transform_field": "zip",
+          "data_set_field": "zip"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "stateDesc",
+          "data_set_field": "stateDesc"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        }
+      ],
+      "field_order": [
+        "filename",
+        "id",
+        "lastname",
+        "firstname",
+        "zip",
+        "city",
+        "birthdate",
+        "street",
+        "housenr",
+        "stateCode",
+        "stateDesc",
+        "count"
+      ],
+      "data_set_name": "golden-parquet-input-no-files",
+      "transform_name": "Output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0029-parquet-input-no-files UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0029-parquet-input-no-files.hpl"
+}
