@@ -102,7 +102,7 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
   }
 
   public void closeFile() {
-    if (!data.readerClosed) {
+    if (!data.readerClosed && data.reader != null && data.inputStream != null) {
       try {
         data.reader.close();
         data.inputStream.close();

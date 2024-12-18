@@ -142,7 +142,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
   public String[] getReferencedObjectDescriptions() {
     String[] descriptions = new String[testNames.size()];
     for (int i = 0; i < descriptions.length; i++) {
-      descriptions[i] = "Pipeline of unit test : " + testNames.get(i);
+      descriptions[i] = "Pipeline of unit test : " + testNames.get(i).getTestName();
     }
     return descriptions;
   }
