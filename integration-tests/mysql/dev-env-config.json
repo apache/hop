@@ -1,0 +1,23 @@
+{
+  "variables" : [ {
+    "name" : "MYSQL_HOSTNAME",
+    "value" : "mysql",
+    "description" : "The MySQL hostname"
+  }, {
+    "name" : "MYSQL_PORT",
+    "value" : "3306",
+    "description" : "The data port "
+  }, {
+    "name" : "MYSQL_USERNAME",
+    "value" : "root",
+    "description" : "Username: none"
+  }, {
+    "name" : "MYSQL_PASSWORD",
+    "value" : "hop_root_password",
+    "description" : "Password: none"
+  }, {
+    "name" : "MYSQL_DATABASE",
+    "value" : "hop_database",
+    "description" : ""
+  } ]
+}
