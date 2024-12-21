@@ -22,14 +22,19 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
+@Getter
+@Setter
 @HopMetadata(
     key = "restconnection",
     name = "i18n::RestConnection.name",
@@ -39,6 +44,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
 public class RestConnection extends HopMetadataBase implements IHopMetadata {
 
+  private IVariables variables;
   private ClientBuilder builder;
   private Client client;
 
@@ -57,7 +63,8 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty(key = "auth_header_value", injectionKey = "AUTH_HEADER_VALUE")
   private String authorizationHeaderValue;
 
-  public RestConnection() {
+  public RestConnection(IVariables variables) {
+    this.variables = variables;
     builder = ClientBuilder.newBuilder();
     client = builder.build();
   }
@@ -84,13 +91,17 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   }
 
   public void testConnection() throws HopException {
-    WebTarget target = client.target(testUrl);
+    WebTarget target = client.target(variables.resolve(testUrl));
     Invocation.Builder invocationBuilder = target.request();
-    if (!StringUtils.isEmpty(authorizationPrefix)) {
+    if (!StringUtils.isEmpty(variables.resolve(authorizationPrefix))) {
       invocationBuilder.header(
-          authorizationHeaderName, authorizationPrefix + " " + authorizationHeaderValue);
+          variables.resolve(authorizationHeaderName),
+          variables.resolve(authorizationPrefix)
+              + " "
+              + variables.resolve(authorizationHeaderValue));
     } else {
-      invocationBuilder.header(authorizationHeaderName, authorizationHeaderValue);
+      invocationBuilder.header(
+          variables.resolve(authorizationHeaderName), variables.resolve(authorizationHeaderValue));
     }
     Response response = invocationBuilder.get();
     if (response.getStatus() != Response.Status.OK.getStatusCode()) {
@@ -144,45 +155,5 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   @Override
   public void setName(String name) {
     this.name = name;
-  }
-
-  public String getBaseUrl() {
-    return baseUrl;
-  }
-
-  public void setBaseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
-  }
-
-  public String getTestUrl() {
-    return testUrl;
-  }
-
-  public void setTestUrl(String testUrl) {
-    this.testUrl = testUrl;
-  }
-
-  public String getAuthorizationHeaderName() {
-    return authorizationHeaderName;
-  }
-
-  public void setAuthorizationHeaderName(String authorizationHeaderName) {
-    this.authorizationHeaderName = authorizationHeaderName;
-  }
-
-  public String getAuthHeaderPrefix() {
-    return authorizationPrefix;
-  }
-
-  public void setAuthHeaderPrefix(String authHeaderPrefix) {
-    this.authorizationPrefix = authHeaderPrefix;
-  }
-
-  public String getAuthorizationHeaderValue() {
-    return authorizationHeaderValue;
-  }
-
-  public void setAuthorizationHeaderValue(String authorizationHeaderValue) {
-    this.authorizationHeaderValue = authorizationHeaderValue;
   }
 }
