@@ -357,12 +357,12 @@ public class TableInputDialog extends BaseTransformDialog {
   private List<String> getSqlReservedWords() {
     // Do not search keywords when connection is empty
     if (input.getConnection() == null || input.getConnection().isEmpty()) {
-      return new ArrayList<>();
+      return List.of();
     }
 
     // If connection is a variable that can't be resolved
     if (variables.resolve(input.getConnection()).startsWith("${")) {
-      return new ArrayList<>();
+      return List.of();
     }
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
@@ -370,11 +370,10 @@ public class TableInputDialog extends BaseTransformDialog {
       logError("Database connection not found. Proceding without keywords.");
       return new ArrayList<>();
     }
-    Database db = new Database(loggingObject, variables, databaseMeta);
-    DatabaseMetaData databaseMetaData = null;
-    try {
+
+    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
       db.connect();
-      databaseMetaData = db.getDatabaseMetaData();
+      DatabaseMetaData databaseMetaData = db.getDatabaseMetaData();
       if (databaseMetaData == null) {
         logError("Couldn't get database metadata");
         return new ArrayList<>();
@@ -392,10 +391,7 @@ public class TableInputDialog extends BaseTransformDialog {
       return sqlKeywords;
     } catch (HopDatabaseException e) {
       logError("Couldn't extract keywords from database metadata. Proceding without them.");
-      return new ArrayList<>();
-    } finally {
-      db.disconnect();
-      db.close();
+      return List.of();
     }
   }
 

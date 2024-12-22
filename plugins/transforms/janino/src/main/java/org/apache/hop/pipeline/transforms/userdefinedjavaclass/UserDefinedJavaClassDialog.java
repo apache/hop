@@ -318,6 +318,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     wlPosition.setLayoutData(fdlPosition);
 
     folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE);
+    PropsUi.setLook(folder, Props.WIDGET_STYLE_TAB);
     folder.setUnselectedImageVisible(true);
     folder.setUnselectedCloseVisible(true);
     FormData fdScript = new FormData();

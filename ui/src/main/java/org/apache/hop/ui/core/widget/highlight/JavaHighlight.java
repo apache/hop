@@ -19,22 +19,22 @@ package org.apache.hop.ui.core.widget.highlight;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleEvent;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Color;
 
 public class JavaHighlight implements LineStyleListener {
   JavaScanner scanner = new JavaScanner();
-  int[] tokenColors;
-  Color[] colors;
-  Vector<int[]> blockComments = new Vector<>();
+  StyleAttribute[] styleAttributes;
+  ArrayList<int[]> blockComments = new ArrayList<>();
 
   public static final int EOF = -1;
   public static final int EOL = 10;
@@ -43,29 +43,50 @@ public class JavaHighlight implements LineStyleListener {
   public static final int WHITE = 1;
   public static final int KEY = 2;
   public static final int COMMENT = 3; // single line comment: //
+  public static final int SYMBOL = 4;
   public static final int STRING = 5;
   public static final int OTHER = 6;
   public static final int NUMBER = 7;
-  public static final int FUNCTIONS = 8;
+  public static final int FUNCTION = 8;
 
   public static final int MAXIMUM_TOKEN = 9;
 
   public JavaHighlight() {
-    initializeColors();
+    initializeStyles();
     scanner = new JavaScanner();
-    scanner.initializeUDJCFunctions();
   }
 
-  Color getColor(int type) {
-    if (type < 0 || type >= tokenColors.length) {
+  void initializeStyles() {
+    GuiResource resource = GuiResource.getInstance();
+    styleAttributes = new StyleAttribute[MAXIMUM_TOKEN];
+    styleAttributes[WORD] = new StyleAttribute(resource.getColorBlack(), SWT.NORMAL);
+    styleAttributes[WHITE] = new StyleAttribute(resource.getColorBlack(), SWT.NORMAL);
+    styleAttributes[STRING] = new StyleAttribute(resource.getColorDarkGreen(), SWT.NORMAL);
+    styleAttributes[OTHER] = new StyleAttribute(resource.getColorBlack(), SWT.NORMAL);
+    styleAttributes[NUMBER] = new StyleAttribute(resource.getColorOrange(), SWT.NORMAL);
+    if (PropsUi.getInstance().isDarkMode()) {
+      styleAttributes[COMMENT] = new StyleAttribute(resource.getColorGray(), SWT.ITALIC);
+      styleAttributes[KEY] = new StyleAttribute(resource.getColor(30, 144, 255), SWT.NORMAL);
+      styleAttributes[SYMBOL] = new StyleAttribute(resource.getColor(243, 126, 131), SWT.NORMAL);
+      styleAttributes[FUNCTION] = new StyleAttribute(resource.getColor(177, 102, 218), SWT.NORMAL);
+    } else {
+      styleAttributes[COMMENT] = new StyleAttribute(resource.getColorDarkGray(), SWT.ITALIC);
+      styleAttributes[KEY] = new StyleAttribute(resource.getColorBlue(), SWT.NORMAL);
+      styleAttributes[SYMBOL] = new StyleAttribute(resource.getColorDarkRed(), SWT.NORMAL);
+      styleAttributes[FUNCTION] = new StyleAttribute(resource.getColor(148, 0, 211), SWT.NORMAL);
+    }
+  }
+
+  StyleAttribute getStyleAttribute(int type) {
+    if (type < 0 || type >= styleAttributes.length) {
       return null;
     }
-    return colors[tokenColors[type]];
+    return styleAttributes[type];
   }
 
   boolean inBlockComment(int start, int end) {
     for (int i = 0; i < blockComments.size(); i++) {
-      int[] offsets = blockComments.elementAt(i);
+      int[] offsets = blockComments.get(i);
       // start of comment in the line
       if ((offsets[0] >= start) && (offsets[0] <= end)) {
         return true;
@@ -81,41 +102,25 @@ public class JavaHighlight implements LineStyleListener {
     return false;
   }
 
-  void initializeColors() {
-    colors =
-        new Color[] {
-          GuiResource.getInstance().getColorBlack(), // black
-          GuiResource.getInstance().getColorRed(), // red
-          GuiResource.getInstance().getColorDarkGreen(), // green
-          GuiResource.getInstance().getColorBlue(), // blue
-          GuiResource.getInstance().getColorOrange() // orange
-        };
-    tokenColors = new int[MAXIMUM_TOKEN];
-    tokenColors[WORD] = 0;
-    tokenColors[WHITE] = 0;
-    tokenColors[KEY] = 3;
-    tokenColors[COMMENT] = 1;
-    tokenColors[STRING] = 2;
-    tokenColors[OTHER] = 0;
-    tokenColors[NUMBER] = 0;
-    tokenColors[FUNCTIONS] = 4;
-  }
-
   /**
    * Event.detail line start offset (input) Event.text line text (input) LineStyleEvent.styles
    * Enumeration of StyleRanges, need to be in order. (output) LineStyleEvent.background line
    * background color (output)
    */
   public void lineGetStyle(LineStyleEvent event) {
-    Vector<StyleRange> styles = new Vector<>();
-    int token;
+    ArrayList<StyleRange> styles = new ArrayList<>();
     StyleRange lastStyle;
 
     if (inBlockComment(event.lineOffset, event.lineOffset + event.lineText.length())) {
-      styles.addElement(
-          new StyleRange(event.lineOffset, event.lineText.length() + 4, colors[2], null));
-      event.styles = new StyleRange[styles.size()];
-      styles.copyInto(event.styles);
+      StyleAttribute attribute = getStyleAttribute(COMMENT);
+      styles.add(
+          new StyleRange(
+              event.lineOffset,
+              event.lineText.length() + 4,
+              attribute.getForeground(),
+              null,
+              attribute.getStyle()));
+      event.styles = styles.toArray(new StyleRange[styles.size()]);
       return;
     }
     scanner.setRange(event.lineText);
@@ -123,12 +128,12 @@ public class JavaHighlight implements LineStyleListener {
     if (xs != null) {
       parseBlockComments(xs);
     }
-    token = scanner.nextToken();
+    int token = scanner.nextToken();
     while (token != EOF) {
       if (token != OTHER) {
         if ((token == WHITE) && (!styles.isEmpty())) {
           int start = scanner.getStartOffset() + event.lineOffset;
-          lastStyle = styles.lastElement();
+          lastStyle = styles.get(styles.size() - 1);
           if (lastStyle.fontStyle != SWT.NORMAL) {
             if (lastStyle.start + lastStyle.length == start) {
               // have the white space take on the style before it to minimize font style
@@ -137,23 +142,27 @@ public class JavaHighlight implements LineStyleListener {
             }
           }
         } else {
-          Color color = getColor(token);
-          if (color != colors[0]) { // hardcoded default foreground color, black
+          StyleAttribute attribute = getStyleAttribute(token);
+          if (attribute != styleAttributes[0]) { // hardcoded default foreground color, black
             StyleRange style =
                 new StyleRange(
-                    scanner.getStartOffset() + event.lineOffset, scanner.getLength(), color, null);
+                    scanner.getStartOffset() + event.lineOffset,
+                    scanner.getLength(),
+                    attribute.getForeground(),
+                    null,
+                    attribute.getStyle());
             if (token == KEY) {
               style.fontStyle = SWT.BOLD;
             }
             if (styles.isEmpty()) {
-              styles.addElement(style);
+              styles.add(style);
             } else {
-              lastStyle = styles.lastElement();
+              lastStyle = styles.get(styles.size() - 1);
               if (lastStyle.similarTo(style)
                   && (lastStyle.start + lastStyle.length == style.start)) {
                 lastStyle.length += style.length;
               } else {
-                styles.addElement(style);
+                styles.add(style);
               }
             }
           }
@@ -161,12 +170,11 @@ public class JavaHighlight implements LineStyleListener {
       }
       token = scanner.nextToken();
     }
-    event.styles = new StyleRange[styles.size()];
-    styles.copyInto(event.styles);
+    event.styles = styles.toArray(new StyleRange[styles.size()]);
   }
 
   public void parseBlockComments(String text) {
-    blockComments = new Vector<>();
+    blockComments = new ArrayList<>();
     StringReader buffer = new StringReader(text);
     int ch;
     boolean blkComment = false;
@@ -181,7 +189,7 @@ public class JavaHighlight implements LineStyleListener {
             {
               if (blkComment) {
                 offsets[1] = cnt;
-                blockComments.addElement(offsets);
+                blockComments.add(offsets);
               }
               done = true;
               break;
@@ -208,7 +216,7 @@ public class JavaHighlight implements LineStyleListener {
                 if (ch == '/') {
                   blkComment = false;
                   offsets[1] = cnt;
-                  blockComments.addElement(offsets);
+                  blockComments.add(offsets);
                 }
               }
               cnt++;
@@ -229,10 +237,7 @@ public class JavaHighlight implements LineStyleListener {
   /** A simple fuzzy scanner for Java */
   public class JavaScanner {
 
-    protected Map<String, Integer> fgKeys = null;
-    protected Map<?, ?> fgFunctions = null;
-    protected Map<String, Integer> kfKeys = null;
-    protected Map<?, ?> kfFunctions = null;
+    protected Map<String, Integer> reserved = new HashMap<>();
     protected StringBuilder fBuffer = new StringBuilder();
     protected String fDoc;
     protected int fPos;
@@ -241,30 +246,13 @@ public class JavaHighlight implements LineStyleListener {
     protected boolean fEofSeen = false;
 
     public JavaScanner() {
-      initialize();
-      initializeUDJCFunctions();
+      JAVA_KEYWORDS.forEach(name -> reserved.put(name, Integer.valueOf(KEY)));
+      UDJC_FUNCTIONS.forEach(name -> reserved.put(name, Integer.valueOf(FUNCTION)));
     }
 
     /** Returns the ending location of the current token in the document. */
     public final int getLength() {
       return fPos - fStartToken;
-    }
-
-    /** Initialize the lookup table. */
-    void initialize() {
-      fgKeys = new Hashtable<>();
-      Integer k = Integer.valueOf(KEY);
-      for (int i = 0; i < JAVA_KEYWORDS.length; i++) {
-        fgKeys.put(JAVA_KEYWORDS[i], k);
-      }
-    }
-
-    void initializeUDJCFunctions() {
-      kfKeys = new Hashtable<>();
-      Integer k = Integer.valueOf(FUNCTIONS);
-      for (int i = 0; i < UDJC_FUNCTIONS.length; i++) {
-        kfKeys.put(UDJC_FUNCTIONS[i], k);
-      }
     }
 
     /** Returns the starting location of the current token in the document. */
@@ -328,6 +316,28 @@ public class JavaHighlight implements LineStyleListener {
               }
             }
 
+          case '(',
+              ')',
+              '{',
+              '}',
+              '[',
+              ']',
+              '*',
+              '+',
+              '-',
+              '=',
+              '>',
+              '<',
+              '!',
+              ':',
+              '.',
+              ',',
+              ';',
+              '&',
+              '|',
+              '^':
+            return SYMBOL;
+
           case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
             do {
               c = read();
@@ -349,13 +359,10 @@ public class JavaHighlight implements LineStyleListener {
                 c = read();
               } while (Character.isJavaIdentifierPart((char) c));
               unread(c);
-              Integer i = fgKeys.get(fBuffer.toString());
-              if (i != null) {
-                return i.intValue();
-              }
-              i = kfKeys.get(fBuffer.toString());
-              if (i != null) {
-                return i.intValue();
+              String name = fBuffer.toString();
+              Integer token = reserved.get(name);
+              if (token != null) {
+                return token.intValue();
               }
               return WORD;
             }
@@ -385,168 +392,168 @@ public class JavaHighlight implements LineStyleListener {
     }
   }
 
-  private static final String[] JAVA_KEYWORDS = {
-    "abstract",
-    "assert",
-    "boolean",
-    "break",
-    "byte",
-    "case",
-    "catch",
-    "char",
-    "class",
-    "const",
-    "continue",
-    "default",
-    "do",
-    "double",
-    "else",
-    "enum",
-    "extends",
-    "final",
-    "finally",
-    "float",
-    "for",
-    "goto",
-    "if",
-    "implements",
-    "import",
-    "instanceof",
-    "int",
-    "interface",
-    "long",
-    "native",
-    "new",
-    "package",
-    "private",
-    "protected",
-    "public",
-    "return",
-    "short",
-    "static",
-    "strictfp",
-    "super",
-    "switch",
-    "synchronized",
-    "this",
-    "throw",
-    "throws",
-    "transient",
-    "try",
-    "void",
-    "volatile",
-    "while",
-  };
+  private static final List<String> JAVA_KEYWORDS =
+      List.of(
+          "abstract",
+          "assert",
+          "boolean",
+          "break",
+          "byte",
+          "case",
+          "catch",
+          "char",
+          "class",
+          "const",
+          "continue",
+          "default",
+          "do",
+          "double",
+          "else",
+          "enum",
+          "extends",
+          "final",
+          "finally",
+          "float",
+          "for",
+          "goto",
+          "if",
+          "implements",
+          "import",
+          "instanceof",
+          "int",
+          "interface",
+          "long",
+          "native",
+          "new",
+          "package",
+          "private",
+          "protected",
+          "public",
+          "return",
+          "short",
+          "static",
+          "strictfp",
+          "super",
+          "switch",
+          "synchronized",
+          "this",
+          "throw",
+          "throws",
+          "transient",
+          "try",
+          "void",
+          "volatile",
+          "while");
 
   // built from TransformClassBase.java with the following Vim commands:
   // :v/ *public/d
   // :%s/.\+\(\<[^(]\+\)(.*/\1/g
   // :%s/.*/"&",/
-  private static final String[] UDJC_FUNCTIONS = {
-    "addResultFile",
-    "addRowListener",
-    "addStepListener",
-    "checkFeedback",
-    "cleanup",
-    "decrementLinesRead",
-    "decrementLinesWritten",
-    "dispose",
-    "findInputRowSet",
-    "findInputRowSet",
-    "findOutputRowSet",
-    "findOutputRowSet",
-    "getClusterSize",
-    "getCopy",
-    "getErrorRowMeta",
-    "getErrors",
-    "getFields",
-    "getInfoSteps",
-    "getInputRowMeta",
-    "getInputRowSets",
-    "getLinesInput",
-    "getLinesOutput",
-    "getLinesRead",
-    "getLinesRejected",
-    "getLinesSkipped",
-    "getLinesUpdated",
-    "getLinesWritten",
-    "getOutputRowSets",
-    "getPartitionID",
-    "getPartitionTargets",
-    "getProcessed",
-    "getRepartitioning",
-    "getResultFiles",
-    "getRow",
-    "getRowFrom",
-    "getRowListeners",
-    "getRuntime",
-    "getSlaveNr",
-    "getSocketRepository",
-    "getStatus",
-    "getStatusDescription",
-    "getStepDataInterface",
-    "getStepID",
-    "getStepListeners",
-    "getStepMeta",
-    "getStepname",
-    "getTrans",
-    "getTransMeta",
-    "getTypeId",
-    "getUniqueStepCountAcrossSlaves",
-    "getUniqueStepNrAcrossSlaves",
-    "getVariable",
-    "incrementLinesInput",
-    "incrementLinesOutput",
-    "incrementLinesRead",
-    "incrementLinesRejected",
-    "incrementLinesSkipped",
-    "incrementLinesUpdated",
-    "incrementLinesWritten",
-    "init",
-    "initBeforeStart",
-    "isDistributed",
-    "isInitialising",
-    "isPartitioned",
-    "isSafeModeEnabled",
-    "isStopped",
-    "isUsingThreadPriorityManagment",
-    "logBasic",
-    "logDebug",
-    "logDetailed",
-    "logError",
-    "logError",
-    "logMinimal",
-    "logRowlevel",
-    "logSummary",
-    "markStart",
-    "markStop",
-    "openRemoteInputStepSocketsOnce",
-    "openRemoteOutputStepSocketsOnce",
-    "outputIsDone",
-    "processRow",
-    "putError",
-    "putRow",
-    "putRowTo",
-    "removeRowListener",
-    "rowsetInputSize",
-    "rowsetOutputSize",
-    "safeModeChecking",
-    "setErrors",
-    "setInputRowMeta",
-    "setInputRowSets",
-    "setLinesInput",
-    "setLinesOutput",
-    "setLinesRead",
-    "setLinesRejected",
-    "setLinesSkipped",
-    "setLinesUpdated",
-    "setLinesWritten",
-    "setOutputDone",
-    "setOutputRowSets",
-    "setStepListeners",
-    "setVariable",
-    "stopAll",
-    "stopRunning",
-    "toString",
-  };
+  private static final List<String> UDJC_FUNCTIONS =
+      List.of(
+          "addResultFile",
+          "addRowListener",
+          "addStepListener",
+          "checkFeedback",
+          "cleanup",
+          "decrementLinesRead",
+          "decrementLinesWritten",
+          "dispose",
+          "findInputRowSet",
+          "findInputRowSet",
+          "findOutputRowSet",
+          "findOutputRowSet",
+          "getClusterSize",
+          "getCopy",
+          "getErrorRowMeta",
+          "getErrors",
+          "getFields",
+          "getInfoSteps",
+          "getInputRowMeta",
+          "getInputRowSets",
+          "getLinesInput",
+          "getLinesOutput",
+          "getLinesRead",
+          "getLinesRejected",
+          "getLinesSkipped",
+          "getLinesUpdated",
+          "getLinesWritten",
+          "getOutputRowSets",
+          "getPartitionID",
+          "getPartitionTargets",
+          "getProcessed",
+          "getRepartitioning",
+          "getResultFiles",
+          "getRow",
+          "getRowFrom",
+          "getRowListeners",
+          "getRuntime",
+          "getSlaveNr",
+          "getSocketRepository",
+          "getStatus",
+          "getStatusDescription",
+          "getStepDataInterface",
+          "getStepID",
+          "getStepListeners",
+          "getStepMeta",
+          "getStepname",
+          "getTrans",
+          "getTransMeta",
+          "getTypeId",
+          "getUniqueStepCountAcrossSlaves",
+          "getUniqueStepNrAcrossSlaves",
+          "getVariable",
+          "incrementLinesInput",
+          "incrementLinesOutput",
+          "incrementLinesRead",
+          "incrementLinesRejected",
+          "incrementLinesSkipped",
+          "incrementLinesUpdated",
+          "incrementLinesWritten",
+          "init",
+          "initBeforeStart",
+          "isDistributed",
+          "isInitialising",
+          "isPartitioned",
+          "isSafeModeEnabled",
+          "isStopped",
+          "isUsingThreadPriorityManagment",
+          "logBasic",
+          "logDebug",
+          "logDetailed",
+          "logError",
+          "logError",
+          "logMinimal",
+          "logRowlevel",
+          "logSummary",
+          "markStart",
+          "markStop",
+          "openRemoteInputStepSocketsOnce",
+          "openRemoteOutputStepSocketsOnce",
+          "outputIsDone",
+          "processRow",
+          "putError",
+          "putRow",
+          "putRowTo",
+          "removeRowListener",
+          "rowsetInputSize",
+          "rowsetOutputSize",
+          "safeModeChecking",
+          "setErrors",
+          "setInputRowMeta",
+          "setInputRowSets",
+          "setLinesInput",
+          "setLinesOutput",
+          "setLinesRead",
+          "setLinesRejected",
+          "setLinesSkipped",
+          "setLinesUpdated",
+          "setLinesWritten",
+          "setOutputDone",
+          "setOutputRowSets",
+          "setStepListeners",
+          "setVariable",
+          "stopAll",
+          "stopRunning",
+          "toString");
 }
