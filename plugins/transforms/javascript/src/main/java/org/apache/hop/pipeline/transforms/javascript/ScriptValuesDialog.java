@@ -1596,8 +1596,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       if (item.getParentItem().equals(wTreeScriptsItem)) {
         setActiveCtab(item.getText());
       } else if (!item.getData().equals(CONST_FUNCTION)) {
-        // int iStart = wScript.getTextWidget().getCaretOffset();
-        int iStart = wScript.getCaretOffset();
+        int iStart = wScript.getCaretPosition();
         int selCount =
             wScript.getSelectionCount(); // this selection will be replaced by wScript.insert
         iStart =
