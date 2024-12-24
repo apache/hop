@@ -71,23 +71,23 @@ HOP_OPTIONS="${HOP_OPTIONS} --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED --
 
 case $(uname -s) in
 Linux)
-    # Workaround for https://github.com/apache/hop/issues/4252
-    # Related to https://github.com/eclipse-platform/eclipse.platform.swt/issues/639
-    # And to some extent also https://github.com/eclipse-platform/eclipse.platform.swt/issues/790
-    if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-        export GDK_BACKEND=x11
-    fi
-    if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
-        CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/arm64/*"
-    else
-        CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/$(uname -m)/*"
-    fi
+  # Workaround for https://github.com/apache/hop/issues/4252
+  # Related to https://github.com/eclipse-platform/eclipse.platform.swt/issues/639
+  # And to some extent also https://github.com/eclipse-platform/eclipse.platform.swt/issues/790
+  if [ "${XDG_SESSION_TYPE}" == "wayland" ]; then
+    export GDK_BACKEND=x11
+  fi
+  if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
+    CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/arm64/*"
+  else
+    CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/$(uname -m)/*"
+  fi
   ;;
 Darwin)
   if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
-      CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/arm64/*"
+    CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/arm64/*"
   else
-      CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/x86_64/*"
+    CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/x86_64/*"
   fi
   HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
   ;;
