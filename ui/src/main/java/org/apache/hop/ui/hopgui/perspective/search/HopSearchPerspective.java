@@ -33,6 +33,7 @@ import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.search.SearchQuery;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -281,6 +282,10 @@ public class HopSearchPerspective implements IHopPerspective {
     wbSearch.addListener(SWT.Selection, this::search);
     lastControl = wbSearch;
 
+    // Disable search button if nothing to search
+    wSearchString.addListener(
+        SWT.Modify, e -> wbSearch.setEnabled(!Utils.isEmpty(wSearchString.getText())));
+
     Button wbOpen = new Button(composite, SWT.PUSH);
     PropsUi.setLook(wbOpen);
     wbOpen.setText(BaseMessages.getString(PKG, "HopSearchPerspective.Open.Button.Label"));
@@ -377,6 +382,9 @@ public class HopSearchPerspective implements IHopPerspective {
   }
 
   private void search(Event event) {
+
+    // Nothing to search
+    if (Utils.isEmpty(wSearchString.getText())) return;
 
     // Find the search location using the combo
     // Get the list of searchables.
