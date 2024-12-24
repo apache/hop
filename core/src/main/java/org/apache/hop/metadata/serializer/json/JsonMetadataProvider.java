@@ -23,6 +23,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -101,8 +102,10 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
               + managedClass.getName());
     }
 
+    String description = TranslateUtil.translate(hopMetadata.name(), managedClass);
+
     return new JsonMetadataSerializer<>(
-        this, serializerBaseFolderName, managedClass, variables, hopMetadata.name());
+        this, serializerBaseFolderName, managedClass, variables, description);
   }
 
   /**
