@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.database.SqlScriptStatement;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -32,9 +33,8 @@ import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 
-public class JavaScriptHighlight implements LineStyleListener {
-
-  JavaScanner scanner;
+public class SqlHighlight implements LineStyleListener {
+  SqlScanner scanner;
   StyleAttribute[] styleAttributes;
   ArrayList<int[]> blockComments = new ArrayList<>();
 
@@ -50,16 +50,20 @@ public class JavaScriptHighlight implements LineStyleListener {
   public static final int OTHER = 6;
   public static final int NUMBER = 7;
   public static final int FUNCTION = 8;
+  public static final int PARAM = 9;
 
-  public static final int MAXIMUM_TOKEN = 9;
+  public static final int MAXIMUM_TOKEN = 10;
 
-  public JavaScriptHighlight() {
+  private List<SqlScriptStatement> scriptStatements;
+
+  public SqlHighlight() {
     this(List.of());
   }
 
-  public JavaScriptHighlight(List<String> functionNames) {
+  public SqlHighlight(List<String> functionNames) {
     initializeStyles();
-    scanner = new JavaScanner(functionNames);
+    scriptStatements = new ArrayList<>();
+    scanner = new SqlScanner(functionNames);
   }
 
   StyleAttribute getStyleAttribute(int type) {
@@ -95,6 +99,7 @@ public class JavaScriptHighlight implements LineStyleListener {
     styleAttributes[STRING] = new StyleAttribute(resource.getColorDarkGreen(), SWT.NORMAL);
     styleAttributes[OTHER] = new StyleAttribute(resource.getColorBlack(), SWT.NORMAL);
     styleAttributes[NUMBER] = new StyleAttribute(resource.getColorOrange(), SWT.NORMAL);
+    styleAttributes[PARAM] = new StyleAttribute(resource.getColor(148, 0, 211), SWT.BOLD);
     if (PropsUi.getInstance().isDarkMode()) {
       styleAttributes[COMMENT] = new StyleAttribute(resource.getColorGray(), SWT.ITALIC);
       styleAttributes[KEY] = new StyleAttribute(resource.getColor(30, 144, 255), SWT.NORMAL);
@@ -119,7 +124,6 @@ public class JavaScriptHighlight implements LineStyleListener {
 
     if (inBlockComment(event.lineOffset, event.lineOffset + event.lineText.length())) {
       StyleAttribute attribute = getStyleAttribute(COMMENT);
-
       styles.add(
           new StyleRange(
               event.lineOffset,
@@ -151,25 +155,22 @@ public class JavaScriptHighlight implements LineStyleListener {
         } else {
           StyleAttribute attribute = getStyleAttribute(token);
           if (attribute != styleAttributes[0]) { // hardcoded default foreground color, black
-            StyleRange style =
+            StyleRange styleRange =
                 new StyleRange(
                     scanner.getStartOffset() + event.lineOffset,
                     scanner.getLength(),
                     attribute.getForeground(),
                     null,
                     attribute.getStyle());
-            if (token == KEY) {
-              style.fontStyle = SWT.BOLD;
-            }
             if (styles.isEmpty()) {
-              styles.add(style);
+              styles.add(styleRange);
             } else {
               lastStyle = styles.get(styles.size() - 1);
-              if (lastStyle.similarTo(style)
-                  && (lastStyle.start + lastStyle.length == style.start)) {
-                lastStyle.length += style.length;
+              if (lastStyle.similarTo(styleRange)
+                  && (lastStyle.start + lastStyle.length == styleRange.start)) {
+                lastStyle.length += styleRange.length;
               } else {
-                styles.add(style);
+                styles.add(styleRange);
               }
             }
           }
@@ -177,6 +178,34 @@ public class JavaScriptHighlight implements LineStyleListener {
       }
       token = scanner.nextToken();
     }
+
+    // See which backgrounds to color...
+    //
+    if (scriptStatements != null) {
+      for (SqlScriptStatement statement : scriptStatements) {
+        // Leave non-executed statements alone.
+        //
+        StyleRange styleRange = new StyleRange();
+        styleRange.start = statement.getFromIndex();
+        styleRange.length = statement.getToIndex() - statement.getFromIndex();
+
+        if (statement.isComplete()) {
+          if (statement.isOk()) {
+            // GuiResource.getInstance().getColor(63, 127, 95), // green
+
+            styleRange.background = GuiResource.getInstance().getColor(244, 238, 224); // honey dew
+          } else {
+            styleRange.background =
+                GuiResource.getInstance().getColor(250, 235, 215); // Antique White
+          }
+        } else {
+          styleRange.background = GuiResource.getInstance().getColorWhite();
+        }
+
+        styles.add(styleRange);
+      }
+    }
+
     event.styles = styles.toArray(new StyleRange[styles.size()]);
   }
 
@@ -241,10 +270,10 @@ public class JavaScriptHighlight implements LineStyleListener {
     }
   }
 
-  /** A simple fuzzy scanner for JavaScript */
-  public class JavaScanner {
-
-    protected Map<String, Integer> reserved = new HashMap<>();
+  /** A simple fuzzy scanner for SQL */
+  public class SqlScanner {
+    protected Map<String, Integer> reservedKeywords = new HashMap<>();
+    protected Map<String, Integer> reservedFunctionNames = new HashMap<>();
     protected StringBuilder fBuffer = new StringBuilder();
     protected String fDoc;
     protected int fPos;
@@ -252,69 +281,393 @@ public class JavaScriptHighlight implements LineStyleListener {
     protected int fStartToken;
     protected boolean fEofSeen = false;
 
+    private static final List<String> DEFAULT_FUNCTIONS =
+        List.of(
+            "getdate",
+            "case",
+            "convert",
+            "left",
+            "right",
+            "isnumeric",
+            "isdate",
+            "isnumber",
+            "number",
+            "finally",
+            "cast",
+            "var",
+            "fetch_status",
+            "isnull",
+            "charindex",
+            "difference",
+            "len",
+            "nchar",
+            "quotename",
+            "replicate",
+            "reverse",
+            "str",
+            "stuff",
+            "unicode",
+            "ascii",
+            "char",
+            "to_char",
+            "to_date",
+            "to_number",
+            "nvl",
+            "sysdate",
+            "corr",
+            "count",
+            "grouping",
+            "max",
+            "min",
+            "stdev",
+            "sum",
+            "concat",
+            "length",
+            "locate",
+            "ltrim",
+            "posstr",
+            "repeat",
+            "replace",
+            "rtrim",
+            "soundex",
+            "space",
+            "substr",
+            "substring",
+            "trunc",
+            "nextval",
+            "currval",
+            "getclobval",
+            "char_length",
+            "compare",
+            "patindex",
+            "sortkey",
+            "uscalar",
+            "current_date",
+            "current_time",
+            "current_timestamp",
+            "current_user",
+            "session_user",
+            "system_user",
+            "curdate",
+            "curtime",
+            "database",
+            "now",
+            "sysdate",
+            "today",
+            "user",
+            "version",
+            "coalesce",
+            "nullif",
+            "octet_length",
+            "datalength",
+            "decode",
+            "greatest",
+            "ifnull",
+            "least",
+            "char_length",
+            "character_length",
+            "collate",
+            "concatenate",
+            "like",
+            "lower",
+            "position",
+            "translate",
+            "upper",
+            "char_octet_length",
+            "character_maximum_length",
+            "character_octet_length",
+            "ilike",
+            "initcap",
+            "instr",
+            "lcase",
+            "lpad",
+            "patindex",
+            "rpad",
+            "ucase",
+            "bit_length",
+            "abs",
+            "asin",
+            "atan",
+            "ceiling",
+            "cos",
+            "cot",
+            "exp",
+            "floor",
+            "ln",
+            "log",
+            "log10",
+            "mod",
+            "pi",
+            "power",
+            "rand",
+            "round",
+            "sign",
+            "sin",
+            "sqrt",
+            "tan",
+            "trunc",
+            "extract",
+            "interval",
+            "overlaps",
+            "adddate",
+            "age",
+            "date_add",
+            "dateformat",
+            "date_part",
+            "date_sub",
+            "datediff",
+            "dateadd",
+            "datename",
+            "datepart",
+            "day",
+            "dayname",
+            "dayofmonth",
+            "dayofweek",
+            "dayofyear",
+            "hour",
+            "last_day",
+            "minute",
+            "month",
+            "month_between",
+            "monthname",
+            "next_day",
+            "second",
+            "sub_date",
+            "week",
+            "year",
+            "dbo",
+            "log",
+            "objectproperty");
+
     private static final List<String> KEYWORDS =
         List.of(
+            "create",
+            "procedure",
+            "as",
+            "set",
+            "nocount",
+            "on",
+            "declare",
+            "varchar",
+            "print",
+            "table",
+            "int",
+            "tintytext",
+            "select",
+            "from",
+            "where",
+            "and",
+            "or",
+            "insert",
+            "into",
+            "cursor",
+            "read_only",
+            "for",
+            "open",
+            "fetch",
+            "next",
+            "end",
+            "deallocate",
+            "table",
+            "drop",
+            "exec",
+            "begin",
+            "close",
+            "update",
+            "delete",
+            "truncate",
+            "left",
+            "inner",
+            "outer",
+            "cross",
+            "join",
+            "union",
+            "all",
+            "float",
+            "when",
+            "nolock",
+            "with",
+            "false",
+            "datetime",
+            "dare",
+            "time",
+            "hour",
             "array",
-            "break",
-            "case",
+            "minute",
+            "second",
+            "millisecond",
+            "view",
+            "function",
             "catch",
             "const",
             "continue",
-            "Date",
+            "compute",
+            "browse",
+            "option",
+            "date",
             "default",
-            "delete",
             "do",
+            "raw",
+            "auto",
+            "explicit",
+            "xmldata",
+            "elements",
+            "binary",
+            "base64",
+            "read",
+            "outfile",
+            "asc",
+            "desc",
             "else",
             "eval",
             "escape",
-            "false",
-            "finally",
-            "float",
-            "for",
-            "function",
+            "having",
+            "limit",
+            "offset",
+            "of",
+            "intersect",
+            "except",
+            "using",
+            "variance",
+            "specific",
+            "language",
+            "body",
+            "returns",
+            "specific",
+            "deterministic",
+            "not",
+            "external",
+            "action",
+            "reads",
+            "static",
+            "inherit",
+            "called",
+            "order",
+            "group",
+            "by",
+            "natural",
+            "full",
+            "exists",
+            "between",
+            "some",
+            "any",
+            "unique",
+            "match",
+            "value",
+            "limite",
+            "minus",
+            "references",
+            "grant",
+            "on",
+            "top",
+            "index",
+            "bigint",
+            "text",
+            "char",
+            "use",
+            "move",
+            "exec",
+            "init",
+            "name",
+            "noskip",
+            "skip",
+            "noformat",
+            "format",
+            "stats",
+            "disk",
+            "from",
+            "to",
+            "rownum",
+            "alter",
+            "add",
+            "remove",
+            "move",
+            "alter",
+            "add",
+            "remove",
+            "lineno",
+            "modify",
             "if",
+            "else",
             "in",
-            "instanceof",
-            "isFinite",
-            "isNaN",
+            "is",
             "new",
             "Number",
             "null",
-            "String",
+            "string",
             "switch",
             "this",
             "then",
             "throw",
-            "to",
             "true",
+            "false",
             "try",
-            "typeof",
-            "parseInt",
-            "parseFloat",
             "return",
-            "unescape",
-            "var",
-            "void",
             "with",
-            "while");
+            "while",
+            "start",
+            "connect",
+            "optimize",
+            "first",
+            "only",
+            "rows",
+            "sequence",
+            "blob",
+            "clob",
+            "image",
+            "binary",
+            "column",
+            "decimal",
+            "distinct",
+            "primary",
+            "key",
+            "timestamp",
+            "varbinary",
+            "nvarchar",
+            "nchar",
+            "longnvarchar",
+            "nclob",
+            "numeric",
+            "constraint",
+            "dbcc",
+            "backup",
+            "bit",
+            "clustered",
+            "pad_index",
+            "off",
+            "statistics_norecompute",
+            "ignore_dup_key",
+            "allow_row_locks",
+            "allow_page_locks",
+            "textimage_on",
+            "double",
+            "rollback",
+            "tran",
+            "transaction",
+            "commit");
 
-    public JavaScanner(List<String> functionNames) {
+    public SqlScanner(List<String> functionNames) {
       addKeywords(KEYWORDS);
       addFunctionNames(functionNames);
+
+      // Use default functions
+      if (reservedFunctionNames.isEmpty()) {
+        addFunctionNames(SqlScanner.DEFAULT_FUNCTIONS);
+      }
     }
 
-    public void addKeywords(List<String> reservedKeywords) {
-      if (Utils.isEmpty(reservedKeywords)) {
+    public void addKeywords(List<String> keywords) {
+      if (Utils.isEmpty(keywords)) {
         return;
       }
-      reservedKeywords.forEach(name -> reserved.put(name, Integer.valueOf(KEY)));
+      keywords.forEach(name -> reservedKeywords.put(name, Integer.valueOf(KEY)));
     }
 
     public void addFunctionNames(List<String> functionNames) {
       if (Utils.isEmpty(functionNames)) {
         return;
       }
-      functionNames.forEach(name -> reserved.put(name, Integer.valueOf(FUNCTION)));
+      functionNames.forEach(name -> reservedFunctionNames.put(name, Integer.valueOf(FUNCTION)));
     }
 
     /** Returns the ending location of the current token in the document. */
@@ -346,7 +699,22 @@ public class JavaScriptHighlight implements LineStyleListener {
                 }
               }
             }
+            unread(c);
             return SYMBOL;
+          case '-': // comment
+            c = read();
+            if (c == '-') {
+              while (true) {
+                c = read();
+                if ((c == EOF) || (c == EOL)) {
+                  unread(c);
+                  return COMMENT;
+                }
+              }
+            }
+            unread(c);
+            return SYMBOL;
+
           case '\'': // char const
             for (; ; ) {
               c = read();
@@ -381,27 +749,11 @@ public class JavaScriptHighlight implements LineStyleListener {
               }
             }
 
-          case '(',
-              ')',
-              '{',
-              '}',
-              '[',
-              ']',
-              '*',
-              '+',
-              '-',
-              '=',
-              '>',
-              '<',
-              '!',
-              ':',
-              '.',
-              ',',
-              ';',
-              '&',
-              '|',
-              '^':
+          case '(', ')', '*', '+', '%', '=', '>', '<', '^', '!', ':', '.', ';':
             return SYMBOL;
+
+          case '?':
+            return PARAM;
 
           case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
             do {
@@ -424,9 +776,18 @@ public class JavaScriptHighlight implements LineStyleListener {
                 c = read();
               } while (Character.isJavaIdentifierPart((char) c));
               unread(c);
-              Integer token = reserved.get(fBuffer.toString());
-              if (token != null) {
-                return token.intValue();
+              // Keywords and functions are not case-sensitive
+              String name = fBuffer.toString();
+              if (c == '(') {
+                Integer token = reservedFunctionNames.get(name);
+                if (token != null) {
+                  return token.intValue();
+                }
+              } else {
+                Integer token = reservedKeywords.get(name);
+                if (token != null) {
+                  return token.intValue();
+                }
               }
               return WORD;
             }
@@ -444,7 +805,7 @@ public class JavaScriptHighlight implements LineStyleListener {
     }
 
     public void setRange(String text) {
-      fDoc = text;
+      fDoc = text.toLowerCase();
       fPos = 0;
       fEnd = fDoc.length() - 1;
     }
@@ -454,5 +815,19 @@ public class JavaScriptHighlight implements LineStyleListener {
         fPos--;
       }
     }
+  }
+
+  /**
+   * @return the scriptStatements
+   */
+  public List<SqlScriptStatement> getScriptStatements() {
+    return scriptStatements;
+  }
+
+  /**
+   * @param scriptStatements the scriptStatements to set
+   */
+  public void setScriptStatements(List<SqlScriptStatement> scriptStatements) {
+    this.scriptStatements = scriptStatements;
   }
 }

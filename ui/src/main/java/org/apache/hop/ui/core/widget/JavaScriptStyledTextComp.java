@@ -49,7 +49,7 @@ public class JavaScriptStyledTextComp extends StyledTextVar {
   }
 
   @Override
-  public void addLineStyleListener(List<String> keywords) {
-    addLineStyleListener(new JavaScriptHighlight());
+  public void addLineStyleListener(List<String> functionNames) {
+    addLineStyleListener(new JavaScriptHighlight(functionNames));
   }
 }

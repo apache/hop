@@ -20,24 +20,23 @@ package org.apache.hop.ui.core.widget.highlight;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleEvent;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Color;
 
 public class GenericCodeHighlight implements LineStyleListener {
 
   CodeScanner scanner;
-  int[] tokenColors;
-  Color[] colors;
-  Vector<int[]> blockComments = new Vector<>();
+  StyleAttribute[] styleAttributes;
+  ArrayList<int[]> blockComments = new ArrayList<>();
 
   public static final int EOF = -1;
   public static final int EOL = 10;
@@ -46,30 +45,31 @@ public class GenericCodeHighlight implements LineStyleListener {
   public static final int WHITE = 1;
   public static final int KEY = 2;
   public static final int COMMENT = 3; // single line comment: //
+  public static final int SYMBOL = 4;
   public static final int STRING = 5;
   public static final int OTHER = 6;
   public static final int NUMBER = 7;
-  public static final int FUNCTIONS = 8;
+  public static final int FUNCTION = 8;
 
   public static final int MAXIMUM_TOKEN = 9;
 
   public GenericCodeHighlight(ScriptEngine engine) {
-    initializeColors();
+    initializeStyles();
     scanner = new CodeScanner(engine.getKeywords(), engine.getBuiltInFunctions());
-    scanner.setKeywords(engine.getKeywords());
-    scanner.setFunctions(engine.getBuiltInFunctions());
+    scanner.addKeywords(engine.getKeywords());
+    scanner.addFunctionNames(engine.getBuiltInFunctions());
   }
 
-  Color getColor(int type) {
-    if (type < 0 || type >= tokenColors.length) {
+  StyleAttribute getStyleAttribute(int type) {
+    if (type < 0 || type >= styleAttributes.length) {
       return null;
     }
-    return colors[tokenColors[type]];
+    return styleAttributes[type];
   }
 
   boolean inBlockComment(int start, int end) {
     for (int i = 0; i < blockComments.size(); i++) {
-      int[] offsets = blockComments.elementAt(i);
+      int[] offsets = blockComments.get(i);
       // start of comment in the line
       if ((offsets[0] >= start) && (offsets[0] <= end)) {
         return true;
@@ -85,30 +85,24 @@ public class GenericCodeHighlight implements LineStyleListener {
     return false;
   }
 
-  void initializeColors() {
-    final GuiResource guiResource = GuiResource.getInstance();
-    colors =
-        new Color[] {
-          guiResource.getColorBlack(),
-          guiResource.getColorRed(),
-          guiResource.getColorDarkGreen(),
-          guiResource.getColorBlue(),
-          guiResource.getColorOrange()
-        };
-    tokenColors = new int[MAXIMUM_TOKEN];
-    tokenColors[WORD] = 0;
-    tokenColors[WHITE] = 0;
-    tokenColors[KEY] = 3;
-    tokenColors[COMMENT] = 1;
-    tokenColors[STRING] = 2;
-    tokenColors[OTHER] = 0;
-    tokenColors[NUMBER] = 0;
-    tokenColors[FUNCTIONS] = 4;
-  }
-
-  void disposeColors() {
-    for (int i = 0; i < colors.length; i++) {
-      colors[i].dispose();
+  void initializeStyles() {
+    GuiResource resource = GuiResource.getInstance();
+    styleAttributes = new StyleAttribute[MAXIMUM_TOKEN];
+    styleAttributes[WORD] = new StyleAttribute(resource.getColorBlack(), SWT.NORMAL);
+    styleAttributes[WHITE] = new StyleAttribute(resource.getColorBlack(), SWT.NORMAL);
+    styleAttributes[STRING] = new StyleAttribute(resource.getColorDarkGreen(), SWT.NORMAL);
+    styleAttributes[OTHER] = new StyleAttribute(resource.getColorBlack(), SWT.NORMAL);
+    styleAttributes[NUMBER] = new StyleAttribute(resource.getColorOrange(), SWT.NORMAL);
+    if (PropsUi.getInstance().isDarkMode()) {
+      styleAttributes[COMMENT] = new StyleAttribute(resource.getColorGray(), SWT.ITALIC);
+      styleAttributes[KEY] = new StyleAttribute(resource.getColor(30, 144, 255), SWT.NORMAL);
+      styleAttributes[SYMBOL] = new StyleAttribute(resource.getColor(243, 126, 131), SWT.NORMAL);
+      styleAttributes[FUNCTION] = new StyleAttribute(resource.getColor(177, 102, 218), SWT.NORMAL);
+    } else {
+      styleAttributes[COMMENT] = new StyleAttribute(resource.getColorDarkGray(), SWT.ITALIC);
+      styleAttributes[KEY] = new StyleAttribute(resource.getColorBlue(), SWT.NORMAL);
+      styleAttributes[SYMBOL] = new StyleAttribute(resource.getColorDarkRed(), SWT.NORMAL);
+      styleAttributes[FUNCTION] = new StyleAttribute(resource.getColor(148, 0, 211), SWT.NORMAL);
     }
   }
 
@@ -118,15 +112,19 @@ public class GenericCodeHighlight implements LineStyleListener {
    * background color (output)
    */
   public void lineGetStyle(LineStyleEvent event) {
-    Vector<StyleRange> styles = new Vector<>();
-    int token;
+    ArrayList<StyleRange> styles = new ArrayList<>();
     StyleRange lastStyle;
 
     if (inBlockComment(event.lineOffset, event.lineOffset + event.lineText.length())) {
-      styles.addElement(
-          new StyleRange(event.lineOffset, event.lineText.length() + 4, colors[2], null));
-      event.styles = new StyleRange[styles.size()];
-      styles.copyInto(event.styles);
+      StyleAttribute attribute = getStyleAttribute(COMMENT);
+      styles.add(
+          new StyleRange(
+              event.lineOffset,
+              event.lineText.length() + 4,
+              attribute.getForeground(),
+              null,
+              attribute.getStyle()));
+      event.styles = styles.toArray(new StyleRange[styles.size()]);
       return;
     }
     scanner.setRange(event.lineText);
@@ -134,12 +132,12 @@ public class GenericCodeHighlight implements LineStyleListener {
     if (xs != null) {
       parseBlockComments(xs);
     }
-    token = scanner.nextToken();
+    int token = scanner.nextToken();
     while (token != EOF) {
       if (token != OTHER) {
         if ((token == WHITE) && (!styles.isEmpty())) {
           int start = scanner.getStartOffset() + event.lineOffset;
-          lastStyle = styles.lastElement();
+          lastStyle = styles.get(styles.size() - 1);
           if (lastStyle.fontStyle != SWT.NORMAL) {
             if (lastStyle.start + lastStyle.length == start) {
               // have the white space take on the style before it to minimize font style
@@ -148,23 +146,27 @@ public class GenericCodeHighlight implements LineStyleListener {
             }
           }
         } else {
-          Color color = getColor(token);
-          if (color != colors[0]) { // hardcoded default foreground color, black
+          StyleAttribute attribute = getStyleAttribute(token);
+          if (attribute != styleAttributes[0]) { // hardcoded default foreground color, black
             StyleRange style =
                 new StyleRange(
-                    scanner.getStartOffset() + event.lineOffset, scanner.getLength(), color, null);
+                    scanner.getStartOffset() + event.lineOffset,
+                    scanner.getLength(),
+                    attribute.getForeground(),
+                    null,
+                    attribute.getStyle());
             if (token == KEY) {
               style.fontStyle = SWT.BOLD;
             }
             if (styles.isEmpty()) {
-              styles.addElement(style);
+              styles.add(style);
             } else {
-              lastStyle = styles.lastElement();
+              lastStyle = styles.get(styles.size() - 1);
               if (lastStyle.similarTo(style)
                   && (lastStyle.start + lastStyle.length == style.start)) {
                 lastStyle.length += style.length;
               } else {
-                styles.addElement(style);
+                styles.add(style);
               }
             }
           }
@@ -172,12 +174,11 @@ public class GenericCodeHighlight implements LineStyleListener {
       }
       token = scanner.nextToken();
     }
-    event.styles = new StyleRange[styles.size()];
-    styles.copyInto(event.styles);
+    event.styles = styles.toArray(new StyleRange[styles.size()]);
   }
 
   public void parseBlockComments(String text) {
-    blockComments = new Vector<>();
+    blockComments = new ArrayList<>();
     StringReader buffer = new StringReader(text);
     int ch;
     boolean blkComment = false;
@@ -192,7 +193,7 @@ public class GenericCodeHighlight implements LineStyleListener {
             {
               if (blkComment) {
                 offsets[1] = cnt;
-                blockComments.addElement(offsets);
+                blockComments.add(offsets);
               }
               done = true;
               break;
@@ -219,7 +220,7 @@ public class GenericCodeHighlight implements LineStyleListener {
                 if (ch == '/') {
                   blkComment = false;
                   offsets[1] = cnt;
-                  blockComments.addElement(offsets);
+                  blockComments.add(offsets);
                 }
               }
               cnt++;
@@ -240,10 +241,8 @@ public class GenericCodeHighlight implements LineStyleListener {
   /** A simple fuzzy scanner for Java */
   public class CodeScanner {
 
-    protected Map<String, Integer> fgKeys = null;
-    protected Map<?, ?> fgFunctions = null;
-    protected Map<String, Integer> kfKeys = null;
-    protected Map<?, ?> kfFunctions = null;
+    protected Map<String, Integer> reservedKeywords = new HashMap<>();
+    protected Map<String, Integer> reservedFunctionNames = new HashMap<>();
     protected StringBuilder fBuffer = new StringBuilder();
     protected String fDoc;
     protected int fPos;
@@ -251,15 +250,9 @@ public class GenericCodeHighlight implements LineStyleListener {
     protected int fStartToken;
     protected boolean fEofSeen = false;
 
-    private List<String> kfKeywords = new ArrayList<>();
-
-    private List<String> fgKeywords = new ArrayList<>();
-
     public CodeScanner(List<String> keywords, List<String> functions) {
-      this.setKeywords(keywords);
-      this.setFunctions(functions);
-      initialize();
-      initializeETLFunctions();
+      this.addKeywords(keywords);
+      this.addFunctionNames(functions);
     }
 
     /** Returns the ending location of the current token in the document. */
@@ -267,29 +260,18 @@ public class GenericCodeHighlight implements LineStyleListener {
       return fPos - fStartToken;
     }
 
-    /** Initialize the lookup table. */
-    void initialize() {
-      fgKeys = new Hashtable<>();
-      Integer k = Integer.valueOf(KEY);
-      for (int i = 0; i < fgKeywords.size(); i++) {
-        fgKeys.put(fgKeywords.get(i), k);
+    public void addKeywords(List<String> reservedWords) {
+      if (Utils.isEmpty(reservedWords)) {
+        return;
       }
+      reservedWords.forEach(name -> reservedKeywords.put(name, Integer.valueOf(KEY)));
     }
 
-    public void setKeywords(List<String> kfKeywords) {
-      this.kfKeywords = kfKeywords;
-    }
-
-    public void setFunctions(List<String> functions) {
-      this.fgKeywords = functions;
-    }
-
-    void initializeETLFunctions() {
-      kfKeys = new Hashtable<>();
-      Integer k = Integer.valueOf(FUNCTIONS);
-      for (int i = 0; i < kfKeywords.size(); i++) {
-        kfKeys.put(kfKeywords.get(i), k);
+    public void addFunctionNames(List<String> functionNames) {
+      if (Utils.isEmpty(functionNames)) {
+        return;
       }
+      functionNames.forEach(name -> reservedFunctionNames.put(name, Integer.valueOf(FUNCTION)));
     }
 
     /** Returns the starting location of the current token in the document. */
@@ -374,13 +356,14 @@ public class GenericCodeHighlight implements LineStyleListener {
                 c = read();
               } while (Character.isJavaIdentifierPart((char) c));
               unread(c);
-              Integer i = fgKeys.get(fBuffer.toString());
-              if (i != null) {
-                return i.intValue();
+              String name = fBuffer.toString();
+              Integer token = reservedKeywords.get(name);
+              if (token != null) {
+                return token.intValue();
               }
-              i = kfKeys.get(fBuffer.toString());
-              if (i != null) {
-                return i.intValue();
+              token = reservedFunctionNames.get(name);
+              if (token != null) {
+                return token.intValue();
               }
               return WORD;
             }

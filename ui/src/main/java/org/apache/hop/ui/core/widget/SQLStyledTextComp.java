@@ -19,7 +19,7 @@ package org.apache.hop.ui.core.widget;
 
 import java.util.List;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.ui.core.widget.highlight.SQLValuesHighlight;
+import org.apache.hop.ui.core.widget.highlight.SqlHighlight;
 import org.eclipse.swt.widgets.Composite;
 
 public class SQLStyledTextComp extends StyledTextVar {
@@ -44,11 +44,11 @@ public class SQLStyledTextComp extends StyledTextVar {
 
   @Override
   public void addLineStyleListener() {
-    addLineStyleListener(new SQLValuesHighlight(List.of()));
+    addLineStyleListener(new SqlHighlight(List.of()));
   }
 
   @Override
   public void addLineStyleListener(List<String> keywords) {
-    addLineStyleListener(new SQLValuesHighlight(keywords));
+    addLineStyleListener(new SqlHighlight(keywords));
   }
 }
