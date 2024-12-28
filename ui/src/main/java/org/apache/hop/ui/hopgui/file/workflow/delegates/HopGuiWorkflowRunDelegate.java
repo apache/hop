@@ -36,6 +36,7 @@ import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.workflow.dialog.WorkflowExecutionConfigurationDialog;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.www.RemoteHopServer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
@@ -108,25 +109,28 @@ public class HopGuiWorkflowRunDelegate {
         hopGui.getShell(), executionConfiguration, workflowMeta);
   }
 
-  private static void showSaveJobBeforeRunningDialog(Shell shell) {
+  private static void showSaveWorkflowBeforeRunningDialog(Shell shell) {
     MessageBox m = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
     m.setText(BaseMessages.getString(PKG, "WorkflowLog.Dialog.SaveJobBeforeRunning.Title"));
     m.setMessage(BaseMessages.getString(PKG, "WorkflowLog.Dialog.SaveJobBeforeRunning.Message"));
     m.open();
   }
 
-  private void monitorRemoteJob(
+  private void monitorRemoteWorkflow(
       final WorkflowMeta workflowMeta,
       final String serverObjectId,
-      final HopServerMeta remoteHopServer) {
+      final HopServerMeta hopServerMeta) {
     // There is a workflow running in the background. When it finishes log the result on the
     // console.
+
+    RemoteHopServer server = new RemoteHopServer(hopServerMeta);
+
     // Launch in a separate thread to prevent GUI blocking...
     //
     Thread thread =
         new Thread(
             () ->
-                remoteHopServer.monitorRemoteWorkflow(
+                server.monitorRemoteWorkflow(
                     hopGui.getVariables(),
                     hopGui.getLog(),
                     serverObjectId,
@@ -135,10 +139,10 @@ public class HopGuiWorkflowRunDelegate {
     thread.setName(
         "Monitor remote workflow '"
             + workflowMeta.getName()
-            + "', carte object id="
+            + "', server object id="
             + serverObjectId
             + ", hop server: "
-            + remoteHopServer.getName());
+            + server.getName());
     thread.start();
   }
 
