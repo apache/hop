@@ -38,5 +38,11 @@
             </includes>
             <outputDirectory>plugins/databases/as400</outputDirectory>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>net.sf.jt400:jt400:jar</include>
+            </includes>
+            <outputDirectory>lib/jdbc</outputDirectory>
+        </dependencySet>        
     </dependencySets>
 </assembly>
