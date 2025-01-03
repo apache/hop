@@ -28,4 +28,12 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases AS400</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.jt400</groupId>
+            <artifactId>jt400</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
 </project>
