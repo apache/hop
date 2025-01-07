@@ -25,11 +25,16 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.resolver.VariableResolver;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 
 /** This class is an implementation of IVariables */
 public class Variables implements IVariables {
@@ -139,11 +144,84 @@ public class Variables implements IVariables {
 
   @Override
   public synchronized String resolve(String aString) {
-    if (aString == null || aString.length() == 0) {
+    if (aString == null || aString.isEmpty()) {
       return aString;
     }
 
-    return StringUtil.environmentSubstitute(aString, properties);
+    String resolved = StringUtil.environmentSubstitute(aString, properties);
+
+    resolved = substituteVariableResolvers(resolved);
+
+    return resolved;
+  }
+
+  private String substituteVariableResolvers(String input) {
+    String resolved = input;
+    int startIndex = 0;
+    while (startIndex < resolved.length()) {
+      int resolverIndex = resolved.indexOf(StringUtil.RESOLVER_OPEN);
+      if (resolverIndex < 0) {
+        // There's nothing more to do here.
+        //
+        return resolved;
+      }
+
+      // Is there a close token?
+      //
+      int closeIndex = resolved.indexOf(StringUtil.RESOLVER_CLOSE, resolverIndex);
+      if (closeIndex < 0) {
+        // False positive on the open token
+        //
+        return resolved;
+      }
+
+      // The variable resolver String [resolverIndex, closeIndex$]
+      // is in the format: #{name:argument}
+      //
+      int colonIndex = resolved.indexOf(':', resolverIndex);
+      String name;
+      String argument;
+      if (colonIndex >= 0) {
+        name = resolved.substring(resolverIndex + StringUtil.RESOLVER_OPEN.length(), colonIndex);
+        argument = resolved.substring(colonIndex + 1, closeIndex);
+      } else {
+        name = resolved.substring(resolverIndex + StringUtil.RESOLVER_OPEN.length(), closeIndex);
+        argument = "";
+      }
+
+      try {
+        MultiMetadataProvider provider = HopMetadataInstance.getMetadataProvider();
+        IHopMetadataSerializer<VariableResolver> serializer =
+            provider.getSerializer(VariableResolver.class);
+
+        // This next loadA() method is relatively slow since it needs to go to disk.
+        //
+        VariableResolver resolver = serializer.load(name);
+        if (resolver == null) {
+          // return resolved;
+          //
+          throw new HopException(
+              "Variable Resolver '" + name + "' could not be found in the metadata");
+        }
+        String resolvedArgument = resolver.getIResolver().resolve(argument, this);
+
+        // We take the first part of the original resolved string, the resolved argument, and the
+        // last part
+        // to continue resolving all expressions in the string.
+        //
+        String before = resolved.substring(0, resolverIndex);
+        String after = resolved.substring(closeIndex + 1);
+        resolved = before + resolvedArgument + after;
+
+        // Where do we continue?
+        startIndex = before.length() + resolvedArgument.length();
+
+      } catch (HopException e) {
+        throw new RuntimeException(
+            "Error resolving variable '" + input + "' with variable resolver metadata", e);
+      }
+    }
+    return resolved;
   }
 
   /**

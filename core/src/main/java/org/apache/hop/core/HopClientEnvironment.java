@@ -39,6 +39,7 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.variables.resolver.VariableResolverPluginType;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.vfs.plugin.VfsPluginType;
 
@@ -80,6 +81,7 @@ public class HopClientEnvironment {
             DatabasePluginType.getInstance(),
             ExtensionPointPluginType.getInstance(),
             TwoWayPasswordEncoderPluginType.getInstance(),
+            VariableResolverPluginType.getInstance(),
             VfsPluginType.getInstance()));
   }
 
