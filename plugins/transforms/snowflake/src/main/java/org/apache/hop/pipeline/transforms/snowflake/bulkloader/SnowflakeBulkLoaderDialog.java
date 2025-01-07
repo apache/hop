@@ -1530,7 +1530,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     // New class: SelectTableDialog
     int connr = wConnection.getSelectionIndex();
     if (connr >= 0) {
-      DatabaseMeta inf = pipelineMeta.getDatabases().get(connr);
+      DatabaseMeta inf = pipelineMeta.findDatabase(wConnection.getText(), variables);
 
       if (log.isDebug()) {
         logDebug(

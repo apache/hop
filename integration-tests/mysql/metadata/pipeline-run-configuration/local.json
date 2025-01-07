@@ -1,0 +1,20 @@
+{
+  "engineRunConfiguration": {
+    "Local": {
+      "feedback_size": "50000",
+      "sample_size": "100",
+      "sample_type_in_gui": "Last",
+      "wait_time": "20",
+      "rowset_size": "10000",
+      "safe_mode": false,
+      "show_feedback": false,
+      "topo_sort": false,
+      "gather_metrics": false,
+      "transactional": false
+    }
+  },
+  "defaultSelection": true,
+  "configurationVariables": [],
+  "name": "local",
+  "description": "Runs your pipelines locally with the standard local Hop pipeline engine"
+}
