@@ -82,6 +82,16 @@
 
                 <include>com.google.analytics:google-analytics-data:jar</include>
                 <include>com.google.api.grpc:proto-google-analytics-data-v1beta:jar</include>
+
+                <include>com.google.cloud:google-cloud-secretmanager:jar</include>
+                <include>com.google.api.grpc:proto-google-cloud-secretmanager-v1beta2:jar</include>
+                <include>com.google.api.grpc:proto-google-iam-v1:jar</include>
+                <include>com.google.api.grpc:proto-google-cloud-secretmanager-v1:jar</include>
+                <include>io.grpc:grpc-inprocess:jar</include>
+                <include>io.grpc:grpc-s2a:jar</include>
+                <include>io.grpc:grpc-util:jar</include>
+                <include>com.google.auth:google-auth-library-oauth2-http:jar</include>
+
             </includes>
             <outputDirectory>plugins/tech/google/lib</outputDirectory>
         </dependencySet>

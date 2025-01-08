@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
@@ -198,10 +199,11 @@ public class Variables implements IVariables {
         //
         VariableResolver resolver = serializer.load(name);
         if (resolver == null) {
-          // return resolved;
-          //
-          throw new HopException(
-              "Variable Resolver '" + name + "' could not be found in the metadata");
+          if (LogChannel.GENERAL.isDetailed()) {
+            LogChannel.GENERAL.logDetailed(
+                "WARNING: Variable Resolver '" + name + "' could not be found in the metadata");
+          }
+          return resolved;
         }
         String resolvedArgument = resolver.getIResolver().resolve(argument, this);
 
