@@ -22,10 +22,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.resolver.IVariableResolver;
 import org.apache.hop.core.variables.resolver.VariableResolver;
@@ -38,7 +42,12 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.engines.remote.PipelineRunConfigurationTypeMetadata;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.RowAdapter;
+import org.apache.hop.ui.hopgui.file.pipeline.extension.TypePipelineFile;
+import org.json.simple.JSONObject;
 
 @Getter
 @Setter
@@ -47,8 +56,7 @@ import org.apache.hop.pipeline.engines.remote.PipelineRunConfigurationTypeMetada
     id = "Variable-Resolver-Pipeline",
     name = "Pipeline Variable Resolver",
     description = "Use a pipeline to resolve the value of a variable expression",
-    documentationUrl = "/variables/resolvers/pipeline.html" // TODO: write this documentation
-    )
+    documentationUrl = "/metadata-types/variable-resolvers/pipeline-variable-resolver.html")
 public class VariableResolverPipeline implements IVariableResolver {
 
   /** The name of the pipeline filename to use to resolve variable expressions */
@@ -56,6 +64,7 @@ public class VariableResolverPipeline implements IVariableResolver {
       id = "filename",
       order = "01",
       label = "i18n::VariableResolverEditor.label.Filename",
+      typeFilename = TypePipelineFile.class,
       type = GuiElementType.FILENAME,
       parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID)
   @HopMetadataProperty()
@@ -81,6 +90,16 @@ public class VariableResolverPipeline implements IVariableResolver {
       parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID)
   @HopMetadataProperty
   private String expressionVariableName;
+
+  /** The name of the variable that will contain the expression in the pipeline. */
+  @GuiWidgetElement(
+      id = "outputTransformName",
+      order = "03",
+      label = "i18n::VariableResolverEditor.label.OutputTransformName",
+      type = GuiElementType.TEXT,
+      parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @HopMetadataProperty
+  private String outputTransformName;
 
   @Override
   public void init() {
@@ -142,13 +161,39 @@ public class VariableResolverPipeline implements IVariableResolver {
     // Run the pipeline
     //
     pipeline.prepareExecution();
+
+    // Collect output rows...
+    //
+    JSONObject resultJs = new JSONObject();
+    ITransform transform =
+        ((LocalPipelineEngine) pipeline).getRunThread(variables.resolve(outputTransformName), 0);
+    transform.addRowListener(
+        new RowAdapter() {
+          @Override
+          public void rowReadEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+            // We're only interested in the first row.
+            //
+            if (resultJs.isEmpty()) {
+              for (int i = 0; i < rowMeta.size(); i++) {
+                IValueMeta valueMeta = rowMeta.getValueMeta(i);
+                String name = valueMeta.getName();
+                try {
+                  String value = rowMeta.getString(row, i);
+                  resultJs.put(name, value);
+                } catch (Exception e) {
+                  LogChannel.GENERAL.logError(
+                      "Error getting string field from value '" + name + "'", e);
+                }
+              }
+            }
+          }
+        });
+
     pipeline.startThreads();
     pipeline.waitUntilFinished();
 
-    // After completion, get the variable value back.
-    // Use the Set Variables transform to do this.
+    // After completion, get the JSON of the row back.
     //
-    expression = pipeline.getVariable(variableName);
-    return expression;
+    return resultJs.toJSONString();
   }
 }

@@ -20,6 +20,8 @@ under the License.
 :closevar: }
 :description: Well-designed Hop solutions never use hard coded values. Hop offers variables on the global, project and environment levels, and allows workflows and parameters to provide parameters, to set and read variables in runtime etc.
 
+:TOC:
+
 = Variables
 
 == What is a Hop variable?
@@ -116,6 +118,18 @@ A few examples:
 |`$[f09d849e]`
 |The 4 bytes representing UTF-8 character 𝄞
 |===
+
+== Variable Resolvers
+
+A variable resolver is a xref:metadata-types/index.adoc[metadata element] that allows us to find values using resolver plugins.
+The format to use to resolve variables using these metadata elements is the following:
+
+[source]
+----
+#{name:key:element}
+----
+
+For more information about how this works, go to the xref:metadata-types/variable-resolver/index.adoc[Variable Resolver page].
 
 == How can I define variables?
 
