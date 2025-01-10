@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
@@ -36,6 +37,8 @@ import org.apache.hop.core.variables.resolver.VariableResolver;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 /** This class is an implementation of IVariables */
 public class Variables implements IVariables {
@@ -151,7 +154,10 @@ public class Variables implements IVariables {
 
     String resolved = StringUtil.environmentSubstitute(aString, properties);
 
-    resolved = substituteVariableResolvers(resolved);
+    String r = substituteVariableResolvers(resolved);
+    if (r != null) {
+      resolved = r;
+    }
 
     return resolved;
   }
@@ -164,7 +170,7 @@ public class Variables implements IVariables {
       if (resolverIndex < 0) {
         // There's nothing more to do here.
         //
-        return resolved;
+        return null;
       }
 
       // Is there a close token?
@@ -173,21 +179,28 @@ public class Variables implements IVariables {
       if (closeIndex < 0) {
         // False positive on the open token
         //
-        return resolved;
+        return null;
       }
 
-      // The variable resolver String [resolverIndex, closeIndex$]
-      // is in the format: #{name:argument}
-      //
+      /*
+       The following variable resolver string
+
+          [resolverIndex, closeIndex$]
+
+       is in the format:
+
+         #{name:arguments}
+
+      */
       int colonIndex = resolved.indexOf(':', resolverIndex);
       String name;
-      String argument;
+      String arguments;
       if (colonIndex >= 0) {
         name = resolved.substring(resolverIndex + StringUtil.RESOLVER_OPEN.length(), colonIndex);
-        argument = resolved.substring(colonIndex + 1, closeIndex);
+        arguments = resolved.substring(colonIndex + 1, closeIndex);
       } else {
         name = resolved.substring(resolverIndex + StringUtil.RESOLVER_OPEN.length(), closeIndex);
-        argument = "";
+        arguments = "";
       }
 
       try {
@@ -205,9 +218,55 @@ public class Variables implements IVariables {
           }
           return resolved;
         }
-        String resolvedArgument = resolver.getIResolver().resolve(argument, this);
 
-        // We take the first part of the original resolved string, the resolved argument, and the
+        /*
+
+         The arguments come in the form: path-key:value-key
+         For example: #{vault:hop/data/some-db:hostname}
+         The secret path part will be "hop/data/some-db" and the secret value part is "hostname".
+
+        */
+        String secretPath;
+        String secretValue = null;
+
+        String[] parameters = arguments.split(":");
+        secretPath = parameters[0];
+        if (parameters.length > 1) {
+          secretValue = parameters[1];
+        }
+
+        String resolvedArgument = resolver.getIResolver().resolve(secretPath, this);
+        if (StringUtils.isEmpty(resolvedArgument)) {
+          return resolved;
+        }
+
+        // If we have a value to retrieve from the JSON we got back, we can do that:
+        //
+        if (StringUtils.isEmpty(secretValue)) {
+          return resolvedArgument;
+        } else {
+          try {
+            JSONObject js = (JSONObject) new JSONParser().parse(resolvedArgument);
+            Object value = js.get(secretValue);
+            if (value == null) {
+              // Value not found in the secret
+              resolvedArgument = "";
+            } else {
+              resolvedArgument = value.toString();
+            }
+          } catch (Exception e) {
+            LogChannel.GENERAL.logError(
+                "Error parsing JSON '"
+                    + resolvedArgument
+                    + "} to retrieve secret value '"
+                    + secretValue
+                    + "'",
+                e);
+            // Keep the origin String
+          }
+        }
+
+        // We take the first part of the original resolved string, the resolved arguments, and the
         // last part
         // to continue resolving all expressions in the string.
         //
@@ -217,7 +276,6 @@ public class Variables implements IVariables {
 
         // Where do we continue?
         startIndex = before.length() + resolvedArgument.length();
-
       } catch (HopException e) {
         throw new RuntimeException(
             "Error resolving variable '" + input + "' with variable resolver metadata", e);
@@ -240,7 +298,7 @@ public class Variables implements IVariables {
   @Override
   public String resolve(String aString, IRowMeta rowMeta, Object[] rowData)
       throws HopValueException {
-    if (aString == null || aString.length() == 0) {
+    if (aString == null || aString.isEmpty()) {
       return aString;
     }
 

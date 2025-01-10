@@ -30,12 +30,12 @@ public interface IVariableResolver {
   /**
    * Resolve the variables in the given String.
    *
-   * @param string The String in which we want to replace variables.
+   * @param secretPath The
    * @param variables The variables and values to use as a reference
    * @return The input string with expressions resolved.
    * @throws HopException In case something goes wrong.
    */
-  String resolve(String string, IVariables variables) throws HopException;
+  String resolve(String secretPath, IVariables variables) throws HopException;
 
   void setPluginId();
 

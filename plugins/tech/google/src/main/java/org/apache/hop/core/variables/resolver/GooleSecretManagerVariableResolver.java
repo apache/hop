@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
@@ -77,7 +78,7 @@ public class GooleSecretManagerVariableResolver implements IVariableResolver {
   public String resolve(String secretId, IVariables variables) throws HopException {
 
     if (StringUtils.isEmpty(secretId)) {
-      return secretId;
+      return null;
     }
 
     try {
@@ -115,8 +116,9 @@ public class GooleSecretManagerVariableResolver implements IVariableResolver {
         return response.getPayload().getData().toStringUtf8();
       }
     } catch (Exception e) {
-      throw new HopException(
+      LogChannel.GENERAL.logError(
           "Error looking up secret key '" + secretId + "' in Google Secret Manager", e);
+      return null;
     }
   }
 
