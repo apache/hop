@@ -160,7 +160,9 @@ public class VariableResolverPipeline implements IVariableResolver {
 
     if (!(pipeline instanceof LocalPipelineEngine)) {
       LogChannel.GENERAL.logError(
-              "The pipeline run configuration needs to be of type 'Native Local' to resolve variable expression '"+expression+"'");
+          "The pipeline run configuration needs to be of type 'Native Local' to resolve variable expression '"
+              + expression
+              + "'");
       return null;
     }
 
