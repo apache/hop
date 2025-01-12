@@ -158,6 +158,12 @@ public class VariableResolverPipeline implements IVariableResolver {
     pipeline.setLogLevel(configuration.getLogLevel());
     pipeline.setMetadataProvider(metadataProvider);
 
+    if (!(pipeline instanceof LocalPipelineEngine)) {
+      LogChannel.GENERAL.logError(
+              "The pipeline run configuration needs to be of type 'Native Local' to resolve variable expression '"+expression+"'");
+      return null;
+    }
+
     // Run the pipeline
     //
     pipeline.prepareExecution();

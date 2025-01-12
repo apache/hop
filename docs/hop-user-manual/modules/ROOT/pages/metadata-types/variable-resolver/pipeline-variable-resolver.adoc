@@ -25,7 +25,8 @@ under the License.
 We can create a new variable resolver metadata element of type `Pipeline Variable Resolver`.
 The options used are fairly simple:
 
-* The pipeline filename to use: this has to be of type xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Native Local].
+* The pipeline filename to use: The file name of the pipeline to run to resolve a variable expression.
+* Pipeline Run configuration name: this has to reference a run configuration of type: xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Native Local].
 * The name of the variable in the pipeline that will contain the expression to resolve
 * The name of the output field to use to pick up the value of the fields.
 
