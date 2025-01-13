@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
-        <version>32</version>
+        <version>33</version>
     </parent>
 
     <groupId>org.apache.hop</groupId>
@@ -254,8 +254,7 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <releaseProfiles>ReleaseProfile</releaseProfiles>
-                    <arguments>-PReleaseProfile</arguments>
+                    <arguments>-P=-assemblies,-assembly -DskipTests</arguments>
                 </configuration>
             </plugin>
             <plugin>
@@ -626,7 +625,7 @@
             </dependencyManagement>
         </profile>
         <profile>
-            <id>ReleaseProfile</id>
+            <id>apache-release</id>
             <build>
                 <plugins>
                     <plugin>
