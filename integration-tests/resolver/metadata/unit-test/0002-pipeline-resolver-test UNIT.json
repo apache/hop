@@ -38,39 +38,6 @@
         "password"
       ],
       "data_set_name": "0002-golden-pipeline-resolver",
-      "transform_name": "Output"
-    },
-    {
-      "field_mappings": [
-        {
-          "transform_field": "hostname",
-          "data_set_field": "hostname"
-        },
-        {
-          "transform_field": "port",
-          "data_set_field": "port"
-        },
-        {
-          "transform_field": "db",
-          "data_set_field": "db"
-        },
-        {
-          "transform_field": "username",
-          "data_set_field": "username"
-        },
-        {
-          "transform_field": "password",
-          "data_set_field": "password"
-        }
-      ],
-      "field_order": [
-        "hostname",
-        "port",
-        "db",
-        "username",
-        "password"
-      ],
-      "data_set_name": "0002-golden-pipeline-resolver",
       "transform_name": "Validate"
     }
   ],
