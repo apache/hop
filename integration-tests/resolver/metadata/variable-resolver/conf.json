@@ -1,0 +1,13 @@
+{
+  "virtualPath": "",
+  "name": "conf",
+  "description": "Uses a pipeline to read configuration files using variable expressions",
+  "variable-resolver": {
+    "Variable-Resolver-Pipeline": {
+      "outputTransformName": "OUTPUT",
+      "filename": "${PROJECT_HOME}/0002-pipeline-get-configurations.hpl",
+      "expressionVariableName": "TYPE",
+      "runConfigurationName": "local"
+    }
+  }
+}

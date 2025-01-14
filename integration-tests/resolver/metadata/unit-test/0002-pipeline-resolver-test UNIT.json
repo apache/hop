@@ -10,9 +10,38 @@
     {
       "field_mappings": [
         {
-          "transform_field": "json-data",
-          "data_set_field": "json-data"
+          "transform_field": "hostname",
+          "data_set_field": "hostname"
         },
+        {
+          "transform_field": "port",
+          "data_set_field": "port"
+        },
+        {
+          "transform_field": "db",
+          "data_set_field": "db"
+        },
+        {
+          "transform_field": "username",
+          "data_set_field": "username"
+        },
+        {
+          "transform_field": "password",
+          "data_set_field": "password"
+        }
+      ],
+      "field_order": [
+        "hostname",
+        "port",
+        "db",
+        "username",
+        "password"
+      ],
+      "data_set_name": "0002-golden-pipeline-resolver",
+      "transform_name": "Output"
+    },
+    {
+      "field_mappings": [
         {
           "transform_field": "hostname",
           "data_set_field": "hostname"
@@ -35,19 +64,18 @@
         }
       ],
       "field_order": [
-        "json-data",
         "hostname",
         "port",
         "db",
         "username",
         "password"
       ],
-      "data_set_name": "0001-golden-resolved-variables",
-      "transform_name": "Output"
+      "data_set_name": "0002-golden-pipeline-resolver",
+      "transform_name": "Validate"
     }
   ],
   "input_data_sets": [],
-  "name": "0001-resolve-secrets UNIT",
+  "name": "0002-pipeline-resolver-test UNIT",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0001-resolve-secrets.hpl"
+  "pipeline_filename": "./0002-pipeline-resolver-test.hpl"
 }
