@@ -23,6 +23,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
@@ -50,6 +54,7 @@ import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.highlight.SQLValuesHighlight;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -68,6 +73,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -92,10 +98,19 @@ public class TableInputDialog extends BaseTransformDialog {
 
   private Label wlPosition;
 
+  private AtomicReference<SQLValuesHighlight> sqlHighlightListener =
+      new AtomicReference<>(new SQLValuesHighlight(List.of()));
+
   public TableInputDialog(
       Shell parent, IVariables variables, TableInputMeta transformMeta, PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
+    final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    pipelineMeta.getDatabases().parallelStream()
+        .forEach(
+            db -> {
+              executorService.submit(() -> fetchKeywords(db));
+            });
   }
 
   @Override
@@ -139,7 +154,13 @@ public class TableInputDialog extends BaseTransformDialog {
     wTransformName.setLayoutData(fdTransformName);
 
     wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
-    wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
+    wConnection.addListener(
+        SWT.Selection,
+        e -> {
+          final List<String> k =
+              input.getKeywordsByConnectionName(wConnection.getText()).orElse(List.of());
+          refreshLineStyleListener(k);
+        });
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -343,10 +364,9 @@ public class TableInputDialog extends BaseTransformDialog {
     wDataFrom.addListener(SWT.Selection, e -> setFlags());
     wDataFrom.addListener(SWT.FocusOut, e -> setFlags());
 
-    final List<String> sqlKeywords = getSqlReservedWords();
-
-    wSql.addLineStyleListener(sqlKeywords);
     getData();
+    initSQLFormat();
+
     input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -354,21 +374,65 @@ public class TableInputDialog extends BaseTransformDialog {
     return transformName;
   }
 
-  private List<String> getSqlReservedWords() {
-    // Do not search keywords when connection is empty
-    if (input.getConnection() == null || input.getConnection().isEmpty()) {
-      return new ArrayList<>();
+  private void initSQLFormat() {
+    String connectionName = input.getConnection();
+    final Optional<List<String>> keywordsByConnectionName =
+        input.getKeywordsByConnectionName(connectionName);
+    if (keywordsByConnectionName.isPresent()) {
+      refreshLineStyleListener(keywordsByConnectionName.get());
+    } else {
+      refreshLineStyleListener(List.of());
+      Executors.newSingleThreadExecutor()
+          .submit(
+              () -> {
+                fetchKeywords(input.getConnection());
+                final Optional<List<String>> optKeywords =
+                    input.getKeywordsByConnectionName(connectionName);
+                if (optKeywords.isPresent()) {
+                  Display.getDefault().asyncExec(() -> refreshLineStyleListener(optKeywords.get()));
+                }
+              });
     }
+  }
 
-    // If connection is a variable that can't be resolved
-    if (variables.resolve(input.getConnection()).startsWith("${")) {
-      return new ArrayList<>();
+  private synchronized void refreshLineStyleListener(List<String> keywords) {
+    wSql.removeLineStyleListener(sqlHighlightListener.get());
+    sqlHighlightListener.set(new SQLValuesHighlight(keywords));
+    wSql.addLineStyleListener(sqlHighlightListener.get());
+    wSql.setText(wSql.getText());
+    // wSql.setRedraw(true);
+  }
+
+  //  private List<String> getAsyncSqlReservedWords(String connectionName) {
+  //    if (connectionName == null || connectionName.isEmpty()) {
+  //      return new ArrayList<>();
+  //    }
+  //    if (variables.resolve(connectionName).startsWith("${")) { // COULDN'T resolve variable: skip
+  //      return new ArrayList<>();
+  //    }
+  //    return input
+  //        .getKeywordsByConnectionName(connectionName)
+  //        .orElseGet(
+  //            () -> {
+  //              Executors.newSingleThreadExecutor().submit(() -> fetchKeywords(connectionName));
+  //              return List.of();
+  //            });
+  //  }
+
+  private void fetchKeywords(String connectionName) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+    if (databaseMeta != null) {
+      fetchKeywords(databaseMeta);
+    } else {
+      logError("Unable to find database '" + connectionName + "'");
     }
+  }
 
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+  private void fetchKeywords(DatabaseMeta databaseMeta) {
+
     if (databaseMeta == null) {
       logError("Database connection not found. Proceding without keywords.");
-      return new ArrayList<>();
+      return;
     }
     Database db = new Database(loggingObject, variables, databaseMeta);
     DatabaseMetaData databaseMetaData = null;
@@ -377,22 +441,25 @@ public class TableInputDialog extends BaseTransformDialog {
       databaseMetaData = db.getDatabaseMetaData();
       if (databaseMetaData == null) {
         logError("Couldn't get database metadata");
-        return new ArrayList<>();
+        return;
       }
       List<String> sqlKeywords = new ArrayList<>();
       try {
         final ResultSet functionsResultSet = databaseMetaData.getFunctions(null, null, null);
         while (functionsResultSet.next()) {
-          sqlKeywords.add(functionsResultSet.getString("FUNCTION_NAME"));
+          String functionName = functionsResultSet.getString("FUNCTION_NAME");
+          if (functionName.contains(";")) {
+            functionName = functionName.substring(0, functionName.indexOf(";"));
+          }
+          sqlKeywords.add(functionName);
         }
         sqlKeywords.addAll(Arrays.asList(databaseMetaData.getSQLKeywords().split(",")));
       } catch (SQLException e) {
         logError("Couldn't extract keywords from database metadata. Proceding without them.");
       }
-      return sqlKeywords;
+      input.putKeywords(databaseMeta.getName(), sqlKeywords);
     } catch (HopDatabaseException e) {
       logError("Couldn't extract keywords from database metadata. Proceding without them.");
-      return new ArrayList<>();
     } finally {
       db.disconnect();
       db.close();
