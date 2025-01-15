@@ -51,4 +51,9 @@ public class SQLStyledTextComp extends StyledTextVar {
   public void addLineStyleListener(List<String> keywords) {
     addLineStyleListener(new SqlHighlight(keywords));
   }
+
+  @Override
+  public void removeLineStyleListener(LineStyleListener listener) {
+    textWidget.removeLineStyleListener(listener);
+  }
 }

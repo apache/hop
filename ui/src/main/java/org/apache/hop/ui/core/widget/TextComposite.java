@@ -26,6 +26,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.MenuDetectListener;
+import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
@@ -57,6 +58,10 @@ public abstract class TextComposite extends Composite {
   public abstract void addLineStyleListener();
 
   public abstract void addLineStyleListener(List<String> keywords);
+
+  public void addLineStyleListener(LineStyleListener listener) {
+    throw new UnsupportedOperationException("Cannot add the line style listener");
+  }
 
   public void addLineStyleListener(String scriptEngine) {
     throw new UnsupportedOperationException("Cannot specify a script engine");
@@ -342,4 +347,8 @@ public abstract class TextComposite extends Composite {
 
     setMenu(popupMenu);
   }
+
+    public void removeLineStyleListener(LineStyleListener listener) {
+        throw new UnsupportedOperationException("Cannot remove the listener");
+    }
 }
