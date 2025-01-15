@@ -37,6 +37,21 @@ NOTE: Because of usability reasons, errors are not immediately shown in the user
 
 TIP: If you find that typing in variable expressions in a table view (table grid) is too slow, uncheck the option to resolve variables in tooltips in the xref:hop-gui/perspective-configuration.adoc[configuration perspective].
 
+== Nested resolving
+
+Suppose you have a variable with its value being a resolve expression. In that case you'll notice that when you ask for the value of the variable, the variable resolver also is being used.
+
+For example, you can have a `PASSWORD` variable pointing to value `p@55w0rd` in a development environment, and to a secrets vault in production by setting `PASSWORD` to a resolver expression like:
+
+[source]
+----
+#{vault:secret/data/database:password}
+----
+
+When executing a pipeline or workflow, the value of variable `PASSWORD` will then first be resolved to the expression and then, using the variable resolver called `vault`, the password is retrieved from the secrets vault.
+
+NOTE: For now, the variable resolver is not doing any more nested resolving to avoid complications like infinite loops.
+
 == Plugins
 
 Here are the available variable resolver plugins:
