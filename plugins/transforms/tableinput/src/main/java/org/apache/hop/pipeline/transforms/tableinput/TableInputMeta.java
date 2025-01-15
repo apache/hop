@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -527,5 +528,15 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     }
 
     return ioMeta;
+  }
+
+  private List<String> keywords = new ArrayList<>();
+
+  public List<String> getKeywords() {
+    return keywords;
+  }
+
+  public synchronized void updateKeywords(List<String> keywords) {
+    this.keywords = keywords;
   }
 }

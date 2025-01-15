@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
@@ -355,6 +356,7 @@ public class TableInputDialog extends BaseTransformDialog {
   }
 
   private List<String> getSqlReservedWords() {
+
     // Do not search keywords when connection is empty
     if (input.getConnection() == null || input.getConnection().isEmpty()) {
       return new ArrayList<>();
@@ -365,10 +367,19 @@ public class TableInputDialog extends BaseTransformDialog {
       return new ArrayList<>();
     }
 
+    if (input.getKeywords() != null && input.getKeywords().size() > 0) {
+      return input.getKeywords();
+    }
+    Executors.newSingleThreadExecutor().submit(() -> fetchKeywords());
+
+    return input.getKeywords();
+  }
+
+  private void fetchKeywords() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
     if (databaseMeta == null) {
       logError("Database connection not found. Proceding without keywords.");
-      return new ArrayList<>();
+      return;
     }
     Database db = new Database(loggingObject, variables, databaseMeta);
     DatabaseMetaData databaseMetaData = null;
@@ -377,22 +388,27 @@ public class TableInputDialog extends BaseTransformDialog {
       databaseMetaData = db.getDatabaseMetaData();
       if (databaseMetaData == null) {
         logError("Couldn't get database metadata");
-        return new ArrayList<>();
+        return;
       }
       List<String> sqlKeywords = new ArrayList<>();
       try {
         final ResultSet functionsResultSet = databaseMetaData.getFunctions(null, null, null);
         while (functionsResultSet.next()) {
-          sqlKeywords.add(functionsResultSet.getString("FUNCTION_NAME"));
+          String functionName = functionsResultSet.getString("FUNCTION_NAME");
+          if (functionName.contains(";")) {
+            functionName = functionName.substring(0, functionName.indexOf(";"));
+          }
+          sqlKeywords.add(functionName);
         }
         sqlKeywords.addAll(Arrays.asList(databaseMetaData.getSQLKeywords().split(",")));
       } catch (SQLException e) {
         logError("Couldn't extract keywords from database metadata. Proceding without them.");
       }
-      return sqlKeywords;
+      input.updateKeywords(sqlKeywords);
+      wSql.addLineStyleListener(sqlKeywords);
+      wSql.redraw();
     } catch (HopDatabaseException e) {
       logError("Couldn't extract keywords from database metadata. Proceding without them.");
-      return new ArrayList<>();
     } finally {
       db.disconnect();
       db.close();
