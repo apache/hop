@@ -28,6 +28,10 @@
         {
           "transform_field": "password",
           "data_set_field": "password"
+        },
+        {
+          "transform_field": "variable",
+          "data_set_field": "variable"
         }
       ],
       "field_order": [
@@ -35,7 +39,8 @@
         "port",
         "db",
         "username",
-        "password"
+        "password",
+        "variable"
       ],
       "data_set_name": "0002-golden-pipeline-resolver",
       "transform_name": "Validate"

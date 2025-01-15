@@ -175,6 +175,15 @@ limitations under the License.
         <target_precision>-1</target_precision>
         <target_type>String</target_type>
       </field>
+      <field>
+        <field_name>Value</field_name>
+        <key_value>variable</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>variable</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
     </fields>
     <group>
 </group>

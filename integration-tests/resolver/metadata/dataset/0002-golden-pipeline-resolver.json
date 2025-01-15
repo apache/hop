@@ -42,6 +42,14 @@
       "field_precision": -1,
       "field_name": "password",
       "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "variable",
+      "field_format": ""
     }
   ],
   "folder_name": ""

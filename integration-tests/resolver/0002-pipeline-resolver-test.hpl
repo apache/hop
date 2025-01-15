@@ -211,6 +211,14 @@ limitations under the License.
         <type>String</type>
         <variable>#{conf:db1:port}</variable>
       </field>
+      <field>
+        <length>-1</length>
+        <name>variable</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>#{conf:db1:variable}</variable>
+      </field>
     </fields>
     <attributes/>
     <GUI>
@@ -270,6 +278,14 @@ limitations under the License.
         <type>String</type>
         <variable>#{conf:db2:port}</variable>
       </field>
+      <field>
+        <length>-1</length>
+        <name>variable</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>#{conf:db2:variable}</variable>
+      </field>
     </fields>
     <attributes/>
     <GUI>
@@ -328,6 +344,14 @@ limitations under the License.
         <trim_type>none</trim_type>
         <type>String</type>
         <variable>#{conf:db3:port}</variable>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>variable</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>#{conf:db3:variable}</variable>
       </field>
     </fields>
     <attributes/>
