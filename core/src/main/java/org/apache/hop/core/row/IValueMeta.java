@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
@@ -280,15 +281,39 @@ public interface IValueMeta extends Cloneable {
     LEFT("left", BaseMessages.getString(PKG, "ValueMeta.TrimType.Left"), TRIM_TYPE_LEFT),
     RIGHT("right", BaseMessages.getString(PKG, "ValueMeta.TrimType.Right"), TRIM_TYPE_RIGHT),
     BOTH("both", BaseMessages.getString(PKG, "ValueMeta.TrimType.Both"), TRIM_TYPE_BOTH);
-    private final String code;
-    private final String description;
-    private final int type;
+
+    /**
+     * -- GETTER -- Gets code
+     *
+     * @return value of code
+     */
+    @Getter private final String code;
+
+    /**
+     * -- GETTER -- Gets description
+     *
+     * @return value of description
+     */
+    @Getter private final String description;
+
+    /**
+     * -- GETTER -- Gets type
+     *
+     * @return value of type
+     */
+    @Getter private final int type;
 
     TrimType(String code, String description, int type) {
       this.code = code;
       this.description = description;
       this.type = type;
     }
+
+    /** The Rounding type codes */
+    @Getter
+    public static final String[] roundingTypeCode = {
+      "unnecessary", "ceiling", "down", "floor", "half_down", "half_even", "half_up", "up"
+    };
 
     public static String[] getDescriptions() {
       return IEnumHasCodeAndDescription.getDescriptions(TrimType.class);
@@ -309,33 +334,6 @@ public interface IValueMeta extends Cloneable {
         }
       }
       return NONE;
-    }
-
-    /**
-     * Gets code
-     *
-     * @return value of code
-     */
-    public String getCode() {
-      return code;
-    }
-
-    /**
-     * Gets description
-     *
-     * @return value of description
-     */
-    public String getDescription() {
-      return description;
-    }
-
-    /**
-     * Gets type
-     *
-     * @return value of type
-     */
-    public int getType() {
-      return type;
     }
   }
 
@@ -464,6 +462,20 @@ public interface IValueMeta extends Cloneable {
    * @param trimType the new trim type
    */
   void setTrimType(int trimType);
+
+  /**
+   * Gets the rounding type.
+   *
+   * @return the rounding type
+   */
+  String getRoundingType();
+
+  /**
+   * Sets the rounding type.
+   *
+   * @param roundingType the new rounding type
+   */
+  void setRoundingType(String roundingType);
 
   /**
    * Gets the index.

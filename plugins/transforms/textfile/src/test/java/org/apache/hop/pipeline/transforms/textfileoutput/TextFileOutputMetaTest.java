@@ -217,7 +217,8 @@ public class TextFileOutputMetaTest {
           currencySymbol,
           decimalSymbol,
           groupSymbol,
-          nullString);
+          nullString,
+          "floor");
     }
 
     @Override

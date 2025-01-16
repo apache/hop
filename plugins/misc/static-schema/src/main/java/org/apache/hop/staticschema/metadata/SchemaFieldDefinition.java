@@ -18,11 +18,15 @@
 package org.apache.hop.staticschema.metadata;
 
 import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class SchemaFieldDefinition implements Serializable {
 
   @HopMetadataProperty private String name;
@@ -47,6 +51,8 @@ public class SchemaFieldDefinition implements Serializable {
 
   @HopMetadataProperty private String comment;
 
+  @HopMetadataProperty private String roundingType;
+
   public SchemaFieldDefinition() {}
 
   public SchemaFieldDefinition(String name, String hopType) {
@@ -65,6 +71,7 @@ public class SchemaFieldDefinition implements Serializable {
         || valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
 
       valueMeta.setConversionMask(formatMask);
+      valueMeta.setRoundingType(roundingType);
     }
 
     if (valueMeta.getType() == IValueMeta.TYPE_NUMBER
@@ -78,133 +85,5 @@ public class SchemaFieldDefinition implements Serializable {
     valueMeta.setComments(comment);
 
     return valueMeta;
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * Gets hopType
-   *
-   * @return value of hopType
-   */
-  public String getHopType() {
-    return hopType;
-  }
-
-  /**
-   * @param hopType The hopType to set
-   */
-  public void setHopType(String hopType) {
-    this.hopType = hopType;
-  }
-
-  /**
-   * Gets length
-   *
-   * @return value of length
-   */
-  public int getLength() {
-    return length;
-  }
-
-  /**
-   * @param length The length to set
-   */
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  /**
-   * Gets precision
-   *
-   * @return value of precision
-   */
-  public int getPrecision() {
-    return precision;
-  }
-
-  /**
-   * @param precision The precision to set
-   */
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
-
-  /**
-   * Gets formatMask
-   *
-   * @return value of formatMask
-   */
-  public String getFormatMask() {
-    return formatMask;
-  }
-
-  /**
-   * @param formatMask The formatMask to set
-   */
-  public void setFormatMask(String formatMask) {
-    this.formatMask = formatMask;
-  }
-
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  public String getGroupingSymbol() {
-    return groupingSymbol;
-  }
-
-  public void setGroupingSymbol(String groupingSymbol) {
-    this.groupingSymbol = groupingSymbol;
-  }
-
-  public int getTrimType() {
-    return trimType;
-  }
-
-  public void setTrimType(int trimType) {
-    this.trimType = trimType;
-  }
-
-  public String getIfNullValue() {
-    return ifNullValue;
-  }
-
-  public void setIfNullValue(String ifNullValue) {
-    this.ifNullValue = ifNullValue;
-  }
-
-  public String getComment() {
-    return comment;
-  }
-
-  public void setComment(String comment) {
-    this.comment = comment;
   }
 }

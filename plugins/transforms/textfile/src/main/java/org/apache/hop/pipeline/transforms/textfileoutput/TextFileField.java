@@ -17,11 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 
 /** Describes a single field in a text file */
+@Getter
+@Setter
 public class TextFileField implements Cloneable {
   @Injection(name = "OUTPUT_FIELDNAME", group = "OUTPUT_FIELDS")
   private String name;
@@ -51,6 +55,8 @@ public class TextFileField implements Cloneable {
 
   private int trimType;
 
+  @Getter @Setter private String roundingType;
+
   public TextFileField(
       String name,
       int type,
@@ -60,7 +66,8 @@ public class TextFileField implements Cloneable {
       String currencySymbol,
       String decimalSymbol,
       String groupSymbol,
-      String nullString) {
+      String nullString,
+      String roundingType) {
     this.name = name;
     this.type = type;
     this.format = format;
@@ -70,6 +77,7 @@ public class TextFileField implements Cloneable {
     this.decimalSymbol = decimalSymbol;
     this.groupingSymbol = groupSymbol;
     this.nullString = nullString;
+    this.roundingType = roundingType;
   }
 
   public TextFileField() {}
@@ -96,26 +104,6 @@ public class TextFileField implements Cloneable {
     }
   }
 
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String fieldname) {
-    this.name = fieldname;
-  }
-
-  public int getType() {
-    return type;
-  }
-
   public String getTypeDesc() {
     return ValueMetaFactory.getValueMetaName(type);
   }
@@ -129,65 +117,9 @@ public class TextFileField implements Cloneable {
     this.type = ValueMetaFactory.getIdForValueMeta(typeDesc);
   }
 
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public String getGroupingSymbol() {
-    return groupingSymbol;
-  }
-
-  public void setGroupingSymbol(String groupSymbol) {
-    this.groupingSymbol = groupSymbol;
-  }
-
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  public int getPrecision() {
-    return precision;
-  }
-
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
-
-  public String getNullString() {
-    return nullString;
-  }
-
-  public void setNullString(String nullString) {
-    this.nullString = nullString;
-  }
-
   @Override
   public String toString() {
     return name + ":" + getTypeDesc();
-  }
-
-  public int getTrimType() {
-    return trimType;
-  }
-
-  public void setTrimType(int trimType) {
-    this.trimType = trimType;
   }
 
   @Injection(name = "OUTPUT_TRIM", group = "OUTPUT_FIELDS")
