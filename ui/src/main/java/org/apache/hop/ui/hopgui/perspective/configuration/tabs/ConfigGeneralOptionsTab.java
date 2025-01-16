@@ -60,6 +60,7 @@ public class ConfigGeneralOptionsTab {
   private Button wCopyDistribute;
   private Button wExitWarning;
   private Button wToolTip;
+  private Button wResolveVarsInTips;
   private Button wHelpTip;
   private Button wbUseDoubleClick;
   private Button wbDrawBorderAroundCanvasNames;
@@ -364,6 +365,28 @@ public class ConfigGeneralOptionsTab {
     wToolTip.addListener(SWT.Selection, this::saveValues);
     lastControl = wlToolTip;
 
+    // Resolve variables in tooltips
+    //
+    Label wlResolveVarInTips = new Label(wGeneralComp, SWT.RIGHT);
+    wlResolveVarInTips.setText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.ResolveVarsInTips.Label"));
+    PropsUi.setLook(wlResolveVarInTips);
+    FormData fdlResolveVarInTips = new FormData();
+    fdlResolveVarInTips.left = new FormAttachment(0, 0);
+    fdlResolveVarInTips.top = new FormAttachment(lastControl, margin);
+    fdlResolveVarInTips.right = new FormAttachment(middle, -margin);
+    wlResolveVarInTips.setLayoutData(fdlResolveVarInTips);
+    wResolveVarsInTips = new Button(wGeneralComp, SWT.CHECK);
+    PropsUi.setLook(wResolveVarsInTips);
+    wResolveVarsInTips.setSelection(props.resolveVariablesInToolTips());
+    FormData fdbResolveVarInTips = new FormData();
+    fdbResolveVarInTips.left = new FormAttachment(middle, 0);
+    fdbResolveVarInTips.top = new FormAttachment(wlResolveVarInTips, 0, SWT.CENTER);
+    fdbResolveVarInTips.right = new FormAttachment(100, 0);
+    wResolveVarsInTips.setLayoutData(fdbResolveVarInTips);
+    wResolveVarsInTips.addListener(SWT.Selection, this::saveValues);
+    lastControl = wlResolveVarInTips;
+
     // Help tool tips
     Label wlHelpTip = new Label(wGeneralComp, SWT.RIGHT);
     wlHelpTip.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.HelpToolTipsEnabled.Label"));
@@ -528,6 +551,7 @@ public class ConfigGeneralOptionsTab {
     props.setShowCopyOrDistributeWarning(wCopyDistribute.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setShowToolTips(wToolTip.getSelection());
+    props.setResolveVariablesInToolTips(wResolveVarsInTips.getSelection());
     props.setSortFieldByName(wSortFieldByName.getSelection());
     props.setShowingHelpToolTips(wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());

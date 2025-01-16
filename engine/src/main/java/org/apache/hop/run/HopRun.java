@@ -53,6 +53,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -903,6 +904,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Set up the metadata to use
       //
       hopRun.metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(hopRun.variables);
+      HopMetadataInstance.setMetadataProvider(hopRun.metadataProvider);
 
       // Now add configuration plugins with the RUN category.
       // The 'projects' plugin for example configures things like the project metadata provider.

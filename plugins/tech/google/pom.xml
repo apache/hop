@@ -34,7 +34,7 @@
     -->
     <properties>
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
-        <google-analytics.version>0.32.0</google-analytics.version>
+        <google-analytics.version>0.65.0</google-analytics.version>
         <google-api-client.version>2.2.0</google-api-client.version>
         <google-api-drive.version>v3-rev20230610-2.0.0</google-api-drive.version>
         <google-api-sheets.version>v4-rev20230526-2.0.0</google-api-sheets.version>
@@ -47,6 +47,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>26.51.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.apache.hop</groupId>
                 <artifactId>hop-libs</artifactId>
@@ -94,6 +101,12 @@
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-sqladmin</artifactId>
             <version>${google-api-sqladmin.version}</version>
+        </dependency>
+
+        <!-- Google Secrets Manager dependencies -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-secretmanager</artifactId>
         </dependency>
 
         <!-- Google Cloud Storage VFS dependencies -->

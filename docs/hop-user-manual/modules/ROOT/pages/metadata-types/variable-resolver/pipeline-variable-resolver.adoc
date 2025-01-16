@@ -1,0 +1,85 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[PipelineVariableResolver]]
+:imagesdir: ../assets/images
+:openvar: #{
+:closevar: }
+:description: This describes the usage of a pipeline to resolve variable expressions
+
+== Functionality
+
+We can create a new variable resolver metadata element of type `Pipeline Variable Resolver`.
+The options used are fairly simple:
+
+* The pipeline filename to use: The file name of the pipeline to run to resolve a variable expression.
+* Pipeline Run configuration name: this has to reference a run configuration of type: xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Native Local].
+* The name of the variable in the pipeline that will contain the expression to resolve
+* The name of the output field to use to pick up the value of the fields.
+
+This setup gives you a lot of flexibility.  Maybe you have a configuration file per database, per system, ...
+In that case you can set the variable to contain the type or name of the database, system, ... to read a configuration file for.
+You can retrieve multiple values from these alternative configuration stores and send them to the output transform in a single row.
+
+IMPORTANT: Only the first output row in the pipeline is considered.
+
+The variable expression is (as always) in the following format:
+
+`{openvar}name:variable:field{closevar}`
+
+* name: the name of the variable resolver metadata element to use
+* variable: the variable value to set in the variable specified in the metadata (see above)
+* field: the name of the field for which we want to retrieve a string in the output transform.
+
+== Example
+
+Suppose we have a number of databases we have configuration files for in separate properties files:
+
+* db1.properties
+* db2.properties
+* db3.properties
+...
+
+These all contain the same 5 keys, with different values of-course:
+
+[source,properties]
+----
+username=user1
+password=pwd1
+hostname=hostname1
+port=port1
+db=db1
+----
+
+We can then have a pipeline that reads and processes the appropriate file per type:
+
+image:metadata-types/variable-resolver/pipeline-variable-resolver-pipeline.png
+
+The Variable Resolver metadata would look like this:
+
+image:metadata-types/variable-resolver/pipeline-variable-resolver-conf.png
+
+
+Here are some examples of expressions and the results they give back:
+
+* `{openvar}conf:db1:username{closevar}` : user1
+* `{openvar}conf:db2:db{closevar}` : db2
+* `{openvar}conf:db3:port{closevar}` : port3
+
+This gives you a lot of flexibility.
+
+NOTE: In the case that you don't specify any field to retrieve, the whole row will be encoded as a JSON value and given back.
+

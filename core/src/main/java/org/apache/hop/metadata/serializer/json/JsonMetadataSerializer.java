@@ -29,6 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -45,12 +47,16 @@ import org.json.simple.JSONObject;
  */
 public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetadataSerializer<T> {
 
-  protected IHopMetadataProvider metadataProvider;
-  protected String baseFolder;
-  protected Class<T> managedClass;
+  @Setter @Getter protected IHopMetadataProvider metadataProvider;
+  @Setter @Getter protected String baseFolder;
+  @Setter @Getter protected Class<T> managedClass;
+  @Setter @Getter protected String description;
+
   protected JsonMetadataParser<T> parser;
   protected IVariables variables;
-  protected String description;
+
+  protected boolean baseFolderValidated;
+  protected boolean baseFolderExists;
 
   public JsonMetadataSerializer(
       IHopMetadataProvider metadataProvider,
@@ -67,15 +73,13 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   }
 
   @Override
-  public String getDescription() {
-    return description;
-  }
-
-  @Override
   public List<T> loadAll() throws HopException {
+    List<T> list = new ArrayList<>();
+    if (!baseFolderExists) {
+      return list;
+    }
     List<String> names = listObjectNames();
     Collections.sort(names);
-    List<T> list = new ArrayList<>();
     for (String name : names) {
       list.add(load(name));
     }
@@ -133,11 +137,56 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     }
   }
 
+  /**
+   * If we want to save something with this serializer, a folder needs to exist for the type. If we
+   * just want to read something, this is not required, and it's fine if the folder doesn't exist.
+   *
+   * @throws HopException In case we can't create a folder
+   */
+  protected void validateBaseFolder(boolean saveOperation) throws HopException {
+    if (baseFolderValidated) {
+      return;
+    }
+
+    // Check if the folder exists...
+    //
+    FileObject serializerBaseFolder = HopVfs.getFileObject(baseFolder);
+    try {
+      if (serializerBaseFolder.exists()) {
+        baseFolderValidated = true;
+        baseFolderExists = true;
+      } else {
+        if (saveOperation) {
+          serializerBaseFolder.createFolder();
+          baseFolderValidated = true;
+          baseFolderExists = true;
+        } else {
+          // This read operation doesn't really require a folder to be created, but we haven't
+          // validated
+          // the base folder either.
+          //
+          baseFolderExists = false;
+        }
+      }
+    } catch (Exception e) {
+      throw new HopException(
+          "Error validating or creating folder  '"
+              + baseFolder
+              + "'to access JSON serialized objects from metadata class "
+              + managedClass.getName(),
+          e);
+    }
+  }
+
   @Override
   public void save(T t) throws HopException {
     if (StringUtils.isEmpty(t.getName())) {
       throw new HopException("Error: To save a metadata object it needs to have a name");
     }
+
+    // Make sure the base folder exists
+    //
+    validateBaseFolder(true);
 
     String filename = calculateFilename(t.getName());
     try {
@@ -171,6 +220,10 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
 
   @Override
   public T delete(String name) throws HopException {
+    // Make sure the base folder exists
+    //
+    validateBaseFolder(true);
+
     if (name == null) {
       throw new HopException(
           "Error: you need to specify the name of the metadata object to delete");
@@ -194,11 +247,20 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
 
   @Override
   public List<String> listObjectNames() throws HopException {
+    List<String> names = new ArrayList<>();
+
+    // Read only access doesn't require a folder;
+    validateBaseFolder(false);
+    if (!baseFolderExists) {
+      // This is not an error.  We simply don't have objects of the given type.
+      //
+      return names;
+    }
+
     FileObject folder = HopVfs.getFileObject(baseFolder);
 
     try {
       List<FileObject> jsonFiles = HopVfs.findFiles(folder, "json", false);
-      List<String> names = new ArrayList<>();
       for (FileObject jsonFile : jsonFiles) {
         String baseName = jsonFile.getName().getBaseName();
         names.add(baseName.replaceAll("\\.json$", ""));
@@ -211,63 +273,11 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
 
   @Override
   public boolean exists(String name) throws HopException {
+    // Read only access doesn't require a folder;
+    validateBaseFolder(false);
+    if (!baseFolderExists) {
+      return false;
+    }
     return HopVfs.fileExists(calculateFilename(name));
-  }
-
-  /**
-   * Gets managedClass
-   *
-   * @return value of managedClass
-   */
-  @Override
-  public Class<T> getManagedClass() {
-    return managedClass;
-  }
-
-  /**
-   * Gets baseFolder
-   *
-   * @return value of baseFolder
-   */
-  public String getBaseFolder() {
-    return baseFolder;
-  }
-
-  /**
-   * Gets metadataProvider
-   *
-   * @return value of metadataProvider
-   */
-  @Override
-  public IHopMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
-  }
-
-  /**
-   * @param baseFolder The baseFolder to set
-   */
-  public void setBaseFolder(String baseFolder) {
-    this.baseFolder = baseFolder;
-  }
-
-  /**
-   * @param managedClass The managedClass to set
-   */
-  public void setManagedClass(Class<T> managedClass) {
-    this.managedClass = managedClass;
-  }
-
-  /**
-   * @param description The description to set
-   */
-  public void setDescription(String description) {
-    this.description = description;
   }
 }

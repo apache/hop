@@ -51,6 +51,10 @@ public class StringUtil {
 
   public static final String FIELD_CLOSE = "}";
 
+  public static final String RESOLVER_OPEN = "#{";
+
+  public static final String RESOLVER_CLOSE = "}";
+
   public static final String CRLF = "\r\n";
 
   public static final String INDENTCHARS = "                    ";

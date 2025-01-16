@@ -58,6 +58,7 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.server.HopServerMeta;
@@ -525,6 +526,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       //
       hopServer.metadataProvider =
           HopMetadataUtil.getStandardHopMetadataProvider(hopServer.variables);
+      HopMetadataInstance.setMetadataProvider(hopServer.metadataProvider);
 
       // Now add server configuration plugins...
       //

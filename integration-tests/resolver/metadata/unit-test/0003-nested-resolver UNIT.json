@@ -1,0 +1,38 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "var1",
+          "data_set_field": "var1"
+        },
+        {
+          "transform_field": "var2",
+          "data_set_field": "var2"
+        },
+        {
+          "transform_field": "var3",
+          "data_set_field": "var3"
+        }
+      ],
+      "field_order": [
+        "var1",
+        "var2",
+        "var3"
+      ],
+      "data_set_name": "0003-golden-nested-resolver",
+      "transform_name": "Output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0003-nested-resolver UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0003-nested-resolver.hpl"
+}

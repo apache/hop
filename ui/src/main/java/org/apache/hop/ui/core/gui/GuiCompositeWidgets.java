@@ -89,6 +89,10 @@ public class GuiCompositeWidgets {
       Composite parent,
       String parentGuiElementId,
       Control lastControl) {
+    if (sourceData == null) {
+      // Nothing to do here. We can't detect widgets without an object.
+      return;
+    }
     // Find the GUI Elements for the given class...
     //
     GuiRegistry registry = GuiRegistry.getInstance();
@@ -668,7 +672,10 @@ public class GuiCompositeWidgets {
 
   public void setWidgetsContents(
       Object sourceData, Composite parentComposite, String parentGuiElementId) {
-
+    if (sourceData == null) {
+      // We can't determine the widgets without an object.
+      return;
+    }
     GuiRegistry registry = GuiRegistry.getInstance();
     GuiElements guiElements =
         registry.findGuiElements(sourceData.getClass().getName(), parentGuiElementId);

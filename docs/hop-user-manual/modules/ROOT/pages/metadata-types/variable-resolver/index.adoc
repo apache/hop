@@ -1,0 +1,61 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[VariableResolver]]
+:imagesdir: ../assets/images
+:description: This describes the general functionality behind variable resolvers.
+
+== Functionality
+
+You can define variable resolvers to help you resolve expressions in the following format:
+
+[source]
+----
+#{name:key:element}
+----
+
+* `name`: The name of the metadata element to use to resolve the variable
+* `key`: The key or path to use to retrieve the value.
+* `element`: In case the value retrieved is in JSON form, we can pick one of the values out of it (OPTIONAL)
+
+IMPORTANT: An error in resolving a variable does not lead to a failure on the level of a pipeline or workflow.
+
+NOTE: Because of usability reasons, errors are not immediately shown in the user interface.  It would become impossible to type in any expression because of it. Check the log in the xref:hop-gui/index.adoc[Hop GUI] execution pane to see any errors thrown back by the resolvers.
+
+TIP: If you find that typing in variable expressions in a table view (table grid) is too slow, uncheck the option to resolve variables in tooltips in the xref:hop-gui/perspective-configuration.adoc[configuration perspective].
+
+== Nested resolving
+
+Suppose you have a variable with its value being a resolve expression. In that case you'll notice that when you ask for the value of the variable, the variable resolver also is being used.
+
+For example, you can have a `PASSWORD` variable pointing to value `p@55w0rd` in a development environment, and to a secrets vault in production by setting `PASSWORD` to a resolver expression like:
+
+[source]
+----
+#{vault:secret/data/database:password}
+----
+
+When executing a pipeline or workflow, the value of variable `PASSWORD` will then first be resolved to the expression and then, using the variable resolver called `vault`, the password is retrieved from the secrets vault.
+
+NOTE: For now, the variable resolver is not doing any more nested resolving to avoid complications like infinite loops.
+
+== Plugins
+
+Here are the available variable resolver plugins:
+
+* xref:metadata-types/variable-resolver/pipeline-variable-resolver.adoc[Pipeline variable resolver]
+* xref:metadata-types/variable-resolver/vault-variable-resolver.adoc[Hashicorp Vault variable resolver]
+* xref:metadata-types/variable-resolver/google-secret-manager-variable-resolver.adoc[Google Secret Manager Variable Resolver]

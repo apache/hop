@@ -1,0 +1,32 @@
+{
+  "base_filename": "0003-golden-nested-resolver.csv",
+  "name": "0003-golden-nested-resolver",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "var1",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "var2",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "var3",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
