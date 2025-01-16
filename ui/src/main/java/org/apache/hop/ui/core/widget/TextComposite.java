@@ -18,6 +18,7 @@
 package org.apache.hop.ui.core.widget;
 
 import java.util.List;
+import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 
@@ -46,6 +47,10 @@ public abstract class TextComposite extends Composite {
 
   public abstract void addLineStyleListener(List<String> keywords);
 
+  public void addLineStyleListener(LineStyleListener listener) {
+    throw new UnsupportedOperationException("Cannot add the line style listener");
+  }
+
   public void addLineStyleListener(String scriptEngine) {
     throw new UnsupportedOperationException("Cannot specify a script engine");
   }
@@ -67,4 +72,8 @@ public abstract class TextComposite extends Composite {
   public abstract void setSelection(int iStart, int length);
 
   public abstract int getSelectionCount();
+
+  public void removeLineStyleListener(LineStyleListener listener) {
+    throw new UnsupportedOperationException("Cannot remove the listener");
+  }
 }

@@ -350,4 +350,9 @@ public class SQLStyledTextComp extends TextComposite {
   public void addLineStyleListener(LineStyleListener lineStyler) {
     textWidget.addLineStyleListener(lineStyler);
   }
+
+  @Override
+  public void removeLineStyleListener(LineStyleListener listener) {
+    textWidget.removeLineStyleListener(listener);
+  }
 }
