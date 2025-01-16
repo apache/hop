@@ -72,11 +72,15 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   public String getResponse(String url) throws HopException {
     WebTarget target = client.target(testUrl);
     Invocation.Builder invocationBuilder = target.request();
-    if (!StringUtils.isEmpty(authorizationPrefix)) {
+    if (!StringUtils.isEmpty(variables.resolve(authorizationPrefix))) {
       invocationBuilder.header(
-          authorizationHeaderName, authorizationPrefix + " " + authorizationHeaderValue);
+          variables.resolve(authorizationHeaderName),
+          variables.resolve(authorizationPrefix)
+              + " "
+              + variables.resolve(authorizationHeaderValue));
     } else {
-      invocationBuilder.header(authorizationHeaderName, authorizationHeaderValue);
+      invocationBuilder.header(
+          variables.resolve(authorizationHeaderName), variables.resolve(authorizationHeaderValue));
     }
     Response response = invocationBuilder.get();
 
@@ -93,15 +97,20 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   public void testConnection() throws HopException {
     WebTarget target = client.target(variables.resolve(testUrl));
     Invocation.Builder invocationBuilder = target.request();
-    if (!StringUtils.isEmpty(variables.resolve(authorizationPrefix))) {
-      invocationBuilder.header(
-          variables.resolve(authorizationHeaderName),
-          variables.resolve(authorizationPrefix)
-              + " "
-              + variables.resolve(authorizationHeaderValue));
-    } else {
-      invocationBuilder.header(
-          variables.resolve(authorizationHeaderName), variables.resolve(authorizationHeaderValue));
+
+    // only set the header if we have a header name
+    if (!StringUtils.isEmpty(variables.resolve(authorizationHeaderName))) {
+      if (!StringUtils.isEmpty(variables.resolve(authorizationPrefix))) {
+        invocationBuilder.header(
+            variables.resolve(authorizationHeaderName),
+            variables.resolve(authorizationPrefix)
+                + " "
+                + variables.resolve(authorizationHeaderValue));
+      } else {
+        invocationBuilder.header(
+            variables.resolve(authorizationHeaderName),
+            variables.resolve(authorizationHeaderValue));
+      }
     }
     Response response = invocationBuilder.get();
     if (response.getStatus() != Response.Status.OK.getStatusCode()) {
@@ -109,6 +118,8 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     }
     response.close();
   }
+
+  public RestConnection() {}
 
   public RestConnection(RestConnection connection) {
     this.baseUrl = connection.baseUrl;
