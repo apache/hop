@@ -17,8 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -88,6 +90,8 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
   private String connection;
 
   @HopMetadataProperty private String lookup;
+
+  private Map<String, List<String>> keywordsCache = new ConcurrentHashMap<>();
 
   public TableInputMeta() {
     super();
@@ -530,13 +534,16 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     return ioMeta;
   }
 
-  private List<String> keywords = new ArrayList<>();
-
-  public List<String> getKeywords() {
-    return keywords;
+  public void putKeywords(String name, List<String> sqlKeywords) {
+    keywordsCache.put(name, sqlKeywords);
   }
 
-  public synchronized void updateKeywords(List<String> keywords) {
-    this.keywords = keywords;
+  public Map<String, List<String>> getKeywordsCache() {
+    return keywordsCache;
+  }
+
+  public Optional<List<String>> getKeywordsByConnectionName(String connection) {
+    final List<String> keywordsList = keywordsCache.get(connection);
+    return Optional.ofNullable(keywordsList);
   }
 }

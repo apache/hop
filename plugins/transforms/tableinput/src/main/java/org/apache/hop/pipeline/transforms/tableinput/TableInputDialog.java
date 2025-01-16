@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -97,6 +98,12 @@ public class TableInputDialog extends BaseTransformDialog {
       Shell parent, IVariables variables, TableInputMeta transformMeta, PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
+    final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    pipelineMeta.getDatabases().parallelStream()
+        .forEach(
+            db -> {
+              executorService.submit(() -> fetchKeywords(db));
+            });
   }
 
   @Override
@@ -140,7 +147,11 @@ public class TableInputDialog extends BaseTransformDialog {
     wTransformName.setLayoutData(fdTransformName);
 
     wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
-    wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
+    wConnection.addListener(
+        SWT.Selection,
+        e -> {
+          // TODO do something else still up in the airgetSqlReservedWords();
+        });
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -344,7 +355,7 @@ public class TableInputDialog extends BaseTransformDialog {
     wDataFrom.addListener(SWT.Selection, e -> setFlags());
     wDataFrom.addListener(SWT.FocusOut, e -> setFlags());
 
-    final List<String> sqlKeywords = getSqlReservedWords();
+    final List<String> sqlKeywords = getAsyncSqlReservedWords(input.getConnection());
 
     wSql.addLineStyleListener(sqlKeywords);
     getData();
@@ -355,28 +366,33 @@ public class TableInputDialog extends BaseTransformDialog {
     return transformName;
   }
 
-  private List<String> getSqlReservedWords() {
-
-    // Do not search keywords when connection is empty
-    if (input.getConnection() == null || input.getConnection().isEmpty()) {
+  private List<String> getAsyncSqlReservedWords(String connectionName) {
+    if (connectionName == null || connectionName.isEmpty()) {
       return new ArrayList<>();
     }
-
-    // If connection is a variable that can't be resolved
-    if (variables.resolve(input.getConnection()).startsWith("${")) {
+    if (variables.resolve(connectionName).startsWith("${")) { // COULDN'T resolve variable: skip
       return new ArrayList<>();
     }
-
-    if (input.getKeywords() != null && input.getKeywords().size() > 0) {
-      return input.getKeywords();
-    }
-    Executors.newSingleThreadExecutor().submit(() -> fetchKeywords());
-
-    return input.getKeywords();
+    return input
+        .getKeywordsByConnectionName(connectionName)
+        .orElseGet(
+            () -> {
+              Executors.newSingleThreadExecutor().submit(() -> fetchKeywords(connectionName));
+              return List.of();
+            });
   }
 
-  private void fetchKeywords() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+  private void fetchKeywords(String connectionName) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+    if (databaseMeta != null) {
+      fetchKeywords(databaseMeta);
+    } else {
+      logError("Unable to find database '" + connectionName + "'");
+    }
+  }
+
+  private void fetchKeywords(DatabaseMeta databaseMeta) {
+
     if (databaseMeta == null) {
       logError("Database connection not found. Proceding without keywords.");
       return;
@@ -404,9 +420,8 @@ public class TableInputDialog extends BaseTransformDialog {
       } catch (SQLException e) {
         logError("Couldn't extract keywords from database metadata. Proceding without them.");
       }
-      input.updateKeywords(sqlKeywords);
-      wSql.addLineStyleListener(sqlKeywords);
-      wSql.redraw();
+      input.putKeywords(databaseMeta.getName(), sqlKeywords);
+      wSql.addLineStyleListener();
     } catch (HopDatabaseException e) {
       logError("Couldn't extract keywords from database metadata. Proceding without them.");
     } finally {
