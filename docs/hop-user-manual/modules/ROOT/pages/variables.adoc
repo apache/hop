@@ -131,6 +131,12 @@ The format to use to resolve variables using these metadata elements is the foll
 
 For more information about how this works, go to the xref:metadata-types/variable-resolver/index.adoc[Variable Resolver page].
 
+== Resolving overview
+
+The following states can happen when we're resolving variable expressions:
+
+image:variables/resolving-variables.png[How are expressions replaced by their values, width="65%"]
+
 == How can I define variables?
 
 Variables can be defined and set in all the places where it makes sense:
