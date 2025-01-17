@@ -44,6 +44,7 @@ public class ValueMetaDeserializer extends JsonDeserializer<IValueMeta> {
       IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, type, length, precision);
       valueMeta.setTrimType(root.get("trimType").asInt());
       valueMeta.setStorageType(root.get("storageType").asInt());
+      valueMeta.setRoundingType(root.get("roundingType").asText());
       valueMeta.setConversionMask(asString(root.get("conversionMask")));
       JsonNode stringEncoding = root.get("stringEncoding");
       if (!stringEncoding.isNull()) {

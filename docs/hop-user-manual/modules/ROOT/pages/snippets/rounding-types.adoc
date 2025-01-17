@@ -1,0 +1,69 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+=== Rounding Types
+
+Rounding on Number and BigNumber data type fields is based on https://docs.oracle.com/javase/8/docs/api/java/math/RoundingMode.html[Java Rounding Mode]
+
+By default, rounding mode `Half Even` is used this Rounding mode will round towards the "nearest neighbor" unless both neighbors are equidistant, in which case, round towards the even neighbor.
+
+Example: Rounding from 1 to 0 digits +
+5.5 -> 6 +
+2.5 -> 2 +
+-2.5 -> -2 +
+-5.5 -> -6
+
+==== Unnecessary
+Rounding mode to assert that the requested operation has an exact result, hence no rounding is necessary. This mode will throw an error when you try to reduce the precision of a number
+
+==== Ceiling
+Rounding mode to round towards positive infinity.
+
+==== Down
+Rounding mode to round towards zero.
+
+==== Floor
+Rounding mode to round towards negative infinity.
+
+==== Half Down
+Rounding mode to round towards "nearest neighbor" unless both neighbors are equidistant, in which case round down.
+
+==== Half Even
+Rounding mode to round towards the "nearest neighbor" unless both neighbors are equidistant, in which case, round towards the even neighbor.
+
+==== Half Up
+Rounding mode to round towards "nearest neighbor" unless both neighbors are equidistant, in which case round up.
+
+==== Up
+Rounding mode to round away from zero.
+
+==== Examples
+
+[options="header"]
+|===
+| Input Number | Up |Down |Ceiling |Floor |Half Up |Half Down | Half Even | Unnecessary
+|5.5|6|5|6|5|6|5|6|throw ArithmeticException
+|2.5|3|2|3|2|3|2|2|throw ArithmeticException
+|1.6|2|1|2|1|2|2|2|throw ArithmeticException
+|1.1|2|1|2|1|1|1|1|throw ArithmeticException
+|1.0|1|1|1|1|1|1|1|1
+|-1.0|-1|-1|-1|-1|-1|-1|-1|-1
+|-1.1|-2|-1|-1|-2|-1|-1|-1|throw ArithmeticException
+|-1.6|-2|-1|-1|-2|-2|-2|-2|throw ArithmeticException
+|-2.5|-3|-2|-3|-3|-3|-2|-2|throw ArithmeticException
+|-5.5|-6|-5|-6|-6|-6|-5|-6|throw ArithmeticException
+|===

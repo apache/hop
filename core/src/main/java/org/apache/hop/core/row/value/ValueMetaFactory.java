@@ -94,6 +94,7 @@ public class ValueMetaFactory {
     }
     target.setStringEncoding(source.getStringEncoding());
     target.setTrimType(source.getTrimType());
+    target.setRoundingType(source.getRoundingType());
     target.setDateFormatLenient(source.isDateFormatLenient());
     target.setDateFormatLocale(source.getDateFormatLocale());
     target.setDateFormatTimeZone(source.getDateFormatTimeZone());

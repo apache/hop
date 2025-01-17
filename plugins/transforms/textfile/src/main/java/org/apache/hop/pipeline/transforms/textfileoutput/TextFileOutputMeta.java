@@ -717,6 +717,8 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         outputFields[i].setGroupingSymbol(XmlHandler.getTagValue(fnode, "group"));
         outputFields[i].setTrimType(
             ValueMetaString.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
+        outputFields[i].setRoundingType(
+            Const.NVL(XmlHandler.getTagValue(fnode, "roundingType"), "half_even"));
         outputFields[i].setNullString(XmlHandler.getTagValue(fnode, "nullif"));
         outputFields[i].setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
         outputFields[i].setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
@@ -854,6 +856,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         v.setCurrencySymbol(field.getCurrencySymbol());
         v.setOutputPaddingEnabled(isPadded());
         v.setTrimType(field.getTrimType());
+        v.setRoundingType(field.getRoundingType());
         if (!Utils.isEmpty(getEncoding())) {
           v.setStringEncoding(getEncoding());
         }
@@ -917,6 +920,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         retval
             .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("trim_type", field.getTrimTypeCode()));
+        retval
+            .append(CONST_SPACES_LONG)
+            .append(XmlHandler.addTagValue("roundingType", field.getRoundingType()));
         retval
             .append(CONST_SPACES_LONG)
             .append(XmlHandler.addTagValue("length", field.getLength()));
