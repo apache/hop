@@ -36,6 +36,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -175,10 +176,20 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       // set the Authentication/Authorization header from the connection first, if available.
       // this transform's headers will override this value if available.
       if (connection != null) {
-        if (!Utils.isEmpty(connection.getAuthorizationHeaderName())) {
-          invocationBuilder.header(
-              connection.getAuthorizationHeaderName(), connection.getAuthorizationHeaderValue());
-        }
+        if (!StringUtils.isEmpty(resolve(connection.getAuthorizationHeaderName())))
+          if (!Utils.isEmpty(resolve(connection.getAuthorizationHeaderName()))) {
+            if (!StringUtils.isEmpty(resolve(connection.getAuthorizationPrefix()))) {
+              invocationBuilder.header(
+                  resolve(connection.getAuthorizationHeaderName()),
+                  resolve(connection.getAuthorizationPrefix())
+                      + " "
+                      + resolve(connection.getAuthorizationHeaderValue()));
+            } else {
+              invocationBuilder.header(
+                  resolve(connection.getAuthorizationHeaderName()),
+                  resolve(connection.getAuthorizationHeaderValue()));
+            }
+          }
       }
 
       String contentType = null; // media type override, if not null

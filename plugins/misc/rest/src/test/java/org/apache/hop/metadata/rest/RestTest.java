@@ -19,6 +19,7 @@ package org.apache.hop.metadata.rest;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +28,7 @@ public class RestTest {
   @Test
   @Disabled
   public void testRestConnection() {
-    RestConnection restConnection = new RestConnection();
+    RestConnection restConnection = new RestConnection(Variables.getADefaultVariableSpace());
     restConnection.setBaseUrl("");
     restConnection.setTestUrl("");
     restConnection.setAuthorizationHeaderName("authorization");

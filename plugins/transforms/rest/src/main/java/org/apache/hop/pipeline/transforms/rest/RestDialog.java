@@ -1469,6 +1469,8 @@ public class RestDialog extends BaseTransformDialog {
 
     if (!Utils.isEmpty(wSelectionLine.getText())) {
       input.setConnectionName(wSelectionLine.getText());
+    } else {
+      input.setConnectionName("");
     }
 
     input.getHeaderFields().clear();
