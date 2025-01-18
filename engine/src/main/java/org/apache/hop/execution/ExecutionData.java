@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
@@ -45,6 +47,8 @@ import org.apache.hop.core.row.RowMeta;
  * This class contains execution data in the form of rows of data. These rows are collected for a
  * purpose.
  */
+@Setter
+@Getter
 public class ExecutionData {
 
   /** The type of execution data captured: Transform or Action */
@@ -245,149 +249,5 @@ public class ExecutionData {
         }
       }
     }
-  }
-
-  /**
-   * Gets executionType
-   *
-   * @return value of executionType
-   */
-  public ExecutionType getExecutionType() {
-    return executionType;
-  }
-
-  /**
-   * Sets executionType
-   *
-   * @param executionType value of executionType
-   */
-  public void setExecutionType(ExecutionType executionType) {
-    this.executionType = executionType;
-  }
-
-  /**
-   * Gets dataSetMeta
-   *
-   * @return value of dataSetMeta
-   */
-  public ExecutionDataSetMeta getDataSetMeta() {
-    return dataSetMeta;
-  }
-
-  /**
-   * Sets dataSetMeta
-   *
-   * @param dataSetMeta value of dataSetMeta
-   */
-  public void setDataSetMeta(ExecutionDataSetMeta dataSetMeta) {
-    this.dataSetMeta = dataSetMeta;
-  }
-
-  /**
-   * Gets finished
-   *
-   * @return value of finished
-   */
-  public boolean isFinished() {
-    return finished;
-  }
-
-  /**
-   * Sets finished
-   *
-   * @param finished value of finished
-   */
-  public void setFinished(boolean finished) {
-    this.finished = finished;
-  }
-
-  /**
-   * Gets collectionDate
-   *
-   * @return value of collectionDate
-   */
-  public Date getCollectionDate() {
-    return collectionDate;
-  }
-
-  /**
-   * Sets collectionDate
-   *
-   * @param collectionDate value of collectionDate
-   */
-  public void setCollectionDate(Date collectionDate) {
-    this.collectionDate = collectionDate;
-  }
-
-  /**
-   * Gets parentId
-   *
-   * @return value of parentId
-   */
-  public String getParentId() {
-    return parentId;
-  }
-
-  /**
-   * Sets parentId
-   *
-   * @param parentId value of parentId
-   */
-  public void setParentId(String parentId) {
-    this.parentId = parentId;
-  }
-
-  /**
-   * Gets ownerId
-   *
-   * @return value of ownerId
-   */
-  public String getOwnerId() {
-    return ownerId;
-  }
-
-  /**
-   * Sets ownerId
-   *
-   * @param ownerId value of ownerId
-   */
-  public void setOwnerId(String ownerId) {
-    this.ownerId = ownerId;
-  }
-
-  /**
-   * Gets dataSets
-   *
-   * @return value of dataSets
-   */
-  public Map<String, RowBuffer> getDataSets() {
-    return dataSets;
-  }
-
-  /**
-   * Sets dataSets
-   *
-   * @param dataSets value of dataSets
-   */
-  public void setDataSets(Map<String, RowBuffer> dataSets) {
-    this.dataSets = dataSets;
-  }
-
-  /**
-   * Gets setDescriptions
-   *
-   * @return value of setDescriptions
-   */
-  public Map<String, ExecutionDataSetMeta> getSetMetaData() {
-    return setMetaData;
-  }
-
-  /**
-   * Sets setDescriptions
-   *
-   * @param setMetaData value of setDescriptions
-   */
-  public void setSetMetaData(Map<String, ExecutionDataSetMeta> setMetaData) {
-    this.setMetaData = setMetaData;
   }
 }
