@@ -46,6 +46,7 @@ After execution this information can be consulted from the xref:hop-gui/perspect
 
 == Location type specific options
 
+
 === File location
 
 With a file location you can write execution information to files in a path on the local file system.
@@ -53,6 +54,21 @@ With a file location you can write execution information to files in a path on t
 Options:
 
 * *Root folder*: the folder to write the execution information to.
+
+=== Caching File Location
+
+Like the file location, execution information is written to a folder.  The difference is that information is written
+per pipeline or workflow. All the information needed is aggregated into these top level JSON files.
+The way this happens is by keeping the execution information in a memory cache for a period that can be configured.
+The upside is that there is a lot less stress on the file system.
+The downside is that there is a bit of extra memory being used.
+Certain navigation operations in the GUI, for example to find related executions, will need to read a lot more data.
+
+Options:
+
+* *Root folder*: the folder in which execution information is stored in JSON files
+* *Persistence delay*: This is the maximum time to wait before execution information is written to disk, expressed in milliseconds.
+* *Maximum cache age*: This is the maximum time to keep execution information around in memory, before clearing it out, expressed in milliseconds.  It's advised to keep this below the expected duration of your workflow or pipeline.
 
 === Remote location
 
