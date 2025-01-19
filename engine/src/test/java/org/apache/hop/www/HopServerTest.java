@@ -16,25 +16,13 @@
  */
 package org.apache.hop.www;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.mockito.MockedStatic;
 
 public class HopServerTest {
@@ -49,24 +37,5 @@ public class HopServerTest {
   @After
   public void tearDownStaticMocks() {
     mockedClient.closeOnDemand();
-  }
-
-  @Ignore("This test needs to be reviewed")
-  @Test
-  public void callStopHopServerRestService() throws Exception {
-    WebTarget target = mock(WebTarget.class);
-    doReturn("<serverstatus>").when(target).request(MediaType.TEXT_PLAIN).get();
-
-    WebTarget stop = mock(WebTarget.class);
-    doReturn("Shutting Down").when(stop).request(MediaType.TEXT_PLAIN).get();
-
-    Client client = mock(Client.class);
-    doCallRealMethod().when(client).register(any(HttpAuthenticationFeature.class));
-    doReturn(target).when(client).target("http://localhost:8080/hop/status/?xml=Y");
-    doReturn(stop).when(client).target("http://localhost:8080/hop/stopHopServer");
-    when(ClientBuilder.newClient(any(ClientConfig.class))).thenReturn(client);
-
-    HopServer.callStopHopServerRestService(
-        "localhost", "8080", "8079", "admin", "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde");
   }
 }
