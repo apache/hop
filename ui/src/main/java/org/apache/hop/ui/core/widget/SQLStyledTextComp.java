@@ -20,6 +20,7 @@ package org.apache.hop.ui.core.widget;
 import java.util.List;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.widget.highlight.SqlHighlight;
+import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.widgets.Composite;
 
 public class SQLStyledTextComp extends StyledTextVar {
@@ -54,6 +55,6 @@ public class SQLStyledTextComp extends StyledTextVar {
 
   @Override
   public void removeLineStyleListener(LineStyleListener listener) {
-    textWidget.removeLineStyleListener(listener);
+    super.removeLineStyleListener(listener);
   }
 }

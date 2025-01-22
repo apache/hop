@@ -181,6 +181,10 @@ public class StyledTextVar extends TextComposite {
     wText.addLineStyleListener(lineStyler);
   }
 
+  public void removeLineStyleListener(LineStyleListener lineStyler) {
+    wText.removeLineStyleListener(lineStyler);
+  }
+
   public void addKeyListener(KeyAdapter keyAdapter) {
     wText.addKeyListener(keyAdapter);
   }

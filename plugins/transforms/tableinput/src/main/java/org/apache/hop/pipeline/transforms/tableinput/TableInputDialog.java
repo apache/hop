@@ -54,7 +54,7 @@ import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.core.widget.highlight.SQLValuesHighlight;
+import org.apache.hop.ui.core.widget.highlight.SqlHighlight;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -98,8 +98,8 @@ public class TableInputDialog extends BaseTransformDialog {
 
   private Label wlPosition;
 
-  private AtomicReference<SQLValuesHighlight> sqlHighlightListener =
-      new AtomicReference<>(new SQLValuesHighlight(List.of()));
+  private AtomicReference<SqlHighlight> sqlHighlightListener =
+      new AtomicReference<>(new SqlHighlight(List.of()));
 
   public TableInputDialog(
       Shell parent, IVariables variables, TableInputMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -397,7 +397,7 @@ public class TableInputDialog extends BaseTransformDialog {
 
   private synchronized void refreshLineStyleListener(List<String> keywords) {
     wSql.removeLineStyleListener(sqlHighlightListener.get());
-    sqlHighlightListener.set(new SQLValuesHighlight(keywords));
+    sqlHighlightListener.set(new SqlHighlight(keywords));
     wSql.addLineStyleListener(sqlHighlightListener.get());
     wSql.setText(wSql.getText());
     // wSql.setRedraw(true);
