@@ -191,7 +191,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
   private void test() {
     IVariables variables = hopGui.getVariables();
-    RestConnection restConnection = new RestConnection();
+    RestConnection restConnection = new RestConnection(variables);
     restConnection.setName(wName.getText());
     if (StringUtils.isEmpty(wTestUrl.getText())) {
       restConnection.setTestUrl(wBaseUrl.getText());
@@ -199,7 +199,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     restConnection.setBaseUrl(wBaseUrl.getText());
     restConnection.setTestUrl(wTestUrl.getText());
     restConnection.setAuthorizationHeaderName(wAuthorizationName.getText());
-    restConnection.setAuthHeaderPrefix(wAuthorizationPrefix.getText());
+    restConnection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
     restConnection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
     try {
       restConnection.testConnection();
@@ -226,7 +226,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wBaseUrl.setText(Const.NVL(metadata.getBaseUrl(), ""));
     wTestUrl.setText(Const.NVL(metadata.getTestUrl(), ""));
     wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
-    wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthHeaderPrefix(), ""));
+    wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
     wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
   }
 
@@ -236,7 +236,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setBaseUrl(wBaseUrl.getText());
     connection.setTestUrl(wTestUrl.getText());
     connection.setAuthorizationHeaderName(wAuthorizationName.getText());
-    connection.setAuthHeaderPrefix(wAuthorizationPrefix.getText());
+    connection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
     connection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
   }
 

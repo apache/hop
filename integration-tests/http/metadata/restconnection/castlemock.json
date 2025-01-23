@@ -1,0 +1,9 @@
+{
+  "auth_header_value": "",
+  "auth_header_name": "",
+  "virtualPath": "",
+  "auth_header_prefix": "",
+  "base_url": "http://${HOSTNAME}",
+  "name": "castlemock",
+  "test_url": ""
+}
