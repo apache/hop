@@ -84,7 +84,6 @@ public final class ExecutionBuilder {
     builder.environmentDetails.put(
         EnvironmentDetailType.ContainerId.name(), pipeline.getContainerId());
 
-    builder.getVariableInformation(pipeline);
     builder.getParameterInformation(pipeline);
     builder.updateRuntimeInformation();
 
@@ -110,7 +109,6 @@ public final class ExecutionBuilder {
     builder.environmentDetails.put(
         EnvironmentDetailType.ContainerId.name(), workflow.getContainerId());
 
-    builder.getVariableInformation(workflow);
     builder.getParameterInformation(workflow);
     builder.updateRuntimeInformation();
 
@@ -151,11 +149,10 @@ public final class ExecutionBuilder {
         .withExecutionStartDate(startDate);
   }
 
+  @Deprecated
   private void getVariableInformation(IVariables variables) {
-    for (String variableName : variables.getVariableNames()) {
-      String variableValue = variables.getVariable(variableName);
-      this.variableValues.put(variableName, variableValue);
-    }
+    // This is no longer used nor desirable as it's possible that sensitive information is logged
+    // this way.
   }
 
   private void getParameterInformation(INamedParameters parameters) throws UnknownParamException {
