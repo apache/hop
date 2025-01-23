@@ -1,0 +1,19 @@
+{
+  "variables" : [ {
+    "name" : "ENV_VARIABLE1",
+    "value" : "#{conf:db1:variable}",
+    "description" : ""
+  }, {
+    "name" : "ENV_VARIABLE2",
+    "value" : "#{conf:db2:variable}",
+    "description" : ""
+  }, {
+    "name" : "ENV_VARIABLE3",
+    "value" : "#{conf:db3:variable}",
+    "description" : ""
+  }, {
+    "name" : "DB_PASSWORD",
+    "value" : "#{vault:secret/data/hop:password}",
+    "description" : ""
+  } ]
+}

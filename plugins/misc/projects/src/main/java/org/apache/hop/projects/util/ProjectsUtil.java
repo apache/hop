@@ -32,6 +32,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
@@ -89,6 +90,7 @@ public class ProjectsUtil {
       MultiMetadataProvider metadataProvider =
           HopMetadataUtil.getStandardHopMetadataProvider(variables);
       hasHopMetadataProvider.setMetadataProvider(metadataProvider);
+      HopMetadataInstance.setMetadataProvider(metadataProvider);
       project.setMetadataProvider(metadataProvider);
     }
 

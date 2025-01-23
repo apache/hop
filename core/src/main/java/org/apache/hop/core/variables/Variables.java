@@ -23,13 +23,22 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.resolver.VariableResolver;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 /** This class is an implementation of IVariables */
 public class Variables implements IVariables {
@@ -139,11 +148,140 @@ public class Variables implements IVariables {
 
   @Override
   public synchronized String resolve(String aString) {
-    if (aString == null || aString.length() == 0) {
+    if (aString == null || aString.isEmpty()) {
       return aString;
     }
 
-    return StringUtil.environmentSubstitute(aString, properties);
+    String resolved = StringUtil.environmentSubstitute(aString, properties);
+
+    String r = substituteVariableResolvers(resolved);
+    if (r != null) {
+      resolved = r;
+    }
+
+    return resolved;
+  }
+
+  private String substituteVariableResolvers(String input) {
+    String resolved = input;
+    int startIndex = 0;
+    while (startIndex < resolved.length()) {
+      int resolverIndex = resolved.indexOf(StringUtil.RESOLVER_OPEN);
+      if (resolverIndex < 0) {
+        // There's nothing more to do here.
+        //
+        return null;
+      }
+
+      // Is there a close token?
+      //
+      int closeIndex = resolved.indexOf(StringUtil.RESOLVER_CLOSE, resolverIndex);
+      if (closeIndex < 0) {
+        // False positive on the open token
+        //
+        return null;
+      }
+
+      /*
+       The following variable resolver string
+
+          [resolverIndex, closeIndex$]
+
+       is in the format:
+
+         #{name:arguments}
+
+      */
+      int colonIndex = resolved.indexOf(':', resolverIndex);
+      String name;
+      String arguments;
+      if (colonIndex >= 0) {
+        name = resolved.substring(resolverIndex + StringUtil.RESOLVER_OPEN.length(), colonIndex);
+        arguments = resolved.substring(colonIndex + 1, closeIndex);
+      } else {
+        name = resolved.substring(resolverIndex + StringUtil.RESOLVER_OPEN.length(), closeIndex);
+        arguments = "";
+      }
+
+      try {
+        MultiMetadataProvider provider = HopMetadataInstance.getMetadataProvider();
+        IHopMetadataSerializer<VariableResolver> serializer =
+            provider.getSerializer(VariableResolver.class);
+
+        // This next loadA() method is relatively slow since it needs to go to disk.
+        //
+        VariableResolver resolver = serializer.load(name);
+        if (resolver == null) {
+          if (LogChannel.GENERAL.isDetailed()) {
+            LogChannel.GENERAL.logDetailed(
+                "WARNING: Variable Resolver '" + name + "' could not be found in the metadata");
+          }
+          return resolved;
+        }
+
+        /*
+
+         The arguments come in the form: path-key:value-key
+         For example: #{vault:hop/data/some-db:hostname}
+         The secret path part will be "hop/data/some-db" and the secret value part is "hostname".
+
+        */
+        String secretPath;
+        String secretValue = null;
+
+        String[] parameters = arguments.split(":");
+        secretPath = parameters[0];
+        if (parameters.length > 1) {
+          secretValue = parameters[1];
+        }
+
+        String resolvedArgument = resolver.getIResolver().resolve(secretPath, this);
+        if (StringUtils.isEmpty(resolvedArgument)) {
+          return resolved;
+        }
+
+        // If we have a value to retrieve from the JSON we got back, we can do that:
+        //
+        if (StringUtils.isEmpty(secretValue)) {
+          return resolvedArgument;
+        } else {
+          try {
+            JSONObject js = (JSONObject) new JSONParser().parse(resolvedArgument);
+            Object value = js.get(secretValue);
+            if (value == null) {
+              // Value not found in the secret
+              resolvedArgument = "";
+            } else {
+              resolvedArgument = value.toString();
+            }
+          } catch (Exception e) {
+            LogChannel.GENERAL.logError(
+                "Error parsing JSON '"
+                    + resolvedArgument
+                    + "} to retrieve secret value '"
+                    + secretValue
+                    + "'",
+                e);
+            // Keep the origin String
+          }
+        }
+
+        // We take the first part of the original resolved string, the resolved arguments, and the
+        // last part
+        // to continue resolving all expressions in the string.
+        //
+        String before = resolved.substring(0, resolverIndex);
+        String after = resolved.substring(closeIndex + 1);
+        resolved = before + resolvedArgument + after;
+
+        // Where do we continue?
+        startIndex = before.length() + resolvedArgument.length();
+      } catch (HopException e) {
+        throw new RuntimeException(
+            "Error resolving variable '" + input + "' with variable resolver metadata", e);
+      }
+    }
+    return resolved;
   }
 
   /**
@@ -160,7 +298,7 @@ public class Variables implements IVariables {
   @Override
   public String resolve(String aString, IRowMeta rowMeta, Object[] rowData)
       throws HopValueException {
-    if (aString == null || aString.length() == 0) {
+    if (aString == null || aString.isEmpty()) {
       return aString;
     }
 

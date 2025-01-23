@@ -1,0 +1,4 @@
+hostname,port,db,username,password,variable
+hostname1,port1,db1,user1,port1,value1
+hostname2,port2,db2,user2,port2,value2
+hostname3,port3,db3,user3,port3,value3

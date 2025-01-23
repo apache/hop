@@ -1,0 +1,2 @@
+json-data,hostname,port,db,username,password
+"{""db"":""test"",""hostname"":""localhost"",""password"":""some-password"",""port"":""3306"",""username"":""john""}",localhost,3306,test,john,some-password

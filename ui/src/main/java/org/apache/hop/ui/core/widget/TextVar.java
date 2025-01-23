@@ -226,7 +226,11 @@ public class TextVar extends Composite {
         if (Utils.isEmpty(tip)) {
           tip = toolTipText;
         }
-        textField.setToolTipText(variables.resolve(tip));
+        if (PropsUi.getInstance().resolveVariablesInToolTips()) {
+          textField.setToolTipText(variables.resolve(tip));
+        } else {
+          textField.setToolTipText(tip);
+        }
       }
     };
   }

@@ -64,6 +64,7 @@ public class PropsUi extends Props {
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
+  private static final String RESOLVE_VARIABLES_IN_TOOLTIPS = "ResolveVariablesInToolTips";
   private static final String SHOW_HELP_TOOL_TIPS = "ShowHelpToolTips";
   private static final String HIDE_MENU_BAR = "HideMenuBar";
   private static final String SORT_FIELD_BY_NAME = "SortFieldByName";
@@ -76,6 +77,7 @@ public class PropsUi extends Props {
   private static final String DARK_MODE = "DarkMode";
   private static final String GLOBAL_ZOOMFACTOR = "GlobalZoomFactor";
   private static final String MAX_EXECUTION_LOGGING_TEXT_SIZE = "MaxExecutionLoggingTextSize";
+
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
   private static PropsUi instance;
@@ -807,6 +809,14 @@ public class PropsUi extends Props {
 
   public void setShowToolTips(boolean show) {
     setProperty(SHOW_TOOL_TIPS, show ? YES : NO);
+  }
+
+  public boolean resolveVariablesInToolTips() {
+    return YES.equalsIgnoreCase(getProperty(RESOLVE_VARIABLES_IN_TOOLTIPS, YES));
+  }
+
+  public void setResolveVariablesInToolTips(boolean resolve) {
+    setProperty(RESOLVE_VARIABLES_IN_TOOLTIPS, resolve ? YES : NO);
   }
 
   public boolean isShowingHelpToolTips() {

@@ -69,6 +69,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.server.HopServerMeta;
@@ -285,6 +286,7 @@ public class HopGui
     // TODO: create metadata plugin system
     //
     metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(variables);
+    HopMetadataInstance.setMetadataProvider(metadataProvider);
 
     eventsHandler = new HopGuiEventsHandler();
 

@@ -37,5 +37,6 @@
         <module>google</module>
         <module>neo4j</module>
         <module>parquet</module>
+        <module>vault</module>
     </modules>
 </project>

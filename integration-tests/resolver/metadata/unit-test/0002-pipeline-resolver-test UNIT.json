@@ -1,0 +1,53 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "hostname",
+          "data_set_field": "hostname"
+        },
+        {
+          "transform_field": "port",
+          "data_set_field": "port"
+        },
+        {
+          "transform_field": "db",
+          "data_set_field": "db"
+        },
+        {
+          "transform_field": "username",
+          "data_set_field": "username"
+        },
+        {
+          "transform_field": "password",
+          "data_set_field": "password"
+        },
+        {
+          "transform_field": "variable",
+          "data_set_field": "variable"
+        }
+      ],
+      "field_order": [
+        "hostname",
+        "port",
+        "db",
+        "username",
+        "password",
+        "variable"
+      ],
+      "data_set_name": "0002-golden-pipeline-resolver",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0002-pipeline-resolver-test UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0002-pipeline-resolver-test.hpl"
+}

@@ -17,7 +17,6 @@
 
 package org.apache.hop.metadata.serializer.json;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
@@ -26,7 +25,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -86,21 +84,6 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
         baseFolder
             + (baseFolder.endsWith(Const.FILE_SEPARATOR) ? "" : Const.FILE_SEPARATOR)
             + classFolder;
-
-    // Check if the folder exists...
-    //
-    FileObject serializerBaseFolder = HopVfs.getFileObject(serializerBaseFolderName);
-    try {
-      if (!serializerBaseFolder.exists()) {
-        serializerBaseFolder.createFolder();
-      }
-    } catch (Exception e) {
-      throw new HopException(
-          "Error validating or creating folder  '"
-              + serializerBaseFolderName
-              + "'to store JSON serialized objects in from class "
-              + managedClass.getName());
-    }
 
     String description = TranslateUtil.translate(hopMetadata.name(), managedClass);
 

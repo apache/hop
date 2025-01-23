@@ -43,6 +43,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 
 /** Singleton class serving as the basis for the Web Application */
@@ -127,6 +128,7 @@ public class Hop implements IHasHopMetadataProvider, IRestServicesProvider {
       // Set up the metadata to use
       //
       metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(variables);
+      HopMetadataInstance.setMetadataProvider(metadataProvider);
 
       // Allow plugins to modify the elements loaded so far, before a pipeline or workflow is even
       // loaded

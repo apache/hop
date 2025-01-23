@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
@@ -36,10 +38,11 @@ import org.apache.hop.metadata.serializer.BaseMetadataProvider;
 /**
  * This metadata provider delegates for a standard provider but also reads information from others
  */
+@Getter
 public class MultiMetadataProvider implements IHopMetadataProvider {
-  private ITwoWayPasswordEncoder twoWayPasswordEncoder;
-  private IVariables variables;
-  private List<IHopMetadataProvider> providers;
+  @Setter private ITwoWayPasswordEncoder twoWayPasswordEncoder;
+  private final IVariables variables;
+  @Setter private List<IHopMetadataProvider> providers;
 
   /**
    * @param twoWayPasswordEncoder The password encoder to use
@@ -166,49 +169,5 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
     throw new RuntimeException(
         "The description of the multi metadata provider can't be changed. "
             + "It's derived from the list of providers it contains.");
-  }
-
-  @Override
-  public ITwoWayPasswordEncoder getTwoWayPasswordEncoder() {
-    return twoWayPasswordEncoder;
-  }
-
-  /**
-   * @param twoWayPasswordEncoder The twoWayPasswordEncoder to set
-   */
-  public void setTwoWayPasswordEncoder(ITwoWayPasswordEncoder twoWayPasswordEncoder) {
-    this.twoWayPasswordEncoder = twoWayPasswordEncoder;
-  }
-
-  /**
-   * Gets providers
-   *
-   * @return value of providers
-   */
-  public List<IHopMetadataProvider> getProviders() {
-    return providers;
-  }
-
-  /**
-   * @param providers The providers to set
-   */
-  public void setProviders(List<IHopMetadataProvider> providers) {
-    this.providers = providers;
-  }
-
-  /**
-   * Gets variables
-   *
-   * @return value of variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables(IVariables variables) {
-    this.variables = variables;
   }
 }
