@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -155,7 +154,7 @@ public class ReadAllCacheTest {
 
   private ReadAllCache buildCache(String conditions) throws Exception {
     StringTokenizer tokenizer = new StringTokenizer(conditions, ",");
-    List<String> operators = Arrays.asList(DatabaseLookupMeta.conditionStrings);
+    List<String> operators = DatabaseLookupMeta.getConditionStrings();
     int conditionIndex = 0;
     while (tokenizer.hasMoreElements()) {
       String operator = tokenizer.nextToken();
