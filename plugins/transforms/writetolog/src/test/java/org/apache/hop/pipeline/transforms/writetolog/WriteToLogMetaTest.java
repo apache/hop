@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.pipeline.transforms.writetolog;
+package org.apache.hop.pipeline.transforms.writetolog;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -35,8 +35,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.writetolog.LogField;
-import org.apache.hop.pipeline.transforms.writetolog.WriteToLogMeta;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
