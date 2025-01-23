@@ -104,7 +104,7 @@ public class SqlHighlight implements LineStyleListener {
       styleAttributes[COMMENT] = new StyleAttribute(resource.getColorGray(), SWT.ITALIC);
       styleAttributes[KEY] = new StyleAttribute(resource.getColor(30, 144, 255), SWT.NORMAL);
       styleAttributes[SYMBOL] = new StyleAttribute(resource.getColor(243, 126, 131), SWT.NORMAL);
-      styleAttributes[FUNCTION] = new StyleAttribute(resource.getColor(177, 102, 218), SWT.NORMAL);
+      styleAttributes[FUNCTION] = new StyleAttribute(resource.getColor(177, 102, 218), SWT.ITALIC);
     } else {
       styleAttributes[COMMENT] = new StyleAttribute(resource.getColorDarkGray(), SWT.ITALIC);
       styleAttributes[KEY] = new StyleAttribute(resource.getColorBlue(), SWT.NORMAL);
