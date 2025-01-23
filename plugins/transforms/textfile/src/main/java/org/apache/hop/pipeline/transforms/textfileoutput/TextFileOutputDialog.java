@@ -1149,7 +1149,12 @@ public class TextFileOutputDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileOutputDialog.NullColumn.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.RoundingTypeColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaBase.roundingTypeDesc,
+              true),
         };
 
     wFields =
@@ -1295,6 +1300,9 @@ public class TextFileOutputDialog extends BaseTransformDialog {
                   item.setText(
                       9, Const.NVL(ValueMetaBase.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                   item.setText(10, Const.NVL(schemaFieldDefinition.getIfNullValue(), ""));
+                  item.setText(
+                      11,
+                      ValueMetaBase.getRoundingTypeDesc(schemaFieldDefinition.getRoundingType()));
                 }
               }
             }
@@ -1549,6 +1557,10 @@ public class TextFileOutputDialog extends BaseTransformDialog {
       if (field.getNullString() != null) {
         item.setText(10, field.getNullString());
       }
+      String roundingType = ValueMetaBase.getRoundingTypeDesc(field.getRoundingType());
+      if (roundingType != null) {
+        item.setText(11, roundingType);
+      }
     }
 
     wFields.optWidth(true);
@@ -1618,7 +1630,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
       field.setGroupingSymbol(item.getText(8));
       field.setTrimType(ValueMetaBase.getTrimTypeByDesc(item.getText(9)));
       field.setNullString(item.getText(10));
-
+      field.setRoundingType(ValueMetaBase.getRoundingTypeCode(item.getText(11)));
       tfoi.getOutputFields()[i] = field;
     }
   }

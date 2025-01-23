@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
@@ -58,6 +59,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 import javax.annotation.Nullable;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
@@ -175,6 +178,11 @@ public class ValueMetaBase implements IValueMeta {
   @HopMetadataProperty(key = "trim_type", intCodeConverter = TrimTypeCodeConverter.class)
   protected int trimType;
 
+  @Getter
+  @Setter
+  @HopMetadataProperty(key = "roundingType")
+  protected String roundingType;
+
   // The storage-type isn't meant to be serialized as metadata
   protected int storageType;
 
@@ -255,6 +263,23 @@ public class ValueMetaBase implements IValueMeta {
     BaseMessages.getString(PKG, "ValueMeta.TrimType.Left"),
     BaseMessages.getString(PKG, "ValueMeta.TrimType.Right"),
     BaseMessages.getString(PKG, "ValueMeta.TrimType.Both")
+  };
+
+  /** The Rounding type codes */
+  public static final String[] roundingTypeCode = {
+    "unnecessary", "ceiling", "down", "floor", "half_down", "half_even", "half_up", "up"
+  };
+
+  /** The Rounding description */
+  public static final String[] roundingTypeDesc = {
+    BaseMessages.getString(PKG, "ValueMeta.RoundingType.Unnecessary"),
+    BaseMessages.getString(PKG, "ValueMeta.RoundingType.Ceiling"),
+    BaseMessages.getString(PKG, "ValueMeta.RoundingType.Down"),
+    BaseMessages.getString(PKG, "ValueMeta.RoundingType.Floor"),
+    BaseMessages.getString(PKG, "ValueMeta.RoundingType.HalfDown"),
+    BaseMessages.getString(PKG, "ValueMeta.RoundingType.HalfEven"),
+    BaseMessages.getString(PKG, "ValueMeta.RoundingType.HalfUp"),
+    BaseMessages.getString(PKG, "ValueMeta.RoundingType.Up"),
   };
 
   // endregion
@@ -439,6 +464,7 @@ public class ValueMetaBase implements IValueMeta {
         && getPrecision() == that.getPrecision()
         && type == that.type
         && trimType == that.trimType
+        && roundingType == that.roundingType
         && storageType == that.storageType
         && collatorStrength == that.collatorStrength
         && caseInsensitive == that.caseInsensitive
@@ -469,6 +495,7 @@ public class ValueMetaBase implements IValueMeta {
             precision,
             type,
             trimType,
+            roundingType,
             storageType,
             origin,
             comments,
@@ -1308,6 +1335,40 @@ public class ValueMetaBase implements IValueMeta {
       decimalFormat = (DecimalFormat) NumberFormat.getInstance();
       decimalFormat.setParseBigDecimal(useBigDecimal);
       DecimalFormatSymbols decimalFormatSymbols = decimalFormat.getDecimalFormatSymbols();
+
+      // Set the Rounding mode
+
+      if (roundingType != null) {
+        switch (roundingType) {
+          case "unnecessary":
+            decimalFormat.setRoundingMode(RoundingMode.UNNECESSARY);
+            break;
+          case "ceiling":
+            decimalFormat.setRoundingMode(RoundingMode.CEILING);
+            break;
+          case "down":
+            decimalFormat.setRoundingMode(RoundingMode.DOWN);
+            break;
+          case "floor":
+            decimalFormat.setRoundingMode(RoundingMode.FLOOR);
+            break;
+          case "half_down":
+            decimalFormat.setRoundingMode(RoundingMode.HALF_DOWN);
+            break;
+          case "half_even":
+            decimalFormat.setRoundingMode(RoundingMode.HALF_EVEN);
+            break;
+          case "half_up":
+            decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
+            break;
+          case "up":
+            decimalFormat.setRoundingMode(RoundingMode.UP);
+            break;
+          default:
+            decimalFormat.setRoundingMode(RoundingMode.HALF_EVEN);
+            break;
+        }
+      }
 
       if (!Utils.isEmpty(currencySymbol)) {
         decimalFormatSymbols.setCurrencySymbol(currencySymbol);
@@ -4956,6 +5017,26 @@ public class ValueMetaBase implements IValueMeta {
       return trimTypeDesc[0];
     }
     return trimTypeDesc[i];
+  }
+
+  public static final String getRoundingTypeDesc(String code) {
+    for (int i = 0; i < roundingTypeCode.length; i++) {
+      if (roundingTypeCode[i].equalsIgnoreCase(code)) {
+        return roundingTypeDesc[i];
+      }
+    }
+    // return half_even as default
+    return roundingTypeDesc[5];
+  }
+
+  public static final String getRoundingTypeCode(String desc) {
+    for (int i = 0; i < roundingTypeDesc.length; i++) {
+      if (roundingTypeCode[i].equalsIgnoreCase(desc)) {
+        return roundingTypeCode[i];
+      }
+    }
+    // return half_even as default
+    return roundingTypeCode[5];
   }
 
   /**

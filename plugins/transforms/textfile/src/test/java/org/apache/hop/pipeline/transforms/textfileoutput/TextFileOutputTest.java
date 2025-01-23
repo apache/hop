@@ -131,7 +131,16 @@ public class TextFileOutputTest {
   private TransformMockHelper<TextFileOutputMeta, TextFileOutputData> transformMockHelper;
   private TextFileField textFileField =
       new TextFileField(
-          "Name", 2, EMPTY_STRING, 10, 20, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING);
+          "Name",
+          2,
+          EMPTY_STRING,
+          10,
+          20,
+          EMPTY_STRING,
+          EMPTY_STRING,
+          EMPTY_STRING,
+          EMPTY_STRING,
+          "floor");
   private TextFileField textFileField2 =
       new TextFileField(
           "Surname",
@@ -142,7 +151,8 @@ public class TextFileOutputTest {
           EMPTY_STRING,
           EMPTY_STRING,
           EMPTY_STRING,
-          EMPTY_STRING);
+          EMPTY_STRING,
+          "floor");
   private TextFileField[] textFileFields = new TextFileField[] {textFileField, textFileField2};
   private Object[] row = new Object[] {"some data", "another data"};
   private Object[] row2 = new Object[] {"some data2", "another data2"};

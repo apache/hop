@@ -201,7 +201,12 @@ public class SchemaDefinitionEditor extends MetadataEditor<SchemaDefinition> {
           new ColumnInfo(
               BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldComment"),
               ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.RoundingType"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaString.roundingTypeDesc,
+              true),
         };
 
     wFields =
@@ -257,6 +262,8 @@ public class SchemaDefinitionEditor extends MetadataEditor<SchemaDefinition> {
       item.setText(10, trimType);
 
       item.setText(11, Const.NVL(field.getComment(), ""));
+      String roundingType = ValueMetaBase.getRoundingTypeDesc(field.getRoundingType());
+      item.setText(12, roundingType);
     }
   }
 
@@ -283,6 +290,7 @@ public class SchemaDefinitionEditor extends MetadataEditor<SchemaDefinition> {
       sfd.setIfNullValue(item.getText(9));
       sfd.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(10)));
       sfd.setComment(item.getText(11));
+      sfd.setRoundingType(ValueMetaBase.getRoundingTypeCode(item.getText(11)));
       SchemaDefinition.getFieldDefinitions().add(sfd);
     }
   }

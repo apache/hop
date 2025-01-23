@@ -144,8 +144,11 @@ See Number Formats for a complete description of format symbols.
 |Trim type|The trimming method to apply on the string.
 Note: Trimming only works when there is no field length given.
 |Null|If the value of the field is null, insert this string into the textfile
+|Rounding Type| When writing numbers to a file you can specify the Rounding type being used by default `Half Even` is used, for more information look at the Rounding Types section
 |Get|Click to retrieve the list of fields from the input fields stream(s)
 |Minimal width|Alter the options in the fields tab in such a way that the resulting width of lines in the text file is minimal.
 So instead of save 0000001, we write 1, etc.
 String fields will no longer be padded to their specified length.
 |===
+
+include::../../snippets/rounding-types.adoc[]
