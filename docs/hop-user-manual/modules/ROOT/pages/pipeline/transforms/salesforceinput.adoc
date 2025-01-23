@@ -170,3 +170,37 @@ Trimming only works when no field length is specified.
 |Repeat|If the corresponding value in this row is empty, repeat the one from the last time it was not empty.
 Select ‘Y’(es) or ‘N’(o).
 |===
+
+Salesforce Input
+
+=== Example Case: Retrieving Deleted Records from Salesforce
+
+==== Scenario
+You want to retrieve all deleted records from Salesforce, even when the dataset exceeds the default pagination size of 2000 records.
+
+==== Steps
+1. **Set "Retrieve" to "Deleted"**:
+   In the *Advanced* section of the transform, select the "Retrieve" option and set it to **Deleted**.
+
+2. **Enable "Query all records"**:
+   - Check the box labeled **Query all records** in the *Advanced* section.
+   - This allows the transform to retrieve all available records across multiple pages.
+
+3. **Add a Query Condition**:
+   - In the *Settings* tab, include the following query condition:
+     `IsDeleted = true`
+   - This ensures the transform retrieves only deleted records.
+
+==== Note on Pagination
+If "Query all records" is not enabled, the transform will retrieve only the first 2000 records due to Salesforce's default pagination settings. Enabling "Query all records" ensures that the system processes all pages of data until all matching records are retrieved.
+
+==== Example Use Case
+You want to retrieve all customer records deleted within the past 30 days. Configure your transform as follows:
+
+* Retrieve: Set to `Deleted`.
+* Query Condition: 
+  `IsDeleted = true AND LastModifiedDate >= LAST_N_DAYS:30`
+
+==== Troubleshooting
+- If the transform retrieves fewer records than expected, verify that **Query all records** is enabled.
+- Ensure your Salesforce user has appropriate permissions to access deleted records.
