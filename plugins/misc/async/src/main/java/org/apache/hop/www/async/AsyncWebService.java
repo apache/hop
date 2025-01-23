@@ -30,10 +30,10 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
     key = "async-web-service",
-    name = "i18n::AsynWebService.name",
-    description = "i18n::AsynWebService.description",
+    name = "i18n::AsyncWebService.name",
+    description = "i18n::AsyncWebService.description",
     image = "ui/images/server.svg",
-    documentationUrl = "metadata-types/async-web-service.html",
+    documentationUrl = "/metadata-types/async-web-service.html",
     hopMetadataPropertyType = HopMetadataPropertyType.SERVER_WEB_SERVICE_ASYNC)
 public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
 

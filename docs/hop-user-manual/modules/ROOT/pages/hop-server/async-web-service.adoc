@@ -26,7 +26,7 @@ Instead of getting immediate results from a pipeline with a xref:hop-server/web-
 With that unique ID you can query the status of the workflow.
 You can specify additional variables to report back during the querying of the status of the asynchronously running workflow.
 
-Check the xref:metadata-types/asyncwebservice.adoc[Asynchronous Web Service] metadata type for more information on how to configure the async web service.
+Check the xref:metadata-types/async-web-service.adoc[Asynchronous Web Service] metadata type for more information on how to configure the async web service.
 
 Here is the lifecycle:
 
