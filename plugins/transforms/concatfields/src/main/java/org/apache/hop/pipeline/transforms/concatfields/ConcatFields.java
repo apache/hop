@@ -157,7 +157,8 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
         nullString = Const.NVL(field.getNullString(), "");
       }
 
-      concatField(targetString, valueMeta, valueData, nullString);
+      String trimType = data.trimType[i];
+      concatField(targetString, valueMeta, valueData, nullString, trimType);
     }
 
     outputRowData[data.outputRowMeta.size() - 1] = targetString.toString();
@@ -166,13 +167,32 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
   }
 
   private void concatField(
-      StringBuilder targetField, IValueMeta valueMeta, Object valueData, String nullString)
+      StringBuilder targetField,
+      IValueMeta valueMeta,
+      Object valueData,
+      String nullString,
+      String trimType)
       throws HopValueException {
 
     if (valueMeta.isNull(valueData)) {
       targetField.append(nullString);
     } else {
-      targetField.append(valueMeta.getString(valueData));
+      if (trimType != null) {
+        switch (trimType) {
+          case ConcatFieldsMeta.TRIM_TYPE_LEFT:
+            targetField.append(valueMeta.getString(valueData).replaceAll("^\\s+", ""));
+            break;
+          case ConcatFieldsMeta.TRIM_TYPE_RIGHT:
+            targetField.append(valueMeta.getString(valueData).replaceAll("\\s+$", ""));
+            break;
+          case ConcatFieldsMeta.TRIM_TYPE_BOTH:
+            targetField.append(valueMeta.getString(valueData).trim());
+            break;
+          default:
+            targetField.append(valueMeta.getString(valueData));
+            break;
+        }
+      }
     }
   }
 
@@ -220,11 +240,17 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
     }
 
     data.stringNullValue = new String[meta.getOutputFields().size()];
+    data.trimType = new String[meta.getOutputFields().size()];
+
     for (int i = 0; i < meta.getOutputFields().size(); i++) {
       data.stringNullValue[i] = "";
       String nullString = meta.getOutputFields().get(i).getNullString();
       if (!StringUtil.isEmpty(nullString)) {
         data.stringNullValue[i] = nullString;
+      }
+      String trimType = meta.getOutputFields().get(i).getTrimType();
+      if (!StringUtil.isEmpty(trimType)) {
+        data.trimType[i] = trimType;
       }
     }
   }

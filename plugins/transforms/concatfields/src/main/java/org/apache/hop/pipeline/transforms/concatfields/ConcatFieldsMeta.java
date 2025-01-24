@@ -51,6 +51,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFieldsData> {
   private static final Class<?> PKG = ConcatFieldsMeta.class;
 
+  public static final String TRIM_TYPE_LEFT = "left";
+  public static final String TRIM_TYPE_RIGHT = "right";
+  public static final String TRIM_TYPE_BOTH = "both";
+
   /** The separator to choose for the CSV file */
   @HopMetadataProperty(key = "separator", injectionKey = "SEPARATOR")
   private String separator;
