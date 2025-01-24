@@ -422,7 +422,6 @@ public class MetadataManager<T extends IHopMetadata> {
           element);
 
       MetadataEditor<T> editor = this.createEditor(element);
-      editor.setTitle(getManagedName());
 
       // Always open this in a separate dialog so that we block until we have a name for the new
       // element.
