@@ -607,6 +607,10 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
         // javax.net.ssl.SSLException: Unsupported record version Unknown
         data.props.put("mail.smtps.quitwait", "false");
       }
+      data.props.put("mail.smtp.ssl.checkServerIdentity", meta.isCheckServerIdentity());
+      if (!Utils.isEmpty(meta.getTrustedHosts())) {
+        data.props.put("mail.smtp.ssl.trust", resolve(meta.getTrustedHosts()));
+      }
     }
     data.props.put(CONST_MAIL + protocol + ".host", server);
     if (port != -1) {
