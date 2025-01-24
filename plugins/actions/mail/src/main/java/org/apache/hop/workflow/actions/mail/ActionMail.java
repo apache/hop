@@ -116,6 +116,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   private boolean zipFiles;
 
   private String zipFilename;
+  private String trustedHosts;
+  private boolean checkServerIdentity;
 
   private boolean usingAuthentication;
   private boolean usexoauth2;
@@ -207,11 +209,15 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("contact_phone", contactPhone));
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("comment", comment));
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("include_files", includingFiles));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("checkServerIdentity", checkServerIdentity));
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("zip_files", zipFiles));
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("zip_name", zipFilename));
 
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("use_auth", usingAuthentication));
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
+    retval.append("      ").append(XmlHandler.addTagValue("trustedHosts", trustedHosts));
     retval
         .append(CONST_SPACES)
         .append(XmlHandler.addTagValue("use_secure_auth", usingSecureAuthentication));
@@ -275,6 +281,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       setReplyAddress(XmlHandler.getTagValue(entrynode, "replyto"));
       setReplyName(XmlHandler.getTagValue(entrynode, "replytoname"));
       setSubject(XmlHandler.getTagValue(entrynode, "subject"));
+      setCheckServerIdentity(
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "checkServerIdentity")));
+      setTrustedHosts(XmlHandler.getTagValue(entrynode, "trustedHosts"));
       setIncludeDate("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_date")));
       setContactPerson(XmlHandler.getTagValue(entrynode, "contact_person"));
       setContactPhone(XmlHandler.getTagValue(entrynode, "contact_phone"));
@@ -551,6 +560,34 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   }
 
   /**
+   * @return the checkServerIdentity flag
+   */
+  public boolean isCheckServerIdentity() {
+    return useHTML;
+  }
+
+  /**
+   * @param checkServerIdentity the checkServerIdentity to set
+   */
+  public void setCheckServerIdentity(boolean checkServerIdentity) {
+    this.checkServerIdentity = checkServerIdentity;
+  }
+
+  /**
+   * @return the trusted hosts
+   */
+  public String getTrustedHosts() {
+    return trustedHosts;
+  }
+
+  /**
+   * @param trustedHosts the trusted hosts to set
+   */
+  public void setTrustedHosts(String trustedHosts) {
+    this.trustedHosts = trustedHosts;
+  }
+
+  /**
    * @return the encoding
    */
   public String getEncoding() {
@@ -676,6 +713,10 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
         // nested exception is:
         // javax.net.ssl.SSLException: Unsupported record version Unknown
         props.put("mail.smtps.quitwait", "false");
+      }
+      props.put("mail.smtp.ssl.checkServerIdentity", isCheckServerIdentity());
+      if (!Utils.isEmpty(trustedHosts)) {
+        props.put("mail.smtp.ssl.trust", resolve(trustedHosts));
       }
     }
 
