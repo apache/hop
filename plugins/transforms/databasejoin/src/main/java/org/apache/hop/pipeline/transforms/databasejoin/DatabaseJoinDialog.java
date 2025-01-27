@@ -23,6 +23,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
@@ -47,6 +51,7 @@ import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.core.widget.highlight.SqlHighlight;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -63,6 +68,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -96,6 +102,9 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
   private Label wlCacheSize;
   private Text wCacheSize;
 
+  private AtomicReference<SqlHighlight> sqlHighlightListener =
+      new AtomicReference<>(new SqlHighlight(List.of()));
+
   public DatabaseJoinDialog(
       Shell parent,
       IVariables variables,
@@ -103,6 +112,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
       PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
+    initReservedWordsCache(pipelineMeta);
   }
 
   @Override
@@ -147,7 +157,11 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
 
     // Connection line
     wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
-    wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
+    wConnection.addListener(
+        SWT.Selection,
+        e -> {
+          onConnectionSelected();
+        });
 
     // ICache?
     Label wlCache = new Label(shell, SWT.RIGHT);
@@ -208,7 +222,6 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
                 variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)
             : new SQLStyledTextComp(
                 variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    wSql.addLineStyleListener(getSqlReservedWords());
     PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
     FormData fdSql = new FormData();
@@ -418,6 +431,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
+    initSQLFormat();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -584,6 +598,107 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
           BaseMessages.getString(PKG, "DatabaseJoinDialog.GetFieldsFailed.DialogTitle"),
           BaseMessages.getString(PKG, "DatabaseJoinDialog.GetFieldsFailed.DialogMessage"),
           ke);
+    }
+  }
+
+  private void initSQLFormat() {
+    String connectionName = input.getConnection();
+    final Optional<List<String>> keywordsByConnectionName =
+        input.getKeywordsByConnectionName(connectionName);
+    if (keywordsByConnectionName.isPresent()) {
+      Display.getDefault()
+          .asyncExec(() -> refreshLineStyleListener(keywordsByConnectionName.get()));
+    } else {
+      refreshLineStyleListener(List.of());
+      Executors.newSingleThreadExecutor()
+          .submit(
+              () -> {
+                fetchKeywords(input.getConnection());
+                final Optional<List<String>> optKeywords =
+                    input.getKeywordsByConnectionName(connectionName);
+                if (optKeywords.isPresent()) {
+                  Display.getDefault().asyncExec(() -> refreshLineStyleListener(optKeywords.get()));
+                }
+              });
+    }
+  }
+
+  private void onConnectionSelected() {
+    if (input.containsKeywordsByConnectionName(wConnection.getText())) {
+      final List<String> k =
+          input.getKeywordsByConnectionName(wConnection.getText()).orElse(List.of());
+      refreshLineStyleListener(k);
+    } else {
+      final String currentConnection = wConnection.getText();
+      refreshLineStyleListener(List.of());
+      Executors.newSingleThreadExecutor()
+          .submit(
+              () -> {
+                fetchKeywords(currentConnection);
+                final List<String> k =
+                    input.getKeywordsByConnectionName(currentConnection).orElse(List.of());
+                Display.getDefault().asyncExec(() -> refreshLineStyleListener(k));
+              });
+    }
+  }
+
+  private synchronized void refreshLineStyleListener(List<String> keywords) {
+    wSql.removeLineStyleListener(sqlHighlightListener.get());
+    sqlHighlightListener.set(new SqlHighlight(keywords));
+    wSql.addLineStyleListener(sqlHighlightListener.get());
+    wSql.setText(wSql.getText());
+    // wSql.setRedraw(true);
+  }
+
+  private void initReservedWordsCache(PipelineMeta pipelineMeta) {
+    final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    pipelineMeta.getDatabases().stream()
+        .forEach(
+            db -> {
+              executorService.submit(() -> fetchKeywords(db));
+            });
+  }
+
+  private void fetchKeywords(String connectionName) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+    if (databaseMeta != null) {
+      fetchKeywords(databaseMeta);
+    } else {
+      logError("Unable to find database '" + connectionName + "'");
+    }
+  }
+
+  private void fetchKeywords(DatabaseMeta databaseMeta) {
+
+    if (databaseMeta == null) {
+      logError("Database connection not found. Proceding without keywords.");
+      return;
+    }
+
+    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+      db.connect();
+      DatabaseMetaData databaseMetaData = db.getDatabaseMetaData();
+      if (databaseMetaData == null) {
+        logError("Couldn't get database metadata");
+        return;
+      }
+      List<String> sqlKeywords = new ArrayList<>();
+      try {
+        final ResultSet functionsResultSet = databaseMetaData.getFunctions(null, null, null);
+        while (functionsResultSet.next()) {
+          String functionName = functionsResultSet.getString("FUNCTION_NAME");
+          if (functionName.contains(";")) {
+            functionName = functionName.substring(0, functionName.indexOf(";"));
+          }
+          sqlKeywords.add(functionName);
+        }
+        sqlKeywords.addAll(Arrays.asList(databaseMetaData.getSQLKeywords().split(",")));
+      } catch (SQLException e) {
+        logError("Couldn't extract keywords from database metadata. Proceding without them.");
+      }
+      input.putKeywords(databaseMeta.getName(), sqlKeywords);
+    } catch (HopDatabaseException e) {
+      logError("Couldn't extract keywords from database metadata. Proceding without them.");
     }
   }
 }

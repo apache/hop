@@ -19,6 +19,9 @@ package org.apache.hop.pipeline.transforms.databasejoin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -112,6 +115,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       key = "replace_vars",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.ReplaceVariables")
   private boolean replaceVariables;
+
+  private Map<String, List<String>> keywordsCache = new ConcurrentHashMap<>();
 
   public DatabaseJoinMeta() {
     super(); // allocate BaseTransformMeta
@@ -591,5 +596,22 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
 
   public void setParameters(List<ParameterField> parameters) {
     this.parameters = parameters;
+  }
+
+  public void putKeywords(String name, List<String> sqlKeywords) {
+    keywordsCache.put(name, sqlKeywords);
+  }
+
+  public Map<String, List<String>> getKeywordsCache() {
+    return keywordsCache;
+  }
+
+  public Optional<List<String>> getKeywordsByConnectionName(String connection) {
+    final List<String> keywordsList = keywordsCache.get(connection);
+    return Optional.ofNullable(keywordsList);
+  }
+
+  public boolean containsKeywordsByConnectionName(String connection) {
+    return keywordsCache.containsKey(connection);
   }
 }
