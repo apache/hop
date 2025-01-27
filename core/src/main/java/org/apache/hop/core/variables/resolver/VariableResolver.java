@@ -31,7 +31,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::VariableResolver.name",
     description = "i18n::VariableResolver.Description",
     image = "ui/images/variable.svg",
-    documentationUrl = "/metadata-types/variable-resolver.html",
+    documentationUrl = "/metadata-types/variable-resolver/",
     hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
 @Getter
 @Setter
