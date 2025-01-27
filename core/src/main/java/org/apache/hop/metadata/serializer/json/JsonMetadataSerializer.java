@@ -75,6 +75,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   @Override
   public List<T> loadAll() throws HopException {
     List<T> list = new ArrayList<>();
+    validateBaseFolder(false);
     if (!baseFolderExists) {
       return list;
     }
