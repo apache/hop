@@ -1248,6 +1248,25 @@
         </Arguments>
     </jsFunction>
 
+    <jsFunction name="resolveVariable">
+        <help>Resolves a variable expression.</help>
+        <sample>// Converts the given variable expression into its underlying value.
+            //
+            // Usage:
+            // resolveVariable(var);
+            // 1: String - The variable expression to resolve.
+            //
+            // 2025-01-27
+            //
+            var strVarName="${PROJECT_HOME}/output/";
+            Alert(resolveVariable(strVarName));
+        </sample>
+        <type>4</type>
+        <Arguments>
+            <argument id="1">var</argument>
+        </Arguments>
+    </jsFunction>
+
     <jsFunction name="LuhnCheck">
         <help>Check if the given Value is a valid Card Number using the Luhn algorithm.</help>
         <sample>// Returns true, if the given value is a valid card number
