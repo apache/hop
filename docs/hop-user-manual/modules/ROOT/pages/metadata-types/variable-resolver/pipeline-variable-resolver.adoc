@@ -66,11 +66,11 @@ db=db1
 
 We can then have a pipeline that reads and processes the appropriate file per type:
 
-image:metadata-types/variable-resolver/pipeline-variable-resolver-pipeline.png
+image::metadata-types/variable-resolver/pipeline-variable-resolver-pipeline.png[]
 
 The Variable Resolver metadata would look like this:
 
-image:metadata-types/variable-resolver/pipeline-variable-resolver-conf.png
+image::metadata-types/variable-resolver/pipeline-variable-resolver-conf.png[]
 
 
 Here are some examples of expressions and the results they give back:
