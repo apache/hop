@@ -105,12 +105,7 @@ public class TableInputDialog extends BaseTransformDialog {
       Shell parent, IVariables variables, TableInputMeta transformMeta, PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
-    final ExecutorService executorService = Executors.newFixedThreadPool(5);
-    pipelineMeta.getDatabases().parallelStream()
-        .forEach(
-            db -> {
-              executorService.submit(() -> fetchKeywords(db));
-            });
+    initReservedWordsCache(pipelineMeta);
   }
 
   @Override
@@ -157,9 +152,7 @@ public class TableInputDialog extends BaseTransformDialog {
     wConnection.addListener(
         SWT.Selection,
         e -> {
-          final List<String> k =
-              input.getKeywordsByConnectionName(wConnection.getText()).orElse(List.of());
-          refreshLineStyleListener(k);
+          onConnectionSelected();
         });
 
     // Some buttons
@@ -379,7 +372,8 @@ public class TableInputDialog extends BaseTransformDialog {
     final Optional<List<String>> keywordsByConnectionName =
         input.getKeywordsByConnectionName(connectionName);
     if (keywordsByConnectionName.isPresent()) {
-      refreshLineStyleListener(keywordsByConnectionName.get());
+      Display.getDefault()
+          .asyncExec(() -> refreshLineStyleListener(keywordsByConnectionName.get()));
     } else {
       refreshLineStyleListener(List.of());
       Executors.newSingleThreadExecutor()
@@ -395,6 +389,25 @@ public class TableInputDialog extends BaseTransformDialog {
     }
   }
 
+  private void onConnectionSelected() {
+    if (input.containsKeywordsByConnectionName(wConnection.getText())) {
+      final List<String> k =
+          input.getKeywordsByConnectionName(wConnection.getText()).orElse(List.of());
+      refreshLineStyleListener(k);
+    } else {
+      final String currentConnection = wConnection.getText();
+      refreshLineStyleListener(List.of());
+      Executors.newSingleThreadExecutor()
+          .submit(
+              () -> {
+                fetchKeywords(currentConnection);
+                final List<String> k =
+                    input.getKeywordsByConnectionName(currentConnection).orElse(List.of());
+                Display.getDefault().asyncExec(() -> refreshLineStyleListener(k));
+              });
+    }
+  }
+
   private synchronized void refreshLineStyleListener(List<String> keywords) {
     wSql.removeLineStyleListener(sqlHighlightListener.get());
     sqlHighlightListener.set(new SqlHighlight(keywords));
@@ -403,21 +416,14 @@ public class TableInputDialog extends BaseTransformDialog {
     // wSql.setRedraw(true);
   }
 
-  //  private List<String> getAsyncSqlReservedWords(String connectionName) {
-  //    if (connectionName == null || connectionName.isEmpty()) {
-  //      return new ArrayList<>();
-  //    }
-  //    if (variables.resolve(connectionName).startsWith("${")) { // COULDN'T resolve variable: skip
-  //      return new ArrayList<>();
-  //    }
-  //    return input
-  //        .getKeywordsByConnectionName(connectionName)
-  //        .orElseGet(
-  //            () -> {
-  //              Executors.newSingleThreadExecutor().submit(() -> fetchKeywords(connectionName));
-  //              return List.of();
-  //            });
-  //  }
+  private void initReservedWordsCache(PipelineMeta pipelineMeta) {
+    final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    pipelineMeta.getDatabases().stream()
+        .forEach(
+            db -> {
+              executorService.submit(() -> fetchKeywords(db));
+            });
+  }
 
   private void fetchKeywords(String connectionName) {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);

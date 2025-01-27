@@ -546,4 +546,8 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     final List<String> keywordsList = keywordsCache.get(connection);
     return Optional.ofNullable(keywordsList);
   }
+
+  public boolean containsKeywordsByConnectionName(String connection) {
+    return keywordsCache.containsKey(connection);
+  }
 }
