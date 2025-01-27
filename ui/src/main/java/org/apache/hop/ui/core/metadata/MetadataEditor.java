@@ -28,6 +28,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.TranslateUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -79,13 +80,11 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     HopMetadata annotation = managedClass.getAnnotation(HopMetadata.class);
 
     // Initialize editor
-    this.setTitle(metadata.getName());
-
-    String titleToolTip = TranslateUtil.translate(annotation.name(), managedClass);
+    this.toolTip = TranslateUtil.translate(annotation.name(), managedClass);
+    this.title = Utils.isEmpty(originalName) ? toolTip : originalName;
     if (StringUtils.isNotEmpty(metadata.getMetadataProviderName())) {
-      titleToolTip += Const.CR + "Source: " + metadata.getMetadataProviderName();
+      toolTip += Const.CR + "Source: " + metadata.getMetadataProviderName();
     }
-    this.setTitleToolTip(titleToolTip);
 
     this.setTitleImage(
         GuiResource.getInstance()
