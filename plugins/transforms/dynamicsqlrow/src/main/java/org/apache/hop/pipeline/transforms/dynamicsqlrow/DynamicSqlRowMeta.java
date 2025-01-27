@@ -18,6 +18,9 @@
 package org.apache.hop.pipeline.transforms.dynamicsqlrow;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -99,6 +102,8 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       key = "query_only_on_change",
       injectionKeyDescription = "DynamicSQLRow.Injection.QueryOnlyOnChange")
   private boolean queryOnlyOnChange;
+
+  private Map<String, List<String>> keywordsCache = new ConcurrentHashMap<>();
 
   public DynamicSqlRowMeta() {
     super(); // allocate BaseTransformMeta
@@ -443,5 +448,22 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  public void putKeywords(String name, List<String> sqlKeywords) {
+    keywordsCache.put(name, sqlKeywords);
+  }
+
+  public Map<String, List<String>> getKeywordsCache() {
+    return keywordsCache;
+  }
+
+  public Optional<List<String>> getKeywordsByConnectionName(String connection) {
+    final List<String> keywordsList = keywordsCache.get(connection);
+    return Optional.ofNullable(keywordsList);
+  }
+
+  public boolean containsKeywordsByConnectionName(String connection) {
+    return keywordsCache.containsKey(connection);
   }
 }
