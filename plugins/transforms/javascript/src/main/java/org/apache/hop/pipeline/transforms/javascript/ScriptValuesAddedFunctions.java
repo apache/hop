@@ -142,6 +142,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     "trim",
     "substr",
     "getVariable",
+    "resolveVariable",
     "setVariable",
     "LuhnCheck",
     "getDigitsOnly",
@@ -1996,6 +1997,35 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
       }
     } else {
       throw Context.reportRuntimeError("The function call getVariable requires 2 arguments.");
+    }
+    return sRC;
+  }
+
+  public static String resolveVariable(
+      Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
+    String sRC = "";
+    String sArg1 = "";
+    if (argList.length == 1) {
+      try {
+        Object scmo = actualObject.get(CONST_TRANSFORM, actualObject);
+        Object scmO = Context.jsToJava(scmo, ITransform.class);
+
+        if (scmO instanceof ITransform) {
+          ITransform scm = (ITransform) Context.jsToJava(scmO, ITransform.class);
+
+          sArg1 = Context.toString(argList[0]);
+          return scm.resolve(sArg1);
+        } else {
+          // running via the Test button in a dialog
+          sArg1 = Context.toString(argList[0]);
+          return sArg1;
+        }
+      } catch (Exception e) {
+        sRC = "";
+      }
+    } else {
+      throw Context.reportRuntimeError(
+          "The function call resolveVariable accepts a single argument.");
     }
     return sRC;
   }
