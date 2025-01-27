@@ -570,14 +570,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       // use the information from the selection line if we have one.
       if (!Utils.isEmpty(meta.getConnectionName())) {
         try {
-          for (RestConnection connection :
-              metadataProvider.getSerializer(RestConnection.class).loadAll()) {
-            if (connection.getName().equals(meta.getConnectionName())) {
-              this.connection = connection;
-              baseUrl = resolve(connection.getBaseUrl());
-            }
-          }
-        } catch (HopException e) {
+          this.connection =
+              metadataProvider.getSerializer(RestConnection.class).load(meta.getConnectionName());
+          baseUrl = resolve(connection.getBaseUrl());
+
+        } catch (Exception e) {
           throw new RuntimeException(
               "REST connection " + meta.getConnectionName() + " could not be found");
         }
