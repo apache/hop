@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -178,20 +179,9 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
       targetField.append(nullString);
     } else {
       if (trimType != null) {
-        switch (trimType) {
-          case ConcatFieldsMeta.TRIM_TYPE_LEFT:
-            targetField.append(valueMeta.getString(valueData).replaceAll("^\\s+", ""));
-            break;
-          case ConcatFieldsMeta.TRIM_TYPE_RIGHT:
-            targetField.append(valueMeta.getString(valueData).replaceAll("\\s+$", ""));
-            break;
-          case ConcatFieldsMeta.TRIM_TYPE_BOTH:
-            targetField.append(valueMeta.getString(valueData).trim());
-            break;
-          default:
-            targetField.append(valueMeta.getString(valueData));
-            break;
-        }
+        targetField.append(
+            Const.trimToType(
+                valueMeta.getString(valueData), ValueMetaBase.getTrimTypeByCode(trimType)));
       }
     }
   }
