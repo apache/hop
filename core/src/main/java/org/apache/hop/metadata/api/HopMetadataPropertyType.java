@@ -81,6 +81,9 @@ public enum HopMetadataPropertyType {
   // REST
   REST_CONNECTION,
 
+  // MAIL
+  MAIL_SERVER_CONNECTION,
+
   // GRAPH
   GRAPH_CONNECTION,
   GRAPH_MODEL,
