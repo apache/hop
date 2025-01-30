@@ -37,6 +37,9 @@ public class ConcatFieldsData extends BaseTransformData implements ITransformDat
   public String stringSeparator;
   public String stringEnclosure;
   public String[] stringNullValue;
+
+  public String[] trimType;
+
   public int targetFieldLength; // for fast data dump (StringBuilder size)
 
   public ConcatFieldsData() {
