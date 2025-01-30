@@ -1,7 +1,16 @@
 package org.apache.hop.metadata.mail;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
+import jakarta.mail.Transport;
+import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -18,6 +27,14 @@ import org.apache.hop.metadata.api.IHopMetadata;
     documentationUrl = "",
     hopMetadataPropertyType = HopMetadataPropertyType.MAIL_SERVER_CONNECTION)
 public class MailServerConnection extends HopMetadataBase implements IHopMetadata {
+
+  private static final Class<?> PKG = MailServerConnection.class;
+  public static final String CONST_MAIL = "mail.";
+
+  private Session session;
+  private IVariables variables;
+
+  @HopMetadataProperty private String protocol;
 
   @HopMetadataProperty private String serverHost;
 
@@ -41,9 +58,90 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   @HopMetadataProperty private String proxyUsername;
 
-  @HopMetadataProperty private String connectionProtocol;
+  public MailServerConnection() {
+    super();
+  }
 
-  public MailServerConnection() {}
+  public MailServerConnection(IVariables variables) {
+    this();
+    this.variables = variables;
+  }
+
+  public Session getSession(IVariables variables) {
+    this.variables = variables;
+
+    if (protocol.equals("SMTP")) {
+      // Send an e-mail...
+      // create some properties and get the default Session
+      Properties props = new Properties();
+      //    if (Utils.isEmpty(serverHost)) {
+      //      logError(BaseMessages.getString(PKG, "ActionMail.Error.HostNotSpecified"));
+      //    }
+
+      protocol = "smtp";
+      if (useSecureAuthentication) {
+        if (useXOAuth2) {
+          props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
+        }
+        if (secureConnectionType.equals("TLS")) {
+          // Allow TLS authentication
+          props.put("mail.smtp.starttls.enable", "true");
+        } else if (secureConnectionType.equals("TLS 1.2")) {
+          // Allow TLS 1.2 authentication
+          props.put("mail.smtp.starttls.enable", "true");
+          props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+        } else {
+
+          protocol = "smtps";
+          // required to get rid of a SSL exception :
+          // nested exception is:
+          // javax.net.ssl.SSLException: Unsupported record version Unknown
+          props.put("mail.smtps.quitwait", "false");
+        }
+      }
+
+      props.put(CONST_MAIL + protocol.toLowerCase() + ".host", variables.resolve(serverHost));
+      if (!Utils.isEmpty(serverPort)) {
+        props.put(CONST_MAIL + protocol.toLowerCase() + ".port", variables.resolve(serverPort));
+      }
+
+      //    if (isDebug()) {
+      //      props.put("mail.debug", "true");
+      //    }
+
+      if (useAuthentication) {
+        props.put(CONST_MAIL + protocol + ".auth", "true");
+      }
+
+      session = Session.getInstance(props);
+    }
+
+    return session;
+  }
+
+  public Transport getTransport() throws MessagingException {
+    Transport transport = session.getTransport(protocol);
+    String authPass = getPassword(password);
+
+    if (useAuthentication) {
+      if (!Utils.isEmpty(serverPort)) {
+        transport.connect(
+            variables.resolve(Const.NVL(serverHost, "")),
+            Integer.parseInt(variables.resolve(Const.NVL(serverPort, ""))),
+            variables.resolve(Const.NVL(username, "")),
+            authPass);
+      } else {
+        transport.connect(
+            variables.resolve(Const.NVL(serverHost, "")),
+            variables.resolve(Const.NVL(username, "")),
+            authPass);
+      }
+    } else {
+      transport.connect();
+    }
+
+    return transport;
+  }
 
   public MailServerConnection(MailServerConnection connection) {}
 
@@ -72,21 +170,12 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     return name != null && name.equalsIgnoreCase(connection.name);
   }
 
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  @Override
-  public String getName() {
-    return name;
+  public void testConnection(Session session) throws MessagingException {
+    Store store = session.getStore();
+    store.connect();
   }
 
-  /**
-   * @param name The name to set
-   */
-  @Override
-  public void setName(String name) {
-    this.name = name;
+  public String getPassword(String authPassword) {
+    return Encr.decryptPasswordOptionallyEncrypted(variables.resolve(Const.NVL(authPassword, "")));
   }
 }
