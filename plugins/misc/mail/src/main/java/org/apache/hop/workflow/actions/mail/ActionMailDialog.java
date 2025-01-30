@@ -26,13 +26,16 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.mail.MailServerConnection;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -162,6 +165,8 @@ public class ActionMailDialog extends ActionDialog {
   private TextVar wImageFilename;
   private TextVar wContentID;
   private TableView wFields;
+
+  private MetaSelectionLine wSelectionLine;
 
   public ActionMailDialog(
       Shell parent, ActionMail action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -423,6 +428,46 @@ public class ActionMailDialog extends ActionDialog {
     wContentComp.setLayout(contentLayout);
 
     // ////////////////////////
+    // START OF CONNECTION LINE GROUP
+    // /////////////////////////
+
+    Group wConnectionGroup = new Group(wContentComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wConnectionGroup);
+    wConnectionGroup.setText(BaseMessages.getString(PKG, "ActionMail.Group.ConnectionGroup.Label"));
+    FormLayout connectionGroupLayout = new FormLayout();
+    connectionGroupLayout.marginWidth = 10;
+    connectionGroupLayout.marginHeight = 10;
+    wConnectionGroup.setLayout(connectionGroupLayout);
+
+    wSelectionLine =
+        new MetaSelectionLine(
+            variables,
+            metadataProvider,
+            MailServerConnection.class,
+            wConnectionGroup,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            "Mail Connection",
+            "The name of the mail connection to use");
+    PropsUi.setLook(wSelectionLine);
+    FormData fdSelectionLine = new FormData();
+    fdSelectionLine.left = new FormAttachment(0, 0);
+    fdSelectionLine.top = new FormAttachment(wGeneralComp, 0);
+    fdSelectionLine.right = new FormAttachment(100, -margin);
+    wSelectionLine.setLayoutData(fdSelectionLine);
+    wSelectionLine.addListener(SWT.Selection, e -> action.setChanged(true));
+    try {
+      wSelectionLine.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error getting list of Mail Server connectioons", e);
+    }
+
+    FormData fdConnectionGroup = new FormData();
+    fdConnectionGroup.left = new FormAttachment(0, 0);
+    fdConnectionGroup.top = new FormAttachment(wName, margin);
+    fdConnectionGroup.right = new FormAttachment(100, 0);
+    wConnectionGroup.setLayoutData(fdConnectionGroup);
+
+    // ////////////////////////
     // START OF SERVER GROUP
     // /////////////////////////
 
@@ -445,7 +490,7 @@ public class ActionMailDialog extends ActionDialog {
     wServer.addModifyListener(lsMod);
     FormData fdServer = new FormData();
     fdServer.left = new FormAttachment(0, 0);
-    fdServer.top = new FormAttachment(0, margin);
+    fdServer.top = new FormAttachment(wSelectionLine, margin);
     fdServer.right = new FormAttachment(100, 0);
     wServer.setLayoutData(fdServer);
 
@@ -465,7 +510,7 @@ public class ActionMailDialog extends ActionDialog {
 
     FormData fdServerGroup = new FormData();
     fdServerGroup.left = new FormAttachment(0, margin);
-    fdServerGroup.top = new FormAttachment(wName, margin);
+    fdServerGroup.top = new FormAttachment(wConnectionGroup, margin);
     fdServerGroup.right = new FormAttachment(100, -margin);
     wServerGroup.setLayoutData(fdServerGroup);
 
@@ -1400,6 +1445,7 @@ public class ActionMailDialog extends ActionDialog {
     wDestination.setText(Const.nullToEmpty(action.getDestination()));
     wDestinationCc.setText(Const.nullToEmpty(action.getDestinationCc()));
     wDestinationBCc.setText(Const.nullToEmpty(action.getDestinationBCc()));
+    wSelectionLine.setText(Const.nullToEmpty(action.getConnectionName()));
     wServer.setText(Const.nullToEmpty(action.getServer()));
     wPort.setText(Const.nullToEmpty(action.getPort()));
     wReply.setText(Const.nullToEmpty(action.getReplyAddress()));
@@ -1534,6 +1580,7 @@ public class ActionMailDialog extends ActionDialog {
     action.setDestination(wDestination.getText());
     action.setDestinationCc(wDestinationCc.getText());
     action.setDestinationBCc(wDestinationBCc.getText());
+    action.setConnectionName(wSelectionLine.getText());
     action.setServer(wServer.getText());
     action.setPort(wPort.getText());
     action.setReplyAddress(wReply.getText());

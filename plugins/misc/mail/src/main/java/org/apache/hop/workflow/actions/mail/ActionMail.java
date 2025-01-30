@@ -41,6 +41,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
@@ -49,6 +50,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -57,6 +59,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.mail.MailServerConnection;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -80,12 +83,16 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     documentationUrl = "/workflow/actions/mail.html")
 public class ActionMail extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMail.class;
+
   public static final String CONST_FILETYPE = "filetype";
   public static final String CONST_MAIL = "mail.";
   public static final String CONST_SPACES = "      ";
   public static final String CONST_SPACES_LONG = "         ";
   public static final String CONST_SERVER = "server";
   public static final String CONST_DESTINATION = "destination";
+
+  private MailServerConnection connection;
+  private Session session;
 
   @HopMetadataProperty private String server;
 
@@ -119,7 +126,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty(key = "include_files")
   private boolean includingFiles;
 
-  @HopMetadataProperty(key = "fileType", groupKey = "fileType")
+  @HopMetadataProperty(key = "fileTypes")
   //  private int[] fileType;
   private List<ActionMailFileTypeField> fileTypes;
 
@@ -175,559 +182,91 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
   //  public String[] contentids;
 
+  @HopMetadataProperty private String connectionName;
+
   public ActionMail(String n) {
     super(n, "");
-    //    allocate(0);
   }
 
   public ActionMail() {
     this("");
-    //    allocate(0);
   }
-
-  //  public void allocate(int nrFileTypes) {
-  //    fileType = new int[nrFileTypes];
-  //  }
-
-  //  public void allocateImages(int nrImages) {
-  //    embeddedimages = new String[nrImages];
-  //    contentids = new String[nrImages];
-  //  }
 
   @Override
   public Object clone() {
     ActionMail je = (ActionMail) super.clone();
-    //    if (fileType != null) {
-    //      int nrFileTypes = fileType.length;
-    //      je.allocate(nrFileTypes);
-    //      System.arraycopy(fileType, 0, je.fileType, 0, nrFileTypes);
-    //    }
 
-    //    if (embeddedimages != null) {
-    //      int nrImages = embeddedimages.length;
-    //      je.allocateImages(nrImages);
-    //      System.arraycopy(embeddedimages, 0, je.embeddedimages, 0, nrImages);
-    //      System.arraycopy(contentids, 0, je.contentids, 0, nrImages);
-    //    }
     fileTypes = je.fileTypes;
     embeddedimages = je.embeddedimages;
 
     return je;
   }
 
-  //  @Override
-  //  public String getXml() {
-  //    StringBuilder retval = new StringBuilder(600);
-  //
-  //    retval.append(super.getXml());
-  //
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_SERVER, server));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("port", port));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_DESTINATION, destination));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("destinationCc", destinationCc));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("destinationBCc",
-  // destinationBCc));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("replyto", replyAddress));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("replytoname", replyName));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("subject", subject));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("include_date", includeDate));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("contact_person", contactPerson));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("contact_phone", contactPhone));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("comment", comment));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("include_files", includingFiles));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("zip_files", zipFiles));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("zip_name", zipFilename));
-  //
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("use_auth", usingAuthentication));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
-  //    retval
-  //        .append(CONST_SPACES)
-  //        .append(XmlHandler.addTagValue("use_secure_auth", usingSecureAuthentication));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("auth_user", authenticationUser));
-  //    retval
-  //        .append(CONST_SPACES)
-  //        .append(
-  //            XmlHandler.addTagValue(
-  //                "auth_password",
-  // Encr.encryptPasswordIfNotUsingVariables(authenticationPassword)));
-  //
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("only_comment", onlySendComment));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("use_HTML", useHTML));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("use_Priority", usePriority));
-  //
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("encoding", encoding));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("priority", priority));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("importance", importance));
-  //    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("sensitivity", sensitivity));
-  //
-  //    retval
-  //        .append(CONST_SPACES)
-  //        .append(XmlHandler.addTagValue("secureconnectiontype", secureConnectionType));
-  //    retval
-  //        .append(CONST_SPACES)
-  //        .append(XmlHandler.addTagValue("replyToAddresses", replyToAddresses));
-  //
-  //    retval.append("      <filetypes>");
-  //    if (fileType != null) {
-  //      for (int i = 0; i < fileType.length; i++) {
-  //        retval
-  //            .append("        ")
-  //            .append(XmlHandler.addTagValue(CONST_FILETYPE,
-  // ResultFile.getTypeCode(fileType[i])));
-  //      }
-  //    }
-  //    retval.append("      </filetypes>");
-  //
-  //    retval.append("      <embeddedimages>").append(Const.CR);
-  //    if (embeddedimages != null) {
-  //      for (int i = 0; i < embeddedimages.length; i++) {
-  //        retval.append("        <embeddedimage>").append(Const.CR);
-  //        retval.append("          ").append(XmlHandler.addTagValue("image_name",
-  // embeddedimages[i]));
-  //        retval.append("          ").append(XmlHandler.addTagValue("content_id", contentids[i]));
-  //        retval.append("        </embeddedimage>").append(Const.CR);
-  //      }
-  //    }
-  //    retval.append("      </embeddedimages>").append(Const.CR);
-  //
-  //    return retval.toString();
-  //  }
-  //
-  //  @Override
-  //  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables
-  // variables)
-  //      throws HopXmlException {
-  //    try {
-  //      super.loadXml(entrynode);
-  //      setServer(XmlHandler.getTagValue(entrynode, CONST_SERVER));
-  //      setPort(XmlHandler.getTagValue(entrynode, "port"));
-  //      setDestination(XmlHandler.getTagValue(entrynode, CONST_DESTINATION));
-  //      setDestinationCc(XmlHandler.getTagValue(entrynode, "destinationCc"));
-  //      setDestinationBCc(XmlHandler.getTagValue(entrynode, "destinationBCc"));
-  //      setReplyAddress(XmlHandler.getTagValue(entrynode, "replyto"));
-  //      setReplyName(XmlHandler.getTagValue(entrynode, "replytoname"));
-  //      setSubject(XmlHandler.getTagValue(entrynode, "subject"));
-  //      setIncludeDate("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_date")));
-  //      setContactPerson(XmlHandler.getTagValue(entrynode, "contact_person"));
-  //      setContactPhone(XmlHandler.getTagValue(entrynode, "contact_phone"));
-  //      setComment(XmlHandler.getTagValue(entrynode, "comment"));
-  //      setIncludingFiles("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode,
-  // "include_files")));
-  //      setUsingAuthentication("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode,
-  // "use_auth")));
-  //      setUsingSecureAuthentication(
-  //          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "use_secure_auth")));
-  //      setUseXOAUTH2("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "usexoauth2")));
-  //      setAuthenticationUser(XmlHandler.getTagValue(entrynode, "auth_user"));
-  //      setAuthenticationPassword(
-  //          Encr.decryptPasswordOptionallyEncrypted(
-  //              XmlHandler.getTagValue(entrynode, "auth_password")));
-  //
-  //      setOnlySendComment("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode,
-  // "only_comment")));
-  //      setUseHTML("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "use_HTML")));
-  //
-  //      setUsePriority("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "use_Priority")));
-  //
-  //      setEncoding(XmlHandler.getTagValue(entrynode, "encoding"));
-  //      setPriority(XmlHandler.getTagValue(entrynode, "priority"));
-  //      setImportance(XmlHandler.getTagValue(entrynode, "importance"));
-  //      setSensitivity(XmlHandler.getTagValue(entrynode, "sensitivity"));
-  //      setSecureConnectionType(XmlHandler.getTagValue(entrynode, "secureconnectiontype"));
-  //
-  //      Node ftsnode = XmlHandler.getSubNode(entrynode, "filetypes");
-  //      int nrTypes = XmlHandler.countNodes(ftsnode, CONST_FILETYPE);
-  //      allocate(nrTypes);
-  //      for (int i = 0; i < nrTypes; i++) {
-  //        Node ftnode = XmlHandler.getSubNodeByNr(ftsnode, CONST_FILETYPE, i);
-  //        fileType[i] = ResultFile.getType(XmlHandler.getNodeValue(ftnode));
-  //      }
-  //
-  //      setZipFiles("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "zip_files")));
-  //      setZipFilename(XmlHandler.getTagValue(entrynode, "zip_name"));
-  //      setReplyToAddresses(XmlHandler.getTagValue(entrynode, "replyToAddresses"));
-  //
-  //      Node images = XmlHandler.getSubNode(entrynode, "embeddedimages");
-  //
-  //      // How many field embedded images ?
-  //      int nrImages = XmlHandler.countNodes(images, "embeddedimage");
-  //      allocateImages(nrImages);
-  //
-  //      // Read them all...
-  //      for (int i = 0; i < nrImages; i++) {
-  //        Node fnode = XmlHandler.getSubNodeByNr(images, "embeddedimage", i);
-  //
-  //        embeddedimages[i] = XmlHandler.getTagValue(fnode, "image_name");
-  //        contentids[i] = XmlHandler.getTagValue(fnode, "content_id");
-  //      }
-  //
-  //    } catch (HopException xe) {
-  //      throw new HopXmlException("Unable to load action of type 'mail' from XML node", xe);
-  //    }
-  //  }
-
-  //  public void setServer(String s) {
-  //    server = s;
-  //  }
-  //
-  //  public String getServer() {
-  //    return server;
-  //  }
-  //
-  //  public void setDestination(String dest) {
-  //    destination = dest;
-  //  }
-  //
-  //  public void setDestinationCc(String destCc) {
-  //    destinationCc = destCc;
-  //  }
-  //
-  //  public void setDestinationBCc(String destBCc) {
-  //    destinationBCc = destBCc;
-  //  }
-  //
-  //  public String getDestination() {
-  //    return destination;
-  //  }
-  //
-  //  public String getDestinationCc() {
-  //    return destinationCc;
-  //  }
-  //
-  //  public String getDestinationBCc() {
-  //
-  //    return destinationBCc;
-  //  }
-  //
-  //  public void setReplyAddress(String reply) {
-  //    replyAddress = reply;
-  //  }
-  //
-  //  public String getReplyAddress() {
-  //    return replyAddress;
-  //  }
-  //
-  //  public void setReplyName(String replyname) {
-  //    this.replyName = replyname;
-  //  }
-  //
-  //  public String getReplyName() {
-  //    return replyName;
-  //  }
-  //
-  //  public void setSubject(String subj) {
-  //    subject = subj;
-  //  }
-  //
-  //  public String getSubject() {
-  //    return subject;
-  //  }
-  //
-  //  public void setIncludeDate(boolean incl) {
-  //    includeDate = incl;
-  //  }
-  //
-  //  public boolean getIncludeDate() {
-  //    return includeDate;
-  //  }
-  //
-  //  public void setContactPerson(String person) {
-  //    contactPerson = person;
-  //  }
-  //
-  //  public String getContactPerson() {
-  //    return contactPerson;
-  //  }
-  //
-  //  public void setContactPhone(String phone) {
-  //    contactPhone = phone;
-  //  }
-  //
-  //  public String getContactPhone() {
-  //    return contactPhone;
-  //  }
-  //
-  //  public void setComment(String comm) {
-  //    comment = comm;
-  //  }
-  //
-  //  public String getComment() {
-  //    return comment;
-  //  }
-  //
-  //  /**
-  //   * @return the result file types to select for attachment
-  //   * @see ResultFile
-  //   */
-  //  public int[] getFileType() {
-  //    return fileType;
-  //  }
-  //
-  //  /**
-  //   * @param fileType the result file types to select for attachment
-  //   * @see ResultFile
-  //   */
-  //  public void setFileType(int[] fileType) {
-  //    this.fileType = fileType;
-  //  }
-  //
-  //  public boolean isIncludingFiles() {
-  //    return includingFiles;
-  //  }
-  //
-  //  public void setIncludingFiles(boolean includeFiles) {
-  //    this.includingFiles = includeFiles;
-  //  }
-  //
-  //  /**
-  //   * @return Returns the zipFilename.
-  //   */
-  //  public String getZipFilename() {
-  //    return zipFilename;
-  //  }
-  //
-  //  /**
-  //   * @param zipFilename The zipFilename to set.
-  //   */
-  //  public void setZipFilename(String zipFilename) {
-  //    this.zipFilename = zipFilename;
-  //  }
-  //
-  //  /**
-  //   * @return Returns the zipFiles.
-  //   */
-  //  public boolean isZipFiles() {
-  //    return zipFiles;
-  //  }
-  //
-  //  /**
-  //   * @param zipFiles The zipFiles to set.
-  //   */
-  //  public void setZipFiles(boolean zipFiles) {
-  //    this.zipFiles = zipFiles;
-  //  }
-  //
-  //  /**
-  //   * @return Returns the authenticationPassword.
-  //   */
-  //  public String getAuthenticationPassword() {
-  //    return authenticationPassword;
-  //  }
-  //
-  //  /**
-  //   * @param authenticationPassword The authenticationPassword to set.
-  //   */
-  //  public void setAuthenticationPassword(String authenticationPassword) {
-  //    this.authenticationPassword = authenticationPassword;
-  //  }
-
-  //  public void setUseXOAUTH2(boolean usexoauth2) {
-  //    this.usexoauth2 = usexoauth2;
-  //  }
-  //
-  //  public boolean isUseXOAUTH2() {
-  //    return this.usexoauth2;
-  //  }
-
-  //  /**
-  //   * @return Returns the authenticationUser.
-  //   */
-  //  public String getAuthenticationUser() {
-  //    return authenticationUser;
-  //  }
-  //
-  //  /**
-  //   * @param authenticationUser The authenticationUser to set.
-  //   */
-  //  public void setAuthenticationUser(String authenticationUser) {
-  //    this.authenticationUser = authenticationUser;
-  //  }
-  //
-  //  /**
-  //   * @return Returns the usingAuthentication.
-  //   */
-  //  public boolean isUsingAuthentication() {
-  //    return usingAuthentication;
-  //  }
-  //
-  //  /**
-  //   * @param usingAuthentication The usingAuthentication to set.
-  //   */
-  //  public void setUsingAuthentication(boolean usingAuthentication) {
-  //    this.usingAuthentication = usingAuthentication;
-  //  }
-  //
-  //  /**
-  //   * @return the onlySendComment flag
-  //   */
-  //  public boolean isOnlySendComment() {
-  //    return onlySendComment;
-  //  }
-  //
-  //  /**
-  //   * @param onlySendComment the onlySendComment flag to set
-  //   */
-  //  public void setOnlySendComment(boolean onlySendComment) {
-  //    this.onlySendComment = onlySendComment;
-  //  }
-  //
-  //  /**
-  //   * @return the useHTML flag
-  //   */
-  //  public boolean isUseHTML() {
-  //    return useHTML;
-  //  }
-  //
-  //  /**
-  //   * @param useHTML the useHTML to set
-  //   */
-  //  public void setUseHTML(boolean useHTML) {
-  //    this.useHTML = useHTML;
-  //  }
-  //
-  //  /**
-  //   * @return the encoding
-  //   */
-  //  public String getEncoding() {
-  //    return encoding;
-  //  }
-  //
-  //  /**
-  //   * @return the secure connection type
-  //   */
-  //  public String getSecureConnectionType() {
-  //    return secureConnectionType;
-  //  }
-  //
-  //  /**
-  //   * @param secureConnectionType the secure connection type to set
-  //   */
-  //  public void setSecureConnectionType(String secureConnectionType) {
-  //    this.secureConnectionType = secureConnectionType;
-  //  }
-  //
-  //  /**
-  //   * @param encoding the encoding to set
-  //   */
-  //  public void setEncoding(String encoding) {
-  //    this.encoding = encoding;
-  //  }
-  //
-  //  /**
-  //   * @param replyToAddresses the replayToAddresses to set
-  //   */
-  //  public void setReplyToAddresses(String replyToAddresses) {
-  //    this.replyToAddresses = replyToAddresses;
-  //  }
-  //
-  //  /**
-  //   * @return replayToAddresses
-  //   */
-  //  public String getReplyToAddresses() {
-  //    return this.replyToAddresses;
-  //  }
-  //
-  //  /**
-  //   * @param usePriority the usePriority to set
-  //   */
-  //  public void setUsePriority(boolean usePriority) {
-  //    this.usePriority = usePriority;
-  //  }
-  //
-  //  /**
-  //   * @return the usePriority flag
-  //   */
-  //  public boolean isUsePriority() {
-  //    return usePriority;
-  //  }
-  //
-  //  /**
-  //   * @return the priority
-  //   */
-  //  public String getPriority() {
-  //    return priority;
-  //  }
-  //
-  //  /**
-  //   * @param importance the importance to set
-  //   */
-  //  public void setImportance(String importance) {
-  //    this.importance = importance;
-  //  }
-  //
-  //  /**
-  //   * @return the importance
-  //   */
-  //  public String getImportance() {
-  //    return importance;
-  //  }
-  //
-  //  public String getSensitivity() {
-  //    return sensitivity;
-  //  }
-  //
-  //  public void setSensitivity(String sensitivity) {
-  //    this.sensitivity = sensitivity;
-  //  }
-  //
-  //  /**
-  //   * @param priority the priority to set
-  //   */
-  //  public void setPriority(String priority) {
-  //    this.priority = priority;
-  //  }
-
   @Override
   public Result execute(Result result, int nr) {
     File masterZipfile = null;
 
-    // Send an e-mail...
-    // create some properties and get the default Session
-    Properties props = new Properties();
-    if (Utils.isEmpty(server)) {
-      logError(BaseMessages.getString(PKG, "ActionMail.Error.HostNotSpecified"));
-
-      result.setNrErrors(1L);
-      result.setResult(false);
-      return result;
-    }
-
+    session = null;
     String protocol = "smtp";
-    if (usingSecureAuthentication) {
-      if (usexoauth2) {
-        props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
+
+    if (!StringUtils.isEmpty(connectionName)) {
+      try {
+        connection =
+            getMetadataProvider().getSerializer(MailServerConnection.class).load(connectionName);
+        session = connection.getSession(getVariables());
+      } catch (HopException e) {
+        throw new RuntimeException(
+            "Mail server connection '" + connectionName + "' could not be found", e);
       }
-      if (secureConnectionType.equals("TLS")) {
-        // Allow TLS authentication
-        props.put("mail.smtp.starttls.enable", "true");
-      } else if (secureConnectionType.equals("TLS 1.2")) {
-        // Allow TLS 1.2 authentication
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
-      } else {
+    } else {
+      // Send an e-mail...
+      // create some properties and get the default Session
+      Properties props = new Properties();
+      if (Utils.isEmpty(server)) {
+        logError(BaseMessages.getString(PKG, "ActionMail.Error.HostNotSpecified"));
 
-        protocol = "smtps";
-        // required to get rid of a SSL exception :
-        // nested exception is:
-        // javax.net.ssl.SSLException: Unsupported record version Unknown
-        props.put("mail.smtps.quitwait", "false");
+        result.setNrErrors(1L);
+        result.setResult(false);
+        return result;
       }
+
+      if (usingSecureAuthentication) {
+        if (usexoauth2) {
+          props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
+        }
+        if (secureConnectionType.equals("TLS")) {
+          // Allow TLS authentication
+          props.put("mail.smtp.starttls.enable", "true");
+        } else if (secureConnectionType.equals("TLS 1.2")) {
+          // Allow TLS 1.2 authentication
+          props.put("mail.smtp.starttls.enable", "true");
+          props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+        } else {
+
+          protocol = "smtps";
+          // required to get rid of a SSL exception :
+          // nested exception is:
+          // javax.net.ssl.SSLException: Unsupported record version Unknown
+          props.put("mail.smtps.quitwait", "false");
+        }
+      }
+
+      props.put(CONST_MAIL + protocol + ".host", resolve(server));
+      if (!Utils.isEmpty(port)) {
+        props.put(CONST_MAIL + protocol + ".port", resolve(port));
+      }
+
+      if (isDebug()) {
+        props.put("mail.debug", "true");
+      }
+
+      if (usingAuthentication) {
+        props.put(CONST_MAIL + protocol + ".auth", "true");
+      }
+
+      session = Session.getInstance(props);
     }
 
-    props.put(CONST_MAIL + protocol + ".host", resolve(server));
-    if (!Utils.isEmpty(port)) {
-      props.put(CONST_MAIL + protocol + ".port", resolve(port));
-    }
-
-    if (isDebug()) {
-      props.put("mail.debug", "true");
-    }
-
-    if (usingAuthentication) {
-      props.put(CONST_MAIL + protocol + ".auth", "true");
-    }
-
-    Session session = Session.getInstance(props);
     session.setDebug(isDebug());
 
     try {
@@ -965,11 +504,6 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
               FileObject file = resultFile.getFile();
               if (file != null && file.exists()) {
                 boolean found = false;
-                //                for (int i = 0; i < fileType.length; i++) {
-                //                  if (fileType[i] == resultFile.getType()) {
-                //                    found = true;
-                //                  }
-                //                }
                 for (ActionMailFileTypeField fileTypeField : fileTypes) {
                   if (fileTypeField.getFileType().equals(resultFile.getTypeDesc())) {
                     found = true;
@@ -1135,24 +669,28 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
       Transport transport = null;
       try {
-        transport = session.getTransport(protocol);
-        String authPass = getPassword(authenticationPassword);
-
-        if (usingAuthentication) {
-          if (!Utils.isEmpty(port)) {
-            transport.connect(
-                resolve(Const.NVL(server, "")),
-                Integer.parseInt(resolve(Const.NVL(port, ""))),
-                resolve(Const.NVL(authenticationUser, "")),
-                authPass);
-          } else {
-            transport.connect(
-                resolve(Const.NVL(server, "")),
-                resolve(Const.NVL(authenticationUser, "")),
-                authPass);
-          }
+        if (!StringUtils.isEmpty(connectionName)) {
+          transport = connection.getTransport();
         } else {
-          transport.connect();
+          transport = session.getTransport(protocol);
+          String authPass = getPassword(authenticationPassword);
+
+          if (usingAuthentication) {
+            if (!Utils.isEmpty(port)) {
+              transport.connect(
+                  resolve(Const.NVL(server, "")),
+                  Integer.parseInt(resolve(Const.NVL(port, ""))),
+                  resolve(Const.NVL(authenticationUser, "")),
+                  authPass);
+            } else {
+              transport.connect(
+                  resolve(Const.NVL(server, "")),
+                  resolve(Const.NVL(authenticationUser, "")),
+                  authPass);
+            }
+          } else {
+            transport.connect();
+          }
         }
         transport.sendMessage(msg, msg.getAllRecipients());
       } finally {
@@ -1268,34 +806,6 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   @Override
   public boolean isUnconditional() {
     return true;
-  }
-
-  /**
-   * @return the usingSecureAuthentication
-   */
-  public boolean isUsingSecureAuthentication() {
-    return usingSecureAuthentication;
-  }
-
-  /**
-   * @param usingSecureAuthentication the usingSecureAuthentication to set
-   */
-  public void setUsingSecureAuthentication(boolean usingSecureAuthentication) {
-    this.usingSecureAuthentication = usingSecureAuthentication;
-  }
-
-  /**
-   * @return the port
-   */
-  public String getPort() {
-    return port;
-  }
-
-  /**
-   * @param port the port to set
-   */
-  public void setPort(String port) {
-    this.port = port;
   }
 
   @Override

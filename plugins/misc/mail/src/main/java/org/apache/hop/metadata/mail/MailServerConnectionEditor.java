@@ -1,18 +1,21 @@
 package org.apache.hop.metadata.mail;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
-import org.apache.hop.ui.core.widget.CheckBoxVar;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -27,19 +30,19 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
 
   private TextVar wServerPort;
 
-  private CheckBoxVar wUseAuthentication;
+  private Button wUseAuthentication;
 
-  private CheckBoxVar wUseXOAuth2;
+  private Button wUseXOAuth2;
 
   private TextVar wServerUsername;
 
   private PasswordTextVar wServerPassword;
 
-  private CheckBoxVar wUseSecureAuthentication;
+  private Button wUseSecureAuthentication;
 
   private ComboVar wSecureConnectionType;
 
-  private CheckBoxVar wUseProxy;
+  private Button wUseProxy;
 
   private TextVar wProxyUsername;
 
@@ -57,7 +60,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     PropsUi props = PropsUi.getInstance();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     IVariables variables = hopGui.getVariables();
 
@@ -120,9 +123,9 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     FormData fdlUseAuthenticationLabel = new FormData();
     fdlUseAuthenticationLabel.top = new FormAttachment(lastControl, margin);
     fdlUseAuthenticationLabel.left = new FormAttachment(0, 0);
-    fdlUseAuthenticationLabel.right = new FormAttachment(middle, -margin);
+    fdlUseAuthenticationLabel.right = new FormAttachment(middle, 0);
     wlUseAuthenticationLabel.setLayoutData(fdlUseAuthenticationLabel);
-    wUseAuthentication = new CheckBoxVar(variables, composite, SWT.CHECK);
+    wUseAuthentication = new Button(composite, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wUseAuthentication);
     FormData fdUseAuthentication = new FormData();
     fdUseAuthentication.top = new FormAttachment(lastControl, margin);
@@ -139,7 +142,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     fdlUseXOAuth2Label.left = new FormAttachment(0, 0);
     fdlUseXOAuth2Label.right = new FormAttachment(middle, -margin);
     wlUseXOAuth2Label.setLayoutData(fdlUseXOAuth2Label);
-    wUseXOAuth2 = new CheckBoxVar(variables, composite, SWT.CHECK);
+    wUseXOAuth2 = new Button(composite, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wUseXOAuth2);
     FormData fdUseXOAuth2 = new FormData();
     fdUseXOAuth2.top = new FormAttachment(lastControl, margin);
@@ -193,7 +196,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     fdlUseSecureAuthenticationLabel.left = new FormAttachment(0, 0);
     fdlUseSecureAuthenticationLabel.right = new FormAttachment(middle, -margin);
     wlUseSecureAuthenticationLabel.setLayoutData(fdlUseSecureAuthenticationLabel);
-    wUseSecureAuthentication = new CheckBoxVar(variables, composite, SWT.CHECK);
+    wUseSecureAuthentication = new Button(composite, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wUseSecureAuthentication);
     FormData fdUseSecureAuthentication = new FormData();
     fdUseSecureAuthentication.top = new FormAttachment(lastControl, margin);
@@ -228,7 +231,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     fdlUseProxy.left = new FormAttachment(0, 0);
     fdlUseProxy.right = new FormAttachment(middle, -margin);
     wlUseProxy.setLayoutData(fdlUseProxy);
-    wUseProxy = new CheckBoxVar(variables, composite, SWT.CHECK);
+    wUseProxy = new Button(composite, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wUseProxy);
     FormData fdUseProxy = new FormData();
     fdUseProxy.top = new FormAttachment(lastControl, margin);
@@ -291,7 +294,13 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     wConnectionProtocol.setLayoutData(fdConnectionProtocol);
     lastControl = wConnectionProtocol;
 
+    String[] protocols = new String[] {"SMTP", "IMAP", "POP3", "MBOX"};
+    wConnectionProtocol.setItems(protocols);
+    wConnectionProtocol.select(1);
+
     setWidgetsContent();
+
+    resetChanged();
 
     Control[] controls = {
       wName,
@@ -308,14 +317,93 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
       wConnectionProtocol
     };
     for (Control control : controls) {
-      control.addListener(SWT.Modify, e -> setChanged());
-      control.addListener(SWT.Selection, e -> setChanged());
+      control.addListener(
+          SWT.Modify,
+          e -> {
+            setChanged();
+            MetadataPerspective.getInstance().updateEditor(this);
+          });
+      control.addListener(
+          SWT.Selection,
+          e -> {
+            setChanged();
+            MetadataPerspective.getInstance().updateEditor(this);
+          });
     }
   }
 
   @Override
-  public void setWidgetsContent() {}
+  public Button[] createButtonsForButtonBar(Composite composite) {
+    Button wTest = new Button(composite, SWT.PUSH);
+    wTest.setText(BaseMessages.getString(PKG, "System.Button.Test"));
+    wTest.addListener(SWT.Selection, e -> testConnection());
+
+    return new Button[] {wTest};
+  }
 
   @Override
-  public void getWidgetsContent(MailServerConnection meta) {}
+  public void setWidgetsContent() {
+    wName.setText(Const.NVL(metadata.getName(), ""));
+    wServerHost.setText(Const.NVL(metadata.getServerHost(), ""));
+    wServerPort.setText(Const.NVL(metadata.getServerPort(), ""));
+    wUseAuthentication.setSelection(metadata.isUseAuthentication());
+    wUseXOAuth2.setSelection(metadata.isUseXOAuth2());
+    wServerUsername.setText(Const.NVL(metadata.getUsername(), ""));
+    wServerPassword.setText(Const.NVL(metadata.getPassword(), ""));
+    wUseSecureAuthentication.setSelection(metadata.isUseSecureAuthentication());
+    wSecureConnectionType.setText(Const.NVL(metadata.getSecureConnectionType(), ""));
+    wUseProxy.setSelection(metadata.isUseProxy());
+    wProxyUsername.setText(Const.NVL(metadata.getUsername(), ""));
+    wConnectionProtocol.setText(Const.NVL(metadata.getProtocol(), ""));
+  }
+
+  @Override
+  public void getWidgetsContent(MailServerConnection connection) {
+    connection.setName(wName.getText());
+    connection.setProtocol(Const.NVL(wConnectionProtocol.getText(), ""));
+    connection.setServerHost(wServerHost.getText());
+    connection.setServerPort(wServerPort.getText());
+    connection.setUseAuthentication(wUseAuthentication.getSelection());
+    connection.setUseXOAuth2(wUseXOAuth2.getSelection());
+    connection.setUsername(wServerUsername.getText());
+    connection.setPassword(wServerPassword.getText());
+    connection.setUseSecureAuthentication(wUseSecureAuthentication.getSelection());
+    connection.setSecureConnectionType(wSecureConnectionType.getText());
+    connection.setUseProxy(wUseProxy.getSelection());
+    connection.setProxyUsername(wProxyUsername.getText());
+  }
+
+  public void testConnection() {
+    MailServerConnection connection = new MailServerConnection(getVariables());
+    connection.setName(wName.getText());
+    connection.setProtocol(wConnectionProtocol.getText());
+    connection.setServerHost(wServerHost.getText());
+    connection.setServerPort(wServerPort.getText());
+    connection.setUseAuthentication(wUseSecureAuthentication.getSelection());
+    connection.setSecureConnectionType(wSecureConnectionType.getText());
+    connection.setUseXOAuth2(wUseXOAuth2.getSelection());
+    connection.setUsername(wServerUsername.getText());
+    connection.setPassword(wServerPassword.getText());
+    connection.setUseSecureAuthentication(wUseSecureAuthentication.getSelection());
+    connection.setUseProxy(wUseProxy.getSelection());
+    connection.setProxyUsername(wProxyUsername.getText());
+
+    try {
+      connection.testConnection(connection.getSession(getVariables()));
+
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error connecting mail server:", e);
+    }
+  }
+
+  @Override
+  public boolean setFocus() {
+    if (wName == null || wName.isDisposed()) {
+      return false;
+    }
+    return wName.setFocus();
+  }
+
+  @Override
+  public void dispose() {}
 }
