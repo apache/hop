@@ -150,15 +150,17 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
       Object valueData = inputRowData[inputRowIndex];
 
       String nullString;
+      String trimType;
       if (meta.getOutputFields().isEmpty()) {
         // No specific null value defined
         nullString = "";
+        trimType = ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE);
       } else {
         ConcatField field = meta.getOutputFields().get(i);
         nullString = Const.NVL(field.getNullString(), "");
+        trimType = data.trimType[i];
       }
 
-      String trimType = data.trimType[i];
       concatField(targetString, valueMeta, valueData, nullString, trimType);
     }
 

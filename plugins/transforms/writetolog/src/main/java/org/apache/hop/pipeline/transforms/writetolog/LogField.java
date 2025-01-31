@@ -18,8 +18,12 @@
 package org.apache.hop.pipeline.transforms.writetolog;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class LogField {
 
   public LogField() {}
@@ -33,14 +37,6 @@ public class LogField {
       injectionKey = "NAME",
       injectionKeyDescription = "WriteToLogMeta.Injection.field.Name")
   private String name;
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 
   @Override
   public int hashCode() {

@@ -17,9 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.concatfields;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in a text file */
+@Getter
+@Setter
 public class ConcatField implements Cloneable {
   @HopMetadataProperty(key = "name", injectionKey = "OUTPUT_FIELDNAME")
   private String name;
@@ -78,185 +82,5 @@ public class ConcatField implements Cloneable {
   public boolean equal(Object obj) {
     ConcatField field = (ConcatField) obj;
     return name.equals(field.getName());
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * Sets name
-   *
-   * @param name value of name
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * Gets type
-   *
-   * @return value of type
-   */
-  public String getType() {
-    return type;
-  }
-
-  /**
-   * Sets type
-   *
-   * @param type value of type
-   */
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  /**
-   * Gets format
-   *
-   * @return value of format
-   */
-  public String getFormat() {
-    return format;
-  }
-
-  /**
-   * Sets format
-   *
-   * @param format value of format
-   */
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  /**
-   * Gets length
-   *
-   * @return value of length
-   */
-  public int getLength() {
-    return length;
-  }
-
-  /**
-   * Sets length
-   *
-   * @param length value of length
-   */
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  /**
-   * Gets precision
-   *
-   * @return value of precision
-   */
-  public int getPrecision() {
-    return precision;
-  }
-
-  /**
-   * Sets precision
-   *
-   * @param precision value of precision
-   */
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
-
-  /**
-   * Gets currencySymbol
-   *
-   * @return value of currencySymbol
-   */
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  /**
-   * Sets currencySymbol
-   *
-   * @param currencySymbol value of currencySymbol
-   */
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  /**
-   * Gets decimalSymbol
-   *
-   * @return value of decimalSymbol
-   */
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  /**
-   * Sets decimalSymbol
-   *
-   * @param decimalSymbol value of decimalSymbol
-   */
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  /**
-   * Gets groupingSymbol
-   *
-   * @return value of groupingSymbol
-   */
-  public String getGroupingSymbol() {
-    return groupingSymbol;
-  }
-
-  /**
-   * Sets groupingSymbol
-   *
-   * @param groupingSymbol value of groupingSymbol
-   */
-  public void setGroupingSymbol(String groupingSymbol) {
-    this.groupingSymbol = groupingSymbol;
-  }
-
-  /**
-   * Gets nullString
-   *
-   * @return value of nullString
-   */
-  public String getNullString() {
-    return nullString;
-  }
-
-  /**
-   * Sets nullString
-   *
-   * @param nullString value of nullString
-   */
-  public void setNullString(String nullString) {
-    this.nullString = nullString;
-  }
-
-  /**
-   * Gets trimType
-   *
-   * @return value of trimType
-   */
-  public String getTrimType() {
-    return trimType;
-  }
-
-  /**
-   * Sets trimType
-   *
-   * @param trimType value of trimType
-   */
-  public void setTrimType(String trimType) {
-    this.trimType = trimType;
   }
 }
