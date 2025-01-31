@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.writetolog;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -41,6 +43,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::WriteToLog.Keyword",
     documentationUrl = "/pipeline/transforms/writetolog.html")
+@Getter
+@Setter
 public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData> {
   private static final Class<?> PKG = WriteToLogMeta.class;
 
@@ -87,68 +91,11 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
     super();
   }
 
-  public LogLevel getLogLevel() {
-    return this.logLevel;
-  }
-
-  public void setLogLevel(LogLevel logLevel) {
-    this.logLevel = logLevel;
-  }
-
   @Override
   public Object clone() {
     WriteToLogMeta retval = (WriteToLogMeta) super.clone();
 
     return retval;
-  }
-
-  /**
-   * @return Returns the fieldName.
-   */
-  public List<LogField> getLogFields() {
-    return logFields;
-  }
-
-  /**
-   * @param fields The fieldName to set.
-   */
-  public void setLogFields(List<LogField> fields) {
-    this.logFields = fields;
-  }
-
-  public boolean isDisplayHeader() {
-    return displayHeader;
-  }
-
-  public void setDisplayHeader(boolean displayheader) {
-    this.displayHeader = displayheader;
-  }
-
-  public boolean isLimitRows() {
-    return limitRows;
-  }
-
-  public void setLimitRows(boolean limitRows) {
-    this.limitRows = limitRows;
-  }
-
-  public int getLimitRowsNumber() {
-    return limitRowsNumber;
-  }
-
-  public void setLimitRowsNumber(int limitRowsNumber) {
-    this.limitRowsNumber = limitRowsNumber;
-  }
-
-  public String getLogMessage() {
-    if (logMessage == null) {
-      logMessage = "";
-    }
-    return logMessage;
-  }
-
-  public void setLogMessage(String message) {
-    logMessage = message;
   }
 
   @Override
@@ -191,7 +138,6 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      // for (int i = 0; i < fieldName.length; i++) {
       for (LogField field : logFields) {
         int idx = prev.indexOfValue(field.getName());
         if (idx < 0) {

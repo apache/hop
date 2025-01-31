@@ -339,7 +339,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
 
     for (int i = 0; i < input.getLogFields().size(); i++) {
       LogField field = input.getLogFields().get(i);
-      TableItem ti = new TableItem(wFields.table, SWT.NONE);
+      TableItem ti = wFields.table.getItem(i);
       ti.setText(0, "" + (i + 1));
       ti.setText(1, field.getName());
     }
@@ -373,7 +373,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
       input.setLogLevel(LogLevel.lookupCode(wLoglevel.getText()));
     }
 
-    if (wLogMessage.getText() != null && wLogMessage.getText().length() > 0) {
+    if (wLogMessage.getText() != null && !wLogMessage.getText().isEmpty()) {
       input.setLogMessage(wLogMessage.getText());
     } else {
       input.setLogMessage("");
