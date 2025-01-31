@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.concatfields;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -48,12 +50,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::ConcatFieldsMeta.keyword",
     documentationUrl = "/pipeline/transforms/concatfields.html")
+@Getter
+@Setter
 public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFieldsData> {
   private static final Class<?> PKG = ConcatFieldsMeta.class;
-
-  public static final String TRIM_TYPE_LEFT = "left";
-  public static final String TRIM_TYPE_RIGHT = "right";
-  public static final String TRIM_TYPE_BOTH = "both";
 
   /** The separator to choose for the CSV file */
   @HopMetadataProperty(key = "separator", injectionKey = "SEPARATOR")
@@ -206,77 +206,5 @@ public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFiel
         remarks.add(cr);
       }
     }
-  }
-
-  /**
-   * Gets separator
-   *
-   * @return value of separator
-   */
-  public String getSeparator() {
-    return separator;
-  }
-
-  /**
-   * Sets separator
-   *
-   * @param separator value of separator
-   */
-  public void setSeparator(String separator) {
-    this.separator = separator;
-  }
-
-  /**
-   * Gets enclosure
-   *
-   * @return value of enclosure
-   */
-  public String getEnclosure() {
-    return enclosure;
-  }
-
-  /**
-   * Sets enclosure
-   *
-   * @param enclosure value of enclosure
-   */
-  public void setEnclosure(String enclosure) {
-    this.enclosure = enclosure;
-  }
-
-  /**
-   * Gets outputFields
-   *
-   * @return value of outputFields
-   */
-  public List<ConcatField> getOutputFields() {
-    return outputFields;
-  }
-
-  /**
-   * Sets outputFields
-   *
-   * @param outputFields value of outputFields
-   */
-  public void setOutputFields(List<ConcatField> outputFields) {
-    this.outputFields = outputFields;
-  }
-
-  /**
-   * Gets extraFields
-   *
-   * @return value of extraFields
-   */
-  public ExtraFields getExtraFields() {
-    return extraFields;
-  }
-
-  /**
-   * Sets extraFields
-   *
-   * @param extraFields value of extraFields
-   */
-  public void setExtraFields(ExtraFields extraFields) {
-    this.extraFields = extraFields;
   }
 }

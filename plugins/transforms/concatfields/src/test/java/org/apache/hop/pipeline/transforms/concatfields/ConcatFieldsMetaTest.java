@@ -18,19 +18,18 @@
 
 package org.apache.hop.pipeline.transforms.concatfields;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class ConcatFieldsMetaTest {
+class ConcatFieldsMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     ConcatFieldsMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/concat-fields-transform.xml", ConcatFieldsMeta.class);
 
-    assertEquals(9, meta.getOutputFields().size());
+    Assertions.assertEquals(9, meta.getOutputFields().size());
   }
 }

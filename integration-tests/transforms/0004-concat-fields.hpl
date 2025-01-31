@@ -34,32 +34,30 @@ limitations under the License.
     <created_date>2021/01/15 11:20:00.108</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/01/15 11:20:00.108</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <height>62</height>
+      <xloc>112</xloc>
+      <yloc>208</yloc>
       <note>This reads a file with lazy conversion.
 We check to see that the fields are concatenated but also that binary to normal 
 storage conversion correctly takes place in the transform.
 </note>
-      <xloc>112</xloc>
-      <yloc>208</yloc>
-      <width>414</width>
-      <heigth>73</heigth>
-      <fontname>Noto Sans</fontname>
-      <fontsize>11</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>14</fontcolorred>
-      <fontcolorgreen>58</fontcolorgreen>
-      <fontcolorblue>90</fontcolorblue>
-      <backgroundcolorred>201</backgroundcolorred>
-      <backgroundcolorgreen>232</backgroundcolorgreen>
-      <backgroundcolorblue>251</backgroundcolorblue>
-      <bordercolorred>14</bordercolorred>
-      <bordercolorgreen>58</bordercolorgreen>
-      <bordercolorblue>90</bordercolorblue>
+      <width>428</width>
     </notepad>
   </notepads>
   <order>
@@ -102,139 +100,86 @@ storage conversion correctly takes place in the transform.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <separator>,</separator>
+    <ConcatFields>
+      <removeSelectedFields>N</removeSelectedFields>
+      <targetFieldLength>500</targetFieldLength>
+      <targetFieldName>fields</targetFieldName>
+    </ConcatFields>
     <enclosure>"</enclosure>
-    <enclosure_forced>N</enclosure_forced>
-    <enclosure_fix_disabled>N</enclosure_fix_disabled>
-    <format/>
-    <encoding/>
     <fields>
       <field>
-        <name>id</name>
-        <type>Integer</type>
         <format>0</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
         <length>-1</length>
+        <name>id</name>
         <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>Integer</type>
       </field>
       <field>
+        <length>-1</length>
         <name>name</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
         <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
       <field>
+        <length>-1</length>
         <name>firstname</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
         <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
       <field>
+        <length>-1</length>
         <name>zip</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
         <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
       <field>
+        <length>-1</length>
         <name>city</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
         <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
       <field>
+        <length>-1</length>
         <name>birthdate</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
         <type>Date</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
       </field>
       <field>
+        <length>-1</length>
         <name>street</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
         <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
       <field>
+        <length>-1</length>
         <name>housenr</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
         <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
       <field>
+        <length>-1</length>
         <name>stateCode</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
         <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
       <field>
-        <name>state</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
         <length>-1</length>
+        <name>state</name>
         <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
     </fields>
-    <ConcatFields>
-      <targetFieldName>fields</targetFieldName>
-      <targetFieldLength>500</targetFieldLength>
-      <removeSelectedFields>N</removeSelectedFields>
-    </ConcatFields>
+    <separator>,</separator>
     <attributes/>
     <GUI>
       <xloc>320</xloc>
@@ -260,6 +205,7 @@ storage conversion correctly takes place in the transform.
     <enclosure>"</enclosure>
     <header>Y</header>
     <buffer_size>50000</buffer_size>
+    <schemaDefinition/>
     <lazy_conversion>Y</lazy_conversion>
     <add_filename_result>N</add_filename_result>
     <parallel>N</parallel>

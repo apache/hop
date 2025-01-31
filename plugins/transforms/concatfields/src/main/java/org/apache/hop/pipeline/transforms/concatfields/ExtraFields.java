@@ -18,8 +18,12 @@
 
 package org.apache.hop.pipeline.transforms.concatfields;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class ExtraFields {
   /** The target field name */
   @HopMetadataProperty(key = "targetFieldName")
@@ -39,59 +43,5 @@ public class ExtraFields {
     this.targetFieldName = f.targetFieldName;
     this.targetFieldLength = f.targetFieldLength;
     this.removeSelectedFields = f.removeSelectedFields;
-  }
-
-  /**
-   * Gets targetFieldName
-   *
-   * @return value of targetFieldName
-   */
-  public String getTargetFieldName() {
-    return targetFieldName;
-  }
-
-  /**
-   * Sets targetFieldName
-   *
-   * @param targetFieldName value of targetFieldName
-   */
-  public void setTargetFieldName(String targetFieldName) {
-    this.targetFieldName = targetFieldName;
-  }
-
-  /**
-   * Gets targetFieldLength
-   *
-   * @return value of targetFieldLength
-   */
-  public int getTargetFieldLength() {
-    return targetFieldLength;
-  }
-
-  /**
-   * Sets targetFieldLength
-   *
-   * @param targetFieldLength value of targetFieldLength
-   */
-  public void setTargetFieldLength(int targetFieldLength) {
-    this.targetFieldLength = targetFieldLength;
-  }
-
-  /**
-   * Gets removeSelectedFields
-   *
-   * @return value of removeSelectedFields
-   */
-  public boolean isRemoveSelectedFields() {
-    return removeSelectedFields;
-  }
-
-  /**
-   * Sets removeSelectedFields
-   *
-   * @param removeSelectedFields value of removeSelectedFields
-   */
-  public void setRemoveSelectedFields(boolean removeSelectedFields) {
-    this.removeSelectedFields = removeSelectedFields;
   }
 }
