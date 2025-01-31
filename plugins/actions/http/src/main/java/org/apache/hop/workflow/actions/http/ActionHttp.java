@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -68,6 +70,8 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionHttp.keyword",
     documentationUrl = "/workflow/actions/http.html")
+@Getter
+@Setter
 public class ActionHttp extends ActionBase implements Cloneable, IAction {
   public static final String SPACES = "      ";
   private static final Class<?> PKG = ActionHttp.class;
@@ -77,6 +81,8 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
   private static final String CONST_TARGETFILE_FIELDNAME = "DESTINATION";
   public static final String CONST_HTTP_PROXY_HOST = "http.proxyHost";
   public static final String CONST_HTTP_PROXY_PORT = "http.proxyPort";
+  public static final String CONST_HTTPS_PROXY_HOST = "https.proxyHost";
+  public static final String CONST_HTTPS_PROXY_PORT = "https.proxyPort";
   public static final String CONST_HTTP_NON_PROXY_HOSTS = "http.nonProxyHosts";
 
   // Base info
@@ -239,96 +245,12 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  /**
-   * @return Returns the URL.
-   */
-  public String getUrl() {
-    return url;
-  }
-
-  /**
-   * @param url The URL to set.
-   */
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  /**
-   * @return Returns the target filename.
-   */
-  public String getTargetFilename() {
-    return targetFilename;
-  }
-
-  /**
-   * @param targetFilename The target filename to set.
-   */
-  public void setTargetFilename(String targetFilename) {
-    this.targetFilename = targetFilename;
-  }
-
-  public String getNonProxyHosts() {
-    return nonProxyHosts;
-  }
-
-  public void setNonProxyHosts(String nonProxyHosts) {
-    this.nonProxyHosts = nonProxyHosts;
-  }
-
   public boolean isAddFilenameToResult() {
     return addfilenameresult;
   }
 
   public void setAddFilenameToResult(boolean addfilenameresult) {
     this.addfilenameresult = addfilenameresult;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getProxyHostname() {
-    return proxyHostname;
-  }
-
-  public void setProxyHostname(String proxyHostname) {
-    this.proxyHostname = proxyHostname;
-  }
-
-  public String getProxyPort() {
-    return proxyPort;
-  }
-
-  public void setProxyPort(String proxyPort) {
-    this.proxyPort = proxyPort;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String[] getHeaderName() {
-    return headerName;
-  }
-
-  public void setHeaderName(String[] headerName) {
-    this.headerName = headerName;
-  }
-
-  public String[] getHeaderValue() {
-    return headerValue;
-  }
-
-  public void setHeaderValue(String[] headerValue) {
-    this.headerValue = headerValue;
   }
 
   /**
@@ -387,6 +309,8 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
 
     String beforeProxyHost = getVariable(CONST_HTTP_PROXY_HOST);
     String beforeProxyPort = getVariable(CONST_HTTP_PROXY_PORT);
+    String beforeHttpsProxyHost = getVariable(CONST_HTTPS_PROXY_HOST);
+    String beforeHttpsProxyPort = getVariable(CONST_HTTPS_PROXY_PORT);
     String beforeNonProxyHosts = getVariable(CONST_HTTP_NON_PROXY_HOSTS);
 
     for (int i = 0; i < resultRows.size() && result.getNrErrors() == 0; i++) {
@@ -407,6 +331,8 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
         if (!Utils.isEmpty(proxyHostname)) {
           System.setProperty(CONST_HTTP_PROXY_HOST, resolve(proxyHostname));
           System.setProperty(CONST_HTTP_PROXY_PORT, resolve(proxyPort));
+          System.setProperty(CONST_HTTPS_PROXY_HOST, resolve(proxyHostname));
+          System.setProperty(CONST_HTTPS_PROXY_PORT, resolve(proxyPort));
           if (nonProxyHosts != null) {
             System.setProperty(CONST_HTTP_NON_PROXY_HOSTS, resolve(nonProxyHosts));
           }
@@ -579,6 +505,8 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
         // Set the proxy settings back as they were on the system!
         System.setProperty(CONST_HTTP_PROXY_HOST, Const.NVL(beforeProxyHost, ""));
         System.setProperty(CONST_HTTP_PROXY_PORT, Const.NVL(beforeProxyPort, ""));
+        System.setProperty(CONST_HTTPS_PROXY_HOST, Const.NVL(beforeHttpsProxyHost, ""));
+        System.setProperty(CONST_HTTPS_PROXY_PORT, Const.NVL(beforeHttpsProxyPort, ""));
         System.setProperty(CONST_HTTP_NON_PROXY_HOSTS, Const.NVL(beforeNonProxyHosts, ""));
       }
     }
@@ -589,122 +517,6 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
   @Override
   public boolean isEvaluation() {
     return true;
-  }
-
-  public String getUploadFilename() {
-    return uploadFilename;
-  }
-
-  public void setUploadFilename(String uploadFilename) {
-    this.uploadFilename = uploadFilename;
-  }
-
-  /**
-   * @return Returns the Result URL Fieldname.
-   */
-  public String getUrlFieldname() {
-    return urlFieldname;
-  }
-
-  /**
-   * @param getFieldname The Result URL Fieldname to set.
-   */
-  public void setUrlFieldname(String getFieldname) {
-    this.urlFieldname = getFieldname;
-  }
-
-  /*
-   * @return Returns the Upload File Fieldname
-   */
-  public String getUploadFieldname() {
-    return uploadFieldname;
-  }
-
-  /*
-   * @param uploadFieldName
-   *         The Result Upload Fieldname to use
-   */
-  public void setUploadFieldname(String uploadFieldname) {
-    this.uploadFieldname = uploadFieldname;
-  }
-
-  /*
-   * @return Returns the Result Destination Path Fieldname
-   */
-  public String getDestinationFieldname() {
-    return destinationFieldname;
-  }
-
-  /*
-   * @param destinationFieldname
-   *           The Result Destination Fieldname to set.
-   */
-  public void setDestinationFieldname(String destinationFieldname) {
-    this.destinationFieldname = destinationFieldname;
-  }
-
-  /**
-   * @return Returns the runForEveryRow.
-   */
-  public boolean isRunForEveryRow() {
-    return runForEveryRow;
-  }
-
-  /**
-   * @param runForEveryRow The runForEveryRow to set.
-   */
-  public void setRunForEveryRow(boolean runForEveryRow) {
-    this.runForEveryRow = runForEveryRow;
-  }
-
-  /**
-   * @return Returns the fileAppended.
-   */
-  public boolean isFileAppended() {
-    return fileAppended;
-  }
-
-  /**
-   * @param fileAppended The fileAppended to set.
-   */
-  public void setFileAppended(boolean fileAppended) {
-    this.fileAppended = fileAppended;
-  }
-
-  /**
-   * @return Returns the dateTimeAdded.
-   */
-  public boolean isDateTimeAdded() {
-    return dateTimeAdded;
-  }
-
-  /**
-   * @param dateTimeAdded The dateTimeAdded to set.
-   */
-  public void setDateTimeAdded(boolean dateTimeAdded) {
-    this.dateTimeAdded = dateTimeAdded;
-  }
-
-  /**
-   * @return Returns the uploadFilenameExtension.
-   */
-  public String getTargetFilenameExtension() {
-    return targetFilenameExtension;
-  }
-
-  /**
-   * @param uploadFilenameExtension The uploadFilenameExtension to set.
-   */
-  public void setTargetFilenameExtension(String uploadFilenameExtension) {
-    this.targetFilenameExtension = uploadFilenameExtension;
-  }
-
-  public boolean isIgnoreSsl() {
-    return ignoreSsl;
-  }
-
-  public void setIgnoreSsl(boolean ignoreSsl) {
-    this.ignoreSsl = ignoreSsl;
   }
 
   @Override
