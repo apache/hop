@@ -353,7 +353,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     wUseSecureAuthentication.setSelection(metadata.isUseSecureAuthentication());
     wSecureConnectionType.setText(Const.NVL(metadata.getSecureConnectionType(), ""));
     wUseProxy.setSelection(metadata.isUseProxy());
-    wProxyUsername.setText(Const.NVL(metadata.getUsername(), ""));
+    wProxyUsername.setText(Const.NVL(metadata.getProxyUsername(), ""));
     wConnectionProtocol.setText(Const.NVL(metadata.getProtocol(), ""));
   }
 
