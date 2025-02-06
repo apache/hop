@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.deletefiles;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -325,8 +327,7 @@ public class ActionDeleteFilesDialog extends ActionDialog {
     fdbeFilename.top = new FormAttachment(wbdFilename, margin);
     wbeFilename.setLayoutData(fdbeFilename);
 
-    String[] arguments = action.getArguments();
-    final int nrRows = (arguments == null) ? 1 : arguments.length;
+    final int nrRows = action.getFileItems().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -440,25 +441,19 @@ public class ActionDeleteFilesDialog extends ActionDialog {
     if (action.getName() != null) {
       wName.setText(action.getName());
     }
-    String[] arguments = action.getArguments();
-    String[] fileMasks = action.getFilemasks();
 
-    if (arguments != null) {
-      for (int i = 0; i < arguments.length; i++) {
-        final String argument = arguments[i];
-        final String fileMask = fileMasks[i];
-
-        TableItem ti = wFields.table.getItem(i);
-        if (argument != null) {
-          ti.setText(1, argument);
-        }
-        if (fileMask != null) {
-          ti.setText(2, fileMask);
-        }
+    int i = 0;
+    for (FileItem item : action.getFileItems()) {
+      TableItem ti = wFields.table.getItem(i++);
+      if (item.getFileName() != null) {
+        ti.setText(1, item.getFileName());
       }
-      wFields.setRowNums();
-      wFields.optWidth(true);
+      if (item.getFileMask() != null) {
+        ti.setText(2, item.getFileMask());
+      }
     }
+    wFields.setRowNums();
+    wFields.optWidth(true);
 
     wPrevious.setSelection(action.isArgFromPrevious());
     wIncludeSubfolders.setSelection(action.isIncludeSubfolders());
@@ -487,29 +482,16 @@ public class ActionDeleteFilesDialog extends ActionDialog {
     action.setArgFromPrevious(wPrevious.getSelection());
 
     int numberOfItems = wFields.nrNonEmpty();
-    int numberOfValidArgs = 0;
-    for (int i = 0; i < numberOfItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        numberOfValidArgs++;
-      }
-    }
-    String[] arguments = new String[numberOfValidArgs];
-    String[] fileMasks = new String[numberOfValidArgs];
-
-    numberOfValidArgs = 0;
+    List<FileItem> items = new ArrayList<>();
     for (int i = 0; i < numberOfItems; i++) {
       String path = wFields.getNonEmpty(i).getText(1);
-      String wild = wFields.getNonEmpty(i).getText(2);
-      if (path != null && path.length() != 0) {
-        arguments[numberOfValidArgs] = path;
-        fileMasks[numberOfValidArgs] = wild;
-        numberOfValidArgs++;
+      String wildcard = wFields.getNonEmpty(i).getText(2);
+      if (path != null && !path.isEmpty()) {
+        items.add(new FileItem(path, wildcard));
       }
     }
 
-    action.setFilemasks(fileMasks);
-    action.setArguments(arguments);
+    action.setFileItems(items);
 
     dispose();
   }

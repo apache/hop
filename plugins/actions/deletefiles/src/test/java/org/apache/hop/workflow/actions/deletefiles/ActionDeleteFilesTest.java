@@ -17,6 +17,9 @@
 
 package org.apache.hop.workflow.actions.deletefiles;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -39,23 +42,24 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class WorkflowEntryDeleteFilesTest {
+public class ActionDeleteFilesTest {
   private static final String PATH_TO_FILE = "path/to/file";
   private static final String STRING_SPACES_ONLY = "   ";
 
   private ActionDeleteFiles action;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     action = new ActionDeleteFiles();
     IWorkflowEngine<WorkflowMeta> parentWorkflow = mock(Workflow.class);
@@ -70,9 +74,34 @@ public class WorkflowEntryDeleteFilesTest {
   }
 
   @Test
-  public void filesWithNoPath_AreNotProcessed_ArgsOfCurrentJob() throws Exception {
-    action.setArguments(new String[] {Const.EMPTY_STRING, STRING_SPACES_ONLY});
-    action.setFilemasks(new String[] {null, null});
+  void testNewSerialization() throws Exception {
+    ActionDeleteFiles meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/delete-files-action.xml", ActionDeleteFiles.class);
+
+    assertFalse(meta.isArgFromPrevious());
+    assertTrue(meta.isIncludeSubfolders());
+    assertEquals("folder1", meta.getFileItems().get(0).getFileName());
+    assertEquals("*.log", meta.getFileItems().get(0).getFileMask());
+  }
+
+  @Test
+  public void testClone() throws Exception {
+    ActionDeleteFiles meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/delete-files-action.xml", ActionDeleteFiles.class);
+
+    ActionDeleteFiles clone = (ActionDeleteFiles) meta.clone();
+
+    assertEquals(clone.getFileItems(), meta.getFileItems());
+    assertEquals(clone.isIncludeSubfolders(), meta.isIncludeSubfolders());
+    assertEquals(clone.isArgFromPrevious(), meta.isArgFromPrevious());
+  }
+
+  @Test
+  public void filesWithNoPath_AreNotProcessed_ArgsOfCurrentWorkflow() throws Exception {
+    action.setFileItems(
+        List.of(new FileItem(Const.EMPTY_STRING, null), new FileItem(STRING_SPACES_ONLY, null)));
     action.setArgFromPrevious(false);
 
     action.execute(new Result(), 0);
@@ -80,14 +109,13 @@ public class WorkflowEntryDeleteFilesTest {
   }
 
   @Test
-  public void filesWithPath_AreProcessed_ArgsOfCurrentJob() throws Exception {
-    String[] args = new String[] {PATH_TO_FILE};
-    action.setArguments(args);
-    action.setFilemasks(new String[] {null, null});
+  public void filesWithPath_AreProcessed_ArgsOfCurrentWorkflow() throws Exception {
+    action.setFileItems(
+        List.of(new FileItem(PATH_TO_FILE, null), new FileItem(STRING_SPACES_ONLY, null)));
     action.setArgFromPrevious(false);
 
     action.execute(new Result(), 0);
-    verify(action, times(args.length))
+    verify(action, times(1))
         .processFile(nullable(String.class), nullable(String.class), any(Workflow.class));
   }
 
@@ -130,9 +158,11 @@ public class WorkflowEntryDeleteFilesTest {
     action.setVariable(pathToFileBlankValue, Const.EMPTY_STRING);
     action.setVariable(pathToFileValidValue, PATH_TO_FILE);
 
-    action.setArguments(
-        new String[] {asVariable(pathToFileBlankValue), asVariable(pathToFileValidValue)});
-    action.setFilemasks(new String[] {null, null});
+    action.setFileItems(
+        List.of(
+            new FileItem(asVariable(pathToFileBlankValue), null),
+            new FileItem(asVariable(pathToFileValidValue), null)));
+
     action.setArgFromPrevious(false);
 
     action.execute(new Result(), 0);
@@ -145,9 +175,10 @@ public class WorkflowEntryDeleteFilesTest {
     final String fileExtensionTxt = ".txt";
     final String fileExtensionXml = ".xml";
 
-    String[] args = new String[] {PATH_TO_FILE, PATH_TO_FILE};
-    action.setArguments(args);
-    action.setFilemasks(new String[] {fileExtensionTxt, fileExtensionXml});
+    action.setFileItems(
+        List.of(
+            new FileItem(PATH_TO_FILE, fileExtensionTxt),
+            new FileItem(PATH_TO_FILE, fileExtensionXml)));
     action.setArgFromPrevious(false);
 
     action.execute(new Result(), 0);

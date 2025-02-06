@@ -19,43 +19,43 @@ package org.apache.hop.workflow.actions.deletefiles;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
 
 /** This defines a 'delete files' action. */
+@Setter
+@Getter
 @Action(
     id = "DELETE_FILES",
     name = "i18n::ActionDeleteFiles.Name",
@@ -64,94 +64,40 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionDeleteFiles.keyword",
     documentationUrl = "/workflow/actions/deletefiles.html")
-public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction {
+public class ActionDeleteFiles extends ActionBase {
 
   private static final Class<?> PKG = ActionDeleteFiles.class;
 
+  @HopMetadataProperty(key = "arg_from_previous")
   private boolean argFromPrevious;
 
+  @HopMetadataProperty(key = "include_subfolders")
   private boolean includeSubfolders;
 
-  private String[] arguments;
-
-  private String[] filemasks;
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<FileItem> fileItems;
 
   public ActionDeleteFiles(String workflowName) {
     super(workflowName, "");
     argFromPrevious = false;
-    arguments = null;
-
     includeSubfolders = false;
+    fileItems = List.of();
   }
 
   public ActionDeleteFiles() {
     this("");
   }
 
-  public void allocate(int numberOfFields) {
-    arguments = new String[numberOfFields];
-    filemasks = new String[numberOfFields];
+  public ActionDeleteFiles(ActionDeleteFiles other) {
+    super(other.getName(), other.getDescription(), other.getPluginId());
+    this.argFromPrevious = other.argFromPrevious;
+    this.includeSubfolders = other.includeSubfolders;
+    this.fileItems = new ArrayList<>(other.fileItems);
   }
 
   @Override
   public Object clone() {
-    ActionDeleteFiles action = (ActionDeleteFiles) super.clone();
-    if (arguments != null) {
-      int nrFields = arguments.length;
-      action.allocate(nrFields);
-      System.arraycopy(arguments, 0, action.arguments, 0, nrFields);
-      System.arraycopy(filemasks, 0, action.filemasks, 0, nrFields);
-    }
-    return action;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
-
-    retval.append("      <fields>").append(Const.CR);
-    if (arguments != null) {
-      for (int i = 0; i < arguments.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
-        retval.append("          ").append(XmlHandler.addTagValue("filemask", filemasks[i]));
-        retval.append("        </field>").append(Const.CR);
-      }
-    }
-    retval.append("      </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-      includeSubfolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
-
-      int numberOfFields = XmlHandler.countNodes(fields, "field");
-      allocate(numberOfFields);
-
-      for (int i = 0; i < numberOfFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        arguments[i] = XmlHandler.getTagValue(fnode, "name");
-        filemasks[i] = XmlHandler.getTagValue(fnode, "filemask");
-      }
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionDeleteFiles.UnableToLoadFromXml"), xe);
-    }
+    return new ActionDeleteFiles(this);
   }
 
   @Override
@@ -170,7 +116,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
               String.valueOf((resultRows != null ? resultRows.size() : 0))));
     }
 
-    Multimap<String, String> pathToMaskMap = populateDataForJobExecution(resultRows);
+    Multimap<String, String> pathToMaskMap = populateDataForWorkflowExecution(resultRows);
 
     for (Map.Entry<String, String> pathToMask : pathToMaskMap.entries()) {
       final String filePath = resolve(pathToMask.getKey());
@@ -211,13 +157,13 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
    * obtained in two ways: 1. As an argument of a current action 2. As a table, that comes as a
    * result of execution previous workflow/pipeline.
    *
-   * <p>As the logic of processing this data is the same for both of this cases, we first populate
+   * <p>As the logic of processing this data is the same for both of these cases, we first populate
    * this data (in this method) and then process it.
    *
    * <p>We are using guava multimap here, because if allows key duplication and there could be a
    * situation where two paths to one folder with different wildcards are provided.
    */
-  private Multimap<String, String> populateDataForJobExecution(
+  private Multimap<String, String> populateDataForWorkflowExecution(
       List<RowMetaAndData> rowsFromPreviousMeta) throws HopValueException {
     Multimap<String, String> pathToMaskMap = ArrayListMultimap.create();
     if (argFromPrevious && rowsFromPreviousMeta != null) {
@@ -240,14 +186,14 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
 
         pathToMaskMap.put(pathToFile, fileMask);
       }
-    } else if (arguments != null) {
-      for (int i = 0; i < arguments.length; i++) {
+    } else if (fileItems != null && !fileItems.isEmpty()) {
+      for (FileItem item : fileItems) {
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "ActionDeleteFiles.ProcessingArg", arguments[i], filemasks[i]));
+                  PKG, "ActionDeleteFiles.ProcessingArg", item.getFileName(), item.getFileMask()));
         }
-        pathToMaskMap.put(arguments[i], filemasks[i]);
+        pathToMaskMap.put(item.getFileName(), item.getFileMask());
       }
     }
 
@@ -256,10 +202,8 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
 
   boolean processFile(String path, String wildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     boolean isDeleted = false;
-    FileObject fileFolder = null;
 
-    try {
-      fileFolder = HopVfs.getFileObject(path, getVariables());
+    try (FileObject fileFolder = HopVfs.getFileObject(path, getVariables())) {
 
       if (fileFolder.exists()) {
         if (fileFolder.getType() == FileType.FOLDER) {
@@ -303,14 +247,6 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
       logError(
           BaseMessages.getString(PKG, "ActionDeleteFiles.CouldNotProcess", path, e.getMessage()),
           e);
-    } finally {
-      if (fileFolder != null) {
-        try {
-          fileFolder.close();
-        } catch (IOException ex) {
-          // Ignore
-        }
-      }
     }
 
     return isDeleted;
@@ -319,19 +255,19 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
   private class TextFileSelector implements FileSelector {
     String fileWildcard = null;
     String sourceFolder = null;
-    IWorkflowEngine<WorkflowMeta> parentjob;
+    IWorkflowEngine<WorkflowMeta> workflow;
 
     public TextFileSelector(
-        String sourcefolderin, String filewildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow) {
+        String sourceFolder, String fileWildcard, IWorkflowEngine<WorkflowMeta> workflow) {
 
-      if (!Utils.isEmpty(sourcefolderin)) {
-        sourceFolder = sourcefolderin;
+      if (!Utils.isEmpty(sourceFolder)) {
+        this.sourceFolder = sourceFolder;
       }
 
-      if (!Utils.isEmpty(filewildcard)) {
-        fileWildcard = filewildcard;
+      if (!Utils.isEmpty(fileWildcard)) {
+        this.fileWildcard = fileWildcard;
       }
-      parentjob = parentWorkflow;
+      this.workflow = workflow;
     }
 
     @Override
@@ -339,12 +275,12 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
       boolean doReturnCode = false;
       try {
 
-        if (!info.getFile().toString().equals(sourceFolder) && !parentjob.isStopped()) {
+        if (!info.getFile().toString().equals(sourceFolder) && !workflow.isStopped()) {
           // Pass over the Base folder itself
           String shortFilename = info.getFile().getName().getBaseName();
 
           if (!info.getFile().getParent().equals(info.getBaseFolder())) {
-            // Not in the Base Folder..Only if include sub folders
+            // Not in the Base Folder. Only if include sub folders
             if (includeSubfolders
                 && (info.getFile().getType() == FileType.FILE)
                 && getFileWildcard(shortFilename, fileWildcard)) {
@@ -370,10 +306,9 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
         }
       } catch (Exception e) {
         logError(
-            BaseMessages.getString(PKG, "ActionDeleteFiles.Error.Exception.DeleteProcessError"),
             BaseMessages.getString(
                 PKG,
-                "JobDeleteFiles.Error.Exception.DeleteProcess",
+                "ActionDeleteFiles.Error.Exception.DeleteProcessError",
                 info.getFile().toString(),
                 e.getMessage()));
 
@@ -393,7 +328,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
    *
    * @param selectedfile
    * @param wildcard
-   * @return True if the selectedfile matches the wildcard
+   * @return True if the selected file matches the wildcard
    **********************************************************/
   private boolean getFileWildcard(String selectedfile, String wildcard) {
     boolean getIt = true;
@@ -408,10 +343,6 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
     return getIt;
   }
 
-  public void setIncludeSubfolders(boolean includeSubfolders) {
-    this.includeSubfolders = includeSubfolders;
-  }
-
   @Override
   public boolean isEvaluation() {
     return true;
@@ -423,25 +354,14 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    boolean isValid =
-        ActionValidatorUtils.andValidator()
-            .validate(
-                this,
-                "arguments",
-                remarks,
-                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
-
-    if (!isValid) {
-      return;
-    }
 
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
 
-    for (int i = 0; i < arguments.length; i++) {
-      ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks, ctx);
+    for (FileItem item : fileItems) {
+      ActionValidatorUtils.andValidator().validate(this, item.getFileName(), remarks, ctx);
     }
   }
 
@@ -449,45 +369,17 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (arguments != null) {
-      ResourceReference reference = null;
-      for (int i = 0; i < arguments.length; i++) {
-        String filename = resolve(arguments[i]);
-        if (reference == null) {
-          reference = new ResourceReference(this);
-          references.add(reference);
-        }
-        reference.getEntries().add(new ResourceEntry(filename, ResourceType.FILE));
+
+    ResourceReference reference = null;
+    for (FileItem item : fileItems) {
+      String filename = resolve(item.getFileName());
+      if (reference == null) {
+        reference = new ResourceReference(this);
+        references.add(reference);
       }
+      reference.getEntries().add(new ResourceEntry(filename, ResourceType.FILE));
     }
+
     return references;
-  }
-
-  public void setArguments(String[] arguments) {
-    this.arguments = arguments;
-  }
-
-  public void setFilemasks(String[] filemasks) {
-    this.filemasks = filemasks;
-  }
-
-  public void setArgFromPrevious(boolean argFromPrevious) {
-    this.argFromPrevious = argFromPrevious;
-  }
-
-  public boolean isArgFromPrevious() {
-    return argFromPrevious;
-  }
-
-  public String[] getArguments() {
-    return arguments;
-  }
-
-  public String[] getFilemasks() {
-    return filemasks;
-  }
-
-  public boolean isIncludeSubfolders() {
-    return includeSubfolders;
   }
 }
