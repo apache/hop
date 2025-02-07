@@ -453,14 +453,13 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
         workflowExecutorMeta.getResultRowsTargetTransformMeta() == null
             ? ""
             : workflowExecutorMeta.getResultRowsTargetTransformMeta().getName());
-    for (int i = 0; i < workflowExecutorMeta.getResultRowsField().length; i++) {
+    for (int i = 0; i < workflowExecutorMeta.getResultRowsField().size(); i++) {
       TableItem item = new TableItem(wResultRowsFields.table, SWT.NONE);
-      item.setText(1, Const.NVL(workflowExecutorMeta.getResultRowsField()[i], ""));
-      item.setText(
-          2, ValueMetaFactory.getValueMetaName(workflowExecutorMeta.getResultRowsType()[i]));
-      int length = workflowExecutorMeta.getResultRowsLength()[i];
+      item.setText(1, Const.NVL(workflowExecutorMeta.getResultRowsField().get(i).getName(), ""));
+      item.setText(2, workflowExecutorMeta.getResultRowsField().get(i).getType());
+      int length = workflowExecutorMeta.getResultRowsField().get(i).getLength();
       item.setText(3, length < 0 ? "" : Integer.toString(length));
-      int precision = workflowExecutorMeta.getResultRowsPrecision()[i];
+      int precision = workflowExecutorMeta.getResultRowsField().get(i).getPrecision();
       item.setText(4, precision < 0 ? "" : Integer.toString(precision));
     }
     wResultRowsFields.removeEmptyRows();
@@ -506,7 +505,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     fdGetParameters.bottom = new FormAttachment(100, 0);
     fdGetParameters.right = new FormAttachment(100, 0);
     wGetParameters.setLayoutData(fdGetParameters);
-    wGetParameters.setSelection(workflowExecutorMeta.getParameters().isInheritingAllVariables());
+    wGetParameters.setSelection(workflowExecutorMeta.isInheritingAllVariables());
     wGetParameters.addListener(
         SWT.Selection, e -> getParametersFromWorkflow()); // null : reload file
 
@@ -520,7 +519,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     fdMapParameters.bottom = new FormAttachment(100, 0);
     fdMapParameters.right = new FormAttachment(wGetParameters, -PropsUi.getMargin());
     wMapParameters.setLayoutData(fdMapParameters);
-    wMapParameters.setSelection(workflowExecutorMeta.getParameters().isInheritingAllVariables());
+    wMapParameters.setSelection(workflowExecutorMeta.isInheritingAllVariables());
     wMapParameters.addListener(SWT.Selection, e -> mapFieldsToWorkflowParameters());
 
     // Now add a table view with the 3 columns to specify: variable name, input field & optional
@@ -546,14 +545,14 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
         };
     parameterColumns[1].setUsingVariables(true);
 
-    WorkflowExecutorParameters parameters = workflowExecutorMeta.getParameters();
+    List<WorkflowExecutorParameters> parameters = workflowExecutorMeta.getParameters();
     wWorkflowExecutorParameters =
         new TableView(
             variables,
             wParametersComposite,
             SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             parameterColumns,
-            parameters.getVariable().length,
+            parameters.size(),
             null,
             props);
     PropsUi.setLook(wWorkflowExecutorParameters);
@@ -564,11 +563,11 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     fdJobExecutors.bottom = new FormAttachment(wGetParameters, -10);
     wWorkflowExecutorParameters.setLayoutData(fdJobExecutors);
 
-    for (int i = 0; i < parameters.getVariable().length; i++) {
+    for (int i = 0; i < parameters.size(); i++) {
       TableItem tableItem = wWorkflowExecutorParameters.table.getItem(i);
-      tableItem.setText(1, Const.NVL(parameters.getVariable()[i], ""));
-      tableItem.setText(2, Const.NVL(parameters.getField()[i], ""));
-      tableItem.setText(3, Const.NVL(parameters.getInput()[i], ""));
+      tableItem.setText(1, Const.NVL(parameters.get(i).getVariable(), ""));
+      tableItem.setText(2, Const.NVL(parameters.get(i).getField(), ""));
+      tableItem.setText(3, Const.NVL(parameters.get(i).getInput(), ""));
     }
     wWorkflowExecutorParameters.setRowNums();
     wWorkflowExecutorParameters.optWidth(true);
@@ -583,7 +582,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     fdInheritAll.left = new FormAttachment(0, 0);
     fdInheritAll.top = new FormAttachment(wWorkflowExecutorParameters, 15);
     wInheritAll.setLayoutData(fdInheritAll);
-    wInheritAll.setSelection(workflowExecutorMeta.getParameters().isInheritingAllVariables());
+    wInheritAll.setSelection(workflowExecutorMeta.isInheritingAllVariables());
 
     FormData fdParametersComposite = new FormData();
     fdParametersComposite.left = new FormAttachment(0, 0);
@@ -1024,7 +1023,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
     int nrRows =
         (workflowExecutorMeta.getResultRowsField() != null
-            ? workflowExecutorMeta.getResultRowsField().length
+            ? workflowExecutorMeta.getResultRowsField().size()
             : 1);
 
     ColumnInfo[] ciResultFields =
@@ -1146,22 +1145,20 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
   private void collectInformation() {
     // The parameters...
     //
-    WorkflowExecutorParameters parameters = workflowExecutorMeta.getParameters();
+    List<WorkflowExecutorParameters> parameters = new ArrayList<>();
 
     int nrLines = wWorkflowExecutorParameters.nrNonEmpty();
-    String[] variables = new String[nrLines];
-    String[] fields = new String[nrLines];
-    String[] input = new String[nrLines];
-    parameters.setVariable(variables);
-    parameters.setField(fields);
-    parameters.setInput(input);
     for (int i = 0; i < nrLines; i++) {
       TableItem item = wWorkflowExecutorParameters.getNonEmpty(i);
-      variables[i] = item.getText(1);
-      fields[i] = item.getText(2);
-      input[i] = item.getText(3);
+      WorkflowExecutorParameters param = new WorkflowExecutorParameters();
+      param.setVariable(item.getText(1));
+      param.setField(item.getText(2));
+      param.setInput(item.getText(3));
+      parameters.add(param);
     }
-    parameters.setInheritingAllVariables(wInheritAll.getSelection());
+    workflowExecutorMeta.setParameters(parameters);
+
+    workflowExecutorMeta.setInheritingAllVariables(wInheritAll.getSelection());
 
     // The group definition
     //
@@ -1208,18 +1205,18 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     workflowExecutorMeta.setResultRowsTargetTransformMeta(
         pipelineMeta.findTransform(wResultRowsTarget.getText()));
     int nrFields = wResultRowsFields.nrNonEmpty();
-    workflowExecutorMeta.setResultRowsField(new String[nrFields]);
-    workflowExecutorMeta.setResultRowsType(new int[nrFields]);
-    workflowExecutorMeta.setResultRowsLength(new int[nrFields]);
-    workflowExecutorMeta.setResultRowsPrecision(new int[nrFields]);
+
+    List<WorkflowExecutorResultRows> resultRows = new ArrayList<>();
 
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wResultRowsFields.getNonEmpty(i);
-      workflowExecutorMeta.getResultRowsField()[i] = item.getText(1);
-      workflowExecutorMeta.getResultRowsType()[i] =
-          ValueMetaFactory.getIdForValueMeta(item.getText(2));
-      workflowExecutorMeta.getResultRowsLength()[i] = Const.toInt(item.getText(3), -1);
-      workflowExecutorMeta.getResultRowsPrecision()[i] = Const.toInt(item.getText(4), -1);
+      WorkflowExecutorResultRows row = new WorkflowExecutorResultRows();
+      row.setName(item.getText(1));
+      row.setType(item.getText(2));
+      row.setLength(Const.toInt(item.getText(3), -1));
+      row.setPrecision(Const.toInt(item.getText(4), -1));
+      resultRows.add(row);
     }
+    workflowExecutorMeta.setResultRowsField(resultRows);
   }
 }
