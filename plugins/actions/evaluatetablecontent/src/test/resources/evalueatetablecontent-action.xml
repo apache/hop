@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<action>
+    <name>Evaluate rows number in a table</name>
+    <description/>
+    <type>EVAL_TABLE_CONTENT</type>
+    <attributes/>
+    <connection>unit-test-db</connection>
+    <schemaname>public</schemaname>
+    <tablename>dimension</tablename>
+    <success_condition>rows_count_equal</success_condition>
+    <limit>7</limit>
+    <is_custom_sql>N</is_custom_sql>
+    <is_usevars>N</is_usevars>
+    <custom_sql/>
+    <add_rows_result>N</add_rows_result>
+    <clear_result_rows>Y</clear_result_rows>
+    <parallel>N</parallel>
+    <xloc>640</xloc>
+    <yloc>48</yloc>
+    <attributes_hac/>
+</action>

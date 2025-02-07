@@ -99,11 +99,11 @@ public class ActionEvalTableContentDialog extends ActionDialog {
   private Label wlPosition;
 
   // Schema name
-  private Label wlSchemaname;
-  private TextVar wSchemaname;
+  private Label wlSchemaName;
+  private TextVar wSchemaName;
 
-  private Label wlTablename;
-  private TextVar wTablename;
+  private Label wlTableName;
+  private TextVar wTableName;
 
   private CCombo wSuccessCondition;
 
@@ -173,42 +173,42 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     wConnection = addConnectionLine(shell, wName, action.getDatabase(), lsMod);
 
     // Schema name line
-    wlSchemaname = new Label(shell, SWT.RIGHT);
-    wlSchemaname.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.Schemaname.Label"));
-    PropsUi.setLook(wlSchemaname);
-    FormData fdlSchemaname = new FormData();
-    fdlSchemaname.left = new FormAttachment(0, 0);
-    fdlSchemaname.right = new FormAttachment(middle, -margin);
-    fdlSchemaname.top = new FormAttachment(wConnection, margin);
-    wlSchemaname.setLayoutData(fdlSchemaname);
+    wlSchemaName = new Label(shell, SWT.RIGHT);
+    wlSchemaName.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.SchemaName.Label"));
+    PropsUi.setLook(wlSchemaName);
+    FormData fdlSchemaName = new FormData();
+    fdlSchemaName.left = new FormAttachment(0, 0);
+    fdlSchemaName.right = new FormAttachment(middle, -margin);
+    fdlSchemaName.top = new FormAttachment(wConnection, margin);
+    wlSchemaName.setLayoutData(fdlSchemaName);
 
-    wSchemaname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wSchemaname);
-    wSchemaname.setToolTipText(
-        BaseMessages.getString(PKG, "ActionEvalTableContent.Schemaname.Tooltip"));
-    wSchemaname.addModifyListener(lsMod);
-    FormData fdSchemaname = new FormData();
-    fdSchemaname.left = new FormAttachment(middle, 0);
-    fdSchemaname.top = new FormAttachment(wConnection, margin);
-    fdSchemaname.right = new FormAttachment(100, 0);
-    wSchemaname.setLayoutData(fdSchemaname);
+    wSchemaName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSchemaName);
+    wSchemaName.setToolTipText(
+        BaseMessages.getString(PKG, "ActionEvalTableContent.SchemaName.Tooltip"));
+    wSchemaName.addModifyListener(lsMod);
+    FormData fdSchemaName = new FormData();
+    fdSchemaName.left = new FormAttachment(middle, 0);
+    fdSchemaName.top = new FormAttachment(wConnection, margin);
+    fdSchemaName.right = new FormAttachment(100, 0);
+    wSchemaName.setLayoutData(fdSchemaName);
 
     // Table name line
-    wlTablename = new Label(shell, SWT.RIGHT);
-    wlTablename.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.Tablename.Label"));
-    PropsUi.setLook(wlTablename);
-    FormData fdlTablename = new FormData();
-    fdlTablename.left = new FormAttachment(0, 0);
-    fdlTablename.right = new FormAttachment(middle, -margin);
-    fdlTablename.top = new FormAttachment(wSchemaname, margin);
-    wlTablename.setLayoutData(fdlTablename);
+    wlTableName = new Label(shell, SWT.RIGHT);
+    wlTableName.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.TableName.Label"));
+    PropsUi.setLook(wlTableName);
+    FormData fdlTableName = new FormData();
+    fdlTableName.left = new FormAttachment(0, 0);
+    fdlTableName.right = new FormAttachment(middle, -margin);
+    fdlTableName.top = new FormAttachment(wSchemaName, margin);
+    wlTableName.setLayoutData(fdlTableName);
 
     wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(wSchemaname, margin / 2);
+    fdbTable.top = new FormAttachment(wSchemaName, margin / 2);
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
@@ -218,16 +218,16 @@ public class ActionEvalTableContentDialog extends ActionDialog {
           }
         });
 
-    wTablename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTablename);
-    wTablename.setToolTipText(
-        BaseMessages.getString(PKG, "ActionEvalTableContent.Tablename.Tooltip"));
-    wTablename.addModifyListener(lsMod);
-    FormData fdTablename = new FormData();
-    fdTablename.left = new FormAttachment(middle, 0);
-    fdTablename.top = new FormAttachment(wSchemaname, margin);
-    fdTablename.right = new FormAttachment(wbTable, -margin);
-    wTablename.setLayoutData(fdTablename);
+    wTableName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTableName);
+    wTableName.setToolTipText(
+        BaseMessages.getString(PKG, "ActionEvalTableContent.TableName.Tooltip"));
+    wTableName.addModifyListener(lsMod);
+    FormData fdTableName = new FormData();
+    fdTableName.left = new FormAttachment(middle, 0);
+    fdTableName.top = new FormAttachment(wSchemaName, margin);
+    fdTableName.right = new FormAttachment(wbTable, -margin);
+    wTableName.setLayoutData(fdTableName);
 
     // ////////////////////////
     // START OF Success GROUP///
@@ -626,10 +626,10 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     wbSqlTable.setEnabled(wCustomSql.getSelection());
     wUseSubs.setEnabled(wCustomSql.getSelection());
     wbTable.setEnabled(!wCustomSql.getSelection());
-    wTablename.setEnabled(!wCustomSql.getSelection());
-    wlTablename.setEnabled(!wCustomSql.getSelection());
-    wlSchemaname.setEnabled(!wCustomSql.getSelection());
-    wSchemaname.setEnabled(!wCustomSql.getSelection());
+    wTableName.setEnabled(!wCustomSql.getSelection());
+    wlTableName.setEnabled(!wCustomSql.getSelection());
+    wlSchemaName.setEnabled(!wCustomSql.getSelection());
+    wSchemaName.setEnabled(!wCustomSql.getSelection());
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -643,14 +643,15 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     }
 
     if (action.getSchemaname() != null) {
-      wSchemaname.setText(action.getSchemaname());
+      wSchemaName.setText(action.getSchemaname());
     }
-    if (action.getTablename() != null) {
-      wTablename.setText(action.getTablename());
+    if (action.getTableName() != null) {
+      wTableName.setText(action.getTableName());
     }
 
     wSuccessCondition.setText(
-        ActionEvalTableContent.getSuccessConditionDesc(action.getSuccessCondition()));
+        ActionEvalTableContent.getSuccessConditionDesc(
+            ActionEvalTableContent.getSuccessConditionByCode(action.getSuccessCondition())));
     if (action.getLimit() != null) {
       wLimit.setText(action.getLimit());
     } else {
@@ -684,12 +685,13 @@ public class ActionEvalTableContentDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
+    action.setConnection(wConnection.getText());
 
-    action.setSchemaname(wSchemaname.getText());
-    action.setTablename(wTablename.getText());
+    action.setSchemaname(wSchemaName.getText());
+    action.setTableName(wTableName.getText());
     action.setSuccessCondition(
-        ActionEvalTableContent.getSuccessConditionByDesc(wSuccessCondition.getText()));
+        ActionEvalTableContent.getSuccessConditionCode(
+            ActionEvalTableContent.getSuccessConditionByDesc(wSuccessCondition.getText())));
     action.setLimit(wLimit.getText());
     action.setUseCustomSql(wCustomSql.getSelection());
     action.setUseVars(wUseSubs.getSelection());
@@ -708,9 +710,9 @@ public class ActionEvalTableContentDialog extends ActionDialog {
         DatabaseExplorerDialog std =
             new DatabaseExplorerDialog(
                 shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases());
-        std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
+        std.setSelectedSchemaAndTable(wSchemaName.getText(), wTableName.getText());
         if (std.open()) {
-          wTablename.setText(Const.NVL(std.getTableName(), ""));
+          wTableName.setText(Const.NVL(std.getTableName(), ""));
         }
       } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
