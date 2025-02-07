@@ -17,49 +17,30 @@
 
 package org.apache.hop.workflow.actions.shell;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class WorkflowActionShellLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionShell> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.junit.jupiter.api.Test;
 
-  @Override
-  protected Class<ActionShell> getActionClass() {
-    return ActionShell.class;
+class WorkflowActionShellLoadSaveTest {
+  @Test
+  void testSerialization() throws Exception {
+    ActionShell meta =
+        ActionSerializationTestUtil.testSerialization("/shell-action.xml", ActionShell.class);
+
+    assertEquals("${PROJECT_HOME}/0002-shell-test.sh", meta.getFilename());
+    assertEquals("${PROJECT_HOME}", meta.getWorkDirectory());
+    assertEquals(1, meta.getArguments().size());
   }
 
-  @Override
-  protected List<String> listAttributes() {
-    return Arrays.asList(
-        "filename",
-        "workDirectory",
-        "argFromPrevious",
-        "execPerRow",
-        "setLogfile",
-        "logfile",
-        "setAppendLogfile",
-        "logext",
-        "addDate",
-        "addTime",
-        "insertScript",
-        "script",
-        "logFileLevel",
-        "arguments");
-  }
+  @Test
+  void testClone() throws Exception {
+    ActionShell meta =
+        ActionSerializationTestUtil.testSerialization("/shell-action.xml", ActionShell.class);
 
-  @Override
-  protected Map<String, IFieldLoadSaveValidator<?>> createTypeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    validators.put(LogLevel.class.getName(), new EnumLoadSaveValidator<LogLevel>(LogLevel.class));
-    return validators;
+    ActionShell clone = (ActionShell) meta.clone();
+    assertEquals(clone.getFilename(), meta.getFilename());
+    assertEquals(clone.getWorkDirectory(), meta.getWorkDirectory());
+    assertEquals(clone.getArguments().size(), meta.getArguments().size());
   }
 }

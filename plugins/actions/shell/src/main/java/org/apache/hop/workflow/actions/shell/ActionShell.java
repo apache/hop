@@ -27,6 +27,8 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -46,13 +48,13 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
@@ -69,39 +71,54 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionShell.keyword",
     documentationUrl = "/workflow/actions/shell.html")
 @SuppressWarnings("java:S1104")
-public class ActionShell extends ActionBase implements Cloneable, IAction {
+@Getter
+@Setter
+public class ActionShell extends ActionBase {
   private static final Class<?> PKG = ActionShell.class;
   public static final String CONST_JAVA_IO_TMPDIR = "java.io.tmpdir";
   public static final String CONST_WINDOWS_95 = "Windows 95";
   public static final String CONST_WINDOWS = "Windows";
-  public static final String CONST_SPACES = "      ";
-  public static final String CONST_FILENAME = "filename";
-  public static final String CONST_LOGFILE = "logfile";
-  public static final String CONST_ARGUMENT = "argument";
 
+  @HopMetadataProperty(key = "filename")
   private String filename;
 
+  @HopMetadataProperty(key = "work_directory")
   private String workDirectory;
 
-  public String[] arguments;
+  @HopMetadataProperty(groupKey = "arguments", key = "argument")
+  public List<String> arguments;
 
+  @HopMetadataProperty(key = "arg_from_previous")
   public boolean argFromPrevious;
 
+  @HopMetadataProperty(key = "set_logfile")
   public boolean setLogfile;
 
+  @HopMetadataProperty(key = "logfile")
   public String logfile;
+
+  @HopMetadataProperty(key = "logext")
   public String logext;
+
+  @HopMetadataProperty(key = "add_date")
   public boolean addDate;
+
+  @HopMetadataProperty(key = "add_time")
   public boolean addTime;
 
-  public LogLevel logFileLevel;
+  @HopMetadataProperty(key = "loglevel")
+  public String logFileLevel;
 
+  @HopMetadataProperty(key = "exec_per_row")
   public boolean execPerRow;
 
+  @HopMetadataProperty(key = "set_append_logfile")
   public boolean setAppendLogfile;
 
+  @HopMetadataProperty(key = "insertScript")
   public boolean insertScript;
 
+  @HopMetadataProperty(key = "script")
   public String script;
 
   public ActionShell(String name) {
@@ -113,97 +130,31 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     clear();
   }
 
-  public void allocate(int nrFields) {
-    arguments = new String[nrFields];
-  }
-
+  /**
+   * @deprecated keep for backwards compatibility
+   * @param entrynode the top-level XML node
+   * @param metadataProvider The metadataProvider to optionally load from.
+   * @param variables
+   * @throws HopXmlException
+   */
   @Override
-  public Object clone() {
-    ActionShell je = (ActionShell) super.clone();
-    if (arguments != null) {
-      int nrFields = arguments.length;
-      je.allocate(nrFields);
-      System.arraycopy(arguments, 0, je.arguments, 0, nrFields);
-    }
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append(super.getXml());
-
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FILENAME, filename));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("work_directory", workDirectory));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("exec_per_row", execPerRow));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("set_logfile", setLogfile));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_LOGFILE, logfile));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("set_append_logfile", setAppendLogfile));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("logext", logext));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_date", addDate));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_time", addTime));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("insertScript", insertScript));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("script", script));
-
-    retval
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue(
-                "loglevel", (logFileLevel == null) ? null : logFileLevel.getCode()));
-
-    if (arguments != null) {
-      for (int i = 0; i < arguments.length; i++) {
-        // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
-        // THE XML "DUBIOUS". DON'T REUSE IT.
-        retval
-            .append(CONST_SPACES)
-            .append(XmlHandler.addTagValue(CONST_ARGUMENT + i, arguments[i]));
-      }
-    }
-
-    return retval.toString();
-  }
-
-  @Override
+  @Deprecated(since = "2.13")
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
-      super.loadXml(entrynode);
-      setFilename(XmlHandler.getTagValue(entrynode, CONST_FILENAME));
-      setWorkDirectory(XmlHandler.getTagValue(entrynode, "work_directory"));
-      argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-      execPerRow = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "exec_per_row"));
-      setLogfile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_logfile"));
-      setAppendLogfile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_append_logfile"));
-      addDate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_date"));
-      addTime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_time"));
-      logfile = XmlHandler.getTagValue(entrynode, CONST_LOGFILE);
-      logext = XmlHandler.getTagValue(entrynode, "logext");
-      logFileLevel = LogLevel.getLogLevelForCode(XmlHandler.getTagValue(entrynode, "loglevel"));
-      insertScript = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "insertScript"));
-
-      script = XmlHandler.getTagValue(entrynode, "script");
+      super.loadXml(entrynode, metadataProvider, variables);
 
       // How many arguments?
       int argnr = 0;
-      while (XmlHandler.getTagValue(entrynode, CONST_ARGUMENT + argnr) != null) {
+      while (XmlHandler.getTagValue(entrynode, "argument" + argnr) != null) {
         argnr++;
       }
-      allocate(argnr);
 
       // Read them all...
       // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
       // THE XML "DUBIOUS". DON'T REUSE IT.
       for (int a = 0; a < argnr; a++) {
-        arguments[a] = XmlHandler.getTagValue(entrynode, CONST_ARGUMENT + a);
+        arguments.add(XmlHandler.getTagValue(entrynode, "argument" + a));
       }
     } catch (HopException e) {
       throw new HopXmlException("Unable to load action of type 'shell' from XML node", e);
@@ -229,34 +180,9 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     script = null;
   }
 
-  public void setFilename(String n) {
-    filename = n;
-  }
-
-  @Override
-  public String getFilename() {
-    return filename;
-  }
-
   @Override
   public String getRealFilename() {
     return resolve(getFilename());
-  }
-
-  public void setWorkDirectory(String n) {
-    workDirectory = n;
-  }
-
-  public String getWorkDirectory() {
-    return workDirectory;
-  }
-
-  public void setScript(String scriptin) {
-    script = scriptin;
-  }
-
-  public String getScript() {
-    return script;
   }
 
   public String getLogFilename() {
@@ -307,7 +233,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         result.setResult(false);
         return result;
       }
-      shellLogLevel = logFileLevel;
+      shellLogLevel = LogLevel.getLogLevelForCode(logFileLevel);
     }
 
     setLogLevel(shellLogLevel);
@@ -317,9 +243,9 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     // "Translate" the arguments for later
     String[] substArgs = null;
     if (arguments != null) {
-      substArgs = new String[arguments.length];
-      for (int idx = 0; idx < arguments.length; idx++) {
-        substArgs[idx] = resolve(arguments[idx]);
+      substArgs = new String[arguments.size()];
+      for (int idx = 0; idx < arguments.size(); idx++) {
+        substArgs[idx] = resolve(arguments.get(idx));
       }
     }
 
@@ -718,7 +644,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            CONST_FILENAME,
+            "filename",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
 
@@ -726,13 +652,9 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       ActionValidatorUtils.andValidator()
           .validate(
               this,
-              CONST_LOGFILE,
+              "logfile",
               remarks,
               AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     }
-  }
-
-  protected String getLogfile() {
-    return logfile;
   }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.shell;
 
+import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.LogLevel;
@@ -533,8 +534,7 @@ public class ActionShellDialog extends ActionDialog {
 
     final int nrFieldsCols = 1;
     int nrRows =
-        action.arguments == null ? 1 : (action.arguments.length == 0 ? 0 : action.arguments.length);
-    final int nrFieldsRows = nrRows;
+        action.arguments == null ? 1 : (action.arguments.isEmpty() ? 1 : action.arguments.size());
 
     ColumnInfo[] fieldColumns = new ColumnInfo[nrFieldsCols];
     fieldColumns[0] =
@@ -550,7 +550,7 @@ public class ActionShellDialog extends ActionDialog {
             wGeneralComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             fieldColumns,
-            nrFieldsRows,
+            nrRows,
             lsMod,
             props);
 
@@ -697,10 +697,10 @@ public class ActionShellDialog extends ActionDialog {
     wWorkDirectory.setText(Const.nullToEmpty(action.getWorkDirectory()));
 
     if (action.arguments != null) {
-      for (int i = 0; i < action.arguments.length; i++) {
+      for (int i = 0; i < action.arguments.size(); i++) {
         TableItem ti = wFields.table.getItem(i);
-        if (action.arguments[i] != null) {
-          ti.setText(1, action.arguments[i]);
+        if (action.arguments.get(i) != null) {
+          ti.setText(1, action.arguments.get(i));
         }
       }
       wFields.setRowNums();
@@ -715,7 +715,7 @@ public class ActionShellDialog extends ActionDialog {
     wAddTime.setSelection(action.addTime);
     wAppendLogfile.setSelection(action.setAppendLogfile);
     if (action.logFileLevel != null) {
-      wLoglevel.select(action.logFileLevel.getLevel());
+      wLoglevel.setText(action.getLogFileLevel());
     }
 
     wInsertScript.setSelection(action.insertScript);
@@ -746,31 +746,21 @@ public class ActionShellDialog extends ActionDialog {
     action.setFilename(wFilename.getText());
     action.setName(wName.getText());
     action.setWorkDirectory(wWorkDirectory.getText());
+    action.arguments = new ArrayList<>();
 
-    int nrItems = wFields.nrNonEmpty();
-    int nr = 0;
-    for (int i = 0; i < nrItems; i++) {
+    for (int i = 0; i < wFields.nrNonEmpty(); i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
       if (arg != null && arg.length() != 0) {
-        nr++;
-      }
-    }
-    action.arguments = new String[nr];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        action.arguments[nr] = arg;
-        nr++;
+        action.arguments.add(arg);
       }
     }
 
     action.logfile = wLogfile.getText();
     action.logext = wLogExt.getText();
     if (wLoglevel.getSelectionIndex() >= 0) {
-      action.logFileLevel = LogLevel.values()[wLoglevel.getSelectionIndex()];
+      action.logFileLevel = wLoglevel.getText();
     } else {
-      action.logFileLevel = LogLevel.BASIC;
+      action.logFileLevel = "Basic";
     }
     action.setAppendLogfile = wAppendLogfile.getSelection();
     action.setScript(wScript.getText());
