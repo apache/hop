@@ -17,15 +17,17 @@
 
 package org.apache.hop.workflow.actions.mysqlbulkfile;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.util.Arrays;
 import java.util.List;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.Test;
 
 public class WorkflowActionMysqlBulkFileLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionMysqlBulkFile> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
   protected Class<ActionMysqlBulkFile> getActionClass() {
@@ -37,7 +39,7 @@ public class WorkflowActionMysqlBulkFileLoadSaveTest
     return Arrays.asList(
         "schemaName",
         "tableName",
-        "filename",
+        "fileName",
         "separator",
         "enclosed",
         "optionEnclosed",
@@ -48,6 +50,40 @@ public class WorkflowActionMysqlBulkFileLoadSaveTest
         "outDumpValue",
         "ifFileExists",
         "addFileToResult",
-        "database");
+        "connection");
+  }
+
+  @Test
+  public void testNewSerialization() throws Exception {
+    ActionMysqlBulkFile meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/mysql-bulkfile-action.xml", ActionMysqlBulkFile.class);
+
+    assertEquals("testSchema", meta.getSchemaName());
+    assertEquals("testSourceTable", meta.getTableName());
+    assertEquals("/tmp/file", meta.getFileName());
+    assertEquals(",", meta.getSeparator());
+    assertEquals("\"", meta.getEnclosed());
+    assertEquals("mysql", meta.getConnection());
+    assertFalse(meta.isOptionEnclosed());
+    assertFalse(meta.isAddFileToResult());
+  }
+
+  @Test
+  public void testClone() throws Exception {
+    ActionMysqlBulkFile meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/mysql-bulkfile-action.xml", ActionMysqlBulkFile.class);
+
+    ActionMysqlBulkFile clone = (ActionMysqlBulkFile) meta.clone();
+
+    assertEquals(clone.getSchemaName(), meta.getSchemaName());
+    assertEquals(clone.getTableName(), meta.getTableName());
+    assertEquals(clone.getFileName(), meta.getFileName());
+    assertEquals(clone.getSeparator(), meta.getSeparator());
+    assertEquals(clone.getEnclosed(), meta.getEnclosed());
+    assertEquals(clone.getConnection(), meta.getConnection());
+    assertEquals(clone.isOptionEnclosed(), meta.isOptionEnclosed());
+    assertEquals(clone.isAddFileToResult(), meta.isAddFileToResult());
   }
 }

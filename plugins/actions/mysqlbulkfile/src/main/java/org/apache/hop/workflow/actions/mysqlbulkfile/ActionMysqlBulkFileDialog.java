@@ -155,7 +155,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getDatabase(), null);
+    wConnection = addConnectionLine(shell, wName, action.getConnection(), null);
 
     // Schema name line
     // Schema name
@@ -527,8 +527,8 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     if (action.getTableName() != null) {
       wTableName.setText(action.getTableName());
     }
-    if (action.getFilename() != null) {
-      wFilename.setText(action.getFilename());
+    if (action.getFileName() != null) {
+      wFilename.setText(action.getFileName());
     }
     if (action.getSeparator() != null) {
       wSeparator.setText(action.getSeparator());
@@ -568,8 +568,8 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
       wIfFileExists.select(2); // FAIL
     }
 
-    if (action.getDatabase() != null) {
-      wConnection.setText(action.getDatabase().getName());
+    if (action.getConnection() != null) {
+      wConnection.setText(action.getConnection());
     }
 
     wAddFileToResult.setSelection(action.isAddFileToResult());
@@ -592,10 +592,10 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
+    action.setConnection(wConnection.getText());
     action.setSchemaName(wSchemaName.getText());
     action.setTableName(wTableName.getText());
-    action.setFilename(wFilename.getText());
+    action.setFileName(wFilename.getText());
     action.setSeparator(wSeparator.getText());
     action.setEnclosed(wEnclosed.getText());
     action.setOptionEnclosed(wOptionEnclosed.getSelection());
