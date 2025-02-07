@@ -25,9 +25,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -38,18 +41,13 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
 
 /** This defines a 'Dos to Unix' action. */
 @Action(
@@ -61,13 +59,13 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionDosToUnix.keyword",
     documentationUrl = "/workflow/actions/dostounix.html")
 @SuppressWarnings("java:S1104")
-public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
+@Getter
+@Setter
+public class ActionDosToUnix extends ActionBase {
   private static final int LF = 0x0a;
   private static final int CR = 0x0d;
 
   private static final Class<?> PKG = ActionDosToUnix.class;
-  private static final String CONST_SPACE = "          ";
-  private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_SUCCESS_CONDITION_BROKEN =
       "ActionDosToUnix.Error.SuccessConditionbroken";
 
@@ -97,16 +95,23 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   public static final String ADD_PROCESSED_FILES_ONLY = "only_processed_filenames";
   public static final String ADD_ERROR_FILES_ONLY = "only_error_filenames";
 
+  @HopMetadataProperty(key = "arg_from_previous")
   public boolean argFromPrevious;
+
+  @HopMetadataProperty(key = "include_subfolders")
   public boolean includeSubFolders;
 
-  public String[] sourceFileFolder;
-  public String[] wildcard;
-  public int[] conversionTypes;
-
+  @HopMetadataProperty(key = "nr_errors_less_than")
   private String nrErrorsLessThan;
+
+  @HopMetadataProperty(key = "success_condition")
   private String successCondition;
+
+  @HopMetadataProperty(key = "resultfilenames")
   private String resultFilenames;
+
+  @HopMetadataProperty(key = "field", groupKey = "fields")
+  private List<Fields> fields;
 
   int nrAllErrors = 0;
   int nrErrorFiles = 0;
@@ -123,9 +128,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     super(n, "");
     resultFilenames = ADD_ALL_FILENAMES;
     argFromPrevious = false;
-    sourceFileFolder = null;
-    conversionTypes = null;
-    wildcard = null;
+    fields = new ArrayList<>();
     includeSubFolders = false;
     nrErrorsLessThan = "10";
     successCondition = SUCCESS_IF_NO_ERRORS;
@@ -135,67 +138,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  public void allocate(int nrFields) {
-    sourceFileFolder = new String[nrFields];
-    wildcard = new String[nrFields];
-    conversionTypes = new int[nrFields];
-  }
-
-  @Override
-  public Object clone() {
-    ActionDosToUnix je = (ActionDosToUnix) super.clone();
-    if (sourceFileFolder != null) {
-      int nrFields = sourceFileFolder.length;
-      je.allocate(nrFields);
-      System.arraycopy(sourceFileFolder, 0, je.sourceFileFolder, 0, nrFields);
-      System.arraycopy(wildcard, 0, je.wildcard, 0, nrFields);
-      System.arraycopy(conversionTypes, 0, je.conversionTypes, 0, nrFields);
-    }
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append(super.getXml());
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders));
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("success_condition", successCondition));
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("resultfilenames", resultFilenames));
-    retval.append("      <fields>").append(Const.CR);
-    if (sourceFileFolder != null) {
-      for (int i = 0; i < sourceFileFolder.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval
-            .append(CONST_SPACE)
-            .append(XmlHandler.addTagValue("source_filefolder", sourceFileFolder[i]));
-        retval.append(CONST_SPACE).append(XmlHandler.addTagValue("wildcard", wildcard[i]));
-        retval
-            .append(CONST_SPACE)
-            .append(
-                XmlHandler.addTagValue(
-                    "ConversionType", getConversionTypeCode(conversionTypes[i])));
-        retval.append("        </field>").append(Const.CR);
-      }
-    }
-    retval.append("      </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  private static String getConversionTypeCode(int i) {
+  public static String getConversionTypeCode(int i) {
     if (i < 0 || i >= ConversionTypeCode.length) {
       return ConversionTypeCode[0];
     }
@@ -238,43 +181,6 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-
-      argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-      includeSubFolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-
-      nrErrorsLessThan = XmlHandler.getTagValue(entrynode, "nr_errors_less_than");
-      successCondition = XmlHandler.getTagValue(entrynode, "success_condition");
-      resultFilenames = XmlHandler.getTagValue(entrynode, "resultfilenames");
-
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
-
-      // How many field arguments?
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      allocate(nrFields);
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        sourceFileFolder[i] = XmlHandler.getTagValue(fnode, "source_filefolder");
-        wildcard[i] = XmlHandler.getTagValue(fnode, "wildcard");
-        conversionTypes[i] =
-            getConversionTypeByCode(Const.NVL(XmlHandler.getTagValue(fnode, "ConversionType"), ""));
-      }
-    } catch (HopXmlException xe) {
-
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionDosToUnix.Error.Exception.UnableLoadXML"), xe);
-    }
-  }
-
-  @Override
   public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
     result.setNrErrors(1);
@@ -292,17 +198,21 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     tempFolder = resolve("%%java.io.tmpdir%%");
 
     // Get source and destination files, also wildcard
-    String[] vSourceFileFolder = sourceFileFolder;
-    String[] vwildcard = wildcard;
+    String[] vSourceFileFolder = new String[fields.size()];
+    String[] vWildcard = new String[fields.size()];
+    Integer[] vConversionTypes = new Integer[fields.size()];
+    for (int i = 0; i < fields.size(); i++) {
+      vSourceFileFolder[i] = fields.get(i).sourceFileFolder;
+      vWildcard[i] = fields.get(i).wildcard;
+      vConversionTypes[i] = getConversionTypeByCode(fields.get(i).conversionTypes);
+    }
 
-    if (argFromPrevious) {
-      if (isDetailed()) {
-        logDetailed(
-            BaseMessages.getString(
-                PKG,
-                "JobDosToUnix.Log.ArgFromPrevious.Found",
-                (rows != null ? rows.size() : 0) + ""));
-      }
+    if (argFromPrevious && isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "JobDosToUnix.Log.ArgFromPrevious.Found",
+              (rows != null ? rows.size() : 0) + ""));
     }
     if (argFromPrevious && rows != null) {
       // Copy the input row to the (command line) arguments
@@ -353,11 +263,11 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "ActionDosToUnix.Log.ProcessingRow", vSourceFileFolder[i], vwildcard[i]));
+                  PKG, "ActionDosToUnix.Log.ProcessingRow", vSourceFileFolder[i], vWildcard[i]));
         }
 
         processFileFolder(
-            vSourceFileFolder[i], vwildcard[i], conversionTypes[i], parentWorkflow, result);
+            vSourceFileFolder[i], vWildcard[i], vConversionTypes[i], parentWorkflow, result);
       }
     }
 
@@ -591,10 +501,8 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
 
               if (!currentFile.getParent().toString().equals(sourcefilefolder.toString())) {
                 // Not in the Base Folder..Only if include sub folders
-                if (includeSubFolders) {
-                  if (getFileWildcard(currentFile.toString(), realWildcard)) {
-                    convertOneFile(currentFile, convertion, result, parentWorkflow);
-                  }
+                if (includeSubFolders && getFileWildcard(currentFile.toString(), realWildcard)) {
+                  convertOneFile(currentFile, convertion, result, parentWorkflow);
                 }
 
               } else {
@@ -759,38 +667,6 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     return getIt;
   }
 
-  public void setIncludeSubFolders(boolean includeSubFolders) {
-    this.includeSubFolders = includeSubFolders;
-  }
-
-  public void setArgFromPrevious(boolean argFromPrevious) {
-    this.argFromPrevious = argFromPrevious;
-  }
-
-  public void setNrErrorsLessThan(String nrErrorsLessThan) {
-    this.nrErrorsLessThan = nrErrorsLessThan;
-  }
-
-  public String getNrErrorsLessThan() {
-    return nrErrorsLessThan;
-  }
-
-  public void setSuccessCondition(String successCondition) {
-    this.successCondition = successCondition;
-  }
-
-  public String getSuccessCondition() {
-    return successCondition;
-  }
-
-  public void setResultFilenames(String resultFilenames) {
-    this.resultFilenames = resultFilenames;
-  }
-
-  public String getResultFilenames() {
-    return resultFilenames;
-  }
-
   @Override
   public boolean isEvaluation() {
     return true;
@@ -895,5 +771,19 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     private IllegalStateException unknownStateException() {
       return new IllegalStateException("Unknown state: " + state);
     }
+  }
+
+  @Getter
+  @Setter
+  public static final class Fields {
+
+    @HopMetadataProperty(key = "source_filefolder")
+    private String sourceFileFolder;
+
+    @HopMetadataProperty(key = "wildcard")
+    private String wildcard;
+
+    @HopMetadataProperty(key = "ConversionType")
+    private String conversionTypes;
   }
 }

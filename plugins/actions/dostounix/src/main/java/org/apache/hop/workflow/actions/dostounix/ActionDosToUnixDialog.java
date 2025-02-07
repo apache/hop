@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.dostounix;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -371,9 +373,9 @@ public class ActionDosToUnixDialog extends ActionDialog {
     wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
     int rows =
-        action.sourceFileFolder == null
+        action.getFields() == null
             ? 1
-            : (action.sourceFileFolder.length == 0 ? 0 : action.sourceFileFolder.length);
+            : (action.getFields().size() == 0 ? 0 : action.getFields().size());
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -691,17 +693,21 @@ public class ActionDosToUnixDialog extends ActionDialog {
       wName.setText(action.getName());
     }
 
-    if (action.sourceFileFolder != null) {
-      for (int i = 0; i < action.sourceFileFolder.length; i++) {
+    if (action.getFields() != null) {
+      for (int i = 0; i < action.getFields().size(); i++) {
         TableItem ti = wFields.table.getItem(i);
-        if (action.sourceFileFolder[i] != null) {
-          ti.setText(1, action.sourceFileFolder[i]);
+        if (action.getFields().get(i).getSourceFileFolder() != null) {
+          ti.setText(1, action.getFields().get(i).getSourceFileFolder());
         }
 
-        if (action.wildcard[i] != null) {
-          ti.setText(2, action.wildcard[i]);
+        if (action.getFields().get(i).getWildcard() != null) {
+          ti.setText(2, action.getFields().get(i).getWildcard());
         }
-        ti.setText(3, ActionDosToUnix.getConversionTypeDesc(action.conversionTypes[i]));
+        ti.setText(
+            3,
+            ActionDosToUnix.getConversionTypeDesc(
+                ActionDosToUnix.getConversionTypeByDesc(
+                    action.getFields().get(i).getConversionTypes())));
       }
       wFields.setRowNums();
       wFields.optWidth(true);
@@ -793,21 +799,23 @@ public class ActionDosToUnixDialog extends ActionDialog {
         nr++;
       }
     }
-    action.sourceFileFolder = new String[nr];
-    action.wildcard = new String[nr];
-    action.conversionTypes = new int[nr];
     nr = 0;
+    List<ActionDosToUnix.Fields> fields = new ArrayList<>();
     for (int i = 0; i < nrItems; i++) {
       String source = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
       if (source != null && source.length() != 0) {
-        action.sourceFileFolder[nr] = source;
-        action.wildcard[nr] = wild;
-        action.conversionTypes[nr] =
-            ActionDosToUnix.getConversionTypeByDesc(wFields.getNonEmpty(i).getText(3));
+        ActionDosToUnix.Fields field = new ActionDosToUnix.Fields();
+        field.setSourceFileFolder(source);
+        field.setWildcard(wild);
+        field.setConversionTypes(
+            ActionDosToUnix.getConversionTypeCode(
+                ActionDosToUnix.getConversionTypeByDesc(wFields.getNonEmpty(i).getText(3))));
+        fields.add(field);
         nr++;
       }
     }
+    action.setFields(fields);
     dispose();
   }
 

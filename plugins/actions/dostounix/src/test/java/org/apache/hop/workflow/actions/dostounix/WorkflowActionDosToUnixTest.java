@@ -16,40 +16,40 @@
  */
 package org.apache.hop.workflow.actions.dostounix;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WorkflowActionDosToUnixTest
-    extends WorkflowActionLoadSaveTestSupport<ActionDosToUnix> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.junit.jupiter.api.Test;
 
-  @Override
-  protected Class<ActionDosToUnix> getActionClass() {
-    return ActionDosToUnix.class;
+class WorkflowActionDosToUnixTest {
+
+  @Test
+  void testNewSerialization() throws Exception {
+    ActionDosToUnix meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/dos-unix-converter-action.xml", ActionDosToUnix.class);
+
+    assertEquals("success_if_no_errors", meta.getSuccessCondition());
+    assertEquals("nothing", meta.getResultFilenames());
+    assertEquals("10", meta.getNrErrorsLessThan());
+    assertFalse(meta.isArgFromPrevious());
+    assertTrue(meta.isIncludeSubFolders());
   }
 
-  @Override
-  protected List<String> listAttributes() {
-    return Arrays.asList("nr_errors_less_than", "success_condition", "resultfilenames");
-  }
+  @Test
+  public void testClone() throws Exception {
+    ActionDosToUnix meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/dos-unix-converter-action.xml", ActionDosToUnix.class);
 
-  @Override
-  protected Map<String, String> createGettersMap() {
-    return toMap(
-        "nr_errors_less_than", "getNrErrorsLessThan",
-        "success_condition", "getSuccessCondition",
-        "resultfilenames", "getResultFilenames");
-  }
+    ActionDosToUnix clone = (ActionDosToUnix) meta.clone();
 
-  @Override
-  protected Map<String, String> createSettersMap() {
-    return toMap(
-        "nr_errors_less_than", "setNrErrorsLessThan",
-        "success_condition", "setSuccessCondition",
-        "resultfilenames", "setResultFilenames");
+    assertEquals(clone.getSuccessCondition(), meta.getSuccessCondition());
+    assertEquals(clone.getResultFilenames(), meta.getResultFilenames());
+    assertEquals(clone.getNrErrorsLessThan(), meta.getNrErrorsLessThan());
+    assertEquals(clone.isArgFromPrevious(), meta.isArgFromPrevious());
+    assertEquals(clone.isIncludeSubFolders(), meta.isIncludeSubFolders());
   }
 }
