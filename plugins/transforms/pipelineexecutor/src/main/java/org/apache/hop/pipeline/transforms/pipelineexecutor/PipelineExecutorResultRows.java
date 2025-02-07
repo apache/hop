@@ -23,14 +23,17 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 @Getter
 @Setter
-public class PipelineExecutorParameters {
+public class PipelineExecutorResultRows {
 
-  @HopMetadataProperty(key = "variable")
-  private String variable;
+  @HopMetadataProperty(key = "name")
+  private String name;
 
-  @HopMetadataProperty(key = "field")
-  private String field;
+  @HopMetadataProperty(key = "type")
+  private String type;
 
-  @HopMetadataProperty(key = "input")
-  private String input;
+  @HopMetadataProperty(key = "length")
+  private int length;
+
+  @HopMetadataProperty(key = "precision")
+  private int precision;
 }

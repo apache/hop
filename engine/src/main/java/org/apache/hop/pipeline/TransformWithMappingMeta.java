@@ -40,6 +40,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -53,7 +54,8 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
 
   private static final Class<?> PKG = TransformWithMappingMeta.class;
 
-  @HopMetadataProperty protected String filename;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
+  protected String filename;
 
   public TransformWithMappingMeta() {
     super();

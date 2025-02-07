@@ -307,18 +307,19 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     }
 
     // Set parameters, when fields are used take the first row in the set.
-    PipelineExecutorParameters parameters = meta.getParameters();
+    List<PipelineExecutorParameters> parameters = meta.getParameters();
 
     // A map where the final parameters and values are stored.
     Map<String, String> resolvingValuesMap = new LinkedHashMap<>();
-    for (int i = 0; i < parameters.getVariable().length; i++) {
-      resolvingValuesMap.put(parameters.getVariable()[i], null);
-    }
-
-    // The names of the "Fields to use".
+    List<String> resolvingParameters = new ArrayList<>();
     List<String> fieldsToUse = new ArrayList<>();
-    if (parameters.getField() != null) {
-      fieldsToUse = Arrays.asList(parameters.getField());
+    List<String> staticInputs = new ArrayList<>();
+
+    for (PipelineExecutorParameters parameter : parameters) {
+      resolvingParameters.add(parameter.getVariable());
+      resolvingValuesMap.put(parameter.getVariable(), null);
+      fieldsToUse.add(parameter.getField());
+      staticInputs.add(parameter.getInput());
     }
 
     // The names of the incoming fields from the previous transform.
@@ -327,12 +328,9 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       incomingFields = Arrays.asList(data.getInputRowMeta().getFieldNames());
     }
 
-    // The values of the "Static input value".
-    List<String> staticInputs = Arrays.asList(parameters.getInput());
-
     /////////////////////////////////////////////
     // For all parameters declared in pipelineExecutor
-    for (int i = 0; i < parameters.getVariable().length; i++) {
+    for (int i = 0; i < parameters.size(); i++) {
       String currentVariableToUpdate = (String) resolvingValuesMap.keySet().toArray()[i];
       boolean hasIncomingFieldValues =
           incomingFieldValues != null && !incomingFieldValues.isEmpty();
@@ -342,14 +340,14 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
             && hasIncomingFieldValues
             && (!Utils.isEmpty(
                 Const.trim(incomingFieldValues.get(incomingFields.indexOf(fieldsToUse.get(i))))))) {
-          // if field to use is defined on previous transforms ( incomingFields ) and is not empty -
+          // if field to use is defined on previous transforms ( incomingFields ) and is not empty
           // put that value
           resolvingValuesMap.put(
               currentVariableToUpdate,
               incomingFieldValues.get(incomingFields.indexOf(fieldsToUse.get(i))));
         } else {
           if (i < staticInputs.size() && !Utils.isEmpty(Const.trim(staticInputs.get(i)))) {
-            // if we do not have a field to use then check for static input values - if not empty -
+            // if we do not have a field to use then check for static input values - if not empty
             // put that value
             resolvingValuesMap.put(currentVariableToUpdate, staticInputs.get(i));
           } else {
@@ -362,21 +360,22 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
               // this variable
               resolvingValuesMap.put(currentVariableToUpdate, "");
               this.setVariable(
-                  parameters.getVariable()[i], resolvingValuesMap.get(parameters.getVariable()[i]));
+                  parameters.get(i).getVariable(),
+                  resolvingValuesMap.get(parameters.get(i).getVariable()));
             } else {
-              if (!Utils.isEmpty(Const.trim(this.getVariable(parameters.getVariable()[i])))
-                  && meta.getParameters().isInheritingAllVariables()) {
+              if (!Utils.isEmpty(Const.trim(this.getVariable(parameters.get(i).getVariable())))
+                  && meta.isInheritingAllVariables()) {
                 // if everything is empty, then check for last option - parent variables if
                 // isInheriting is checked - if exists - put that value
                 resolvingValuesMap.put(
-                    currentVariableToUpdate, this.getVariable(parameters.getVariable()[i]));
+                    currentVariableToUpdate, this.getVariable(parameters.get(i).getVariable()));
               } else {
                 // last case - if no variables defined - put "" value ( not null)
                 // and also set pipelineExecutor variable - to force create this variable
                 resolvingValuesMap.put(currentVariableToUpdate, "");
                 this.setVariable(
-                    parameters.getVariable()[i],
-                    resolvingValuesMap.get(parameters.getVariable()[i]));
+                    parameters.get(i).getVariable(),
+                    resolvingValuesMap.get(parameters.get(i).getVariable()));
               }
             }
           }
@@ -385,16 +384,17 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         // Set the value to the first parameter in the resolvingValuesMap.
         resolvingValuesMap.put((String) resolvingValuesMap.keySet().toArray()[i], "");
         this.setVariable(
-            parameters.getVariable()[i], resolvingValuesMap.get(parameters.getVariable()[i]));
+            parameters.get(i).getVariable(),
+            resolvingValuesMap.get(parameters.get(i).getVariable()));
       }
     }
     /////////////////////////////////////////////
 
     // Transform the values of the resolvingValuesMap into a String array "inputFieldValues" to be
     // passed as parameter..
-    String[] inputFieldValues = new String[parameters.getVariable().length];
-    for (int i = 0; i < parameters.getVariable().length; i++) {
-      inputFieldValues[i] = resolvingValuesMap.get(parameters.getVariable()[i]);
+    String[] inputFieldValues = new String[parameters.size()];
+    for (int i = 0; i < parameters.size(); i++) {
+      inputFieldValues[i] = resolvingValuesMap.get(parameters.get(i).getVariable());
     }
 
     IPipelineEngine<PipelineMeta> pipeline = getExecutorPipeline();
@@ -403,9 +403,9 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         pipeline,
         this,
         pipeline.listParameters(),
-        parameters.getVariable(),
+        resolvingParameters.toArray(new String[0]),
         inputFieldValues,
-        meta.getParameters().isInheritingAllVariables());
+        meta.isInheritingAllVariables());
   }
 
   @VisibleForTesting

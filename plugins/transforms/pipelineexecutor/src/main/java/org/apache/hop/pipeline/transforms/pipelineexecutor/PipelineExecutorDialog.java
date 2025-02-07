@@ -555,14 +555,13 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
         pipelineExecutorMeta.getOutputRowsSourceTransformMeta() == null
             ? ""
             : pipelineExecutorMeta.getOutputRowsSourceTransformMeta().getName());
-    for (int i = 0; i < pipelineExecutorMeta.getOutputRowsField().length; i++) {
+    for (int i = 0; i < pipelineExecutorMeta.getResultRows().size(); i++) {
       TableItem item = new TableItem(wOutputFields.table, SWT.NONE);
-      item.setText(1, Const.NVL(pipelineExecutorMeta.getOutputRowsField()[i], ""));
-      item.setText(
-          2, ValueMetaFactory.getValueMetaName(pipelineExecutorMeta.getOutputRowsType()[i]));
-      int length = pipelineExecutorMeta.getOutputRowsLength()[i];
+      item.setText(1, Const.NVL(pipelineExecutorMeta.getResultRows().get(i).getName(), ""));
+      item.setText(2, pipelineExecutorMeta.getResultRows().get(i).getType());
+      int length = pipelineExecutorMeta.getResultRows().get(i).getLength();
       item.setText(3, length < 0 ? "" : Integer.toString(length));
-      int precision = pipelineExecutorMeta.getOutputRowsPrecision()[i];
+      int precision = pipelineExecutorMeta.getResultRows().get(i).getPrecision();
       item.setText(4, precision < 0 ? "" : Integer.toString(precision));
     }
     wOutputFields.removeEmptyRows();
@@ -608,7 +607,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     fdGetParameters.bottom = new FormAttachment(100, 0);
     fdGetParameters.right = new FormAttachment(100, 0);
     wGetParameters.setLayoutData(fdGetParameters);
-    wGetParameters.setSelection(pipelineExecutorMeta.getParameters().isInheritingAllVariables());
+    wGetParameters.setSelection(pipelineExecutorMeta.isInheritingAllVariables());
     wGetParameters.addListener(SWT.Selection, e -> getParametersFromPipeline());
 
     // Add a button: get parameters
@@ -621,7 +620,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     fdMapParameters.bottom = new FormAttachment(100, 0);
     fdMapParameters.right = new FormAttachment(wGetParameters, -PropsUi.getMargin());
     wMapParameters.setLayoutData(fdMapParameters);
-    wMapParameters.setSelection(pipelineExecutorMeta.getParameters().isInheritingAllVariables());
+    wMapParameters.setSelection(pipelineExecutorMeta.isInheritingAllVariables());
     wMapParameters.addListener(SWT.Selection, e -> mapFieldsToPipelineParameters());
 
     // Now add a table view with the 3 columns to specify: variable name, input field & optional
@@ -647,14 +646,14 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
         };
     parameterColumns[1].setUsingVariables(true);
 
-    PipelineExecutorParameters parameters = pipelineExecutorMeta.getParameters();
+    List<PipelineExecutorParameters> parameters = pipelineExecutorMeta.getParameters();
     wPipelineExecutorParameters =
         new TableView(
             variables,
             wParametersComposite,
             SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             parameterColumns,
-            parameters.getVariable().length,
+            parameters.size(),
             false,
             null,
             props,
@@ -667,11 +666,11 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     fdPipelineExecutors.bottom = new FormAttachment(wGetParameters, -10);
     wPipelineExecutorParameters.setLayoutData(fdPipelineExecutors);
 
-    for (int i = 0; i < parameters.getVariable().length; i++) {
+    for (int i = 0; i < parameters.size(); i++) {
       TableItem tableItem = wPipelineExecutorParameters.table.getItem(i);
-      tableItem.setText(1, Const.NVL(parameters.getVariable()[i], ""));
-      tableItem.setText(2, Const.NVL(parameters.getField()[i], ""));
-      tableItem.setText(3, Const.NVL(parameters.getInput()[i], ""));
+      tableItem.setText(1, Const.NVL(parameters.get(i).getVariable(), ""));
+      tableItem.setText(2, Const.NVL(parameters.get(i).getField(), ""));
+      tableItem.setText(3, Const.NVL(parameters.get(i).getInput(), ""));
     }
     wPipelineExecutorParameters.setRowNums();
     wPipelineExecutorParameters.optWidth(true);
@@ -686,7 +685,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     fdInheritAll.top = new FormAttachment(wPipelineExecutorParameters, 15);
     fdInheritAll.left = new FormAttachment(0, 0);
     wInheritAll.setLayoutData(fdInheritAll);
-    wInheritAll.setSelection(pipelineExecutorMeta.getParameters().isInheritingAllVariables());
+    wInheritAll.setSelection(pipelineExecutorMeta.isInheritingAllVariables());
 
     FormData fdParametersComposite = new FormData();
     fdParametersComposite.left = new FormAttachment(0, 0);
@@ -1135,8 +1134,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wlOutputFields.setLayoutData(fdlResultFields);
 
     int nrRows =
-        (pipelineExecutorMeta.getOutputRowsField() != null
-            ? pipelineExecutorMeta.getOutputRowsField().length
+        (pipelineExecutorMeta.getResultRows() != null
+            ? pipelineExecutorMeta.getResultRows().size()
             : 1);
 
     ColumnInfo[] ciResultFields =
@@ -1281,22 +1280,18 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
   private void collectInformation() {
     // The parameters...
     //
-    PipelineExecutorParameters parameters = pipelineExecutorMeta.getParameters();
+    List<PipelineExecutorParameters> parameters = pipelineExecutorMeta.getParameters();
 
     int nrLines = wPipelineExecutorParameters.nrNonEmpty();
-    String[] variables = new String[nrLines];
-    String[] fields = new String[nrLines];
-    String[] input = new String[nrLines];
-    parameters.setVariable(variables);
-    parameters.setField(fields);
-    parameters.setInput(input);
     for (int i = 0; i < nrLines; i++) {
+      PipelineExecutorParameters params = new PipelineExecutorParameters();
       TableItem item = wPipelineExecutorParameters.getNonEmpty(i);
-      variables[i] = item.getText(1);
-      fields[i] = item.getText(2);
-      input[i] = item.getText(3);
+      params.setVariable(item.getText(1));
+      params.setField(item.getText(2));
+      params.setInput(item.getText(3));
+      parameters.add(params);
     }
-    parameters.setInheritingAllVariables(wInheritAll.getSelection());
+    pipelineExecutorMeta.setInheritingAllVariables(wInheritAll.getSelection());
 
     // The group definition
     //
@@ -1348,19 +1343,17 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     pipelineExecutorMeta.setOutputRowsSourceTransformMeta(
         pipelineMeta.findTransform(wOutputRowsSource.getText()));
     int nrFields = wOutputFields.nrNonEmpty();
-    pipelineExecutorMeta.setOutputRowsField(new String[nrFields]);
-    pipelineExecutorMeta.setOutputRowsType(new int[nrFields]);
-    pipelineExecutorMeta.setOutputRowsLength(new int[nrFields]);
-    pipelineExecutorMeta.setOutputRowsPrecision(new int[nrFields]);
-
+    List<PipelineExecutorResultRows> resultRows = new ArrayList<>();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wOutputFields.getNonEmpty(i);
-      pipelineExecutorMeta.getOutputRowsField()[i] = item.getText(1);
-      pipelineExecutorMeta.getOutputRowsType()[i] =
-          ValueMetaFactory.getIdForValueMeta(item.getText(2));
-      pipelineExecutorMeta.getOutputRowsLength()[i] = Const.toInt(item.getText(3), -1);
-      pipelineExecutorMeta.getOutputRowsPrecision()[i] = Const.toInt(item.getText(4), -1);
+      PipelineExecutorResultRows pipelineExecutorResultRows = new PipelineExecutorResultRows();
+      pipelineExecutorResultRows.setName(item.getText(1));
+      pipelineExecutorResultRows.setType(item.getText(2));
+      pipelineExecutorResultRows.setLength(Const.toInt(item.getText(3), -1));
+      pipelineExecutorResultRows.setPrecision(Const.toInt(item.getText(4), -1));
+      resultRows.add(pipelineExecutorResultRows);
     }
+    pipelineExecutorMeta.setResultRows(resultRows);
   }
 
   private boolean isSelfReferencing() {

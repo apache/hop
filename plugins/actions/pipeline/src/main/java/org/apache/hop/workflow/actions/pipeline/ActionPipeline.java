@@ -154,7 +154,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(
       key = "filename",
-      hopMetadataPropertyType = HopMetadataPropertyType.FILE_REFERENCE)
+      hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
   private String filename;
 
   @HopMetadataProperty(key = "params_from_previous")

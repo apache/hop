@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
@@ -28,6 +30,8 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 @SuppressWarnings("java:S1104")
+@Getter
+@Setter
 public class PipelineExecutorData extends BaseTransformData implements ITransformData {
   private IPipelineEngine<PipelineMeta> executorPipeline;
   private PipelineMeta executorPipelineMeta;
@@ -57,101 +61,5 @@ public class PipelineExecutorData extends BaseTransformData implements ITransfor
 
   public PipelineExecutorData() {
     super();
-  }
-
-  /**
-   * Gets executorPipeline
-   *
-   * @return value of executorPipeline
-   */
-  public IPipelineEngine<PipelineMeta> getExecutorPipeline() {
-    return executorPipeline;
-  }
-
-  /**
-   * @param executorPipeline The executorPipeline to set
-   */
-  public void setExecutorPipeline(IPipelineEngine<PipelineMeta> executorPipeline) {
-    this.executorPipeline = executorPipeline;
-  }
-
-  public PipelineMeta getExecutorPipelineMeta() {
-    return executorPipelineMeta;
-  }
-
-  public void setExecutorPipelineMeta(PipelineMeta executorPipelineMeta) {
-    this.executorPipelineMeta = executorPipelineMeta;
-  }
-
-  public IRowMeta getInputRowMeta() {
-    return inputRowMeta;
-  }
-
-  public void setInputRowMeta(IRowMeta inputRowMeta) {
-    this.inputRowMeta = inputRowMeta;
-  }
-
-  public IRowMeta getExecutorTransformOutputRowMeta() {
-    return executorTransformOutputRowMeta;
-  }
-
-  public void setExecutorTransformOutputRowMeta(IRowMeta executorTransformOutputRowMeta) {
-    this.executorTransformOutputRowMeta = executorTransformOutputRowMeta;
-  }
-
-  public IRowMeta getResultRowsOutputRowMeta() {
-    return resultRowsOutputRowMeta;
-  }
-
-  public void setResultRowsOutputRowMeta(IRowMeta resultRowsOutputRowMeta) {
-    this.resultRowsOutputRowMeta = resultRowsOutputRowMeta;
-  }
-
-  public IRowMeta getExecutionResultsOutputRowMeta() {
-    return executionResultsOutputRowMeta;
-  }
-
-  public void setExecutionResultsOutputRowMeta(IRowMeta executionResultsOutputRowMeta) {
-    this.executionResultsOutputRowMeta = executionResultsOutputRowMeta;
-  }
-
-  public IRowMeta getResultFilesOutputRowMeta() {
-    return resultFilesOutputRowMeta;
-  }
-
-  public void setResultFilesOutputRowMeta(IRowMeta resultFilesOutputRowMeta) {
-    this.resultFilesOutputRowMeta = resultFilesOutputRowMeta;
-  }
-
-  public IRowSet getExecutorTransformOutputRowSet() {
-    return executorTransformOutputRowSet;
-  }
-
-  public void setExecutorTransformOutputRowSet(IRowSet executorTransformOutputRowSet) {
-    this.executorTransformOutputRowSet = executorTransformOutputRowSet;
-  }
-
-  public IRowSet getResultRowsRowSet() {
-    return resultRowsRowSet;
-  }
-
-  public void setResultRowsRowSet(IRowSet resultRowsRowSet) {
-    this.resultRowsRowSet = resultRowsRowSet;
-  }
-
-  public IRowSet getResultFilesRowSet() {
-    return resultFilesRowSet;
-  }
-
-  public void setResultFilesRowSet(IRowSet resultFilesRowSet) {
-    this.resultFilesRowSet = resultFilesRowSet;
-  }
-
-  public IRowSet getExecutionResultRowSet() {
-    return executionResultRowSet;
-  }
-
-  public void setExecutionResultRowSet(IRowSet executionResultRowSet) {
-    this.executionResultRowSet = executionResultRowSet;
   }
 }
