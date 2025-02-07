@@ -50,13 +50,13 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
@@ -72,8 +72,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/http.html")
 @Getter
 @Setter
-public class ActionHttp extends ActionBase implements Cloneable, IAction {
-  public static final String SPACES = "      ";
+public class ActionHttp extends ActionBase {
   private static final Class<?> PKG = ActionHttp.class;
 
   private static final String CONST_URL_FIELDNAME = "URL";
@@ -86,171 +85,103 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
   public static final String CONST_HTTP_NON_PROXY_HOSTS = "http.nonProxyHosts";
 
   // Base info
+  @HopMetadataProperty(key = "url")
   private String url;
 
+  @HopMetadataProperty(key = "targetfilename")
   private String targetFilename;
 
+  @HopMetadataProperty(key = "file_appended")
   private boolean fileAppended;
 
+  @HopMetadataProperty(key = "date_time_added")
   private boolean dateTimeAdded;
 
+  @HopMetadataProperty(key = "targetfilename_extension")
   private String targetFilenameExtension;
 
   // Send file content to server?
+  @HopMetadataProperty(key = "uploadfilename")
   private String uploadFilename;
 
   // The fieldname that contains the URL
   // Get it from a previous pipeline with Result.
+  @HopMetadataProperty(key = "url_fieldname")
   private String urlFieldname;
+
+  @HopMetadataProperty(key = "upload_fieldname")
   private String uploadFieldname;
+
+  @HopMetadataProperty(key = "dest_fieldname")
   private String destinationFieldname;
 
+  @HopMetadataProperty(key = "run_every_row")
   private boolean runForEveryRow;
 
+  @HopMetadataProperty(key = "ignore_ssl")
   private boolean ignoreSsl;
 
   // Proxy settings
+  @HopMetadataProperty(key = "proxy_host")
   private String proxyHostname;
 
+  @HopMetadataProperty(key = "proxy_port")
   private String proxyPort;
 
+  @HopMetadataProperty(key = "non_proxy_hosts")
   private String nonProxyHosts;
 
+  @HopMetadataProperty(key = "username")
   private String username;
 
+  @HopMetadataProperty(key = "password", password = true)
   private String password;
 
-  private boolean addfilenameresult;
+  @HopMetadataProperty(key = "addfilenameresult")
+  private boolean addFilenameResult;
 
-  private String[] headerName;
-
-  private String[] headerValue;
+  @HopMetadataProperty(key = "header", groupKey = "headers")
+  private List<Header> headers;
 
   public ActionHttp(String n) {
     super(n, "");
     url = null;
-    addfilenameresult = true;
+    addFilenameResult = true;
   }
 
   public ActionHttp() {
     this("");
   }
 
-  private void allocate(int nrHeaders) {
-    headerName = new String[nrHeaders];
-    headerValue = new String[nrHeaders];
-  }
-
+  /**
+   * @deprecated keep for backwards compatibility
+   * @param entrynode the top-level XML node
+   * @param metadataProvider The metadataProvider to optionally load from.
+   * @param variables
+   * @throws HopXmlException
+   */
   @Override
-  public Object clone() {
-    ActionHttp je = (ActionHttp) super.clone();
-    if (headerName != null) {
-      int nrHeaders = headerName.length;
-      je.allocate(nrHeaders);
-      System.arraycopy(headerName, 0, je.headerName, 0, nrHeaders);
-      System.arraycopy(headerValue, 0, je.headerValue, 0, nrHeaders);
-    }
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append(super.getXml());
-    retval.append(SPACES).append(XmlHandler.addTagValue("url", url));
-    retval.append(SPACES).append(XmlHandler.addTagValue("targetfilename", targetFilename));
-    retval.append(SPACES).append(XmlHandler.addTagValue("file_appended", fileAppended));
-    retval.append(SPACES).append(XmlHandler.addTagValue("date_time_added", dateTimeAdded));
-    retval
-        .append(SPACES)
-        .append(XmlHandler.addTagValue("targetfilename_extension", targetFilenameExtension));
-    retval.append(SPACES).append(XmlHandler.addTagValue("uploadfilename", uploadFilename));
-
-    retval.append(SPACES).append(XmlHandler.addTagValue("run_every_row", runForEveryRow));
-    retval.append(SPACES).append(XmlHandler.addTagValue("ignore_ssl", ignoreSsl));
-    retval.append(SPACES).append(XmlHandler.addTagValue("url_fieldname", urlFieldname));
-    retval.append(SPACES).append(XmlHandler.addTagValue("upload_fieldname", uploadFieldname));
-    retval.append(SPACES).append(XmlHandler.addTagValue("dest_fieldname", destinationFieldname));
-
-    retval.append(SPACES).append(XmlHandler.addTagValue("username", username));
-    retval
-        .append(SPACES)
-        .append(
-            XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
-
-    retval.append(SPACES).append(XmlHandler.addTagValue("proxy_host", proxyHostname));
-    retval.append(SPACES).append(XmlHandler.addTagValue("proxy_port", proxyPort));
-    retval.append(SPACES).append(XmlHandler.addTagValue("non_proxy_hosts", nonProxyHosts));
-    retval.append(SPACES).append(XmlHandler.addTagValue("addfilenameresult", addfilenameresult));
-    retval.append("      <headers>").append(Const.CR);
-    if (headerName != null) {
-      for (int i = 0; i < headerName.length; i++) {
-        retval.append("        <header>").append(Const.CR);
-        retval.append("          ").append(XmlHandler.addTagValue("header_name", headerName[i]));
-        retval.append("          ").append(XmlHandler.addTagValue("header_value", headerValue[i]));
-        retval.append("        </header>").append(Const.CR);
-      }
-    }
-    retval.append("      </headers>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  @Override
+  @Deprecated(since = "2.13")
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
-      super.loadXml(entrynode);
-      url = XmlHandler.getTagValue(entrynode, "url");
-      targetFilename = XmlHandler.getTagValue(entrynode, "targetfilename");
-      fileAppended = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "file_appended"));
-      dateTimeAdded = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "date_time_added"));
+      super.loadXml(entrynode, metadataProvider, variables);
+      // Keep
       targetFilenameExtension =
           Const.NVL(
               XmlHandler.getTagValue(entrynode, "targetfilename_extension"),
               XmlHandler.getTagValue(entrynode, "targetfilename_extention"));
-
-      uploadFilename = XmlHandler.getTagValue(entrynode, "uploadfilename");
-
-      urlFieldname = XmlHandler.getTagValue(entrynode, "url_fieldname");
-      uploadFieldname = XmlHandler.getTagValue(entrynode, "upload_fieldname");
-      destinationFieldname = XmlHandler.getTagValue(entrynode, "dest_fieldname");
-      runForEveryRow = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "run_every_row"));
-      ignoreSsl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "ignore_ssl"));
-
-      username = XmlHandler.getTagValue(entrynode, "username");
-      password =
-          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
-
-      proxyHostname = XmlHandler.getTagValue(entrynode, "proxy_host");
-      proxyPort = XmlHandler.getTagValue(entrynode, "proxy_port");
-      nonProxyHosts = XmlHandler.getTagValue(entrynode, "non_proxy_hosts");
-      addfilenameresult =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(XmlHandler.getTagValue(entrynode, "addfilenameresult"), "Y"));
-      Node headers = XmlHandler.getSubNode(entrynode, "headers");
-
-      // How many field headerName?
-      int nrHeaders = XmlHandler.countNodes(headers, "header");
-      allocate(nrHeaders);
-      for (int i = 0; i < nrHeaders; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(headers, "header", i);
-        headerName[i] = XmlHandler.getTagValue(fnode, "header_name");
-        headerValue[i] = XmlHandler.getTagValue(fnode, "header_value");
-      }
     } catch (HopXmlException xe) {
       throw new HopXmlException("Unable to load action of type 'HTTP' from XML node", xe);
     }
   }
 
   public boolean isAddFilenameToResult() {
-    return addfilenameresult;
+    return addFilenameResult;
   }
 
   public void setAddFilenameToResult(boolean addfilenameresult) {
-    this.addfilenameresult = addfilenameresult;
+    this.addFilenameResult = addfilenameresult;
   }
 
   /**
@@ -381,20 +312,22 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
         }
 
         // if we have HTTP headers, add them
-        if (!Utils.isEmpty(headerName)) {
+        if (headers != null && !headers.isEmpty()) {
           if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "ActionHTTP.Log.HeadersProvided"));
           }
-          for (int j = 0; j < headerName.length; j++) {
-            if (!Utils.isEmpty(headerValue[j])) {
-              connection.setRequestProperty(resolve(headerName[j]), resolve(headerValue[j]));
+          for (int j = 0; j < headers.size(); j++) {
+            if (!Utils.isEmpty(headers.get(i).getHeaderValue())) {
+              connection.setRequestProperty(
+                  resolve(headers.get(i).getHeaderName()),
+                  resolve(headers.get(i).getHeaderValue()));
               if (isDebug()) {
                 logDebug(
                     BaseMessages.getString(
                         PKG,
                         "ActionHTTP.Log.HeaderSet",
-                        resolve(headerName[j]),
-                        resolve(headerValue[j])));
+                        resolve(headers.get(i).getHeaderName()),
+                        resolve(headers.get(i).getHeaderValue())));
               }
             }
           }
@@ -454,7 +387,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
             BaseMessages.getString(
                 PKG, "ActionHTTP.Log.FinisedWritingReply", bytesRead, realTargetFile));
 
-        if (addfilenameresult) {
+        if (addFilenameResult) {
           // Add to the result files...
           ResultFile resultFile =
               new ResultFile(
@@ -560,5 +493,16 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
             "proxyPort",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.integerValidator()));
+  }
+
+  @Getter
+  @Setter
+  public static final class Header {
+
+    @HopMetadataProperty(key = "header_name")
+    private String headerName;
+
+    @HopMetadataProperty(key = "header_value")
+    private String headerValue;
   }
 }

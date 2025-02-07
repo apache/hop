@@ -17,57 +17,62 @@
 
 package org.apache.hop.workflow.actions.http;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ActionHttpLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionHttp> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-  @Override
-  protected Class<ActionHttp> getActionClass() {
-    return ActionHttp.class;
+class ActionHttpLoadSaveTest {
+
+  @BeforeAll
+  static void beforeClass() throws HopException {
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
+    PluginRegistry.init();
+    String passwordEncoderPluginID =
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
   }
 
-  @Override
-  protected List<String> listAttributes() {
-    return Arrays.asList(
-        "url",
-        "targetFilename",
-        "fileAppended",
-        "dateTimeAdded",
-        "targetFilenameExtension",
-        "uploadFilename",
-        "runForEveryRow",
-        "urlFieldname",
-        "uploadFieldname",
-        "destinationFieldname",
-        "username",
-        "password",
-        "proxyHostname",
-        "proxyPort",
-        "nonProxyHosts",
-        "addFilenameToResult",
-        "headerName",
-        "headerValue");
+  @Test
+  void testSerialization() throws Exception {
+    ActionHttp meta =
+        ActionSerializationTestUtil.testSerialization("/http-action.xml", ActionHttp.class);
+
+    assertEquals("url", meta.getUrl());
+    assertEquals("/target/file.csv", meta.getTargetFilename());
+    assertEquals("/tmp/file.csv", meta.getUploadFilename());
+    assertEquals("username", meta.getUsername());
+    assertEquals("proxy", meta.getProxyHostname());
+    assertEquals("8080", meta.getProxyPort());
+    assertEquals(2, meta.getHeaders().size());
+    assertTrue(meta.isIgnoreSsl());
+    assertFalse(meta.isRunForEveryRow());
   }
 
-  @Override
-  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    int entries = new Random().nextInt(20) + 1;
-    validators.put(
-        "headerName", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
-    validators.put(
-        "headerValue", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
-    return validators;
+  @Test
+  void testClone() throws Exception {
+    ActionHttp meta =
+        ActionSerializationTestUtil.testSerialization("/http-action.xml", ActionHttp.class);
+
+    ActionHttp clone = (ActionHttp) meta.clone();
+
+    assertEquals(clone.getUrl(), meta.getUrl());
+    assertEquals(clone.getTargetFilename(), meta.getTargetFilename());
+    assertEquals(clone.getUploadFilename(), meta.getUploadFilename());
+    assertEquals(clone.getUsername(), meta.getUsername());
+    assertEquals(clone.getProxyHostname(), meta.getProxyHostname());
+    assertEquals(clone.getProxyPort(), meta.getProxyPort());
+    assertEquals(clone.getHeaders().size(), meta.getHeaders().size());
+    assertEquals(clone.isIgnoreSsl(), meta.isIgnoreSsl());
+    assertEquals(clone.isRunForEveryRow(), meta.isRunForEveryRow());
   }
 }
