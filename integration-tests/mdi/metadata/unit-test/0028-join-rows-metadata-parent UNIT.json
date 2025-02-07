@@ -1,0 +1,33 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "field1",
+          "data_set_field": "field1"
+        },
+        {
+          "transform_field": "field2",
+          "data_set_field": "field2"
+        }
+      ],
+      "field_order": [
+        "field1",
+        "field2"
+      ],
+      "data_set_name": "golden-join-rows",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0028-join-rows-metadata-parent UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0028-join-rows-metadata-parent.hpl"
+}

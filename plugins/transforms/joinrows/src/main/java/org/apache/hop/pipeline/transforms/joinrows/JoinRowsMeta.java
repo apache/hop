@@ -19,27 +19,24 @@ package org.apache.hop.pipeline.transforms.joinrows;
 
 import java.io.File;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Condition;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IStringObjectConverter;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
-@InjectionSupported(localizationPrefix = "JoinRows.Injection.")
 @Transform(
     id = "JoinRows",
     image = "joinrows.svg",
@@ -48,159 +45,50 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::JoinRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/joinrows.html")
+@Getter
+@Setter
 public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
   private static final Class<?> PKG = JoinRowsMeta.class;
-  public static final String CONST_SPACES = "      ";
 
-  @Injection(name = "TEMP_DIR")
+  @HopMetadataProperty(
+      key = "directory",
+      injectionKey = "TEMP_DIR",
+      injectionKeyDescription = "JoinRows.Injection.TEMP_DIR")
   private String directory;
 
-  @Injection(name = "TEMP_FILE_PREFIX")
+  @HopMetadataProperty(
+      key = "prefix",
+      injectionKey = "TEMP_FILE_PREFIX",
+      injectionKeyDescription = "JoinRows.Injection.TEMP_FILE_PREFIX")
   private String prefix;
 
-  @Injection(name = "MAX_CACHE_SIZE")
+  @HopMetadataProperty(
+      key = "cache_size",
+      injectionKey = "MAX_CACHE_SIZE",
+      injectionKeyDescription = "JoinRows.Injection.MAX_CACHE_SIZE")
   private int cacheSize;
 
   /** Which transform is providing the lookup data? */
   private TransformMeta mainTransform;
 
   /** Which transform is providing the lookup data? */
-  @Injection(name = "MAIN_TRANSFORM")
+  @HopMetadataProperty(
+      key = "main",
+      injectionKey = "MAIN_TRANSFORM",
+      injectionKeyDescription = "JoinRows.Injection.MAIN_TRANSFORM")
   private String mainTransformName;
 
   /** Optional condition to limit the join (where clause) */
-  private Condition condition;
-
-  /**
-   * @return Returns the lookupFromTransform.
-   */
-  public TransformMeta getMainTransform() {
-    return mainTransform;
-  }
-
-  /**
-   * @param lookupFromTransform The lookupFromTransform to set.
-   */
-  public void setMainTransform(TransformMeta lookupFromTransform) {
-    this.mainTransform = lookupFromTransform;
-  }
-
-  /**
-   * @return Returns the lookupFromTransformName.
-   */
-  public String getMainTransformName() {
-    return mainTransformName;
-  }
-
-  /**
-   * @param lookupFromTransformName The lookupFromTransformName to set.
-   */
-  public void setMainTransformName(String lookupFromTransformName) {
-    this.mainTransformName = lookupFromTransformName;
-  }
-
-  /**
-   * @param cacheSize The cacheSize to set.
-   */
-  public void setCacheSize(int cacheSize) {
-    this.cacheSize = cacheSize;
-  }
-
-  /**
-   * @return Returns the cacheSize.
-   */
-  public int getCacheSize() {
-    return cacheSize;
-  }
-
-  /**
-   * @return Returns the directory.
-   */
-  public String getDirectory() {
-    return directory;
-  }
-
-  /**
-   * @param directory The directory to set.
-   */
-  public void setDirectory(String directory) {
-    this.directory = directory;
-  }
-
-  /**
-   * @return Returns the prefix.
-   */
-  public String getPrefix() {
-    return prefix;
-  }
-
-  /**
-   * @param prefix The prefix to set.
-   */
-  public void setPrefix(String prefix) {
-    this.prefix = prefix;
-  }
-
-  /**
-   * @return Returns the condition.
-   */
-  public Condition getCondition() {
-    return condition;
-  }
-
-  /**
-   * @param condition The condition to set.
-   */
-  public void setCondition(Condition condition) {
-    this.condition = condition;
-  }
-
-  @Injection(name = "CONDITION")
-  public void setCondition(String conditionXML) throws Exception {
-    condition = new Condition(conditionXML);
-  }
+  @HopMetadataProperty(
+      key = "compare",
+      injectionKey = "CONDITION",
+      injectionKeyDescription = "JoinRows.Injection.CONDITION",
+      injectionStringObjectConverter = ConditionXmlConverter.class)
+  private JRCompare compare;
 
   public JoinRowsMeta() {
     super(); // allocate BaseTransformMeta
-    condition = new Condition();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
-  public Object clone() {
-    JoinRowsMeta retval = (JoinRowsMeta) super.clone();
-
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      directory = XmlHandler.getTagValue(transformNode, "directory");
-      prefix = XmlHandler.getTagValue(transformNode, "prefix");
-      cacheSize = Const.toInt(XmlHandler.getTagValue(transformNode, "cache_size"), -1);
-
-      mainTransformName = XmlHandler.getTagValue(transformNode, "main");
-
-      Node compare = XmlHandler.getSubNode(transformNode, "compare");
-      Node condnode = XmlHandler.getSubNode(compare, "condition");
-
-      // The new situation...
-      if (condnode != null) {
-        condition = new Condition(condnode);
-      } else {
-        condition = new Condition();
-      }
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "JoinRowsMeta.Exception.UnableToReadTransformMetaFromXML"),
-          e);
-    }
+    compare = new JRCompare();
   }
 
   @Override
@@ -208,32 +96,7 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
     directory = "%%java.io.tmpdir%%";
     prefix = "out";
     cacheSize = 500;
-
     mainTransformName = null;
-  }
-
-  @Override
-  public String getXml() throws HopException {
-    StringBuilder xml = new StringBuilder(300);
-
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("directory", directory));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("prefix", prefix));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("cache_size", cacheSize));
-
-    if (mainTransformName == null) {
-      mainTransformName = getLookupTransformName();
-    }
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("main", mainTransformName));
-
-    xml.append("    <compare>").append(Const.CR);
-
-    if (condition != null) {
-      xml.append(condition.getXml());
-    }
-
-    xml.append("    </compare>").append(Const.CR);
-
-    return xml.toString();
   }
 
   @Override
@@ -273,7 +136,7 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
@@ -347,7 +210,7 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
   public String getLookupTransformName() {
     if (mainTransform != null
         && mainTransform.getName() != null
-        && mainTransform.getName().length() > 0) {
+        && !mainTransform.getName().isEmpty()) {
       return mainTransform.getName();
     }
     return null;
@@ -380,5 +243,53 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
     }
 
     return hasChanged;
+  }
+
+  public static final class ConditionXmlConverter implements IStringObjectConverter {
+    @Override
+    public String getString(Object object) throws HopException {
+      if (!(object instanceof Condition)) {
+        throw new HopException("We only support XML serialization of Condition objects here");
+      }
+      try {
+        return ((Condition) object).getXml();
+      } catch (Exception e) {
+        throw new HopException("Error serializing Condition to XML", e);
+      }
+    }
+
+    @Override
+    public Object getObject(String xml) throws HopException {
+      try {
+        return new Condition(xml);
+      } catch (Exception e) {
+        throw new HopException("Error serializing Condition from XML", e);
+      }
+    }
+  }
+
+  @Getter
+  @Setter
+  public static final class JRCompare {
+    @HopMetadataProperty(key = "condition")
+    private Condition condition;
+
+    public JRCompare() {
+      condition = new Condition();
+    }
+  }
+
+  /**
+   * @return Returns the condition.
+   */
+  public Condition getCondition() {
+    return compare.condition;
+  }
+
+  /**
+   * @param condition The condition to set.
+   */
+  public void setCondition(Condition condition) {
+    this.compare.condition = condition;
   }
 }
