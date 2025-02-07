@@ -1,0 +1,31 @@
+{
+  "virtualPath": "",
+  "rdbms": {
+    "MSSQLNATIVE": {
+      "databaseName": "${MSSQL_DATABASE}",
+      "instanceName": "",
+      "pluginId": "MSSQLNATIVE",
+      "usingDoubleDigit": false,
+      "usingIntegratedSecurity": false,
+      "accessType": 0,
+      "hostname": "${MSSQL_HOST}",
+      "password": "${MSSQL_PASSWORD}",
+      "pluginName": "MS SQL Server (Native)",
+      "port": "${MSSQL_PORT}",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": "",
+        "EXTRA_OPTION_MSSQLNATIVE.encrypt": "false"
+      },
+      "manualUrl": "",
+      "username": "${MSSQL_USER}"
+    }
+  },
+  "name": "mssql-test-db"
+}

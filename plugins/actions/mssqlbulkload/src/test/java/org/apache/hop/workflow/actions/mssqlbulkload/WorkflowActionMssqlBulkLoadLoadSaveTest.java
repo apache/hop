@@ -17,15 +17,17 @@
 
 package org.apache.hop.workflow.actions.mssqlbulkload;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.util.Arrays;
 import java.util.List;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.Test;
 
 public class WorkflowActionMssqlBulkLoadLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionMssqlBulkLoad> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
   protected Class<ActionMssqlBulkLoad> getActionClass() {
@@ -35,20 +37,20 @@ public class WorkflowActionMssqlBulkLoadLoadSaveTest
   @Override
   protected List<String> listAttributes() {
     return Arrays.asList(
-        "schemaname",
-        "tablename",
-        "filename",
+        "schemaName",
+        "tableName",
+        "fileName",
         "dataFileType",
         "fieldTerminator",
-        "lineterminated",
+        "lineTerminated",
         "codePage",
         "specificCodePage",
-        "formatFilename",
+        "formatFileName",
         "fireTriggers",
         "checkConstraints",
         "keepNulls",
         "keepIdentity",
-        "tablock",
+        "tabLock",
         "startFile",
         "endFile",
         "orderBy",
@@ -56,10 +58,50 @@ public class WorkflowActionMssqlBulkLoadLoadSaveTest
         "maxErrors",
         "batchSize",
         "rowsPerBatch",
-        "errorFilename",
+        "errorFileName",
         "addDatetime",
         "addFileToResult",
         "truncate",
-        "database");
+        "connection");
+  }
+
+  @Test
+  public void testNewSerialization() throws Exception {
+    ActionMssqlBulkLoad meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/mssql-bulkloader-action.xml", ActionMssqlBulkLoad.class);
+
+    assertEquals("dbo", meta.getSchemaName());
+    assertEquals("[test-table]", meta.getTableName());
+    assertEquals("/tmp/mssql_bulkload.csv", meta.getFileName());
+    assertEquals("char", meta.getDataFileType());
+    assertEquals(",", meta.getFieldTerminator());
+    assertEquals("RAW", meta.getCodePage());
+    assertEquals("mssql-test-db", meta.getConnection());
+    assertFalse(meta.isFireTriggers());
+    assertFalse(meta.isCheckConstraints());
+    assertFalse(meta.isKeepIdentity());
+    assertFalse(meta.isKeepNulls());
+  }
+
+  @Test
+  public void testClone() throws Exception {
+    ActionMssqlBulkLoad meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/mssql-bulkloader-action.xml", ActionMssqlBulkLoad.class);
+
+    ActionMssqlBulkLoad clone = (ActionMssqlBulkLoad) meta.clone();
+
+    assertEquals(clone.getSchemaName(), meta.getSchemaName());
+    assertEquals(clone.getTableName(), meta.getTableName());
+    assertEquals(clone.getFileName(), meta.getFileName());
+    assertEquals(clone.getDataFileType(), meta.getDataFileType());
+    assertEquals(clone.getFieldTerminator(), meta.getFieldTerminator());
+    assertEquals(clone.getCodePage(), meta.getCodePage());
+    assertEquals(clone.getConnection(), meta.getConnection());
+    assertEquals(clone.isFireTriggers(), meta.isFireTriggers());
+    assertEquals(clone.isCheckConstraints(), meta.isCheckConstraints());
+    assertEquals(clone.isKeepIdentity(), meta.isKeepIdentity());
+    assertEquals(clone.isKeepNulls(), meta.isKeepNulls());
   }
 }

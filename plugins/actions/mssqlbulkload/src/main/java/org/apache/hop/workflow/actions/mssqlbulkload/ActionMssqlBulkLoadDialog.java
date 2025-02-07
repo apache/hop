@@ -224,7 +224,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     wConnectionGroup.setLayout(connectionGroupLayout);
 
     // Connection line
-    wConnection = addConnectionLine(wConnectionGroup, wName, action.getDatabase(), lsMod);
+    wConnection = addConnectionLine(wConnectionGroup, wName, action.getConnection(), lsMod);
 
     // Schema name line
     // Schema name
@@ -1057,17 +1057,17 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.NVL(action.getName(), ""));
-    if (action.getDatabase() != null) {
-      wConnection.setText(action.getDatabase().getName());
+    if (action.getConnection() != null) {
+      wConnection.setText(action.getConnection());
     }
-    if (action.getSchemaname() != null) {
-      wSchemaname.setText(action.getSchemaname());
+    if (action.getSchemaName() != null) {
+      wSchemaname.setText(action.getSchemaName());
     }
-    if (action.getTablename() != null) {
-      wTablename.setText(action.getTablename());
+    if (action.getTableName() != null) {
+      wTablename.setText(action.getTableName());
     }
-    if (action.getFilename() != null) {
-      wFilename.setText(action.getFilename());
+    if (action.getFileName() != null) {
+      wFilename.setText(action.getFileName());
     }
     if (action.getDataFileType() != null) {
       wDataFiletype.setText(action.getDataFileType());
@@ -1075,8 +1075,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     if (action.getFieldTerminator() != null) {
       wFieldTerminator.setText(action.getFieldTerminator());
     }
-    if (action.getLineterminated() != null) {
-      wLineterminated.setText(action.getLineterminated());
+    if (action.getLineTerminated() != null) {
+      wLineterminated.setText(action.getLineTerminated());
     }
     if (action.getCodePage() != null) {
       wCodePage.setText(action.getCodePage());
@@ -1086,8 +1086,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     if (action.getSpecificCodePage() != null) {
       wSpecificCodePage.setText(action.getSpecificCodePage());
     }
-    if (action.getFormatFilename() != null) {
-      wFormatFilename.setText(action.getFormatFilename());
+    if (action.getFormatFileName() != null) {
+      wFormatFilename.setText(action.getFormatFileName());
     }
 
     wFireTriggers.setSelection(action.isFireTriggers());
@@ -1095,7 +1095,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     wKeepNulls.setSelection(action.isKeepNulls());
     wKeepIdentity.setSelection(action.isKeepIdentity());
 
-    wTablock.setSelection(action.isTablock());
+    wTablock.setSelection(action.isTabLock());
 
     wStartFile.setText("" + action.getStartFile());
     wEndFile.setText("" + action.getEndFile());
@@ -1113,8 +1113,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
       wOrderDirection.select(0);
     }
 
-    if (action.getErrorFilename() != null) {
-      wErrorFilename.setText(action.getErrorFilename());
+    if (action.getErrorFileName() != null) {
+      wErrorFilename.setText(action.getErrorFileName());
     }
 
     wMaxErrors.setText("" + action.getMaxErrors());
@@ -1145,22 +1145,22 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
-    action.setSchemaname(wSchemaname.getText());
-    action.setTablename(wTablename.getText());
-    action.setFilename(wFilename.getText());
+    action.setConnection(wConnection.getText());
+    action.setSchemaName(wSchemaname.getText());
+    action.setTableName(wTablename.getText());
+    action.setFileName(wFilename.getText());
     action.setDataFileType(wDataFiletype.getText());
     action.setFieldTerminator(wFieldTerminator.getText());
-    action.setLineterminated(wLineterminated.getText());
+    action.setLineTerminated(wLineterminated.getText());
     action.setCodePage(wCodePage.getText());
     action.setSpecificCodePage(wSpecificCodePage.getText());
-    action.setFormatFilename(wFormatFilename.getText());
+    action.setFormatFileName(wFormatFilename.getText());
     action.setFireTriggers(wFireTriggers.getSelection());
     action.setCheckConstraints(wCheckConstraints.getSelection());
     action.setKeepNulls(wKeepNulls.getSelection());
     action.setKeepIdentity(wKeepIdentity.getSelection());
 
-    action.setTablock(wTablock.getSelection());
+    action.setTabLock(wTablock.getSelection());
 
     action.setStartFile(Const.toInt(wStartFile.getText(), 0));
     action.setEndFile(Const.toInt(wEndFile.getText(), 0));
@@ -1171,7 +1171,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
       action.setOrderDirection("Desc");
     }
 
-    action.setErrorFilename(wErrorFilename.getText());
+    action.setErrorFileName(wErrorFilename.getText());
     action.setMaxErrors(Const.toInt(wMaxErrors.getText(), 0));
     action.setBatchSize(Const.toInt(wBatchSize.getText(), 0));
     action.setRowsPerBatch(Const.toInt(wRowsPerBatch.getText(), 0));
