@@ -19,6 +19,8 @@ package org.apache.hop.workflow.actions.mysqlbulkload;
 
 import java.io.File;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
@@ -31,24 +33,21 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
 
 /** This defines a MySQL action. */
 @Action(
@@ -59,138 +58,76 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
     keywords = "i18n::ActionMysqlBulkLoad.keyword",
     documentationUrl = "/workflow/actions/mysqlbulkload.html")
-public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IAction {
+@Getter
+@Setter
+public class ActionMysqlBulkLoad extends ActionBase {
   private static final Class<?> PKG = ActionMysqlBulkLoad.class;
-  public static final String CONST_SPACES = "      ";
-  public static final String CONST_TABLENAME = "tablename";
-  public static final String CONST_FILENAME = "filename";
 
-  private String schemaname;
+  @HopMetadataProperty(key = "schemaname")
+  private String schemaName;
+
+  @HopMetadataProperty(key = "tablename")
   private String tableName;
-  private String filename;
-  private String separator;
-  private String enclosed;
-  private String escaped;
-  private String linestarted;
-  private String lineterminated;
-  private String ignorelines;
-  private boolean replacedata;
-  private String listattribut;
-  private boolean localinfile;
-  public int prorityvalue;
-  private boolean addfiletoresult;
 
-  private DatabaseMeta connection;
+  @HopMetadataProperty(key = "filename")
+  private String fileName;
+
+  @HopMetadataProperty(key = "separator")
+  private String separator;
+
+  @HopMetadataProperty(key = "enclosed")
+  private String enclosed;
+
+  @HopMetadataProperty(key = "escaped")
+  private String escaped;
+
+  @HopMetadataProperty(key = "linestarted")
+  private String lineStarted;
+
+  @HopMetadataProperty(key = "lineterminated")
+  private String lineTerminated;
+
+  @HopMetadataProperty(key = "ignorelines")
+  private String ignoreLines;
+
+  @HopMetadataProperty(key = "replacedata")
+  private boolean replaceData;
+
+  @HopMetadataProperty(key = "listattribut")
+  private String listAttribute;
+
+  @HopMetadataProperty(key = "localinfile")
+  private boolean localInFile;
+
+  @HopMetadataProperty(key = "prorityvalue")
+  public int prorityValue;
+
+  @HopMetadataProperty(key = "addfiletoresult")
+  private boolean addFileToResult;
+
+  @HopMetadataProperty(key = "connection")
+  private String connection;
 
   public ActionMysqlBulkLoad(String n) {
     super(n, "");
     tableName = null;
-    schemaname = null;
-    filename = null;
+    schemaName = null;
+    fileName = null;
     separator = null;
     enclosed = null;
     escaped = null;
-    lineterminated = null;
-    linestarted = null;
-    replacedata = true;
-    ignorelines = "0";
-    listattribut = null;
-    localinfile = true;
+    lineTerminated = null;
+    lineStarted = null;
+    replaceData = true;
+    ignoreLines = "0";
+    listAttribute = null;
+    localInFile = true;
     connection = null;
-    addfiletoresult = false;
+    addFileToResult = false;
   }
 
   public ActionMysqlBulkLoad() {
     this("");
-  }
-
-  @Override
-  public Object clone() {
-    ActionMysqlBulkLoad je = (ActionMysqlBulkLoad) super.clone();
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(super.getXml());
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("schemaname", schemaname));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_TABLENAME, tableName));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FILENAME, filename));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("separator", separator));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("enclosed", enclosed));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("escaped", escaped));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("linestarted", linestarted));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("lineterminated", lineterminated));
-
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("replacedata", replacedata));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("ignorelines", ignorelines));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("listattribut", listattribut));
-
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("localinfile", localinfile));
-
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("prorityvalue", prorityvalue));
-
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
-
-    retval
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      schemaname = XmlHandler.getTagValue(entrynode, "schemaname");
-      tableName = XmlHandler.getTagValue(entrynode, CONST_TABLENAME);
-      filename = XmlHandler.getTagValue(entrynode, CONST_FILENAME);
-      separator = XmlHandler.getTagValue(entrynode, "separator");
-      enclosed = XmlHandler.getTagValue(entrynode, "enclosed");
-      escaped = XmlHandler.getTagValue(entrynode, "escaped");
-
-      linestarted = XmlHandler.getTagValue(entrynode, "linestarted");
-      lineterminated = XmlHandler.getTagValue(entrynode, "lineterminated");
-      replacedata = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "replacedata"));
-      ignorelines = XmlHandler.getTagValue(entrynode, "ignorelines");
-      listattribut = XmlHandler.getTagValue(entrynode, "listattribut");
-      localinfile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "localinfile"));
-      prorityvalue = Const.toInt(XmlHandler.getTagValue(entrynode, "prorityvalue"), -1);
-      String dbname = XmlHandler.getTagValue(entrynode, "connection");
-      addfiletoresult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addfiletoresult"));
-      connection = DatabaseMeta.loadDatabase(metadataProvider, dbname);
-    } catch (HopException e) {
-      throw new HopXmlException("Unable to load action of type 'Mysql bulk load' from XML node", e);
-    }
-  }
-
-  public void setTablename(String tableName) {
-    this.tableName = tableName;
-  }
-
-  public void setSchemaname(String schemaname) {
-    this.schemaname = schemaname;
-  }
-
-  public String getSchemaname() {
-    return schemaname;
-  }
-
-  public String getTablename() {
-    return tableName;
-  }
-
-  public void setDatabase(DatabaseMeta database) {
-    this.connection = database;
-  }
-
-  public DatabaseMeta getDatabase() {
-    return connection;
   }
 
   @Override
@@ -216,7 +153,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     Result result = previousResult;
     result.setResult(false);
 
-    String vfsFilename = resolve(filename);
+    String vfsFilename = resolve(fileName);
 
     // Let's check the filename ...
     if (!Utils.isEmpty(vfsFilename)) {
@@ -245,18 +182,24 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
         // Here we go... back to the regular scheduled program...
         //
         File file = new File(realFilename);
-        if ((file.exists() && file.canRead()) || isLocalInfile() == false) {
+        if ((file.exists() && file.canRead()) || isLocalInFile() == false) {
           // User has specified an existing file, We can continue ...
           if (isDetailed()) {
             logDetailed("File [" + realFilename + "] exists.");
           }
 
           if (connection != null) {
+            DatabaseMeta databaseMeta = null;
+            try {
+              databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
+            } catch (Exception e) {
+              logError("Unable to load database :" + connection, e);
+            }
             // User has specified a connection, We can continue ...
-            try (Database db = new Database(this, this, connection)) {
+            try (Database db = new Database(this, this, databaseMeta)) {
               db.connect();
               // Get schemaname
-              String realSchemaname = resolve(schemaname);
+              String realSchemaname = resolve(schemaName);
               // Get tablename
               String realTablename = resolve(tableName);
 
@@ -267,12 +210,12 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
                 }
 
                 // Add schemaname (Most the time Schemaname.Tablename)
-                if (schemaname != null) {
+                if (schemaName != null) {
                   realTablename = realSchemaname + "." + realTablename;
                 }
 
                 // Set the REPLACE or IGNORE
-                if (isReplacedata()) {
+                if (isReplaceData()) {
                   replaceIgnore = "REPLACE";
                 } else {
                   replaceIgnore = "IGNORE";
@@ -285,19 +228,19 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
                 // Set list of Column
                 if (getRealListattribut() != null) {
-                  listOfColumn = "(" + MysqlString(getRealListattribut()) + ")";
+                  listOfColumn = "(" + mysqlString(getRealListattribut()) + ")";
                 }
 
                 // Local File execution
-                if (isLocalInfile()) {
+                if (isLocalInFile()) {
                   localExec = "LOCAL";
                 }
 
                 // Prority
-                if (prorityvalue == 1) {
+                if (prorityValue == 1) {
                   // LOW
                   priorityText = "LOW_PRIORITY";
-                } else if (prorityvalue == 2) {
+                } else if (prorityValue == 2) {
                   // CONCURRENT
                   priorityText = "CONCURRENT";
                 }
@@ -434,124 +377,35 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     return result;
   }
 
-  public boolean isReplacedata() {
-    return replacedata;
-  }
-
-  public void setReplacedata(boolean replacedata) {
-    this.replacedata = replacedata;
-  }
-
-  public void setLocalInfile(boolean localinfile) {
-    this.localinfile = localinfile;
-  }
-
-  public boolean isLocalInfile() {
-    return localinfile;
-  }
-
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  @Override
-  public String getFilename() {
-    return filename;
-  }
-
-  public void setSeparator(String separator) {
-    this.separator = separator;
-  }
-
-  public void setLineterminated(String lineterminated) {
-    this.lineterminated = lineterminated;
-  }
-
-  public void setLinestarted(String linestarted) {
-    this.linestarted = linestarted;
-  }
-
-  public String getEnclosed() {
-    return enclosed;
-  }
-
   public String getRealEnclosed() {
     return resolve(getEnclosed());
-  }
-
-  public void setEnclosed(String enclosed) {
-    this.enclosed = enclosed;
-  }
-
-  public String getEscaped() {
-    return escaped;
   }
 
   public String getRealEscaped() {
     return resolve(getEscaped());
   }
 
-  public void setEscaped(String escaped) {
-    this.escaped = escaped;
-  }
-
-  public String getSeparator() {
-    return separator;
-  }
-
-  public String getLineterminated() {
-    return lineterminated;
-  }
-
-  public String getLinestarted() {
-    return linestarted;
-  }
-
   public String getRealLinestarted() {
-    return resolve(getLinestarted());
+    return resolve(getLineStarted());
   }
 
   public String getRealLineterminated() {
-    return resolve(getLineterminated());
+    return resolve(getLineTerminated());
   }
 
   public String getRealSeparator() {
     return resolve(getSeparator());
   }
 
-  public void setIgnorelines(String ignorelines) {
-    this.ignorelines = ignorelines;
-  }
-
-  public String getIgnorelines() {
-    return ignorelines;
-  }
-
   public String getRealIgnorelines() {
-    return resolve(getIgnorelines());
-  }
-
-  public void setListattribut(String listattribut) {
-    this.listattribut = listattribut;
-  }
-
-  public String getListattribut() {
-    return listattribut;
+    return resolve(getIgnoreLines());
   }
 
   public String getRealListattribut() {
-    return resolve(getListattribut());
+    return resolve(getListAttribute());
   }
 
-  public void setAddFileToResult(boolean addfiletoresultin) {
-    this.addfiletoresult = addfiletoresultin;
-  }
-
-  public boolean isAddFileToResult() {
-    return addfiletoresult;
-  }
-
-  private String MysqlString(String listcolumns) {
+  private String mysqlString(String listcolumns) {
     /*
      * Handle forbiden char like '
      */
@@ -575,14 +429,22 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
     ResourceReference reference = null;
     if (connection != null) {
+      DatabaseMeta databaseMeta = null;
+      try {
+        databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
+      } catch (Exception e) {
+        logError("Unable to load database :" + connection, e);
+      }
       reference = new ResourceReference(this);
       references.add(reference);
-      reference.getEntries().add(new ResourceEntry(connection.getHostname(), ResourceType.SERVER));
       reference
           .getEntries()
-          .add(new ResourceEntry(connection.getDatabaseName(), ResourceType.DATABASENAME));
+          .add(new ResourceEntry(databaseMeta.getHostname(), ResourceType.SERVER));
+      reference
+          .getEntries()
+          .add(new ResourceEntry(databaseMeta.getDatabaseName(), ResourceType.DATABASENAME));
     }
-    if (filename != null) {
+    if (fileName != null) {
       String realFilename = getRealFilename();
       if (reference == null) {
         reference = new ResourceReference(this);
@@ -603,12 +465,12 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
-    ActionValidatorUtils.andValidator().validate(this, CONST_FILENAME, remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
 
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            CONST_TABLENAME,
+            "tablename",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }

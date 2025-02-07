@@ -17,15 +17,17 @@
 
 package org.apache.hop.workflow.actions.mysqlbulkload;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.util.Arrays;
 import java.util.List;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.Test;
 
 public class WorkflowActionMysqlBulkLoadLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionMysqlBulkLoad> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
   protected Class<ActionMysqlBulkLoad> getActionClass() {
@@ -35,20 +37,52 @@ public class WorkflowActionMysqlBulkLoadLoadSaveTest
   @Override
   protected List<String> listAttributes() {
     return Arrays.asList(
-        "schemaname",
-        "tablename",
-        "filename",
+        "schemaName",
+        "tableName",
+        "fileName",
         "separator",
         "enclosed",
         "escaped",
-        "linestarted",
-        "lineterminated",
-        "replacedata",
-        "ignorelines",
-        "listattribut",
-        "localInfile",
-        "prorityvalue",
+        "lineStarted",
+        "lineTerminated",
+        "replaceData",
+        "ignoreLines",
+        "listAttribute",
+        "localInFile",
+        "prorityValue",
         "addFileToResult",
-        "database");
+        "connection");
+  }
+
+  @Test
+  public void testNewSerialization() throws Exception {
+    ActionMysqlBulkLoad meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/mysql-bulkloader-action.xml", ActionMysqlBulkLoad.class);
+
+    assertEquals("testSchema", meta.getSchemaName());
+    assertEquals("testTable", meta.getTableName());
+    assertEquals("/tmp/file.csv", meta.getFileName());
+    assertEquals(",", meta.getSeparator());
+    assertEquals("\"", meta.getEnclosed());
+    assertEquals("mysql", meta.getConnection());
+    assertFalse(meta.isAddFileToResult());
+  }
+
+  @Test
+  public void testClone() throws Exception {
+    ActionMysqlBulkLoad meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/mysql-bulkloader-action.xml", ActionMysqlBulkLoad.class);
+
+    ActionMysqlBulkLoad clone = (ActionMysqlBulkLoad) meta.clone();
+
+    assertEquals(clone.getSchemaName(), meta.getSchemaName());
+    assertEquals(clone.getTableName(), meta.getTableName());
+    assertEquals(clone.getFileName(), meta.getFileName());
+    assertEquals(clone.getSeparator(), meta.getSeparator());
+    assertEquals(clone.getEnclosed(), meta.getEnclosed());
+    assertEquals(clone.getConnection(), meta.getConnection());
+    assertEquals(clone.isAddFileToResult(), meta.isAddFileToResult());
   }
 }
