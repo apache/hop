@@ -824,19 +824,19 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     if (input.getSchemaName() != null) {
       wSchema.setText(input.getSchemaName());
     }
-    if (input.getTablename() != null) {
-      wTable.setText(input.getTablename());
+    if (input.getTableName() != null) {
+      wTable.setText(input.getTableName());
     }
     if (input.getConnection() != null) {
       wConnection.setText(input.getConnection());
     }
 
-    if (input.getFileName() != null) {
-      wFilename.setText(input.getFileName());
+    if (input.getFile().getFileName() != null) {
+      wFilename.setText(input.getFile().getFileName());
     }
-    wCreateParentFolder.setSelection(input.isCreateParentFolder());
-    if (input.getExtension() != null) {
-      wExtension.setText(input.getExtension());
+    wCreateParentFolder.setSelection(input.getFile().isCreateParentFolder());
+    if (input.getFile().getExtension() != null) {
+      wExtension.setText(input.getFile().getExtension());
     } else {
       wExtension.setText("sql");
     }
@@ -845,21 +845,21 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
       wFormat.setText(input.getDateFormat());
     }
 
-    wSplitEvery.setText("" + input.getSplitEvery());
-    wAddDate.setSelection(input.isDateInFilename());
-    wAddTime.setSelection(input.isTimeInFilename());
-    wAppend.setSelection(input.isFileAppended());
-    wAddTransformNr.setSelection(input.isTransformNrInFilename());
+    wSplitEvery.setText("" + input.getFile().getSplitEvery());
+    wAddDate.setSelection(input.getFile().isDateInFilename());
+    wAddTime.setSelection(input.getFile().isTimeInFilename());
+    wAppend.setSelection(input.getFile().isFileAppended());
+    wAddTransformNr.setSelection(input.getFile().isTransformNrInFilename());
 
-    wTruncate.setSelection(input.truncateTable());
-    wAddCreate.setSelection(input.createTable());
+    wTruncate.setSelection(input.isTruncateTable());
+    wAddCreate.setSelection(input.isCreateTable());
 
     if (input.getEncoding() != null) {
       wEncoding.setText(input.getEncoding());
     }
-    wAddToResult.setSelection(input.AddToResult());
-    wStartNewLine.setSelection(input.StartNewLine());
-    wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
+    wAddToResult.setSelection(input.isAddToResult());
+    wStartNewLine.setSelection(input.isStartNewLine());
+    wDoNotOpenNewFileInit.setSelection(input.getFile().isDoNotOpenNewFileInit());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -873,26 +873,26 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
 
   private void getInfo(SQLFileOutputMeta info) {
     info.setSchemaName(wSchema.getText());
-    info.setTablename(wTable.getText());
+    info.setTableName(wTable.getText());
     info.setConnection(wConnection.getText());
     info.setTruncateTable(wTruncate.getSelection());
-    info.setCreateParentFolder(wCreateParentFolder.getSelection());
+    info.getFile().setCreateParentFolder(wCreateParentFolder.getSelection());
 
     info.setCreateTable(wAddCreate.getSelection());
 
-    info.setFileName(wFilename.getText());
-    info.setExtension(wExtension.getText());
+    info.getFile().setFileName(wFilename.getText());
+    info.getFile().setExtension(wExtension.getText());
     info.setDateFormat(wFormat.getText());
-    info.setSplitEvery(Const.toInt(wSplitEvery.getText(), 0));
-    info.setFileAppended(wAppend.getSelection());
-    info.setTransformNrInFilename(wAddTransformNr.getSelection());
-    info.setDateInFilename(wAddDate.getSelection());
-    info.setTimeInFilename(wAddTime.getSelection());
+    info.getFile().setSplitEvery(Const.toInt(wSplitEvery.getText(), 0));
+    info.getFile().setFileAppended(wAppend.getSelection());
+    info.getFile().setTransformNrInFilename(wAddTransformNr.getSelection());
+    info.getFile().setDateInFilename(wAddDate.getSelection());
+    info.getFile().setTimeInFilename(wAddTime.getSelection());
 
     info.setEncoding(wEncoding.getText());
     info.setAddToResult(wAddToResult.getSelection());
     info.setStartNewLine(wStartNewLine.getSelection());
-    info.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
+    info.getFile().setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
   }
 
   private void ok() {
