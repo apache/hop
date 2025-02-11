@@ -51,6 +51,7 @@ import org.apache.hop.pipeline.transforms.cratedbbulkloader.CrateDBBulkLoaderMet
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -60,52 +61,90 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers(disabledWithoutDocker = true)
-public class CrateDBBulkImportTest {
+class CrateDBBulkImportTest {
 
-  @Container
-  public static CrateDBContainer crateDBContainer = new CrateDBContainer("crate").withReuse(true);
+  @Container public static CrateDBContainer crateDBContainer = new CrateDBContainer("crate");
 
   private static Connection connection;
 
   @BeforeAll
-  public static void init() throws Exception {
-    HopClientEnvironment.init(
-        List.of(
-            DatabasePluginType.getInstance(),
-            TwoWayPasswordEncoderPluginType.getInstance(),
-            ValueMetaPluginType.getInstance()));
-    HopEnvironment.init();
-    HopLogStore.init(true, true);
-    connection = crateDBContainer.createConnection("");
-    String createTableQuery =
-        """
-                CREATE TABLE doc.person
-                (
-                  id INTEGER PRIMARY KEY,
-                  name TEXT,
-                  score DOUBLE PRECISION)
-                ;
-                """;
-    executeUpdate("DROP TABLE IF EXISTS doc.person");
-    executeUpdate("DROP USER IF EXISTS bob");
-    executeUpdate(createTableQuery);
-    executeUpdate("REFRESH TABLE doc.person");
-    executeUpdate("CREATE USER bob WITH PASSWORD 'password'");
-    executeUpdate("GRANT DML ON SCHEMA doc TO bob");
-  }
-
-  @BeforeEach
-  public void setup() throws Exception {
-    executeUpdate("DELETE FROM doc.person");
+  static void init() throws Exception {
+    String skipTestContainers = System.getProperty("SkipTestContainers");
+    if (skipTestContainers == null) {
+      HopClientEnvironment.init(
+          List.of(
+              DatabasePluginType.getInstance(),
+              TwoWayPasswordEncoderPluginType.getInstance(),
+              ValueMetaPluginType.getInstance()));
+      HopEnvironment.init();
+      HopLogStore.init(true, true);
+      connection = crateDBContainer.createConnection("");
+      String createTableQuery =
+          """
+                            CREATE TABLE doc.person
+                            (
+                              id INTEGER PRIMARY KEY,
+                              name TEXT,
+                              score DOUBLE PRECISION)
+                            ;
+                            """;
+      executeUpdate("DROP TABLE IF EXISTS doc.person");
+      executeUpdate("DROP USER IF EXISTS bob");
+      executeUpdate(createTableQuery);
+      executeUpdate("REFRESH TABLE doc.person");
+      executeUpdate("CREATE USER bob WITH PASSWORD 'password'");
+      executeUpdate("GRANT DML ON SCHEMA doc TO bob");
+    }
   }
 
   @AfterAll
-  public static void shutdown() throws Exception {
-    executeUpdate("DROP TABLE doc.person;");
+  static void shutdown() throws Exception {
+    String skipTestContainers = System.getProperty("SkipTestContainers");
+    if (skipTestContainers == null) {
+      executeUpdate("DROP TABLE doc.person;");
+    }
+  }
+
+  private static int executeUpdate(String query) throws Exception {
+    try (Statement statement = connection.createStatement()) {
+      return statement.executeUpdate(query);
+    }
+  }
+
+  private static ResultSet executeQuery(String query) throws Exception {
+    Statement statement = connection.createStatement();
+    return statement.executeQuery(query);
+  }
+
+  private static Stream<Arguments> getBatchSize() {
+    return Stream.of(
+        Arguments.of(1),
+        Arguments.of(2),
+        Arguments.of(3),
+        Arguments.of(4),
+        Arguments.of(5),
+        Arguments.of(6),
+        Arguments.of(7),
+        Arguments.of(8),
+        Arguments.of(9),
+        Arguments.of(10),
+        Arguments.of(20),
+        Arguments.of(30),
+        Arguments.of(40),
+        Arguments.of(50));
+  }
+
+  @BeforeEach
+  void setup() throws Exception {
+    String skipTestContainers = System.getProperty("SkipTestContainers");
+    if (skipTestContainers == null) {
+      executeUpdate("DELETE FROM doc.person");
+    }
   }
 
   @ParameterizedTest
   @MethodSource("getBatchSize")
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
   void given_batch_size__when_http_insert__should_persist_all_items(Integer batchSize)
       throws Exception {
     Mockito.mock(Pipeline.class);
@@ -185,34 +224,5 @@ public class CrateDBBulkImportTest {
     final int resultSize = resultSet.getInt("c");
 
     assertEquals(5, resultSize);
-  }
-
-  private static int executeUpdate(String query) throws Exception {
-    try (Statement statement = connection.createStatement()) {
-      return statement.executeUpdate(query);
-    }
-  }
-
-  private static ResultSet executeQuery(String query) throws Exception {
-    Statement statement = connection.createStatement();
-    return statement.executeQuery(query);
-  }
-
-  private static Stream<Arguments> getBatchSize() {
-    return Stream.of(
-        Arguments.of(1),
-        Arguments.of(2),
-        Arguments.of(3),
-        Arguments.of(4),
-        Arguments.of(5),
-        Arguments.of(6),
-        Arguments.of(7),
-        Arguments.of(8),
-        Arguments.of(9),
-        Arguments.of(10),
-        Arguments.of(20),
-        Arguments.of(30),
-        Arguments.of(40),
-        Arguments.of(50));
   }
 }
