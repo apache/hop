@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.cratedbbulkloader.http;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -28,50 +28,63 @@ import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transforms.cratedbbulkloader.http.exceptions.CrateDBHopException;
 import org.apache.hop.pipeline.transforms.cratedbbulkloader.http.exceptions.UnauthorizedCrateDBAccessException;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.testcontainers.cratedb.CrateDBContainer;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.MountableFile;
 
-public class BulkImportClientIT {
+@Testcontainers(disabledWithoutDocker = true)
+class BulkImportClientIT {
 
-  private static String CRATE_ENDPOINT;
-
-  private static Connection connection;
-
-  @ClassRule
   public static CrateDBContainer crateDBContainer =
       new CrateDBContainer("crate")
           .withCopyFileToContainer(
               MountableFile.forClasspathResource("crate.yml"), "/crate/config/crate.yml")
           .withExposedPorts(4200, 5432);
 
-  @BeforeClass
+  private static String crateEndpoint;
+  private static Connection connection;
+
+  @BeforeAll
   public static void setupAll() throws SQLException {
-    CRATE_ENDPOINT =
-        "http://"
-            + crateDBContainer.getHost()
-            + ":"
-            + crateDBContainer.getMappedPort(4200)
-            + "/_sql";
-    connection = crateDBContainer.createConnection("");
+    String skipTestContainers = System.getProperty("SkipTestContainers");
+    if (skipTestContainers == null) {
+      crateDBContainer.start();
 
-    connection
-        .createStatement()
-        .execute("CREATE TABLE crate.foo (id INT PRIMARY KEY, name VARCHAR(10), description TEXT)");
+      crateEndpoint =
+          "http://"
+              + crateDBContainer.getHost()
+              + ":"
+              + crateDBContainer.getMappedPort(4200)
+              + "/_sql";
+      connection = crateDBContainer.createConnection("");
 
-    connection.createStatement().execute("CREATE USER alice WITH (password='password')");
-    connection.createStatement().execute("GRANT ALL PRIVILEGES TO alice");
+      connection
+          .createStatement()
+          .execute(
+              "CREATE TABLE crate.foo (id INT PRIMARY KEY, name VARCHAR(10), description TEXT)");
 
-    connection.createStatement().execute("CREATE USER bob WITH (password='password')");
-    connection.createStatement().execute("GRANT DQL ON SCHEMA crate TO bob");
+      connection.createStatement().execute("CREATE USER alice WITH (password='password')");
+      connection.createStatement().execute("GRANT ALL PRIVILEGES TO alice");
+
+      connection.createStatement().execute("CREATE USER bob WITH (password='password')");
+      connection.createStatement().execute("GRANT DQL ON SCHEMA crate TO bob");
+    }
+  }
+
+  @AfterAll
+  public static void teardownAll() throws SQLException {
+    crateDBContainer.stop();
   }
 
   @Test
-  public void whenDataSizeGreaterThanMaxSize_shouldReturnRejectedRows()
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void whenDataSizeGreaterThanMaxSize_shouldReturnRejectedRows()
       throws HopException, CrateDBHopException, IOException {
-    BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "alice", "password");
+    BulkImportClient client = new BulkImportClient(crateEndpoint, "alice", "password");
 
     var response =
         client.batchInsert(
@@ -88,9 +101,10 @@ public class BulkImportClientIT {
   }
 
   @Test
-  public void whenRequestIsValid_shouldReturn200AndResult()
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void whenRequestIsValid_shouldReturn200AndResult()
       throws HopException, SQLException, CrateDBHopException, IOException {
-    BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "alice", "password");
+    BulkImportClient client = new BulkImportClient(crateEndpoint, "alice", "password");
     HttpBulkImportResponse response =
         client.batchInsert(
             "crate",
@@ -113,8 +127,9 @@ public class BulkImportClientIT {
   }
 
   @Test
-  public void whenWrongPassword_shouldThrowUnauthorizedException() {
-    BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "alice", "wrongpassword");
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void whenWrongPassword_shouldThrowUnauthorizedException() {
+    BulkImportClient client = new BulkImportClient(crateEndpoint, "alice", "wrongpassword");
 
     assertThrows(
         UnauthorizedCrateDBAccessException.class,
@@ -129,8 +144,9 @@ public class BulkImportClientIT {
   }
 
   @Test
-  public void whenWrongUser_shouldThrowUnauthorizedException() {
-    BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "charlie", "apassword");
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void whenWrongUser_shouldThrowUnauthorizedException() {
+    BulkImportClient client = new BulkImportClient(crateEndpoint, "charlie", "apassword");
 
     assertThrows(
         UnauthorizedCrateDBAccessException.class,
@@ -145,8 +161,9 @@ public class BulkImportClientIT {
   }
 
   @Test
-  public void whenUserNotAuthorized_shouldThrowUnauthorizedInsteadOfForbidden() {
-    BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "bob", "password");
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void whenUserNotAuthorized_shouldThrowUnauthorizedInsteadOfForbidden() {
+    BulkImportClient client = new BulkImportClient(crateEndpoint, "bob", "password");
 
     assertThrows(
         UnauthorizedCrateDBAccessException.class,
