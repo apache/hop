@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -71,26 +70,28 @@ public class WorkflowActionMailLoadSaveTest extends WorkflowActionLoadSaveTestSu
         "importance",
         "sensitivity",
         "secureConnectionType",
-        "replyToAddresses" // ,
-        //                "fileType",
-        //        "embeddedimages" // ,
-        //                "contentids"
+        "replyToAddresses",
+        "fileType",
+        "embeddedimages",
+        "contentids"
         );
   }
 
-    @Override
-    protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-      Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-      validators.put(
-          "fileType",
-          new PrimitiveIntArrayLoadSaveValidator(
-              new IntLoadSaveValidator(ResultFile.fileTypeCode.length)));
+/*
+  @Override
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
+    validators.put(
+        "fileType",
+        new PrimitiveIntArrayLoadSaveValidator(
+            new IntLoadSaveValidator(ResultFile.fileTypeCode.length)));
 
-      int entries = new Random().nextInt(20) + 1;
-      validators.put(
-          "embeddedimages", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
-      validators.put(
-          "contentids", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
-      return validators;
-    }
+    int entries = new Random().nextInt(20) + 1;
+    validators.put(
+        "embeddedimages", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
+    validators.put(
+        "contentids", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
+    return validators;
+  }
+*/
 }
