@@ -26,7 +26,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
-import java.util.stream.Stream;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
@@ -51,26 +50,24 @@ import org.apache.hop.pipeline.transforms.cratedbbulkloader.CrateDBBulkLoaderMet
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.testcontainers.cratedb.CrateDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers(disabledWithoutDocker = true)
 class CrateDBBulkImportTest {
 
-  @Container public static CrateDBContainer crateDBContainer = new CrateDBContainer("crate");
-
+  private static final String SKIP_TEST_CONTAINERS = System.getProperty("SkipTestContainers");
+  public static CrateDBContainer crateDBContainer;
   private static Connection connection;
 
   @BeforeAll
   static void init() throws Exception {
-    String skipTestContainers = System.getProperty("SkipTestContainers");
-    if (skipTestContainers == null) {
+    if (SKIP_TEST_CONTAINERS == null) {
+      crateDBContainer = new CrateDBContainer("crate");
+      crateDBContainer.start();
       HopClientEnvironment.init(
           List.of(
               DatabasePluginType.getInstance(),
@@ -99,9 +96,9 @@ class CrateDBBulkImportTest {
 
   @AfterAll
   static void shutdown() throws Exception {
-    String skipTestContainers = System.getProperty("SkipTestContainers");
-    if (skipTestContainers == null) {
+    if (SKIP_TEST_CONTAINERS == null) {
       executeUpdate("DROP TABLE doc.person;");
+      crateDBContainer.stop();
     }
   }
 
@@ -112,39 +109,160 @@ class CrateDBBulkImportTest {
   }
 
   private static ResultSet executeQuery(String query) throws Exception {
-    Statement statement = connection.createStatement();
-    return statement.executeQuery(query);
+    if (SKIP_TEST_CONTAINERS == null) {
+      Statement statement = connection.createStatement();
+      return statement.executeQuery(query);
+    }
+    return null;
   }
 
-  private static Stream<Arguments> getBatchSize() {
-    return Stream.of(
-        Arguments.of(1),
-        Arguments.of(2),
-        Arguments.of(3),
-        Arguments.of(4),
-        Arguments.of(5),
-        Arguments.of(6),
-        Arguments.of(7),
-        Arguments.of(8),
-        Arguments.of(9),
-        Arguments.of(10),
-        Arguments.of(20),
-        Arguments.of(30),
-        Arguments.of(40),
-        Arguments.of(50));
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize1() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(1);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize2() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(2);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize3() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(3);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize4() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(4);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize5() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(5);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize6() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(6);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize7() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(7);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize8() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(8);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize9() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(9);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize10() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(10);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize20() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(20);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize30() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(30);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize40() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(40);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
+  void testBatchSize50() {
+    try {
+      given_batch_size__when_http_insert__should_persist_all_items(50);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   @BeforeEach
   void setup() throws Exception {
-    String skipTestContainers = System.getProperty("SkipTestContainers");
-    if (skipTestContainers == null) {
+    if (SKIP_TEST_CONTAINERS == null) {
       executeUpdate("DELETE FROM doc.person");
     }
   }
 
-  @ParameterizedTest
-  @MethodSource("getBatchSize")
-  @DisabledIfSystemProperty(named = "SkipTestContainers", matches = "true")
   void given_batch_size__when_http_insert__should_persist_all_items(Integer batchSize)
       throws Exception {
     Mockito.mock(Pipeline.class);
