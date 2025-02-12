@@ -166,6 +166,12 @@ public class ActionMailDialog extends ActionDialog {
   private TextVar wContentID;
   private TableView wFields;
 
+  private Button wCheckServerIdentity;
+
+  private Label wlCheckServerIdentity;
+
+  private LabelTextVar wTrustedHosts;
+
   private MetaSelectionLine wSelectionLine;
 
   public ActionMailDialog(
@@ -660,6 +666,45 @@ public class ActionMailDialog extends ActionDialog {
             action.setChanged();
           }
         });
+
+    // Use check server identity
+    wlCheckServerIdentity = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlCheckServerIdentity.setText(
+        BaseMessages.getString(PKG, "ActionMail.CheckServerIdentity.Label"));
+    PropsUi.setLook(wlCheckServerIdentity);
+    FormData fdlCheckServerIdentity = new FormData();
+    fdlCheckServerIdentity.left = new FormAttachment(0, 0);
+    fdlCheckServerIdentity.top = new FormAttachment(wSecureConnectionType, 2 * margin);
+    fdlCheckServerIdentity.right = new FormAttachment(middle, -margin);
+    wlCheckServerIdentity.setLayoutData(fdlCheckServerIdentity);
+    wCheckServerIdentity = new Button(wAuthentificationGroup, SWT.CHECK);
+    PropsUi.setLook(wCheckServerIdentity);
+    FormData fdCheckServerIdentity = new FormData();
+    fdCheckServerIdentity.left = new FormAttachment(middle, margin);
+    fdCheckServerIdentity.top = new FormAttachment(wlCheckServerIdentity, 0, SWT.CENTER);
+    fdCheckServerIdentity.right = new FormAttachment(100, 0);
+    wCheckServerIdentity.setLayoutData(fdCheckServerIdentity);
+    wCheckServerIdentity.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            action.setChanged();
+          }
+        });
+
+    // Trusted Hosts line
+    wTrustedHosts =
+        new LabelTextVar(
+            variables,
+            wAuthentificationGroup,
+            BaseMessages.getString(PKG, "ActionMail.TrustedHosts.Label"),
+            BaseMessages.getString(PKG, "ActionMail.TrustedHosts.Tooltip"));
+    wTrustedHosts.addModifyListener(lsMod);
+    FormData fdTrustedHosts = new FormData();
+    fdTrustedHosts.left = new FormAttachment(0, 0);
+    fdTrustedHosts.top = new FormAttachment(wlCheckServerIdentity, 2 * margin);
+    fdTrustedHosts.right = new FormAttachment(100, 0);
+    wTrustedHosts.setLayoutData(fdTrustedHosts);
 
     FormData fdAuthentificationGroup = new FormData();
     fdAuthentificationGroup.left = new FormAttachment(0, margin);
@@ -1412,6 +1457,8 @@ public class ActionMailDialog extends ActionDialog {
   }
 
   protected void setSecureConnectiontype() {
+    wTrustedHosts.setEnabled(wUseSecAuth.getSelection());
+    wCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
     wSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wlSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
   }
@@ -1472,6 +1519,8 @@ public class ActionMailDialog extends ActionDialog {
 
     wUseAuth.setSelection(action.isUsingAuthentication());
     wUseSecAuth.setSelection(action.isUsingSecureAuthentication());
+    wCheckServerIdentity.setSelection(action.isCheckServerIdentity());
+    wTrustedHosts.setText(Const.nullToEmpty(action.getTrustedHosts()));
     wAuthUser.setText(Const.nullToEmpty(action.getAuthenticationUser()));
     wAuthPass.setText(Const.nullToEmpty(action.getAuthenticationPassword()));
 
@@ -1617,6 +1666,9 @@ public class ActionMailDialog extends ActionDialog {
     action.setOnlySendComment(wOnlyComment.getSelection());
     action.setUseHTML(wUseHTML.getSelection());
     action.setUsePriority(wUsePriority.getSelection());
+
+    action.setTrustedHosts(wTrustedHosts.getText());
+    action.setCheckServerIdentity(wCheckServerIdentity.getSelection());
 
     action.setEncoding(wEncoding.getText());
     action.setPriority(wPriority.getText());
