@@ -44,7 +44,8 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   @HopMetadataProperty private String username;
 
-  @HopMetadataProperty private String password;
+  @HopMetadataProperty(password = true)
+  private String password;
 
   @HopMetadataProperty private boolean useXOAuth2;
 

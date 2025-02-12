@@ -147,6 +147,9 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
 
   private String messageOutputField;
 
+  private boolean checkServerIdentity;
+  private String trustedHosts;
+
   public MailMeta() {
     super(); // allocate BaseTransformMeta
   }
@@ -199,6 +202,9 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
     setContactPhone(XmlHandler.getTagValue(transformNode, "contact_phone"));
     setComment(XmlHandler.getTagValue(transformNode, "comment"));
     setIncludingFiles("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include_files")));
+    setCheckServerIdentity(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "checkServerIdentity")));
+    setTrustedHosts(XmlHandler.getTagValue(transformNode, "trustedHosts"));
     setUsingAuthentication("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_auth")));
     setUseXOAUTH2("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "usexoauth2")));
     setUsingSecureAuthentication(
@@ -320,6 +326,10 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
         .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("sourcewildcard", this.sourcewildcard));
     retval.append(CONST_SPACE).append(XmlHandler.addTagValue("contact_person", this.contactPerson));
+    retval
+        .append(CONST_SPACE)
+        .append(XmlHandler.addTagValue("checkServerIdentity", checkServerIdentity));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("trustedHosts", trustedHosts));
     retval.append(CONST_SPACE).append(XmlHandler.addTagValue("contact_phone", this.contactPhone));
     retval.append(CONST_SPACE).append(XmlHandler.addTagValue("comment", this.comment));
     retval.append(CONST_SPACE).append(XmlHandler.addTagValue("include_files", this.includingFiles));
@@ -462,6 +472,22 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
 
   public void setAttachContentFileNameField(String attachContentFileNameField) {
     this.attachContentFileNameField = attachContentFileNameField;
+  }
+
+  public boolean isCheckServerIdentity() {
+    return checkServerIdentity;
+  }
+
+  public void setCheckServerIdentity(boolean checkServerIdentity) {
+    this.checkServerIdentity = checkServerIdentity;
+  }
+
+  public String getTrustedHosts() {
+    return trustedHosts;
+  }
+
+  public void setTrustedHosts(String trustedHosts) {
+    this.trustedHosts = trustedHosts;
   }
 
   public void setDynamicWildcard(String dynamicwildcard) {
