@@ -58,6 +58,10 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   @HopMetadataProperty private String proxyUsername;
 
+  @HopMetadataProperty private String trustedHosts;
+
+  @HopMetadataProperty private boolean checkServerIdentity;
+
   public MailServerConnection() {
     super();
   }
@@ -97,6 +101,10 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
           // nested exception is:
           // javax.net.ssl.SSLException: Unsupported record version Unknown
           props.put("mail.smtps.quitwait", "false");
+        }
+        props.put("mail.smtp.ssl.checkServerIdentity", isCheckServerIdentity());
+        if (!Utils.isEmpty(trustedHosts)) {
+          props.put("mail.smtp.ssl.trust", variables.resolve(trustedHosts));
         }
       }
 
