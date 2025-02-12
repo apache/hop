@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.deletefolders;
 
+import java.util.ArrayList;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -35,8 +36,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -44,6 +43,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -159,20 +159,18 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wPrevious);
-    wPrevious.setSelection(action.argFromPrevious);
+    wPrevious.setSelection(action.isArgFromPrevious());
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionDeleteFolders.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
     fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
     fdPrevious.right = new FormAttachment(100, 0);
     wPrevious.setLayoutData(fdPrevious);
-    wPrevious.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            setPrevious();
-            action.setChanged();
-          }
+    wPrevious.addListener(
+        SWT.Selection,
+        e -> {
+          setPrevious();
+          action.setChanged();
         });
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
@@ -209,14 +207,8 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     fdlSuccessCondition.top = new FormAttachment(wSettings, margin);
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
     wSuccessCondition = new CCombo(wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wSuccessCondition.add(
-        BaseMessages.getString(PKG, "ActionDeleteFolders.SuccessWhenAllWorksFine.Label"));
-    wSuccessCondition.add(
-        BaseMessages.getString(PKG, "ActionDeleteFolders.SuccessWhenAtLeat.Label"));
-    wSuccessCondition.add(
-        BaseMessages.getString(PKG, "ActionDeleteFolders.SuccessWhenErrorsLessThan.Label"));
-
-    wSuccessCondition.select(0); // +1: starts at -1
+    wSuccessCondition.setItems(ActionDeleteFolders.SuccessCondition.getDescriptions());
+    wSuccessCondition.select(0);
 
     PropsUi.setLook(wSuccessCondition);
     FormData fdSuccessCondition = new FormData();
@@ -224,13 +216,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     fdSuccessCondition.top = new FormAttachment(wSettings, margin);
     fdSuccessCondition.right = new FormAttachment(100, 0);
     wSuccessCondition.setLayoutData(fdSuccessCondition);
-    wSuccessCondition.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            activeSuccessCondition();
-          }
-        });
+    wSuccessCondition.addListener(SWT.Selection, e -> activeSuccessCondition());
 
     // Success when number of errors less than
     wlNrErrorsLessThan = new Label(wSuccessOn, SWT.RIGHT);
@@ -307,8 +293,8 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener(
-        e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
+    wFilename.addListener(
+        SWT.Modify, e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
 
     wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionDeleteFolders.Fields.Label"));
@@ -342,9 +328,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     fdbeFilename.top = new FormAttachment(wbdFilename, margin);
     wbeFilename.setLayoutData(fdbeFilename);
 
-    int rows =
-        action.arguments == null ? 1 : (action.arguments.length == 0 ? 0 : action.arguments.length);
-    final int FieldsRows = rows;
+    final int nrRows = action.getFileItems().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -363,7 +347,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            FieldsRows,
+            nrRows,
             lsMod,
             props);
 
@@ -374,50 +358,43 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
-    wlFields.setEnabled(!action.argFromPrevious);
-    wFields.setEnabled(!action.argFromPrevious);
+    wlFields.setEnabled(!action.isArgFromPrevious());
+    wFields.setEnabled(!action.isArgFromPrevious());
 
     // Add the file to the list of files...
-    SelectionAdapter selA =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            wFields.add(wFilename.getText());
-            wFilename.setText("");
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-            wFields.optWidth(true);
-          }
+    Listener selectionListener =
+        e -> {
+          wFields.add(wFilename.getText());
+          wFilename.setText("");
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+          wFields.optWidth(true);
         };
-    wbaFilename.addSelectionListener(selA);
-    wFilename.addSelectionListener(selA);
+    wbaFilename.addListener(SWT.Selection, selectionListener);
+    wFilename.addListener(SWT.Selection, selectionListener);
 
     // Delete files from the list of files...
-    wbdFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int[] idx = wFields.getSelectionIndices();
-            wFields.remove(idx);
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          }
+    wbdFilename.addListener(
+        SWT.Selection,
+        e -> {
+          int[] idx = wFields.getSelectionIndices();
+          wFields.remove(idx);
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
         });
 
     // Edit the selected file & remove from the list...
-    wbeFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int idx = wFields.getSelectionIndex();
-            if (idx >= 0) {
-              String[] string = wFields.getItem(idx);
-              wFilename.setText(string[0]);
-              wFields.remove(idx);
-            }
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
+    wbeFilename.addListener(
+        SWT.Selection,
+        e -> {
+          int idx = wFields.getSelectionIndex();
+          if (idx >= 0) {
+            String[] string = wFields.getItem(idx);
+            wFilename.setText(string[0]);
+            wFields.remove(idx);
           }
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
         });
 
     getData();
@@ -453,17 +430,18 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
       wName.setText(action.getName());
     }
 
-    if (action.arguments != null) {
-      for (int i = 0; i < action.arguments.length; i++) {
-        TableItem ti = wFields.table.getItem(i);
-        if (action.arguments[i] != null) {
-          ti.setText(1, action.arguments[i]);
+    if (action.getFileItems() != null) {
+      int i = 0;
+      for (FileItem item : action.getFileItems()) {
+        TableItem ti = wFields.table.getItem(i++);
+        if (item.getFileName() != null) {
+          ti.setText(1, item.getFileName());
         }
       }
       wFields.setRowNums();
       wFields.optWidth(true);
     }
-    wPrevious.setSelection(action.argFromPrevious);
+    wPrevious.setSelection(action.isArgFromPrevious());
 
     if (action.getLimitFolders() != null) {
       wLimitFolders.setText(action.getLimitFolders());
@@ -472,15 +450,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     }
 
     if (action.getSuccessCondition() != null) {
-      if (action
-          .getSuccessCondition()
-          .equals(ActionDeleteFolders.SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED)) {
-        wSuccessCondition.select(1);
-      } else if (action.getSuccessCondition().equals(ActionDeleteFolders.SUCCESS_IF_ERRORS_LESS)) {
-        wSuccessCondition.select(2);
-      } else {
-        wSuccessCondition.select(0);
-      }
+      wSuccessCondition.select(action.getSuccessCondition().getIndex());
     } else {
       wSuccessCondition.select(0);
     }
@@ -504,34 +474,23 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setPrevious(wPrevious.getSelection());
+    action.setArgFromPrevious(wPrevious.getSelection());
     action.setLimitFolders(wLimitFolders.getText());
 
-    if (wSuccessCondition.getSelectionIndex() == 1) {
-      action.setSuccessCondition(ActionDeleteFolders.SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED);
-    } else if (wSuccessCondition.getSelectionIndex() == 2) {
-      action.setSuccessCondition(ActionDeleteFolders.SUCCESS_IF_ERRORS_LESS);
-    } else {
-      action.setSuccessCondition(ActionDeleteFolders.SUCCESS_IF_NO_ERRORS);
+    if (wSuccessCondition.getSelectionIndex() != -1) {
+      action.setSuccessCondition(
+          ActionDeleteFolders.SuccessCondition.values()[wSuccessCondition.getSelectionIndex()]);
     }
 
     int nrItems = wFields.nrNonEmpty();
-    int nr = 0;
+    ArrayList<FileItem> items = new ArrayList<>();
     for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        nr++;
+      String path = wFields.getNonEmpty(i).getText(1);
+      if (path != null && !path.isEmpty()) {
+        items.add(new FileItem(path));
       }
     }
-    action.arguments = new String[nr];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        action.arguments[nr] = arg;
-        nr++;
-      }
-    }
+    action.setFileItems(items);
 
     dispose();
   }
