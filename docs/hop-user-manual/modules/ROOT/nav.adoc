@@ -431,6 +431,7 @@ under the License.
 ** xref:metadata-types/execution-information-location.adoc[]
 ** xref:metadata-types/google-storage-authentication.adoc[Google Storage Authentication]
 ** xref:metadata-types/hop-server.adoc[Hop Server]
+** xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]
 ** xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]
 ** xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]
 ** xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]
