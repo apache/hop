@@ -193,6 +193,10 @@ public class MailDialog extends BaseTransformDialog {
 
   private TextVar wMessageOutputField;
 
+  private Button wCheckServerIdentity;
+  private Label wlCheckServerIdentity;
+  private LabelTextVar wTrustedHosts;
+
   private boolean getPreviousFields = false;
 
   private final MailMeta input;
@@ -730,7 +734,7 @@ public class MailDialog extends BaseTransformDialog {
     // ///////////////////////////////////////
 
     // ////////////////////////////////////
-    // START OF AUTHENTIFICATION GROUP
+    // START OF AUTHENTICATION GROUP
     // ////////////////////////////////////
 
     Group wAuthentificationGroup = new Group(wContentComp, SWT.SHADOW_NONE);
@@ -913,6 +917,45 @@ public class MailDialog extends BaseTransformDialog {
             input.setChanged();
           }
         });
+
+    // Use check server identity
+    wlCheckServerIdentity = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlCheckServerIdentity.setText(BaseMessages.getString(PKG, "Mail.CheckServerIdentity.Label"));
+    PropsUi.setLook(wlCheckServerIdentity);
+    FormData fdlCheckServerIdentity = new FormData();
+    fdlCheckServerIdentity.left = new FormAttachment(0, 0);
+    fdlCheckServerIdentity.top = new FormAttachment(wSecureConnectionType, 2 * margin);
+    fdlCheckServerIdentity.right = new FormAttachment(middle, -margin);
+    wlCheckServerIdentity.setLayoutData(fdlCheckServerIdentity);
+    wCheckServerIdentity = new Button(wAuthentificationGroup, SWT.CHECK);
+    PropsUi.setLook(wCheckServerIdentity);
+    FormData fdCheckServerIdentity = new FormData();
+    fdCheckServerIdentity.left = new FormAttachment(middle, margin);
+    fdCheckServerIdentity.top = new FormAttachment(wlCheckServerIdentity, 0, SWT.CENTER);
+    fdCheckServerIdentity.right = new FormAttachment(100, 0);
+    wCheckServerIdentity.setLayoutData(fdCheckServerIdentity);
+    wCheckServerIdentity.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            setSecureConnectiontype();
+            input.setChanged();
+          }
+        });
+
+    // Trusted Hosts line
+    wTrustedHosts =
+        new LabelTextVar(
+            variables,
+            wAuthentificationGroup,
+            BaseMessages.getString(PKG, "Mail.TrustedHosts.Label"),
+            BaseMessages.getString(PKG, "Mail.TrustedHosts.Tooltip"));
+    wTrustedHosts.addModifyListener(lsMod);
+    FormData fdTrustedHosts = new FormData();
+    fdTrustedHosts.left = new FormAttachment(0, 0);
+    fdTrustedHosts.top = new FormAttachment(wlCheckServerIdentity, 2 * margin);
+    fdTrustedHosts.right = new FormAttachment(100, 0);
+    wTrustedHosts.setLayoutData(fdTrustedHosts);
 
     FormData fdAuthentificationGroup = new FormData();
     fdAuthentificationGroup.left = new FormAttachment(0, margin);
@@ -2102,6 +2145,7 @@ public class MailDialog extends BaseTransformDialog {
     setDynamicZip();
     setZip();
     setUseAuth();
+    setSecureConnectiontype();
     activateIsAttachContentField();
     setOutputMessage();
     input.setChanged(changed);
@@ -2376,6 +2420,8 @@ public class MailDialog extends BaseTransformDialog {
   protected void setSecureConnectiontype() {
     wSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wlSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
+    wTrustedHosts.setEnabled(wUseSecAuth.getSelection());
+    wCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
   }
 
   private void setEncodings() {
@@ -2500,6 +2546,7 @@ public class MailDialog extends BaseTransformDialog {
     }
 
     wUseAuth.setSelection(input.isUsingAuthentication());
+    wCheckServerIdentity.setSelection(input.isCheckServerIdentity());
     wUseXOAUTH2.setSelection(input.isUseXOAUTH2());
     wUseSecAuth.setSelection(input.isUsingSecureAuthentication());
     if (input.getAuthenticationUser() != null) {
@@ -2508,7 +2555,9 @@ public class MailDialog extends BaseTransformDialog {
     if (input.getAuthenticationPassword() != null) {
       wAuthPass.setText(input.getAuthenticationPassword());
     }
-
+    if (!Utils.isEmpty(input.getTrustedHosts())) {
+      wTrustedHosts.setText(input.getTrustedHosts());
+    }
     wOnlyComment.setSelection(input.isOnlySendComment());
 
     wUseHTML.setSelection(input.isUseHTML());
@@ -2645,6 +2694,8 @@ public class MailDialog extends BaseTransformDialog {
     input.setOnlySendComment(wOnlyComment.getSelection());
     input.setUseHTML(wUseHTML.getSelection());
     input.setUsePriority(wUsePriority.getSelection());
+    input.setCheckServerIdentity(wCheckServerIdentity.getSelection());
+    input.setTrustedHosts(wTrustedHosts.getText());
 
     input.setEncoding(wEncoding.getText());
     input.setPriority(wPriority.getText());
