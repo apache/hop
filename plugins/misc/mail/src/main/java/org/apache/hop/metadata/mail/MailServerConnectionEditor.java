@@ -55,8 +55,6 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
 
   private Button wCheckServerIdentity;
 
-  private Label wlCheckServerIdentity;
-
   private LabelTextVar wTrustedHosts;
 
   public MailServerConnectionEditor(
@@ -256,9 +254,9 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     lastControl = wSecureConnectionType;
 
     // Use check server identity
-    wlCheckServerIdentity = new Label(composite, SWT.RIGHT);
+    Label wlCheckServerIdentity = new Label(composite, SWT.RIGHT);
     wlCheckServerIdentity.setText(
-        BaseMessages.getString(PKG, "ActionMail.CheckServerIdentity.Label"));
+        BaseMessages.getString(PKG, "MailServerConnectionDialog.CheckServerIdentity"));
     PropsUi.setLook(wlCheckServerIdentity);
     FormData fdlCheckServerIdentity = new FormData();
     fdlCheckServerIdentity.left = new FormAttachment(0, 0);
@@ -279,20 +277,21 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
             setChanged();
           }
         });
+    lastControl = wCheckServerIdentity;
 
     // Trusted Hosts line
     wTrustedHosts =
         new LabelTextVar(
             variables,
             composite,
-            BaseMessages.getString(PKG, "ActionMail.TrustedHosts.Label"),
-            BaseMessages.getString(PKG, "ActionMail.TrustedHosts.Tooltip"));
-    //    wTrustedHosts.addModifyListener(lsMod);
+            BaseMessages.getString(PKG, "MailServerConnectionDialog.TrustedHosts"),
+            BaseMessages.getString(PKG, "MailServerConnectionDialog.TrustedHosts.Tooltip"));
     FormData fdTrustedHosts = new FormData();
     fdTrustedHosts.left = new FormAttachment(0, 0);
-    fdTrustedHosts.top = new FormAttachment(lastControl, 2 * margin);
+    fdTrustedHosts.top = new FormAttachment(lastControl, 0);
     fdTrustedHosts.right = new FormAttachment(100, 0);
     wTrustedHosts.setLayoutData(fdTrustedHosts);
+    lastControl = wTrustedHosts;
 
     Label wlUseProxy = new Label(composite, SWT.RIGHT);
     PropsUi.setLook(wlUseProxy);
