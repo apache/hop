@@ -39,19 +39,21 @@ import org.testcontainers.utility.MountableFile;
 @Testcontainers(disabledWithoutDocker = true)
 class BulkImportClientIT {
 
-  public static CrateDBContainer crateDBContainer =
-      new CrateDBContainer("crate")
-          .withCopyFileToContainer(
-              MountableFile.forClasspathResource("crate.yml"), "/crate/config/crate.yml")
-          .withExposedPorts(4200, 5432);
+  public static CrateDBContainer crateDBContainer;
 
   private static String crateEndpoint;
   private static Connection connection;
 
+  private static final String SKIP_TEST_CONTAINERS = System.getProperty("SkipTestContainers");
+
   @BeforeAll
   public static void setupAll() throws SQLException {
-    String skipTestContainers = System.getProperty("SkipTestContainers");
-    if (skipTestContainers == null) {
+    if (SKIP_TEST_CONTAINERS == null) {
+      crateDBContainer =
+          new CrateDBContainer("crate")
+              .withCopyFileToContainer(
+                  MountableFile.forClasspathResource("crate.yml"), "/crate/config/crate.yml")
+              .withExposedPorts(4200, 5432);
       crateDBContainer.start();
 
       crateEndpoint =
@@ -76,8 +78,10 @@ class BulkImportClientIT {
   }
 
   @AfterAll
-  public static void teardownAll() throws SQLException {
-    crateDBContainer.stop();
+  public static void teardownAll() {
+    if (SKIP_TEST_CONTAINERS == null) {
+      crateDBContainer.stop();
+    }
   }
 
   @Test
