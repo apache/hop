@@ -159,6 +159,12 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty(key = "use_Priority")
   private boolean usePriority;
 
+  @HopMetadataProperty(key = "trusted_hosts")
+  private String trustedHosts;
+
+  @HopMetadataProperty(key = "check_server_identity")
+  private boolean checkServerIdentity;
+
   @HopMetadataProperty private String port;
 
   @HopMetadataProperty private String priority;
@@ -248,6 +254,10 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
           // nested exception is:
           // javax.net.ssl.SSLException: Unsupported record version Unknown
           props.put("mail.smtps.quitwait", "false");
+        }
+        props.put("mail.smtp.ssl.checkServerIdentity", isCheckServerIdentity());
+        if (!Utils.isEmpty(trustedHosts)) {
+          props.put("mail.smtp.ssl.trust", resolve(trustedHosts));
         }
       }
 

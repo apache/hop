@@ -8,11 +8,14 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -50,6 +53,12 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
 
   private ComboVar wConnectionProtocol;
 
+  private Button wCheckServerIdentity;
+
+  private Label wlCheckServerIdentity;
+
+  private LabelTextVar wTrustedHosts;
+
   public MailServerConnectionEditor(
       HopGui hopGui, MetadataManager<MailServerConnection> manager, MailServerConnection metadata) {
     super(hopGui, manager, metadata);
@@ -81,6 +90,28 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     fdName.right = new FormAttachment(95, 0);
     wName.setLayoutData(fdName);
     Control lastControl = wName;
+
+    Label wlConnectionProtocol = new Label(composite, SWT.RIGHT);
+    PropsUi.setLook(wlConnectionProtocol);
+    wlConnectionProtocol.setText(
+        BaseMessages.getString(PKG, "MailServerConnectionDialog.ConnectionProtocol"));
+    FormData fdlConnectionProtocol = new FormData();
+    fdlConnectionProtocol.top = new FormAttachment(lastControl, margin);
+    fdlConnectionProtocol.left = new FormAttachment(0, 0);
+    fdlConnectionProtocol.right = new FormAttachment(middle, -margin);
+    wlConnectionProtocol.setLayoutData(fdlConnectionProtocol);
+    wConnectionProtocol = new ComboVar(variables, composite, SWT.SINGLE | SWT.BORDER);
+    PropsUi.setLook(wConnectionProtocol);
+    FormData fdConnectionProtocol = new FormData();
+    fdConnectionProtocol.top = new FormAttachment(lastControl, margin);
+    fdConnectionProtocol.left = new FormAttachment(middle, 0);
+    fdConnectionProtocol.right = new FormAttachment(100, 0);
+    wConnectionProtocol.setLayoutData(fdConnectionProtocol);
+    lastControl = wConnectionProtocol;
+
+    String[] protocols = new String[] {"SMTP", "IMAP", "POP3", "MBOX"};
+    wConnectionProtocol.setItems(protocols);
+    wConnectionProtocol.select(1);
 
     Label wlServerHostLabel = new Label(composite, SWT.RIGHT);
     PropsUi.setLook(wlServerHostLabel);
@@ -221,7 +252,47 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     fdSecureConnectionType.left = new FormAttachment(middle, 0);
     fdSecureConnectionType.right = new FormAttachment(100, 0);
     wSecureConnectionType.setLayoutData(fdSecureConnectionType);
+    String[] secureConnectionType = new String[] {"SSL", "TLS", "TLS 1.2"};
     lastControl = wSecureConnectionType;
+
+    // Use check server identity
+    wlCheckServerIdentity = new Label(composite, SWT.RIGHT);
+    wlCheckServerIdentity.setText(
+        BaseMessages.getString(PKG, "ActionMail.CheckServerIdentity.Label"));
+    PropsUi.setLook(wlCheckServerIdentity);
+    FormData fdlCheckServerIdentity = new FormData();
+    fdlCheckServerIdentity.left = new FormAttachment(0, 0);
+    fdlCheckServerIdentity.top = new FormAttachment(lastControl, 2 * margin);
+    fdlCheckServerIdentity.right = new FormAttachment(middle, -margin);
+    wlCheckServerIdentity.setLayoutData(fdlCheckServerIdentity);
+    wCheckServerIdentity = new Button(composite, SWT.CHECK);
+    PropsUi.setLook(wCheckServerIdentity);
+    FormData fdCheckServerIdentity = new FormData();
+    fdCheckServerIdentity.left = new FormAttachment(middle, margin);
+    fdCheckServerIdentity.top = new FormAttachment(lastControl, 0, SWT.CENTER);
+    fdCheckServerIdentity.right = new FormAttachment(100, 0);
+    wCheckServerIdentity.setLayoutData(fdCheckServerIdentity);
+    wCheckServerIdentity.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            setChanged();
+          }
+        });
+
+    // Trusted Hosts line
+    wTrustedHosts =
+        new LabelTextVar(
+            variables,
+            composite,
+            BaseMessages.getString(PKG, "ActionMail.TrustedHosts.Label"),
+            BaseMessages.getString(PKG, "ActionMail.TrustedHosts.Tooltip"));
+    //    wTrustedHosts.addModifyListener(lsMod);
+    FormData fdTrustedHosts = new FormData();
+    fdTrustedHosts.left = new FormAttachment(0, 0);
+    fdTrustedHosts.top = new FormAttachment(lastControl, 2 * margin);
+    fdTrustedHosts.right = new FormAttachment(100, 0);
+    wTrustedHosts.setLayoutData(fdTrustedHosts);
 
     Label wlUseProxy = new Label(composite, SWT.RIGHT);
     PropsUi.setLook(wlUseProxy);
@@ -275,28 +346,6 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     fdProxyPassword.right = new FormAttachment(100, 0);
     wProxyPassword.setLayoutData(fdProxyPassword);
     lastControl = wProxyPassword;
-
-    Label wlConnectionProtocol = new Label(composite, SWT.RIGHT);
-    PropsUi.setLook(wlConnectionProtocol);
-    wlConnectionProtocol.setText(
-        BaseMessages.getString(PKG, "MailServerConnectionDialog.ConnectionProtocol"));
-    FormData fdlConnectionProtocol = new FormData();
-    fdlConnectionProtocol.top = new FormAttachment(lastControl, margin);
-    fdlConnectionProtocol.left = new FormAttachment(0, 0);
-    fdlConnectionProtocol.right = new FormAttachment(middle, -margin);
-    wlConnectionProtocol.setLayoutData(fdlConnectionProtocol);
-    wConnectionProtocol = new ComboVar(variables, composite, SWT.SINGLE | SWT.BORDER);
-    PropsUi.setLook(wConnectionProtocol);
-    FormData fdConnectionProtocol = new FormData();
-    fdConnectionProtocol.top = new FormAttachment(lastControl, margin);
-    fdConnectionProtocol.left = new FormAttachment(middle, 0);
-    fdConnectionProtocol.right = new FormAttachment(100, 0);
-    wConnectionProtocol.setLayoutData(fdConnectionProtocol);
-    lastControl = wConnectionProtocol;
-
-    String[] protocols = new String[] {"SMTP", "IMAP", "POP3", "MBOX"};
-    wConnectionProtocol.setItems(protocols);
-    wConnectionProtocol.select(1);
 
     setWidgetsContent();
 
@@ -353,6 +402,8 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     wUseSecureAuthentication.setSelection(metadata.isUseSecureAuthentication());
     wSecureConnectionType.setText(Const.NVL(metadata.getSecureConnectionType(), ""));
     wUseProxy.setSelection(metadata.isUseProxy());
+    wTrustedHosts.setText(Const.NVL(metadata.getTrustedHosts(), ""));
+    wCheckServerIdentity.setSelection(wCheckServerIdentity.getSelection());
     wProxyUsername.setText(Const.NVL(metadata.getProxyUsername(), ""));
     wConnectionProtocol.setText(Const.NVL(metadata.getProtocol(), ""));
   }
@@ -369,11 +420,13 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     connection.setPassword(wServerPassword.getText());
     connection.setUseSecureAuthentication(wUseSecureAuthentication.getSelection());
     connection.setSecureConnectionType(wSecureConnectionType.getText());
+    connection.setTrustedHosts(wTrustedHosts.getText());
+    connection.setCheckServerIdentity(wCheckServerIdentity.getSelection());
     connection.setUseProxy(wUseProxy.getSelection());
     connection.setProxyUsername(wProxyUsername.getText());
   }
 
-  public void testConnection() {
+  private void testConnection() {
     MailServerConnection connection = new MailServerConnection(getVariables());
     connection.setName(wName.getText());
     connection.setProtocol(wConnectionProtocol.getText());
