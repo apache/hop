@@ -100,8 +100,6 @@
         <module>languagemodelchat</module>
         <module>ldap</module>
         <module>loadfileinput</module>
-        <module>mail</module>
-        <module>mailinput</module>
         <module>mapping</module>
         <module>memgroupby</module>
         <module>mergejoin</module>
