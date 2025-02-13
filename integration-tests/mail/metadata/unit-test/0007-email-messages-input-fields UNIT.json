@@ -1,0 +1,186 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Message number",
+          "data_set_field": "Message number"
+        },
+        {
+          "transform_field": "Subject",
+          "data_set_field": "Subject"
+        },
+        {
+          "transform_field": "Sender",
+          "data_set_field": "Sender"
+        },
+        {
+          "transform_field": "Reply to",
+          "data_set_field": "Reply to"
+        },
+        {
+          "transform_field": "Recipients",
+          "data_set_field": "Recipients"
+        },
+        {
+          "transform_field": "Description",
+          "data_set_field": "Description"
+        },
+        {
+          "transform_field": "Body",
+          "data_set_field": "Body"
+        },
+        {
+          "transform_field": "Content type",
+          "data_set_field": "Content type"
+        },
+        {
+          "transform_field": "Folder name",
+          "data_set_field": "Folder name"
+        },
+        {
+          "transform_field": "Flag new",
+          "data_set_field": "Flag new"
+        },
+        {
+          "transform_field": "Flag read",
+          "data_set_field": "Flag read"
+        },
+        {
+          "transform_field": "Flag flagged",
+          "data_set_field": "Flag flagged"
+        },
+        {
+          "transform_field": "Flag draft",
+          "data_set_field": "Flag draft"
+        },
+        {
+          "transform_field": "Flag deleted",
+          "data_set_field": "Flag deleted"
+        },
+        {
+          "transform_field": "Attached files count",
+          "data_set_field": "Attached files count"
+        },
+        {
+          "transform_field": "Mail Header(Name)",
+          "data_set_field": "Mail Header(Name)"
+        },
+        {
+          "transform_field": "Content Type (Body)",
+          "data_set_field": "Content Type (Body)"
+        }
+      ],
+      "field_order": [
+        "Message number",
+        "Subject",
+        "Sender",
+        "Reply to",
+        "Recipients",
+        "Description",
+        "Body",
+        "Content type",
+        "Folder name",
+        "Flag new",
+        "Flag read",
+        "Flag flagged",
+        "Flag draft",
+        "Flag deleted",
+        "Attached files count",
+        "Mail Header(Name)",
+        "Content Type (Body)"
+      ],
+      "data_set_name": "0007-email-messages-input-fields-golden",
+      "transform_name": "Dummy (do nothing)"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Message number",
+          "data_set_field": "Message number"
+        },
+        {
+          "transform_field": "Subject",
+          "data_set_field": "Subject"
+        },
+        {
+          "transform_field": "Sender",
+          "data_set_field": "Sender"
+        },
+        {
+          "transform_field": "Reply to",
+          "data_set_field": "Reply to"
+        },
+        {
+          "transform_field": "Recipients",
+          "data_set_field": "Recipients"
+        },
+        {
+          "transform_field": "Description",
+          "data_set_field": "Description"
+        },
+        {
+          "transform_field": "Folder name",
+          "data_set_field": "Folder name"
+        },
+        {
+          "transform_field": "Flag new",
+          "data_set_field": "Flag new"
+        },
+        {
+          "transform_field": "Flag read",
+          "data_set_field": "Flag read"
+        },
+        {
+          "transform_field": "Flag flagged",
+          "data_set_field": "Flag flagged"
+        },
+        {
+          "transform_field": "Flag draft",
+          "data_set_field": "Flag draft"
+        },
+        {
+          "transform_field": "Flag deleted",
+          "data_set_field": "Flag deleted"
+        },
+        {
+          "transform_field": "Attached files count",
+          "data_set_field": "Attached files count"
+        },
+        {
+          "transform_field": "Mail Header(Name)",
+          "data_set_field": "Mail Header(Name)"
+        }
+      ],
+      "field_order": [
+        "Message number",
+        "Subject",
+        "Sender",
+        "Reply to",
+        "Recipients",
+        "Description",
+        "Folder name",
+        "Flag new",
+        "Flag read",
+        "Flag flagged",
+        "Flag draft",
+        "Flag deleted",
+        "Attached files count",
+        "Mail Header(Name)"
+      ],
+      "data_set_name": "0007-email-messages-input-fields-golden",
+      "transform_name": "preview"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0007-email-messages-input-fields UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0007-email-messages-input-fields.hpl"
+}

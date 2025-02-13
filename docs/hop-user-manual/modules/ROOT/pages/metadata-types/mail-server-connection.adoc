@@ -19,7 +19,7 @@ under the License.
 
 = Mail server connection
 
-image:icons/mail.svg[]
+image:icons/mail.svg[Mail Server Connection, width=24px]
 
 A Mail Server connection is a connection to a mail server that can be reused from actions like the xref:workflow/actions/mail.adoc[Mail] action. Support for other e-mail related actions and transforms will be added in a later release.
 
@@ -33,6 +33,7 @@ xref:workflow/actions/mail.adoc[Mail] action
 |===
 |Option |Description
 |Connection name|The name to use for this mail server connection
+|Connection protocol|The connection protocol to use for this connection. Supported options are SMTP, IMAP, POP, MBOX (Only SMTP is currently supported).
 |Server host|The mail server hostname to use for this connection
 |Server port|The mail server port to use for this connection
 |Use authentication?|Use authentication with this connection?
@@ -41,10 +42,11 @@ xref:workflow/actions/mail.adoc[Mail] action
 |Password|The password to use for this connection
 |Use secure authentication?|Use secure authentication for this connection?
 |Secure authentication type|The secure authentication type to use for this connection. Supported options are SSL, TLS, TLS1.2
+|Check server identity?|Check the server identity?
+|Trusted hosts|A list of trusted hosts separated by a space, for example: "host1 host2 host3"
 |Use proxy?|Use a proxy server with this mail server connection?
 |Proxy username|The proxy username to use for this connection
 |Proxy password|The proxy password to use for this connection
-|Connection protocol|The connection protocol to use for this connection. Supported options are SMTP, IMAP, POP, MBOX (Only SMTP is currently supported).
 |===
 
 == Samples

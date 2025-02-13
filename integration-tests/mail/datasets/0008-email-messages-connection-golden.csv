@@ -1,0 +1,3 @@
+Message number,Subject,Sender,Reply to,Recipients,Description,Folder name,Flag new,Flag read,Flag flagged,Flag draft,Flag deleted,Attached files count,Mail Header(Name)
+1,test subject,"""\""user01@example.com\"""" <user01@example.com>","""\""user01@example.com\"""" <user01@example.com>",user01@example.com,,INBOX,N,Y,N,N,N,0,
+2,ACTION: Appointment confirmation,"""\""Wile E. Coyote\"""" <user01@example.com>","""\""Wile E. Coyote\"""" <user01@example.com>",user01@example.com,,INBOX,Y,Y,N,N,N,0,

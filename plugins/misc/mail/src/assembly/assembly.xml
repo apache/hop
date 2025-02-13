@@ -46,5 +46,17 @@
             </includes>
             <outputDirectory>plugins/misc/mail</outputDirectory>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.sun.activation:jakarta.activation:jar</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.sun.activation:jakarta.activation-api:jar</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
     </dependencySets>
 </assembly>

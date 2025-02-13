@@ -44,6 +44,7 @@ docs/.pnp
 docs/.pnp.js
 tmp/images
 
+integration-tests/mail/output/
 integration-tests/spreadsheet/files/exel-part-001.xlsx
 integration-tests/spreadsheet/files/exel-part-002.xlsx
 integration-tests/spreadsheet/files/exel-header-test.xlsx

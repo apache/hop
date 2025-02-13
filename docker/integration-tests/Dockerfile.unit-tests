@@ -77,6 +77,9 @@ COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./assemblies/client/target/hop ${D
 # Copy gcp key
 COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ${GCP_KEY_FILE} /tmp/google-key-apache-hop-it.json
 
+# Copy mail keystore
+COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./docker/integration-tests/resource/mail/conf/keystore /tmp
+
 # Unzip and install in correct location
 RUN chown -R ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH}/hop \
   && chmod 700 ${DEPLOYMENT_PATH}/hop/*.sh \
@@ -94,6 +97,7 @@ VOLUME ["/files"]
 USER ${JENKINS_USER}
 ENV PATH=$PATH:${DEPLOYMENT_PATH}/hop
 ENV GOOGLE_APPLICATION_CREDENTIALS="/tmp/google-key-apache-hop-it.json"
+ENV HOP_OPTIONS="${HOP_OPTIONS} -Djavax.net.ssl.keyStore=/tmp/keystore -Djavax.net.ssl.trustStore=/tmp/keystore -Djavax.net.ssl.keyStorePassword=james72laBalle" 
 WORKDIR /home/${JENKINS_USER}
 # CMD ["/bin/bash"]
 ENTRYPOINT []

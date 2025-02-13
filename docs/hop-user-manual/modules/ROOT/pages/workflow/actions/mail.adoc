@@ -38,6 +38,8 @@ You can attach files to your email messages such as error logs and regular logs.
 
 In addition, logs can be zipped into a single archive for convenience.
 
+The mail action can either work with mail server configuration defined in the action itself, or take the server connection from a xref:metadata-types/mail-server-connection.adoc[Mail Server Connection] metadata type. In the latter case, the server configuration in the action itself is ignored.
+
 == Options
 
 === Addresses Tab
@@ -46,12 +48,12 @@ In addition, logs can be zipped into a single archive for convenience.
 |===
 |Option|Description
 |Action name|The name of the workflow action.
-2+|Destination
+2+|**Destination**
 |Destination Address|The destination for the email; you can specify multiple addresses if you separate them with a space.
 |Cc|An identical copy of the message is also sent to all the addresses listed in the Cc: field.
 To enter more than one address in the Cc: field, separate them with a space.
 |BCc|Send to a recipient whose email address does not appear in the message
-2+|Sender
+2+|**Sender**
 |Sender name|Name of the person sending the email
 |Sender address|Email address of the person sending the email
 |Reply to|Email address of the person to which to send a reply
@@ -64,16 +66,20 @@ To enter more than one address in the Cc: field, separate them with a space.
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-2+|SMTP Server
+2+|**Mail Server Connection**
+|Mail Connection|If a mail server connection is selected here, the rest of this tab is ignored. The server configuration will be taken from the xref:metadata-types/mail-server-connection.adoc[Mail Server Connection] metadata item.
+2+|**SMTP Server**
 |SMTP Server|The SMTP server address
 |Port|The port on which the SMTP Server is running
-2+|Authentication
+2+|**Authentication**
 |Use Authentication|Enable to use authentication to the SMTP Server
 |Use XOAUTH2 |If checked XOAuth2 will be used to authenticate with the server.
 |Authentication user|SMTP user account name
 |Authentication password|SMTP user account password
 |Use Secure Authentication?|Enable to use secure authentication
 |Secure Connection Type|Select authentication type (SSL, TLS, TLS 1.2)
+|Check server identity?|Check the server identity?
+|Trusted hosts|A list of trusted hosts separated by a space, for example: "host1 host2 host3"
 |===
 
 === Email Message Tab

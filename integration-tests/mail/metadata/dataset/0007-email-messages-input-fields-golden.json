@@ -1,0 +1,120 @@
+{
+  "base_filename": "0007-email-messages-input-fields-golden.csv",
+  "name": "0007-email-messages-input-fields-golden",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "Message number",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 250,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Subject",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 250,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Sender",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 250,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Reply to",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 250,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Recipients",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 250,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Description",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 250,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Folder name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "Flag new",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "Flag read",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "Flag flagged",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "Flag draft",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "Flag deleted",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "Attached files count",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 250,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Mail Header(Name)",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

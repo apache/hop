@@ -31,6 +31,8 @@ The `Get mails (POP3/IMAP)` action retrieves mails from a POP3 or IMAP server an
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
+2+|**Mail Server Connection**
+|Mail Connection|If a mail server connection is selected here, the rest of this tab is ignored. The server configuration will be taken from the xref:metadata-types/mail-server-connection.adoc[Mail Server Connection] metadata item.
 2+|Server Settings
 |Workflow action name|The name of the workflow action.
 |Source Host|The host name or IP-address of the pop server.

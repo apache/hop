@@ -1,0 +1,17 @@
+{
+  "proxyUsername": "",
+  "trustedHosts": "",
+  "checkServerIdentity": false,
+  "useProxy": false,
+  "serverPort": "993",
+  "serverHost": "${MAIL_SMTP_SERVER}",
+  "useXOAuth2": false,
+  "password": "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde",
+  "protocol": "IMAP",
+  "virtualPath": "",
+  "secureConnectionType": "SSL",
+  "useAuthentication": true,
+  "name": "james-imap",
+  "useSecureAuthentication": true,
+  "username": "user01@example.com"
+}

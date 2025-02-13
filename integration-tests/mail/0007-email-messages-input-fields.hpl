@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0007-email-messages-input-fields</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/04/17 14:21:27.678</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/04/17 14:21:27.678</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Email messages input</from>
+      <to>rm dates, size, body</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>rm dates, size, body</from>
+      <to>preview</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Email messages input</name>
+    <type>MailInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <delete>N</delete>
+    <fields>
+      <field>
+        <column>0</column>
+        <name>Message number</name>
+      </field>
+      <field>
+        <column>1</column>
+        <name>Subject</name>
+      </field>
+      <field>
+        <column>2</column>
+        <name>Sender</name>
+      </field>
+      <field>
+        <column>3</column>
+        <name>Reply to</name>
+      </field>
+      <field>
+        <column>4</column>
+        <name>Recipients</name>
+      </field>
+      <field>
+        <column>5</column>
+        <name>Description</name>
+      </field>
+      <field>
+        <column>6</column>
+        <name>Body</name>
+      </field>
+      <field>
+        <column>7</column>
+        <name>Received date</name>
+      </field>
+      <field>
+        <column>8</column>
+        <name>Sent date</name>
+      </field>
+      <field>
+        <column>9</column>
+        <name>Content type</name>
+      </field>
+      <field>
+        <column>10</column>
+        <name>Folder name</name>
+      </field>
+      <field>
+        <column>11</column>
+        <name>Size</name>
+      </field>
+      <field>
+        <column>12</column>
+        <name>Flag new</name>
+      </field>
+      <field>
+        <column>13</column>
+        <name>Flag read</name>
+      </field>
+      <field>
+        <column>14</column>
+        <name>Flag flagged</name>
+      </field>
+      <field>
+        <column>15</column>
+        <name>Flag draft</name>
+      </field>
+      <field>
+        <column>16</column>
+        <name>Flag deleted</name>
+      </field>
+      <field>
+        <column>17</column>
+        <name>Attached files count</name>
+      </field>
+      <field>
+        <column>18</column>
+        <name>Mail Header(Name)</name>
+      </field>
+      <field>
+        <column>19</column>
+        <name>Content Type (Body)</name>
+      </field>
+    </fields>
+    <imapfirstmails>10</imapfirstmails>
+    <imapfolder>INBOX</imapfolder>
+    <includesubfolders>Y</includesubfolders>
+    <notTermReceivedDateSearch>N</notTermReceivedDateSearch>
+    <notTermRecipientSearch>N</notTermRecipientSearch>
+    <notTermSenderSearch>N</notTermSenderSearch>
+    <notTermSubjectSearch>N</notTermSubjectSearch>
+    <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
+    <protocol>IMAP</protocol>
+    <retrievemails>0</retrievemails>
+    <rowlimit>0</rowlimit>
+    <servername>${MAIL_SMTP_SERVER}</servername>
+    <sslport>993</sslport>
+    <usedynamicfolder>N</usedynamicfolder>
+    <useproxy>N</useproxy>
+    <username>user01@example.com</username>
+    <usessl>Y</usessl>
+    <usexoauth2>N</usexoauth2>
+    <valueimaplist>imaplistall</valueimaplist>
+    <attributes/>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>preview</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>576</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>rm dates, size, body</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <remove>
+        <name>Received date</name>
+      </remove>
+      <remove>
+        <name>Sent date</name>
+      </remove>
+      <remove>
+        <name>Size</name>
+      </remove>
+      <remove>
+        <name>Body</name>
+      </remove>
+      <remove>
+        <name>Content Type (Body)</name>
+      </remove>
+      <remove>
+        <name>Content type</name>
+      </remove>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
