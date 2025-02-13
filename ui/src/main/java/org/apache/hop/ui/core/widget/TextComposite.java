@@ -179,7 +179,7 @@ public abstract class TextComposite extends Composite {
    *
    * <p>The old selection is replaced with the new text.
    *
-   * @param string the string
+   * @param strInsert the string
    */
   public abstract void insert(String strInsert);
 
