@@ -17,48 +17,40 @@
 
 package org.apache.hop.workflow.actions.evaluatetablecontent;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WorkflowActionEvalTableContentLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionEvalTableContent> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.junit.jupiter.api.Test;
 
-  @Override
-  protected Class<ActionEvalTableContent> getActionClass() {
-    return ActionEvalTableContent.class;
+public class WorkflowActionEvalTableContentLoadSaveTest {
+  @Test
+  void testSerialization() throws Exception {
+    ActionEvalTableContent meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/evalueatetablecontent-action.xml", ActionEvalTableContent.class);
+
+    assertEquals("unit-test-db", meta.getConnection());
+    assertEquals("public", meta.getSchemaname());
+    assertEquals("dimension", meta.getTableName());
+    assertEquals("7", meta.getLimit());
+    assertFalse(meta.isUseCustomSql());
+    assertFalse(meta.isUseVars());
+    assertFalse(meta.isAddRowsResult());
+    assertTrue(meta.isClearResultList());
   }
 
-  @Override
-  protected List<String> listAttributes() {
-    return Arrays.asList(
-        new String[] {
-          "connection",
-          "schemaname",
-          "tablename",
-          "successCondition",
-          "limit",
-          "useCustomSql",
-          "useVars",
-          "customSql",
-          "addRowsResult",
-          "clearResultList"
-        });
-  }
+  @Test
+  void testClone() throws Exception {
+    ActionEvalTableContent meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/evalueatetablecontent-action.xml", ActionEvalTableContent.class);
 
-  @Override
-  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    validators.put(
-        "successCondition",
-        new IntLoadSaveValidator(ActionEvalTableContent.successConditionsCode.length));
-    return validators;
+    ActionEvalTableContent clone = (ActionEvalTableContent) meta.clone();
+    assertEquals(clone.getConnection(), meta.getConnection());
+    assertEquals(clone.getSchemaname(), meta.getSchemaname());
+    assertEquals(clone.getTableName(), meta.getTableName());
+    assertEquals(clone.getLimit(), meta.getLimit());
   }
 }

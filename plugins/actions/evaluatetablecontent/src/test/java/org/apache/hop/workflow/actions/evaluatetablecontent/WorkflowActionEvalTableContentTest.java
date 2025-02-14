@@ -163,7 +163,7 @@ public class WorkflowActionEvalTableContentTest {
     DatabaseMeta dbMeta = new DatabaseMeta();
     dbMeta.setDatabaseType("mock-db");
 
-    action.setDatabase(dbMeta);
+    action.setDatabaseMeta(dbMeta);
   }
 
   @After
@@ -174,8 +174,10 @@ public class WorkflowActionEvalTableContentTest {
   @Test
   public void testNrErrorsFailure() {
     action.setLimit("1");
-    action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
-    action.setTablename("table");
+    action.setSuccessCondition(
+        ActionEvalTableContent.getSuccessConditionCode(
+            ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL));
+    action.setTableName("table");
 
     Result res = action.execute(new Result(), 0);
 
@@ -189,8 +191,10 @@ public class WorkflowActionEvalTableContentTest {
   @Test
   public void testNrErrorsSuccess() {
     action.setLimit("5");
-    action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
-    action.setTablename("table");
+    action.setSuccessCondition(
+        ActionEvalTableContent.getSuccessConditionCode(
+            ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL));
+    action.setTableName("table");
 
     Result res = action.execute(new Result(), 0);
 
@@ -201,7 +205,9 @@ public class WorkflowActionEvalTableContentTest {
   @Test
   public void testNrErrorsNoCustomSql() {
     action.setLimit("5");
-    action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
+    action.setSuccessCondition(
+        ActionEvalTableContent.getSuccessConditionCode(
+            ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL));
     action.setUseCustomSql(true);
     action.setCustomSql(null);
 
