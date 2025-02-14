@@ -159,7 +159,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getDatabase(), lsMod);
+    wConnection = addConnectionLine(shell, wName, action.getConnection(), lsMod);
 
     // Schema name line
     // Schema name
@@ -557,14 +557,14 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
-    if (action.getSchemaname() != null) {
-      wSchemaname.setText(action.getSchemaname());
+    if (action.getSchemaName() != null) {
+      wSchemaname.setText(action.getSchemaName());
     }
-    if (action.getTablename() != null) {
-      wTablename.setText(action.getTablename());
+    if (action.getTableName() != null) {
+      wTablename.setText(action.getTableName());
     }
-    if (action.getFilename() != null) {
-      wFilename.setText(action.getFilename());
+    if (action.getFileName() != null) {
+      wFilename.setText(action.getFileName());
     }
     if (action.getSeparator() != null) {
       wSeparator.setText(action.getSeparator());
@@ -577,36 +577,36 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     if (action.getEscaped() != null) {
       wEscaped.setText(action.getEscaped());
     }
-    if (action.getLinestarted() != null) {
-      wLinestarted.setText(action.getLinestarted());
+    if (action.getLineStarted() != null) {
+      wLinestarted.setText(action.getLineStarted());
     }
-    if (action.getLineterminated() != null) {
-      wLineterminated.setText(action.getLineterminated());
+    if (action.getLineTerminated() != null) {
+      wLineterminated.setText(action.getLineTerminated());
     }
 
-    wReplaceData.setSelection(action.isReplacedata());
+    wReplaceData.setSelection(action.isReplaceData());
 
-    wLocalInfile.setSelection(action.isLocalInfile());
+    wLocalInfile.setSelection(action.isLocalInFile());
 
-    if (action.getIgnorelines() != null) {
+    if (action.getIgnoreLines() != null) {
 
-      wIgnorelines.setText(action.getIgnorelines());
+      wIgnorelines.setText(action.getIgnoreLines());
     } else {
       wIgnorelines.setText("0");
     }
 
-    if (action.getListattribut() != null) {
-      wListattribut.setText(action.getListattribut());
+    if (action.getListAttribute() != null) {
+      wListattribut.setText(action.getListAttribute());
     }
 
-    if (action.prorityvalue >= 0) {
-      wPriorityValue.select(action.prorityvalue);
+    if (action.prorityValue >= 0) {
+      wPriorityValue.select(action.prorityValue);
     } else {
       wPriorityValue.select(0); // NORMAL priority
     }
 
-    if (action.getDatabase() != null) {
-      wConnection.setText(action.getDatabase().getName());
+    if (action.getConnection() != null) {
+      wConnection.setText(action.getConnection());
     }
 
     wAddFileToResult.setSelection(action.isAddFileToResult());
@@ -630,20 +630,20 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
-    action.setSchemaname(wSchemaname.getText());
-    action.setTablename(wTablename.getText());
-    action.setFilename(wFilename.getText());
+    action.setConnection(wConnection.getText());
+    action.setSchemaName(wSchemaname.getText());
+    action.setTableName(wTablename.getText());
+    action.setFileName(wFilename.getText());
     action.setSeparator(wSeparator.getText());
     action.setEnclosed(wEnclosed.getText());
     action.setEscaped(wEscaped.getText());
-    action.setLineterminated(wLineterminated.getText());
-    action.setLinestarted(wLinestarted.getText());
-    action.setReplacedata(wReplaceData.getSelection());
-    action.setIgnorelines(wIgnorelines.getText());
-    action.setListattribut(wListattribut.getText());
-    action.prorityvalue = wPriorityValue.getSelectionIndex();
-    action.setLocalInfile(wLocalInfile.getSelection());
+    action.setLineTerminated(wLineterminated.getText());
+    action.setLineStarted(wLinestarted.getText());
+    action.setReplaceData(wReplaceData.getSelection());
+    action.setIgnoreLines(wIgnorelines.getText());
+    action.setListAttribute(wListattribut.getText());
+    action.prorityValue = wPriorityValue.getSelectionIndex();
+    action.setLocalInFile(wLocalInfile.getSelection());
 
     action.setAddFileToResult(wAddFileToResult.getSelection());
 
