@@ -66,12 +66,10 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
       data.insertRowMeta = getInputRowMeta().clone();
 
-      if (meta.isDoNotOpenNewFileInit()) {
-        if (!openNewFile()) {
-          logError("Couldn't open file [" + buildFilename() + "]");
-          setErrors(1);
-          return false;
-        }
+      if (meta.getFile().isDoNotOpenNewFileInit() && !openNewFile()) {
+        logError("Couldn't open file [" + buildFilename() + "]");
+        setErrors(1);
+        return false;
       }
     }
 
@@ -80,26 +78,24 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
 
     if (r != null
         && getLinesOutput() > 0
-        && meta.getSplitEvery() > 0
-        && ((getLinesOutput() + 1) % meta.getSplitEvery()) == 0) {
+        && meta.getFile().getSplitEvery() > 0
+        && ((getLinesOutput() + 1) % meta.getFile().getSplitEvery()) == 0) {
 
       // Done with this part or with everything.
       closeFile();
 
       // Not finished: open another file...
-      if (r != null) {
-        if (!openNewFile()) {
-          logError("Unable to open new file (split #" + data.splitnr + "...");
-          setErrors(1);
-          return false;
-        }
+      if (r != null && !openNewFile()) {
+        logError("Unable to open new file (split #" + data.splitnr + "...");
+        setErrors(1);
+        return false;
       }
     }
 
     try {
       if (getLinesOutput() == 0) {
         // Add creation table once to the top
-        if (meta.createTable()) {
+        if (meta.isCreateTable()) {
           String crTable = data.db.getDDLCreationTable(schemaTable, data.insertRowMeta);
 
           if (isRowLevel()) {
@@ -110,7 +106,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
         }
 
         // Truncate table
-        if (meta.truncateTable()) {
+        if (meta.isTruncateTable()) {
           // Write to file
           String truncatetable =
               data.db.getDDLTruncateTable(schemaName, tableName + ";" + Const.CR + Const.CR);
@@ -128,7 +124,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
               + ";";
 
       // Do we start a new line for this statement ?
-      if (meta.StartNewLine()) {
+      if (meta.isStartNewLine()) {
         sql = sql + Const.CR;
       }
 
@@ -146,10 +142,8 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       putRow(data.outputRowMeta, r); // in case we want it go further...
       incrementLinesOutput();
 
-      if (checkFeedback(getLinesRead())) {
-        if (isBasic()) {
-          logBasic("linenr " + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && isBasic()) {
+        logBasic("linenr " + getLinesRead());
       }
     } catch (HopException e) {
 
@@ -176,7 +170,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
   }
 
   public String buildFilename() {
-    return meta.buildFilename(this, resolve(meta.getFileName()), getCopy(), data.splitnr);
+    return meta.buildFilename(this, resolve(meta.getFile().getFileName()), getCopy(), data.splitnr);
   }
 
   public boolean openNewFile() {
@@ -186,7 +180,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
     try {
 
       String filename = buildFilename();
-      if (meta.AddToResult()) {
+      if (meta.isAddToResult()) {
         // Add this to the result file names...
         ResultFile resultFile =
             new ResultFile(
@@ -202,7 +196,8 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       if (isDetailed()) {
         logDetailed("Opening output stream in nocompress mode");
       }
-      OutputStream fos = HopVfs.getOutputStream(filename, meta.isFileAppended(), variables);
+      OutputStream fos =
+          HopVfs.getOutputStream(filename, meta.getFile().isFileAppended(), variables);
       outputStream = fos;
 
       if (isDetailed()) {
@@ -291,12 +286,12 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
 
         logBasic("Connected to database [" + meta.getConnection() + "]");
 
-        if (meta.isCreateParentFolder()) {
+        if (meta.getFile().isCreateParentFolder()) {
           // Check for parent folder
           FileObject parentfolder = null;
           try {
             // Get parent folder
-            String filename = resolve(meta.getFileName());
+            String filename = resolve(meta.getFile().getFileName());
             parentfolder = HopVfs.getFileObject(filename, variables).getParent();
             if (!parentfolder.exists()) {
               logBasic(
@@ -319,15 +314,13 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
           }
         }
 
-        if (!meta.isDoNotOpenNewFileInit()) {
-          if (!openNewFile()) {
-            logError("Couldn't open file [" + buildFilename() + "]");
-            setErrors(1L);
-            stopAll();
-          }
+        if (!meta.getFile().isDoNotOpenNewFileInit() && !openNewFile()) {
+          logError("Couldn't open file [" + buildFilename() + "]");
+          setErrors(1L);
+          stopAll();
         }
 
-        tableName = resolve(meta.getTablename());
+        tableName = resolve(meta.getTableName());
         schemaName = resolve(meta.getSchemaName());
 
         if (Utils.isEmpty(tableName)) {

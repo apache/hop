@@ -21,6 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -40,6 +42,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -57,308 +60,64 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::SQLFileOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/sqlfileoutput.html")
+@Getter
+@Setter
 public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileOutputData> {
   private static final Class<?> PKG = SQLFileOutputMeta.class;
   private static final String CONST_SPACE = "      ";
   private static final String CONST_SPACE_SHORT = "    ";
 
+  @HopMetadataProperty(key = "connection")
   private String connection;
+
+  @HopMetadataProperty(key = "schema")
   private String schemaName;
+
+  @HopMetadataProperty(key = "table")
   private String tableName;
+
+  @HopMetadataProperty(key = "truncate")
   private boolean truncateTable;
 
+  @HopMetadataProperty(key = "AddToResult")
   private boolean addToResult;
 
+  @HopMetadataProperty(key = "create")
   private boolean createTable;
 
-  /** The base name of the output file */
-  private String fileName;
-
-  /** The file extention in case of a generated filename */
-  private String extension;
-
-  /**
-   * if this value is larger then 0, the text file is split up into parts of this number of lines
-   */
-  private int splitEvery;
-
-  /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
-  private boolean fileAppended;
-
-  /** Flag: add the transformnr in the filename */
-  private boolean transformNrInFilename;
-
-  /** Flag: add the partition number in the filename */
-  private boolean partNrInFilename;
-
-  /** Flag: add the date in the filename */
-  private boolean dateInFilename;
-
-  /** Flag: add the time in the filename */
-  private boolean timeInFilename;
+  @HopMetadataProperty(key = "file")
+  private SqlFile file;
 
   /** The encoding to use for reading: null or empty string means system default encoding */
+  @HopMetadataProperty(key = "encoding")
   private String encoding;
 
   /** The date format */
-  private String dateformat;
+  @HopMetadataProperty(key = "dateformat")
+  private String dateFormat;
 
   /** Start New line for each statement */
+  @HopMetadataProperty(key = "StartNewLine")
   private boolean startNewLine;
 
-  /** Flag: create parent folder if needed */
-  private boolean createparentfolder;
-
-  private boolean doNotOpenNewFileInit;
-
+  /**
+   * @deprecated keep for backwards compatibility
+   * @param transformNode the XML of the transform node
+   * @param metadataProvider the metadata provider
+   * @throws HopXmlException when unable to parse the XML
+   */
   @Override
+  @Deprecated(since = "2.13")
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
+    try {
+      super.loadXml(transformNode, metadataProvider);
 
-  @Override
-  public Object clone() {
-
-    return (SQLFileOutputMeta) super.clone();
-  }
-
-  /**
-   * Get connection name
-   *
-   * @return
-   */
-  public String getConnection() {
-    return connection;
-  }
-
-  /**
-   * Set connection name
-   *
-   * @param connection
-   */
-  public void setConnection(String connection) {
-    this.connection = connection;
-  }
-
-  /**
-   * @return Returns the extension.
-   */
-  public String getExtension() {
-    return extension;
-  }
-
-  /**
-   * @param extension The extension to set.
-   */
-  public void setExtension(String extension) {
-    this.extension = extension;
-  }
-
-  /**
-   * @return Returns the fileAppended.
-   */
-  public boolean isFileAppended() {
-    return fileAppended;
-  }
-
-  /**
-   * @param fileAppended The fileAppended to set.
-   */
-  public void setFileAppended(boolean fileAppended) {
-    this.fileAppended = fileAppended;
-  }
-
-  /**
-   * @return Returns the fileName.
-   */
-  public String getFileName() {
-    return fileName;
-  }
-
-  /**
-   * @return Returns the splitEvery.
-   */
-  public int getSplitEvery() {
-    return splitEvery;
-  }
-
-  /**
-   * @param splitEvery The splitEvery to set.
-   */
-  public void setSplitEvery(int splitEvery) {
-    this.splitEvery = splitEvery;
-  }
-
-  /**
-   * @return Returns the transformNrInFilename.
-   */
-  public boolean isTransformNrInFilename() {
-    return transformNrInFilename;
-  }
-
-  /**
-   * @param transformNrInFilename The transformNrInFilename to set.
-   */
-  public void setTransformNrInFilename(boolean transformNrInFilename) {
-    this.transformNrInFilename = transformNrInFilename;
-  }
-
-  /**
-   * @return Returns the timeInFilename.
-   */
-  public boolean isTimeInFilename() {
-    return timeInFilename;
-  }
-
-  /**
-   * @return Returns the dateInFilename.
-   */
-  public boolean isDateInFilename() {
-    return dateInFilename;
-  }
-
-  /**
-   * @param dateInFilename The dateInFilename to set.
-   */
-  public void setDateInFilename(boolean dateInFilename) {
-    this.dateInFilename = dateInFilename;
-  }
-
-  /**
-   * @param timeInFilename The timeInFilename to set.
-   */
-  public void setTimeInFilename(boolean timeInFilename) {
-    this.timeInFilename = timeInFilename;
-  }
-
-  /**
-   * @param fileName The fileName to set.
-   */
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
-  /**
-   * @return The desired encoding of output file, null or empty if the default system encoding needs
-   *     to be used.
-   */
-  public String getEncoding() {
-    return encoding;
-  }
-
-  /**
-   * @return The desired date format.
-   */
-  public String getDateFormat() {
-    return dateformat;
-  }
-
-  /**
-   * @param encoding The desired encoding of output file, null or empty if the default system
-   *     encoding needs to be used.
-   */
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
-
-  /**
-   * @param dateFormat The desired date format of output field date used.
-   */
-  public void setDateFormat(String dateFormat) {
-    this.dateformat = dateFormat;
-  }
-
-  /**
-   * @return Returns the table name.
-   */
-  public String getTablename() {
-    return tableName;
-  }
-
-  /**
-   * @param tableName The table name to set.
-   */
-  public void setTablename(String tableName) {
-    this.tableName = tableName;
-  }
-
-  /**
-   * @return Returns the truncate table flag.
-   */
-  public boolean truncateTable() {
-    return truncateTable;
-  }
-
-  /**
-   * @return Returns the Add to result filesname flag.
-   */
-  public boolean AddToResult() {
-    return addToResult;
-  }
-
-  /**
-   * @return Returns the Start new line flag.
-   */
-  public boolean StartNewLine() {
-    return startNewLine;
-  }
-
-  public boolean isDoNotOpenNewFileInit() {
-    return doNotOpenNewFileInit;
-  }
-
-  public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
-    this.doNotOpenNewFileInit = doNotOpenNewFileInit;
-  }
-
-  /**
-   * @return Returns the create table flag.
-   */
-  public boolean createTable() {
-    return createTable;
-  }
-
-  /**
-   * @param truncateTable The truncate table flag to set.
-   */
-  public void setTruncateTable(boolean truncateTable) {
-    this.truncateTable = truncateTable;
-  }
-
-  /**
-   * @param addToResult The Add file to result to set.
-   */
-  public void setAddToResult(boolean addToResult) {
-    this.addToResult = addToResult;
-  }
-
-  /**
-   * @param startNewLine The Start NEw Line to set.
-   */
-  public void setStartNewLine(boolean startNewLine) {
-    this.startNewLine = startNewLine;
-  }
-
-  /**
-   * @param createTable The create table flag to set.
-   */
-  public void setCreateTable(boolean createTable) {
-    this.createTable = createTable;
-  }
-
-  /**
-   * @return Returns the create parent folder flag.
-   */
-  public boolean isCreateParentFolder() {
-    return createparentfolder;
-  }
-
-  /**
-   * @param createparentfolder The create parent folder flag to set.
-   */
-  public void setCreateParentFolder(boolean createparentfolder) {
-    this.createparentfolder = createparentfolder;
+      // Rename from extention to extension
+      file.extension = XmlHandler.getTagValue(transformNode, "file", "extention");
+    } catch (Exception e) {
+      throw new HopXmlException("Unable to load transform info from XML", e);
+    }
   }
 
   public String[] getFiles(IVariables variables, String fileName) {
@@ -366,15 +125,15 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
     int splits = 1;
     int parts = 1;
 
-    if (transformNrInFilename) {
+    if (file.transformNrInFilename) {
       copies = 3;
     }
 
-    if (partNrInFilename) {
+    if (file.partNrInFilename) {
       parts = 3;
     }
 
-    if (splitEvery != 0) {
+    if (file.splitEvery != 0) {
       splits = 3;
     }
 
@@ -409,111 +168,37 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
 
     Date now = new Date();
 
-    if (dateInFilename) {
+    if (file.dateInFilename) {
       daf.applyPattern("yyyMMdd");
       String d = daf.format(now);
       retval += "_" + d;
     }
-    if (timeInFilename) {
+    if (file.timeInFilename) {
       daf.applyPattern("HHmmss");
       String t = daf.format(now);
       retval += "_" + t;
     }
-    if (transformNrInFilename) {
+    if (file.transformNrInFilename) {
       retval += "_" + transformnr;
     }
 
-    if (splitEvery > 0) {
+    if (file.splitEvery > 0) {
       retval += "_" + splitnr;
     }
 
-    if (extension != null && extension.length() != 0) {
-      retval += "." + variables.resolve(extension);
+    if (file.extension != null && !file.extension.isEmpty()) {
+      retval += "." + variables.resolve(file.extension);
     }
 
     return retval;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-
-      connection = XmlHandler.getTagValue(transformNode, "connection");
-      schemaName = XmlHandler.getTagValue(transformNode, "schema");
-      tableName = XmlHandler.getTagValue(transformNode, "table");
-      truncateTable = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "truncate"));
-      createTable = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "create"));
-      encoding = XmlHandler.getTagValue(transformNode, "encoding");
-      dateformat = XmlHandler.getTagValue(transformNode, "dateformat");
-      addToResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "AddToResult"));
-
-      startNewLine = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "StartNewLine"));
-
-      fileName = XmlHandler.getTagValue(transformNode, "file", "name");
-      createparentfolder =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformNode, "file", "create_parent_folder"));
-      extension = XmlHandler.getTagValue(transformNode, "file", "extention");
-      fileAppended = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "append"));
-      transformNrInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "split"));
-      partNrInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "haspartno"));
-      dateInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "add_date"));
-      timeInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "add_time"));
-      splitEvery = Const.toInt(XmlHandler.getTagValue(transformNode, "file", "splitevery"), 0);
-      doNotOpenNewFileInit =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformNode, "file", "DoNotOpenNewFileInit"));
-
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
   }
 
   @Override
   public void setDefault() {
     connection = "";
     tableName = "";
-    createparentfolder = false;
-    doNotOpenNewFileInit = false;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("connection", connection));
-    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("schema", schemaName));
-    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("table", tableName));
-    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("truncate", truncateTable));
-    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("create", createTable));
-    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("encoding", encoding));
-    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("dateformat", dateformat));
-    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("addtoresult", addToResult));
-
-    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("startnewline", startNewLine));
-
-    retval.append("    <file>" + Const.CR);
-    retval.append(CONST_SPACE + XmlHandler.addTagValue("name", fileName));
-    retval.append(CONST_SPACE + XmlHandler.addTagValue("extention", extension));
-    retval.append(CONST_SPACE + XmlHandler.addTagValue("append", fileAppended));
-    retval.append(CONST_SPACE + XmlHandler.addTagValue("split", transformNrInFilename));
-    retval.append(CONST_SPACE + XmlHandler.addTagValue("haspartno", partNrInFilename));
-    retval.append(CONST_SPACE + XmlHandler.addTagValue("add_date", dateInFilename));
-    retval.append(CONST_SPACE + XmlHandler.addTagValue("add_time", timeInFilename));
-    retval.append(CONST_SPACE + XmlHandler.addTagValue("splitevery", splitEvery));
-    retval.append(CONST_SPACE + XmlHandler.addTagValue("create_parent_folder", createparentfolder));
-    retval.append(
-        CONST_SPACE + XmlHandler.addTagValue("DoNotOpenNewFileInit", doNotOpenNewFileInit));
-
-    retval.append("      </file>" + Const.CR);
-
-    return retval.toString();
+    file.createParentFolder = false;
+    file.doNotOpenNewFileInit = false;
   }
 
   @Override
@@ -814,7 +499,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
               String crTable = db.getDDL(schemaTable, prev);
 
               // Empty string means: nothing to do: set it to null...
-              if (crTable == null || crTable.length() == 0) {
+              if (crTable == null || crTable.isEmpty()) {
                 crTable = null;
               }
 
@@ -880,20 +565,6 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
     }
   }
 
-  /**
-   * @return the schemaName
-   */
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  /**
-   * @param schemaName the schemaName to set
-   */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
   @Override
   public boolean supportsErrorHandling() {
     return true;
@@ -925,20 +596,62 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName), variables);
+      FileObject fileObject = HopVfs.getFileObject(variables.resolve(file.fileName), variables);
 
       // If the file doesn't exist, forget about this effort too!
       //
       if (fileObject.exists()) {
         // Convert to an absolute path...
         //
-        fileName = iResourceNaming.nameResource(fileObject, variables, true);
+        file.fileName = iResourceNaming.nameResource(fileObject, variables, true);
 
-        return fileName;
+        return file.fileName;
       }
       return null;
     } catch (Exception e) {
       throw new HopException(e);
     }
+  }
+
+  @Getter
+  @Setter
+  public static final class SqlFile {
+    @HopMetadataProperty(key = "name")
+    private String fileName;
+
+    @HopMetadataProperty(key = "create_parent_folder")
+    private boolean createParentFolder;
+
+    @HopMetadataProperty(key = "DoNotOpenNewFileInit")
+    private boolean doNotOpenNewFileInit;
+
+    @HopMetadataProperty(key = "extension")
+    private String extension;
+
+    /**
+     * if this value is larger then 0, the text file is split up into parts of this number of lines
+     */
+    @HopMetadataProperty(key = "splitevery")
+    private int splitEvery;
+
+    /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
+    @HopMetadataProperty(key = "append")
+    private boolean fileAppended;
+
+    /** Flag: add the transformnr in the filename */
+    @HopMetadataProperty(key = "split")
+    private boolean transformNrInFilename;
+
+    /** Flag: add the partition number in the filename */
+    @HopMetadataProperty(key = "haspartno")
+    private boolean partNrInFilename;
+
+    /** Flag: add the date in the filename */
+    @HopMetadataProperty(key = "add_date")
+    private boolean dateInFilename;
+
+    /** Flag: add the time in the filename */
+    @HopMetadataProperty(key = "add_time")
+    private boolean timeInFilename;
   }
 }
