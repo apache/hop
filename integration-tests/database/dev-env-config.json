@@ -11,5 +11,25 @@
     "name" : "DATABASE_NAME",
     "value" : "unit-test-db",
     "description" : ""
+  }, {
+    "name" : "MSSQL_USER",
+    "value" : "SA",
+    "description" : ""
+  }, {
+    "name" : "MSSQL_PASSWORD",
+    "value" : "StrongPassword123!",
+    "description" : ""
+  }, {
+    "name" : "MSSQL_HOST",
+    "value" : "mssql",
+    "description" : ""
+  }, {
+    "name" : "MSSQL_PORT",
+    "value" : "1433",
+    "description" : ""
+  }, {
+    "name" : "MSSQL_DATABASE",
+    "value" : "master",
+    "description" : ""
   } ]
 }

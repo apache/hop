@@ -21,9 +21,10 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -37,20 +38,18 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
 
 /** This defines a MSSQL Bulk action. */
 @Action(
@@ -61,218 +60,123 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
     keywords = "i18n::ActionMssqlBulkLoad.keyword",
     documentationUrl = "/workflow/actions/mssqlbulkload.html")
-public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IAction {
+@Getter
+@Setter
+public class ActionMssqlBulkLoad extends ActionBase {
   private static final Class<?> PKG = ActionMssqlBulkLoad.class;
-  public static final String CONST_SPACES = "      ";
-  public static final String CONST_TABLENAME = "tablename";
-  public static final String CONST_FILENAME = "filename";
 
-  private String schemaname;
+  @HopMetadataProperty(key = "schemaname")
+  private String schemaName;
+
+  @HopMetadataProperty(key = "tablename")
   private String tableName;
-  private String filename;
-  private String datafiletype;
-  private String fieldterminator;
-  private String lineterminated;
-  private String codepage;
-  private String specificcodepage;
-  private int startfile;
-  private int endfile;
-  private String orderby;
-  private boolean addfiletoresult;
-  private String formatfilename;
-  private boolean firetriggers;
-  private boolean checkconstraints;
-  private boolean keepnulls;
-  private boolean tablock;
-  private String errorfilename;
-  private boolean adddatetime;
-  private String orderdirection;
-  private int maxerrors;
-  private int batchsize;
-  private int rowsperbatch;
-  private boolean keepidentity;
+
+  @HopMetadataProperty(key = "filename")
+  private String fileName;
+
+  @HopMetadataProperty(key = "datafiletype")
+  private String dataFileType;
+
+  @HopMetadataProperty(key = "fieldterminator")
+  private String fieldTerminator;
+
+  @HopMetadataProperty(key = "lineterminated")
+  private String lineTerminated;
+
+  @HopMetadataProperty(key = "codepage")
+  private String codePage;
+
+  @HopMetadataProperty(key = "specificcodepage")
+  private String specificCodePage;
+
+  @HopMetadataProperty(key = "startfile")
+  private int startFile;
+
+  @HopMetadataProperty(key = "endfile")
+  private int endFile;
+
+  @HopMetadataProperty(key = "orderby")
+  private String orderBy;
+
+  @HopMetadataProperty(key = "addfiletoresult")
+  private boolean addFileToResult;
+
+  @HopMetadataProperty(key = "formatfilename")
+  private String formatFileName;
+
+  @HopMetadataProperty(key = "firetriggers")
+  private boolean fireTriggers;
+
+  @HopMetadataProperty(key = "checkconstraints")
+  private boolean checkConstraints;
+
+  @HopMetadataProperty(key = "keepnulls")
+  private boolean keepNulls;
+
+  @HopMetadataProperty(key = "tablock")
+  private boolean tabLock;
+
+  @HopMetadataProperty(key = "errorfilename")
+  private String errorFileName;
+
+  @HopMetadataProperty(key = "adddatetime")
+  private boolean addDatetime;
+
+  @HopMetadataProperty(key = "orderdirection")
+  private String orderDirection;
+
+  @HopMetadataProperty(key = "maxerrors")
+  private int maxErrors;
+
+  @HopMetadataProperty(key = "batchsize")
+  private int batchSize;
+
+  @HopMetadataProperty(key = "rowsperbatch")
+  private int rowsPerBatch;
+
+  @HopMetadataProperty(key = "keepidentity")
+  private boolean keepIdentity;
+
+  @HopMetadataProperty(key = "truncate")
   private boolean truncate;
 
-  private DatabaseMeta connection;
+  @HopMetadataProperty(key = "connection")
+  private String connection;
 
   public ActionMssqlBulkLoad(String n) {
     super(n, "");
     tableName = null;
-    schemaname = null;
-    filename = null;
-    datafiletype = "char";
-    fieldterminator = null;
-    lineterminated = null;
-    codepage = "OEM";
-    specificcodepage = null;
-    checkconstraints = false;
-    keepnulls = false;
-    tablock = false;
-    startfile = 0;
-    endfile = 0;
-    orderby = null;
+    schemaName = null;
+    fileName = null;
+    dataFileType = "char";
+    fieldTerminator = null;
+    lineTerminated = null;
+    codePage = "OEM";
+    specificCodePage = null;
+    checkConstraints = false;
+    keepNulls = false;
+    tabLock = false;
+    startFile = 0;
+    endFile = 0;
+    orderBy = null;
 
-    errorfilename = null;
-    adddatetime = false;
-    orderdirection = "Asc";
-    maxerrors = 0;
-    batchsize = 0;
-    rowsperbatch = 0;
+    errorFileName = null;
+    addDatetime = false;
+    orderDirection = "Asc";
+    maxErrors = 0;
+    batchSize = 0;
+    rowsPerBatch = 0;
 
     connection = null;
-    addfiletoresult = false;
-    formatfilename = null;
-    firetriggers = false;
-    keepidentity = false;
+    addFileToResult = false;
+    formatFileName = null;
+    fireTriggers = false;
+    keepIdentity = false;
     truncate = false;
   }
 
   public ActionMssqlBulkLoad() {
     this("");
-  }
-
-  @Override
-  public Object clone() {
-    ActionMssqlBulkLoad je = (ActionMssqlBulkLoad) super.clone();
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(500);
-
-    retval.append(super.getXml());
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("schemaname", schemaname));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_TABLENAME, tableName));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FILENAME, filename));
-
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("datafiletype", datafiletype));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("fieldterminator", fieldterminator));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("lineterminated", lineterminated));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("codepage", codepage));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("specificcodepage", specificcodepage));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("formatfilename", formatfilename));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("firetriggers", firetriggers));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("checkconstraints", checkconstraints));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("keepnulls", keepnulls));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("keepidentity", keepidentity));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("tablock", tablock));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("startfile", startfile));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("endfile", endfile));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("orderby", orderby));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("orderdirection", orderdirection));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("maxerrors", maxerrors));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("batchsize", batchsize));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("rowsperbatch", rowsperbatch));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("errorfilename", errorfilename));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("adddatetime", adddatetime));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("addfiletoresult", addfiletoresult));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("truncate", truncate));
-
-    retval
-        .append(CONST_SPACES)
-        .append(
-            XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      schemaname = XmlHandler.getTagValue(entrynode, "schemaname");
-      tableName = XmlHandler.getTagValue(entrynode, CONST_TABLENAME);
-      filename = XmlHandler.getTagValue(entrynode, CONST_FILENAME);
-      datafiletype = XmlHandler.getTagValue(entrynode, "datafiletype");
-      fieldterminator = XmlHandler.getTagValue(entrynode, "fieldterminator");
-
-      lineterminated = XmlHandler.getTagValue(entrynode, "lineterminated");
-      codepage = XmlHandler.getTagValue(entrynode, "codepage");
-      specificcodepage = XmlHandler.getTagValue(entrynode, "specificcodepage");
-      formatfilename = XmlHandler.getTagValue(entrynode, "formatfilename");
-
-      firetriggers = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "firetriggers"));
-      checkconstraints =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "checkconstraints"));
-      keepnulls = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "keepnulls"));
-      keepidentity = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "keepidentity"));
-
-      tablock = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "tablock"));
-      startfile = Const.toInt(XmlHandler.getTagValue(entrynode, "startfile"), 0);
-      endfile = Const.toInt(XmlHandler.getTagValue(entrynode, "endfile"), 0);
-
-      orderby = XmlHandler.getTagValue(entrynode, "orderby");
-      orderdirection = XmlHandler.getTagValue(entrynode, "orderdirection");
-
-      errorfilename = XmlHandler.getTagValue(entrynode, "errorfilename");
-
-      maxerrors = Const.toInt(XmlHandler.getTagValue(entrynode, "maxerrors"), 0);
-      batchsize = Const.toInt(XmlHandler.getTagValue(entrynode, "batchsize"), 0);
-      rowsperbatch = Const.toInt(XmlHandler.getTagValue(entrynode, "rowsperbatch"), 0);
-      adddatetime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "adddatetime"));
-      String dbname = XmlHandler.getTagValue(entrynode, "connection");
-      addfiletoresult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addfiletoresult"));
-      truncate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "truncate"));
-
-      connection = DatabaseMeta.loadDatabase(metadataProvider, dbname);
-
-    } catch (HopException e) {
-      throw new HopXmlException("Unable to load action of type 'MSsql bulk load' from XML node", e);
-    }
-  }
-
-  public void setTablename(String tableName) {
-    this.tableName = tableName;
-  }
-
-  public void setSchemaname(String schemaname) {
-    this.schemaname = schemaname;
-  }
-
-  public String getSchemaname() {
-    return schemaname;
-  }
-
-  public String getTablename() {
-    return tableName;
-  }
-
-  public void setMaxErrors(int maxerrors) {
-    this.maxerrors = maxerrors;
-  }
-
-  public int getMaxErrors() {
-    return maxerrors;
-  }
-
-  public int getBatchSize() {
-    return batchsize;
-  }
-
-  public void setBatchSize(int batchsize) {
-    this.batchsize = batchsize;
-  }
-
-  public int getRowsPerBatch() {
-    return rowsperbatch;
-  }
-
-  public void setRowsPerBatch(int rowsperbatch) {
-    this.rowsperbatch = rowsperbatch;
-  }
-
-  public void setDatabase(DatabaseMeta database) {
-    this.connection = database;
-  }
-
-  public DatabaseMeta getDatabase() {
-    return connection;
   }
 
   @Override
@@ -297,7 +201,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     Result result = previousResult;
     result.setResult(false);
 
-    String vfsFilename = resolve(filename);
+    String vfsFilename = resolve(fileName);
     FileObject fileObject = null;
     // Let's check the filename ...
     if (!Utils.isEmpty(vfsFilename)) {
@@ -333,19 +237,21 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
           if (connection != null) {
 
+            DatabaseMeta dbMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
+
             // User has specified a connection, We can continue ...
-            String pluginId = connection.getPluginId();
+            String pluginId = dbMeta.getPluginId();
             if (!("MSSQL".equals(pluginId) || "MSSQLNATIVE".equals(pluginId))) {
 
               logError(
                   BaseMessages.getString(
-                      PKG, "ActionMssqlBulkLoad.Error.DbNotMSSQL", connection.getDatabaseName()));
+                      PKG, "ActionMssqlBulkLoad.Error.DbNotMSSQL", dbMeta.getDatabaseName()));
               return result;
             }
-            try (Database db = new Database(this, this, connection)) {
+            try (Database db = new Database(this, this, dbMeta)) {
               db.connect();
               // Get schemaname
-              String realSchemaname = resolve(schemaname);
+              String realSchemaname = resolve(schemaName);
               // Get tablename
               String realTablename = resolve(tableName);
 
@@ -360,21 +266,21 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 // FIELDTERMINATOR
                 String fieldTerminator = getRealFieldTerminator();
                 if (Utils.isEmpty(fieldTerminator)
-                    && (datafiletype.equals("char") || datafiletype.equals("widechar"))) {
+                    && (dataFileType.equals("char") || dataFileType.equals("widechar"))) {
                   logError(
                       BaseMessages.getString(
                           PKG, "ActionMssqlBulkLoad.Error.FieldTerminatorMissing"));
                   return result;
                 } else {
-                  if (datafiletype.equals("char") || datafiletype.equals("widechar")) {
+                  if (dataFileType.equals("char") || dataFileType.equals("widechar")) {
                     useFieldSeparator = true;
                     fieldTerminatedby = "FIELDTERMINATOR='" + fieldTerminator + "'";
                   }
                 }
                 // Check Specific Code page
-                if (codepage.equals("Specific")) {
-                  String realCodePage = resolve(codepage);
-                  if (specificcodepage.length() < 0) {
+                if (codePage.equals("Specific")) {
+                  String realCodePage = resolve(codePage);
+                  if (specificCodePage.length() < 0) {
                     logError(
                         BaseMessages.getString(
                             PKG, "ActionMssqlBulkLoad.Error.SpecificCodePageMissing"));
@@ -384,14 +290,14 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                     useCodepage = "CODEPAGE = '" + realCodePage + "'";
                   }
                 } else {
-                  useCodepage = "CODEPAGE = '" + codepage + "'";
+                  useCodepage = "CODEPAGE = '" + codePage + "'";
                 }
 
                 // Check Error file
-                String realErrorFile = resolve(errorfilename);
+                String realErrorFile = resolve(errorFileName);
                 if (realErrorFile != null) {
                   File errorfile = new File(realErrorFile);
-                  if (errorfile.exists() && !adddatetime) {
+                  if (errorfile.exists() && !addDatetime) {
                     // The error file is created when the command is executed. An error occurs if
                     // the file already
                     // exists.
@@ -399,7 +305,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                         BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Error.ErrorFileExists"));
                     return result;
                   }
-                  if (adddatetime) {
+                  if (addDatetime) {
                     // Add date time to filename...
                     SimpleDateFormat daf = new SimpleDateFormat();
                     Date now = new Date();
@@ -419,13 +325,13 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 }
 
                 // Start file at
-                if (startfile > 0) {
-                  takeFirstNbrLines = "FIRSTROW=" + startfile;
+                if (startFile > 0) {
+                  takeFirstNbrLines = "FIRSTROW=" + startFile;
                 }
 
                 // End file at
-                if (endfile > 0) {
-                  takeFirstNbrLines = "LASTROW=" + endfile;
+                if (endFile > 0) {
+                  takeFirstNbrLines = "LASTROW=" + endFile;
                 }
 
                 // Truncate table?
@@ -447,7 +353,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 if (useFieldSeparator) {
                   sqlBulkLoad = sqlBulkLoad + fieldTerminatedby;
                 } else {
-                  sqlBulkLoad = sqlBulkLoad + "DATAFILETYPE ='" + datafiletype + "'";
+                  sqlBulkLoad = sqlBulkLoad + "DATAFILETYPE ='" + dataFileType + "'";
                 }
 
                 if (lineTerminatedby.length() > 0) {
@@ -459,39 +365,39 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 if (useCodepage.length() > 0) {
                   sqlBulkLoad = sqlBulkLoad + "," + useCodepage;
                 }
-                String realFormatFile = resolve(formatfilename);
+                String realFormatFile = resolve(formatFileName);
                 if (realFormatFile != null) {
                   sqlBulkLoad = sqlBulkLoad + ", FORMATFILE='" + realFormatFile + "'";
                 }
-                if (firetriggers) {
+                if (fireTriggers) {
                   sqlBulkLoad = sqlBulkLoad + ",FIRE_TRIGGERS";
                 }
-                if (keepnulls) {
+                if (keepNulls) {
                   sqlBulkLoad = sqlBulkLoad + ",KEEPNULLS";
                 }
-                if (keepidentity) {
+                if (keepIdentity) {
                   sqlBulkLoad = sqlBulkLoad + ",KEEPIDENTITY";
                 }
-                if (checkconstraints) {
+                if (checkConstraints) {
                   sqlBulkLoad = sqlBulkLoad + ",CHECK_CONSTRAINTS";
                 }
-                if (tablock) {
+                if (tabLock) {
                   sqlBulkLoad = sqlBulkLoad + ",TABLOCK";
                 }
-                if (orderby != null) {
-                  sqlBulkLoad = sqlBulkLoad + ",ORDER ( " + orderby + " " + orderdirection + ")";
+                if (orderBy != null) {
+                  sqlBulkLoad = sqlBulkLoad + ",ORDER ( " + orderBy + " " + orderDirection + ")";
                 }
                 if (errorfileName.length() > 0) {
                   sqlBulkLoad = sqlBulkLoad + ", " + errorfileName;
                 }
-                if (maxerrors > 0) {
-                  sqlBulkLoad = sqlBulkLoad + ", MAXERRORS=" + maxerrors;
+                if (maxErrors > 0) {
+                  sqlBulkLoad = sqlBulkLoad + ", MAXERRORS=" + maxErrors;
                 }
-                if (batchsize > 0) {
-                  sqlBulkLoad = sqlBulkLoad + ", BATCHSIZE=" + batchsize;
+                if (batchSize > 0) {
+                  sqlBulkLoad = sqlBulkLoad + ", BATCHSIZE=" + batchSize;
                 }
-                if (rowsperbatch > 0) {
-                  sqlBulkLoad = sqlBulkLoad + ", ROWS_PER_BATCH=" + rowsperbatch;
+                if (rowsPerBatch > 0) {
+                  sqlBulkLoad = sqlBulkLoad + ", ROWS_PER_BATCH=" + rowsPerBatch;
                 }
                 // End of Bulk command
                 sqlBulkLoad = sqlBulkLoad + ")";
@@ -566,177 +472,16 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return result;
   }
 
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  @Override
-  public String getFilename() {
-    return filename;
-  }
-
-  public void setFieldTerminator(String fieldterminator) {
-    this.fieldterminator = fieldterminator;
-  }
-
-  public void setLineterminated(String lineterminated) {
-    this.lineterminated = lineterminated;
-  }
-
-  public void setCodePage(String codepage) {
-    this.codepage = codepage;
-  }
-
-  public String getCodePage() {
-    return codepage;
-  }
-
-  public void setSpecificCodePage(String specificcodepage) {
-    this.specificcodepage = specificcodepage;
-  }
-
-  public String getSpecificCodePage() {
-    return specificcodepage;
-  }
-
-  public void setFormatFilename(String formatfilename) {
-    this.formatfilename = formatfilename;
-  }
-
-  public String getFormatFilename() {
-    return formatfilename;
-  }
-
-  public String getFieldTerminator() {
-    return fieldterminator;
-  }
-
-  public String getLineterminated() {
-    return lineterminated;
-  }
-
-  public String getDataFileType() {
-    return datafiletype;
-  }
-
-  public void setDataFileType(String datafiletype) {
-    this.datafiletype = datafiletype;
-  }
-
   public String getRealLineterminated() {
-    return resolve(getLineterminated());
+    return resolve(getLineTerminated());
   }
 
   public String getRealFieldTerminator() {
     return resolve(getFieldTerminator());
   }
 
-  public void setStartFile(int startfile) {
-    this.startfile = startfile;
-  }
-
-  public int getStartFile() {
-    return startfile;
-  }
-
-  public void setEndFile(int endfile) {
-    this.endfile = endfile;
-  }
-
-  public int getEndFile() {
-    return endfile;
-  }
-
-  public void setOrderBy(String orderby) {
-    this.orderby = orderby;
-  }
-
-  public String getOrderBy() {
-    return orderby;
-  }
-
-  public String getOrderDirection() {
-    return orderdirection;
-  }
-
-  public void setOrderDirection(String orderdirection) {
-    this.orderdirection = orderdirection;
-  }
-
-  public void setErrorFilename(String errorfilename) {
-    this.errorfilename = errorfilename;
-  }
-
-  public String getErrorFilename() {
-    return errorfilename;
-  }
-
   public String getRealOrderBy() {
     return resolve(getOrderBy());
-  }
-
-  public void setAddFileToResult(boolean addfiletoresultin) {
-    this.addfiletoresult = addfiletoresultin;
-  }
-
-  public boolean isAddFileToResult() {
-    return addfiletoresult;
-  }
-
-  public void setTruncate(boolean truncate) {
-    this.truncate = truncate;
-  }
-
-  public boolean isTruncate() {
-    return truncate;
-  }
-
-  public void setAddDatetime(boolean adddatetime) {
-    this.adddatetime = adddatetime;
-  }
-
-  public boolean isAddDatetime() {
-    return adddatetime;
-  }
-
-  public void setFireTriggers(boolean firetriggers) {
-    this.firetriggers = firetriggers;
-  }
-
-  public boolean isFireTriggers() {
-    return firetriggers;
-  }
-
-  public void setCheckConstraints(boolean checkconstraints) {
-    this.checkconstraints = checkconstraints;
-  }
-
-  public boolean isCheckConstraints() {
-    return checkconstraints;
-  }
-
-  public void setKeepNulls(boolean keepnulls) {
-    this.keepnulls = keepnulls;
-  }
-
-  public boolean isKeepNulls() {
-    return keepnulls;
-  }
-
-  public void setKeepIdentity(boolean keepidentity) {
-    this.keepidentity = keepidentity;
-  }
-
-  public boolean isKeepIdentity() {
-    return keepidentity;
-  }
-
-  public void setTablock(boolean tablock) {
-    this.tablock = tablock;
-  }
-
-  public boolean isTablock() {
-    return tablock;
   }
 
   @Override
@@ -744,15 +489,21 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
     ResourceReference reference = null;
+    DatabaseMeta dbMeta = null;
     if (connection != null) {
+      try {
+        dbMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
+      } catch (HopXmlException e) {
+        logError("Error loading connection", e);
+      }
       reference = new ResourceReference(this);
       references.add(reference);
-      reference.getEntries().add(new ResourceEntry(connection.getHostname(), ResourceType.SERVER));
+      reference.getEntries().add(new ResourceEntry(dbMeta.getHostname(), ResourceType.SERVER));
       reference
           .getEntries()
-          .add(new ResourceEntry(connection.getDatabaseName(), ResourceType.DATABASENAME));
+          .add(new ResourceEntry(dbMeta.getDatabaseName(), ResourceType.DATABASENAME));
     }
-    if (filename != null) {
+    if (fileName != null) {
       String realFilename = getRealFilename();
       if (reference == null) {
         reference = new ResourceReference(this);
@@ -773,12 +524,12 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
-    ActionValidatorUtils.andValidator().validate(this, CONST_FILENAME, remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
 
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            CONST_TABLENAME,
+            "tablename",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }

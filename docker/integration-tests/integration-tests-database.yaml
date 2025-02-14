@@ -25,6 +25,9 @@ services:
         condition: service_healthy
     links:
       - postgres
+      - mssql
+    volumes:
+      - ./resource/mssql/mssql_bulkload.csv:/tmp/mssql_bulkload.csv
 
   postgres:
     image: postgres:latest
@@ -38,3 +41,13 @@ services:
       timeout: 10s
       retries: 6
       start_period: 120s
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=StrongPassword123!
+    ports:
+      - "1433"
+    volumes:
+      - ./resource/mssql/mssql_bulkload.csv:/tmp/mssql_bulkload.csv
