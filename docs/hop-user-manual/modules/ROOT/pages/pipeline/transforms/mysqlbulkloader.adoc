@@ -1,0 +1,79 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The MySql Bulk Loader transform uses the copy command to load data as opposed to sending individual insert statements
+
+= image:transforms/icons/mysqlbulkloader.svg[MySql Bulk loader transform Icon, role="image-doc-icon"] MySql Bulk Loader
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The MySql Bulk Loader transform uses the copy command to load data as opposed to sending individual insert statements.
+
+It will create a local file which will then be loaded using the `LOAD DATA` command. More information https://dev.mysql.com/doc/refman/9.2/en/load-data.html[here]
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Options
+
+NOTE: Bulk loading must be enabled on both server and client in the client connection add following option `allowLoadLocalInfile=true`.
+On the server side the following query should return "ON" `show global variables like 'local_infile';`
+
+=== General
+
+[%header, width="90%", cols="1,4"]
+|===
+|option|description
+|Connection| The database connection to use when bulk loading
+|Target Schema| (Optional) The schema containing the table being loaded.
+|Target Table| The name of the table being loaded.
+|Fifo file| Temporary file location
+|Delimiter|Delimiter that determines the field.
+|Enclosure|You can specify an enclosure string which when placed around a value allows delimiters to be present in it.
+|Escape character|To include delimiter characters in values sometimes an escape string is used like backslash, double backslash and so on.
+|Character set|The used character set (optional).
+|Bulk size (rows)|This will split the data load in multiple chucks.
+|Use replace clause|With REPLACE, new rows that have the same value as a unique key value in an existing row replace the existing row.
+|Use Ignore clause|With IGNORE, new rows that duplicate an existing row on a unique key value are discarded.
+|Local data|If LOCAL is not specified, the file must be located on the server host.
+|===
+
+=== Fields
+
+[%header, width="90%", cols="1,4"]
+|===
+|option|description
+|Table field|Name of the field in the table.
+|Stream field|Name of the field in the stream.
+|Field format OK? a|You can decide if the format should be kept (Don't change formatting) or changed:
+
+* Format as Date (yyyy-MM-dd)
+* Format as a timestamp (yyyy-MM-dd HH:mm:ss)
+* Format as Number (grouping symbol is "," - decimal is ".")
+* Escape enclosure characters when found
+|===

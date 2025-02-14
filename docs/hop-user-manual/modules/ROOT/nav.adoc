@@ -192,6 +192,7 @@ under the License.
 *** xref:pipeline/transforms/mongodbinput.adoc[MongoDB Input]
 *** xref:pipeline/transforms/mongodboutput.adoc[MongoDB Output]
 *** xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
+*** xref:pipeline/transforms/mysqlbulkloader.adoc[MySql Bulk Loader]
 *** xref:pipeline/transforms/neo4j-cypher.adoc[Neo4j Cypher]
 *** xref:pipeline/transforms/neo4j-gencsv.adoc[Neo4j Generate CSVs]
 *** xref:pipeline/transforms/neo4j-getloginfo.adoc[Neo4j Get Logging Info]

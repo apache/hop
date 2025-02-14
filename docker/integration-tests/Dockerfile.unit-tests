@@ -39,8 +39,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 # this removed the need to calculate the necessary heap Xmx
 ENV HOP_OPTIONS=-XX:+AggressiveHeap
 
+# Set Locale correctly
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
 # procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill
+
+# Copy the hop package from the local resources folder to the container image directory
 
 RUN apt-get update \
   && apt-get install --assume-yes \
@@ -58,20 +65,12 @@ RUN apt-get update \
   && addgroup -gid ${JENKINS_GID} ${JENKINS_GROUP} \
   && useradd -m  -d /home/${JENKINS_USER} -u ${JENKINS_UID} -g ${JENKINS_GROUP} ${JENKINS_USER} \
   && chown ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH} \
-  && chown ${JENKINS_USER}:${JENKINS_GROUP} ${VOLUME_MOUNT_POINT}
+  && chown ${JENKINS_USER}:${JENKINS_GROUP} ${VOLUME_MOUNT_POINT} \
+  && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen  \
+  && locale-gen \
+  # Install parquet-tools from Python
+  && pip3 install parquet-tools
 
-# Set Locale correctly
-RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
-    locale-gen
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-
-# Install parquet-tools from Python
-
-RUN pip3 install parquet-tools
-
-# Copy the hop package from the local resources folder to the container image directory
 
 COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./assemblies/client/target/hop ${DEPLOYMENT_PATH}/hop
 
@@ -79,14 +78,16 @@ COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./assemblies/client/target/hop ${D
 COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ${GCP_KEY_FILE} /tmp/google-key-apache-hop-it.json
 
 # Unzip and install in correct location
-
 RUN chown -R ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH}/hop \
   && chmod 700 ${DEPLOYMENT_PATH}/hop/*.sh \
   && cd ${DEPLOYMENT_PATH}/hop \
-  && ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar \
-  # Download the Vertica JDBC driver
-  && wget -c https://repo1.maven.org/maven2/com/vertica/jdbc/vertica-jdbc/23.4.0-0/vertica-jdbc-23.4.0-0.jar -O /opt/hop/lib/jdbc/vertica-jdbc-23.4.0-0.jar \
-  && wget -c https://repo1.maven.org/maven2/org/openjdk/nashorn/nashorn-core/15.4/nashorn-core-15.4.jar -O /opt/hop/plugins/transforms/script/lib/nashorn-core-15.4.jar
+  && ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar
+
+
+# Download Additional drivers/dependencies
+ADD --chown=${JENKINS_USER}:${JENKINS_GROUP} https://repo1.maven.org/maven2/com/vertica/jdbc/vertica-jdbc/23.4.0-0/vertica-jdbc-23.4.0-0.jar /opt/hop/lib/jdbc/vertica-jdbc-23.4.0-0.jar
+ADD --chown=${JENKINS_USER}:${JENKINS_GROUP} https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/9.2.0/mysql-connector-j-9.2.0.jar /opt/hop/lib/jdbc/mysql-connector-j-9.2.0.jar
+ADD --chown=${JENKINS_USER}:${JENKINS_GROUP} https://repo1.maven.org/maven2/org/openjdk/nashorn/nashorn-core/15.4/nashorn-core-15.4.jar /opt/hop/plugins/transforms/script/lib/nashorn-core-15.4.jar
 
 # make volume available so that hop pipeline and workflow files can be provided easily
 VOLUME ["/files"]

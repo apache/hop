@@ -26,6 +26,7 @@ services:
     links:
       - postgres
       - mssql
+      - mysql
     volumes:
       - ./resource/mssql/mssql_bulkload.csv:/tmp/mssql_bulkload.csv
 
@@ -51,3 +52,12 @@ services:
       - "1433"
     volumes:
       - ./resource/mssql/mssql_bulkload.csv:/tmp/mssql_bulkload.csv
+
+  mysql:
+    image: mysql:9.2.0
+    ports:
+      - "127.0.0.1:3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret-pw
+    volumes:
+      - ./resource/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
