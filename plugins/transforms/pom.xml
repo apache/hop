@@ -112,6 +112,7 @@
         <module>monetdbbulkloader</module>
         <module>mongodb</module>
         <module>multimerge</module>
+        <module>mysqlbulkloader</module>
         <module>normaliser</module>
         <module>nullif</module>
         <module>numberrange</module>

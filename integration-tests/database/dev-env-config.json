@@ -31,5 +31,25 @@
     "name" : "MSSQL_DATABASE",
     "value" : "master",
     "description" : ""
-  } ]
+  } , {
+    "name" : "MYSQL_USER",
+    "value" : "root",
+    "description" : ""
+  }, {
+    "name" : "MYSQL_PASSWORD",
+    "value" : "my-secret-pw",
+    "description" : ""
+  }, {
+    "name" : "MYSQL_HOST",
+    "value" : "mysql",
+    "description" : ""
+  }, {
+    "name" : "MYSQL_PORT",
+    "value" : "3306",
+    "description" : ""
+  }, {
+    "name" : "MYSQL_DATABASE",
+    "value" : "sys",
+    "description" : ""
+  }  ]
 }

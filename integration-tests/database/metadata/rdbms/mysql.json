@@ -1,0 +1,35 @@
+{
+  "virtualPath": "",
+  "rdbms": {
+    "MYSQL": {
+      "databaseName": "${MYSQL_DATABASE}",
+      "pluginId": "MYSQL",
+      "accessType": 0,
+      "hostname": "${MYSQL_HOST}",
+      "password": "${MYSQL_PASSWORD}",
+      "pluginName": "MySQL",
+      "port": "${MYSQL_PORT}",
+      "driverClassName": "Mysql 8+",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "STREAM_RESULTS": "N",
+        "EXTRA_OPTION_MYSQL.useCursorFetch": "true",
+        "EXTRA_OPTION_MYSQL.defaultFetchSize": "500",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "EXTRA_OPTION_MYSQL.allowLoadLocalInfile": "true",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "EXTRA_OPTION_MYSQL.useSSL": "false",
+        "QUOTE_ALL_FIELDS": "N",
+        "EXTRA_OPTION_MYSQL.zeroDateTimeBehaviorValue": "CONVERT_TO_NULL",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "SQL_CONNECT": "",
+        "PREFERRED_SCHEMA_NAME": "",
+        "EXTRA_OPTION_MYSQL.allowPublicKeyRetrieval": "true"
+      },
+      "manualUrl": "",
+      "username": "${MYSQL_USER}"
+    }
+  },
+  "name": "mysql"
+}
