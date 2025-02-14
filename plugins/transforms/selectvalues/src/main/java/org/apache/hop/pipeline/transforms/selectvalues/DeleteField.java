@@ -18,22 +18,18 @@
 package org.apache.hop.pipeline.transforms.selectvalues;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class DeleteField implements Cloneable {
 
-  @HopMetadataProperty(key = "name", injectionKey = "FIELD_NAME", injectionGroupKey = "REMOVES")
+  @HopMetadataProperty(key = "name", injectionKey = "REMOVE_NAME", injectionGroupKey = "REMOVE")
   private String name;
 
   public DeleteField() {}
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 
   @Override
   public final boolean equals(Object o) {

@@ -70,11 +70,6 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
   }
 
   @Override
-  public Object clone() {
-    return (SelectValuesMeta) super.clone();
-  }
-
-  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -440,8 +435,8 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
             v.setOrigin(name);
           }
           // Change the type?
-          if (metaChange.getType().equals(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NONE))
-              && ValueMetaFactory.getValueMetaName(v.getType()).equals(metaChange.getType())) {
+          if (!metaChange.getType().equals(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NONE))
+              && !ValueMetaFactory.getValueMetaName(v.getType()).equals(metaChange.getType())) {
             v =
                 ValueMetaFactory.cloneValueMeta(
                     v, ValueMetaFactory.getIdForValueMeta(metaChange.getType()));

@@ -107,11 +107,6 @@ public class SelectValues_LocaleHandling_Test {
   private void executeAndCheck(String locale, String expectedWeekNumber) throws Exception {
 
     SelectValuesMeta transformMeta = new SelectValuesMeta();
-    //  transformMeta.allocate(1, 0, 1);
-    //    transformMeta
-    //        .getSelectOption()
-    //        .getSelectFields()
-    //        .addAll(SelectValueMetaTestFactory.getSelectFields("field"));
 
     transformMeta
         .getSelectOption()

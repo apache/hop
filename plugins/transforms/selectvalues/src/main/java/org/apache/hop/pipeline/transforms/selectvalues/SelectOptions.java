@@ -19,8 +19,12 @@ package org.apache.hop.pipeline.transforms.selectvalues;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class SelectOptions {
 
   public SelectOptions() {
@@ -29,7 +33,7 @@ public class SelectOptions {
     meta = new ArrayList<>();
   }
 
-  @HopMetadataProperty(key = "field", injectionKey = "FIELD")
+  @HopMetadataProperty(key = "field", injectionKey = "FIELD", injectionGroupKey = "FIELDS")
   private List<SelectField> selectFields;
 
   @HopMetadataProperty(key = "select_unspecified", injectionKey = "SELECT_UNSPECIFIED")
@@ -37,43 +41,10 @@ public class SelectOptions {
 
   // DE-SELECT mode
   /** Names of the fields to be removed! */
-  @HopMetadataProperty(key = "remove", injectionKey = "REMOVE_NAME", injectionGroupKey = "REMOVES")
+  @HopMetadataProperty(key = "remove", injectionKey = "REMOVE", injectionGroupKey = "REMOVES")
   private List<DeleteField> deleteName;
 
   // META-DATA mode
   @HopMetadataProperty(key = "meta", injectionKey = "META", injectionGroupKey = "METAS")
   private List<SelectMetadataChange> meta;
-
-  public List<DeleteField> getDeleteName() {
-    return deleteName;
-  }
-
-  public void setDeleteName(List<DeleteField> deleteName) {
-    this.deleteName = deleteName;
-  }
-
-  public List<SelectMetadataChange> getMeta() {
-    return meta;
-  }
-
-  public void setMeta(List<SelectMetadataChange> meta) {
-    this.meta = meta;
-  }
-
-  public List<SelectField> getSelectFields() {
-    return selectFields;
-  }
-
-  public void setSelectFields(List<SelectField> selectFields) {
-    this.selectFields = selectFields;
-  }
-
-  public boolean isSelectingAndSortingUnspecifiedFields() {
-    return selectingAndSortingUnspecifiedFields;
-  }
-
-  public void setSelectingAndSortingUnspecifiedFields(
-      boolean selectingAndSortingUnspecifiedFields) {
-    this.selectingAndSortingUnspecifiedFields = selectingAndSortingUnspecifiedFields;
-  }
 }

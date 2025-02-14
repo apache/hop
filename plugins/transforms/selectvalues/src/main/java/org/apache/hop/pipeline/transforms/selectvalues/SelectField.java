@@ -17,24 +17,28 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class SelectField {
 
   public SelectField() {}
 
   /** Select: Name of the selected field */
-  @HopMetadataProperty(key = "name", injectionKey = "FIELD_NAME", injectionGroupKey = "FIELDS")
+  @HopMetadataProperty(key = "name", injectionKey = "FIELD_NAME", injectionGroupKey = "FIELD")
   private String name;
 
   /** Select: Rename to ... */
   // @Injection(name = "FIELD_RENAME", group = "FIELDS")
-  @HopMetadataProperty(key = "rename", injectionKey = "FIELD_RENAME", injectionGroupKey = "FIELDS")
+  @HopMetadataProperty(key = "rename", injectionKey = "FIELD_RENAME", injectionGroupKey = "FIELD")
   private String rename;
 
   /** Select: length of field */
   // @Injection(name = "FIELD_LENGTH", group = "FIELDS")
-  @HopMetadataProperty(key = "length", injectionKey = "FIELD_LENGTH", injectionGroupKey = "FIELDS")
+  @HopMetadataProperty(key = "length", injectionKey = "FIELD_LENGTH", injectionGroupKey = "FIELD")
   private int length = SelectValuesMeta.UNDEFINED;
 
   /** Select: Precision of field (for numbers) */
@@ -42,38 +46,6 @@ public class SelectField {
   @HopMetadataProperty(
       key = "precision",
       injectionKey = "FIELD_PRECISION",
-      injectionGroupKey = "FIELDS")
+      injectionGroupKey = "FIELD")
   private int precision = SelectValuesMeta.UNDEFINED;
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getRename() {
-    return rename;
-  }
-
-  public void setRename(String rename) {
-    this.rename = rename;
-  }
-
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  public int getPrecision() {
-    return precision;
-  }
-
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
 }

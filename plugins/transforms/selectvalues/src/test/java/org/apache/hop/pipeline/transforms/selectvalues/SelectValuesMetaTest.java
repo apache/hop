@@ -29,6 +29,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -240,5 +241,25 @@ public class SelectValuesMetaTest {
     public boolean validateTestObject(SelectField testObject, Object actual) {
       return EqualsBuilder.reflectionEquals(testObject, actual);
     }
+  }
+
+  @Test
+  public void testNewSerialization() throws Exception {
+    SelectValuesMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/select-values-transform.xml", SelectValuesMeta.class);
+
+    assertEquals(4, meta.getSelectOption().getSelectFields().size());
+    assertEquals(1, meta.getSelectOption().getDeleteName().size());
+    assertEquals(1, meta.getSelectOption().getMeta().size());
+  }
+
+  @Test
+  public void testClone() throws Exception {
+    SelectValuesMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/select-values-transform.xml", SelectValuesMeta.class);
+
+    SelectValuesMeta clone = (SelectValuesMeta) meta.clone();
   }
 }

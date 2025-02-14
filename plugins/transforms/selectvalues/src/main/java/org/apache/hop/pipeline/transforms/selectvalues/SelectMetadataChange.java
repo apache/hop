@@ -17,9 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class SelectMetadataChange {
 
   // META-DATA mode
@@ -34,7 +38,7 @@ public class SelectMetadataChange {
   private String rename;
 
   /** Meta: new Value type for this field or TYPE_NONE if no change needed! */
-  @HopMetadataProperty(key = "type")
+  @HopMetadataProperty(key = "type", injectionKey = "META_TYPE", injectionGroupKey = "METAS")
   private String type;
 
   /** Meta: new length of field */
@@ -49,7 +53,10 @@ public class SelectMetadataChange {
   private int precision = -1;
 
   /** Meta: the storage type, NORMAL or BINARY_STRING */
-  @HopMetadataProperty(key = "storage_type")
+  @HopMetadataProperty(
+      key = "storage_type",
+      injectionKey = "META_STORAGE_TYPE",
+      injectionGroupKey = "METAS")
   private String storageType;
 
   /** The conversion metadata if any conversion needs to take place */
@@ -149,215 +156,5 @@ public class SelectMetadataChange {
     this.decimalSymbol = decimalSymbol;
     this.groupingSymbol = groupingSymbol;
     this.currencySymbol = currencySymbol;
-  }
-
-  /**
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name the name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * @return the rename
-   */
-  public String getRename() {
-    return rename;
-  }
-
-  /**
-   * @param rename the rename to set
-   */
-  public void setRename(String rename) {
-    this.rename = rename;
-  }
-
-  /**
-   * @return the type
-   */
-  public String getType() {
-    return type;
-  }
-
-  /**
-   * @param type the type to set
-   */
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  /**
-   * @return the length
-   */
-  public int getLength() {
-    return length;
-  }
-
-  /**
-   * @param length the length to set
-   */
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  /**
-   * @return the precision
-   */
-  public int getPrecision() {
-    return precision;
-  }
-
-  /**
-   * @param precision the precision to set
-   */
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
-
-  /**
-   * @return the storageType
-   */
-  public String getStorageType() {
-    return storageType;
-  }
-
-  /**
-   * @param storageType the storageType to set
-   */
-  public void setStorageType(String storageType) {
-    this.storageType = storageType;
-  }
-
-  /**
-   * @return the conversionMask
-   */
-  public String getConversionMask() {
-    return conversionMask;
-  }
-
-  /**
-   * @param conversionMask the conversionMask to set
-   */
-  public void setConversionMask(String conversionMask) {
-    this.conversionMask = conversionMask;
-  }
-
-  /**
-   * @return whether date conversion from string is lenient or not
-   */
-  public boolean isDateFormatLenient() {
-    return dateFormatLenient;
-  }
-
-  /**
-   * @param dateFormatLenient whether date conversion from string is lenient or not
-   */
-  public void setDateFormatLenient(boolean dateFormatLenient) {
-    this.dateFormatLenient = dateFormatLenient;
-  }
-
-  /**
-   * @return the decimalSymbol
-   */
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  /**
-   * @param decimalSymbol the decimalSymbol to set
-   */
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  /**
-   * @return the groupingSymbol
-   */
-  public String getGroupingSymbol() {
-    return groupingSymbol;
-  }
-
-  /**
-   * @param groupingSymbol the groupingSymbol to set
-   */
-  public void setGroupingSymbol(String groupingSymbol) {
-    this.groupingSymbol = groupingSymbol;
-  }
-
-  /**
-   * @return the currencySymbol
-   */
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  /**
-   * @param currencySymbol the currencySymbol to set
-   */
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  /**
-   * @return the encoding to use when decoding binary data to strings
-   */
-  public String getEncoding() {
-    return encoding;
-  }
-
-  /**
-   * @param encoding the encoding to use when decoding binary data to strings
-   */
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
-
-  /**
-   * @return the lenientStringToNumber
-   */
-  public boolean isLenientStringToNumber() {
-    return lenientStringToNumber;
-  }
-
-  /**
-   * @param lenientStringToNumber the lenientStringToNumber to set
-   */
-  public void setLenientStringToNumber(boolean lenientStringToNumber) {
-    this.lenientStringToNumber = lenientStringToNumber;
-  }
-
-  /**
-   * @return the dateFormatLocale
-   */
-  public String getDateFormatLocale() {
-    return dateFormatLocale;
-  }
-
-  /**
-   * @param dateFormatLocale the dateFormatLocale to set
-   */
-  public void setDateFormatLocale(String dateFormatLocale) {
-    this.dateFormatLocale = dateFormatLocale;
-  }
-
-  /**
-   * @return the dateFormatTimeZone
-   */
-  public String getDateFormatTimeZone() {
-    return dateFormatTimeZone;
-  }
-
-  /**
-   * @param dateFormatTimeZone the dateFormatTimeZone to set
-   */
-  public void setDateFormatTimeZone(String dateFormatTimeZone) {
-    this.dateFormatTimeZone = dateFormatTimeZone;
   }
 }
