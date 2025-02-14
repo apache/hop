@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -75,15 +76,16 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       // We need to create a new meta-data row to drive the output
       // We also want to know the indexes of the selected fields in the source row.
       //
-      data.fieldnrs = new int[meta.getSelectFields().length];
+      data.fieldnrs = new int[meta.getSelectOption().getSelectFields().size()];
       for (int i = 0; i < data.fieldnrs.length; i++) {
-        data.fieldnrs[i] = rowMeta.indexOfValue(meta.getSelectFields()[i].getName());
+        data.fieldnrs[i] =
+            rowMeta.indexOfValue(meta.getSelectOption().getSelectFields().get(i).getName());
         if (data.fieldnrs[i] < 0) {
           logError(
               BaseMessages.getString(
                   PKG,
                   CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD,
-                  meta.getSelectFields()[i].getName()));
+                  meta.getSelectOption().getSelectFields().get(i).getName()));
           setErrors(1);
           stopAll();
           return null;
@@ -92,14 +94,18 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
 
       // Check for doubles in the selected fields... AFTER renaming!!
       //
-      int[] cnt = new int[meta.getSelectFields().length];
-      for (int i = 0; i < meta.getSelectFields().length; i++) {
+      int[] cnt = new int[meta.getSelectOption().getSelectFields().size()];
+      for (int i = 0; i < meta.getSelectOption().getSelectFields().size(); i++) {
         cnt[i] = 0;
-        for (int j = 0; j < meta.getSelectFields().length; j++) {
+        for (int j = 0; j < meta.getSelectOption().getSelectFields().size(); j++) {
           String one =
-              Const.NVL(meta.getSelectFields()[i].getRename(), meta.getSelectFields()[i].getName());
+              Const.NVL(
+                  meta.getSelectOption().getSelectFields().get(i).getRename(),
+                  meta.getSelectOption().getSelectFields().get(i).getName());
           String two =
-              Const.NVL(meta.getSelectFields()[j].getRename(), meta.getSelectFields()[j].getName());
+              Const.NVL(
+                  meta.getSelectOption().getSelectFields().get(j).getRename(),
+                  meta.getSelectOption().getSelectFields().get(j).getName());
           if (one.equals(two)) {
             cnt[i]++;
           }
@@ -117,7 +123,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
 
       // See if we need to include (and sort) the non-specified fields as well...
       //
-      if (meta.isSelectingAndSortingUnspecifiedFields()) {
+      if (meta.getSelectOption().isSelectingAndSortingUnspecifiedFields()) {
         // Select the unspecified fields.
         // Sort the fields
         // Add them after the specified fields...
@@ -199,13 +205,15 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
     if (data.firstdeselect) {
       data.firstdeselect = false;
 
-      data.removenrs = new int[meta.getDeleteName().length];
+      var deleteNames = meta.getSelectOption().getDeleteName();
+      data.removenrs = new int[deleteNames.size()];
       for (int i = 0; i < data.removenrs.length; i++) {
-        data.removenrs[i] = rowMeta.indexOfValue(meta.getDeleteName()[i]);
+        var deleteName = deleteNames.get(i);
+        data.removenrs[i] = rowMeta.indexOfValue(deleteName.getName());
         if (data.removenrs[i] < 0) {
           logError(
               BaseMessages.getString(
-                  PKG, CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD, meta.getDeleteName()[i]));
+                  PKG, CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD, deleteName));
           setErrors(1);
           stopAll();
           return null;
@@ -213,11 +221,14 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       }
 
       // Check for doubles in the selected fields...
-      int[] cnt = new int[meta.getDeleteName().length];
-      for (int i = 0; i < meta.getDeleteName().length; i++) {
+      int[] cnt = new int[deleteNames.size()];
+      for (int i = 0; i < deleteNames.size(); i++) {
         cnt[i] = 0;
-        for (int j = 0; j < meta.getDeleteName().length; j++) {
-          if (meta.getDeleteName()[i].equals(meta.getDeleteName()[j])) {
+        for (int j = 0; j < meta.getSelectOption().getDeleteName().size(); j++) {
+          if (meta.getSelectOption()
+              .getDeleteName()
+              .get(i)
+              .equals(meta.getSelectOption().getDeleteName().get(j))) {
             cnt[i]++;
           }
 
@@ -226,7 +237,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
                 BaseMessages.getString(
                     PKG,
                     "SelectValues.Log.FieldCouldNotSpecifiedMoreThanTwice2",
-                    meta.getDeleteName()[i]));
+                    meta.getSelectOption().getDeleteName().get(i)));
             setErrors(1);
             stopAll();
             return null;
@@ -262,13 +273,15 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
     if (data.firstmetadata) {
       data.firstmetadata = false;
 
-      data.metanrs = new int[meta.getMeta().length];
+      data.metanrs = new int[meta.getSelectOption().getMeta().size()];
       for (int i = 0; i < data.metanrs.length; i++) {
-        data.metanrs[i] = rowMeta.indexOfValue(meta.getMeta()[i].getName());
+        data.metanrs[i] = rowMeta.indexOfValue(meta.getSelectOption().getMeta().get(i).getName());
         if (data.metanrs[i] < 0) {
           logError(
               BaseMessages.getString(
-                  PKG, CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD, meta.getMeta()[i].getName()));
+                  PKG,
+                  CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD,
+                  meta.getSelectOption().getMeta().get(i).getName()));
           setErrors(1);
           stopAll();
           return null;
@@ -276,11 +289,15 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       }
 
       // Check for doubles in the selected fields...
-      int[] cnt = new int[meta.getMeta().length];
-      for (int i = 0; i < meta.getMeta().length; i++) {
+      int[] cnt = new int[meta.getSelectOption().getMeta().size()];
+      for (int i = 0; i < meta.getSelectOption().getMeta().size(); i++) {
         cnt[i] = 0;
-        for (int j = 0; j < meta.getMeta().length; j++) {
-          if (meta.getMeta()[i].getName().equals(meta.getMeta()[j].getName())) {
+        for (int j = 0; j < meta.getSelectOption().getMeta().size(); j++) {
+          if (meta.getSelectOption()
+              .getMeta()
+              .get(i)
+              .getName()
+              .equals(meta.getSelectOption().getMeta().get(j).getName())) {
             cnt[i]++;
           }
 
@@ -289,7 +306,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
                 BaseMessages.getString(
                     PKG,
                     "SelectValues.Log.FieldCouldNotSpecifiedMoreThanTwice2",
-                    meta.getMeta()[i].getName()));
+                    meta.getSelectOption().getMeta().get(i).getName()));
             setErrors(1);
             stopAll();
             return null;
@@ -301,7 +318,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       // correct mask.
       //
       for (int i = 0; i < data.metanrs.length; i++) {
-        SelectMetadataChange change = meta.getMeta()[i];
+        SelectMetadataChange change = meta.getSelectOption().getMeta().get(i);
         IValueMeta valueMeta = rowMeta.getValueMeta(data.metanrs[i]);
         if (!Utils.isEmpty(change.getConversionMask())) {
           valueMeta.setConversionMask(change.getConversionMask());
@@ -339,10 +356,12 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       //
       try {
         if (fromMeta.isStorageBinaryString()
-            && meta.getMeta()[i].getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL) {
+            && meta.getSelectOption().getMeta().get(i).getStorageType()
+                == ValueMetaFactory.getValueMetaName(IValueMeta.STORAGE_TYPE_NORMAL)) {
           rowData[index] = fromMeta.convertBinaryStringToNativeType((byte[]) rowData[index]);
         }
-        if (meta.getMeta()[i].getType() != IValueMeta.TYPE_NONE
+        if (meta.getSelectOption().getMeta().get(i).getType()
+                != ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NONE)
             && fromMeta.getType() != toMeta.getType()) {
           rowData[index] = toMeta.convertData(fromMeta, rowData[index]);
         }
@@ -450,13 +469,13 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       data.deselect = false;
       data.metadata = false;
 
-      if (!Utils.isEmpty(meta.getSelectFields())) {
+      if (!Utils.isEmpty(meta.getSelectOption().getSelectFields())) {
         data.select = true;
       }
-      if (!Utils.isEmpty(meta.getDeleteName())) {
+      if (!Utils.isEmpty(meta.getSelectOption().getDeleteName())) {
         data.deselect = true;
       }
-      if (!Utils.isEmpty(meta.getMeta())) {
+      if (!Utils.isEmpty(meta.getSelectOption().getMeta())) {
         data.metadata = true;
       }
 

@@ -1,0 +1,68 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "track",
+          "data_set_field": "track"
+        },
+        {
+          "transform_field": "singer",
+          "data_set_field": "singer"
+        },
+        {
+          "transform_field": "album",
+          "data_set_field": "album"
+        },
+        {
+          "transform_field": "released",
+          "data_set_field": "released"
+        },
+        {
+          "transform_field": "duration",
+          "data_set_field": "duration"
+        },
+        {
+          "transform_field": "liveness",
+          "data_set_field": "liveness"
+        },
+        {
+          "transform_field": "Valence",
+          "data_set_field": "Valence"
+        },
+        {
+          "transform_field": "Tempo",
+          "data_set_field": "Tempo"
+        },
+        {
+          "transform_field": "Popularity",
+          "data_set_field": "Popularity"
+        }
+      ],
+      "field_order": [
+        "track",
+        "singer",
+        "album",
+        "released",
+        "duration",
+        "liveness",
+        "Valence",
+        "Tempo",
+        "Popularity"
+      ],
+      "data_set_name": "golden-select-values-2",
+      "transform_name": "Assert"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0074-select-values-select-alter UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0074-select-values-select-alter.hpl",
+  "test_type": "UNIT_TEST"
+}
