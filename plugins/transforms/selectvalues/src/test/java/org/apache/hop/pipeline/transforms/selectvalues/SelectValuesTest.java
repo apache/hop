@@ -46,7 +46,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.apache.hop.pipeline.transforms.selectvalues.SelectValuesMeta.SelectField;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -113,17 +112,14 @@ public class SelectValuesTest {
     // First, test current behavior (it's worked this way since 5.x or so)
     //
     transformMeta = new SelectValuesMeta();
-    transformMeta.allocate(1, 0, 1);
-    transformMeta.getSelectFields()[0] = new SelectField();
-    transformMeta.getSelectFields()[0].setName(SELECTED_FIELD);
-    transformMeta.getMeta()[0] =
+    SelectMetadataChange sf =
         new SelectMetadataChange(
             SELECTED_FIELD,
             null,
-            IValueMeta.TYPE_INTEGER,
+            "Integer",
             -2,
             -2,
-            IValueMeta.STORAGE_TYPE_NORMAL,
+            "Normal",
             null,
             false,
             null,
@@ -131,7 +127,9 @@ public class SelectValuesTest {
             false,
             null,
             null,
-            null); // no specified conversion type so should have default conversion mask.
+            null);
+    transformMeta.setSelectOption(new SelectOptions());
+    transformMeta.getSelectOption().getMeta().add(sf);
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -171,17 +169,14 @@ public class SelectValuesTest {
     // Another test...
     //
     transformMeta = new SelectValuesMeta();
-    transformMeta.allocate(1, 0, 1);
-    transformMeta.getSelectFields()[0] = new SelectField();
-    transformMeta.getSelectFields()[0].setName(SELECTED_FIELD);
-    transformMeta.getMeta()[0] =
+    SelectMetadataChange sf1 =
         new SelectMetadataChange(
             SELECTED_FIELD,
             null,
-            IValueMeta.TYPE_NUMBER,
+            "Number",
             -2,
             -2,
-            IValueMeta.STORAGE_TYPE_NORMAL,
+            "Normal",
             null,
             false,
             null,
@@ -189,8 +184,9 @@ public class SelectValuesTest {
             false,
             null,
             null,
-            null); // no specified conversion type so should have default conversion mask for
-    // Double.
+            null);
+    transformMeta.setSelectOption(new SelectOptions());
+    transformMeta.getSelectOption().getMeta().add(sf1);
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -230,18 +226,14 @@ public class SelectValuesTest {
     // Another test
     //
     transformMeta = new SelectValuesMeta();
-    transformMeta.allocate(1, 0, 1);
-    transformMeta.getSelectFields()[0] = new SelectField();
-    transformMeta.getSelectFields()[0].setName(SELECTED_FIELD);
-    // no specified conversion type so should have default conversion mask for BigNumber
-    transformMeta.getMeta()[0] =
+    SelectMetadataChange sf2 =
         new SelectMetadataChange(
             SELECTED_FIELD,
             null,
-            IValueMeta.TYPE_BIGNUMBER,
+            "BigNumber",
             -2,
             -2,
-            IValueMeta.STORAGE_TYPE_NORMAL,
+            "Normal",
             null,
             false,
             null,
@@ -250,6 +242,8 @@ public class SelectValuesTest {
             null,
             null,
             null);
+    transformMeta.setSelectOption(new SelectOptions());
+    transformMeta.getSelectOption().getMeta().add(sf2);
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -291,17 +285,16 @@ public class SelectValuesTest {
   @Test
   public void errorRowSetObtainsFieldName() throws Exception {
     SelectValuesMeta transformMeta = new SelectValuesMeta();
-    transformMeta.allocate(1, 0, 1);
-    transformMeta.getSelectFields()[0] = new SelectField();
-    transformMeta.getSelectFields()[0].setName(SELECTED_FIELD);
-    transformMeta.getMeta()[0] =
+    SelectField field = new SelectField();
+    field.setName(SELECTED_FIELD);
+    SelectMetadataChange sf3 =
         new SelectMetadataChange(
             SELECTED_FIELD,
             null,
-            IValueMeta.TYPE_INTEGER,
+            "Integer",
             -2,
             -2,
-            IValueMeta.STORAGE_TYPE_NORMAL,
+            "Normal",
             null,
             false,
             null,
@@ -310,6 +303,9 @@ public class SelectValuesTest {
             null,
             null,
             null);
+    transformMeta.setSelectOption(new SelectOptions());
+    transformMeta.getSelectOption().getMeta().add(sf3);
+    transformMeta.getSelectOption().getSelectFields().add(field);
 
     SelectValuesData transformData = new SelectValuesData();
     transformData.select = true;

@@ -17,9 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.apache.hop.pipeline.transforms.selectvalues.SelectValueMetaTestFactory.getSelectFields;
+import static org.apache.hop.pipeline.transforms.selectvalues.SelectValueMetaTestFactory.getSelectFieldsWithRename;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,10 +29,10 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.selectvalues.SelectValuesMeta.SelectField;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -40,9 +41,13 @@ import org.junit.Test;
 public class SelectValuesMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  private static final String FIRST_FIELD = "FIRST_FIELD";
+  private static final String FIRST_NAME = "FIRST_FIELD";
 
-  private static final String SECOND_FIELD = "SECOND_FIELD";
+  private static final String SECOND_NAME = "SECOND_FIELD";
+
+  private static final String FIRST_RENAME = "FIRST_FIELD_RENAMED";
+
+  private static final String SECOND_RENAME = "SECOND_FIELD_RENAMED";
 
   private SelectValuesMeta selectValuesMeta;
 
@@ -81,141 +86,142 @@ public class SelectValuesMetaTest {
 
   @Test
   public void setSelectName() {
-    selectValuesMeta.setSelectName(new String[] {FIRST_FIELD, SECOND_FIELD});
-    assertArrayEquals(new String[] {FIRST_FIELD, SECOND_FIELD}, selectValuesMeta.getSelectName());
+    List<SelectField> fields = getSelectFields(FIRST_NAME, SECOND_NAME);
+
+    selectValuesMeta.getSelectOption().setSelectFields(fields);
+
+    assertEquals(fields, selectValuesMeta.getSelectOption().getSelectFields());
   }
 
   @Test
   public void setSelectName_getOtherFields() {
-    selectValuesMeta.setSelectName(new String[] {FIRST_FIELD, SECOND_FIELD});
-    assertArrayEquals(new String[] {null, null}, selectValuesMeta.getSelectRename());
-    assertArrayEquals(
-        new int[] {SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED},
-        selectValuesMeta.getSelectLength());
-    assertArrayEquals(
-        new int[] {SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED},
-        selectValuesMeta.getSelectPrecision());
+
+    selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
+
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .allMatch(field -> field.getRename() == null)
+        .allMatch(field -> field.getLength() == SelectValuesMeta.UNDEFINED)
+        .allMatch(field -> field.getPrecision() == SelectValuesMeta.UNDEFINED);
   }
 
   @Test
   public void setSelectName_smallerThanPrevious() {
-    selectValuesMeta.setSelectName(new String[] {FIRST_FIELD, SECOND_FIELD});
-    selectValuesMeta.setSelectName(new String[] {FIRST_FIELD});
-    assertArrayEquals(new String[] {FIRST_FIELD}, selectValuesMeta.getSelectName());
+    selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
+    selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME));
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .extracting(SelectField::getName)
+        .containsExactly(FIRST_NAME);
   }
 
   @Test
   public void getSelectName() {
-    assertArrayEquals(new String[0], selectValuesMeta.getSelectName());
+    assertThat(selectValuesMeta.getSelectName()).isEmpty();
   }
 
   @Test
   public void setSelectRename() {
-    selectValuesMeta.setSelectRename(new String[] {FIRST_FIELD, SECOND_FIELD});
-    assertArrayEquals(new String[] {FIRST_FIELD, SECOND_FIELD}, selectValuesMeta.getSelectRename());
+    selectValuesMeta
+        .getSelectOption()
+        .setSelectFields(
+            getSelectFieldsWithRename(
+                List.of(FIRST_NAME, SECOND_NAME), List.of(FIRST_RENAME, SECOND_RENAME)));
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .extracting(SelectField::getRename)
+        .containsExactly(FIRST_RENAME, SECOND_RENAME);
   }
 
   @Test
   public void setSelectRename_getOtherFields() {
-    selectValuesMeta.setSelectRename(new String[] {FIRST_FIELD, SECOND_FIELD});
-    assertArrayEquals(new String[] {null, null}, selectValuesMeta.getSelectName());
-    assertArrayEquals(
-        new int[] {SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED},
-        selectValuesMeta.getSelectLength());
-    assertArrayEquals(
-        new int[] {SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED},
-        selectValuesMeta.getSelectPrecision());
+    selectValuesMeta
+        .getSelectOption()
+        .setSelectFields(
+            getSelectFieldsWithRename(
+                List.of(FIRST_NAME, SECOND_NAME), List.of(FIRST_RENAME, SECOND_RENAME)));
+
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .allMatch(field -> field.getName() != null)
+        .allMatch(field -> List.of(FIRST_NAME, SECOND_NAME).contains(field.getName()))
+        .allMatch(field -> field.getLength() == SelectValuesMeta.UNDEFINED)
+        .allMatch(field -> field.getPrecision() == SelectValuesMeta.UNDEFINED);
   }
 
   @Test
   public void setSelectRename_smallerThanPrevious() {
-    selectValuesMeta.setSelectRename(new String[] {FIRST_FIELD, SECOND_FIELD});
-    selectValuesMeta.setSelectRename(new String[] {FIRST_FIELD});
-    assertArrayEquals(new String[] {FIRST_FIELD, null}, selectValuesMeta.getSelectRename());
+    selectValuesMeta
+        .getSelectOption()
+        .setSelectFields(
+            getSelectFieldsWithRename(
+                List.of(FIRST_NAME, SECOND_NAME), List.of(FIRST_RENAME, SECOND_RENAME)));
+    selectValuesMeta
+        .getSelectOption()
+        .setSelectFields(getSelectFieldsWithRename(List.of(FIRST_NAME), List.of(FIRST_RENAME)));
+
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .extracting(SelectField::getRename)
+        .containsExactly(FIRST_RENAME);
   }
 
   @Test
   public void getSelectRename() {
-    assertArrayEquals(new String[0], selectValuesMeta.getSelectRename());
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .allMatch(field -> field.getRename().isEmpty());
   }
 
   @Test
   public void setSelectLength() {
-    selectValuesMeta.setSelectLength(new int[] {1, 2});
-    assertArrayEquals(new int[] {1, 2}, selectValuesMeta.getSelectLength());
+    List<SelectField> selectFields = getSelectFields(FIRST_NAME, SECOND_NAME);
+    selectFields.get(0).setLength(1);
+    selectFields.get(1).setLength(2);
+
+    assertThat(selectFields).extracting(SelectField::getLength).containsExactly(1, 2);
   }
 
   @Test
   public void setSelectLength_getOtherFields() {
-    selectValuesMeta.setSelectLength(new int[] {1, 2});
-    assertArrayEquals(new String[] {null, null}, selectValuesMeta.getSelectName());
-    assertArrayEquals(new String[] {null, null}, selectValuesMeta.getSelectRename());
-    assertArrayEquals(
-        new int[] {SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED},
-        selectValuesMeta.getSelectPrecision());
+    selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
+    selectValuesMeta.getSelectOption().getSelectFields().get(0).setLength(1);
+    selectValuesMeta.getSelectOption().getSelectFields().get(1).setLength(2);
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .allMatch(field -> field.getName() != null)
+        .allMatch(field -> List.of(FIRST_NAME, SECOND_NAME).contains(field.getName()))
+        .allMatch(field -> field.getRename() == null)
+        .allMatch(field -> field.getPrecision() == SelectValuesMeta.UNDEFINED);
   }
 
   @Test
   public void setSelectLength_smallerThanPrevious() {
-    selectValuesMeta.setSelectLength(new int[] {1, 2});
-    selectValuesMeta.setSelectLength(new int[] {1});
-    assertArrayEquals(
-        new int[] {1, SelectValuesMeta.UNDEFINED}, selectValuesMeta.getSelectLength());
-  }
+    selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
+    selectValuesMeta.getSelectOption().getSelectFields().get(0).setLength(1);
+    selectValuesMeta.getSelectOption().getSelectFields().get(1).setLength(2);
+    selectValuesMeta.getSelectOption().getSelectFields().remove(1);
 
-  @Test
-  public void getSelectLength() {
-    assertArrayEquals(new int[0], selectValuesMeta.getSelectLength());
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .extracting(SelectField::getLength)
+        .containsExactly(1);
   }
 
   @Test
   public void setSelectPrecision() {
-    selectValuesMeta.setSelectPrecision(new int[] {1, 2});
-    assertArrayEquals(new int[] {1, 2}, selectValuesMeta.getSelectPrecision());
-  }
+    selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
+    selectValuesMeta.getSelectOption().getSelectFields().get(0).setPrecision(1);
+    selectValuesMeta.getSelectOption().getSelectFields().get(1).setPrecision(2);
 
-  @Test
-  public void setSelectPrecision_getOtherFields() {
-    selectValuesMeta.setSelectPrecision(new int[] {1, 2});
-    assertArrayEquals(new String[] {null, null}, selectValuesMeta.getSelectName());
-    assertArrayEquals(new String[] {null, null}, selectValuesMeta.getSelectRename());
-    assertArrayEquals(
-        new int[] {SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED},
-        selectValuesMeta.getSelectLength());
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .extracting(SelectField::getPrecision)
+        .containsExactly(1, 2);
   }
 
   @Test
   public void setSelectPrecision_smallerThanPrevious() {
-    selectValuesMeta.setSelectPrecision(new int[] {1, 2});
-    selectValuesMeta.setSelectPrecision(new int[] {1});
-    assertArrayEquals(
-        new int[] {1, SelectValuesMeta.UNDEFINED}, selectValuesMeta.getSelectPrecision());
-  }
 
-  @Test
-  public void setSelectFieldsNull() {
-    selectValuesMeta.setSelectFields(null);
-    assertNotNull(selectValuesMeta.getSelectFields());
-    assertEquals(0, selectValuesMeta.getSelectFields().length);
-  }
+    selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
+    selectValuesMeta.getSelectOption().getSelectFields().get(0).setPrecision(1);
+    selectValuesMeta.getSelectOption().getSelectFields().get(1).setPrecision(2);
+    selectValuesMeta.getSelectOption().getSelectFields().remove(0);
 
-  @Test
-  public void setDeleteNameNull() {
-    selectValuesMeta.setDeleteName(null);
-    assertNotNull(selectValuesMeta.getDeleteName());
-    assertEquals(0, selectValuesMeta.getDeleteName().length);
-  }
-
-  @Test
-  public void setMetaNull() {
-    selectValuesMeta.setMeta(null);
-    assertNotNull(selectValuesMeta.getMeta());
-    assertEquals(0, selectValuesMeta.getMeta().length);
-  }
-
-  @Test
-  public void getSelectPrecision() {
-    assertArrayEquals(new int[0], selectValuesMeta.getSelectPrecision());
+    assertThat(selectValuesMeta.getSelectOption().getSelectFields())
+        .extracting(SelectField::getPrecision)
+        .containsExactly(2);
   }
 
   public static class SelectFieldLoadSaveValidator implements IFieldLoadSaveValidator<SelectField> {
@@ -235,5 +241,25 @@ public class SelectValuesMetaTest {
     public boolean validateTestObject(SelectField testObject, Object actual) {
       return EqualsBuilder.reflectionEquals(testObject, actual);
     }
+  }
+
+  @Test
+  public void testNewSerialization() throws Exception {
+    SelectValuesMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/select-values-transform.xml", SelectValuesMeta.class);
+
+    assertEquals(4, meta.getSelectOption().getSelectFields().size());
+    assertEquals(1, meta.getSelectOption().getDeleteName().size());
+    assertEquals(1, meta.getSelectOption().getMeta().size());
+  }
+
+  @Test
+  public void testClone() throws Exception {
+    SelectValuesMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/select-values-transform.xml", SelectValuesMeta.class);
+
+    SelectValuesMeta clone = (SelectValuesMeta) meta.clone();
   }
 }

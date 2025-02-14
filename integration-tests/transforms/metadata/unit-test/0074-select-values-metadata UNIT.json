@@ -1,0 +1,113 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Track",
+          "data_set_field": "Track"
+        },
+        {
+          "transform_field": "Artist",
+          "data_set_field": "Artist"
+        },
+        {
+          "transform_field": "Album",
+          "data_set_field": "Album"
+        },
+        {
+          "transform_field": "Year",
+          "data_set_field": "Year"
+        },
+        {
+          "transform_field": "Duration",
+          "data_set_field": "Duration"
+        },
+        {
+          "transform_field": "Time_Signature",
+          "data_set_field": "Time_Signature"
+        },
+        {
+          "transform_field": "Danceability",
+          "data_set_field": "Danceability"
+        },
+        {
+          "transform_field": "Energy",
+          "data_set_field": "Energy"
+        },
+        {
+          "transform_field": "Key",
+          "data_set_field": "Key"
+        },
+        {
+          "transform_field": "Loudness",
+          "data_set_field": "Loudness"
+        },
+        {
+          "transform_field": "Mode",
+          "data_set_field": "Mode"
+        },
+        {
+          "transform_field": "Speechiness",
+          "data_set_field": "Speechiness"
+        },
+        {
+          "transform_field": "Acousticness",
+          "data_set_field": "Acousticness"
+        },
+        {
+          "transform_field": "Instrumentalness",
+          "data_set_field": "Instrumentalness"
+        },
+        {
+          "transform_field": "lvns",
+          "data_set_field": "lvns"
+        },
+        {
+          "transform_field": "Valence",
+          "data_set_field": "Valence"
+        },
+        {
+          "transform_field": "Tempo",
+          "data_set_field": "Tempo"
+        },
+        {
+          "transform_field": "Popularity",
+          "data_set_field": "Popularity"
+        }
+      ],
+      "field_order": [
+        "Track",
+        "Artist",
+        "Album",
+        "Year",
+        "Duration",
+        "Time_Signature",
+        "Danceability",
+        "Energy",
+        "Key",
+        "Loudness",
+        "Mode",
+        "Speechiness",
+        "Acousticness",
+        "Instrumentalness",
+        "lvns",
+        "Valence",
+        "Tempo",
+        "Popularity"
+      ],
+      "data_set_name": "golden-select-values-3",
+      "transform_name": "Assert"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0074-select-values-metadata UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0074-select-values-metadata.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<transform>
+    <name>Select values</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+        <method>none</method>
+        <schema_name/>
+    </partitioning>
+    <fields>
+        <field>
+            <name>field1</name>
+        </field>
+        <field>
+            <name>field2</name>
+        </field>
+        <field>
+            <name>field3</name>
+        </field>
+        <field>
+            <name>field4</name>
+            <rename>field5</rename>
+        </field>
+        <select_unspecified>N</select_unspecified>
+        <remove>
+            <name>field3</name>
+        </remove>
+        <meta>
+            <name>field1</name>
+            <rename/>
+            <type>String</type>
+            <length>-1</length>
+            <precision>-1</precision>
+            <conversion_mask/>
+            <date_format_lenient>false</date_format_lenient>
+            <date_format_locale/>
+            <date_format_timezone/>
+            <lenient_string_to_number>false</lenient_string_to_number>
+            <encoding/>
+            <decimal_symbol/>
+            <grouping_symbol/>
+            <currency_symbol/>
+            <storage_type/>
+        </meta>
+    </fields>
+    <attributes/>
+    <GUI>
+        <xloc>592</xloc>
+        <yloc>192</yloc>
+    </GUI>
+</transform>

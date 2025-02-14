@@ -1,0 +1,4 @@
+Position,Fieldname,Comments,Type,Length,Precision,FormatMask,Origin
+1,field1,,String,-1,-1,,Select values
+2,field2,,String,-1,-1,,Data grid
+3,field5,,String,-1,-1,,Select values
