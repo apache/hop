@@ -17,8 +17,10 @@
 
 package org.apache.hop.workflow.actions.deletefolders;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -29,24 +31,20 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
 
 /** This defines a 'delete folders' action. */
 @Action(
@@ -58,107 +56,87 @@ import org.w3c.dom.Node;
     keywords = "i18n::ActionDeleteFolders.keyword",
     documentationUrl = "/workflow/actions/deletefolders.html")
 @SuppressWarnings("java:S1104")
-public class ActionDeleteFolders extends ActionBase implements Cloneable, IAction {
+public class ActionDeleteFolders extends ActionBase {
   private static final Class<?> PKG = ActionDeleteFolders.class;
-  private static final String CONST_SPACE_SHORT = "      ";
 
-  public boolean argFromPrevious;
+  @Getter
+  public enum SuccessCondition implements IEnumHasCodeAndDescription {
+    NO_ERRORS(
+        "success_if_no_errors",
+        BaseMessages.getString(PKG, "ActionDeleteFolders.SuccessWhenAllWorksFine.Label")),
+    ERRORS_LESS(
+        "success_if_errors_less",
+        BaseMessages.getString(PKG, "ActionDeleteFolders.SuccessWhenErrorsLessThan.Label")),
+    AT_LEAST_X_FOLDERS_DELETED(
+        "success_when_at_least",
+        BaseMessages.getString(PKG, "ActionDeleteFolders.SuccessWhenAtLeast.Label"));
 
-  public String[] arguments;
+    private final String code;
+    private final String description;
 
-  private String successCondition;
-  public static final String SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED = "success_when_at_least";
-  public static final String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
-  public static final String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
+    SuccessCondition(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
 
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(SuccessCondition.class);
+    }
+
+    public static SuccessCondition lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(
+          SuccessCondition.class, description, NO_ERRORS);
+    }
+  }
+
+  @Getter
+  @Setter
+  @HopMetadataProperty(key = "arg_from_previous")
+  private boolean argFromPrevious;
+
+  @Getter
+  @Setter
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<FileItem> fileItems;
+
+  @Getter
+  @Setter
+  @HopMetadataProperty(key = "limit_folders")
   private String limitFolders;
+
+  @Getter
+  @Setter
+  @HopMetadataProperty(key = "success_condition", storeWithCode = true)
+  private SuccessCondition successCondition;
 
   int nrErrors = 0;
   int nrSuccess = 0;
   boolean successConditionBroken = false;
-  boolean successConditionBrokenExit = false;
   int nrLimitFolders = 0;
-
-  public ActionDeleteFolders(String name) {
-    super(name, "");
-    argFromPrevious = false;
-    arguments = null;
-
-    successCondition = SUCCESS_IF_NO_ERRORS;
-    limitFolders = "10";
-  }
 
   public ActionDeleteFolders() {
     this("");
   }
 
-  public void allocate(int nrFields) {
-    arguments = new String[nrFields];
+  public ActionDeleteFolders(String name) {
+    super(name, "");
+    argFromPrevious = false;
+    fileItems = List.of();
+    successCondition = SuccessCondition.NO_ERRORS;
+    limitFolders = "10";
+  }
+
+  public ActionDeleteFolders(ActionDeleteFolders other) {
+    super(other.getName(), other.getDescription(), other.getPluginId());
+    this.argFromPrevious = other.argFromPrevious;
+    this.limitFolders = other.limitFolders;
+    this.successCondition = other.successCondition;
+    this.fileItems = new ArrayList<>(other.fileItems);
   }
 
   @Override
   public Object clone() {
-    ActionDeleteFolders je = (ActionDeleteFolders) super.clone();
-    if (arguments != null) {
-      int nrFields = arguments.length;
-      je.allocate(nrFields);
-      System.arraycopy(arguments, 0, je.arguments, 0, nrFields);
-    }
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append(super.getXml());
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("success_condition", successCondition));
-    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("limit_folders", limitFolders));
-
-    retval.append("      <fields>").append(Const.CR);
-    if (arguments != null) {
-      for (int i = 0; i < arguments.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
-        retval.append("        </field>").append(Const.CR);
-      }
-    }
-    retval.append("      </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-      successCondition = XmlHandler.getTagValue(entrynode, "success_condition");
-      limitFolders = XmlHandler.getTagValue(entrynode, "limit_folders");
-
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
-
-      // How many field arguments?
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      allocate(nrFields);
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        arguments[i] = XmlHandler.getTagValue(fnode, "name");
-      }
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionDeleteFolders.UnableToLoadFromXml"), xe);
-    }
+    return new ActionDeleteFolders(this);
   }
 
   @Override
@@ -171,7 +149,6 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     nrErrors = 0;
     nrSuccess = 0;
     successConditionBroken = false;
-    successConditionBrokenExit = false;
     nrLimitFolders = Const.toInt(resolve(getLimitFolders()), 10);
 
     if (argFromPrevious && isDetailed()) {
@@ -187,7 +164,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
         if (successConditionBroken) {
           logError(
               BaseMessages.getString(
-                  PKG, "ActionDeleteFolders.Error.SuccessConditionbroken", "" + nrErrors));
+                  PKG, "ActionDeleteFolders.Error.SuccessConditionBroken", "" + nrErrors));
           result.setNrErrors(nrErrors);
           result.setNrLinesDeleted(nrSuccess);
           return result;
@@ -205,19 +182,20 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
           logError(BaseMessages.getString(PKG, "ActionDeleteFolders.Error.EmptyLine"));
         }
       }
-    } else if (arguments != null) {
-      for (int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++) {
+    } else if (fileItems != null) {
+      for (FileItem item : fileItems) {
+        if (parentWorkflow.isStopped()) break;
         if (successConditionBroken) {
           logError(
               BaseMessages.getString(
-                  PKG, "ActionDeleteFolders.Error.SuccessConditionbroken", "" + nrErrors));
+                  PKG, "ActionDeleteFolders.Error.SuccessConditionBroken", "" + nrErrors));
           result.setNrErrors(nrErrors);
           result.setNrLinesDeleted(nrSuccess);
           return result;
         }
-        String realfilename = resolve(arguments[i]);
-        if (!Utils.isEmpty(realfilename)) {
-          if (deleteFolder(realfilename)) {
+        String realFileName = resolve(item.getFileName());
+        if (!Utils.isEmpty(realFileName)) {
+          if (deleteFolder(realFileName)) {
             updateSuccess();
           } else {
             updateErrors();
@@ -257,8 +235,8 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   private boolean checkIfSuccessConditionBroken() {
-    return (nrErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (nrErrors >= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
+    return (nrErrors > 0 && getSuccessCondition() == SuccessCondition.NO_ERRORS)
+        || (nrErrors >= nrLimitFolders && getSuccessCondition() == SuccessCondition.ERRORS_LESS);
   }
 
   private void updateSuccess() {
@@ -266,29 +244,27 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   private boolean getSuccessStatus() {
-    return (nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+    return (nrErrors == 0 && getSuccessCondition() == SuccessCondition.NO_ERRORS)
         || (nrSuccess >= nrLimitFolders
-            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED))
-        || (nrErrors <= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
+            && getSuccessCondition() == SuccessCondition.AT_LEAST_X_FOLDERS_DELETED)
+        || (nrErrors <= nrLimitFolders && getSuccessCondition() == SuccessCondition.ERRORS_LESS);
   }
 
   private boolean deleteFolder(String folderName) {
     boolean rcode = false;
-    FileObject filefolder = null;
 
-    try {
-      filefolder = HopVfs.getFileObject(folderName, getVariables());
+    try (FileObject folder = HopVfs.getFileObject(folderName, getVariables())) {
 
-      if (filefolder.exists()) {
+      if (folder.exists()) {
         // the file or folder exists
-        if (filefolder.getType() == FileType.FOLDER) {
+        if (folder.getType() == FileType.FOLDER) {
           // It's a folder
           if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(PKG, "ActionDeleteFolders.ProcessingFolder", folderName));
           }
           // Delete Files
-          int count = filefolder.delete(new TextFileSelector());
+          int count = folder.delete(new TextFileSelector());
 
           if (isDetailed()) {
             logDetailed(
@@ -313,33 +289,9 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
           BaseMessages.getString(
               PKG, "ActionDeleteFolders.CouldNotDelete", folderName, e.getMessage()),
           e);
-    } finally {
-      if (filefolder != null) {
-        try {
-          filefolder.close();
-        } catch (IOException ex) {
-          // Ignore
-        }
-      }
     }
 
     return rcode;
-  }
-
-  private class TextFileSelector implements FileSelector {
-    @Override
-    public boolean includeFile(FileSelectInfo info) {
-      return true;
-    }
-
-    @Override
-    public boolean traverseDescendents(FileSelectInfo info) {
-      return true;
-    }
-  }
-
-  public void setPrevious(boolean argFromPrevious) {
-    this.argFromPrevious = argFromPrevious;
   }
 
   @Override
@@ -357,7 +309,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
         ActionValidatorUtils.andValidator()
             .validate(
                 this,
-                "arguments",
+                "fileItems",
                 remarks,
                 AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
 
@@ -365,55 +317,42 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
       return;
     }
 
+    /* TODO: If we enable action check
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
-
-    for (int i = 0; i < arguments.length; i++) {
-      ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks, ctx);
-    }
+    for (FileItem item : fileItems) {
+      ActionValidatorUtils.andValidator().validate(this, "fileName", remarks, ctx);
+    }*/
   }
 
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (arguments != null) {
-      ResourceReference reference = null;
-      for (int i = 0; i < arguments.length; i++) {
-        String filename = resolve(arguments[i]);
-        if (reference == null) {
-          reference = new ResourceReference(this);
-          references.add(reference);
-        }
-        reference.getEntries().add(new ResourceEntry(filename, ResourceType.FILE));
+
+    ResourceReference reference = null;
+    for (FileItem item : fileItems) {
+      String filename = resolve(item.getFileName());
+      if (reference == null) {
+        reference = new ResourceReference(this);
+        references.add(reference);
       }
+      reference.getEntries().add(new ResourceEntry(filename, ResourceType.FILE));
     }
     return references;
   }
 
-  public boolean isArgFromPrevious() {
-    return argFromPrevious;
-  }
+  private static class TextFileSelector implements FileSelector {
+    @Override
+    public boolean includeFile(FileSelectInfo info) {
+      return true;
+    }
 
-  public String[] getArguments() {
-    return arguments;
-  }
-
-  public void setSuccessCondition(String successCondition) {
-    this.successCondition = successCondition;
-  }
-
-  public String getSuccessCondition() {
-    return successCondition;
-  }
-
-  public void setLimitFolders(String limitFolders) {
-    this.limitFolders = limitFolders;
-  }
-
-  public String getLimitFolders() {
-    return limitFolders;
+    @Override
+    public boolean traverseDescendents(FileSelectInfo info) {
+      return true;
+    }
   }
 }
