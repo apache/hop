@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.http;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HttpProtocol;
 import org.apache.hop.core.Props;
@@ -291,9 +293,9 @@ public class ActionHttpDialog extends ActionDialog {
   private void setupHeaderTable(
       ModifyListener lsMod, int margin, CTabItem wHeadersTab, Composite wHeadersComp) {
     int rows =
-        action.getHeaderName() == null
+        action.getHeaders() == null
             ? 1
-            : (action.getHeaderName().length == 0 ? 0 : action.getHeaderName().length);
+            : (action.getHeaders().size() == 0 ? 0 : action.getHeaders().size());
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -885,9 +887,14 @@ public class ActionHttpDialog extends ActionDialog {
     wProxyServer.setText(Const.NVL(action.getProxyHostname(), ""));
     wProxyPort.setText(Const.NVL(action.getProxyPort(), ""));
     wNonProxyHosts.setText(Const.NVL(action.getNonProxyHosts(), ""));
+    String[] headerNames = new String[action.getHeaders().size()];
+    String[] headerValues = new String[action.getHeaders().size()];
 
-    String[] headerNames = action.getHeaderName();
-    String[] headerValues = action.getHeaderValue();
+    for (int i = 0; i < action.getHeaders().size(); i++) {
+      headerNames[i] = action.getHeaders().get(i).getHeaderName();
+      headerValues[i] = action.getHeaders().get(i).getHeaderValue();
+    }
+
     if (headerNames != null) {
       for (int i = 0; i < headerNames.length; i++) {
         TableItem ti = wHeaders.table.getItem(i);
@@ -944,32 +951,19 @@ public class ActionHttpDialog extends ActionDialog {
     action.setDateTimeAdded(wRunEveryRow.getSelection() ? false : wDateTimeAdded.getSelection());
     action.setTargetFilenameExtension(wRunEveryRow.getSelection() ? "" : wTargetExt.getText());
     action.setAddFilenameToResult(wAddFilenameToResult.getSelection());
-
-    int nrItems = wHeaders.nrNonEmpty();
-    int nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wHeaders.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        nr++;
-      }
-    }
-    String[] headerNames = new String[nr];
-    String[] headerValues = new String[nr];
-
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
+    List<ActionHttp.Header> headers = new ArrayList<>();
+    for (int i = 0; i < wHeaders.nrNonEmpty(); i++) {
       String varname = wHeaders.getNonEmpty(i).getText(1);
       String varvalue = wHeaders.getNonEmpty(i).getText(2);
+      ActionHttp.Header header = new ActionHttp.Header();
 
       if (varname != null && varname.length() != 0) {
-        headerNames[nr] = varname;
-        headerValues[nr] = varvalue;
-        nr++;
+        header.setHeaderName(varname);
+        header.setHeaderValue(varvalue);
       }
+      headers.add(header);
     }
-    action.setHeaderName(headerNames);
-    action.setHeaderValue(headerValues);
-
+    action.setHeaders(headers);
     dispose();
   }
 }

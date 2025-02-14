@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<action>
+    <name>HTTP</name>
+    <description/>
+    <type>HTTP</type>
+    <attributes/>
+    <url>url</url>
+    <targetfilename>/target/file.csv</targetfilename>
+    <file_appended>N</file_appended>
+    <date_time_added>N</date_time_added>
+    <targetfilename_extension/>
+    <uploadfilename>/tmp/file.csv</uploadfilename>
+    <run_every_row>N</run_every_row>
+    <ignore_ssl>Y</ignore_ssl>
+    <url_fieldname/>
+    <upload_fieldname/>
+    <dest_fieldname/>
+    <username>username</username>
+    <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
+    <proxy_host>proxy</proxy_host>
+    <proxy_port>8080</proxy_port>
+    <non_proxy_hosts/>
+    <addfilenameresult>Y</addfilenameresult>
+    <headers>
+        <header>
+            <header_name>accept</header_name>
+            <header_value>header1</header_value>
+        </header>
+        <header>
+            <header_name>accept-charset</header_name>
+            <header_value>header2</header_value>
+        </header>
+    </headers>
+    <parallel>N</parallel>
+    <xloc>800</xloc>
+    <yloc>528</yloc>
+    <attributes_hac/>
+</action>
