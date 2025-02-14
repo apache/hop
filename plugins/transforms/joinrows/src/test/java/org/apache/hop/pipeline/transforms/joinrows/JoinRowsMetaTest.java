@@ -20,20 +20,11 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ConditionLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -41,31 +32,6 @@ public class JoinRowsMetaTest {
   LoadSaveTester loadSaveTester;
   Class<JoinRowsMeta> testMetaClass = JoinRowsMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @Before
-  public void setUpLoadSave() throws Exception {
-    HopEnvironment.init();
-    PluginRegistry.init();
-    List<String> attributes =
-        Arrays.asList("directory", "prefix", "cacheSize", "mainTransformName", "condition");
-
-    Map<String, String> getterMap = new HashMap<>();
-    Map<String, String> setterMap = new HashMap<>();
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("condition", new ConditionLoadSaveValidator());
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
-  }
-
-  @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
 
   @Test
   public void testCleanAfterHopToRemove_NullParameter() {
@@ -111,5 +77,37 @@ public class JoinRowsMetaTest {
     // No change to the transform should be made
     assertNull(joinRowsMeta.getMainTransform());
     assertNull(joinRowsMeta.getMainTransformName());
+  }
+
+  @Test
+  public void testSerialisation() throws Exception {
+    JoinRowsMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/join-rows-transform.xml", JoinRowsMeta.class);
+
+    assertEquals(0, meta.getCondition().nrConditions());
+  }
+
+  @Test
+  public void testSerialisationWithConditions() throws Exception {
+    JoinRowsMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/join-rows-transform-with-condition.xml", JoinRowsMeta.class);
+
+    assertEquals(2, meta.getCondition().nrConditions());
+  }
+
+  @Test
+  public void testClone() throws Exception {
+    JoinRowsMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/join-rows-transform-with-condition.xml", JoinRowsMeta.class);
+
+    JoinRowsMeta clone = (JoinRowsMeta) meta.clone();
+
+    assertEquals(clone.getCondition().nrConditions(), meta.getCondition().nrConditions());
+    assertEquals(clone.getDirectory(), meta.getDirectory());
+    assertEquals(clone.getCacheSize(), meta.getCacheSize());
+    assertEquals(clone.getMainTransformName(), meta.getMainTransformName());
   }
 }

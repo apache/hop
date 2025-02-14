@@ -80,7 +80,7 @@ public class JoinRowsDialog extends BaseTransformDialog {
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-    backupCondition = (Condition) condition.clone();
+    backupCondition = condition.clone();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();

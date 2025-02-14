@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -71,6 +73,8 @@ import org.w3c.dom.Node;
  *
  * <p>
  */
+@Getter
+@Setter
 public class Condition implements Cloneable {
   public static final String XML_TAG = "condition";
 
@@ -128,25 +132,29 @@ public class Condition implements Cloneable {
   // NOT value = othervalue
   //
 
-  @HopMetadataProperty(key = "negated")
+  @HopMetadataProperty(key = "negated", isExcludedFromInjection = true)
   private boolean negated;
 
-  @HopMetadataProperty(key = "operator", storeWithCode = true, enumNameWhenNotFound = "NONE")
+  @HopMetadataProperty(
+      key = "operator",
+      storeWithCode = true,
+      enumNameWhenNotFound = "NONE",
+      isExcludedFromInjection = true)
   private Operator operator;
 
-  @HopMetadataProperty(key = "leftvalue")
+  @HopMetadataProperty(key = "leftvalue", isExcludedFromInjection = true)
   private String leftValueName;
 
-  @HopMetadataProperty(key = "function", storeWithCode = true)
+  @HopMetadataProperty(key = "function", storeWithCode = true, isExcludedFromInjection = true)
   private Function function;
 
-  @HopMetadataProperty(key = "rightvalue")
+  @HopMetadataProperty(key = "rightvalue", isExcludedFromInjection = true)
   private String rightValueName;
 
-  @HopMetadataProperty(key = "value")
+  @HopMetadataProperty(key = "value", isExcludedFromInjection = true)
   private CValue rightValue;
 
-  @HopMetadataProperty(groupKey = "conditions", key = "condition")
+  @HopMetadataProperty(groupKey = "conditions", key = "condition", isExcludedFromInjection = true)
   private List<Condition> children;
 
   // Cached values for performance:
@@ -226,14 +234,6 @@ public class Condition implements Cloneable {
     return new Condition(this);
   }
 
-  public void setOperator(Operator operator) {
-    this.operator = operator;
-  }
-
-  public Operator getOperator() {
-    return operator;
-  }
-
   public String getOperatorDesc() {
     return Const.rightPad(operator.getCode(), 7);
   }
@@ -261,22 +261,6 @@ public class Condition implements Cloneable {
     return new String[] {"OR", "AND", CONST_OR_NOT, CONST_AND_NOT, "XOR"};
   }
 
-  public void setLeftValueName(String leftValueName) {
-    this.leftValueName = leftValueName;
-  }
-
-  public String getLeftValueName() {
-    return leftValueName;
-  }
-
-  public Function getFunction() {
-    return function;
-  }
-
-  public void setFunction(Function function) {
-    this.function = function;
-  }
-
   public String getFunctionDesc() {
     return function == null ? EQUAL.getCode() : function.getCode();
   }
@@ -288,22 +272,6 @@ public class Condition implements Cloneable {
       }
     }
     return FUNC_EQUAL;
-  }
-
-  public void setRightValueName(String rightValueName) {
-    this.rightValueName = rightValueName;
-  }
-
-  public String getRightValueName() {
-    return rightValueName;
-  }
-
-  public void setRightValue(CValue rightValue) {
-    this.rightValue = rightValue;
-  }
-
-  public CValue getRightValue() {
-    return rightValue;
   }
 
   public String getRightValueString() {
@@ -319,14 +287,6 @@ public class Condition implements Cloneable {
 
   public boolean isComposite() {
     return !children.isEmpty();
-  }
-
-  public boolean isNegated() {
-    return negated;
-  }
-
-  public void setNegated(boolean negate) {
-    this.negated = negate;
   }
 
   public void negate() {
@@ -810,44 +770,28 @@ public class Condition implements Cloneable {
     }
   }
 
-  /**
-   * Gets children
-   *
-   * @return value of children
-   */
-  public List<Condition> getChildren() {
-    return children;
-  }
-
-  /**
-   * Sets children
-   *
-   * @param children value of children
-   */
-  public void setChildren(List<Condition> children) {
-    this.children = children;
-  }
-
+  @Getter
+  @Setter
   public static final class CValue {
-    @HopMetadataProperty(key = "name")
+    @HopMetadataProperty(key = "name", isExcludedFromInjection = true)
     private String name;
 
-    @HopMetadataProperty(key = "type")
+    @HopMetadataProperty(key = "type", isExcludedFromInjection = true)
     private String type;
 
-    @HopMetadataProperty(key = "text")
+    @HopMetadataProperty(key = "text", isExcludedFromInjection = true)
     private String text;
 
-    @HopMetadataProperty(key = "length")
+    @HopMetadataProperty(key = "length", isExcludedFromInjection = true)
     private int length;
 
-    @HopMetadataProperty(key = "precision")
+    @HopMetadataProperty(key = "precision", isExcludedFromInjection = true)
     private int precision;
 
-    @HopMetadataProperty(key = "isnull")
+    @HopMetadataProperty(key = "isnull", isExcludedFromInjection = true)
     private boolean nullValue;
 
-    @HopMetadataProperty(key = "mask")
+    @HopMetadataProperty(key = "mask", isExcludedFromInjection = true)
     private String mask;
 
     public CValue() {}
@@ -915,132 +859,6 @@ public class Condition implements Cloneable {
       stringValueMeta.setConversionMetadata(valueMeta);
 
       return stringValueMeta.convertDataUsingConversionMetaData(val.getValueData());
-    }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    /**
-     * Gets type
-     *
-     * @return value of type
-     */
-    public String getType() {
-      return type;
-    }
-
-    /**
-     * Sets type
-     *
-     * @param type value of type
-     */
-    public void setType(String type) {
-      this.type = type;
-    }
-
-    /**
-     * Gets text
-     *
-     * @return value of text
-     */
-    public String getText() {
-      return text;
-    }
-
-    /**
-     * Sets text
-     *
-     * @param text value of text
-     */
-    public void setText(String text) {
-      this.text = text;
-    }
-
-    /**
-     * Gets length
-     *
-     * @return value of length
-     */
-    public int getLength() {
-      return length;
-    }
-
-    /**
-     * Sets length
-     *
-     * @param length value of length
-     */
-    public void setLength(int length) {
-      this.length = length;
-    }
-
-    /**
-     * Gets precision
-     *
-     * @return value of precision
-     */
-    public int getPrecision() {
-      return precision;
-    }
-
-    /**
-     * Sets precision
-     *
-     * @param precision value of precision
-     */
-    public void setPrecision(int precision) {
-      this.precision = precision;
-    }
-
-    /**
-     * Gets nullValue
-     *
-     * @return value of nullValue
-     */
-    public boolean isNullValue() {
-      return nullValue;
-    }
-
-    /**
-     * Sets nullValue
-     *
-     * @param nullValue value of nullValue
-     */
-    public void setNullValue(boolean nullValue) {
-      this.nullValue = nullValue;
-    }
-
-    /**
-     * Gets mask
-     *
-     * @return value of mask
-     */
-    public String getMask() {
-      return mask;
-    }
-
-    /**
-     * Sets mask
-     *
-     * @param mask value of mask
-     */
-    public void setMask(String mask) {
-      this.mask = mask;
     }
   }
 

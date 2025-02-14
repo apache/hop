@@ -28,5 +28,13 @@
     <artifactId>hop-transform-joinrows</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Join Rows</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-filterrows</artifactId>
+            <version>2.12.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 </project>

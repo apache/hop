@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-join-rows.csv",
+  "name": "golden-join-rows",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "field1",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "field2",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

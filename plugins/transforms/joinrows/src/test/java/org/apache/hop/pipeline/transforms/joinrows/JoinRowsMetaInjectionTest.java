@@ -37,5 +37,17 @@ public class JoinRowsMetaInjectionTest extends BaseMetadataInjectionTest<JoinRow
     check("MAX_CACHE_SIZE", () -> meta.getCacheSize());
     check("MAIN_TRANSFORM", () -> meta.getMainTransformName());
     skipPropertyTest("CONDITION");
+    skipPropertyTest("negated");
+    skipPropertyTest("isnull");
+    skipPropertyTest("leftvalue");
+    skipPropertyTest("precision");
+    skipPropertyTest("length");
+    skipPropertyTest("type");
+    skipPropertyTest("operator");
+    skipPropertyTest("rightvalue");
+    skipPropertyTest("function");
+    skipPropertyTest("name");
+    skipPropertyTest("text");
+    skipPropertyTest("mask");
   }
 }
