@@ -21,20 +21,19 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
-/**
- * The workflow to be executed in the pipeline can receive parameters. These are either coming from
- * an input row (the first row in a group of rows) or from a static variable or value.
- */
 @Getter
 @Setter
-public class WorkflowExecutorParameters implements Cloneable {
+public class WorkflowExecutorResultRows {
 
-  @HopMetadataProperty(key = "variable")
-  private String variable;
+  @HopMetadataProperty(key = "name")
+  private String name;
 
-  @HopMetadataProperty(key = "field")
-  private String field;
+  @HopMetadataProperty(key = "type")
+  private String type;
 
-  @HopMetadataProperty(key = "input")
-  private String input;
+  @HopMetadataProperty(key = "length")
+  private int length;
+
+  @HopMetadataProperty(key = "precision")
+  private int precision;
 }

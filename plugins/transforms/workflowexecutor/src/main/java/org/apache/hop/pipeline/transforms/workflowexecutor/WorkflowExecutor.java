@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.workflowexecutor;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -289,20 +290,24 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
         // .. but before, perform all the consistency checks just one time just in the first result
         // row
         if (!rowConsistencyChecked) {
-          for (int i = 0; i < meta.getResultRowsField().length; i++) {
-            int idx = row.getRowMeta().indexOfValue(meta.getResultRowsField()[i]);
+          for (int i = 0; i < meta.getResultRowsField().size(); i++) {
+            int idx = row.getRowMeta().indexOfValue(meta.getResultRowsField().get(i).getName());
 
             if (idx == -1) {
               missingFields +=
-                  (missingFields.length() > 0 ? "," : "") + meta.getResultRowsField()[i];
+                  (missingFields.length() > 0 ? "," : "")
+                      + meta.getResultRowsField().get(i).getName();
             }
 
             IValueMeta valueMeta = row.getRowMeta().getValueMeta(i);
 
-            if (valueMeta != null && valueMeta.getType() != meta.getResultRowsType()[i]) {
+            if (valueMeta != null
+                && valueMeta.getType()
+                    != ValueMetaFactory.getIdForValueMeta(
+                        meta.getResultRowsField().get(i).getType())) {
               expectedTypes +=
                   (expectedTypes.length() > 0 ? "," : "")
-                      + ValueMetaFactory.getValueMetaName(meta.getResultRowsType()[i]);
+                      + meta.getResultRowsField().get(i).getType();
               currentTypes += (currentTypes.length() > 0 ? "," : "") + valueMeta.getTypeDesc();
             }
           }
@@ -323,7 +328,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
         Object[] targetRow = RowDataUtil.allocateRowData(data.resultRowsOutputRowMeta.size());
 
-        for (int i = 0; i < meta.getResultRowsField().length; i++) {
+        for (int i = 0; i < meta.getResultRowsField().size(); i++) {
           targetRow[i] = row.getData()[i];
         }
 
@@ -372,12 +377,12 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
   private void passParametersToWorkflow() throws HopException {
     // Set parameters, when fields are used take the first row in the set.
     //
-    WorkflowExecutorParameters parameters = meta.getParameters();
+    List<WorkflowExecutorParameters> parameters = meta.getParameters();
 
-    for (int i = 0; i < parameters.getVariable().length; i++) {
-      String variableName = parameters.getVariable()[i];
-      String variableInput = parameters.getInput()[i];
-      String fieldName = parameters.getField()[i];
+    for (int i = 0; i < parameters.size(); i++) {
+      String variableName = parameters.get(i).getVariable();
+      String variableInput = parameters.get(i).getInput();
+      String fieldName = parameters.get(i).getField();
       String variableValue = null;
       if (StringUtils.isNotEmpty(variableName)) {
         // The value is provided by a field in an input row
