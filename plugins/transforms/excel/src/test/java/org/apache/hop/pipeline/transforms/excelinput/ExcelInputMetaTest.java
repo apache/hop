@@ -35,4 +35,15 @@ public class ExcelInputMetaTest {
     assertEquals(1, meta.getSheets().size());
     assertEquals(4, meta.getFields().size());
   }
+
+  @Test
+  public void testClone() throws Exception {
+    ExcelInputMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/excel-input-transform.xml", ExcelInputMeta.class);
+
+    ExcelInputMeta clone = meta.clone();
+
+    assertEquals(meta.getFiles().size(), clone.getFiles().size());
+  }
 }
