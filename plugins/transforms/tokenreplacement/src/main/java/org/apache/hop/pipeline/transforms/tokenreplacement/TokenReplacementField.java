@@ -22,10 +22,10 @@ import org.apache.hop.core.injection.Injection;
 
 /** Describes a single field in a text file */
 public class TokenReplacementField implements Cloneable {
-  @Injection(name = "TOKEN_FIELDNAME")
+  @Injection(name = "TOKEN_FIELDNAME", group = "OUTPUT_FIELDS")
   private String name;
 
-  @Injection(name = "TOKEN_NAME")
+  @Injection(name = "TOKEN_NAME", group = "OUTPUT_FIELDS")
   private String tokenName;
 
   public TokenReplacementField(String name, String tokenName) {
