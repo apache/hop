@@ -128,7 +128,6 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.CheckResultDialog;
 import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
@@ -151,7 +150,6 @@ import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
-import org.apache.hop.ui.hopgui.dialog.CheckPipelineProgressDialog;
 import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.dialog.SearchFieldsProgressDialog;
@@ -161,6 +159,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineHopContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineNoteContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineCheckDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineClipboardDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineGridDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineHopDelegate;
@@ -231,9 +230,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_START = "HopGuiPipelineGraph-ToolBar-10010-Run";
   public static final String TOOLBAR_ITEM_STOP = "HopGuiPipelineGraph-ToolBar-10030-Stop";
   public static final String TOOLBAR_ITEM_PAUSE = "HopGuiPipelineGraph-ToolBar-10020-Pause";
-  public static final String TOOLBAR_ITEM_PREVIEW = "HopGuiPipelineGraph-ToolBar-10040-Preview";
-  public static final String TOOLBAR_ITEM_DEBUG = "HopGuiPipelineGraph-ToolBar-10045-Debug";
-  public static final String TOOLBAR_ITEM_CHECK = "HopGuiPipelineGraph-ToolBar-10060-Check";
+  public static final String TOOLBAR_ITEM_CHECK = "HopGuiPipelineGraph-ToolBar-10040-Check";
+  public static final String TOOLBAR_ITEM_PREVIEW = "HopGuiPipelineGraph-ToolBar-10050-Preview";
+  public static final String TOOLBAR_ITEM_DEBUG = "HopGuiPipelineGraph-ToolBar-10060-Debug";
 
   public static final String TOOLBAR_ITEM_UNDO_ID = "HopGuiPipelineGraph-ToolBar-10100-Undo";
   public static final String TOOLBAR_ITEM_REDO_ID = "HopGuiPipelineGraph-ToolBar-10110-Redo";
@@ -362,6 +361,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public HopGuiPipelineLogDelegate pipelineLogDelegate;
   public HopGuiPipelineGridDelegate pipelineGridDelegate;
+  public HopGuiPipelineCheckDelegate pipelineCheckDelegate;
   public HopGuiPipelineRunDelegate pipelineRunDelegate;
   public HopGuiPipelineTransformDelegate pipelineTransformDelegate;
   public HopGuiPipelineClipboardDelegate pipelineClipboardDelegate;
@@ -446,6 +446,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     pipelineLogDelegate = new HopGuiPipelineLogDelegate(hopGui, this);
     pipelineGridDelegate = new HopGuiPipelineGridDelegate(hopGui, this);
+    pipelineCheckDelegate = new HopGuiPipelineCheckDelegate(hopGui, this);
     pipelineClipboardDelegate = new HopGuiPipelineClipboardDelegate(hopGui, this);
     pipelineTransformDelegate = new HopGuiPipelineTransformDelegate(hopGui, this);
     pipelineHopDelegate = new HopGuiPipelineHopDelegate(hopGui, this);
@@ -1200,7 +1201,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                         prefix +=
                             BaseMessages.getString(
                                 PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");
-                        ;
                         break;
                       default:
                         break;
@@ -3891,27 +3891,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_CHECK,
       toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.VerifyPipeline",
-      image = "ui/images/check-pipeline.svg",
+      image = "ui/images/check.svg",
       separator = true)
+  @GuiKeyboardShortcut(key = SWT.F7)
   public void checkPipeline() {
-    try {
-      CheckPipelineProgressDialog dialog =
-          new CheckPipelineProgressDialog(getShell(), variables, pipelineMeta, getRemarks(), false);
-      dialog.open();
 
-      CheckResultDialog crd = new CheckResultDialog(getShell(), getRemarks());
-      String transformName = crd.open();
-      if (transformName != null) {
-        // Go to the indicated transform
-        //
-        TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-        if (transformMeta != null) {
-          pipelineTransformDelegate.editTransform(pipelineMeta, transformMeta);
-        }
-      }
-    } catch (Exception e) {
-      new ErrorDialog(getShell(), CONST_ERROR, "Error verifying pipeline", e);
-    }
+    // Show the results views
+    //
+    addAllTabs();
+
+    this.pipelineCheckDelegate.checkPipeline();
   }
 
   /** TODO: re-introduce public void analyseImpact() { hopGui.analyseImpact(); } */
@@ -4313,6 +4302,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     pipelineLogDelegate.addPipelineLog();
     pipelineGridDelegate.addPipelineGrid();
+    pipelineCheckDelegate.addPipelineCheck();
 
     if (tabItemSelection != null) {
       extraViewTabFolder.setSelection(tabItemSelection);

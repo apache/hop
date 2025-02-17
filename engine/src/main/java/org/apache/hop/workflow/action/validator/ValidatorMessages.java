@@ -25,7 +25,7 @@ import org.apache.hop.i18n.GlobalMessageUtil;
 /** Utility class for getting formatted strings from validator resource bundle. */
 public class ValidatorMessages {
 
-  private static final String BUNDLE_NAME = "org.apache.hop.workflow.entry.messages.validator";
+  private static final String BUNDLE_NAME = "org.apache.hop.workflow.action.messages.validator";
 
   public static String getString(final String key, final Object... params) {
     return getStringFromBundle(BUNDLE_NAME, key, params);

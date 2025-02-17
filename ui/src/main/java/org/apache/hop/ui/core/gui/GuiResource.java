@@ -219,6 +219,7 @@ public class GuiResource {
   private Image imageExpandAll;
   private Image imageCollapseAll;
   private Image imageAdd;
+  private Image imageCheck;
   private Image imageCopy;
   private Image imageCancel;
   private Image imageCut;
@@ -440,6 +441,7 @@ public class GuiResource {
 
     // Common images
     imageLogo.dispose();
+    imageCheck.dispose();
     imageDisabledHop.dispose();
     imageDatabase.dispose();
     imageData.dispose();
@@ -718,6 +720,7 @@ public class GuiResource {
     imageAddAll = loadAsResource(display, "ui/images/add_all.svg", ConstUi.SMALL_ICON_SIZE);
     imageAddSingle = loadAsResource(display, "ui/images/add_single.svg", ConstUi.SMALL_ICON_SIZE);
     imageCalendar = loadAsResource(display, "ui/images/calendar.svg", ConstUi.SMALL_ICON_SIZE);
+    imageCheck = loadAsResource(display, "ui/images/check.svg", ConstUi.SMALL_ICON_SIZE);
     imageClosePanel = loadAsResource(display, "ui/images/close-panel.svg", ConstUi.SMALL_ICON_SIZE);
     imageCollapseAll =
         loadAsResource(display, "ui/images/collapse-all.svg", ConstUi.SMALL_ICON_SIZE);
@@ -2098,6 +2101,10 @@ public class GuiResource {
    */
   public Image getImageClose() {
     return imageClose;
+  }
+
+  public Image getImageCheck() {
+    return imageCheck;
   }
 
   /**

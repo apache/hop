@@ -115,6 +115,7 @@ import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowHopContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowNoteContext;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowActionDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowCheckDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowGridDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowHopDelegate;
@@ -186,7 +187,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiWorkflowGraph-ToolBar-10010-Run";
   public static final String TOOLBAR_ITEM_STOP = "HopGuiWorkflowGraph-ToolBar-10030-Stop";
-
+  public static final String TOOLBAR_ITEM_CHECK = "HopGuiWorkflowGraph-ToolBar-10040-Check";
   public static final String TOOLBAR_ITEM_UNDO_ID = "HopGuiWorkflowGraph-ToolBar-10100-Undo";
   public static final String TOOLBAR_ITEM_REDO_ID = "HopGuiWorkflowGraph-ToolBar-10110-Redo";
 
@@ -313,6 +314,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public HopGuiWorkflowLogDelegate workflowLogDelegate;
   public HopGuiWorkflowGridDelegate workflowGridDelegate;
+  public HopGuiWorkflowCheckDelegate workflowCheckDelegate;
   public HopGuiWorkflowClipboardDelegate workflowClipboardDelegate;
   public HopGuiWorkflowRunDelegate workflowRunDelegate;
   public HopGuiWorkflowUndoDelegate workflowUndoDelegate;
@@ -366,6 +368,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     workflowLogDelegate = new HopGuiWorkflowLogDelegate(hopGui, this);
     workflowGridDelegate = new HopGuiWorkflowGridDelegate(hopGui, this);
+    workflowCheckDelegate = new HopGuiWorkflowCheckDelegate(hopGui, this);
     workflowClipboardDelegate = new HopGuiWorkflowClipboardDelegate(hopGui, this);
     workflowRunDelegate = new HopGuiWorkflowRunDelegate(hopGui, this);
     workflowUndoDelegate = new HopGuiWorkflowUndoDelegate(hopGui, this);
@@ -3426,6 +3429,21 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         });
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_CHECK,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.VerifyWorkflow",
+      image = "ui/images/check.svg",
+      separator = true)
+  @GuiKeyboardShortcut(key = SWT.F7)
+  public void checkWorkflow() {
+    // Show the results views
+    //
+    addAllTabs();
+
+    workflowCheckDelegate.checkWorkflow();
+  }
+
   /** If the extra tab view at the bottom is empty, we close it. */
   public void checkEmptyExtraView() {
     if (extraViewTabFolder.getItemCount() == 0) {
@@ -3497,6 +3515,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     workflowLogDelegate.addWorkflowLog();
     workflowGridDelegate.addWorkflowGrid();
+    workflowCheckDelegate.addWorkflowCheck();
 
     if (tabItemSelection != null) {
       extraViewTabFolder.setSelection(tabItemSelection);
