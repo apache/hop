@@ -37,7 +37,6 @@
         <module>elastic</module>
         <module>google</module>
         <module>neo4j</module>
-        <module>opentelemetry</module>
         <module>parquet</module>
         <module>vault</module>
     </modules>
