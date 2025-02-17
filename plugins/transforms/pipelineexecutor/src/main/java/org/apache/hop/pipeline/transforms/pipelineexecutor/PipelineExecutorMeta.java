@@ -39,6 +39,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -83,7 +84,9 @@ public class PipelineExecutorMeta
   private boolean filenameInField;
 
   /** Name of the field containing the pipeline file's name */
-  @HopMetadataProperty(key = "filenameField")
+  @HopMetadataProperty(
+      key = "filenameField",
+      hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
   private String filenameField;
 
   /**
@@ -261,6 +264,7 @@ public class PipelineExecutorMeta
   @Override
   public void setDefault() {
     parameters = new ArrayList<>();
+    resultRows = new ArrayList<>();
     filenameInField = false;
 
     groupSize = "1";
@@ -281,7 +285,6 @@ public class PipelineExecutorMeta
     executionExitStatusField = "ExecutionExitStatus";
     executionLogTextField = "ExecutionLogText";
     executionLogChannelIdField = "ExecutionLogChannelId";
-
     resultFilesFileNameField = "FileName";
   }
 
