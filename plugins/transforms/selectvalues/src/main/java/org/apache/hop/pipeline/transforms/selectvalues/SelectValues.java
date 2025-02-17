@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
+import static org.apache.hop.core.row.IValueMeta.storageTypeCodes;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -356,8 +358,11 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       //
       try {
         if (fromMeta.isStorageBinaryString()
-            && meta.getSelectOption().getMeta().get(i).getStorageType()
-                == ValueMetaFactory.getValueMetaName(IValueMeta.STORAGE_TYPE_NORMAL)) {
+            && meta.getSelectOption()
+                .getMeta()
+                .get(i)
+                .getStorageType()
+                .equals(storageTypeCodes[IValueMeta.STORAGE_TYPE_NORMAL])) {
           rowData[index] = fromMeta.convertBinaryStringToNativeType((byte[]) rowData[index]);
         }
         if (meta.getSelectOption().getMeta().get(i).getType()
