@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
+import static org.apache.hop.core.row.IValueMeta.storageTypeCodes;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -641,7 +643,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
         item.setText(index++, change.getType() != null ? change.getType() : "-");
         item.setText(index++, change.getLength() < 0 ? "" : "" + change.getLength());
         item.setText(index++, change.getPrecision() < 0 ? "" : "" + change.getPrecision());
-        item.setText(index++, change.getStorageType());
+        item.setText(
+            index++,
+            change.getStorageType().equals(storageTypeCodes[IValueMeta.STORAGE_TYPE_NORMAL])
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
         item.setText(index++, Const.NVL(change.getConversionMask(), ""));
         item.setText(
             index++,
@@ -761,7 +767,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       }
       if (BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
           .equalsIgnoreCase(item.getText(index++))) {
-        change.setStorageType(ValueMetaFactory.getValueMetaName(IValueMeta.STORAGE_TYPE_NORMAL));
+        change.setStorageType(storageTypeCodes[IValueMeta.STORAGE_TYPE_NORMAL]);
       }
 
       change.setConversionMask(item.getText(index++));

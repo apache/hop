@@ -248,11 +248,11 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
   public static final class ConditionXmlConverter implements IStringObjectConverter {
     @Override
     public String getString(Object object) throws HopException {
-      if (!(object instanceof Condition)) {
+      if (!(object instanceof JRCompare)) {
         throw new HopException("We only support XML serialization of Condition objects here");
       }
       try {
-        return ((Condition) object).getXml();
+        return ((JRCompare) object).getCondition().getXml();
       } catch (Exception e) {
         throw new HopException("Error serializing Condition to XML", e);
       }
@@ -261,7 +261,7 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
     @Override
     public Object getObject(String xml) throws HopException {
       try {
-        return new Condition(xml);
+        return new JRCompare(new Condition(xml));
       } catch (Exception e) {
         throw new HopException("Error serializing Condition from XML", e);
       }
@@ -276,6 +276,10 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
 
     public JRCompare() {
       condition = new Condition();
+    }
+
+    public JRCompare(Condition condition) {
+      this.condition = condition;
     }
   }
 
