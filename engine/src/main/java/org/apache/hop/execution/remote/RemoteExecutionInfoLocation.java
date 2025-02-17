@@ -127,6 +127,13 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     }
   }
 
+  @Override
+  public void unBuffer(String executionId) throws HopException {
+    if (location != null) {
+      location.getExecutionInfoLocation().unBuffer(executionId);
+    }
+  }
+
   private String getJson(Object object) throws JsonProcessingException {
     return HopJson.newMapper().writeValueAsString(object);
   }

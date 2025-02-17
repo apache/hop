@@ -63,6 +63,14 @@ public interface IExecutionInfoLocation extends Cloneable {
   void close() throws HopException;
 
   /**
+   * Remove any buffering or caching for the execution information with the given ID.
+   *
+   * @param executionId The ID of the execution information to remove from buffers or caches.
+   * @throws HopException In case something goes wrong
+   */
+  void unBuffer(String executionId) throws HopException;
+
+  /**
    * Register an execution of a pipeline or workflow at this location * *
    *
    * @param execution The execution information to register

@@ -315,6 +315,10 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
               setChanged();
             }
           });
+      guiCompositeWidgets.setCompositeButtonsListener(
+          sourceObject ->
+              guiCompositeWidgets.getWidgetsContents(
+                  sourceObject, ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID));
     }
 
     wPluginSpecificComp.layout(true, true);

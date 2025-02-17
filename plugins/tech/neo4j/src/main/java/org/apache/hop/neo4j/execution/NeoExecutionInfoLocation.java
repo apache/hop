@@ -231,6 +231,11 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     }
   }
 
+  @Override
+  public void unBuffer(String executionId) {
+    // There is nothing to remove from a buffer or cache.
+  }
+
   /** Simply show the DDL to create the indexes */
   @GuiWidgetElement(
       id = "createIndexesButton",
