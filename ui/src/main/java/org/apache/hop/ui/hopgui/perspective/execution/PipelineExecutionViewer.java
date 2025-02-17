@@ -283,6 +283,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
+      // Force re-load of the execution information
+      //
+      iLocation.unBuffer(execution.getId());
+
       // Don't load execution logging text to prevent memory issues.
       //
       executionState = iLocation.getExecutionState(execution.getId(), false);

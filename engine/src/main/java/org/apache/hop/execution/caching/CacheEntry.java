@@ -44,6 +44,9 @@ public class CacheEntry {
   // The log channel ID of the pipeline or workflow
   private String id;
 
+  // The internal ID of the storage where this data resides at rest.
+  @JsonIgnore private String internalId;
+
   // The name of the pipeline of workflow
   private String name;
 
@@ -60,6 +63,8 @@ public class CacheEntry {
 
   @JsonSerialize private Map<String, ExecutionData> childExecutionData;
 
+  private EntrySummary summary;
+
   // When was the cache entry last written to file?
   @JsonIgnore private Date lastWritten;
   // When was this cache entry last read?
@@ -72,6 +77,7 @@ public class CacheEntry {
     childExecutions = new HashMap<>();
     childExecutionStates = new HashMap<>();
     childExecutionData = new HashMap<>();
+    summary = new EntrySummary();
     lastWritten = new Date();
     dirty = true;
   }
@@ -188,6 +194,11 @@ public class CacheEntry {
     if (!dirty) {
       return false;
     }
+    // Write at least once
+    //
+    if (lastWritten == null) {
+      return true;
+    }
     return System.currentTimeMillis() - lastWritten.getTime() > persistenceDelay;
   }
 
@@ -206,5 +217,9 @@ public class CacheEntry {
 
   public List<String> getChildIds() {
     return new ArrayList<>(childExecutions.keySet());
+  }
+
+  public void calculateSummary() {
+    summary.calculateSummary(this);
   }
 }

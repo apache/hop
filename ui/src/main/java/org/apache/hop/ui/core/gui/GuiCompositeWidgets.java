@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -57,13 +59,19 @@ import org.eclipse.swt.widgets.Text;
 
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiCompositeWidgets {
-
   public static final String CONST_PARENT_ID = ", parent ID: ";
-  private IVariables variables;
-  private Map<String, Control> labelsMap;
-  private Map<String, Control> widgetsMap;
+
+  @Setter @Getter private IVariables variables;
+
+  @Getter @Setter private Map<String, Control> labelsMap;
+
+  @Getter @Setter private Map<String, Control> widgetsMap;
+
   private int nrItems;
-  private IGuiPluginCompositeWidgetsListener compositeWidgetsListener;
+
+  @Getter @Setter private IGuiPluginCompositeWidgetsListener compositeWidgetsListener;
+
+  @Getter @Setter private IGuiPluginCompositeButtonsListener compositeButtonsListener;
 
   public GuiCompositeWidgets(IVariables variables) {
     this(variables, 0);
@@ -318,6 +326,14 @@ public class GuiCompositeWidgets {
           Class<?> methodClass = buttonMethod.getDeclaringClass();
 
           try {
+            // If the source object is a metadata editor, it's useful to get the contents of all the
+            // widgets.
+            // That way you can more easily test connections and the like.
+            // Otherwise, the source object has stale metadata in it.
+            //
+            if (compositeButtonsListener != null) {
+              compositeButtonsListener.buttonPressed(sourceObject);
+            }
 
             Object guiObject = methodClass.getDeclaredConstructor().newInstance();
 
@@ -975,53 +991,5 @@ public class GuiCompositeWidgets {
         enableWidget(sourceData, child, enabled);
       }
     }
-  }
-
-  /**
-   * Gets variables
-   *
-   * @return value of variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables(IVariables variables) {
-    this.variables = variables;
-  }
-
-  /**
-   * Gets labelsMap
-   *
-   * @return value of labelsMap
-   */
-  public Map<String, Control> getLabelsMap() {
-    return labelsMap;
-  }
-
-  /**
-   * @param labelsMap The labelsMap to set
-   */
-  public void setLabelsMap(Map<String, Control> labelsMap) {
-    this.labelsMap = labelsMap;
-  }
-
-  /**
-   * Gets widgetsMap
-   *
-   * @return value of widgetsMap
-   */
-  public Map<String, Control> getWidgetsMap() {
-    return widgetsMap;
-  }
-
-  /**
-   * @param widgetsMap The widgetsMap to set
-   */
-  public void setWidgetsMap(Map<String, Control> widgetsMap) {
-    this.widgetsMap = widgetsMap;
   }
 }
