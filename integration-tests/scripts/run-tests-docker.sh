@@ -68,6 +68,10 @@ if [ -z "${GCP_KEY_FILE}" ]; then
   GCP_KEY_FILE="./docker/integration-tests/resource/dummyfile"
 fi
 
+if [ -z "${HOP_OPTIONS}" ] ; then 
+  HOP_OPTIONS="${HOP_OPTIONS} -Djavax.net.ssl.keyStore=./docker/integration-tests/resource/keystore.jks -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.trustStore=./docker/integration-tests/resource/mail/conf/keystore "
+fi
+
 if [ -z "${KEEP_IMAGES}" ]; then
   KEEP_IMAGES="false"
 fi

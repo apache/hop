@@ -1505,13 +1505,12 @@ public class ActionMailDialog extends ActionDialog {
     wAddDate.setSelection(action.isIncludeDate());
     wIncludeFiles.setSelection(action.isIncludingFiles());
 
-    if (action.getFileTypes() != null) {
+    if (action.getFileTypes() != null && !action.getFileTypes().isEmpty()) {
       java.util.List<ActionMailFileTypeField> types = action.getFileTypes();
       String[] typenames = new String[types.size()];
       for (int i = 0; i < types.size(); i++) {
         typenames[i] = types.get(i).getFileType();
       }
-      wTypes.setSelection(typenames);
     }
 
     wZipFiles.setSelection(action.isZipFiles());
