@@ -277,14 +277,14 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     PropsUi.setLook(wlCheckServerIdentity);
     FormData fdlCheckServerIdentity = new FormData();
     fdlCheckServerIdentity.left = new FormAttachment(0, 0);
-    fdlCheckServerIdentity.top = new FormAttachment(lastControl, 2 * margin);
-    fdlCheckServerIdentity.right = new FormAttachment(middle, -margin);
+    fdlCheckServerIdentity.top = new FormAttachment(lastControl, 0);
+    fdlCheckServerIdentity.right = new FormAttachment(middle, 0);
     wlCheckServerIdentity.setLayoutData(fdlCheckServerIdentity);
-    wCheckServerIdentity = new Button(composite, SWT.CHECK);
+    wCheckServerIdentity = new Button(composite, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wCheckServerIdentity);
     FormData fdCheckServerIdentity = new FormData();
-    fdCheckServerIdentity.left = new FormAttachment(middle, margin);
-    fdCheckServerIdentity.top = new FormAttachment(lastControl, 0, SWT.CENTER);
+    fdCheckServerIdentity.left = new FormAttachment(middle, 0);
+    fdCheckServerIdentity.top = new FormAttachment(lastControl, margin);
     fdCheckServerIdentity.right = new FormAttachment(100, 0);
     wCheckServerIdentity.setLayoutData(fdCheckServerIdentity);
     wCheckServerIdentity.addSelectionListener(
@@ -305,7 +305,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
             BaseMessages.getString(PKG, "MailServerConnectionDialog.TrustedHosts.Tooltip"));
     FormData fdTrustedHosts = new FormData();
     fdTrustedHosts.left = new FormAttachment(0, 0);
-    fdTrustedHosts.top = new FormAttachment(lastControl, 0);
+    fdTrustedHosts.top = new FormAttachment(wlCheckServerIdentity, 0);
     fdTrustedHosts.right = new FormAttachment(100, 0);
     wTrustedHosts.setLayoutData(fdTrustedHosts);
     lastControl = wTrustedHosts;
