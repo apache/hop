@@ -19,100 +19,65 @@ package org.apache.hop.workflow.actions.createfile;
 
 import java.io.IOException;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
 
 /**
  * This defines a 'create file' action. Its main use would be to create empty trigger files that can
  * be used to control the flow in ETL cycles.
  */
+@Setter
+@Getter
 @Action(
     id = "CREATE_FILE",
     name = "i18n::ActionCreateFile.Name",
     description = "i18n::ActionCreateFile.Description",
     image = "CreateFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    keywords = "i18n::ActionCreateFile.keyword",
+    keywords = "i18n::ActionCreateFile.Keyword",
     documentationUrl = "/workflow/actions/createfile.html")
-public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
+public class ActionCreateFile extends ActionBase implements Cloneable {
   private static final Class<?> PKG = ActionCreateFile.class;
-  private String filename;
-  private static final String CONST_SPACE_SHORT = "      ";
+
   private static final String CONST_FILE = "File [";
   private static final String CONST_FILENAME = "filename";
 
+  @HopMetadataProperty(key = "filename")
+  private String filename;
+
+  @HopMetadataProperty(key = "fail_if_file_exists")
   private boolean failIfFileExists;
-  private boolean addfilenameresult;
+
+  @HopMetadataProperty(key = "add_filename_result")
+  private boolean addFilenameToResult;
 
   public ActionCreateFile(String n) {
     super(n, "");
     filename = null;
     failIfFileExists = true;
-    addfilenameresult = false;
+    addFilenameToResult = false;
   }
 
   public ActionCreateFile() {
     this("");
-  }
-
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
-  @Override
-  public String getXml() {
-    return super.getXml()
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue(CONST_FILENAME, filename)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("fail_if_file_exists", failIfFileExists)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("add_filename_result", addfilenameresult);
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      filename = XmlHandler.getTagValue(entrynode, CONST_FILENAME);
-      failIfFileExists =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "fail_if_file_exists"));
-      addfilenameresult =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_filename_result"));
-
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load action of type 'create file' from XML node", xe);
-    }
-  }
-
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  @Override
-  public String getFilename() {
-    return filename;
   }
 
   @Override
@@ -121,15 +86,12 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public Result execute(Result previousResult, int nr) throws HopException {
-    Result result = previousResult;
+  public Result execute(Result result, int nr) throws HopException {
     result.setResult(false);
 
     if (filename != null) {
       String realFilename = getRealFilename();
-      FileObject fileObject = null;
-      try {
-        fileObject = HopVfs.getFileObject(realFilename, getVariables());
+      try (FileObject fileObject = HopVfs.getFileObject(realFilename, getVariables())) {
 
         if (fileObject.exists()) {
           if (isFailIfFileExists()) {
@@ -159,15 +121,6 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
         logError("Could not create file [" + realFilename + "], exception: " + e.getMessage());
         result.setResult(false);
         result.setNrErrors(1);
-      } finally {
-        if (fileObject != null) {
-          try {
-            fileObject.close();
-            fileObject = null;
-          } catch (IOException ex) {
-            // Ignore
-          }
-        }
       }
     } else {
       logError("No filename is defined.");
@@ -179,9 +132,8 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
   private void addFilenameToResult(
       String targetFilename, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow)
       throws HopException {
-    FileObject targetFile = null;
-    try {
-      targetFile = HopVfs.getFileObject(targetFilename, getVariables());
+
+    try (FileObject targetFile = HopVfs.getFileObject(targetFilename, getVariables())) {
 
       // Add to the result files...
       ResultFile resultFile =
@@ -199,36 +151,12 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
       }
     } catch (Exception e) {
       throw new HopException(e);
-    } finally {
-      try {
-        if (targetFile != null) {
-          targetFile.close();
-        }
-      } catch (Exception e) {
-        // Ignore close errors
-      }
     }
   }
 
   @Override
   public boolean isEvaluation() {
     return true;
-  }
-
-  public boolean isFailIfFileExists() {
-    return failIfFileExists;
-  }
-
-  public void setFailIfFileExists(boolean failIfFileExists) {
-    this.failIfFileExists = failIfFileExists;
-  }
-
-  public boolean isAddFilenameToResult() {
-    return addfilenameresult;
-  }
-
-  public void setAddFilenameToResult(boolean addfilenameresult) {
-    this.addfilenameresult = addfilenameresult;
   }
 
   @Override

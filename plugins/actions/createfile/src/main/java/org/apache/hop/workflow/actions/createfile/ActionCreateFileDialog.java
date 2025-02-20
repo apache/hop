@@ -30,14 +30,12 @@ import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -76,7 +74,7 @@ public class ActionCreateFileDialog extends ActionDialog {
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
-    ModifyListener lsMod = e -> action.setChanged();
+    Listener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -101,7 +99,7 @@ public class ActionCreateFileDialog extends ActionDialog {
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
+    wName.addListener(SWT.Modify, lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(0, margin);
@@ -128,7 +126,7 @@ public class ActionCreateFileDialog extends ActionDialog {
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename);
-    wFilename.addModifyListener(lsMod);
+    wFilename.addListener(SWT.Modify, lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.top = new FormAttachment(wName, margin);
@@ -136,8 +134,8 @@ public class ActionCreateFileDialog extends ActionDialog {
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener(
-        e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
+    wFilename.addListener(
+        SWT.Modify, e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
 
     wbFilename.addListener(
         SWT.Selection,
@@ -162,13 +160,7 @@ public class ActionCreateFileDialog extends ActionDialog {
     fdAbortExists.top = new FormAttachment(wlAbortExists, 0, SWT.CENTER);
     fdAbortExists.right = new FormAttachment(100, 0);
     wAbortExists.setLayoutData(fdAbortExists);
-    wAbortExists.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            action.setChanged();
-          }
-        });
+    wAbortExists.addListener(SWT.Selection, lsMod);
 
     // Add filenames to result filenames...
     Label wlAddFilenameToResult = new Label(shell, SWT.RIGHT);
