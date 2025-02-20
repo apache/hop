@@ -36,3 +36,5 @@ Apache Hop data types map internally to Java data types, so the Java behavior of
 |String|String|A variable unlimited length text encoded in UTF-8 (Unicode).
 |Timestamp|Timestamp|Allows the specification of fractional seconds to a precision of nanoseconds.
 |===
+
+NOTE: Apache Hop also comes with a number of additional complex data types (e.g. Avro, JSON, Graph) that have no one-on-one mapping to Java data types. These data types only work with specific transforms and can't be used in general-purpose transforms.
