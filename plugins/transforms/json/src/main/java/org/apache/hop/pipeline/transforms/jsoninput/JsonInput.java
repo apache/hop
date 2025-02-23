@@ -95,6 +95,11 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     if (first) {
       first = false;
       prepareToRowProcessing();
+    } else if (data.indexSourceField == -1 && !data.inputRowMeta.isEmpty()) {
+      data.readrow = getRow();
+      if (data.readrow != null) {
+        throw new HopValueException(BaseMessages.getString(PKG, "JsonInput.Log.ReceivingMultiRows"));
+      }
     }
 
     Object[] outRow;
