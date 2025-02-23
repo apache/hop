@@ -32,6 +32,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -147,7 +148,9 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
   @Override
   protected void prepareToRowProcessing()
       throws HopException, HopTransformException, HopValueException {
-    if (!meta.isInFields()) {
+    data.readrow = getRow();
+    data.inputRowMeta = getInputRowMeta();
+    if (!meta.isInFields() && data.inputRowMeta == null) {
       data.outputRowMeta = new RowMeta();
       if (!meta.isDoNotFailIfNoFile() && (data.files == null || data.files.nrOfFiles() == 0)) {
         String errMsg = BaseMessages.getString(PKG, "JsonInput.Log.NoFiles");
@@ -155,8 +158,6 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
         inputError(errMsg);
       }
     } else {
-      data.readrow = getRow();
-      data.inputRowMeta = getInputRowMeta();
       if (data.inputRowMeta == null) {
         data.hasFirstRow = false;
         return;
@@ -164,14 +165,8 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       data.hasFirstRow = true;
       data.outputRowMeta = data.inputRowMeta.clone();
 
-      // Check if source field is provided
-      if (Utils.isEmpty(meta.getFieldValue())) {
-        logError(BaseMessages.getString(PKG, "JsonInput.Log.NoField"));
-        throw new HopException(BaseMessages.getString(PKG, "JsonInput.Log.NoField"));
-      }
-
       // cache the position of the field
-      if (data.indexSourceField < 0) {
+      if (meta.isInFields() && !StringUtil.isEmpty(meta.getFieldValue())) {
         data.indexSourceField = getInputRowMeta().indexOfValue(meta.getFieldValue());
         if (data.indexSourceField < 0) {
           logError(
@@ -183,7 +178,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       }
 
       // if RemoveSourceField option is set, we remove the source field from the output meta
-      if (meta.isRemoveSourceField()) {
+      if (meta.isRemoveSourceField() && data.indexSourceField >= 0) {
         data.outputRowMeta.removeValueMeta(data.indexSourceField);
         // Get total previous fields minus one since we remove source field
         data.totalpreviousfields = data.inputRowMeta.size() - 1;
