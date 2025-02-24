@@ -4673,16 +4673,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Get the logging text and filter it out. Store it in the transformLogMap...
       //
       transformLogMap = new HashMap<>();
-      hopDisplay()
-          .syncExec(
-              () -> {
-                for (IEngineComponent component : pipeline.getComponents()) {
-                  if (component.getErrors() > 0) {
-                    String logText = component.getLogText();
-                    transformLogMap.put(component.getName(), logText);
-                  }
-                }
-              });
+      for (IEngineComponent component : pipeline.getComponents()) {
+        if (component.getErrors() > 0) {
+          String logText = component.getLogText();
+          transformLogMap.put(component.getName(), logText);
+        }
+      }
 
     } else {
       transformLogMap = null;
