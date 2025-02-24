@@ -3315,7 +3315,7 @@ public abstract class Pipeline
   }
 
   @Override
-  public synchronized EngineMetrics getEngineMetrics(String componentName, int copyNr) {
+  public EngineMetrics getEngineMetrics(String componentName, int copyNr) {
     EngineMetrics metrics = new EngineMetrics();
     metrics.setStartDate(getExecutionStartDate());
     metrics.setEndDate(getExecutionEndDate());
