@@ -26,12 +26,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.lang.StringUtils;
@@ -68,6 +68,7 @@ import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.project.ProjectDialog;
 import org.apache.hop.projects.util.ProjectsUtil;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -77,13 +78,18 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
+import org.apache.hop.ui.core.widget.FileTree;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 @GuiPlugin
@@ -109,6 +115,8 @@ public class ProjectsGuiPlugin {
   private static final String NAVIGATE_ITEM_ID_NAVIGATE_PROJECT_HOME =
       "0005-navigate-project-home"; // right next to Home button
 
+  FileTree tree;
+
   /** Automatically instantiated when the toolbar widgets etc need it */
   public ProjectsGuiPlugin() {
     // Do nothing
@@ -130,11 +138,11 @@ public class ProjectsGuiPlugin {
         return;
       }
 
-      // Close 'm all
-      //
+      // Close's all
+
       hopGui.fileDelegate.closeAllFiles();
 
-      // This is called only in HopGui so we want to start with a new set of variables
+      // This is called only in Hop GUI so we want to start with a new set of variables
       // It avoids variables from one project showing up in another
       //
       IVariables variables = Variables.getADefaultVariableSpace();
@@ -234,7 +242,7 @@ public class ProjectsGuiPlugin {
       hopGui.getEventsHandler().fire(projectName, HopGuiEvents.ProjectActivated.name());
       hopGui.getEventsHandler().fire(projectName, HopGuiEvents.MetadataChanged.name());
 
-      // Inform the outside world that we're enabled an other project
+      // Inform the outside world that we're enabled another project
       //
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL,
@@ -334,9 +342,9 @@ public class ProjectsGuiPlugin {
    * used by the welcome dialog to switch to the samples project.
    *
    * @param projectName The name of the project to switch to.
-   * @throws HopException
+   * @throws HopException when the project cannot be found
    */
-  public static final void enableProject(String projectName) throws HopException {
+  public static void enableProject(String projectName) throws HopException {
 
     HopGui hopGui = HopGui.getInstance();
 
@@ -412,7 +420,7 @@ public class ProjectsGuiPlugin {
             enableHopGuiProject(projectConfig.getProjectName(), project, environment);
           }
 
-          // refresh automatically when the projects changes
+          // refresh automatically when the projects change
           //
           hopGui.getEventsHandler().fire(projectName, HopGuiEvents.ProjectUpdated.name());
         }
@@ -621,7 +629,7 @@ public class ProjectsGuiPlugin {
               hopGui.getShell(), prcSerializer);
         }
 
-        // Then the local workflow runconfig
+        // Then the local workflow run configuration
         //
         IHopMetadataSerializer<WorkflowRunConfiguration> wrcSerializer =
             hopGui.getMetadataProvider().getSerializer(WorkflowRunConfiguration.class);
@@ -641,8 +649,8 @@ public class ProjectsGuiPlugin {
               BaseMessages.getString(PKG, "ProjectGuiPlugin.LocalWFRunConfig.Dialog.Header"));
           box.setMessage(
               BaseMessages.getString(PKG, "ProjectGuiPlugin.LocalWFRunConfig.Dialog.Message"));
-          int anwser = box.open();
-          if ((anwser & SWT.YES) != 0) {
+          int answer = box.open();
+          if ((answer & SWT.YES) != 0) {
             LocalWorkflowRunConfiguration localWorkflowRunConfiguration =
                 new LocalWorkflowRunConfiguration();
             localWorkflowRunConfiguration.setEnginePluginId("Local");
@@ -667,8 +675,8 @@ public class ProjectsGuiPlugin {
             BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Message1")
                 + Const.CR
                 + BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Message2"));
-        int anwser = box.open();
-        if ((anwser & SWT.YES) != 0) {
+        int answer = box.open();
+        if ((answer & SWT.YES) != 0) {
 
           addNewEnvironment();
         }
@@ -754,8 +762,8 @@ public class ProjectsGuiPlugin {
                 "ProjectGuiPlugin.DeleteProject.Dialog.Message2",
                 projectHome,
                 configFilename));
-    int anwser = box.open();
-    if ((anwser & SWT.YES) != 0) {
+    int answer = box.open();
+    if ((answer & SWT.YES) != 0) {
       try {
         config.removeProjectConfig(projectName);
         ProjectsConfigSingleton.saveConfig();
@@ -960,8 +968,8 @@ public class ProjectsGuiPlugin {
                 PKG,
                 "ProjectGuiPlugin.DeleteEnvironment.Dialog.Message2",
                 environment.getProjectName()));
-    int anwser = box.open();
-    if ((anwser & SWT.YES) != 0) {
+    int answer = box.open();
+    if ((answer & SWT.YES) != 0) {
       try {
         config.removeEnvironment(environmentName);
         ProjectsConfigSingleton.saveConfig();
@@ -982,9 +990,9 @@ public class ProjectsGuiPlugin {
   /**
    * Called by the Combo in the toolbar
    *
-   * @param log
+   * @param log the current logchannel
    * @param metadataProvider
-   * @return
+   * @return a List of project names
    * @throws Exception
    */
   public List<String> getProjectsList(ILogChannel log, IHopMetadataProvider metadataProvider)
@@ -1014,15 +1022,12 @@ public class ProjectsGuiPlugin {
     //
     Collections.sort(
         names,
-        new Comparator<String>() {
-          @Override
-          public int compare(String name1, String name2) {
-            int cmp = -lastUsedMap.get(name1).compareTo(lastUsedMap.get(name2));
-            if (cmp == 0) {
-              cmp = name1.compareToIgnoreCase(name2);
-            }
-            return cmp;
+        (name1, name2) -> {
+          int cmp = -lastUsedMap.get(name1).compareTo(lastUsedMap.get(name2));
+          if (cmp == 0) {
+            cmp = name1.compareToIgnoreCase(name2);
           }
+          return cmp;
         });
 
     return names;
@@ -1100,13 +1105,106 @@ public class ProjectsGuiPlugin {
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     String projectHome = projectConfig.getProjectHome();
 
+    AtomicBoolean includeVariables = new AtomicBoolean(true);
+    AtomicBoolean includeMetadata = new AtomicBoolean(true);
+    AtomicBoolean cancel = new AtomicBoolean(true);
+
+    // After getting the filename we create a tree dialog to select the items you wish to include in
+    // the export.
     try {
+      Shell treeShell =
+          new Shell(
+              shell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL);
+      PropsUi.setLook(treeShell);
+      treeShell.setImage(GuiResource.getInstance().getImageHopUi());
+      PropsUi.setLook(treeShell);
+      treeShell.setMinimumSize(500, 200);
+
+      GridLayout layout = new GridLayout();
+      layout.numColumns = 4;
+      treeShell.setLayout(layout);
+
+      tree = new FileTree(treeShell, HopVfs.getFileObject(projectHome), projectName);
+      GridData gd = new GridData(GridData.FILL_BOTH);
+      gd.horizontalSpan = 4;
+      gd.heightHint = 300;
+      gd.horizontalIndent = 10;
+      tree.setLayoutData(gd);
+
+      Label separator = new Label(treeShell, SWT.SEPARATOR | SWT.SHADOW_OUT | SWT.HORIZONTAL);
+      GridData gdSeparator = new GridData(SWT.FILL, SWT.CENTER, true, false);
+      gdSeparator.horizontalSpan = 4;
+      separator.setLayoutData(gdSeparator);
+
+      Button btnIncludeVariables = new Button(treeShell, SWT.CHECK);
+      btnIncludeVariables.setSelection(true);
+      btnIncludeVariables.addListener(
+          SWT.Selection, event -> includeVariables.set(btnIncludeVariables.getSelection()));
+      GridData gdBtnIncludeVariables = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+      gdBtnIncludeVariables.horizontalIndent = 10;
+      btnIncludeVariables.setLayoutData(gdBtnIncludeVariables);
+      Label lblIncludeVariables = new Label(treeShell, SWT.NONE);
+      lblIncludeVariables.setText(
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeVariables.Label"));
+      GridData gdLblIncludeVariables = new GridData(GridData.FILL_HORIZONTAL);
+      gdLblIncludeVariables.horizontalSpan = 3;
+      lblIncludeVariables.setLayoutData(gdLblIncludeVariables);
+
+      Button btnIncludeMetadata = new Button(treeShell, SWT.CHECK);
+      btnIncludeMetadata.setSelection(true);
+      btnIncludeMetadata.addListener(
+          SWT.Selection, event -> includeMetadata.set(btnIncludeMetadata.getSelection()));
+      GridData gdBtnIncludeMetadata = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+      gdBtnIncludeMetadata.horizontalIndent = 10;
+      btnIncludeMetadata.setLayoutData(gdBtnIncludeMetadata);
+      Label lblIncludeMetadata = new Label(treeShell, SWT.NONE);
+      lblIncludeMetadata.setText(
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeMetadata.Label"));
+      GridData gdLblIncludeMetadata = new GridData(GridData.FILL_HORIZONTAL);
+      gdLblIncludeMetadata.horizontalSpan = 3;
+      lblIncludeMetadata.setLayoutData(gdLblIncludeMetadata);
+
+      Button okButton = new Button(treeShell, SWT.PUSH);
+      okButton.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+      okButton.addListener(
+          SWT.Selection,
+          event -> {
+            cancel.set(false);
+            treeShell.dispose();
+          });
+      GridData gdBtnOk = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+      gdBtnOk.horizontalSpan = 2;
+      gdBtnOk.widthHint = 100;
+      okButton.setLayoutData(gdBtnOk);
+      treeShell.setDefaultButton(okButton);
+
+      Button cancelButton = new Button(treeShell, SWT.PUSH);
+      cancelButton.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+      cancelButton.addListener(SWT.Selection, event -> treeShell.dispose());
+      GridData gdBtCancel = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+      gdBtCancel.horizontalSpan = 2;
+      gdBtCancel.widthHint = 100;
+      cancelButton.setLayoutData(gdBtCancel);
+
+      treeShell.pack();
+      treeShell.open();
+
+      while (!treeShell.isDisposed()) {
+        if (!treeShell.getDisplay().readAndDispatch()) {
+          treeShell.getDisplay().sleep();
+        }
+      }
+
+      if (cancel.get()) {
+        return;
+      }
+
       IRunnableWithProgress op =
           monitor -> {
             try {
               monitor.setTaskName(
                   BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Taskname.Text"));
-              HashMap variablesMap = new HashMap<>();
+              HashMap<String, String> variablesMap = new HashMap<>();
 
               for (String name : variables.getVariableNames()) {
                 if (!name.contains("java.")
@@ -1145,12 +1243,19 @@ public class ProjectsGuiPlugin {
               FileObject projectDirectory = HopVfs.getFileObject(projectHome);
               String projectHomeFolder =
                   HopVfs.getFileObject(projectHome).getParent().getName().getURI();
-              zipFile(
-                  projectDirectory,
-                  projectDirectory.getName().getURI(),
-                  zos,
-                  projectHomeFolder,
-                  zipFilename);
+
+              if (!tree.getFileObjects().isEmpty()) {
+                for (FileObject fileObject : tree.getFileObjects()) {
+                  zipFile(
+                      fileObject,
+                      fileObject.getName().getURI(),
+                      zos,
+                      projectHomeFolder,
+                      zipFilename);
+                }
+              } else {
+                return;
+              }
               zipFile(
                   HopVfs.getFileObject(
                       Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG),
@@ -1160,10 +1265,14 @@ public class ProjectsGuiPlugin {
                   zos,
                   projectHomeFolder,
                   zipFilename);
-              zipString(
-                  variablesJson, "variables.json", zos, projectDirectory.getName().getBaseName());
-              zipString(
-                  metadataJson, "metadata.json", zos, projectDirectory.getName().getBaseName());
+              if (includeVariables.get()) {
+                zipString(
+                    variablesJson, "variables.json", zos, projectDirectory.getName().getBaseName());
+              }
+              if (includeMetadata.get()) {
+                zipString(
+                    metadataJson, "metadata.json", zos, projectDirectory.getName().getBaseName());
+              }
               zos.close();
               outputStream.close();
               monitor.done();
@@ -1193,6 +1302,16 @@ public class ProjectsGuiPlugin {
     }
   }
 
+  /**
+   * Add file Object to zip file
+   *
+   * @param fileToZip the file to add
+   * @param filename destination filename
+   * @param zipOutputStream zip output stream to append the file to
+   * @param projectHomeParent project home folder to be stripped from the base path
+   * @param zipFilename name of the destination zip file
+   * @throws IOException when failing to add a file to the zip
+   */
   public void zipFile(
       FileObject fileToZip,
       String filename,
@@ -1238,6 +1357,15 @@ public class ProjectsGuiPlugin {
     fis.close();
   }
 
+  /**
+   * Add a string to a zip file
+   *
+   * @param stringToZip the string that needs to be added to the zip file
+   * @param filename the destination filename inside the zip
+   * @param zipOutputStream output stream of the zip file
+   * @param projectHomeParent the root folder of the zip file
+   * @throws IOException when adding to the zip file fails
+   */
   public void zipString(
       String stringToZip,
       String filename,

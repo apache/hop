@@ -39,7 +39,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -84,9 +83,7 @@ public class PipelineExecutorMeta
   private boolean filenameInField;
 
   /** Name of the field containing the pipeline file's name */
-  @HopMetadataProperty(
-      key = "filenameField",
-      hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
+  @HopMetadataProperty(key = "filenameField")
   private String filenameField;
 
   /**
