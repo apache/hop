@@ -530,7 +530,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
           }
         });
 
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    BaseDialog.defaultShellHandling(shell, c -> ok(), this::cancel);
 
     return transformName;
   }
