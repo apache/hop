@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.mergejoin;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -120,10 +121,28 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    infoStreams.get(0).setTransformMeta(TransformMeta.findTransform(transforms, leftTransformName));
-    infoStreams
-        .get(1)
-        .setTransformMeta(TransformMeta.findTransform(transforms, rightTransformName));
+    String[] prev =
+        parentTransformMeta.getParentPipelineMeta().getPrevTransformNames(parentTransformMeta);
+    if (leftTransformName != null) {
+      if (ArrayUtils.contains(prev, leftTransformName)) {
+        infoStreams
+            .get(0)
+            .setTransformMeta(TransformMeta.findTransform(transforms, leftTransformName));
+      } else {
+        leftTransformName = null;
+        setChanged();
+      }
+    }
+    if (rightTransformName != null) {
+      if (ArrayUtils.contains(prev, rightTransformName)) {
+        infoStreams
+            .get(1)
+            .setTransformMeta(TransformMeta.findTransform(transforms, rightTransformName));
+      } else {
+        rightTransformName = null;
+        setChanged();
+      }
+    }
   }
 
   @Override
