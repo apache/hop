@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -500,10 +501,21 @@ public abstract class BaseDialog extends Dialog {
    */
   public static void defaultShellHandling(
       Shell shell, Consumer<Void> okConsumer, Consumer<Void> cancelConsumer) {
+    defaultShellHandling(
+        shell,
+        okConsumer,
+        () -> {
+          cancelConsumer.accept(null);
+          return true;
+        });
+  }
+
+  public static void defaultShellHandling(
+      Shell shell, Consumer<Void> okConsumer, Supplier<Boolean> cancelSupplier) {
 
     // If the shell is closed, cancel the dialog
     //
-    shell.addListener(SWT.Close, e -> cancelConsumer.accept(null));
+    shell.addListener(SWT.Close, e -> e.doit = cancelSupplier.get());
 
     // Check for enter being pressed in text input fields
     //
