@@ -121,28 +121,22 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    String[] prev =
-        parentTransformMeta.getParentPipelineMeta().getPrevTransformNames(parentTransformMeta);
-    if (leftTransformName != null) {
-      if (ArrayUtils.contains(prev, leftTransformName)) {
-        infoStreams
-            .get(0)
-            .setTransformMeta(TransformMeta.findTransform(transforms, leftTransformName));
-      } else {
+    if (parentTransformMeta != null) {
+      String[] prev =
+          parentTransformMeta.getParentPipelineMeta().getPrevTransformNames(parentTransformMeta);
+      if (leftTransformName != null && !ArrayUtils.contains(prev, leftTransformName)) {
         leftTransformName = null;
         setChanged();
       }
-    }
-    if (rightTransformName != null) {
-      if (ArrayUtils.contains(prev, rightTransformName)) {
-        infoStreams
-            .get(1)
-            .setTransformMeta(TransformMeta.findTransform(transforms, rightTransformName));
-      } else {
+      if (rightTransformName != null && !ArrayUtils.contains(prev, rightTransformName)) {
         rightTransformName = null;
         setChanged();
       }
     }
+    infoStreams.get(0).setTransformMeta(TransformMeta.findTransform(transforms, leftTransformName));
+    infoStreams
+        .get(1)
+        .setTransformMeta(TransformMeta.findTransform(transforms, rightTransformName));
   }
 
   @Override
