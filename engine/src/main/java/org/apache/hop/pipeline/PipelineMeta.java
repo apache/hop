@@ -1811,16 +1811,6 @@ public class PipelineMeta extends AbstractMeta
           }
         }
 
-        // Have all StreamValueLookups, etc. reference the correct source transforms...
-        //
-        for (int i = 0; i < nrTransforms(); i++) {
-          TransformMeta transformMeta = getTransform(i);
-          ITransformMeta sii = transformMeta.getTransform();
-          if (sii != null) {
-            sii.searchInfoAndTargetTransforms(transforms);
-          }
-        }
-
         // Handle Hops
         //
         Node orderNode = XmlHandler.getSubNode(pipelineNode, XML_TAG_ORDER);
@@ -1837,6 +1827,16 @@ public class PipelineMeta extends AbstractMeta
           PipelineHopMeta hopinf = new PipelineHopMeta(hopNode, transforms);
           hopinf.setErrorHop(isErrorNode(errorHandlingNode, hopNode));
           addPipelineHop(hopinf);
+        }
+
+        // Have all StreamValueLookups, etc. reference the correct source transforms...
+        //
+        for (int i = 0; i < nrTransforms(); i++) {
+          TransformMeta transformMeta = getTransform(i);
+          ITransformMeta sii = transformMeta.getTransform();
+          if (sii != null) {
+            sii.searchInfoAndTargetTransforms(transforms);
+          }
         }
 
         //
