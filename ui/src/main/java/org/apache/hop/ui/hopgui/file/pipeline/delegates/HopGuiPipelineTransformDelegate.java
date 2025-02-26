@@ -507,6 +507,7 @@ public class HopGuiPipelineTransformDelegate {
     newHop2.setEnabled(hop.isEnabled());
     if (pipelineMeta.findPipelineHop(newHop2) == null) {
       pipelineMeta.addPipelineHop(newHop2);
+      toTransform.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
       hopGui.undoDelegate.addUndoNew(
           pipelineMeta,
           new PipelineHopMeta[] {newHop2},
