@@ -16,35 +16,36 @@
  */
 package org.apache.hop.workflow.actions.createfile;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WorkflowActionCreateFileLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionCreateFile> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.junit.jupiter.api.Test;
 
-  @Override
-  protected Class<ActionCreateFile> getActionClass() {
-    return ActionCreateFile.class;
+class WorkflowActionCreateFileLoadSaveTest {
+
+  @Test
+  void testSerialization() throws Exception {
+    ActionCreateFile action =
+        ActionSerializationTestUtil.testSerialization(
+            "/create-file-action.xml", ActionCreateFile.class);
+
+    assertFalse(action.isAddFilenameToResult());
+    assertTrue(action.isFailIfFileExists());
+    assertEquals("${TARGET_FOLDER}/three/hop-config.json", action.getFilename());
   }
 
-  @Override
-  protected List<String> listAttributes() {
-    return Arrays.asList("filename", "failIfFileExists", "addfilenameresult");
-  }
+  @Test
+  void testClone() throws Exception {
+    ActionCreateFile action =
+        ActionSerializationTestUtil.testSerialization(
+            "/create-file-action.xml", ActionCreateFile.class);
 
-  @Override
-  protected Map<String, String> createGettersMap() {
-    return Collections.singletonMap("addfilenameresult", "isAddFilenameToResult");
-  }
+    ActionCreateFile clone = (ActionCreateFile) action.clone();
 
-  @Override
-  protected Map<String, String> createSettersMap() {
-    return Collections.singletonMap("addfilenameresult", "setAddFilenameToResult");
+    assertEquals(clone.isAddFilenameToResult(), action.isAddFilenameToResult());
+    assertEquals(clone.isFailIfFileExists(), action.isFailIfFileExists());
+    assertEquals(clone.getFilename(), action.getFilename());
   }
 }
