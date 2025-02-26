@@ -40,6 +40,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.ProgressNullMonitorListener;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
@@ -2782,42 +2783,41 @@ public class PipelineMeta extends AbstractMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     try {
-      remarks.clear(); // Start with a clean slate...
+      // Start with a clean slate...
+      remarks.clear();
+
+      if (monitor == null) {
+        monitor = new ProgressNullMonitorListener();
+      }
 
       Map<IValueMeta, String> values = new Hashtable<>();
-      String[] transformnames;
-      TransformMeta[] transforms;
-      List<TransformMeta> selectedTransforms = getSelectedTransforms();
-      if (!onlySelected || selectedTransforms.isEmpty()) {
-        transformnames = getTransformNames();
-        transforms = getTransformsArray();
-      } else {
-        transformnames = getSelectedTransformNames();
-        transforms = selectedTransforms.toArray(new TransformMeta[selectedTransforms.size()]);
-      }
+
+      List<TransformMeta> transforms = (onlySelected) ? getSelectedTransforms() : getTransforms();
+
+      TransformMeta[] transformArray = transforms.toArray(new TransformMeta[0]);
 
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL,
           variables,
           HopExtensionPoint.BeforeCheckTransforms.id,
-          new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
+          new CheckTransformsExtension(remarks, variables, this, transformArray, metadataProvider));
 
       boolean stopChecking = false;
 
-      if (monitor != null) {
-        monitor.beginTask(
-            BaseMessages.getString(PKG, "PipelineMeta.Monitor.VerifyingThisPipelineTask.Title"),
-            transforms.length + 2);
-      }
+      monitor.beginTask(
+          BaseMessages.getString(PKG, "PipelineMeta.Monitor.VerifyingThisPipelineTask.Title"),
+          transforms.size());
 
-      for (int i = 0; i < transforms.length && !stopChecking; i++) {
-        if (monitor != null) {
-          monitor.subTask(
-              BaseMessages.getString(
-                  PKG, "PipelineMeta.Monitor.VerifyingTransformTask.Title", transformnames[i]));
+      int worked = 1;
+      for (TransformMeta transformMeta : transforms) {
+
+        if (stopChecking) {
+          break;
         }
 
-        TransformMeta transformMeta = transforms[i];
+        monitor.subTask(
+            BaseMessages.getString(
+                PKG, "PipelineMeta.Monitor.VerifyingTransformTask.Title", transformMeta.getName()));
 
         int nrinfo = findNrInfoTransforms(transformMeta);
         TransformMeta[] infoTransform = null;
@@ -2978,21 +2978,18 @@ public class PipelineMeta extends AbstractMeta
           remarks.add(cr);
         }
 
-        if (monitor != null) {
-          monitor.worked(1); // progress bar...
-          if (monitor.isCanceled()) {
-            stopChecking = true;
-          }
+        monitor.worked(worked++); // progress bar...
+        if (monitor.isCanceled()) {
+          stopChecking = true;
         }
       }
 
-      if (monitor != null) {
-        monitor.subTask(
-            BaseMessages.getString(
-                PKG,
-                "PipelineMeta.Monitor.CheckingForDatabaseUnfriendlyCharactersInFieldNamesTask.Title"));
-      }
-      if (values.size() > 0) {
+      monitor.subTask(
+          BaseMessages.getString(
+              PKG,
+              "PipelineMeta.Monitor.CheckingForDatabaseUnfriendlyCharactersInFieldNamesTask.Title"));
+
+      if (!values.isEmpty()) {
         for (IValueMeta v : values.keySet()) {
           String message = values.get(v);
           CheckResult cr =
@@ -3015,14 +3012,14 @@ public class PipelineMeta extends AbstractMeta
                 null);
         remarks.add(cr);
       }
-      if (monitor != null) {
-        monitor.worked(1);
-      }
+
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL,
           variables,
           HopExtensionPoint.AfterCheckTransforms.id,
-          new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
+          new CheckTransformsExtension(remarks, variables, this, transformArray, metadataProvider));
+
+      monitor.done();
     } catch (Exception e) {
       throw new RuntimeException("Error checking transforms", e);
     }

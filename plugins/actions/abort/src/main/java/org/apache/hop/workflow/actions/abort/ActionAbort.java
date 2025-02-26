@@ -151,6 +151,6 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    ActionValidatorUtils.addOkRemark(this, "messageabort", remarks);
+    ActionValidatorUtils.addOkRemark(this, "messageAbort", remarks);
   }
 }

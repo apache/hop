@@ -34,6 +34,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.ProgressNullMonitorListener;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -1720,7 +1721,7 @@ public class WorkflowMeta extends AbstractMeta
    * own settings.
    *
    * @param remarks List of CheckResult remarks inserted into by each Action
-   * @param onlySelected true if you only want to check the selected workflows
+   * @param onlySelected true if you only want to check the selected actions
    * @param monitor Progress monitor (not presently in use)
    */
   public void checkActions(
@@ -1729,39 +1730,40 @@ public class WorkflowMeta extends AbstractMeta
       IProgressMonitor monitor,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    remarks.clear(); // Empty remarks
-    if (monitor != null) {
-      monitor.beginTask(
-          BaseMessages.getString(PKG, "WorkflowMeta.Monitor.VerifyingThisActionTask.Title"),
-          workflowActions.size() + 2);
+
+    // Start with a clean slate...
+    remarks.clear();
+
+    if (monitor == null) {
+      monitor = new ProgressNullMonitorListener();
     }
-    boolean stopChecking = false;
-    for (int i = 0; i < workflowActions.size() && !stopChecking; i++) {
-      ActionMeta copy = workflowActions.get(i); // get the action copy
-      if ((!onlySelected) || (onlySelected && copy.isSelected())) {
-        IAction action = copy.getAction();
-        if (action != null) {
-          if (monitor != null) {
-            monitor.subTask(
-                BaseMessages.getString(
-                    PKG, "WorkflowMeta.Monitor.VerifyingAction.Title", action.getName()));
-          }
-          action.check(remarks, this, variables, metadataProvider);
-          if (monitor != null) {
-            monitor.worked(1); // progress bar...
-            if (monitor.isCanceled()) {
-              stopChecking = true;
-            }
-          }
-        }
+
+    List<ActionMeta> actions = (onlySelected) ? this.getSelectedActions() : getActions();
+
+    monitor.beginTask(
+        BaseMessages.getString(PKG, "WorkflowMeta.Monitor.VerifyingThisActionTask.Title"),
+        actions.size());
+
+    int worked = 1;
+    for (ActionMeta actionMeta : actions) {
+      if (monitor.isCanceled()) {
+        break;
       }
-      if (monitor != null) {
-        monitor.worked(1);
+
+      IAction action = actionMeta.getAction();
+      if (action != null) {
+        monitor.subTask(
+            BaseMessages.getString(
+                PKG, "WorkflowMeta.Monitor.VerifyingAction.Title", action.getName()));
+
+        action.check(remarks, this, variables, metadataProvider);
+
+        // Progress bar...
+        monitor.worked(worked++);
       }
     }
-    if (monitor != null) {
-      monitor.done();
-    }
+
+    monitor.done();
   }
 
   /**

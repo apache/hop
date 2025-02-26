@@ -25,6 +25,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -43,8 +44,6 @@ import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
 
 /** This defines a 'delete folders' action. */
 @Action(
@@ -305,16 +304,22 @@ public class ActionDeleteFolders extends ActionBase {
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    boolean res =
-        ActionValidatorUtils.andValidator()
-            .validate(
-                this,
-                "fileItems",
-                remarks,
-                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
+    //    boolean res =
+    //        ActionValidatorUtils.andValidator()
+    //            .validate(
+    //                this,
+    //                "fileItems",
+    //                remarks,
+    //                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
+    //
+    //    if (!res) {
+    //      return;
+    //    }
 
-    if (!res) {
-      return;
+    if (fileItems == null || fileItems.isEmpty()) {
+      String message = BaseMessages.getString(PKG, "CloneRowMeta.CheckResult.NrClonesdMissing");
+      remarks.add(
+          new CheckResult(ICheckResult.TYPE_RESULT_WARNING, "Any folders to deletes", this));
     }
 
     /* TODO: If we enable action check
