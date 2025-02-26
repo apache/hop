@@ -159,6 +159,10 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
         ConcatField field = meta.getOutputFields().get(i);
         nullString = Const.NVL(field.getNullString(), "");
         trimType = data.trimType[i];
+        // Manage missing trim type. Leave the incoming value as it is
+        if (trimType == null) {
+          trimType = ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE);
+        }
       }
 
       concatField(targetString, valueMeta, valueData, nullString, trimType);
