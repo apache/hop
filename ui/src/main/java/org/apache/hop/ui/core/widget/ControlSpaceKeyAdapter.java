@@ -34,6 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
@@ -132,7 +133,8 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       //
       Rectangle bounds = control.getBounds();
       Point location;
-      if (control instanceof StyledText styledText) {
+      // StyledText is not supported in Hop Web
+      if (!EnvironmentUtils.getInstance().isWeb() && control instanceof StyledText styledText) {
         // Position the list under the caret
         location = styledText.getLocationAtOffset(styledText.getCaretOffset());
         location.y += styledText.getLineHeight();
@@ -207,6 +209,9 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
   private static void applyChanges(
       Shell shell, List list, Control control, int position, IInsertText insertTextInterface) {
+    if (list.getSelection().length == 0) {
+      return;
+    }
     String selection =
         list.getSelection()[0].contains(Const.getDeprecatedPrefix())
             ? list.getSelection()[0].replace(Const.getDeprecatedPrefix(), "")

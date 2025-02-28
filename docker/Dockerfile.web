@@ -16,7 +16,7 @@
 # under the License.
 #
 
-FROM tomcat:9-jdk17-openjdk
+FROM tomcat:9-jdk17
 LABEL maintainer="Apache Hop Team"
 # path to where the artifacts should be deployed to
 ENV DEPLOYMENT_PATH=/usr/local/tomcat/webapps/ROOT
