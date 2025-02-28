@@ -903,11 +903,11 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
 
   @Override
   public String getStartQuote() {
-    return "";
+    return "[";
   }
 
   @Override
   public String getEndQuote() {
-    return "";
+    return "]";
   }
 }
