@@ -162,16 +162,6 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   }
 
   @Override
-  public String getStartQuote() {
-    return "[";
-  }
-
-  @Override
-  public String getEndQuote() {
-    return "]";
-  }
-
-  @Override
   public String getSchemaTableCombination(String schemaName, String tablePart) {
     // Something special for MSSQL
     //
