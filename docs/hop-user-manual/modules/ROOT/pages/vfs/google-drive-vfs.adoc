@@ -30,7 +30,7 @@ The scheme you can use to access your files in Google Drive is
 == Configuration
 
 You need to generate a credentials file to make it work.
-Follow the Google documentation to see how that is done.
+Follow the https://developers.google.com/drive/api/quickstart/java#authorize_credentials_for_a_desktop_application[Google documentation] to see how that is done.
 You also need to specify a folder in which security tokens are going to be saved.
 You can specify both in the Hop system configuration options.
 This can be done in the Hop GUI: go to the "Google Drive" tab in the Options dialog (from the Tools menu).
