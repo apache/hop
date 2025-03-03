@@ -107,8 +107,6 @@
         <ognl.version>3.3.4</ognl.version>
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.9.0</okio.version>
-        <opencensus-api.version>0.31.1</opencensus-api.version>
-        <opencensus-contrib-http-util.version>0.31.1</opencensus-contrib-http-util.version>
         <paho.version>1.2.1</paho.version>
         <paranamer.version>2.8</paranamer.version>
         <perfmark.version>0.26.0</perfmark.version>

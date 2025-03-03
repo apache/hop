@@ -45,47 +45,43 @@
             </includes>
             <outputDirectory>plugins/tech/google</outputDirectory>
         </dependencySet>
+<!--        <dependencySet>-->
+<!--            <scope>runtime</scope>-->
+<!--            <excludes>-->
+<!--                <exclude>com.google.code.gson:gson</exclude>-->
+<!--                <exclude>com.google.protobuf:*:jar</exclude>-->
+<!--                <exclude>com.google.auth:google-auth-library-oauth2-http:jar</exclude>-->
+<!--                <exclude>com.google.oauth-client:google-oauth-client:jar</exclude>-->
+<!--                <exclude>com.google.api-client:google-api-client:jar</exclude>-->
+<!--                <exclude>com.google.http-client:*:jar</exclude>-->
+<!--                <exclude>com.google.android:annotations:jar</exclude>-->
+<!--                <exclude>org.codehaus.mojo:animal-sniffer-annotations:jar</exclude>-->
+<!--                <exclude>com.google.api:api-common:jar</exclude>-->
+<!--                <exclude>com.google.auto.value:auto-value-annotations:jar</exclude>-->
+<!--                <exclude>com.google.guava:failureaccess:jar</exclude>-->
+<!--                <exclude>io.opencensus:*:jar</exclude>-->
+<!--            </excludes>-->
+<!--            <outputDirectory>plugins/tech/google/lib</outputDirectory>-->
+<!--        </dependencySet>-->
         <dependencySet>
             <scope>runtime</scope>
+<!--            <includes>-->
+<!--                <include>com.google.code.gson:gson</include>-->
+<!--                <include>com.google.protobuf:*:jar</include>-->
+<!--                <include>com.google.auth:google-auth-library-oauth2-http:jar</include>-->
+<!--                <include>com.google.oauth-client:google-oauth-client:jar</include>-->
+<!--                <include>com.google.api-client:google-api-client:jar</include>-->
+<!--                <include>com.google.http-client:*:jar</include>-->
+<!--                <include>com.google.android:annotations:jar</include>-->
+<!--                <include>org.codehaus.mojo:animal-sniffer-annotations:jar</include>-->
+<!--                <include>com.google.api:api-common:jar</include>-->
+<!--                <include>com.google.auto.value:auto-value-annotations:jar</include>-->
+<!--                <include>com.google.guava:failureaccess:jar</include>-->
+<!--                <include>io.opencensus:*:jar</include>-->
+<!--            </includes>-->
             <excludes>
-                <exclude>com.google.code.gson:gson</exclude>
-                <exclude>com.google.protobuf:protobuf-java:jar</exclude>
-                <exclude>com.google.protobuf:protobuf-java-util:jar</exclude>
-                <exclude>com.google.auth:google-auth-library-oauth2-http:jar</exclude>
-                <exclude>com.google.oauth-client:google-oauth-client:jar</exclude>
-                <exclude>com.google.api-client:google-api-client:jar</exclude>
-                <exclude>com.google.http-client:google-http-client:jar</exclude>
-                <exclude>com.google.http-client:google-http-client-apache-v2:jar</exclude>
-                <exclude>com.google.http-client:google-http-client-appengine:jar</exclude>
-                <exclude>google-http-client-gson:jar</exclude>
-                <exclude>com.google.http-client:google-http-client-jackson2:jar</exclude>
-                <exclude>com.google.android:annotations:jar</exclude>
-                <exclude>org.codehaus.mojo:animal-sniffer-annotations:jar</exclude>
-                <exclude>com.google.api:api-common:jar</exclude>
-                <exclude>com.google.auto.value:auto-value-annotations:jar</exclude>
-                <exclude>com.google.guava:failureaccess:jar</exclude>
+                <exclude>org.apache.hop:hop-tech-google:jar</exclude>
             </excludes>
-            <outputDirectory>plugins/tech/google/lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.google.code.gson:gson</include>
-                <include>com.google.protobuf:protobuf-java:jar</include>
-                <include>com.google.protobuf:protobuf-java-util:jar</include>
-                <include>com.google.auth:google-auth-library-oauth2-http:jar</include>
-                <include>com.google.oauth-client:google-oauth-client:jar</include>
-                <include>com.google.api-client:google-api-client:jar</include>
-                <include>com.google.http-client:google-http-client:jar</include>
-                <include>com.google.http-client:google-http-client-apache-v2:jar</include>
-                <include>com.google.http-client:google-http-client-appengine:jar</include>
-                <include>google-http-client-gson:jar</include>
-                <include>com.google.http-client:google-http-client-jackson2:jar</include>
-                <include>com.google.android:annotations:jar</include>
-                <include>org.codehaus.mojo:animal-sniffer-annotations:jar</include>
-                <include>com.google.api:api-common:jar</include>
-                <include>com.google.auto.value:auto-value-annotations:jar</include>
-                <include>com.google.guava:failureaccess:jar</include>
-            </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
