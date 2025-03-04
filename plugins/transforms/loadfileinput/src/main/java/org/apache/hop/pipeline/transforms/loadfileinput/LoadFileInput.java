@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.loadfileinput;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -369,36 +370,6 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
         switch (loadFileInputField.getElementType()) {
           case LoadFileInputField.ELEMENT_TYPE_FILECONTENT:
-
-            // DO Trimming!
-            switch (loadFileInputField.getTrimType()) {
-              case LoadFileInputField.TYPE_TRIM_LEFT:
-                if (meta.getEncoding() != null) {
-                  data.filecontent =
-                      Const.ltrim(new String(data.filecontent, meta.getEncoding())).getBytes();
-                } else {
-                  data.filecontent = Const.ltrim(new String(data.filecontent)).getBytes();
-                }
-                break;
-              case LoadFileInputField.TYPE_TRIM_RIGHT:
-                if (meta.getEncoding() != null) {
-                  data.filecontent =
-                      Const.rtrim(new String(data.filecontent, meta.getEncoding())).getBytes();
-                } else {
-                  data.filecontent = Const.rtrim(new String(data.filecontent)).getBytes();
-                }
-                break;
-              case LoadFileInputField.TYPE_TRIM_BOTH:
-                if (meta.getEncoding() != null) {
-                  data.filecontent =
-                      Const.trim(new String(data.filecontent, meta.getEncoding())).getBytes();
-                } else {
-                  data.filecontent = Const.trim(new String(data.filecontent)).getBytes();
-                }
-                break;
-              default:
-                break;
-            }
             if (targetValueMeta.getType() != IValueMeta.TYPE_BINARY) {
               // handle as a String
               if (meta.getEncoding() != null) {
@@ -406,9 +377,13 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
               } else {
                 o = new String(data.filecontent);
               }
+              // convert string (processing type) to the target type
+              outputRowData[indexField] =
+                  targetValueMeta.convertData(
+                      sourceValueMeta, trimField(loadFileInputField.getTrimType(), (String) o));
             } else {
               // save as byte[] without any conversion
-              o = data.filecontent;
+              outputRowData[indexField] = data.filecontent;
             }
             break;
           case LoadFileInputField.ELEMENT_TYPE_FILESIZE:
@@ -416,14 +391,6 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
             break;
           default:
             break;
-        }
-
-        if (targetValueMeta.getType() == IValueMeta.TYPE_BINARY) {
-          // save as byte[] without any conversion
-          outputRowData[indexField] = o;
-        } else {
-          // convert string (processing type) to the target type
-          outputRowData[indexField] = targetValueMeta.convertData(sourceValueMeta, o);
         }
 
         // Do we need to repeat this field if it is null?
@@ -492,6 +459,25 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
     }
 
     return outputRowData;
+  }
+
+  private String trimField(int trimType, String o) throws UnsupportedEncodingException {
+    // DO Trimming!
+    switch (trimType) {
+      case LoadFileInputField.TYPE_TRIM_LEFT:
+        o = Const.ltrim(o);
+        break;
+      case LoadFileInputField.TYPE_TRIM_RIGHT:
+        o = Const.rtrim(o);
+        break;
+      case LoadFileInputField.TYPE_TRIM_BOTH:
+        o = Const.trim(o);
+        break;
+      default:
+        break;
+    }
+
+    return o;
   }
 
   @Override
