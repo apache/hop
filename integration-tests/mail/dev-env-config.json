@@ -13,7 +13,7 @@
     "description" : "The sender's mail address"
   }, {
     "name" : "MAIL_SMTP_SERVER",
-    "value" : "localhost",
+    "value" : "james",
     "description" : "The server address (link in docker file)"
   }, {
     "name" : "MAIL_SMTP_PORT",

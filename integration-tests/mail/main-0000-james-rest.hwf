@@ -53,18 +53,17 @@ limitations under the License.
       <description/>
       <type>SHELL</type>
       <attributes/>
-      <filename/>
-      <work_directory/>
-      <arg_from_previous>N</arg_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <set_append_logfile>N</set_append_logfile>
-      <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
+      <arg_from_previous>N</arg_from_previous>
+      <arguments>
+</arguments>
+      <exec_per_row>N</exec_per_row>
       <insertScript>Y</insertScript>
+      <loglevel>Basic</loglevel>
       <script>#!/bin/bash 
+
+echo "james server: " ${MAIL_SMTP_SERVER} 
 
 curl -XPUT http://${MAIL_SMTP_SERVER}:8000/domains/example.com
 curl -XPUT http://${MAIL_SMTP_SERVER}:8000/domains/acme.be
@@ -73,7 +72,8 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/user01@example.com   -d '{"pass
 curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"password":"password"}'    -H "Content-Type: application/json"
 
 </script>
-      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
       <parallel>N</parallel>
       <xloc>384</xloc>
       <yloc>64</yloc>
@@ -84,11 +84,16 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <description/>
       <type>MAIL</type>
       <attributes/>
-      <auth_password>password</auth_password>
+      <auth_password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</auth_password>
       <auth_user>${MAIL_SENDER_ADDRESS}</auth_user>
       <check_server_identity>N</check_server_identity>
       <comment>test body</comment>
+      <connectionName>james</connectionName>
+      <contact_persion/>
+      <contact_phone/>
       <destination>user01@example.com</destination>
+      <destinationBCc/>
+      <destinationCc/>
       <embeddedimages>
 </embeddedimages>
       <encoding>UTF-8</encoding>
@@ -96,27 +101,30 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <include_date>N</include_date>
       <include_files>N</include_files>
       <only_comment>N</only_comment>
-      <port>${MAIL_SMTP_PORT}</port>
+      <port/>
       <priority>normal</priority>
+      <replyToAddresses/>
       <replyto>user01@example.com</replyto>
       <replytoname>user01@example.com</replytoname>
       <secureconnectiontype>TLS</secureconnectiontype>
       <sensitivity>normal</sensitivity>
-      <server>localhost</server>
+      <server/>
       <subject>test subject</subject>
+      <trusted_hosts/>
       <use_HTML>N</use_HTML>
       <use_Priority>N</use_Priority>
-      <use_auth>Y</use_auth>
+      <use_auth>N</use_auth>
       <use_secure_auth>Y</use_secure_auth>
       <usexoauth2>N</usexoauth2>
       <zip_files>N</zip_files>
+      <zip_name/>
       <parallel>N</parallel>
-      <xloc>544</xloc>
+      <xloc>576</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>Wait for</name>
+      <name>wait for 30s</name>
       <description/>
       <type>DELAY</type>
       <attributes/>
@@ -128,17 +136,17 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <attributes_hac/>
     </action>
     <action>
-      <name>Get mails (POP3/IMAP)</name>
+      <name>get mails</name>
       <description/>
       <type>GET_POP</type>
       <attributes/>
-      <servername>localhost</servername>
+      <servername>james</servername>
       <username>user01@example.com</username>
       <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
       <usessl>Y</usessl>
       <sslport>993</sslport>
       <usexoauth2>N</usexoauth2>
-      <outputdirectory>/Users/bart/Downloads</outputdirectory>
+      <outputdirectory>${PROJECT_HOME}/output</outputdirectory>
       <filenamepattern>name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail</filenamepattern>
       <retrievemails>0</retrievemails>
       <firstmails/>
@@ -167,14 +175,70 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <actiontype>get</actiontype>
       <movetoimapfolder/>
       <createmovetofolder>N</createmovetofolder>
-      <createlocalfolder>N</createlocalfolder>
+      <createlocalfolder>Y</createlocalfolder>
       <aftergetimap>nothing</aftergetimap>
       <includesubfolders>N</includesubfolders>
       <useproxy>N</useproxy>
       <proxyusername/>
       <parallel>N</parallel>
+      <xloc>928</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>abort if no files found</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <parallel>N</parallel>
+      <xloc>1472</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>wait for 5s</name>
+      <description/>
+      <type>DELAY</type>
+      <attributes/>
+      <maximumTimeout>5</maximumTimeout>
+      <scaletime>0</scaletime>
+      <parallel>N</parallel>
       <xloc>768</xloc>
       <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>mails folder empty?</name>
+      <description/>
+      <type>FOLDER_IS_EMPTY</type>
+      <attributes/>
+      <foldername>${PROJECT_HOME}/output</foldername>
+      <include_subfolders>N</include_subfolders>
+      <specify_wildcard>N</specify_wildcard>
+      <parallel>N</parallel>
+      <xloc>1120</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>folder is empty</name>
+      <description/>
+      <type>DUMMY</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>1312</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>folder is not empty</name>
+      <description/>
+      <type>DUMMY</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>1312</xloc>
+      <yloc>160</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -188,23 +252,58 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
     </hop>
     <hop>
       <from>Start</from>
-      <to>Wait for</to>
+      <to>wait for 30s</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Wait for</from>
+      <from>wait for 30s</from>
       <to>add domains, users</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Mail</from>
-      <to>Get mails (POP3/IMAP)</to>
+      <from>get mails</from>
+      <to>mails folder empty?</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Mail</from>
+      <to>wait for 5s</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>wait for 5s</from>
+      <to>get mails</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>mails folder empty?</from>
+      <to>folder is empty</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>folder is empty</from>
+      <to>abort if no files found</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>mails folder empty?</from>
+      <to>folder is not empty</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>
