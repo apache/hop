@@ -5031,7 +5031,7 @@ public class ValueMetaBase implements IValueMeta {
 
   public static final String getRoundingTypeCode(String desc) {
     for (int i = 0; i < roundingTypeDesc.length; i++) {
-      if (roundingTypeCode[i].equalsIgnoreCase(desc)) {
+      if (roundingTypeDesc[i].equalsIgnoreCase(desc)) {
         return roundingTypeCode[i];
       }
     }
