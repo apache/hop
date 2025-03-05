@@ -29,7 +29,7 @@
     <name>Hop Plugins Databases Microsoft Access</name>
 
     <properties>
-        <ucanaccess.version>5.0.1</ucanaccess.version>
+        <ucanaccess.version>5.1.3</ucanaccess.version>
     </properties>
 
     <dependencyManagement>
@@ -46,11 +46,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.healthmarketscience.jackcess</groupId>
-            <artifactId>jackcess</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ucanaccess</groupId>
+            <groupId>io.github.spannm</groupId>
             <artifactId>ucanaccess</artifactId>
             <version>${ucanaccess.version}</version>
         </dependency>

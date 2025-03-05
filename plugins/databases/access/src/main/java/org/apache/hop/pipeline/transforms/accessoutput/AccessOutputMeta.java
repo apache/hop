@@ -16,10 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.accessoutput;
 
-import com.healthmarketscience.jackcess.Column;
-import com.healthmarketscience.jackcess.Database;
-import com.healthmarketscience.jackcess.DatabaseBuilder;
-import com.healthmarketscience.jackcess.Table;
+import io.github.spannm.jackcess.Column;
+import io.github.spannm.jackcess.Database;
+import io.github.spannm.jackcess.DatabaseBuilder;
+import io.github.spannm.jackcess.Table;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -55,7 +55,8 @@ import org.apache.hop.resource.ResourceDefinition;
     image = "accessoutput.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::AccessOutput.Keyword",
-    documentationUrl = "/pipeline/transforms/accessoutput.html")
+    documentationUrl = "/pipeline/transforms/accessoutput.html",
+    classLoaderGroup = "access-db")
 public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutputData> {
   private static final Class<?> PKG = AccessOutputMeta.class;
 
