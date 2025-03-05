@@ -13,5 +13,5 @@
   "useAuthentication": true,
   "name": "james",
   "useSecureAuthentication": false,
-  "username": "user01@example.cim"
+  "username": "user01@example.com"
 }

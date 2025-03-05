@@ -1,7 +1,10 @@
 {
-  "variableValues": [],
   "database_replacements": [],
   "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
   "basePath": "",
   "golden_data_sets": [
     {
@@ -42,15 +45,12 @@
       "field_order": [
         "body"
       ],
-      "transform_name": "Result",
-      "data_set_name": "0001-mail-transform-golden"
+      "data_set_name": "0001-mail-transform-golden",
+      "transform_name": "Result"
     }
   ],
   "input_data_sets": [],
   "name": "0001-mail-transform-validation UNIT",
-  "description": "",
   "trans_test_tweaks": [],
-  "persist_filename": "",
-  "pipeline_filename": "./0001-mail-transform-validation.hpl",
-  "test_type": "UNIT_TEST"
+  "pipeline_filename": ""
 }

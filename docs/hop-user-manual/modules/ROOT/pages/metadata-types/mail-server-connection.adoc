@@ -19,7 +19,7 @@ under the License.
 
 = Mail server connection
 
-image:icons/mail.svg[]
+image:icons/mail.svg[Mail Server Connection, width=24px]
 
 A Mail Server connection is a connection to a mail server that can be reused from actions like the xref:workflow/actions/mail.adoc[Mail] action. Support for other e-mail related actions and transforms will be added in a later release.
 
