@@ -16,14 +16,14 @@
  */
 package org.apache.hop.pipeline.transforms.accessoutput;
 
-import com.healthmarketscience.jackcess.Column;
-import com.healthmarketscience.jackcess.ColumnBuilder;
-import com.healthmarketscience.jackcess.Cursor;
-import com.healthmarketscience.jackcess.CursorBuilder;
-import com.healthmarketscience.jackcess.DataType;
-import com.healthmarketscience.jackcess.Database.FileFormat;
-import com.healthmarketscience.jackcess.DatabaseBuilder;
-import com.healthmarketscience.jackcess.TableBuilder;
+import io.github.spannm.jackcess.Column;
+import io.github.spannm.jackcess.ColumnBuilder;
+import io.github.spannm.jackcess.Cursor;
+import io.github.spannm.jackcess.CursorBuilder;
+import io.github.spannm.jackcess.DataType;
+import io.github.spannm.jackcess.Database.FileFormat;
+import io.github.spannm.jackcess.DatabaseBuilder;
+import io.github.spannm.jackcess.TableBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -320,52 +320,53 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
       switch (valueMeta.getType()) {
         case IValueMeta.TYPE_INTEGER:
           if (length < 3) {
-            column.setType(DataType.BYTE);
-            column.setLength(DataType.BYTE.getFixedSize());
+
+            column.withType(DataType.BYTE);
+            column.withLength(DataType.BYTE.getFixedSize());
           } else {
             if (length < 5) {
-              column.setType(DataType.INT);
-              column.setLength(DataType.INT.getFixedSize());
+              column.withType(DataType.INT);
+              column.withLength(DataType.INT.getFixedSize());
             } else {
-              column.setType(DataType.LONG);
-              column.setLength(DataType.LONG.getFixedSize());
+              column.withType(DataType.LONG);
+              column.withLength(DataType.LONG.getFixedSize());
             }
           }
           break;
         case IValueMeta.TYPE_NUMBER:
-          column.setType(DataType.DOUBLE);
-          column.setLength(DataType.DOUBLE.getFixedSize());
+          column.withType(DataType.DOUBLE);
+          column.withLength(DataType.DOUBLE.getFixedSize());
           break;
         case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
-          column.setType(DataType.SHORT_DATE_TIME);
-          column.setLength(DataType.SHORT_DATE_TIME.getFixedSize());
+          column.withType(DataType.SHORT_DATE_TIME);
+          column.withLength(DataType.SHORT_DATE_TIME.getFixedSize());
           break;
         case IValueMeta.TYPE_STRING:
           length *= DataType.TEXT.getUnitSize();
           if (length <= DataType.TEXT.getMaxSize()) {
-            column.setType(DataType.TEXT);
+            column.withType(DataType.TEXT);
           } else {
-            column.setType(DataType.MEMO);
+            column.withType(DataType.MEMO);
           }
-          column.setLength(length);
+          column.withLength(length);
           break;
         case IValueMeta.TYPE_BINARY:
-          column.setType(DataType.BINARY);
+          column.withType(DataType.BINARY);
           break;
         case IValueMeta.TYPE_BOOLEAN:
-          column.setType(DataType.BOOLEAN);
-          column.setLength(DataType.BOOLEAN.getFixedSize());
+          column.withType(DataType.BOOLEAN);
+          column.withLength(DataType.BOOLEAN.getFixedSize());
           break;
         case IValueMeta.TYPE_BIGNUMBER:
-          column.setType(DataType.NUMERIC);
-          column.setLength(DataType.NUMERIC.getFixedSize());
+          column.withType(DataType.NUMERIC);
+          column.withLength(DataType.NUMERIC.getFixedSize());
           break;
         default:
           break;
       }
 
       if (valueMeta.getPrecision() >= 1 && valueMeta.getPrecision() <= 28) {
-        column.setPrecision(valueMeta.getPrecision());
+        column.withPrecision(valueMeta.getPrecision());
       }
 
       columns.add(column);

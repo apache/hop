@@ -40,19 +40,14 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>net.sf.ucanaccess:ucanaccess:jar</include>
-            </includes>
-            <outputDirectory>plugins/databases/access/lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
+                <include>io.github.spannm:ucanaccess:jar</include>
                 <include>org.hsqldb:hsqldb:jar</include>
             </includes>
             <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>com.healthmarketscience.jackcess:jackcess:jar</include>
+                <include>io.github.spannm:jackcess:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

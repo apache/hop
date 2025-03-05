@@ -16,8 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.accessoutput;
 
-import com.healthmarketscience.jackcess.Database;
-import com.healthmarketscience.jackcess.DatabaseBuilder;
+import io.github.spannm.jackcess.Database;
+import io.github.spannm.jackcess.DatabaseBuilder;
 import java.io.File;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;

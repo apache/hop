@@ -16,8 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.accessoutput;
 
-import com.healthmarketscience.jackcess.Database;
-import com.healthmarketscience.jackcess.Table;
+import io.github.spannm.jackcess.Database;
+import io.github.spannm.jackcess.Table;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.row.IRowMeta;

@@ -16,7 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.accessoutput;
 
-import com.healthmarketscience.jackcess.Database.FileFormat;
+import io.github.spannm.jackcess.Database.FileFormat;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
 public enum AccessFileFormat implements IEnumHasCodeAndDescription {

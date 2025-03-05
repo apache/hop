@@ -29,7 +29,8 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "MSACCESS",
     typeDescription = "Microsoft Access database",
-    documentationUrl = "/database/databases/access.html")
+    documentationUrl = "/database/databases/access.html",
+    classLoaderGroup = "access-db")
 @GuiPlugin(id = "GUI-MSAccessDatabaseMeta")
 public class AccessDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
