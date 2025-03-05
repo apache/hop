@@ -195,6 +195,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
 
   @Override
   public void setDefault() {
+    file = new SqlFile();
     connection = "";
     tableName = "";
     file.createParentFolder = false;

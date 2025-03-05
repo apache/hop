@@ -837,8 +837,6 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     wCreateParentFolder.setSelection(input.getFile().isCreateParentFolder());
     if (input.getFile().getExtension() != null) {
       wExtension.setText(input.getFile().getExtension());
-    } else {
-      wExtension.setText("sql");
     }
 
     if (input.getDateFormat() != null) {
