@@ -151,7 +151,7 @@ public class ActionWaitForFileDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wFilename, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wFilename, variables, new String[] {"*"}, FILETYPES, false));
 
     // Maximum timeout
     Label wlMaximumTimeout = new Label(shell, SWT.RIGHT);

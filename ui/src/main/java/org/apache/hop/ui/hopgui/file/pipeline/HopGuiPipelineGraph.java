@@ -3365,6 +3365,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void editTransform(TransformMeta transformMeta) {
+    pipelineMeta.unselectAll();
+    updateGui();
     pipelineTransformDelegate.editTransform(pipelineMeta, transformMeta);
   }
 

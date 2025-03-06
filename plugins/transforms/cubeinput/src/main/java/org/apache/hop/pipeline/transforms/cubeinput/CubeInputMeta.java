@@ -82,7 +82,7 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
 
   @Override
   public void setDefault() {
-    this.file = new CubeFile("file");
+    this.file = new CubeFile();
     this.rowLimit = "0";
     this.addFilenameResult = false;
   }

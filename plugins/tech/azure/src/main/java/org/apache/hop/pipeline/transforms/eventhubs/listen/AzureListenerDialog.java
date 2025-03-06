@@ -523,6 +523,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
         HopGui.getDataOrchestrationPerspective().getPipelineFileType();
 
     BaseDialog.presentFileDialog(
+        false,
         shell,
         wBatchPipeline,
         (FileObject) null,

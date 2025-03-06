@@ -281,7 +281,7 @@ public class ActionZipFileDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wSourceDirectory, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wSourceDirectory, variables, new String[] {"*"}, FILETYPES, false));
 
     wSourceDirectory =
         new TextVar(

@@ -210,7 +210,7 @@ public class ActionPipelineDialog extends ActionBaseDialog {
             variables,
             pipelineFileType.getFilterExtensions(),
             pipelineFileType.getFilterNames(),
-            true);
+            false);
     if (filename != null) {
       replaceNameWithBaseFilename(filename);
     }

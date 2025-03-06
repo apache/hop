@@ -2132,52 +2132,49 @@ public class TextFileInputDialog extends BaseTransformDialog
       mb.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
-      if (answer == SWT.YES) {
-        if (!Utils.isEmpty(schemaName)) {
-          try {
-            SchemaDefinition schemaDefinition =
-                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
-            if (schemaDefinition != null) {
-              IRowMeta r = schemaDefinition.getRowMeta();
-              if (r != null) {
-                String[] fieldNames = r.getFieldNames();
-                if (fieldNames != null) {
-                  wFields.clearAll();
-                  for (int i = 0; i < fieldNames.length; i++) {
-                    IValueMeta valueMeta = r.getValueMeta(i);
-                    final TableItem item = getTableItem(valueMeta.getName(), true);
-                    item.setText(1, valueMeta.getName());
-                    item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
-                    item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
-                    item.setText(
-                        5,
-                        valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
-                    item.setText(
-                        6,
-                        valueMeta.getPrecision() >= 0
-                            ? Integer.toString(valueMeta.getPrecision())
-                            : "");
-                    final SchemaFieldDefinition schemaFieldDefinition =
-                        schemaDefinition.getFieldDefinitions().get(i);
-                    item.setText(7, Const.NVL(schemaFieldDefinition.getCurrencySymbol(), ""));
-                    item.setText(8, Const.NVL(schemaFieldDefinition.getDecimalSymbol(), ""));
-                    item.setText(9, Const.NVL(schemaFieldDefinition.getGroupingSymbol(), ""));
-                    item.setText(10, Const.NVL(schemaFieldDefinition.getIfNullValue(), ""));
-                    item.setText(
-                        12, Const.NVL(ValueMetaBase.getTrimTypeDesc(valueMeta.getTrimType()), ""));
-                  }
+      if (answer == SWT.YES && !Utils.isEmpty(schemaName)) {
+        try {
+          SchemaDefinition schemaDefinition =
+              (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+          if (schemaDefinition != null) {
+            IRowMeta r = schemaDefinition.getRowMeta();
+            if (r != null) {
+              String[] fieldNames = r.getFieldNames();
+              if (fieldNames != null) {
+                wFields.clearAll();
+                for (int i = 0; i < fieldNames.length; i++) {
+                  IValueMeta valueMeta = r.getValueMeta(i);
+                  final TableItem item = getTableItem(valueMeta.getName(), true);
+                  item.setText(1, valueMeta.getName());
+                  item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                  item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
+                  item.setText(
+                      5, valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                  item.setText(
+                      6,
+                      valueMeta.getPrecision() >= 0
+                          ? Integer.toString(valueMeta.getPrecision())
+                          : "");
+                  final SchemaFieldDefinition schemaFieldDefinition =
+                      schemaDefinition.getFieldDefinitions().get(i);
+                  item.setText(7, Const.NVL(schemaFieldDefinition.getCurrencySymbol(), ""));
+                  item.setText(8, Const.NVL(schemaFieldDefinition.getDecimalSymbol(), ""));
+                  item.setText(9, Const.NVL(schemaFieldDefinition.getGroupingSymbol(), ""));
+                  item.setText(10, Const.NVL(schemaFieldDefinition.getIfNullValue(), ""));
+                  item.setText(
+                      12, Const.NVL(ValueMetaBase.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                 }
               }
             }
-          } catch (HopTransformException | HopPluginException e) {
-
-            // ignore any errors here.
           }
+        } catch (HopTransformException | HopPluginException e) {
 
-          wFields.removeEmptyRows();
-          wFields.setRowNums();
-          wFields.optWidth(true);
+          // ignore any errors here.
         }
+
+        wFields.removeEmptyRows();
+        wFields.setRowNums();
+        wFields.optWidth(true);
       }
     }
   }

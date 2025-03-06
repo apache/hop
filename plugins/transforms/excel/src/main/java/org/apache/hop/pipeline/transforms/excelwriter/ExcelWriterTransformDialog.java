@@ -1580,13 +1580,14 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
+                true,
                 shell,
                 wFilename,
                 variables,
-                new String[] {"*.xls", "*.xlsx", "*.*"},
+                new String[] {"*.xlsx", "*.xls", "*.*"},
                 new String[] {
-                  BaseMessages.getString(PKG, LABEL_FORMATXLS),
                   BaseMessages.getString(PKG, LABEL_FORMATXLSX),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLS),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
                 },
                 true));
@@ -1597,10 +1598,10 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
                 shell,
                 wTemplateFilename,
                 variables,
-                new String[] {"*.xls", "*.xlsx", "*.*"},
+                new String[] {"*.xlsx", "*.xls", "*.*"},
                 new String[] {
-                  BaseMessages.getString(PKG, LABEL_FORMATXLS),
                   BaseMessages.getString(PKG, LABEL_FORMATXLSX),
+                  BaseMessages.getString(PKG, LABEL_FORMATXLS),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
                 },
                 true));

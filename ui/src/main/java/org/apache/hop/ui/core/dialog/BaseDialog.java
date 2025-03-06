@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -103,34 +104,57 @@ public abstract class BaseDialog extends Dialog {
   public static final int VAR_ICON_HEIGHT =
       GuiResource.getInstance().getImageVariableMini().getBounds().height;
 
-  protected Map<String, Listener> buttons = new HashMap<>();
+  @Setter protected Map<String, Listener> buttons = new HashMap<>();
 
   protected Shell shell;
 
   protected PropsUi props;
-  protected int width = -1;
-  protected String title;
+  protected int width;
+  protected String baseDialogTitle;
 
-  private int footerTopPadding = BaseDialog.ELEMENT_SPACING * 4;
+  @Setter private int footerTopPadding = BaseDialog.ELEMENT_SPACING * 4;
 
-  public BaseDialog(final Shell shell) {
+  protected BaseDialog(final Shell shell) {
     this(shell, null, -1);
   }
 
-  public BaseDialog(final Shell shell, final String title, final int width) {
+  protected BaseDialog(final Shell shell, final String baseDialogTitle, final int width) {
     super(shell, SWT.NONE);
     this.props = PropsUi.getInstance();
-    this.title = title;
+    this.baseDialogTitle = baseDialogTitle;
     this.width = width;
   }
 
-  public static final String presentFileDialog(
+  /**
+   * Open a File browser dialog containing bookmarks. This dialog can be used for both opening and
+   * saving files When Saving it wel prepend filename.extension where extension is the first
+   * extension provided in the filterExtensions.
+   *
+   * @param shell the Shell to attach the dialog to
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return filepath of the selected file or folder
+   */
+  public static String presentFileDialog(
       Shell shell, String[] filterExtensions, String[] filterNames, boolean folderAndFile) {
     return presentFileDialog(
         false, shell, null, null, null, filterExtensions, filterNames, folderAndFile);
   }
 
-  public static final String presentFileDialog(
+  /**
+   * Open a File browser dialog containing bookmarks. This dialog can be used for both opening and
+   * saving files When Saving it wel prepend filename.extension where extension is the first
+   * extension provided in the filterExtensions.
+   *
+   * @param save boolean to indicate if it's save or open dialog
+   * @param shell the Shell to attach the dialog to
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return filepath of the selected file or folder
+   */
+  public static String presentFileDialog(
       boolean save,
       Shell shell,
       String[] filterExtensions,
@@ -140,7 +164,21 @@ public abstract class BaseDialog extends Dialog {
         save, shell, null, null, null, filterExtensions, filterNames, folderAndFile);
   }
 
-  public static final String presentFileDialog(
+  /**
+   * @deprecated use
+   *     <p>Open a File browser dialog containing bookmarks. This dialog can be used for both
+   *     opening and saving files When Saving it wel prepend filename.extension where extension is
+   *     the first extension provided in the filterExtensions.
+   * @param shell the Shell to attach the dialog to
+   * @param textVar the textVar component that will contain the filename + path
+   * @param fileObject the FileObject to navigate to
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return filepath of the selected file or folder
+   */
+  @Deprecated(since = "2.13")
+  public static String presentFileDialog(
       Shell shell,
       TextVar textVar,
       FileObject fileObject,
@@ -151,7 +189,21 @@ public abstract class BaseDialog extends Dialog {
         false, shell, textVar, null, fileObject, filterExtensions, filterNames, folderAndFile);
   }
 
-  public static final String presentFileDialog(
+  /**
+   * Open a File browser dialog containing bookmarks. This dialog can be used for both opening and
+   * saving files When Saving it wel prepend filename.extension where extension is the first
+   * extension provided in the filterExtensions.
+   *
+   * @param save boolean to indicate if it's save or open dialog
+   * @param shell the Shell to attach the dialog to
+   * @param textVar the textVar component that will contain the filename + path
+   * @param fileObject the FileObject to navigate to
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return filepath of the selected file or folder
+   */
+  public static String presentFileDialog(
       boolean save,
       Shell shell,
       TextVar textVar,
@@ -163,7 +215,20 @@ public abstract class BaseDialog extends Dialog {
         save, shell, textVar, null, fileObject, filterExtensions, filterNames, folderAndFile);
   }
 
-  public static final String presentFileDialog(
+  /**
+   * Open a File browser dialog containing bookmarks. This dialog can be used for both opening and
+   * saving files When Saving it wel prepend filename.extension where extension is the first
+   * extension provided in the filterExtensions.
+   *
+   * @param shell the Shell to attach the dialog to
+   * @param textVar the textVar component that will contain the filename + path
+   * @param variables IVariables to resolve variables in the dialog
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return filepath of the selected file or folder
+   */
+  public static String presentFileDialog(
       Shell shell,
       TextVar textVar,
       IVariables variables,
@@ -174,7 +239,21 @@ public abstract class BaseDialog extends Dialog {
         false, shell, textVar, variables, null, filterExtensions, filterNames, folderAndFile);
   }
 
-  public static final String presentFileDialog(
+  /**
+   * Open a File browser dialog containing bookmarks. This dialog can be used for both opening and
+   * saving files When Saving it wel prepend filename.extension where extension is the first
+   * extension provided in the filterExtensions.
+   *
+   * @param save boolean to indicate if it's save or open dialog
+   * @param shell the Shell to attach the dialog to
+   * @param textVar the textVar component that will contain the filename + path
+   * @param variables IVariables to resolve variables in the dialog
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return filepath of the selected file or folder
+   */
+  public static String presentFileDialog(
       boolean save,
       Shell shell,
       TextVar textVar,
@@ -186,7 +265,21 @@ public abstract class BaseDialog extends Dialog {
         save, shell, textVar, variables, null, filterExtensions, filterNames, folderAndFile);
   }
 
-  public static final String presentFileDialog(
+  /**
+   * Open a File browser dialog containing bookmarks. This dialog can be used for both opening and
+   * saving files When Saving it wel prepend filename.extension where extension is the first
+   * extension provided in the filterExtensions.
+   *
+   * @param shell the Shell to attach the dialog to
+   * @param textVar the textVar component that will contain the filename + path
+   * @param variables IVariables to resolve variables in the dialog
+   * @param fileObject the FileObject to navigate to
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return filepath of the selected file or folder
+   */
+  public static String presentFileDialog(
       Shell shell,
       TextVar textVar,
       IVariables variables,
@@ -198,7 +291,22 @@ public abstract class BaseDialog extends Dialog {
         false, shell, textVar, variables, fileObject, filterExtensions, filterNames, folderAndFile);
   }
 
-  public static final String presentFileDialog(
+  /**
+   * Open a File browser dialog containing bookmarks. This dialog can be used for both opening and
+   * saving files When Saving it wel prepend filename.extension where extension is the first
+   * extension provided in the filterExtensions.
+   *
+   * @param save boolean to indicate if it's save or open dialog
+   * @param shell the Shell to attach the dialog to
+   * @param textVar the textVar component that will contain the filename + path
+   * @param variables IVariables to resolve variables in the dialog
+   * @param fileObject the FileObject to navigate to
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return filepath of the selected file or folder
+   */
+  public static String presentFileDialog(
       boolean save,
       Shell shell,
       TextVar textVar,
@@ -217,16 +325,38 @@ public abstract class BaseDialog extends Dialog {
       FileDialog fileDialog = new FileDialog(shell, save ? SWT.SAVE : SWT.OPEN);
       dialog = new NativeFileDialog(fileDialog);
     } else {
-      HopVfsFileDialog vfsDialog = new HopVfsFileDialog(shell, variables, fileObject, false, save);
+      HopVfsFileDialog vfsDialog =
+          new HopVfsFileDialog(shell, variables, fileObject, false, save, folderAndFile);
       if (save) {
-        if (fileObject != null) {
-          vfsDialog.setSaveFilename(fileObject.getName().getBaseName());
+        // check if textVar contains a valid path
+        if (textVar != null && !textVar.getText().isEmpty()) {
           try {
-            vfsDialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
-          } catch (FileSystemException fse) {
-            // This wasn't a valid filename, ignore the error to reduce spamming
+            fileObject = HopVfs.getFileObject(variables.resolve(textVar.getText()));
+            if (!fileObject.exists() && fileObject.getParent().exists()) {
+              fileObject = fileObject.getParent();
+            } else if (!fileObject.exists()) {
+              fileObject = null;
+            }
+
+            if (fileObject != null && fileObject.isFile()) {
+              vfsDialog.setSaveFilename(fileObject.getName().getBaseName());
+              vfsDialog.setFilterPath(HopVfs.getFilename(fileObject));
+            } else {
+
+              // Take the first extension with "filename" prepended
+              //
+              if (filterExtensions != null && filterExtensions.length > 0) {
+                String filterExtension = filterExtensions[0];
+                String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
+                vfsDialog.setSaveFilename("filename" + extension);
+              }
+            }
+
+          } catch (Exception e) {
+            fileObject = null;
           }
         } else {
+
           // Take the first extension with "filename" prepended
           //
           if (filterExtensions != null && filterExtensions.length > 0) {
@@ -244,7 +374,10 @@ public abstract class BaseDialog extends Dialog {
     } else {
       dialog.setText(BaseMessages.getString(PKG, "BaseDialog.OpenFile"));
     }
-    if (filterExtensions == null || filterNames == null) {
+    if (filterExtensions == null
+        || filterNames == null
+        || filterExtensions.length == 0
+        || filterNames.length == 0) {
       dialog.setFilterExtensions(new String[] {"*.*"});
       dialog.setFilterNames(new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")});
     } else {
@@ -266,7 +399,12 @@ public abstract class BaseDialog extends Dialog {
     if (fileObject != null) {
       dialog.setFileName(HopVfs.getFilename(fileObject));
       try {
-        dialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
+        if (fileObject.isFile()) {
+          dialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
+        } else {
+          dialog.setFilterPath(HopVfs.getFilename(fileObject));
+        }
+
       } catch (FileSystemException fse) {
         // This wasn't a valid filename, ignore the error to reduce spamming
       }
@@ -277,12 +415,7 @@ public abstract class BaseDialog extends Dialog {
 
     String filename = null;
     if (!doIt.get() || dialog.open() != null) {
-      if (folderAndFile) {
-        filename = FilenameUtils.concat(dialog.getFilterPath(), dialog.getFileName());
-      } else {
-        filename = dialog.getFileName();
-      }
-
+      filename = FilenameUtils.concat(dialog.getFilterPath(), dialog.getFileName());
       try {
         HopGuiFileOpenedExtension openedExtension =
             new HopGuiFileOpenedExtension(dialog, variables, filename);
@@ -305,7 +438,7 @@ public abstract class BaseDialog extends Dialog {
     return filename;
   }
 
-  public static String presentDirectoryDialog(Shell shell, IVariables variables) {
+  public static String presentDirectoryDialog(Shell shell) {
     return presentDirectoryDialog(shell, null, null);
   }
 
@@ -325,7 +458,7 @@ public abstract class BaseDialog extends Dialog {
     if (useNativeFileDialog) {
       directoryDialog = new NativeDirectoryDialog(new DirectoryDialog(shell, SWT.OPEN));
     } else {
-      directoryDialog = new HopVfsFileDialog(shell, variables, null, true, false);
+      directoryDialog = new HopVfsFileDialog(shell, variables, null, true, false, true);
     }
 
     if (StringUtils.isNotEmpty(message)) {
@@ -397,14 +530,14 @@ public abstract class BaseDialog extends Dialog {
     formLayout.marginHeight = MARGIN_SIZE;
 
     shell.setLayout(formLayout);
-    shell.setText(this.title);
+    shell.setText(this.baseDialogTitle);
     return display;
   }
 
   /**
    * Returns the last element in the body - the one to which the buttons should be attached.
    *
-   * @return
+   * @return Returns the last element in the body
    */
   protected abstract Control buildBody();
 
@@ -475,17 +608,9 @@ public abstract class BaseDialog extends Dialog {
     }
   }
 
-  public void setFooterTopPadding(final int footerTopPadding) {
-    this.footerTopPadding = footerTopPadding;
-  }
-
   public void dispose() {
     props.setScreen(new WindowProperty(shell));
     shell.dispose();
-  }
-
-  public void setButtons(final Map<String, Listener> buttons) {
-    this.buttons = buttons;
   }
 
   /**
@@ -552,8 +677,7 @@ public abstract class BaseDialog extends Dialog {
       // Some of these are composites so check first
       //
       if (control instanceof CTabFolder cTabFolder) {
-        CTabFolder tabFolder = cTabFolder;
-        for (CTabItem item : tabFolder.getItems()) {
+        for (CTabItem item : cTabFolder.getItems()) {
           if (item.getImage() == null) {
             item.setImage(GuiResource.getInstance().getImageHop());
           }
@@ -588,7 +712,7 @@ public abstract class BaseDialog extends Dialog {
     }
   }
 
-  public static final int openMessageBox(Shell parent, String title, String message, int flags) {
+  public static int openMessageBox(Shell parent, String title, String message, int flags) {
     MessageBox box = new MessageBox(parent, flags);
     box.setText(title);
     box.setMessage(message);

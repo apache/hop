@@ -253,7 +253,7 @@ public class XsltDialog extends ActionDialog {
                 variables,
                 new String[] {"*.xml;*.XML", "*"},
                 FILETYPES_XML,
-                true));
+                false));
 
     // Filename 2 line
     wlxslFilename = new Label(wFiles, SWT.RIGHT);
@@ -292,7 +292,7 @@ public class XsltDialog extends ActionDialog {
                 variables,
                 new String[] {"*.xsl;*.XSL", "*.xslt;*.XSLT", "*"},
                 FILETYPES_XSL,
-                true));
+                false));
 
     // OutputFilename
     wlOutputFilename = new Label(wFiles, SWT.RIGHT);

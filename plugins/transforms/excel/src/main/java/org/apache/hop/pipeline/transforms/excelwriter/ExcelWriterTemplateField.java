@@ -140,7 +140,7 @@ public class ExcelWriterTemplateField {
 
   public void setDefault() {
     templateEnabled = false;
-    templateFileName = "template.xls";
+    templateFileName = "";
     templateSheetHidden = false;
   }
 }

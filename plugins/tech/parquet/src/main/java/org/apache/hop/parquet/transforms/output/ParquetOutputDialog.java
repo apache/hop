@@ -145,18 +145,38 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     wlFilenameBase.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameBase.Label"));
     PropsUi.setLook(wlFilenameBase);
     FormData fdlFilenameBase = new FormData();
-    fdlFilenameBase.left = new FormAttachment(0, 0);
     fdlFilenameBase.right = new FormAttachment(middle, -margin);
-    fdlFilenameBase.top = new FormAttachment(0, 0);
     wlFilenameBase.setLayoutData(fdlFilenameBase);
     wFilenameBase = new TextVar(variables, wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilenameBase);
     FormData fdFilenameBase = new FormData();
     fdFilenameBase.left = new FormAttachment(middle, 0);
-    fdFilenameBase.top = new FormAttachment(wlFilenameBase, 0, SWT.CENTER);
-    fdFilenameBase.right = new FormAttachment(100, 0);
+    fdFilenameBase.right = new FormAttachment(90, 0);
     wFilenameBase.setLayoutData(fdFilenameBase);
     lastControl = wFilenameBase;
+
+    Button wbFilename = new Button(wFileGroup, SWT.PUSH);
+    PropsUi.setLook(wbFilename);
+    wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbFilename = new FormData();
+    fdbFilename.left = new FormAttachment(wFilenameBase, 0);
+    fdbFilename.top = new FormAttachment(0, -margin);
+    wbFilename.setLayoutData(fdbFilename);
+
+    wbFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                true,
+                shell,
+                wFilenameBase,
+                variables,
+                new String[] {".parquet", "*"},
+                new String[] {
+                  BaseMessages.getString(PKG, "ParquetOutputDialog.extension.Label"),
+                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                },
+                true));
 
     Label wlFilenameExtension = new Label(wFileGroup, SWT.RIGHT);
     wlFilenameExtension.setText(

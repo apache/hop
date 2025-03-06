@@ -319,7 +319,7 @@ public class XmlWellFormedDialog extends ActionDialog {
                 variables,
                 new String[] {"*.xml;*.XML", "*"},
                 FILETYPES,
-                true));
+                false));
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);

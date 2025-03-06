@@ -430,7 +430,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wSourceFileFolder, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wSourceFileFolder, variables, new String[] {"*"}, FILETYPES, false));
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);

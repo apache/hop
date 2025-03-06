@@ -437,7 +437,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     jsonBloc = "result";
     splitOutputAfter = 0;
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
-    extension = "json";
 
     int nrfields = 0;
 

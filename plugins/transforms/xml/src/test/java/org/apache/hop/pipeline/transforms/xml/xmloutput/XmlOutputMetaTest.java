@@ -346,8 +346,8 @@ public class XmlOutputMetaTest {
   public void testSetDefault() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
-    assertEquals("file", xmlOutputMeta.getFileName());
-    assertEquals("xml", xmlOutputMeta.getExtension());
+    assertEquals("", xmlOutputMeta.getFileName());
+    assertEquals("", xmlOutputMeta.getExtension());
     assertFalse(xmlOutputMeta.isTransformNrInFilename());
     assertFalse(xmlOutputMeta.isDoNotOpenNewFileInit());
     assertFalse(xmlOutputMeta.isDateInFilename());
@@ -372,6 +372,8 @@ public class XmlOutputMetaTest {
     xmlOutputMeta.setSplitEvery(100);
     xmlOutputMeta.setSpecifyFormat(true);
     xmlOutputMeta.setDateTimeFormat("99");
+    xmlOutputMeta.setFileName("file");
+    xmlOutputMeta.setExtension("xml");
     String[] files = xmlOutputMeta.getFiles(new Variables());
     assertEquals(10, files.length);
     assertArrayEquals(
@@ -458,6 +460,8 @@ public class XmlOutputMetaTest {
   public void testExportResources() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
+    xmlOutputMeta.setFileName("file");
+    xmlOutputMeta.setExtension("xml");
     IResourceNaming resourceNamingInterface = mock(IResourceNaming.class);
     Variables variables = new Variables();
     when(resourceNamingInterface.nameResource(any(FileObject.class), eq(variables), eq(true)))

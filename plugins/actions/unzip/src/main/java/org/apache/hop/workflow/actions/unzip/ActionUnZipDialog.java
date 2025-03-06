@@ -295,7 +295,7 @@ public class ActionUnZipDialog extends ActionDialog {
                 variables,
                 new String[] {"*.zip;*.ZIP", "*.jar;*.JAR", "*"},
                 FILETYPES,
-                true));
+                false));
 
     // WildcardSource line
     wlWildcardSource = new Label(wSource, SWT.RIGHT);

@@ -84,7 +84,6 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
   private List<ParquetField> fields;
 
   public ParquetOutputMeta() {
-    filenameExtension = "parquet";
     filenameDateTimeFormat = "yyyyMMdd-HHmmss";
     compressionCodec = CompressionCodecName.UNCOMPRESSED;
     version = ParquetVersion.Version2; // The default is v2

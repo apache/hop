@@ -81,7 +81,6 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
 
   @Override
   public void setDefault() {
-    filename = "file.cube";
     addToResultFilenames = false;
     doNotOpenNewFileInit = false;
   }
