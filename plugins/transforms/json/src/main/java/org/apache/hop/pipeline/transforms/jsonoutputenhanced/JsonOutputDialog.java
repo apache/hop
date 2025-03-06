@@ -1016,7 +1016,7 @@ public class JsonOutputDialog extends BaseTransformDialog {
     wOperation.setText(JsonOutputMeta.getOperationTypeDesc(input.getOperationType()));
     wFilename.setText(Const.NVL(input.getFileName(), ""));
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
-    wExtension.setText(Const.NVL(input.getExtension(), "js"));
+    wExtension.setText(Const.NVL(input.getExtension(), ""));
 
     wAddDate.setSelection(input.isDateInFilename());
     wAddTime.setSelection(input.isTimeInFilename());

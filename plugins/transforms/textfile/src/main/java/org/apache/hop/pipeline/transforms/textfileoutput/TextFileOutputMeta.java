@@ -763,10 +763,10 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     footerEnabled = false;
     fileFormat = "DOS";
     setFileCompression(fileCompressionTypeCodes[FILE_COMPRESSION_TYPE_NONE]);
-    fileName = "file";
+    fileName = "";
     servletOutput = false;
     doNotOpenNewFileInit = true;
-    extension = "txt";
+    extension = "";
     transformNrInFilename = false;
     partNrInFilename = false;
     dateInFilename = false;

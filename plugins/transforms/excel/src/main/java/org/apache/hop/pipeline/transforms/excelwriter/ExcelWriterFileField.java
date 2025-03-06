@@ -388,12 +388,12 @@ public class ExcelWriterFileField {
   }
 
   public void setDefault() {
-    fileName = "file";
+    fileName = "";
     ifFileExists = ExcelWriterTransformMeta.IF_FILE_EXISTS_CREATE_NEW;
     ifSheetExists = ExcelWriterTransformMeta.IF_SHEET_EXISTS_CREATE_NEW;
     autosizecolums = false;
     streamingData = false;
-    extension = "xls";
+    extension = "";
     doNotOpenNewFileInit = true;
     transformNrInFilename = false;
     dateInFilename = false;

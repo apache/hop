@@ -420,8 +420,8 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
     recordName = "recordname";
     specifyingFormat = false;
     dateTimeFormat = null;
-    fileName = "file.avro";
-    schemaFileName = "schema.avsc";
+    fileName = "";
+    schemaFileName = "";
     transformNrInFilename = false;
     partNrInFilename = false;
     dateInFilename = false;

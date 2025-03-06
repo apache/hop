@@ -198,6 +198,7 @@ public class CubeOutputDialog extends BaseTransformDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
+                true,
                 shell,
                 wFilename,
                 variables,

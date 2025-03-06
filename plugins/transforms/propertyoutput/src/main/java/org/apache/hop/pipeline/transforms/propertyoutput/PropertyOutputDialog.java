@@ -646,6 +646,7 @@ public class PropertyOutputDialog extends BaseTransformDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
+                true,
                 shell,
                 wFilename,
                 variables,
@@ -723,8 +724,6 @@ public class PropertyOutputDialog extends BaseTransformDialog {
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
     if (input.getExtension() != null) {
       wExtension.setText(input.getExtension());
-    } else {
-      wExtension.setText("properties");
     }
 
     wAddDate.setSelection(input.isDateInFilename());

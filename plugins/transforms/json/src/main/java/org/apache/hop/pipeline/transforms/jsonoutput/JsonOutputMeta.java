@@ -221,9 +221,8 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     encoding = Const.XML_ENCODING;
     outputValue = "outputValue";
     jsonBloc = "data";
-    nrRowsInBloc = "1";
+    nrRowsInBloc = "0";
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
-    extension = "json";
     doNotOpenNewFileInit = true;
     int nrFields = 0;
 

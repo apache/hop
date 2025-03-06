@@ -400,7 +400,7 @@ public class AccessOutputDialog extends BaseTransformDialog {
 
   private void onSelectFileName() {
     BaseDialog.presentFileDialog(
-        false,
+        true,
         shell,
         wFileName,
         variables,

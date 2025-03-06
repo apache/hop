@@ -393,8 +393,8 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
 
   @Override
   public void setDefault() {
-    fileName = "file";
-    extension = "xml";
+    fileName = "";
+    extension = "";
     transformNrInFilename = false;
     doNotOpenNewFileInit = false;
     dateInFilename = false;

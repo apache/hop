@@ -333,7 +333,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     PropsUi.setLook(wFilename);
 
     if (!browsingDirectories) {
-      wFilters = new Combo(navigateComposite, SWT.SINGLE | SWT.BORDER);
+      wFilters = new Combo(navigateComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
       wFilters.setItems(filterNames);
       wFilters.select(0);
       wFilters.addListener(SWT.Selection, this::fileFilterSelected);
@@ -1286,7 +1286,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   public void navigateUp() {
     try {
       FileObject fileObject = HopVfs.getFileObject(wFilename.getText(), variables);
-      if (fileObject.isFile()) {
+      if (fileObject.isFile() || !fileObject.exists()) {
         fileObject = fileObject.getParent();
       }
       FileObject parent = fileObject.getParent();

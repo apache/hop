@@ -219,14 +219,35 @@ public abstract class BaseDialog extends Dialog {
     } else {
       HopVfsFileDialog vfsDialog = new HopVfsFileDialog(shell, variables, fileObject, false, save);
       if (save) {
-        if (fileObject != null) {
-          vfsDialog.setSaveFilename(fileObject.getName().getBaseName());
+        // check if textVar contains a valid path
+        if (textVar != null && !textVar.getText().isEmpty()) {
           try {
-            vfsDialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
-          } catch (FileSystemException fse) {
-            // This wasn't a valid filename, ignore the error to reduce spamming
+            fileObject = HopVfs.getFileObject(variables.resolve(textVar.getText()));
+            if (!fileObject.exists() && fileObject.getParent().exists()) {
+              fileObject = fileObject.getParent();
+            } else if (!fileObject.exists()) {
+              fileObject = null;
+            }
+
+            if (fileObject != null && fileObject.isFile()) {
+              vfsDialog.setSaveFilename(fileObject.getName().getBaseName());
+              vfsDialog.setFilterPath(HopVfs.getFilename(fileObject));
+            } else {
+
+              // Take the first extension with "filename" prepended
+              //
+              if (filterExtensions != null && filterExtensions.length > 0) {
+                String filterExtension = filterExtensions[0];
+                String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
+                vfsDialog.setSaveFilename("filename" + extension);
+              }
+            }
+
+          } catch (Exception e) {
+            fileObject = null;
           }
         } else {
+
           // Take the first extension with "filename" prepended
           //
           if (filterExtensions != null && filterExtensions.length > 0) {
@@ -244,7 +265,10 @@ public abstract class BaseDialog extends Dialog {
     } else {
       dialog.setText(BaseMessages.getString(PKG, "BaseDialog.OpenFile"));
     }
-    if (filterExtensions == null || filterNames == null) {
+    if (filterExtensions == null
+        || filterNames == null
+        || filterExtensions.length == 0
+        || filterNames.length == 0) {
       dialog.setFilterExtensions(new String[] {"*.*"});
       dialog.setFilterNames(new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")});
     } else {
@@ -266,7 +290,12 @@ public abstract class BaseDialog extends Dialog {
     if (fileObject != null) {
       dialog.setFileName(HopVfs.getFilename(fileObject));
       try {
-        dialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
+        if (fileObject.isFile()) {
+          dialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
+        } else {
+          dialog.setFilterPath(HopVfs.getFilename(fileObject));
+        }
+
       } catch (FileSystemException fse) {
         // This wasn't a valid filename, ignore the error to reduce spamming
       }

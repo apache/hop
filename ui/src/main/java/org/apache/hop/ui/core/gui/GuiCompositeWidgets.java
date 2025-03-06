@@ -103,12 +103,16 @@ public class GuiCompositeWidgets {
       key = parentKey;
     }
     GuiElements guiElements = registry.findGuiElements(key, parentGuiElementId);
+    // Do not log error for NoneDatabaseMeta
     if (guiElements == null) {
-      System.err.println(
-          "Create widgets: no GUI elements found for parent: "
-              + key
-              + CONST_PARENT_ID
-              + parentGuiElementId);
+      // Do not log for NoneDatabaseMeta
+      if (!key.contains("NoneDatabaseMeta")) {
+        LogChannel.UI.logError(
+            "Create widgets: no GUI elements found for parent: "
+                + key
+                + CONST_PARENT_ID
+                + parentGuiElementId);
+      }
       return;
     }
 
@@ -718,7 +722,7 @@ public class GuiCompositeWidgets {
                   .getReadMethod()
                   .invoke(sourceData);
         } catch (Exception e) {
-          System.err.println(
+          LogChannel.UI.logError(
               "Unable to get value for field: '"
                   + guiElements.getFieldName()
                   + "' : "
@@ -758,7 +762,7 @@ public class GuiCompositeWidgets {
             // No data to set
             break;
           default:
-            System.err.println(
+            LogChannel.UI.logError(
                 "WARNING: setting data on widget with ID "
                     + guiElements.getId()
                     + " : not implemented type "
@@ -768,7 +772,7 @@ public class GuiCompositeWidgets {
         }
 
       } else {
-        System.err.println(
+        LogChannel.UI.logError(
             "Widget not found to set value on for id: "
                 + guiElements.getId()
                 + ", label: "
@@ -789,11 +793,14 @@ public class GuiCompositeWidgets {
     GuiElements guiElements =
         registry.findGuiElements(sourceData.getClass().getName(), parentGuiElementId);
     if (guiElements == null) {
-      System.err.println(
-          "getWidgetsContents: no GUI elements found for class: "
-              + sourceData.getClass().getName()
-              + CONST_PARENT_ID
-              + parentGuiElementId);
+      // Do not log for NoneDatabaseMeta
+      if (!sourceData.getClass().getName().contains("NoneDatabaseMeta")) {
+        LogChannel.UI.logError(
+            "getWidgetsContents: no GUI elements found for class: "
+                + sourceData.getClass().getName()
+                + CONST_PARENT_ID
+                + parentGuiElementId);
+      }
       return;
     }
 
@@ -851,7 +858,7 @@ public class GuiCompositeWidgets {
             // No data to retrieve from widget
             break;
           default:
-            System.err.println(
+            LogChannel.UI.logError(
                 "WARNING: getting data from widget with ID "
                     + guiElements.getId()
                     + " : not implemented type "
@@ -880,7 +887,7 @@ public class GuiCompositeWidgets {
               .invoke(sourceData, value);
 
         } catch (Exception e) {
-          System.err.println(
+          LogChannel.UI.logError(
               "Unable to set value '"
                   + value
                   + "'on field: '"
@@ -891,7 +898,7 @@ public class GuiCompositeWidgets {
         }
 
       } else {
-        System.err.println(
+        LogChannel.UI.logError(
             "Widget not found to set value on for id: "
                 + guiElements.getId()
                 + ", label: "
@@ -919,12 +926,16 @@ public class GuiCompositeWidgets {
     GuiRegistry registry = GuiRegistry.getInstance();
     GuiElements guiElements =
         registry.findGuiElements(sourceData.getClass().getName(), parentGuiElementId);
+
     if (guiElements == null) {
-      System.err.println(
-          "enableWidgets: no GUI elements found for class: "
-              + sourceData.getClass().getName()
-              + CONST_PARENT_ID
-              + parentGuiElementId);
+      // Do not log for NoneDatabaseMeta
+      if (!sourceData.getClass().getName().contains("NoneDatabaseMeta")) {
+        LogChannel.UI.logError(
+            "enableWidgets: no GUI elements found for class: "
+                + sourceData.getClass().getName()
+                + CONST_PARENT_ID
+                + parentGuiElementId);
+      }
       return;
     }
 
@@ -949,12 +960,12 @@ public class GuiCompositeWidgets {
         if (label != null) {
           label.setEnabled(enabled);
         } else {
-          System.err.println("Label not found to enable/disable: " + guiElements);
+          LogChannel.UI.logError("Label not found to enable/disable: " + guiElements);
         }
         if (widget != null) {
           widget.setEnabled(enabled);
         } else {
-          System.err.println("Widget not found to enable/disable: " + guiElements);
+          LogChannel.UI.logError("Widget not found to enable/disable: " + guiElements);
         }
       }
     } else {
