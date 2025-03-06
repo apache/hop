@@ -89,11 +89,7 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <check_server_identity>N</check_server_identity>
       <comment>test body</comment>
       <connectionName>james</connectionName>
-      <contact_persion/>
-      <contact_phone/>
       <destination>user01@example.com</destination>
-      <destinationBCc/>
-      <destinationCc/>
       <embeddedimages>
 </embeddedimages>
       <encoding>UTF-8</encoding>
@@ -101,23 +97,18 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <include_date>N</include_date>
       <include_files>N</include_files>
       <only_comment>N</only_comment>
-      <port/>
       <priority>normal</priority>
-      <replyToAddresses/>
       <replyto>user01@example.com</replyto>
       <replytoname>user01@example.com</replytoname>
       <secureconnectiontype>TLS</secureconnectiontype>
       <sensitivity>normal</sensitivity>
-      <server/>
       <subject>test subject</subject>
-      <trusted_hosts/>
       <use_HTML>N</use_HTML>
       <use_Priority>N</use_Priority>
       <use_auth>N</use_auth>
       <use_secure_auth>Y</use_secure_auth>
       <usexoauth2>N</usexoauth2>
       <zip_files>N</zip_files>
-      <zip_name/>
       <parallel>N</parallel>
       <xloc>576</xloc>
       <yloc>64</yloc>
