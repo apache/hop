@@ -496,7 +496,7 @@ public class RepeatDialog extends ActionDialog {
         variables,
         filterExtensions.toArray(new String[0]),
         filterNames.toArray(new String[0]),
-        true);
+        false);
   }
 
   private void enableControls() {

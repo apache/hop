@@ -194,7 +194,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
             variables,
             workflowFileType.getFilterExtensions(),
             workflowFileType.getFilterNames(),
-            true);
+            false);
     if (filename != null) {
       replaceNameWithBaseFilename(filename);
     }

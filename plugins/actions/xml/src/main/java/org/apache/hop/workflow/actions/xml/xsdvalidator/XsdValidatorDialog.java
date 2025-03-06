@@ -214,7 +214,7 @@ public class XsdValidatorDialog extends ActionDialog {
                 variables,
                 new String[] {"*.xml;*.XML", "*"},
                 FILETYPES_XML,
-                true));
+                false));
 
     // Filename 2 line
     wlxsdFilename = new Label(shell, SWT.RIGHT);
@@ -253,7 +253,7 @@ public class XsdValidatorDialog extends ActionDialog {
                 variables,
                 new String[] {"*.xsd;*.XSD", "*"},
                 FILETYPES_XSD,
-                true));
+                false));
 
     // Buttons go at the very bottom
     //

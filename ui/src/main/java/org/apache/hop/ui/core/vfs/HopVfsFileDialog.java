@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.lang.StringUtils;
@@ -134,12 +136,16 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   public static final String CONST_HOP_VFS_FILE_DIALOG_NO_LABEL = "HopVfsFileDialog.No.Label";
 
   private Shell parent;
-  private IVariables variables;
-  private String text;
+
+  @Setter @Getter private IVariables variables;
+
+  @Getter private String text;
   private String fileName;
   private String filterPath;
-  private String[] filterExtensions;
-  private String[] filterNames;
+
+  @Getter private String[] filterExtensions;
+
+  @Getter private String[] filterNames;
 
   private PropsUi props;
 
@@ -150,20 +156,22 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private Tree wBrowser;
   private TreeEditor wBrowserEditor;
 
-  private boolean showingHiddenFiles;
+  @Setter @Getter private boolean showingHiddenFiles;
 
   private Shell shell;
 
   Map<String, FileObject> fileObjectsMap;
 
-  private Map<String, String> bookmarks;
-  private FileObject activeFileObject;
-  private FileObject activeFolder;
+  @Setter @Getter private Map<String, String> bookmarks;
+
+  @Setter @Getter private FileObject activeFileObject;
+
+  @Setter @Getter private FileObject activeFolder;
 
   private Image folderImage;
   private Image fileImage;
 
-  private static HopVfsFileDialog instance;
+  @Getter private static HopVfsFileDialog instance;
 
   private java.util.List<String> navigationHistory;
   private int navigationIndex;
@@ -173,11 +181,15 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private GuiToolbarWidgets bookmarksToolbarWidgets;
   private Button wOk;
   private Combo wFilters;
-  private String message;
 
-  private boolean browsingDirectories;
-  private boolean savingFile;
-  private String saveFilename;
+  @Getter private String message;
+
+  @Setter @Getter private boolean browsingDirectories;
+
+  @Setter @Getter private boolean savingFile;
+  private boolean folderAndFile;
+
+  @Setter @Getter private String saveFilename;
 
   private int sortIndex;
   private boolean ascending;
@@ -191,11 +203,13 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       IVariables variables,
       FileObject fileObject,
       boolean browsingDirectories,
-      boolean savingFile) {
+      boolean savingFile,
+      boolean folderAndFile) {
     this.parent = parent;
     this.variables = variables;
     this.browsingDirectories = browsingDirectories;
     this.savingFile = savingFile;
+    this.folderAndFile = folderAndFile;
 
     this.fileName = fileName == null ? null : HopVfs.getFilename(fileObject);
 
@@ -252,15 +266,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     fileImage = GuiResource.getInstance().getImageFile();
     folderImage = GuiResource.getInstance().getImageFolder();
-  }
-
-  /**
-   * Gets the active instance of this dialog
-   *
-   * @return value of instance
-   */
-  public static HopVfsFileDialog getInstance() {
-    return instance;
   }
 
   @Override
@@ -398,8 +403,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           @Override
           public void menuShown(MenuEvent event) {
             MenuItem[] items = menu.getItems();
-            for (int i = 0; i < items.length; i++) {
-              items[i].dispose();
+            for (MenuItem item : items) {
+              item.dispose();
             }
 
             int selected = wBookmarks.getSelectionIndex();
@@ -442,7 +447,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           @Override
           public void drop(DropTargetEvent event) {
             if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
-              FileObject file = fileObjectsMap.get((String) event.data);
+              FileObject file = fileObjectsMap.get(event.data);
               if (file != null) {
                 String name = file.getName().getBaseName();
                 EnterStringDialog dialog =
@@ -559,9 +564,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fdBrowseSash.bottom = new FormAttachment(100, 0);
 
     browseSash.setLayoutData(fdBrowseSash);
-    browseSash.setWeights(new int[] {90, 10});
+    browseSash.setWeights(90, 10);
 
-    sashForm.setWeights(new int[] {15, 85});
+    sashForm.setWeights(15, 85);
 
     getData();
 
@@ -641,9 +646,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   /**
-   * User double clicked on a bookmark
+   * User double-clicked on a bookmark
    *
-   * @param event
+   * @param event that triggered the click
    */
   private void bookmarkDefaultSelection(Event event) {
     browseToSelectedBookmark();
@@ -653,13 +658,13 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     try {
       activeFileObject = HopVfs.getFileObject(wFilename.getText(), variables);
 
-      if (!this.browsingDirectories && activeFileObject.isFolder()) {
+      if (!this.browsingDirectories && activeFileObject.isFolder() && !this.folderAndFile) {
         navigateTo(HopVfs.getFilename(activeFileObject), true);
         return;
       }
 
       ok();
-    } catch (Throwable e) {
+    } catch (Exception e) {
       showError(
           BaseMessages.getString(
               PKG, "HopVfsFileDialog.ParsingFilename.Error.Message", wFilename.getText()),
@@ -699,9 +704,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   /**
    * Something is selected in the browser
    *
-   * @param e
+   * @param event that was triggered
    */
-  private void fileSelected(Event e) {
+  private void fileSelected(Event event) {
     FileObject selectedFile = getSelectedFileObject();
     if (selectedFile != null) {
       showFilename(selectedFile);
@@ -785,7 +790,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         }
       }
       showDetails(details);
-    } catch (Throwable e) {
+    } catch (Exception e) {
       showError(
           BaseMessages.getString(
               PKG, "HopVfsFileDialog.FilenameInfo.Error.Message", fileObject.toString()),
@@ -794,9 +799,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   /**
-   * Double clicked on a file or folder
+   * Double-clicked on a file or folder
    *
-   * @param event
+   * @param event that triggered it
    */
   private void fileDefaultSelected(Event event) {
     FileObject fileObject = getSelectedFileObject();
@@ -816,7 +821,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         //
         okButton();
       }
-    } catch (Throwable e) {
+    } catch (Exception e) {
       showError(
           BaseMessages.getString(
               PKG,
@@ -900,7 +905,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       parentFolderItem.setExpanded(true);
 
       updateSelection();
-    } catch (Throwable e) {
+    } catch (Exception e) {
       showError(
           BaseMessages.getString(PKG, "HopVfsFileDialog.Browsing.Error.Message", filename), e);
     }
@@ -933,8 +938,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   /**
    * Child folders are always shown at the top. Files below it sorted alphabetically
    *
-   * @param folder
-   * @param folderItem
+   * @param folder the file object used to populate the TreeItem
+   * @param folderItem the tree item that needs to be populated
    */
   private void populateFolder(FileObject folder, TreeItem folderItem) throws FileSystemException {
 
@@ -1098,7 +1103,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     try {
       if (activeFileObject.isFolder()) {
         filterPath = HopVfs.getFilename(activeFileObject);
-        fileName = null;
+        fileName = HopVfs.getFilename(activeFileObject);
       } else {
         filterPath = HopVfs.getFilename(activeFileObject.getParent());
         fileName = activeFileObject.getName().getBaseName();
@@ -1191,7 +1196,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private void saveBookmarks() {
     try {
       AuditManager.getActive().saveMap(usedNamespace, BOOKMARKS_AUDIT_TYPE, bookmarks);
-    } catch (Throwable e) {
+    } catch (Exception e) {
       showError(
           BaseMessages.getString(
               PKG, "HopVfsFileDialog.Bookmark.Error.Message", activeFileObject.toString()),
@@ -1203,12 +1208,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     if (saveHistory) {
       // Add to navigation history
       //
-      if (navigationIndex >= 0) {
-        if (navigationIndex < navigationHistory.size()) {
-          // Clear history above the index...
-          //
-          navigationHistory.subList(navigationIndex, navigationHistory.size());
-        }
+      if (navigationIndex >= 0 && navigationIndex < navigationHistory.size()) {
+        // Clear history above the index...
+        //
+        navigationHistory.subList(navigationIndex, navigationHistory.size());
       }
 
       filename = variables.resolve(filename);
@@ -1289,11 +1292,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       if (fileObject.isFile() || !fileObject.exists()) {
         fileObject = fileObject.getParent();
       }
-      FileObject parent = fileObject.getParent();
-      if (parent != null) {
-        navigateTo(HopVfs.getFilename(parent), true);
+      FileObject navigateUpParent = fileObject.getParent();
+      if (navigateUpParent != null) {
+        navigateTo(HopVfs.getFilename(navigateUpParent), true);
       }
-    } catch (Throwable e) {
+    } catch (Exception e) {
       showError(
           BaseMessages.getString(
               PKG, "HopVfsFileDialog.NavigateFolderUp.Error.Message", activeFileObject.toString()),
@@ -1325,7 +1328,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         FileObject newFolder = HopVfs.getFileObject(newPath, variables);
         newFolder.createFolder();
         refreshBrowser();
-      } catch (Throwable e) {
+      } catch (Exception e) {
         showError(
             BaseMessages.getString(PKG, "HopVfsFileDialog.FolderCreate.Error.Message", newPath), e);
       }
@@ -1346,16 +1349,16 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       TreeItem item = wBrowser.getSelection()[0];
 
       // The control that will be the editor must be a child of the Tree
-      Text text = new Text(wBrowser, SWT.BORDER);
-      text.setText(file.getName().getBaseName());
-      text.addListener(SWT.FocusOut, event -> text.dispose());
-      text.addListener(
+      Text renameText = new Text(wBrowser, SWT.BORDER);
+      renameText.setText(file.getName().getBaseName());
+      renameText.addListener(SWT.FocusOut, event -> renameText.dispose());
+      renameText.addListener(
           SWT.KeyUp,
           event -> {
             switch (event.keyCode) {
               case SWT.CR, SWT.KEYPAD_CR:
                 // If name changed
-                if (!item.getText().equals(text.getText())) {
+                if (!item.getText().equals(renameText.getText())) {
                   try {
 
                     // If the selected item to rename is folder, set parent for refresh
@@ -1365,7 +1368,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
                     FileObject newFile =
                         HopVfs.getFileObject(
-                            HopVfs.getFilename(file.getParent()) + "/" + text.getText(), variables);
+                            HopVfs.getFilename(file.getParent()) + "/" + renameText.getText(),
+                            variables);
                     file.moveTo(newFile);
                   } catch (Exception e) {
                     showError(
@@ -1373,21 +1377,21 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
                             PKG, "HopVfsFileDialog.RenameFile.Error.Message", file),
                         e);
                   } finally {
-                    text.dispose();
+                    renameText.dispose();
                     refreshBrowser();
                   }
                 }
                 break;
               case SWT.ESC:
-                text.dispose();
+                renameText.dispose();
                 break;
             }
           });
 
-      text.selectAll();
-      text.setFocus();
-      PropsUi.setLook(text);
-      wBrowserEditor.setEditor(text, item);
+      renameText.selectAll();
+      renameText.setFocus();
+      PropsUi.setLook(renameText);
+      wBrowserEditor.setEditor(renameText, item);
     }
   }
 
@@ -1515,36 +1519,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   /**
-   * Gets text
-   *
-   * @return value of text
-   */
-  public String getText() {
-    return text;
-  }
-
-  /**
    * @param text The text to set
    */
   @Override
   public void setText(String text) {
     this.text = text;
-  }
-
-  /**
-   * Gets variables
-   *
-   * @return value of variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables(IVariables variables) {
-    this.variables = variables;
   }
 
   /**
@@ -1566,15 +1545,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   /**
-   * Gets filterExtensions
-   *
-   * @return value of filterExtensions
-   */
-  public String[] getFilterExtensions() {
-    return filterExtensions;
-  }
-
-  /**
    * @param filterExtensions The filterExtensions to set
    */
   @Override
@@ -1583,68 +1553,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   /**
-   * Gets filterNames
-   *
-   * @return value of filterNames
-   */
-  public String[] getFilterNames() {
-    return filterNames;
-  }
-
-  /**
    * @param filterNames The filterNames to set
    */
   @Override
   public void setFilterNames(String[] filterNames) {
     this.filterNames = filterNames;
-  }
-
-  /**
-   * Gets bookmarks
-   *
-   * @return value of bookmarks
-   */
-  public Map<String, String> getBookmarks() {
-    return bookmarks;
-  }
-
-  /**
-   * @param bookmarks The bookmarks to set
-   */
-  public void setBookmarks(Map<String, String> bookmarks) {
-    this.bookmarks = bookmarks;
-  }
-
-  /**
-   * Gets activeFileObject
-   *
-   * @return value of activeFileObject
-   */
-  public FileObject getActiveFileObject() {
-    return activeFileObject;
-  }
-
-  /**
-   * @param activeFileObject The activeFileObject to set
-   */
-  public void setActiveFileObject(FileObject activeFileObject) {
-    this.activeFileObject = activeFileObject;
-  }
-
-  /**
-   * Gets activeFolder
-   *
-   * @return value of activeFolder
-   */
-  public FileObject getActiveFolder() {
-    return activeFolder;
-  }
-
-  /**
-   * @param activeFolder The activeFolder to set
-   */
-  public void setActiveFolder(FileObject activeFolder) {
-    this.activeFolder = activeFolder;
   }
 
   /**
@@ -1663,79 +1576,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   @Override
   public void setFilterPath(String filterPath) {
     this.filterPath = variables.resolve(filterPath);
-  }
-
-  /**
-   * Gets showingHiddenFiles
-   *
-   * @return value of showingHiddenFiles
-   */
-  public boolean isShowingHiddenFiles() {
-    return showingHiddenFiles;
-  }
-
-  /**
-   * @param showingHiddenFiles The showingHiddenFiles to set
-   */
-  public void setShowingHiddenFiles(boolean showingHiddenFiles) {
-    this.showingHiddenFiles = showingHiddenFiles;
-  }
-
-  /**
-   * Gets message
-   *
-   * @return value of message
-   */
-  public String getMessage() {
-    return message;
-  }
-
-  /**
-   * Gets browsingDirectories
-   *
-   * @return value of browsingDirectories
-   */
-  public boolean isBrowsingDirectories() {
-    return browsingDirectories;
-  }
-
-  /**
-   * @param browsingDirectories The browsingDirectories to set
-   */
-  public void setBrowsingDirectories(boolean browsingDirectories) {
-    this.browsingDirectories = browsingDirectories;
-  }
-
-  /**
-   * Gets savingFile
-   *
-   * @return value of savingFile
-   */
-  public boolean isSavingFile() {
-    return savingFile;
-  }
-
-  /**
-   * @param savingFile The savingFile to set
-   */
-  public void setSavingFile(boolean savingFile) {
-    this.savingFile = savingFile;
-  }
-
-  /**
-   * Gets saveFilename
-   *
-   * @return value of saveFilename
-   */
-  public String getSaveFilename() {
-    return saveFilename;
-  }
-
-  /**
-   * @param saveFilename The saveFilename to set
-   */
-  public void setSaveFilename(String saveFilename) {
-    this.saveFilename = saveFilename;
   }
 
   public void updateSelection() {

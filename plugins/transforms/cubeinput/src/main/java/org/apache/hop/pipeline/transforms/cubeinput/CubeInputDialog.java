@@ -177,7 +177,7 @@ public class CubeInputDialog extends BaseTransformDialog {
                   BaseMessages.getString(PKG, "CubeInputDialog.FilterNames.CubeFiles"),
                   BaseMessages.getString(PKG, "CubeInputDialog.FilterNames.AllFiles")
                 },
-                true));
+                false));
 
     getData();
 

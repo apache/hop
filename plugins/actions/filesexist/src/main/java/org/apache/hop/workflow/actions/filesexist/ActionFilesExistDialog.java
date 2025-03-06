@@ -178,7 +178,7 @@ public class ActionFilesExistDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wFilename, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wFilename, variables, new String[] {"*"}, FILETYPES, false));
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionFilesExist.Fields.Label"));

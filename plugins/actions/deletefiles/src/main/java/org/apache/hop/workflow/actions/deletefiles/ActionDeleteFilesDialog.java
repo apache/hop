@@ -271,7 +271,7 @@ public class ActionDeleteFilesDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wFilename, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wFilename, variables, new String[] {"*"}, FILETYPES, false));
 
     // Filemask
     wlFilemask = new Label(shell, SWT.RIGHT);

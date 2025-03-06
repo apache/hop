@@ -644,7 +644,7 @@ public class CsvInputDialog extends BaseTransformDialog
                     BaseMessages.getString(PKG, "System.FileType.TextFiles"),
                     BaseMessages.getString(PKG, "System.FileType.AllFiles")
                   },
-                  true));
+                  false));
     }
 
     getData();

@@ -421,7 +421,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wSourceFileFolder, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wSourceFileFolder, variables, new String[] {"*"}, FILETYPES, false));
 
     // Destination
     wlDestinationFileFolder = new Label(wGeneralComp, SWT.RIGHT);
@@ -473,7 +473,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wDestinationFileFolder, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wDestinationFileFolder, variables, new String[] {"*"}, FILETYPES, false));
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);

@@ -327,7 +327,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wFilename1, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wFilename1, variables, new String[] {"*"}, FILETYPES, false));
 
     // Filename 2 line
     Label wlFilename2 = new Label(shell, SWT.RIGHT);
@@ -377,7 +377,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wFilename2, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wFilename2, variables, new String[] {"*"}, FILETYPES, false));
 
     // Buttons go at the very bottom
     //

@@ -155,7 +155,7 @@ public class DtdValidatorDialog extends ActionDialog {
                 variables,
                 new String[] {"*.xml;*.XML", "*"},
                 FILETYPES_XML,
-                true));
+                false));
 
     // DTD Intern ?
     // Intern DTD
@@ -221,7 +221,7 @@ public class DtdValidatorDialog extends ActionDialog {
                 variables,
                 new String[] {"*.dtd;*.DTD", "*"},
                 FILETYPES_DTD,
-                true));
+                false));
 
     // Buttons go at the very bottom
     //

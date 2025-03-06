@@ -261,7 +261,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wFilename, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wFilename, variables, new String[] {"*"}, FILETYPES, false));
 
     // Filemask
     wlFileMask = new Label(shell, SWT.RIGHT);

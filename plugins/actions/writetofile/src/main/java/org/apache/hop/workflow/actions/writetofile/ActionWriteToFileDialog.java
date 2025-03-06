@@ -179,7 +179,7 @@ public class ActionWriteToFileDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wFilename, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wFilename, variables, new String[] {"*"}, FILETYPES, false));
 
     Label wlCreateParentFolder = new Label(wFileGroup, SWT.RIGHT);
     wlCreateParentFolder.setText(

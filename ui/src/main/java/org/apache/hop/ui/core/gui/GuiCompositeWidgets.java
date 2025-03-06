@@ -508,7 +508,7 @@ public class GuiCompositeWidgets {
           actionControl.addListener(
               SWT.Selection,
               e -> {
-                String folder = BaseDialog.presentDirectoryDialog(parent.getShell(), variables);
+                String folder = BaseDialog.presentDirectoryDialog(parent.getShell());
                 if (StringUtils.isNotEmpty(folder)) {
                   text.setText(folder);
                 }

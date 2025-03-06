@@ -271,7 +271,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wGpgExe, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wGpgExe, variables, new String[] {"*"}, FILETYPES, false));
 
     wGpgExe = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wGpgExe.setToolTipText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.GpgExe.Tooltip"));
@@ -434,7 +434,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wSourceFileFolder, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wSourceFileFolder, variables, new String[] {"*"}, FILETYPES, false));
 
     // Destination
     wlDestinationFileFolder = new Label(wGeneralComp, SWT.RIGHT);
@@ -486,7 +486,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
         SWT.Selection,
         e ->
             BaseDialog.presentFileDialog(
-                shell, wDestinationFileFolder, variables, new String[] {"*"}, FILETYPES, true));
+                shell, wDestinationFileFolder, variables, new String[] {"*"}, FILETYPES, false));
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);
