@@ -34,8 +34,6 @@ limitations under the License.
     <created_date>2022/05/17 11:57:10.446</created_date>
     <modified_user>-</modified_user>
     <modified_date>2022/05/17 11:57:10.446</modified_date>
-    <key_for_session_key>H4sIAAAAAAAA/wMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -43,46 +41,96 @@ limitations under the License.
     <hop>
       <from>1 row</from>
       <to>get mail messages</to>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
     </hop>
     <hop>
       <from>get mail messages</from>
       <to>status==200</to>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
     </hop>
     <hop>
       <from>status==200</from>
       <to>JSON input</to>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
     </hop>
     <hop>
       <from>status==200</from>
       <to>Unexpected status code</to>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
     </hop>
     <hop>
       <from>JSON input</from>
       <to>Remove unwanted</to>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
     </hop>
     <hop>
       <from>Remove unwanted</from>
       <to>Sort by created</to>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
     </hop>
     <hop>
       <from>Sort by created</from>
       <to>Group by</to>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
     </hop>
     <hop>
       <from>Group by</from>
       <to>Last row only</to>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
     </hop>
     <hop>
       <from>Last row only</from>
       <to>Result</to>
+      <enabled>N</enabled>
+    </hop>
+    <hop>
+      <from>1 row</from>
+      <to>Email messages input</to>
+      <enabled>N</enabled>
+    </hop>
+    <hop>
+      <from>Email messages input</from>
+      <to>Write to log</to>
+      <enabled>N</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows</from>
+      <to>ok</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Load file content in memory</from>
+      <to>Detect empty stream</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Detect empty stream</from>
+      <to>log no mails </to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>log no mails </from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows</from>
+      <to>log invalid mails </to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>log invalid mails </from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Load file content in memory</from>
+      <to>log filename</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>log filename</from>
+      <to>Filter rows</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -101,13 +149,220 @@ limitations under the License.
 </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
-    <never_ending>N</never_ending>
     <limit>1</limit>
+    <never_ending>N</never_ending>
     <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>
       <xloc>64</xloc>
       <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>704</xloc>
+      <yloc>928</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Detect empty stream</name>
+    <type>DetectEmptyStream</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>928</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Email messages input</name>
+    <type>MailInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <servername>${MAIL_SMTP_SERVER}</servername>
+    <username>user01@example.com</username>
+    <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
+    <usessl>Y</usessl>
+    <usexoauth2>N</usexoauth2>
+    <sslport>993</sslport>
+    <retrievemails>0</retrievemails>
+    <firstmails/>
+    <delete>N</delete>
+    <protocol>IMAP</protocol>
+    <valueimaplist>imaplistall</valueimaplist>
+    <imapfirstmails>0</imapfirstmails>
+    <imapfolder>INBOX</imapfolder>
+    <sendersearch/>
+    <nottermsendersearch>N</nottermsendersearch>
+    <recipientsearch/>
+    <notTermRecipientSearch>N</notTermRecipientSearch>
+    <subjectsearch/>
+    <nottermsubjectsearch>N</nottermsubjectsearch>
+    <conditionreceiveddate>ignore</conditionreceiveddate>
+    <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
+    <receiveddate1/>
+    <receiveddate2/>
+    <includesubfolders>N</includesubfolders>
+    <useproxy>N</useproxy>
+    <proxyusername/>
+    <usedynamicfolder>N</usedynamicfolder>
+    <folderfield/>
+    <rowlimit>0</rowlimit>
+    <useBatch>N</useBatch>
+    <batchSize>500</batchSize>
+    <startMsg/>
+    <endMsg/>
+    <stopOnError>Y</stopOnError>
+    <fields>
+      <field>
+        <name>Message number</name>
+        <column>messagenumber</column>
+      </field>
+      <field>
+        <name>Subject</name>
+        <column>subject</column>
+      </field>
+      <field>
+        <name>Sender</name>
+        <column>sender</column>
+      </field>
+      <field>
+        <name>Reply to</name>
+        <column>replyto</column>
+      </field>
+      <field>
+        <name>Recipients</name>
+        <column>recipients</column>
+      </field>
+      <field>
+        <name>Description</name>
+        <column>description</column>
+      </field>
+      <field>
+        <name>Body</name>
+        <column>body</column>
+      </field>
+      <field>
+        <name>Received date</name>
+        <column>receiveddate</column>
+      </field>
+      <field>
+        <name>Sent date</name>
+        <column>sendeddate</column>
+      </field>
+      <field>
+        <name>Content type</name>
+        <column>contenttype</column>
+      </field>
+      <field>
+        <name>Folder name</name>
+        <column>folder</column>
+      </field>
+      <field>
+        <name>Size</name>
+        <column>size</column>
+      </field>
+      <field>
+        <name>Flag new</name>
+        <column>flag_new</column>
+      </field>
+      <field>
+        <name>Flag read</name>
+        <column>flag_read</column>
+      </field>
+      <field>
+        <name>Flag flagged</name>
+        <column>flag_flagged</column>
+      </field>
+      <field>
+        <name>Flag draft</name>
+        <column>flag_draft</column>
+      </field>
+      <field>
+        <name>Flag deleted</name>
+        <column>flag_deleted</column>
+      </field>
+      <field>
+        <name>Attached files count</name>
+        <column>attached_files_count</column>
+      </field>
+      <field>
+        <name>Mail Header(Name)</name>
+        <column>header</column>
+      </field>
+      <field>
+        <name>Content Type (Body)</name>
+        <column>body_contenttype</column>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>192</xloc>
+      <yloc>480</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter rows</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>STARTS WITH</function>
+        <leftvalue>File content</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <name>constant</name>
+          <precision>-1</precision>
+          <text>Return-Path: &lt;user01@example.com></text>
+          <type>String</type>
+        </value>
+      </condition>
+    </compare>
+    <send_false_to>log invalid mails </send_false_to>
+    <send_true_to>ok</send_true_to>
+    <attributes/>
+    <GUI>
+      <xloc>704</xloc>
+      <yloc>704</yloc>
     </GUI>
   </transform>
   <transform>
@@ -122,7 +377,8 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <add_linenr>Y</add_linenr>
-    <ignore_aggregate>N</ignore_aggregate>
+    <all_rows>Y</all_rows>
+    <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
         <aggregate>count</aggregate>
@@ -130,11 +386,10 @@ limitations under the License.
       </field>
     </fields>
     <give_back_row>Y</give_back_row>
-    <directory>${java.io.tmpdir}</directory>
     <group>
 </group>
+    <ignore_aggregate>N</ignore_aggregate>
     <linenr_fieldname>nr</linenr_fieldname>
-    <all_rows>Y</all_rows>
     <prefix>grp</prefix>
     <attributes/>
     <GUI>
@@ -319,13 +574,14 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to/>
-    <send_false_to/>
     <compare>
       <condition>
-        <negated>N</negated>
-        <leftvalue>count</leftvalue>
+        <conditions>
+</conditions>
         <function>=</function>
+        <leftvalue>count</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
         <rightvalue>nr</rightvalue>
       </condition>
     </compare>
@@ -333,6 +589,76 @@ limitations under the License.
     <GUI>
       <xloc>464</xloc>
       <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Load file content in memory</name>
+    <type>LoadFileInput</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <include>Y</include>
+    <include_field>filename</include_field>
+    <rownum>N</rownum>
+    <addresultfile>Y</addresultfile>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <IsIgnoreMissingPath>N</IsIgnoreMissingPath>
+    <rownum_field/>
+    <encoding/>
+    <file>
+      <name>${PROJECT_HOME}/output</name>
+      <filemask>name.*.mail</filemask>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>File content</name>
+        <element_type>content</element_type>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>File size</name>
+        <element_type>size</element_type>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <IsInFields>N</IsInFields>
+    <DynamicFilenameField/>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <attributes/>
+    <GUI>
+      <xloc>256</xloc>
+      <yloc>704</yloc>
     </GUI>
   </transform>
   <transform>
@@ -347,30 +673,24 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <fields>
-      <select_unspecified>N</select_unspecified>
+      <meta>
+        <date_format_lenient>N</date_format_lenient>
+        <encoding>UTF-8</encoding>
+        <length>-2</length>
+        <lenient_string_to_number>N</lenient_string_to_number>
+        <name>body</name>
+        <precision>-2</precision>
+        <rename>body</rename>
+        <storage_type/>
+        <type>None</type>
+      </meta>
       <remove>
         <name>messages</name>
       </remove>
       <remove>
         <name>statusCode</name>
       </remove>
-      <meta>
-        <name>body</name>
-        <rename>body</rename>
-        <type>None</type>
-        <length>-2</length>
-        <precision>-2</precision>
-        <conversion_mask/>
-        <date_format_lenient>false</date_format_lenient>
-        <date_format_locale/>
-        <date_format_timezone/>
-        <lenient_string_to_number>false</lenient_string_to_number>
-        <encoding>UTF-8</encoding>
-        <decimal_symbol/>
-        <grouping_symbol/>
-        <currency_symbol/>
-        <storage_type/>
-      </meta>
+      <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
     <GUI>
@@ -406,23 +726,20 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <directory>${java.io.tmpdir}</directory>
-    <prefix>out</prefix>
-    <sort_size>1000000</sort_size>
-    <free_memory/>
     <compress>N</compress>
-    <compress_variable/>
-    <unique_rows>N</unique_rows>
+    <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
-        <name>created</name>
         <ascending>Y</ascending>
         <case_sensitive>N</case_sensitive>
         <collator_enabled>N</collator_enabled>
         <collator_strength>0</collator_strength>
+        <name>created</name>
         <presorted>N</presorted>
       </field>
     </fields>
+    <sort_size>1000000</sort_size>
+    <unique_rows>N</unique_rows>
     <attributes/>
     <GUI>
       <xloc>272</xloc>
@@ -448,6 +765,29 @@ limitations under the License.
     <GUI>
       <xloc>336</xloc>
       <yloc>32</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Write to log</name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <displayHeader>Y</displayHeader>
+    <fields>
+</fields>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>512</yloc>
     </GUI>
   </transform>
   <transform>
@@ -488,6 +828,77 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
+    <name>log invalid mails </name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <displayHeader>Y</displayHeader>
+    <fields>
+</fields>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <logmessage>###############################
+Unexpected mail contents found
+###############################
+</logmessage>
+    <attributes/>
+    <GUI>
+      <xloc>704</xloc>
+      <yloc>800</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>log no mails </name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <displayHeader>Y</displayHeader>
+    <fields>
+</fields>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <logmessage>################
+No mails found
+################
+</logmessage>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>928</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ok</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>864</xloc>
+      <yloc>704</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>status==200</name>
     <type>FilterRows</type>
     <description/>
@@ -498,29 +909,61 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to>JSON input</send_true_to>
-    <send_false_to>Unexpected status code</send_false_to>
     <compare>
       <condition>
-        <negated>N</negated>
-        <leftvalue>statusCode</leftvalue>
+        <conditions>
+</conditions>
         <function>=</function>
-        <rightvalue/>
+        <leftvalue>statusCode</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
         <value>
-          <name>constant</name>
-          <type>Integer</type>
-          <text>200</text>
-          <length>-1</length>
-          <precision>0</precision>
           <isnull>N</isnull>
+          <length>-1</length>
           <mask>####0;-####0</mask>
+          <name>constant</name>
+          <precision>0</precision>
+          <text>200</text>
+          <type>Integer</type>
         </value>
       </condition>
     </compare>
+    <send_false_to>Unexpected status code</send_false_to>
+    <send_true_to>JSON input</send_true_to>
     <attributes/>
     <GUI>
       <xloc>336</xloc>
       <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>log filename</name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <displayHeader>Y</displayHeader>
+    <fields>
+      <field>
+        <name>filename</name>
+      </field>
+    </fields>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <logmessage>####################
+mail messages found
+####################
+</logmessage>
+    <attributes/>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>704</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

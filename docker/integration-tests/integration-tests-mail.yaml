@@ -20,20 +20,43 @@ services:
     extends:
       file: integration-tests-base.yaml
       service: integration_test
+    # depends_on:
+    #   mailhog:
+    #     condition: service_healthy
     depends_on:
-      mailhog:
-        condition: service_healthy
-    links:
-      - mailhog
+      - james
+    links: 
+      - james  
 
-  mailhog:
-    image: 'mailhog/mailhog:latest'
-    ports:
-      - "1025"
-      - "8025"
+  james: 
+    image: apache/james:jpa-latest
+    # hostname: james   
+    ports: 
+      - "25"
+      - "465"
+      - "587"
+      - "143"
+      - "993"
+      - "8000"
+    volumes: 
+      - ./resource/mail/conf:/root/conf  
+    # post_start: 
+    #   - command: james-cli addDomain example.com && james-cli addUser user01@example.com password
+    #     user: root 
     healthcheck:
       test: [ "CMD-SHELL", "true" ]
       start_period: 2s
       retries: 5
       interval: 3s
       timeout: 15s
+  # mailhog:
+  #   image: 'mailhog/mailhog:latest'
+  #   ports:
+  #     - "1025"
+  #     - "8025"
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "true" ]
+  #     start_period: 2s
+  #     retries: 5
+  #     interval: 3s
+  #     timeout: 15s
