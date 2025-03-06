@@ -2983,10 +2983,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void editAction(HopGuiWorkflowActionContext context) {
+    workflowMeta.unselectAll();
+    updateGui();
     workflowActionDelegate.editAction(workflowMeta, context.getActionMeta());
   }
 
   public void editAction(ActionMeta actionMeta) {
+    workflowMeta.unselectAll();
+    updateGui();
     workflowActionDelegate.editAction(workflowMeta, actionMeta);
   }
 
