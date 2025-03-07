@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -566,6 +567,16 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       try {
         emptyAndCommitBatchBuffers(true);
       } finally {
+        try {
+          // close prepared statements
+          for (Map.Entry<String, PreparedStatement> preparedStatement :
+              data.preparedStatements.entrySet()) {
+            preparedStatement.getValue().close();
+          }
+        } catch (Exception e) {
+          logError("An error occurred closing the prepared statements: " + e.getMessage());
+        }
+
         data.db.disconnect();
         // Free data structures to enable GC
         data.db = null;
