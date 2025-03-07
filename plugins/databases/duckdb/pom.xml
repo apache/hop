@@ -28,15 +28,22 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases DuckDB</name>
 
-    <properties>
-        <duckdb.version>1.0.0</duckdb.version>
-    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs-jdbc</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>org.duckdb</groupId>
             <artifactId>duckdb_jdbc</artifactId>
-            <version>${duckdb.version}</version>
         </dependency>
     </dependencies>
 

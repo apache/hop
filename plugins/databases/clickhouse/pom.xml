@@ -28,17 +28,25 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases ClickHouse</name>
 
-    <properties>
-        <clickhouse.jdbc.version>0.7.1-patch1</clickhouse.jdbc.version>
-    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs-jdbc</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
-            <version>${clickhouse.jdbc.version}</version>
             <!-- below is only needed when all you want is a shaded jar -->
             <classifier>all</classifier>
         </dependency>
     </dependencies>
+
 </project>

@@ -52,6 +52,7 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-cratedb</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>

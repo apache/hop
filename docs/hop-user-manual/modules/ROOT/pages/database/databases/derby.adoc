@@ -25,7 +25,7 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included
-|Version Included | 10.16.1.1
+|Version Included | 10.17.1.0
 |Hop Dependencies | None
 |Documentation | https://db.apache.org/derby/derby_downloads.html[Documentation Link]
 |JDBC Url | jdbc:derby:<host>[:<port>]/<database>

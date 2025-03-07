@@ -29,15 +29,20 @@
     <name>Hop JDBC Libraries</name>
 
     <properties>
+        <clickhouse.jdbc.version>0.8.2</clickhouse.jdbc.version>
         <cratedb-jdbc.version>2.7.0</cratedb-jdbc.version>
         <derby.version>10.17.1.0</derby.version>
+        <duckdb.version>1.2.0</duckdb.version>
+        <h2.version>2.3.232</h2.version>
         <hsqldb.version>2.7.4</hsqldb.version>
-        <jt400.version>20.0.8</jt400.version>
-        <monetdb.version>3.3</monetdb.version>
+        <jt400.version>21.0.0</jt400.version>
+        <monetdb.version>12.0</monetdb.version>
+        <mssqlnative.version>12.8.1.jre11</mssqlnative.version>
         <mysql.version>9.1.0</mysql.version>
-        <postgresql.version>42.7.4</postgresql.version>
-        <redshift.version>2.1.0.30</redshift.version>
-        <snowflake.jdbc.version>3.22.0</snowflake.jdbc.version>
+        <postgresql.version>42.7.5</postgresql.version>
+        <redshift.version>2.1.0.32</redshift.version>
+        <snowflake.jdbc.version>3.23.0</snowflake.jdbc.version>
+        <sqlite.version>3.49.1.0</sqlite.version>
         <vertica.jdbc.version>24.4.0-0</vertica.jdbc.version>
     </properties>
 
@@ -47,6 +52,23 @@
                 <groupId>com.amazon.redshift</groupId>
                 <artifactId>redshift-jdbc42</artifactId>
                 <version>${redshift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${clickhouse.jdbc.version}</version>
+                <!-- below is only needed when all you want is a shaded jar -->
+                <classifier>all</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>${mssqlnative.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.vertica.jdbc</groupId>
@@ -93,6 +115,11 @@
                 <version>${derby.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.duckdb</groupId>
+                <artifactId>duckdb_jdbc</artifactId>
+                <version>${duckdb.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
                 <version>${hsqldb.version}</version>
@@ -101,6 +128,11 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>${sqlite.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.mysql</groupId>

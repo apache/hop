@@ -45,7 +45,7 @@
         <dependency>
             <groupId>monetdb</groupId>
             <artifactId>monetdb-jdbc</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
