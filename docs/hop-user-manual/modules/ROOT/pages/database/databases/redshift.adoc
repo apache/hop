@@ -25,7 +25,7 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included
-|Version Included | 2.1.0.19
+|Version Included | 2.1.0.32
 |Hop Dependencies | Postgresql Database plugin
 |Documentation | https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html[Documentation Link]
 |JDBC Url | jdbc:redshift://endpoint:port/database

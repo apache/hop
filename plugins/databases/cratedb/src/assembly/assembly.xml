@@ -44,10 +44,9 @@
             <outputDirectory>plugins/databases/cratedb</outputDirectory>
         </dependencySet>
         <dependencySet>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>org.apache.hop:hop-databases-cratedb:jar</exclude>
-            </excludes>
+            <includes>
+                <include>io.crate:crate-jdbc:jar</include>
+            </includes>
             <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
     </dependencySets>

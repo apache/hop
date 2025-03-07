@@ -26,7 +26,7 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15[Driver Link]
-|Version Included | 12.4.1.jre11
+|Version Included | 12.8.1.jre11
 |Hop Dependencies | None
 |Documentation | https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver15[Documentation Link]
 |JDBC Url | jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
