@@ -50,7 +50,7 @@ public class MonetDBDatabaseMetaTest {
     assertTrue(nativeMeta.isSupportsAutoInc());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
-    assertEquals("nl.cwi.monetdb.jdbc.MonetDriver", nativeMeta.getDriverClass());
+    assertEquals("org.monetdb.jdbc.MonetDriver", nativeMeta.getDriverClass());
     assertEquals("jdbc:monetdb://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));
     assertEquals("jdbc:monetdb://FOO/WIBBLE", nativeMeta.getURL("FOO", "", "WIBBLE"));
     assertFalse(nativeMeta.isFetchSizeSupported());

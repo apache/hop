@@ -75,7 +75,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getDriverClass() {
-    return "nl.cwi.monetdb.jdbc.MonetDriver";
+    return "org.monetdb.jdbc.MonetDriver";
   }
 
   @Override
