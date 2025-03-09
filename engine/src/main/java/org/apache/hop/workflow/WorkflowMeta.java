@@ -30,6 +30,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.base.BaseHopMeta;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
@@ -79,13 +80,32 @@ import org.w3c.dom.Node;
  */
 public class WorkflowMeta extends AbstractMeta
     implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
-  private static final Class<?> PKG = WorkflowMeta.class;
   public static final String WORKFLOW_EXTENSION = ".hwf";
   public static final String XML_TAG = "workflow";
   public static final int BORDER_INDENT = 20;
+
+  /** A constant specifying the tag value for the XML node of the actions. */
+  public static final String XML_TAG_ACTIONS = "actions";
+
+  /** A constant specifying the tag value for the XML node of the notes. */
+  public static final String XML_TAG_NOTEPADS = "notepads";
+
+  /** A constant specifying the tag value for the XML node of the hops. */
+  public static final String XML_TAG_HOPS = "hops";
+
+  /** A constant specifying the tag value for the XML node of the workflow parameters. */
+  protected static final String XML_TAG_PARAMETERS = "parameters";
+
+  private static final Class<?> PKG = WorkflowMeta.class;
   private static final String CONST_DESCRIPTION = "description";
   private static final String CONST_PARAMETER = "parameter";
   private static final String CONST_SPACE = "        ";
+
+  /**
+   * List of booleans indicating whether or not to remember the size and position of the different
+   * windows...
+   */
+  public boolean[] max = new boolean[1];
 
   @HopMetadataProperty(inline = true)
   protected WorkflowMetaInfo info;
@@ -100,38 +120,70 @@ public class WorkflowMeta extends AbstractMeta
   protected String startActionName;
   protected boolean expandingRemoteWorkflow;
 
-  /** Constant = "OK" */
-  public static final String STRING_SPECIAL_OK = "OK";
-
-  /** Constant = "ERROR" */
-  public static final String STRING_SPECIAL_ERROR = "ERROR";
-
   /** The loop cache. */
   protected Map<String, Boolean> loopCache;
-
-  /**
-   * List of booleans indicating whether or not to remember the size and position of the different
-   * windows...
-   */
-  public boolean[] max = new boolean[1];
-
-  /** A constant specifying the tag value for the XML node of the actions. */
-  public static final String XML_TAG_ACTIONS = "actions";
-
-  /** A constant specifying the tag value for the XML node of the notes. */
-  public static final String XML_TAG_NOTEPADS = "notepads";
-
-  /** A constant specifying the tag value for the XML node of the hops. */
-  public static final String XML_TAG_HOPS = "hops";
-
-  /** A constant specifying the tag value for the XML node of the workflow parameters. */
-  protected static final String XML_TAG_PARAMETERS = "parameters";
 
   private List<MissingAction> missingActions;
 
   /** Instantiates a new workflow meta. */
   public WorkflowMeta() {
     clear();
+  }
+
+  /**
+   * Instantiates a new workflow meta.
+   *
+   * @param fname the fname
+   * @throws HopXmlException the hop xml exception
+   */
+  public WorkflowMeta(String fname) throws HopXmlException {
+    this(null, fname, null);
+  }
+
+  /**
+   * Load the workflow from the XML file specified
+   *
+   * @param variables
+   * @param fname
+   * @param metadataProvider
+   * @throws HopXmlException
+   */
+  public WorkflowMeta(IVariables variables, String fname, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    this.metadataProvider = metadataProvider;
+    loadXml(variables, fname, metadataProvider);
+  }
+
+  /**
+   * Instantiates a new workflow meta.
+   *
+   * @param inputStream the input stream
+   * @param variables
+   * @throws HopXmlException the hop xml exception
+   */
+  public WorkflowMeta(
+      InputStream inputStream, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
+    this();
+    this.metadataProvider = metadataProvider;
+    Document doc = XmlHandler.loadXmlFile(inputStream, null, false, false);
+    Node subNode = XmlHandler.getSubNode(doc, WorkflowMeta.XML_TAG);
+    loadXml(subNode, null, metadataProvider, variables);
+  }
+
+  /**
+   * Create a new WorkflowMeta object by loading it from a a DOM node.
+   *
+   * @param workflowNode The node to load from
+   * @param variables
+   * @throws HopXmlException
+   */
+  public WorkflowMeta(
+      Node workflowNode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
+    this();
+    this.metadataProvider = metadataProvider;
+    loadXml(workflowNode, null, metadataProvider, variables);
   }
 
   /** Clears or reinitializes many of the WorkflowMeta properties. */
@@ -184,13 +236,13 @@ public class WorkflowMeta extends AbstractMeta
    *       returned.
    * </ol>
    *
-   * @param j1 the first workflow to compare
-   * @param j2 the second workflow to compare
+   * @param workflow1 the first workflow to compare
+   * @param workflow2 the second workflow to compare
    * @return 0 if the two workflows are equal, 1 or -1 depending on the values (see description
    *     above)
    */
-  public int compare(WorkflowMeta j1, WorkflowMeta j2) {
-    return super.compare(j1, j2);
+  public int compare(WorkflowMeta workflow1, WorkflowMeta workflow2) {
+    return super.compare(workflow1, workflow2);
   }
 
   /**
@@ -410,30 +462,6 @@ public class WorkflowMeta extends AbstractMeta
     return XmlFormatter.format(xml.toString());
   }
 
-  /**
-   * Instantiates a new workflow meta.
-   *
-   * @param fname the fname
-   * @throws HopXmlException the hop xml exception
-   */
-  public WorkflowMeta(String fname) throws HopXmlException {
-    this(null, fname, null);
-  }
-
-  /**
-   * Load the workflow from the XML file specified
-   *
-   * @param variables
-   * @param fname
-   * @param metadataProvider
-   * @throws HopXmlException
-   */
-  public WorkflowMeta(IVariables variables, String fname, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    this.metadataProvider = metadataProvider;
-    loadXml(variables, fname, metadataProvider);
-  }
-
   public void loadXml(IVariables variables, String fname, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     try {
@@ -455,38 +483,6 @@ public class WorkflowMeta extends AbstractMeta
               + "]",
           e);
     }
-  }
-
-  /**
-   * Instantiates a new workflow meta.
-   *
-   * @param inputStream the input stream
-   * @param variables
-   * @throws HopXmlException the hop xml exception
-   */
-  public WorkflowMeta(
-      InputStream inputStream, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    this();
-    this.metadataProvider = metadataProvider;
-    Document doc = XmlHandler.loadXmlFile(inputStream, null, false, false);
-    Node subNode = XmlHandler.getSubNode(doc, WorkflowMeta.XML_TAG);
-    loadXml(subNode, null, metadataProvider, variables);
-  }
-
-  /**
-   * Create a new WorkflowMeta object by loading it from a a DOM node.
-   *
-   * @param workflowNode The node to load from
-   * @param variables
-   * @throws HopXmlException
-   */
-  public WorkflowMeta(
-      Node workflowNode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    this();
-    this.metadataProvider = metadataProvider;
-    loadXml(workflowNode, null, metadataProvider, variables);
   }
 
   /**
@@ -1069,7 +1065,7 @@ public class WorkflowMeta extends AbstractMeta
    * @param action the jge
    * @return true, if is action used in hops
    */
-  public boolean isEntryUsedInHops(ActionMeta action) {
+  public boolean isActionUsedInHops(ActionMeta action) {
     WorkflowHopMeta from = findWorkflowHopFrom(action);
     WorkflowHopMeta to = findWorkflowHopTo(action);
     return from != null || to != null;
@@ -1081,7 +1077,7 @@ public class WorkflowMeta extends AbstractMeta
    * @param name the name
    * @return the int
    */
-  public int countEntries(String name) {
+  public int countActions(String name) {
     int count = 0;
     int i;
     for (i = 0; i < nrActions(); i++) {
@@ -1616,21 +1612,21 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Gets the status of the workflow.
-   *
-   * @return the status of the workflow
-   */
-  public int getWorkflowStatus() {
-    return workflowStatus;
-  }
-
-  /**
    * Set the version of the workflow.
    *
    * @param jobVersion The new version description of the workflow
    */
   public void setWorkflowVersion(String jobVersion) {
     this.workflowVersion = jobVersion;
+  }
+
+  /**
+   * Gets the status of the workflow.
+   *
+   * @return the status of the workflow
+   */
+  public int getWorkflowStatus() {
+    return workflowStatus;
   }
 
   /**
@@ -1756,11 +1752,20 @@ public class WorkflowMeta extends AbstractMeta
             BaseMessages.getString(
                 PKG, "WorkflowMeta.Monitor.VerifyingAction.Title", action.getName()));
 
-        action.check(remarks, this, variables, metadataProvider);
-
-        // Progress bar...
-        monitor.worked(worked++);
+        if (isActionUsedInHops(actionMeta) || getActions().size() == 1) {
+          action.check(remarks, this, variables, metadataProvider);
+        } else {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_WARNING,
+                  BaseMessages.getString(
+                      PKG,
+                      "WorkflowMeta.CheckResult.TypeResultWarning.ActionIsNotUsed.Description"),
+                  action));
+        }
       }
+      // Progress bar...
+      monitor.worked(worked++);
     }
 
     monitor.done();
@@ -2104,16 +2109,6 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Sets the user by whom the pipeline was created.
-   *
-   * @param createdUser The user to set.
-   */
-  @Override
-  public void setCreatedUser(String createdUser) {
-    info.setCreatedUser(createdUser);
-  }
-
-  /**
    * Gets the user by whom the pipeline was created.
    *
    * @return the user by whom the pipeline was created.
@@ -2124,13 +2119,13 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Sets the date the pipeline was modified.
+   * Sets the user by whom the pipeline was created.
    *
-   * @param modifiedDate The modified date to set.
+   * @param createdUser The user to set.
    */
   @Override
-  public void setModifiedDate(Date modifiedDate) {
-    info.setModifiedDate(modifiedDate);
+  public void setCreatedUser(String createdUser) {
+    info.setCreatedUser(createdUser);
   }
 
   /**
@@ -2144,13 +2139,13 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Sets the user who last modified the pipeline.
+   * Sets the date the pipeline was modified.
    *
-   * @param modifiedUser The user name to set.
+   * @param modifiedDate The modified date to set.
    */
   @Override
-  public void setModifiedUser(String modifiedUser) {
-    info.setModifiedUser(modifiedUser);
+  public void setModifiedDate(Date modifiedDate) {
+    info.setModifiedDate(modifiedDate);
   }
 
   /**
@@ -2161,5 +2156,15 @@ public class WorkflowMeta extends AbstractMeta
   @Override
   public String getModifiedUser() {
     return info.getModifiedUser();
+  }
+
+  /**
+   * Sets the user who last modified the pipeline.
+   *
+   * @param modifiedUser The user name to set.
+   */
+  @Override
+  public void setModifiedUser(String modifiedUser) {
+    info.setModifiedUser(modifiedUser);
   }
 }
