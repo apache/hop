@@ -20,6 +20,7 @@ package org.apache.hop.workflow.action;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.SqlStatement;
@@ -128,7 +129,7 @@ import org.w3c.dom.Node;
  *       Finally, the passed in prevResult object must be returned.
  * </ul>
  */
-public interface IAction extends IVariables, IHasLogChannel, IExtensionData {
+public interface IAction extends IVariables, IHasLogChannel, ICheckResultSource, IExtensionData {
 
   /**
    * Execute the action. The previous result and number of rows are provided to the method for the
