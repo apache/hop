@@ -27,17 +27,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.EnvUtil;
 
 public class LoggingRegistry {
-  private static LoggingRegistry registry = new LoggingRegistry();
-  private Map<String, ILoggingObject> map;
-  private Map<String, LogChannelFileWriterBuffer> fileWriterBuffers;
-  private Map<String, List<String>> childrenMap;
+  private static final LoggingRegistry registry = new LoggingRegistry();
+  @Getter private final Map<String, ILoggingObject> map;
+  private final Map<String, LogChannelFileWriterBuffer> fileWriterBuffers;
+
+  @Getter private final Map<String, List<String>> childrenMap;
   private Date lastModificationTime;
-  private int maxSize;
-  private final int DEFAULT_MAX_SIZE = 10000;
+  private final int maxSize;
 
   private final Object syncObject = new Object();
 
@@ -48,7 +49,7 @@ public class LoggingRegistry {
 
     this.lastModificationTime = new Date();
     this.maxSize =
-        Const.toInt(EnvUtil.getSystemProperty("HOP_MAX_LOGGING_REGISTRY_SIZE"), DEFAULT_MAX_SIZE);
+        Const.toInt(EnvUtil.getSystemProperty(Const.HOP_MAX_LOGGING_REGISTRY_SIZE), 10000);
   }
 
   public static LoggingRegistry getInstance() {
@@ -157,10 +158,6 @@ public class LoggingRegistry {
 
   public ILoggingObject getLoggingObject(String logChannelId) {
     return this.map.get(logChannelId);
-  }
-
-  public Map<String, ILoggingObject> getMap() {
-    return this.map;
   }
 
   public List<String> getLogChannelChildren(String parentLogChannelId) {
@@ -299,14 +296,5 @@ public class LoggingRegistry {
       childrenMap.clear();
       fileWriterBuffers.clear();
     }
-  }
-
-  /**
-   * Gets childrenMap
-   *
-   * @return value of childrenMap
-   */
-  public Map<String, List<String>> getChildrenMap() {
-    return childrenMap;
   }
 }
