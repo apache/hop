@@ -278,7 +278,7 @@ The default (N) will be to throw an error if non-numeric symbols are found in th
 |HOP_LOG_TAB_REFRESH_DELAY|1000|The hop log tab refresh delay.
 |HOP_LOG_TAB_REFRESH_PERIOD|1000|The hop log tab refresh period.
 |HOP_MAX_ACTIONS_LOGGED|5000|The maximum number of action results kept in memory for logging purposes.
-|HOP_MAX_LOGGING_REGISTRY_SIZE|10000|The maximum number of logging registry entries kept in memory for logging purposes.
+|HOP_MAX_LOGGING_REGISTRY_SIZE|10000|The maximum number of logging registry entries kept in memory for logging purposes. This is the number of logging objects, a logging object can be a pipeline/workflow/transform/action or a couple of system-level loggers.
 |HOP_MAX_LOG_SIZE_IN_LINES|0|The maximum number of log lines that are kept internally by Hop.
 Set to 0 to keep all rows (default)
 |HOP_MAX_LOG_TIMEOUT_IN_MINUTES|1440|The maximum age (in minutes) of a log line while being kept internally by Hop.

@@ -26,18 +26,20 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 
 /** This class keeps the last N lines in a buffer */
 public class LoggingBuffer {
-  private String name;
+  @Getter @Setter private String name;
 
   private List<BufferLine> buffer;
   private ReadWriteLock lock = new ReentrantReadWriteLock();
 
   private int bufferSize;
 
-  private HopLogLayout layout;
+  @Getter @Setter private HopLogLayout layout;
 
   private List<IHopLoggingEventListener> eventListeners;
 
@@ -160,22 +162,6 @@ public class LoggingBuffer {
         lock.writeLock().unlock();
       }
     }
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setLayout(HopLogLayout layout) {
-    this.layout = layout;
-  }
-
-  public HopLogLayout getLayout() {
-    return layout;
   }
 
   public boolean requiresLayout() {

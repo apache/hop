@@ -580,9 +580,10 @@ public class Const {
    * logging purposes.
    */
   @Variable(
+      scope = VariableScope.APPLICATION,
       value = "10000",
       description =
-          "The maximum number of logging registry entries kept in memory for logging purposes")
+          "The maximum number of logging registry entries kept in memory for logging purposes. This is the number of logging objects, a logging object can be a pipeline/workflow/transform/action or a couple of system-level loggers.")
   public static final String HOP_MAX_LOGGING_REGISTRY_SIZE = "HOP_MAX_LOGGING_REGISTRY_SIZE";
 
   /** A variable to configure the hop log tab refresh delay. */
