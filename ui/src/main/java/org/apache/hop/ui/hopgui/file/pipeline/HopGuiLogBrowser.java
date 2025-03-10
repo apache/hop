@@ -24,6 +24,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.logging.HopLogLayout;
@@ -54,8 +56,8 @@ import org.eclipse.swt.widgets.Text;
 public class HopGuiLogBrowser {
   private static final Class<?> PKG = HopGui.class;
 
-  private Text text;
-  private ILogParentProvided logProvider;
+  @Getter private Text text;
+  @Getter private ILogParentProvided logProvider;
   private List<String> childIds = new ArrayList<>();
   private Date lastLogRegistryChange;
   private AtomicBoolean paused;
@@ -137,10 +139,8 @@ public class HopGuiLogBrowser {
                             }
 
                             synchronized (text) {
-                              for (int i = 0; i < logLines.size(); i++) {
-                                HopLoggingEvent event = logLines.get(i);
+                              for (HopLoggingEvent event : logLines) {
                                 String line = logLayout.format(event).trim();
-                                int start = text.getText().length();
                                 int length = line.length();
 
                                 if (length > 0) {
@@ -154,17 +154,14 @@ public class HopGuiLogBrowser {
                             // Erase it all in one go
                             // This makes it a bit more efficient
                             //
-                            int size = text.getText().length();
+                            int size = text.getLineCount();
                             if (maxSize > 0 && size > maxSize) {
-
                               int dropIndex =
-                                  (text.getText().indexOf(Const.CR, size - maxSize))
-                                      + Const.CR.length();
-                              text.setText(text.getText().substring(dropIndex));
+                                  StringUtils.lastOrdinalIndexOf(text.getText(), "\n", maxSize + 1);
+                              text.setText(text.getText().substring(dropIndex + 1));
                             }
 
                             text.setSelection(text.getText().length());
-
                             lastLogId.set(lastNr);
                           }
                         }
@@ -213,17 +210,6 @@ public class HopGuiLogBrowser {
             }
           }
         });
-  }
-
-  /**
-   * @return the text
-   */
-  public Text getText() {
-    return text;
-  }
-
-  public ILogParentProvided getLogProvider() {
-    return logProvider;
   }
 
   public boolean isPaused() {

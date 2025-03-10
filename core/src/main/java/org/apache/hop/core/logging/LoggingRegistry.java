@@ -37,7 +37,7 @@ public class LoggingRegistry {
   private final Map<String, LogChannelFileWriterBuffer> fileWriterBuffers;
 
   @Getter private final Map<String, List<String>> childrenMap;
-  private Date lastModificationTime;
+  @Getter private Date lastModificationTime;
   private final int maxSize;
 
   private final Object syncObject = new Object();
@@ -190,10 +190,6 @@ public class LoggingRegistry {
     }
 
     return children;
-  }
-
-  public Date getLastModificationTime() {
-    return this.lastModificationTime;
   }
 
   public String dump(boolean includeGeneral) {
