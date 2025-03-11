@@ -2891,33 +2891,35 @@ public class PipelineMeta extends AbstractMeta
           // See if illegal characters etc. were used in field-names...
           if (prev != null) {
             for (int x = 0; x < prev.size(); x++) {
-              IValueMeta v = prev.getValueMeta(x);
-              String name = v.getName();
+              IValueMeta valueMeta = prev.getValueMeta(x);
+              String name = valueMeta.getName();
               if (name == null) {
                 values.put(
-                    v,
+                    valueMeta,
                     BaseMessages.getString(
                         PKG, "PipelineMeta.Value.CheckingFieldName.FieldNameIsEmpty.Description"));
               } else if (name.indexOf(' ') >= 0) {
                 values.put(
-                    v,
+                    valueMeta,
                     BaseMessages.getString(
                         PKG,
-                        "PipelineMeta.Value.CheckingFieldName.FieldNameContainsSpaces.Description"));
+                        "PipelineMeta.Value.CheckingFieldName.FieldNameContainsSpaces.Description",
+                        valueMeta.getName()));
               } else {
                 char[] list =
                     new char[] {
                       '.', ',', '-', '/', '+', '*', '\'', '\t', '"', '|', '@', '(', ')', '{', '}',
                       '!', '^'
                     };
-                for (int c = 0; c < list.length; c++) {
-                  if (name.indexOf(list[c]) >= 0) {
+                for (char value : list) {
+                  if (name.indexOf(value) >= 0) {
                     values.put(
-                        v,
+                        valueMeta,
                         BaseMessages.getString(
                             PKG,
                             "PipelineMeta.Value.CheckingFieldName.FieldNameContainsUnfriendlyCodes.Description",
-                            String.valueOf(list[c])));
+                            valueMeta.getName(),
+                            String.valueOf(value)));
                   }
                 }
               }
@@ -2990,18 +2992,11 @@ public class PipelineMeta extends AbstractMeta
               "PipelineMeta.Monitor.CheckingForDatabaseUnfriendlyCharactersInFieldNamesTask.Title"));
 
       if (!values.isEmpty()) {
-        for (IValueMeta v : values.keySet()) {
-          String message = values.get(v);
+        for (IValueMeta valueMeta : values.keySet()) {
+          String message = values.get(valueMeta);
           CheckResult cr =
               new CheckResult(
-                  ICheckResult.TYPE_RESULT_WARNING,
-                  BaseMessages.getString(
-                      PKG,
-                      "PipelineMeta.CheckResult.TypeResultWarning.Description",
-                      v.getName(),
-                      message,
-                      v.getOrigin()),
-                  findTransform(v.getOrigin()));
+                  ICheckResult.TYPE_RESULT_WARNING, message, findTransform(valueMeta.getOrigin()));
           remarks.add(cr);
         }
       } else {
