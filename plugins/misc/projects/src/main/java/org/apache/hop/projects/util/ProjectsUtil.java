@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.ILogChannel;
@@ -98,10 +99,14 @@ public class ProjectsUtil {
     //
     HopNamespace.setNamespace(projectName);
 
-    // Save some history concerning the usage of the project...
+    // Save some history concerning the usage of the project
+    // but only in case Hop was started by HopGui because that is the only case
+    // where this info is valuable.
     //
-    AuditManager.registerEvent(
-        HopGui.DEFAULT_HOP_GUI_NAMESPACE, STRING_PROJECT_AUDIT_TYPE, projectName, "open");
+    if (Const.getHopPlatformRuntime().equals("GUI")) {
+      AuditManager.registerEvent(
+          HopGui.DEFAULT_HOP_GUI_NAMESPACE, STRING_PROJECT_AUDIT_TYPE, projectName, "open");
+    }
 
     // Signal others that we have a new active project
     //
