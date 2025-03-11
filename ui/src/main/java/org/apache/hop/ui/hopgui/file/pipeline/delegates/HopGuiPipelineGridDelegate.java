@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -68,10 +69,10 @@ public class HopGuiPipelineGridDelegate {
 
   public static final long UPDATE_TIME_VIEW = 1000L;
 
-  private HopGui hopGui;
-  private HopGuiPipelineGraph pipelineGraph;
+  private final HopGui hopGui;
+  private final HopGuiPipelineGraph pipelineGraph;
 
-  private CTabItem pipelineGridTab;
+  @Getter private CTabItem pipelineGridTab;
 
   private TableView pipelineGridView;
 
@@ -591,10 +592,6 @@ public class HopGuiPipelineGridDelegate {
         row.setText(f, fields[f]);
       }
     }
-  }
-
-  public CTabItem getPipelineGridTab() {
-    return pipelineGridTab;
   }
 
   /**

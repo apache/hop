@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
 import java.util.ArrayList;
 import java.util.Map;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -58,10 +59,11 @@ public class HopGuiPipelineLogDelegate {
       "ToolbarIcon-10020-LogCopyToClipboard";
   public static final String TOOLBAR_ICON_LOG_PAUSE_RESUME = "ToolbarIcon-10030-LogPauseResume";
 
-  private HopGuiPipelineGraph pipelineGraph;
+  private final HopGuiPipelineGraph pipelineGraph;
 
   private HopGui hopGui;
-  private CTabItem pipelineLogTab;
+
+  @Getter private CTabItem pipelineLogTab;
 
   private Text pipelineLogText;
 
@@ -70,11 +72,8 @@ public class HopGuiPipelineLogDelegate {
 
   private Composite pipelineLogComposite;
 
-  private HopGuiLogBrowser logBrowser;
+  @Getter private HopGuiLogBrowser logBrowser;
 
-  /**
-   * @param hopGui
-   */
   public HopGuiPipelineLogDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
@@ -101,8 +100,7 @@ public class HopGuiPipelineLogDelegate {
     pipelineLogTab.setImage(GuiResource.getInstance().getImageShowLog());
     pipelineLogTab.setText(BaseMessages.getString(PKG, "HopGui.PipelineGraph.LogTab.Name"));
 
-    pipelineLogComposite =
-        new Composite(pipelineGraph.extraViewTabFolder, SWT.NO_BACKGROUND | SWT.NO_FOCUS);
+    pipelineLogComposite = new Composite(pipelineGraph.extraViewTabFolder, SWT.NONE);
     pipelineLogComposite.setLayout(new FormLayout());
 
     addToolBar();
@@ -149,7 +147,7 @@ public class HopGuiPipelineLogDelegate {
   }
 
   /**
-   * When a toolbar is hit it knows the class so it will come here to ask for the instance.
+   * When a toolbar is hit, it knows the class so it will come here to ask for the instance.
    *
    * @return The active instance of this class
    */
@@ -190,7 +188,6 @@ public class HopGuiPipelineLogDelegate {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_CLEAR_LOG_VIEW,
-      // label = "PipelineLog.Button.ClearLog",
       toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.ClearLog",
       image = "ui/images/delete.svg")
   public void clearLog() {
@@ -205,7 +202,7 @@ public class HopGuiPipelineLogDelegate {
     Map<String, String> transformLogMap = pipelineGraph.getTransformLogMap();
     if (transformLogMap != null) {
       transformLogMap.clear();
-      pipelineGraph.getDisplay().asyncExec(() -> pipelineGraph.redraw());
+      pipelineGraph.getDisplay().asyncExec(pipelineGraph::redraw);
     }
   }
 
@@ -236,12 +233,11 @@ public class HopGuiPipelineLogDelegate {
       if (all.substring(i, i + crlen).equalsIgnoreCase(Const.CR)) {
         String line = all.substring(startpos, i);
         String uLine = line.toUpperCase();
-        if (uLine.indexOf(BaseMessages.getString(PKG, "PipelineLog.System.ERROR")) >= 0
-            || uLine.indexOf(BaseMessages.getString(PKG, "PipelineLog.System.EXCEPTION")) >= 0
-            || uLine.indexOf("ERROR") >= 0
+        if (uLine.contains(BaseMessages.getString(PKG, "PipelineLog.System.ERROR"))
+            || uLine.contains(BaseMessages.getString(PKG, "PipelineLog.System.EXCEPTION"))
+            || uLine.contains("ERROR")
             || // i18n for compatibilty to non translated transforms a.s.o.
-            uLine.indexOf("EXCEPTION")
-                >= 0 // i18n for compatibilty to non translated transforms a.s.o.
+            uLine.contains("EXCEPTION") // i18n for compatibilty to non translated transforms a.s.o.
         ) {
           err.add(line);
         }
@@ -253,11 +249,11 @@ public class HopGuiPipelineLogDelegate {
     }
     String line = all.substring(startpos);
     String uLine = line.toUpperCase();
-    if (uLine.indexOf(BaseMessages.getString(PKG, "PipelineLog.System.ERROR2")) >= 0
-        || uLine.indexOf(BaseMessages.getString(PKG, "PipelineLog.System.EXCEPTION2")) >= 0
-        || uLine.indexOf("ERROR") >= 0
+    if (uLine.contains(BaseMessages.getString(PKG, "PipelineLog.System.ERROR2"))
+        || uLine.contains(BaseMessages.getString(PKG, "PipelineLog.System.EXCEPTION2"))
+        || uLine.contains("ERROR")
         || // i18n for compatibilty to non translated transforms a.s.o.
-        uLine.indexOf("EXCEPTION") >= 0 // i18n for compatibilty to non translated transforms a.s.o.
+        uLine.contains("EXCEPTION") // i18n for compatibilty to non translated transforms a.s.o.
     ) {
       err.add(line);
     }
@@ -279,19 +275,12 @@ public class HopGuiPipelineLogDelegate {
         PipelineMeta pipelineMeta = pipelineGraph.getManagedObject();
         for (i = 0; i < pipelineMeta.nrTransforms(); i++) {
           TransformMeta transformMeta = pipelineMeta.getTransform(i);
-          if (line.indexOf(transformMeta.getName()) >= 0) {
+          if (line.contains(transformMeta.getName())) {
             pipelineGraph.editTransform(pipelineMeta, transformMeta);
           }
         }
       }
     }
-  }
-
-  /**
-   * @return the pipelineLogTab
-   */
-  public CTabItem getPipelineLogTab() {
-    return pipelineLogTab;
   }
 
   public String getLoggingText() {
@@ -313,15 +302,13 @@ public class HopGuiPipelineLogDelegate {
     ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ICON_LOG_PAUSE_RESUME);
     if (logBrowser.isPaused()) {
       logBrowser.setPaused(false);
-      item.setImage(GuiResource.getInstance().getImageRun());
+      item.setImage(GuiResource.getInstance().getImagePause());
+      item.setToolTipText(BaseMessages.getString(PKG, "PipelineLog.Dialog.Pause.Tooltip"));
     } else {
       logBrowser.setPaused(true);
-      item.setImage(GuiResource.getInstance().getImagePause());
+      item.setImage(GuiResource.getInstance().getImageRun());
+      item.setToolTipText(BaseMessages.getString(PKG, "PipelineLog.Dialog.Resume.Tooltip"));
     }
-  }
-
-  public HopGuiLogBrowser getLogBrowser() {
-    return logBrowser;
   }
 
   public boolean hasSelectedText() {

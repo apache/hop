@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -285,19 +287,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private static final int TOOLTIP_HIDE_DELAY_LONG = 10000;
 
-  private PipelineMeta pipelineMeta;
-  public IPipelineEngine<PipelineMeta> pipeline;
+  @Getter private PipelineMeta pipelineMeta;
+  @Getter public IPipelineEngine<PipelineMeta> pipeline;
 
-  private final HopDataOrchestrationPerspective perspective;
+  @Getter private final HopDataOrchestrationPerspective perspective;
 
-  private ToolBar toolBar;
-  private GuiToolbarWidgets toolBarWidgets;
+  @Getter @Setter private ToolBar toolBar;
+
+  @Getter private GuiToolbarWidgets toolBarWidgets;
 
   private int iconSize;
 
   private Point lastClick;
 
-  private Point lastMove;
+  @Getter private Point lastMove;
 
   private Point[] previousTransformLocations;
 
@@ -324,16 +327,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private org.apache.hop.core.gui.Rectangle selectionRegion;
 
-  /** A list of remarks on the current Pipeline... */
-  private List<ICheckResult> remarks;
+  @Getter @Setter private List<ICheckResult> remarks;
 
-  /** A list of impacts of the current pipeline on the used databases. */
-  private List<DatabaseImpact> impact;
+  @Getter @Setter private List<DatabaseImpact> impact;
 
-  /** Indicates whether or not an impact analysis has already run. */
-  private boolean impactFinished;
+  @Getter @Setter private boolean impactFinished;
 
-  private PipelineDebugMeta lastPipelineDebugMeta;
+  @Getter private PipelineDebugMeta lastPipelineDebugMeta;
 
   protected int currentMouseX = 0;
 
@@ -341,7 +341,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   protected NotePadMeta currentNotePad = null;
 
-  protected TransformMeta currentTransform;
+  @Setter @Getter protected TransformMeta currentTransform;
 
   private final List<AreaOwner> areaOwners;
 
@@ -353,7 +353,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private boolean halted;
 
-  private boolean halting;
+  @Getter @Setter private boolean halting;
 
   private boolean safeStopping;
 
@@ -374,8 +374,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public List<ISelectedTransformListener> transformListeners;
   public List<ITransformSelectionListener> currentTransformListeners = new ArrayList<>();
 
-  /** A map that keeps track of which log line was written by which transform */
-  private Map<String, String> transformLogMap;
+  @Getter @Setter private Map<String, String> transformLogMap;
 
   private TransformMeta startHopTransform;
   private Point endHopLocation;
@@ -389,14 +388,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   Timer redrawTimer;
 
-  private HopPipelineFileType<PipelineMeta> fileType;
+  @Setter private HopPipelineFileType<PipelineMeta> fileType;
   private boolean singleClick;
   private boolean doubleClick;
   private boolean mouseMovedSinceClick;
 
   private PipelineHopMeta clickedPipelineHop;
 
-  protected Map<String, RowBuffer> outputRowsMap;
+  @Getter @Setter protected Map<String, RowBuffer> outputRowsMap;
   private boolean avoidContextDialog;
 
   public void setCurrentNote(NotePadMeta ni) {
@@ -405,14 +404,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public NotePadMeta getCurrentNote() {
     return currentNotePad;
-  }
-
-  public TransformMeta getCurrentTransform() {
-    return currentTransform;
-  }
-
-  public void setCurrentTransform(TransformMeta currentTransform) {
-    this.currentTransform = currentTransform;
   }
 
   public void addSelectedTransformListener(ISelectedTransformListener selectedTransformListener) {
@@ -3630,37 +3621,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return pipelineMeta.hasChanged();
   }
 
-  public List<ICheckResult> getRemarks() {
-    return remarks;
-  }
-
-  public void setRemarks(List<ICheckResult> remarks) {
-    this.remarks = remarks;
-  }
-
-  public List<DatabaseImpact> getImpact() {
-    return impact;
-  }
-
-  public void setImpact(List<DatabaseImpact> impact) {
-    this.impact = impact;
-  }
-
-  public boolean isImpactFinished() {
-    return impactFinished;
-  }
-
-  public void setImpactFinished(boolean impactHasRun) {
-    this.impactFinished = impactHasRun;
-  }
-
-  /**
-   * @return the lastMove
-   */
-  public Point getLastMove() {
-    return lastMove;
-  }
-
   public boolean editProperties(
       PipelineMeta pipelineMeta, HopGui hopGui, boolean allowDirectoryChange) {
     return editProperties(pipelineMeta, hopGui, null);
@@ -3945,10 +3905,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     extraViewTabFolder.dispose();
     sashForm.layout();
-    sashForm.setWeights(
-        new int[] {
-          100,
-        });
+    sashForm.setWeights(100);
 
     ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
     item.setToolTipText(BaseMessages.getString(PKG, "HopGui.Tooltip.ShowExecutionResults"));
@@ -3974,20 +3931,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       minMaxItem.setToolTipText(
           BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MinButton.Tooltip"));
     }
-  }
-
-  /**
-   * @return the toolbar
-   */
-  public ToolBar getToolBar() {
-    return toolBar;
-  }
-
-  /**
-   * @param toolBar the toolbar to set
-   */
-  public void setToolBar(ToolBar toolBar) {
-    this.toolBar = toolBar;
   }
 
   private ToolItem minMaxItem;
@@ -4297,20 +4240,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void addAllTabs() {
 
-    CTabItem tabItemSelection = null;
-    if (extraViewTabFolder != null && !extraViewTabFolder.isDisposed()) {
-      tabItemSelection = extraViewTabFolder.getSelection();
-    }
-
     pipelineLogDelegate.addPipelineLog();
     pipelineGridDelegate.addPipelineGrid();
     pipelineCheckDelegate.addPipelineCheck();
-
-    if (tabItemSelection != null) {
-      extraViewTabFolder.setSelection(tabItemSelection);
-    } else {
-      extraViewTabFolder.setSelection(pipelineGridDelegate.getPipelineGridTab());
-    }
+    extraViewTabFolder.setSelection(0);
 
     if (!EnvironmentUtils.getInstance().isWeb()) {
       ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
@@ -4727,41 +4660,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return false;
   }
 
-  /**
-   * @return the lastPipelineDebugMeta
-   */
-  public PipelineDebugMeta getLastPipelineDebugMeta() {
-    return lastPipelineDebugMeta;
-  }
-
-  /**
-   * @return the halting
-   */
-  public boolean isHalting() {
-    return halting;
-  }
-
-  /**
-   * @param halting the halting to set
-   */
-  public void setHalting(boolean halting) {
-    this.halting = halting;
-  }
-
-  /**
-   * @return the transformLogMap
-   */
-  public Map<String, String> getTransformLogMap() {
-    return transformLogMap;
-  }
-
-  /**
-   * @param transformLogMap the transformLogMap to set
-   */
-  public void setTransformLogMap(Map<String, String> transformLogMap) {
-    this.transformLogMap = transformLogMap;
-  }
-
   @Override
   public IHasLogChannel getLogChannelProvider() {
     return () -> getPipeline() != null ? getPipeline().getLogChannel() : LogChannel.GENERAL;
@@ -4983,14 +4881,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return pipelineMeta;
   }
 
-  public PipelineMeta getPipelineMeta() {
-    return pipelineMeta;
-  }
-
-  public IPipelineEngine<PipelineMeta> getPipeline() {
-    return pipeline;
-  }
-
   private void setHopEnabled(PipelineHopMeta hop, boolean enabled) {
     hop.setEnabled(enabled);
     pipelineMeta.clearCaches();
@@ -5011,22 +4901,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public HopPipelineFileType<PipelineMeta> getFileType() {
     return fileType;
-  }
-
-  /**
-   * @param fileType The fileType to set
-   */
-  public void setFileType(HopPipelineFileType<PipelineMeta> fileType) {
-    this.fileType = fileType;
-  }
-
-  /**
-   * Gets perspective
-   *
-   * @return value of perspective
-   */
-  public HopDataOrchestrationPerspective getPerspective() {
-    return perspective;
   }
 
   @Override
@@ -5376,31 +5250,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           "Error navigating to the latest execution information for this pipeline",
           e);
     }
-  }
-
-  /**
-   * Gets toolBarWidgets
-   *
-   * @return value of toolBarWidgets
-   */
-  public GuiToolbarWidgets getToolBarWidgets() {
-    return toolBarWidgets;
-  }
-
-  /**
-   * Gets outputRowsMap
-   *
-   * @return value of outputRowsMap
-   */
-  public Map<String, RowBuffer> getOutputRowsMap() {
-    return outputRowsMap;
-  }
-
-  /**
-   * @param outputRowsMap The outputRowsMap to set
-   */
-  public void setOutputRowsMap(Map<String, RowBuffer> outputRowsMap) {
-    this.outputRowsMap = outputRowsMap;
   }
 
   @Override

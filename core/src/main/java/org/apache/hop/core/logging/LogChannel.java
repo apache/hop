@@ -20,6 +20,8 @@ package org.apache.hop.core.logging;
 import java.util.Date;
 import java.util.Map;
 import java.util.Queue;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.metrics.IMetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsSnapshot;
@@ -48,7 +50,7 @@ public class LogChannel implements ILogChannel {
 
   private LogChannelFileWriterBuffer fileWriter;
 
-  private boolean simplified;
+  @Setter @Getter private boolean simplified;
 
   public LogChannel(Object subject) {
     logLevel = DefaultLogLevel.getLogLevel();
@@ -406,21 +408,5 @@ public class LogChannel implements ILogChannel {
   @Override
   public void setFilter(String filter) {
     this.filter = filter;
-  }
-
-  /**
-   * Gets simplified
-   *
-   * @return value of simplified
-   */
-  public boolean isSimplified() {
-    return simplified;
-  }
-
-  /**
-   * @param simplified The simplified to set
-   */
-  public void setSimplified(boolean simplified) {
-    this.simplified = simplified;
   }
 }

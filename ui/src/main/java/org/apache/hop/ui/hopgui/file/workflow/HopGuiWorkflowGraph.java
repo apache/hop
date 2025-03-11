@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -251,17 +253,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public static final String CONST_WORKFLOW_GRAPH_DIALOG_LOOP_AFTER_HOP_ENABLED_TITLE =
       "WorkflowGraph.Dialog.LoopAfterHopEnabled.Title";
 
-  private final HopDataOrchestrationPerspective perspective;
+  @Getter private final HopDataOrchestrationPerspective perspective;
 
-  protected ILogChannel log;
+  @Setter @Getter protected ILogChannel log;
 
-  protected WorkflowMeta workflowMeta;
+  @Getter protected WorkflowMeta workflowMeta;
 
-  protected IWorkflowEngine<WorkflowMeta> workflow;
+  @Getter protected IWorkflowEngine<WorkflowMeta> workflow;
 
-  protected Thread workflowThread;
+  @Getter protected Thread workflowThread;
 
-  protected PropsUi props;
+  @Setter @Getter protected PropsUi props;
 
   protected int iconSize;
 
@@ -276,11 +278,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private List<NotePadMeta> selectedNotes;
   protected NotePadMeta selectedNote;
 
-  protected Point lastMove;
+  @Getter @Setter protected Point lastMove;
 
   protected WorkflowHopMeta hopCandidate;
 
-  protected HopGui hopGui;
+  @Getter @Setter protected HopGui hopGui;
 
   protected boolean splitHop;
 
@@ -329,7 +331,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private List<AreaOwner> areaOwners;
 
-  private HopWorkflowFileType<WorkflowMeta> fileType;
+  @Setter private HopWorkflowFileType<WorkflowMeta> fileType;
 
   private ActionMeta startHopAction;
   private Point endHopLocation;
@@ -1516,26 +1518,23 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
     ServerPushSessionFacade.start();
     Thread thread =
-        new Thread() {
-          @Override
-          public void run() {
-            getDisplay()
-                .asyncExec(
-                    () -> {
-                      try {
-                        workflowRunDelegate.executeWorkflow(
-                            hopGui.getVariables(), workflowMeta, null);
-                        ServerPushSessionFacade.stop();
-                      } catch (Exception e) {
-                        new ErrorDialog(
-                            getShell(),
-                            "Execute workflow",
-                            "There was an error during workflow execution",
-                            e);
-                      }
-                    });
-          }
-        };
+        new Thread(
+            () ->
+                getDisplay()
+                    .asyncExec(
+                        () -> {
+                          try {
+                            workflowRunDelegate.executeWorkflow(
+                                hopGui.getVariables(), workflowMeta, null);
+                            ServerPushSessionFacade.stop();
+                          } catch (Exception e) {
+                            new ErrorDialog(
+                                getShell(),
+                                "Execute workflow",
+                                "There was an error during workflow execution",
+                                e);
+                          }
+                        }));
     thread.start();
   }
 
@@ -1784,27 +1783,26 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
     ServerPushSessionFacade.start();
     Thread thread =
-        new Thread() {
-          @Override
-          public void run() {
-            hopGui
-                .getDisplay()
-                .asyncExec(
-                    () -> {
-                      try {
-                        workflowRunDelegate.executeWorkflow(
-                            hopGui.getVariables(), workflowMeta, context.getActionMeta().getName());
-                        ServerPushSessionFacade.stop();
-                      } catch (Exception e) {
-                        new ErrorDialog(
-                            hopGui.getActiveShell(),
-                            "Execute workflow",
-                            "There was an error during workflow execution",
-                            e);
-                      }
-                    });
-          }
-        };
+        new Thread(
+            () ->
+                hopGui
+                    .getDisplay()
+                    .asyncExec(
+                        () -> {
+                          try {
+                            workflowRunDelegate.executeWorkflow(
+                                hopGui.getVariables(),
+                                workflowMeta,
+                                context.getActionMeta().getName());
+                            ServerPushSessionFacade.stop();
+                          } catch (Exception e) {
+                            new ErrorDialog(
+                                hopGui.getActiveShell(),
+                                "Execute workflow",
+                                "There was an error during workflow execution",
+                                e);
+                          }
+                        }));
     thread.start();
   }
 
@@ -3364,20 +3362,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
-  /**
-   * @return the lastMove
-   */
-  public Point getLastMove() {
-    return lastMove;
-  }
-
-  /**
-   * @param lastMove the lastMove to set
-   */
-  public void setLastMove(Point lastMove) {
-    this.lastMove = lastMove;
-  }
-
   /** Add an extra view to the main composite SashForm */
   public void addExtraView() {
 
@@ -3427,10 +3411,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
 
-    sashForm.setWeights(
-        new int[] {
-          60, 40,
-        });
+    sashForm.setWeights(60, 40);
   }
 
   @GuiToolbarElement(
@@ -3458,10 +3439,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private void disposeExtraView() {
     extraViewTabFolder.dispose();
     sashForm.layout();
-    sashForm.setWeights(
-        new int[] {
-          100,
-        });
+    sashForm.setWeights(100);
 
     ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
     item.setToolTipText(
@@ -3512,20 +3490,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public void addAllTabs() {
 
-    CTabItem tabItemSelection = null;
-    if (extraViewTabFolder != null && !extraViewTabFolder.isDisposed()) {
-      tabItemSelection = extraViewTabFolder.getSelection();
-    }
-
     workflowLogDelegate.addWorkflowLog();
     workflowGridDelegate.addWorkflowGrid();
     workflowCheckDelegate.addWorkflowCheck();
-
-    if (tabItemSelection != null) {
-      extraViewTabFolder.setSelection(tabItemSelection);
-    } else {
-      extraViewTabFolder.setSelection(workflowGridDelegate.getWorkflowGridTab());
-    }
+    extraViewTabFolder.setSelection(0);
 
     ToolItem toolItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
     toolItem.setToolTipText(
@@ -3998,14 +3966,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return workflowMeta;
   }
 
-  public WorkflowMeta getWorkflowMeta() {
-    return workflowMeta;
-  }
-
-  public IWorkflowEngine<WorkflowMeta> getWorkflow() {
-    return workflow;
-  }
-
   @Override
   public ILogChannel getLogChannel() {
     return log;
@@ -4037,24 +3997,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   /**
-   * Gets hopGui
-   *
-   * @return value of hopGui
-   */
-  public HopGui getHopGui() {
-    return hopGui;
-  }
-
-  /**
-   * Gets perspective
-   *
-   * @return value of perspective
-   */
-  public HopDataOrchestrationPerspective getPerspective() {
-    return perspective;
-  }
-
-  /**
    * Gets id
    *
    * @return value of id
@@ -4062,45 +4004,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public String getId() {
     return id;
-  }
-
-  /**
-   * Gets log
-   *
-   * @return value of log
-   */
-  public ILogChannel getLog() {
-    return log;
-  }
-
-  /**
-   * @param log The log to set
-   */
-  public void setLog(ILogChannel log) {
-    this.log = log;
-  }
-
-  /**
-   * Gets props
-   *
-   * @return value of props
-   */
-  public PropsUi getProps() {
-    return props;
-  }
-
-  /**
-   * @param props The props to set
-   */
-  public void setProps(PropsUi props) {
-    this.props = props;
-  }
-
-  /**
-   * @param hopGui The hopGui to set
-   */
-  public void setHopGui(HopGui hopGui) {
-    this.hopGui = hopGui;
   }
 
   /**
@@ -4113,25 +4016,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return fileType;
   }
 
-  /**
-   * @param fileType The fileType to set
-   */
-  public void setFileType(HopWorkflowFileType<WorkflowMeta> fileType) {
-    this.fileType = fileType;
-  }
-
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
     return null;
-  }
-
-  /**
-   * Gets workflowThread
-   *
-   * @return value of workflowThread
-   */
-  public Thread getWorkflowThread() {
-    return workflowThread;
   }
 
   @GuiContextAction(
