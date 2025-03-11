@@ -175,6 +175,16 @@ public class HopGuiWorkflowGridDelegate {
       int nrItems = workflowTracker.getTotalNumberOfItems();
 
       if (nrItems != previousNrItems) {
+        TreeItem[] selectedItem = wTree.getSelection();
+        Integer selectedIndex = null;
+        if (wTree.getItemCount() > 0 && selectedItem != null && selectedItem.length > 0) {
+          for (int i = 0; i < wTree.getItem(0).getItems().length; i++) {
+            if (wTree.getItem(0).getItem(i).equals(selectedItem[0])) {
+              selectedIndex = i;
+            }
+          }
+        }
+
         wTree.setRedraw(false);
         wTree.removeAll();
 
@@ -205,6 +215,12 @@ public class HopGuiWorkflowGridDelegate {
 
         TreeMemory.setExpandedFromMemory(wTree, STRING_CHEF_LOG_TREE_NAME);
         wTree.setRedraw(true);
+        if (selectedIndex != null) {
+          wTree.setSelection(wTree.getItem(0).getItem(selectedIndex));
+          wTree.setTopItem(wTree.getItem(0).getItem(selectedIndex));
+        } else {
+          wTree.setTopItem(treeItem.getItem(treeItem.getItemCount() - 1));
+        }
       }
     }
   }
