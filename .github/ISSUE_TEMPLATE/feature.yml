@@ -20,7 +20,7 @@
 name: Feature Request
 description: File a feature request
 title: "[Feature Request]: "
-labels: ["new feature", "awaiting triage"]
+labels: ["awaiting triage"]
 type: "Feature"
 assignees:
   - octocat
