@@ -20,7 +20,7 @@
 name: Task
 description: File a task
 title: "[Task]: "
-labels: ["task", "awaiting triage"]
+labels: ["awaiting triage"]
 type: "Task"
 assignees:
   - octocat
