@@ -18,6 +18,7 @@
 package org.apache.hop.ui.core.metadata;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
@@ -49,10 +50,10 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
 
   @Override
   public String open() {
-    PropsUi props = PropsUi.getInstance();
 
     Shell parent = getParent();
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    shell =
+        new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL);
     shell.setText(editor.getTitle());
     shell.setImage(editor.getTitleImage());
     FormLayout formLayout = new FormLayout();
@@ -74,9 +75,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     buttons.add(wOk);
     Button[] extras = editor.createButtonsForButtonBar(shell);
     if (extras != null) {
-      for (Button button : extras) {
-        buttons.add(button);
-      }
+      Collections.addAll(buttons, extras);
     }
     buttons.add(wCancel);
     BaseTransformDialog.positionBottomButtons(
