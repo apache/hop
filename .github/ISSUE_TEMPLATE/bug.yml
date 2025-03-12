@@ -21,6 +21,7 @@ name: Bug Report
 description: File a bug report
 title: "[Bug]: "
 labels: ["bug", "awaiting triage"]
+type: "Bug"
 assignees:
   - octocat
 body:
