@@ -103,7 +103,7 @@ public class ProjectsUtil {
     // but only in case Hop was started by HopGui because that is the only case
     // where this info is valuable.
     //
-    if (Const.getHopPlatformRuntime().equals("GUI")) {
+    if (Const.getHopPlatformRuntime() != null && Const.getHopPlatformRuntime().equals("GUI")) {
       AuditManager.registerEvent(
           HopGui.DEFAULT_HOP_GUI_NAMESPACE, STRING_PROJECT_AUDIT_TYPE, projectName, "open");
     }
