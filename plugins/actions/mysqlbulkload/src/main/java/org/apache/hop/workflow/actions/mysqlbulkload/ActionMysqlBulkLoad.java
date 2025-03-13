@@ -57,7 +57,9 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
     image = "MysqlBulkLoad.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
     keywords = "i18n::ActionMysqlBulkLoad.keyword",
-    documentationUrl = "/workflow/actions/mysqlbulkload.html")
+    documentationUrl = "/workflow/actions/mysqlbulkload.html",
+    classLoaderGroup = "mysql-db",
+    isIncludeJdbcDrivers = true)
 @Getter
 @Setter
 public class ActionMysqlBulkLoad extends ActionBase {

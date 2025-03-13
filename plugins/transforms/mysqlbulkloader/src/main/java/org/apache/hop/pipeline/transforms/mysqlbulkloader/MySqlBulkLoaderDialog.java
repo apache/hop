@@ -82,6 +82,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
   private TextVar wDelimiter;
   private TextVar wEnclosure;
   private TextVar wEscapeChar;
+  private TextVar wLoadCharSet;
   private TextVar wCharSet;
   private TextVar wBulkSize;
   private TableView wReturn;
@@ -293,6 +294,25 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdEscapeChar.right = new FormAttachment(100, 0);
     wEscapeChar.setLayoutData(fdEscapeChar);
 
+    // Load Charset line...
+    Label wlLoadCharSet = new Label(shell, SWT.RIGHT);
+    wlLoadCharSet.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.LoadCharSet.Label"));
+    PropsUi.setLook(wlLoadCharSet);
+    FormData fdlLoadCharSet = new FormData();
+    fdlLoadCharSet.left = new FormAttachment(0, 0);
+    fdlLoadCharSet.right = new FormAttachment(middle, -margin);
+    fdlLoadCharSet.top = new FormAttachment(wEscapeChar, margin);
+    wlLoadCharSet.setLayoutData(fdlLoadCharSet);
+
+    wLoadCharSet = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wLoadCharSet);
+    wLoadCharSet.addModifyListener(lsMod);
+    FormData fdLoadCharSet = new FormData();
+    fdLoadCharSet.left = new FormAttachment(middle, 0);
+    fdLoadCharSet.top = new FormAttachment(wEscapeChar, margin);
+    fdLoadCharSet.right = new FormAttachment(100, 0);
+    wLoadCharSet.setLayoutData(fdLoadCharSet);
+
     // CharSet line...
     Label wlCharSet = new Label(shell, SWT.RIGHT);
     wlCharSet.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.CharSet.Label"));
@@ -300,14 +320,15 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     FormData fdlCharSet = new FormData();
     fdlCharSet.left = new FormAttachment(0, 0);
     fdlCharSet.right = new FormAttachment(middle, -margin);
-    fdlCharSet.top = new FormAttachment(wEscapeChar, margin);
+    fdlCharSet.top = new FormAttachment(wLoadCharSet, margin);
     wlCharSet.setLayoutData(fdlCharSet);
+
     wCharSet = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCharSet);
     wCharSet.addModifyListener(lsMod);
     FormData fdCharSet = new FormData();
     fdCharSet.left = new FormAttachment(middle, 0);
-    fdCharSet.top = new FormAttachment(wEscapeChar, margin);
+    fdCharSet.top = new FormAttachment(wLoadCharSet, margin);
     fdCharSet.right = new FormAttachment(100, 0);
     wCharSet.setLayoutData(fdCharSet);
 
@@ -696,6 +717,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     wEnclosure.setText(Const.NVL(input.getEnclosure(), ""));
     wDelimiter.setText(Const.NVL(input.getDelimiter(), ""));
     wEscapeChar.setText(Const.NVL(input.getEscapeChar(), ""));
+    wLoadCharSet.setText(Const.NVL(input.getLoadCharSet(), ""));
     wCharSet.setText(Const.NVL(input.getEncoding(), ""));
     wReplace.setSelection(input.isReplacingData());
     wIgnore.setSelection(input.isIgnoringErrors());
@@ -768,6 +790,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     inf.setEnclosure(wEnclosure.getText());
     inf.setDelimiter(wDelimiter.getText());
     inf.setEscapeChar(wEscapeChar.getText());
+    inf.setLoadCharSet(wLoadCharSet.getText());
     inf.setEncoding(wCharSet.getText());
     inf.setReplacingData(wReplace.getSelection());
     inf.setIgnoringErrors(wIgnore.getSelection());
@@ -859,12 +882,21 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
               if (v.getType() == IValueMeta.TYPE_DATE) {
                 // The default is : format is OK for dates, see if this sticks later on...
                 //
-                tableItem.setText(3, "Y");
+                tableItem.setText(
+                    3,
+                    BaseMessages.getString(
+                        PKG, "MySqlBulkLoaderMeta.FieldFormatType.Date.Description"));
               } else {
-                tableItem.setText(3, "Y"); // default is OK too...
+                tableItem.setText(
+                    3,
+                    BaseMessages.getString(
+                        PKG,
+                        "MySqlBulkLoaderMeta.FieldFormatType.OK.Description")); // default is OK
+                // too...
               }
               return true;
             };
+
         BaseTransformDialog.getFieldsFromPrevious(
             r, wReturn, 1, new int[] {1, 2}, new int[] {}, -1, -1, listener);
       }
@@ -935,8 +967,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
             if (!Utils.isEmpty(tableName)) {
               DatabaseMeta ci = pipelineMeta.findDatabase(connectionName, variables);
               if (ci != null) {
-                Database db = new Database(loggingObject, variables, ci);
-                try {
+                try (Database db = new Database(loggingObject, variables, ci)) {
                   db.connect();
 
                   String schemaTable =
@@ -957,13 +988,6 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
                   }
                   // ignore any errors here. drop downs will not be
                   // filled, but no problem for the user
-                } finally {
-                  try {
-                    db.disconnect();
-                  } catch (Exception ignored) {
-                    // ignore any errors here.
-                    db = null;
-                  }
                 }
               }
             }
