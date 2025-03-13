@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.Date;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -43,9 +44,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBulkLoaderData> {
   private static final Class<?> PKG = MySqlBulkLoaderMeta.class;
+  public static final String MESSAGE_ERRORSERIALIZING = "MySqlBulkLoader.Message.ERRORSERIALIZING";
 
-  private final long threadWaitTime = 300000;
-  private final String threadWaitTimeText = "5min";
+  private static final long THREAD_WAIT_TIME = 300000;
+  private static final String THREAD_WAIT_TIME_TEXT = "5min";
 
   public MySqlBulkLoader(
       TransformMeta transformMeta,
@@ -84,7 +86,7 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
         new Thread(outputLogger).start();
         int result = mkFifoProcess.waitFor();
         if (result != 0) {
-          throw new Exception(
+          throw new HopException(
               BaseMessages.getString(
                   PKG, "MySqlBulkLoader.Message.ERRORFIFORC", result, mkFifoCmd));
         }
@@ -105,7 +107,7 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
         new Thread(outputLogger).start();
         result = chmodProcess.waitFor();
         if (result != 0) {
-          throw new Exception(
+          throw new HopException(
               BaseMessages.getString(PKG, "MySqlBulkLoader.Message.ERRORFIFORC", result, chmodCmd));
         }
       }
@@ -138,54 +140,54 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
 
   private void executeLoadCommand() throws Exception {
 
-    String loadCommand = "";
-    loadCommand +=
+    StringBuilder loadCommand = new StringBuilder();
+    loadCommand.append(
         "LOAD DATA "
             + (meta.isLocalFile() ? "LOCAL" : "")
             + " INFILE '"
             + resolve(meta.getFifoFileName())
-            + "' ";
+            + "' ");
     if (meta.isReplacingData()) {
-      loadCommand += "REPLACE ";
+      loadCommand.append("REPLACE ");
     } else if (meta.isIgnoringErrors()) {
-      loadCommand += "IGNORE ";
+      loadCommand.append("IGNORE ");
     }
-    loadCommand += "INTO TABLE " + data.schemaTable + " ";
-    if (!Utils.isEmpty(meta.getEncoding())) {
-      loadCommand += "CHARACTER SET " + meta.getEncoding() + " ";
+    loadCommand.append("INTO TABLE " + data.schemaTable + " ");
+    if (!Utils.isEmpty(resolve(meta.getLoadCharSet()))) {
+      loadCommand.append("CHARACTER SET " + resolve(meta.getLoadCharSet()) + " ");
     }
     String delStr = meta.getDelimiter();
     if ("\t".equals(delStr)) {
       delStr = "\\t";
     }
 
-    loadCommand += "FIELDS TERMINATED BY '" + delStr + "' ";
+    loadCommand.append("FIELDS TERMINATED BY '" + delStr + "' ");
     if (!Utils.isEmpty(meta.getEnclosure())) {
-      loadCommand += "OPTIONALLY ENCLOSED BY '" + meta.getEnclosure() + "' ";
+      loadCommand.append("OPTIONALLY ENCLOSED BY '" + meta.getEnclosure() + "' ");
     }
-    loadCommand +=
+    loadCommand.append(
         "ESCAPED BY '"
             + meta.getEscapeChar()
             + ("\\".equals(meta.getEscapeChar()) ? meta.getEscapeChar() : "")
-            + "' ";
+            + "' ");
 
     // Build list of column names to set
-    loadCommand += "(";
+    loadCommand.append("(");
     for (int cnt = 0; cnt < meta.getFields().size(); cnt++) {
       DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
-      loadCommand += databaseMeta.quoteField(meta.getFields().get(cnt).getFieldTable());
+      loadCommand.append(databaseMeta.quoteField(meta.getFields().get(cnt).getFieldTable()));
       if (cnt < meta.getFields().size() - 1) {
-        loadCommand += ",";
+        loadCommand.append(",");
       }
     }
 
-    loadCommand += ");" + Const.CR;
+    loadCommand.append(");" + Const.CR);
 
     logBasic(
         BaseMessages.getString(
             PKG, "MySqlBulkLoader.Message.STARTING", data.dbDescription, loadCommand));
 
-    data.sqlRunner = new SqlRunner(data, loadCommand);
+    data.sqlRunner = new SqlRunner(data, loadCommand.toString());
     data.sqlRunner.start();
 
     // Ready to start writing rows to the FIFO file now...
@@ -314,10 +316,10 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
       // wait for the INSERT statement to finish and check for any error and/or warning...
       logDebug(
           "Waiting up to "
-              + this.threadWaitTimeText
+              + THREAD_WAIT_TIME_TEXT
               + " for the MySql load command thread to finish processing."); // no requirement for
       // NLS debug messages
-      data.sqlRunner.join(this.threadWaitTime);
+      data.sqlRunner.join(THREAD_WAIT_TIME);
       SqlRunner sqlRunner = data.sqlRunner;
       data.sqlRunner = null;
       sqlRunner.checkExcn();
@@ -344,6 +346,7 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
         IValueMeta valueMeta = rowMeta.getValueMeta(index);
         Object valueData = r[index];
 
+        Charset charset = Charset.forName(resolve(meta.getEncoding()));
         if (valueData == null) {
           data.fifoStream.write("NULL".getBytes());
         } else {
@@ -456,27 +459,23 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
       // If something went wrong with writing to the fifo, get the underlying error from MySql
       try {
         logError(
-            BaseMessages.getString(
-                PKG, "MySqlBulkLoader.Message.IOERROR", this.threadWaitTimeText));
+            BaseMessages.getString(PKG, "MySqlBulkLoader.Message.IOERROR", THREAD_WAIT_TIME_TEXT));
         try {
-          data.sqlRunner.join(this.threadWaitTime);
+          data.sqlRunner.join(THREAD_WAIT_TIME);
         } catch (InterruptedException ex) {
           // Ignore errors
         }
         data.sqlRunner.checkExcn();
       } catch (Exception loadEx) {
-        throw new HopException(
-            BaseMessages.getString(PKG, "MySqlBulkLoader.Message.ERRORSERIALIZING"), loadEx);
+        throw new HopException(BaseMessages.getString(PKG, MESSAGE_ERRORSERIALIZING), loadEx);
       }
 
       // MySql didn't finish, throw the generic "Pipe" exception.
-      throw new HopException(
-          BaseMessages.getString(PKG, "MySqlBulkLoader.Message.ERRORSERIALIZING"), e);
+      throw new HopException(BaseMessages.getString(PKG, MESSAGE_ERRORSERIALIZING), e);
 
     } catch (Exception e2) {
       // Null pointer exceptions etc.
-      throw new HopException(
-          BaseMessages.getString(PKG, "MySqlBulkLoader.Message.ERRORSERIALIZING"), e2);
+      throw new HopException(BaseMessages.getString(PKG, MESSAGE_ERRORSERIALIZING), e2);
     }
   }
 
@@ -603,8 +602,8 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
       try {
         fifoStream =
             new BufferedOutputStream(new FileOutputStream(OpenFifo.this.fifoName), this.size);
-      } catch (Exception ex) {
-        this.ex = ex;
+      } catch (Exception exception) {
+        this.ex = exception;
       }
     }
 
@@ -637,8 +636,8 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
     public void run() {
       try {
         data.db.execStatement(loadCommand);
-      } catch (Exception ex) {
-        this.ex = ex;
+      } catch (Exception exception) {
+        this.ex = exception;
       }
     }
 

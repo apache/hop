@@ -54,7 +54,9 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     image = "MysqlBulkFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
     keywords = "i18n::ActionMysqlBulkFile.keyword",
-    documentationUrl = "/workflow/actions/mysqlbulkfile.html")
+    documentationUrl = "/workflow/actions/mysqlbulkfile.html",
+    classLoaderGroup = "mysql-db",
+    isIncludeJdbcDrivers = true)
 @Getter
 @Setter
 public class ActionMysqlBulkFile extends ActionBase {

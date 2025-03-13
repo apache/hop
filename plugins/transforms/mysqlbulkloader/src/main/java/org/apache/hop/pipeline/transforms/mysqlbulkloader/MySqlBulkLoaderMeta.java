@@ -51,7 +51,9 @@ import org.w3c.dom.Node;
     description = "i18n::MySqlBulkLoader.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::MySqlBulkLoader.keyword",
-    documentationUrl = "/pipeline/transforms/mysqlbulkloader.html")
+    documentationUrl = "/pipeline/transforms/mysqlbulkloader.html",
+    isIncludeJdbcDrivers = true,
+    classLoaderGroup = "mysql-db")
 @Getter
 @Setter
 public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySqlBulkLoaderData> {
@@ -91,6 +93,9 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
 
   @HopMetadataProperty(key = "encoding")
   private String encoding;
+
+  @HopMetadataProperty(key = "loadCharSet")
+  private String loadCharSet;
 
   @HopMetadataProperty(key = "replace")
   private boolean replacingData;
@@ -147,7 +152,8 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
     connection = "";
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "MySqlBulkLoaderMeta.DefaultTableName");
-    encoding = "";
+    encoding = "UTF8";
+    loadCharSet = "UTF8MB4";
     fifoFileName = "/tmp/fifo";
     delimiter = "\t";
     enclosure = "\"";

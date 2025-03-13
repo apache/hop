@@ -24,6 +24,7 @@ import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class MySqlBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;
 
