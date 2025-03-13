@@ -135,20 +135,20 @@ public class HopGuiPipelineGridDelegate {
 
     addToolBar();
 
-    // ignore whitespace for transformName column valueMeta, causing sorting to ignore whitespace
-    String transformNameColumnName =
-        BaseMessages.getString(PKG, "PipelineLog.Column.TransformName");
-    IValueMeta valueMeta = new ValueMetaString(transformNameColumnName);
-    valueMeta.setIgnoreWhitespace(true);
-    ColumnInfo transformNameColumnInfo =
-        new ColumnInfo(transformNameColumnName, ColumnInfo.COLUMN_TYPE_TEXT, false, true);
-    transformNameColumnInfo.setValueMeta(valueMeta);
-
     ColumnInfo[] columns =
         new ColumnInfo[] {
-          transformNameColumnInfo,
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "PipelineLog.Column.TransformName"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              true),
           new ColumnInfo(
               BaseMessages.getString(PKG, "PipelineLog.Column.Copynr"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              true),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "PipelineLog.Column.Input"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               true),
@@ -159,11 +159,6 @@ public class HopGuiPipelineGridDelegate {
               true),
           new ColumnInfo(
               BaseMessages.getString(PKG, "PipelineLog.Column.Written"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Input"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               true),
@@ -188,12 +183,17 @@ public class HopGuiPipelineGridDelegate {
               false,
               true),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Active"),
+              BaseMessages.getString(PKG, "PipelineLog.Column.BuffersInput"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               true),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Time"),
+              BaseMessages.getString(PKG, "PipelineLog.Column.BuffersOutput"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              true),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "PipelineLog.Column.Duration"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               true),
@@ -203,7 +203,7 @@ public class HopGuiPipelineGridDelegate {
               false,
               true),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.PriorityBufferSizes"),
+              BaseMessages.getString(PKG, "PipelineLog.Column.Status"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               true),
@@ -221,6 +221,7 @@ public class HopGuiPipelineGridDelegate {
     columns[10].setAlignment(SWT.RIGHT);
     columns[11].setAlignment(SWT.RIGHT);
     columns[12].setAlignment(SWT.RIGHT);
+    columns[13].setAlignment(SWT.RIGHT);
 
     pipelineGridView =
         new TableView(
@@ -410,7 +411,11 @@ public class HopGuiPipelineGridDelegate {
       // Duration?
       //
       ColumnInfo durationColumn =
-          new ColumnInfo("Duration", ColumnInfo.COLUMN_TYPE_TEXT, false, true); // TODO i18n
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "PipelineLog.Column.Duration"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              true);
       durationColumn.setValueMeta(stringMeta);
       durationColumn.setAlignment(SWT.RIGHT);
       columns.add(durationColumn);
@@ -421,12 +426,21 @@ public class HopGuiPipelineGridDelegate {
       speedMeta.setConversionMask(" ###,###,###,##0");
       stringMeta.setConversionMetadata(speedMeta);
       ColumnInfo speedColumn =
-          new ColumnInfo("Speed", ColumnInfo.COLUMN_TYPE_TEXT, false, true); // TODO i18n
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "PipelineLog.Column.Speed"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              true);
       speedColumn.setValueMeta(stringMeta);
       speedColumn.setAlignment(SWT.RIGHT);
       columns.add(speedColumn);
 
-      columns.add(new ColumnInfo("Status", ColumnInfo.COLUMN_TYPE_TEXT, false, true)); // TODO i18n
+      columns.add(
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "PipelineLog.Column.Status"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              true));
 
       // The data in the grid...
       //
