@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.util.Date;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -346,7 +345,6 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
         IValueMeta valueMeta = rowMeta.getValueMeta(index);
         Object valueData = r[index];
 
-        Charset charset = Charset.forName(resolve(meta.getEncoding()));
         if (valueData == null) {
           data.fifoStream.write("NULL".getBytes());
         } else {

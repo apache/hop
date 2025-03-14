@@ -56,7 +56,8 @@ On the server side the following query should return "ON" `show global variables
 |Delimiter|Delimiter that determines the field.
 |Enclosure|You can specify an enclosure string which when placed around a value allows delimiters to be present in it.
 |Escape character|To include delimiter characters in values sometimes an escape string is used like backslash, double backslash and so on.
-|Character set|The used character set (optional).
+|Character set (load command)|The used character set in the load command (optional).
+|Character set (file creation)|The used character set when creating the file (optional).
 |Bulk size (rows)|This will split the data load in multiple chucks.
 |Use replace clause|With REPLACE, new rows that have the same value as a unique key value in an existing row replace the existing row.
 |Use Ignore clause|With IGNORE, new rows that duplicate an existing row on a unique key value are discarded.
