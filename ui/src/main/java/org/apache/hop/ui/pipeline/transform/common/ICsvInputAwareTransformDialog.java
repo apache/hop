@@ -76,7 +76,10 @@ public interface ICsvInputAwareTransformDialog {
             reader,
             encodingType,
             meta.getFileFormatTypeNr(),
-            new StringBuilder(1000));
+            new StringBuilder(1000),
+            meta.getEnclosure(),
+            meta.getEscapeCharacter(),
+            meta.isBreakInEnclosureAllowed());
     if (!StringUtils.isBlank(line)) {
       fieldNames =
           TextFileLineUtil.guessStringsFromLine(

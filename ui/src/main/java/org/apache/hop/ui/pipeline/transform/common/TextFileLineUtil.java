@@ -39,10 +39,16 @@ public class TextFileLineUtil {
       "TextFileLineUtil.Log.ConvertLineToRowTitle";
 
   public static final String getLine(
-      ILogChannel log, InputStreamReader reader, int formatNr, StringBuilder line)
+      ILogChannel log,
+      InputStreamReader reader,
+      int formatNr,
+      StringBuilder line,
+      String enclosure,
+      String escapeCharacter,
+      boolean allowBreaks)
       throws HopFileException {
     EncodingType type = EncodingType.guessEncodingType(reader.getEncoding());
-    return getLine(log, reader, type, formatNr, line);
+    return getLine(log, reader, type, formatNr, line, enclosure, escapeCharacter, allowBreaks);
   }
 
   public static final String getLine(
@@ -50,8 +56,14 @@ public class TextFileLineUtil {
       InputStreamReader reader,
       EncodingType encodingType,
       int formatNr,
-      StringBuilder line)
+      StringBuilder line,
+      String enclosure,
+      String escapeCharacter,
+      boolean allowBreaks)
       throws HopFileException {
+
+    EnclosureData ed = new EnclosureData(0, 0, enclosure, escapeCharacter);
+
     int c = 0;
     line.setLength(0);
     try {
@@ -59,8 +71,10 @@ public class TextFileLineUtil {
         case FILE_FORMAT_DOS:
           while (c >= 0) {
             c = reader.read();
-
-            if (encodingType.isReturn(c) || encodingType.isLinefeed(c)) {
+            if (allowBreaks) {
+              handleBreaksInEnclosure(ed, c);
+            }
+            if (!ed.inEnclosure && (encodingType.isReturn(c) || encodingType.isLinefeed(c))) {
               c = reader.read(); // skip \n and \r
               if (!encodingType.isReturn(c) && !encodingType.isLinefeed(c)) {
                 // Make sure it's really a linefeed or carriage return.
@@ -79,8 +93,10 @@ public class TextFileLineUtil {
         case FILE_FORMAT_UNIX:
           while (c >= 0) {
             c = reader.read();
-
-            if (encodingType.isLinefeed(c) || encodingType.isReturn(c)) {
+            if (allowBreaks) {
+              handleBreaksInEnclosure(ed, c);
+            }
+            if (!ed.inEnclosure && (encodingType.isLinefeed(c) || encodingType.isReturn(c))) {
               return line.toString();
             }
             if (c >= 0) {
@@ -93,8 +109,10 @@ public class TextFileLineUtil {
           // not for MAC OS 9 but works for Mac OS X. Mac OS 9 can use UNIX-Format
           while (c >= 0) {
             c = reader.read();
-
-            if (encodingType.isLinefeed(c)) {
+            if (allowBreaks) {
+              handleBreaksInEnclosure(ed, c);
+            }
+            if (!ed.inEnclosure && encodingType.isLinefeed(c)) {
               return line.toString();
             } else if (!encodingType.isReturn(c) && c >= 0) {
               line.append((char) c);
@@ -164,7 +182,9 @@ public class TextFileLineUtil {
 
         // Is the field beginning with an enclosure?
         // "aa;aa";123;"aaa-aaa";000;...
-        if (lenEncl > 0 && line.substring(from, from + lenEncl).equalsIgnoreCase(enclosure)) {
+        // Bug with hop that the opening enclosure is case senstive and closing is
+        // not
+        if (lenEncl > 0 && line.substring(from, from + lenEncl).equals(enclosure)) {
           if (log.isRowLevel()) {
             log.logRowlevel(
                 BaseMessages.getString(
@@ -180,18 +200,24 @@ public class TextFileLineUtil {
           boolean isEnclosure =
               lenEncl > 0
                   && p + lenEncl < length
-                  && line.substring(p, p + lenEncl).equalsIgnoreCase(enclosure);
+                  // Bug with hop that the opening enclosure is case senstive and
+                  // closing is not
+                  && line.substring(p, p + lenEncl).equals(enclosure);
           boolean isEscape =
               lenEsc > 0
                   && p + lenEsc < length
-                  && line.substring(p, p + lenEsc).equalsIgnoreCase(escapeCharacter);
+                  // Bug with hop that the opening enclosure is case senstive and
+                  // closing is not
+                  && line.substring(p, p + lenEsc).equals(escapeCharacter);
 
           boolean enclosureAfter = false;
 
           // Is it really an enclosure? See if it's not repeated twice or escaped!
           if ((isEnclosure || isEscape) && p < length - 1) {
             String strnext = line.substring(p + lenEncl, p + 2 * lenEncl);
-            if (strnext.equalsIgnoreCase(enclosure)) {
+            // Bug with hop that the opening enclosure is case senstive and closing
+            // is not
+            if (strnext.equals(enclosure)) {
               p++;
               enclosureAfter = true;
               dencl = true;
@@ -332,5 +358,45 @@ public class TextFileLineUtil {
     }
 
     return strings.toArray(new String[strings.size()]);
+  }
+
+  private static int matchChar(String pattern, int c, int index) {
+    return !pattern.isEmpty() && c == pattern.charAt(index) ? index + 1 : 0;
+  }
+
+  private static boolean isFullMatch(String pattern, int index) {
+    return !pattern.isEmpty() && index == pattern.length();
+  }
+
+  private static void handleBreaksInEnclosure(EnclosureData ed, int c) {
+    ed.enclosureIndex = ed.isPrevEscape ? 0 : matchChar(ed.enclosure, c, ed.enclosureIndex);
+    if (isFullMatch(ed.enclosure, ed.enclosureIndex)) {
+      ed.enclosureIndex = 0;
+      ed.inEnclosure = !ed.inEnclosure;
+    }
+    ed.isPrevEscape = false;
+    ed.escapeIndex = matchChar(ed.escapeCharacter, c, ed.escapeIndex);
+    if (isFullMatch(ed.escapeCharacter, ed.escapeIndex)) {
+      ed.isPrevEscape = true;
+      ed.escapeIndex = 0;
+    }
+  }
+
+  private static class EnclosureData {
+    int enclosureIndex;
+    int escapeIndex;
+    String enclosure;
+    String escapeCharacter;
+    boolean isPrevEscape;
+    boolean inEnclosure;
+
+    EnclosureData(int enclosureIndex, int escapeIndex, String enclosure, String escapeCharacter) {
+      this.enclosureIndex = enclosureIndex;
+      this.escapeIndex = escapeIndex;
+      this.enclosure = enclosure;
+      this.escapeCharacter = escapeCharacter;
+      this.isPrevEscape = false;
+      this.inEnclosure = false;
+    }
   }
 }

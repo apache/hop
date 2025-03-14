@@ -35,6 +35,8 @@ public interface ICsvInputAwareMeta {
 
   String getEscapeCharacter();
 
+  boolean isBreakInEnclosureAllowed();
+
   int getFileFormatTypeNr();
 
   boolean hasHeader();

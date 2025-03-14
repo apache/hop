@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
@@ -123,6 +124,10 @@ public class TextFileInputMeta
     /** Flag indicating that the file contains one header line that should be skipped. */
     @Injection(name = "HEADER_PRESENT")
     public boolean header;
+
+    /** Addition Flag indicating that the filename should be prepended to headers. */
+    @Injection(name = "PREPEND_FILENAME")
+    public boolean prependFileName;
 
     /** The number of header lines, defaults to 1 */
     @Injection(name = "NR_HEADER_LINES")
@@ -531,8 +536,10 @@ public class TextFileInputMeta
 
     content.separator = ";";
     content.enclosure = "\"";
+    content.escapeCharacter = "\\";
     content.breakInEnclosureAllowed = false;
     content.header = true;
+    content.prependFileName = false;
     content.nrHeaderLines = 1;
     content.footer = false;
     content.nrFooterLines = 1;
@@ -617,8 +624,23 @@ public class TextFileInputMeta
         type = IValueMeta.TYPE_STRING;
       }
 
+      String[] filePathList =
+          FileInputList.createFilePathList(
+              variables,
+              inputFiles.fileName,
+              inputFiles.fileMask,
+              inputFiles.excludeFileMask,
+              inputFiles.fileRequired,
+              inputFiles.includeSubFolderBoolean());
+
+      String fileNameToPrepend = filePathList.length > 0 ? filePathList[0] : null;
+
       try {
-        IValueMeta v = ValueMetaFactory.createValueMeta(field.getName(), type);
+        String fieldname =
+            content.prependFileName && fileNameToPrepend != null
+                ? FileNameUtils.getBaseName(fileNameToPrepend) + "_" + field.getName()
+                : field.getName();
+        IValueMeta v = ValueMetaFactory.createValueMeta(fieldname, type);
         v.setLength(field.getLength());
         v.setPrecision(field.getPrecision());
         v.setOrigin(name);
@@ -745,6 +767,9 @@ public class TextFileInputMeta
         .append(XmlHandler.addTagValue("enclosure_breaks", content.breakInEnclosureAllowed));
     retval.append("    ").append(XmlHandler.addTagValue("escapechar", content.escapeCharacter));
     retval.append("    ").append(XmlHandler.addTagValue("header", content.header));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("prependFileName", content.prependFileName));
     retval.append("    ").append(XmlHandler.addTagValue("nr_headerlines", content.nrHeaderLines));
     retval.append("    ").append(XmlHandler.addTagValue("footer", content.footer));
     retval.append("    ").append(XmlHandler.addTagValue("nr_footerlines", content.nrFooterLines));
@@ -1282,6 +1307,11 @@ public class TextFileInputMeta
   @Override
   public String getEnclosure() {
     return content == null ? null : content.enclosure;
+  }
+
+  @Override
+  public boolean isBreakInEnclosureAllowed() {
+    return content.breakInEnclosureAllowed;
   }
 
   @Override
