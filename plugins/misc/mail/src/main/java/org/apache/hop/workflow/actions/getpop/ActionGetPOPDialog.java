@@ -1806,24 +1806,24 @@ public class ActionGetPOPDialog extends ActionDialog {
     if (action.getServerName() != null) {
       wServerName.setText(action.getServerName());
     }
-    if (action.getUserName() != null) {
-      wUserName.setText(action.getUserName());
+    if (action.getUsername() != null) {
+      wUserName.setText(action.getUsername());
     }
     if (action.getPassword() != null) {
       wPassword.setText(action.getPassword());
     }
 
-    wUseSSL.setSelection(action.isUseSSL());
-    wUseXOAUTH2.setSelection(action.isUseXOAUTH2());
+    wUseSSL.setSelection(action.isUseSsl());
+    wUseXOAUTH2.setSelection(action.isUseXOauth2());
     wGetMessage.setSelection(action.isSaveMessage());
     wGetAttachment.setSelection(action.isSaveAttachment());
-    wDifferentFolderForAttachment.setSelection(action.isDifferentFolderForAttachment());
+    wDifferentFolderForAttachment.setSelection(action.isUseDifferentFolderForAttachment());
     if (action.getAttachmentFolder() != null) {
       wAttachmentFolder.setText(action.getAttachmentFolder());
     }
 
-    if (action.getPort() != null) {
-      wPort.setText(action.getPort());
+    if (action.getSslPort() != null) {
+      wPort.setText(action.getSslPort());
     }
 
     if (action.getOutputDirectory() != null) {
@@ -1839,7 +1839,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     String protocol = action.getProtocol();
     boolean isPop3 = StringUtils.equals(protocol, MailConnectionMeta.PROTOCOL_STRING_POP3);
     wProtocol.setText(protocol);
-    int i = action.getRetrievemails();
+    int i = action.getRetrieveMails();
 
     if (i > 0) {
       if (isPop3) {
@@ -1855,20 +1855,20 @@ public class ActionGetPOPDialog extends ActionDialog {
       wFirstmails.setText(action.getFirstMails());
     }
 
-    wDelete.setSelection(action.getDelete());
-    wIMAPListmails.setText(MailConnectionMeta.getValueImapListDesc(action.getValueImapList()));
-    if (action.getIMAPFolder() != null) {
-      wIMAPFolder.setText(action.getIMAPFolder());
+    wDelete.setSelection(action.isDelete());
+    wIMAPListmails.setText(MailConnectionMeta.getValueImapListDesc(action.getValueIMAPList()));
+    if (action.getImapFolder() != null) {
+      wIMAPFolder.setText(action.getImapFolder());
     }
     // search term
-    if (action.getSenderSearchTerm() != null) {
-      wSender.setText(action.getSenderSearchTerm());
+    if (action.getSenderSearch() != null) {
+      wSender.setText(action.getSenderSearch());
     }
     wNegateSender.setSelection(action.isNotTermSenderSearch());
     if (action.getReceipientSearch() != null) {
       wRecipient.setText(action.getReceipientSearch());
     }
-    wNegateReceipient.setSelection(action.isNotTermReceipientSearch());
+    wNegateReceipient.setSelection(action.isNotTermRecipientSearch());
     if (action.getSubjectSearch() != null) {
       wSubject.setText(action.getSubjectSearch());
     }
@@ -1878,7 +1878,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     }
     wNegateBody.setSelection(action.isNotTermBodySearch());
     wConditionOnReceivedDate.setText(
-        MailConnectionMeta.getConditionDateDesc(action.getConditionOnReceivedDate()));
+        MailConnectionMeta.getConditionDateDesc(action.getConditionReceivedDate()));
     wNegateReceivedDate.setSelection(action.isNotTermReceivedDateSearch());
     if (action.getReceivedDate1() != null) {
       wReadFrom.setText(action.getReceivedDate1());
@@ -1898,8 +1898,8 @@ public class ActionGetPOPDialog extends ActionDialog {
     if (action.getProxyUsername() != null) {
       wProxyUsername.setText(action.getProxyUsername());
     }
-    if (action.getFirstIMAPMails() != null) {
-      wIMAPFirstmails.setText(action.getFirstIMAPMails());
+    if (action.getImapFirstMails() != null) {
+      wIMAPFirstmails.setText(action.getImapFirstMails());
     }
 
     wName.selectAll();
@@ -1922,41 +1922,41 @@ public class ActionGetPOPDialog extends ActionDialog {
     }
     action.setName(wName.getText());
     action.setServerName(wServerName.getText());
-    action.setUserName(wUserName.getText());
+    action.setUsername(wUserName.getText());
     action.setPassword(wPassword.getText());
-    action.setUseSSL(wUseSSL.getSelection());
-    action.setUseXOAUTH2(wUseXOAUTH2.getSelection());
+    action.setUseSsl(wUseSSL.getSelection());
+    action.setUseXOauth2(wUseXOAUTH2.getSelection());
     action.setSaveAttachment(wGetAttachment.getSelection());
     action.setSaveMessage(wGetMessage.getSelection());
-    action.setDifferentFolderForAttachment(wDifferentFolderForAttachment.getSelection());
+    action.setUseDifferentFolderForAttachment(wDifferentFolderForAttachment.getSelection());
     action.setAttachmentFolder(wAttachmentFolder.getText());
-    action.setPort(wPort.getText());
+    action.setSslPort(wPort.getText());
     action.setOutputDirectory(wOutputDirectory.getText());
     action.setFilenamePattern(wFilenamePattern.getText());
 
     // Option 'retrieve unread' is removed and there is only 2 options.
     // for backward compatibility: 0 is 'retrieve all', 1 is 'retrieve first...'
     int actualIndex = wListmails.getSelectionIndex();
-    action.setRetrievemails(actualIndex > 0 ? 2 : 0);
+    action.setRetrieveMails(actualIndex > 0 ? 2 : 0);
 
     action.setFirstMails(wFirstmails.getText());
     action.setDelete(wDelete.getSelection());
     action.setProtocol(wProtocol.getText());
     action.setAttachmentWildcard(wAttachmentWildcard.getText());
-    action.setValueImapList(MailConnectionMeta.getValueImapListByDesc(wIMAPListmails.getText()));
-    action.setFirstIMAPMails(wIMAPFirstmails.getText());
-    action.setIMAPFolder(wIMAPFolder.getText());
+    action.setValueIMAPList(MailConnectionMeta.getValueImapListByDesc(wIMAPListmails.getText()));
+    action.setImapFirstMails(wIMAPFirstmails.getText());
+    action.setImapFolder(wIMAPFolder.getText());
     // search term
-    action.setSenderSearchTerm(wSender.getText());
+    action.setSenderSearch(wSender.getText());
     action.setNotTermSenderSearch(wNegateSender.getSelection());
 
     action.setReceipientSearch(wRecipient.getText());
-    action.setNotTermReceipientSearch(wNegateReceipient.getSelection());
+    action.setNotTermRecipientSearch(wNegateReceipient.getSelection());
     action.setSubjectSearch(wSubject.getText());
     action.setNotTermSubjectSearch(wNegateSubject.getSelection());
     action.setBodySearch(wBody.getText());
     action.setNotTermBodySearch(wNegateBody.getSelection());
-    action.setConditionOnReceivedDate(
+    action.setConditionReceivedDate(
         MailConnectionMeta.getConditionDateByDesc(wConditionOnReceivedDate.getText()));
     action.setNotTermReceivedDateSearch(wNegateReceivedDate.getSelection());
     action.setReceivedDate1(wReadFrom.getText());

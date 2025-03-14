@@ -178,7 +178,7 @@ public class WorkflowEntryGetPOPTest {
     entry.setCreateLocalFolder(true);
     entry.setSaveAttachment(true);
     entry.setOutputDirectory(attachmentsDir.getAbsolutePath());
-    entry.setDifferentFolderForAttachment(false);
+    entry.setUseDifferentFolderForAttachment(false);
 
     String outputFolderName = "";
     String attachmentsFolderName = "";
@@ -211,7 +211,7 @@ public class WorkflowEntryGetPOPTest {
     entry.setCreateLocalFolder(true);
     entry.setSaveAttachment(true);
     entry.setOutputDirectory(outputDir.getAbsolutePath());
-    entry.setDifferentFolderForAttachment(true);
+    entry.setUseDifferentFolderForAttachment(true);
     entry.setAttachmentFolder(attachmentsDir.getAbsolutePath());
 
     String outputFolderName = "";
@@ -248,7 +248,7 @@ public class WorkflowEntryGetPOPTest {
     entry.setCreateLocalFolder(false);
     entry.setSaveAttachment(true);
     entry.setOutputDirectory(outputDir.getAbsolutePath());
-    entry.setDifferentFolderForAttachment(true);
+    entry.setUseDifferentFolderForAttachment(true);
     entry.setAttachmentFolder(attachmentsDir.getAbsolutePath());
 
     try {
@@ -345,7 +345,7 @@ public class WorkflowEntryGetPOPTest {
           outputDir.toString());
       // set options that trigger alternate path for FOLDER_ATTACHMENTS option
       entry.setSaveAttachment(true);
-      entry.setDifferentFolderForAttachment(true);
+      entry.setUseDifferentFolderForAttachment(true);
       String attachRes = entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS);
       assertEquals(
           "Variables not working in createOutputDirectory: attachment with options true",
