@@ -45,7 +45,6 @@ Use this transform if you deliberately want to slow down your pipeline.
 [options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform.
-Note: This name has to be unique in a single pipeline.
-|Timeout|The timeout value in seconds, minutes or hours
+|Transform name|Name of the transform. This name has to be unique in a single pipeline.
+|Timeout|How long to delay. Select whether this period is measured in milliseconds, seconds, minutes, or hours.
 |===

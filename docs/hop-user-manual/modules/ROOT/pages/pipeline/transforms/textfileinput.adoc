@@ -47,7 +47,7 @@ The features of the transform allow you to read from a list of files or director
 [options="header"]
 |===
 |Option|Description
-|Transform Name|Name of the transform this name has to be unique in a single pipeline.
+|Transform Name|Name of the transform. This name has to be unique in a single pipeline.
 |===
 
 === File Tab
@@ -58,13 +58,17 @@ The table below provides a detailed descriptions of the features available on th
 |===
 |Option|Description
 |File or directory|This field specifies the location and/or name of the input text file.
+|Add|Click to add the file and wildcards to the Selected files list.
+|Browse|Click to select the file from the file browser.
 |Regular expression|Specify the regular expression you want to use to select the files in the directory specified in the previous option.
 For example, you want to process all files that have a .txt extension.
 (See below "Selecting file using Regular Expressions")
-|Exclude Regular expression|Specify a regular expression to exclude filenames within a specified directory.
+|Exclude Regular Expression|Specify the regular expression you want to use to exclude files from the specified directory.
 |Selected Files|This table contains a list of selected files (or wildcard selections) along with a property specifying if file is required or not.
 If a file is required and it isn't found, an error is generated.
 Otherwise, the filename is skipped.
+|Delete|Click to remove the selected file from the list.
+|Edit|Click to modify the selected file in the list.
 |Show filenames(s)...|Displays a list of all files that will be loaded based on the current selected file definitions.
 |Show file content|Displays the content of the selected file.
 |Show content from first data line|Displays the content from the first data line only for the selected file.
@@ -86,9 +90,8 @@ Below are a few examples of regular expressions:
 
 **Accepting filenames from a previous transform**
 
-This option allows even more flexibility in combination with other transforms such as "Get Filenames".
-You can construct your filename and pass it to this transform.
-This way the filename can come from any source: text file, database table, etc.
+This option allows you to construct your filename in another transform, such as "Get Filenames", and then pass it to this transform, either as a field in the input stream or reading directly from the other transform's output.
+This lets you use file names from any source, including text files and database tables.
 
 [options="header"]
 |===
@@ -96,8 +99,8 @@ This way the filename can come from any source: text file, database table, etc.
 |Accept filenames from previous transforms|Enables the option to get filenames from previous transforms.
 |Pass through fields from previous transform|Enable this option to add all previous fields coming into the transform to the transform output.
 This behaves like a join option.
-|Transform to read filenames from|Transform from which to read the filenames
-|Field in the input to use as filename|Text File Input looks in this transform to determine which filenames to use
+|Transform to read filenames from|The name of the transform to read file names from.
+|Field in the input to use as filename|Specify the field in the input stream that contains the file names.
 |===
 
 === Content Tab
@@ -108,36 +111,43 @@ Below is a list of the options associated with this tab:
 [options="header"]
 |===
 |Option|Description
-|File type|Can be either CSV or Fixed length.
+|File type|The type of text contained in the file. This can be either CSV or Fixed length. Selecting CSV does not require your data be separated by commas, it indicates the file has a separator that must be defined.
 Based on this selection, Hop will launch a different helper GUI when you press the "get fields" button in the last "fields" tab.
 |Separator|One or more characters that separate the fields in a single line of text.
 Typically this is ; or a tab.
 Special characters (e.g. CHAR ASCII HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
-|Enclosure|Some fields can be enclosed by a pair of strings to allow separator characters in fields.
-The enclosure string is optional.
-If you use repeat an enclosures allow text line 'Not the nine o''clock news.'.
-With ' the enclosure string, this gets parsed as Not the nine o'clock news.
+|Insert TAB|Click to insert a tab in the Separator box.
+|Enclosure|Optionally, a character that is used in pairs to encapsulate a field value. The enclosure characters are expected to be present at the beginning and end of the string. However, if the same character is used in the middle of the string, that value is split into two field values. To prevent this and ensure the values stay intact, you can double the enclosure character in the middle of the string, which then acts like an escape character and the value is not split.
+For example, if your enclosure character is ' and you have a field value 'six o'clock', this is split into two field values "six o" and "clock". If you double the enclosure character in the middle, to be 'six o''clock', then the ' in o'clock is not interpreted as an enclosure character, and the value "six o'clock" is presented in the result set.
 Special characters (e.g. CHAR ASCII HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
-|Escape|Specify an escape character (or characters) if you have these types of characters in your data.
-If you have \ as an escape character, the text 'Not the nine o\'clock news' (with ' the enclosure) gets parsed as Not the nine o'clock news.
+|Allow breaks in enclosed fields?|If enabled, line breaks in enclosed fields do not cause the field value to end. If disabled, or if the line break is in a non-enclosed field, the field value ends at the line break, which can affect the output of the transform. If you use the Get Fields button and one of the fields ends because of a line break, that field is the last one recognized by the Get fields function.
+|Escape|Specify a character or characters that are used to identify characters that should appear as-is in the field value when they might be interpreted as a control or formatting character.
+For example, if you have \ as an escape character, the text 'Not the nine o\'clock news' (where ' is the the enclosure character) gets parsed as Not the nine o'clock news instead of splitting the field value.
 Special characters (e.g. CHAR HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
-|Header & number of header lines|Enable if your text file has a header row (first lines in the file); you can specify the number of times the header lines appears. If we mistakenly leave the _Header_ flag set on files that do not have any columns' names in its first row, Hop will set the column's name the value found on a specific column for its specific position. In case, for that specific position, the column's value is empty, Hop will set column's name to EmptyField_<n> where n is the position of the column in the columns' set. *NOTE:* remember also to perform a check on the guessed data types and column's specifier that was set after the file's analysis because they could be wrong due to wrong assumptions made by Hop while looking at the sample dataset.
-|Wrapped lines and number of wraps|Use if you deal with data lines that have wrapped beyond a specific page limit; note that headers and footers are never considered wrapped
-|Paged layout and page size and doc header|Use these options as a last resort when dealing with texts meant for printing on a line printer; use the number of document header lines to skip introductory texts and the number of lines per page to position the data lines
-|Compression|Enable if your text file is placed in a Zip or GZip archive.Note: At the moment, only the first file in the archive is read.
-|No empty rows|Do not send empty rows to the next transforms.
-|Include filename in output|Enable if you want the filename to be part of the output
+|Prepend filename to headers|Enable to add the filename to each field in the file. This can help when you are joining data by making it clear which file each field comes from.
+|Header|Enable if your text file has a header row (first lines in the file). These typically determine the column names used in the transform. If you set this on a file that does not contain headers, the data values in the first row are interpreted as headers, which will likely produce unexpected results. In this case, if the field is blank, it will be named EmptyField_n, where n is the column's position in the row. Always check the field set to ensure the column names and data types have been interpreted correctly.
+|Number of header lines|Specify the number of rows encompass the header in the file.
+|Footer|Enable if your text file has a footer row (last lines in the file). These typically provide additional data about the file, such as who created it or the date it was created. Footers are not typically processed.
+|Number of footer lines|Specify the number of rows that encompass the footer.
+|Wrapped lines?|Enable if you deal with data lines that have wrapped beyond a specific page limit. Headers and footers are never considered wrapped.
+|Number of times wrapped|Specify the number of lines a value can wrap. Values beyond this are considered separate data values.
+|Paged layout (printout)?|Enable if this text file will be printed.
+|Number of lines per page|Specify the maximum number of lines that will be printed on each page. The last page might contain less than this number.
+|Document header lines|Specify the number of lines in the header to skip printing those values.
+|Compression|Specify the compression algorithm to use to compress the data from the file, or select None to leave the data uncompressed.
+|No empty rows|If enabled, empty rows are not sent to the next transforms.
+|Include filename in output|Enable if you want the filename to be saved to a filed in the output stream.
 |Filename field name|Name of the field that contains the filename
 |Rownum in output?|Enable if you want the row number to be part of the output
 |Row number field name|Name of the field that contains the row number
-|Rownum by file?|Allows the row number to be reset per file
+|Rownum by file?|Allows the row number to be reset per file. Otherwise the row number field contains a count of all rows in all files.
 |Format|Can be either DOS, UNIX or mixed.
 UNIX files have lines that are terminated by line feeds.
 DOS files have lines separated by carriage returns and line feeds.
 If you specify mixed, no verification is done.
 |Encoding|Specify the text file encoding to use; leave blank to use the default encoding on your system.
 To use Unicode, specify UTF-8 or UTF-16. On first use, Hop searches your system for available encodings.
-|Limit|Sets the number of lines that is read from the file; 0 means read all lines.
+|Limit|Sets the number of lines that are read from the file; 0 means read all lines.
 |Be lenient when parsing dates?|Disable if you want strict parsing of data fields; if case-lenient parsing is enabled, dates like Jan 32nd will become Feb 1st.
 |The date format Locale|This locale is used to parse dates that have been written in full such as "February 2nd, 2006;" parsing this date on a system running in the French (fr_FR) locale would not work because February is called Février in that locale.
 |Add filenames to result|Adds the filenames to the internal filename result set.
@@ -152,19 +162,28 @@ The table below describes the options available for Error handling:
 [options="header"]
 |===
 |Option|Description
-|Ignore errors?|Enable if you want to ignore errors during parsing
-|Skip error lines|Enable if you want to skip those lines that contain errors.
+|Ignore errors?|Enable if you want to ignore errors during parsing. This activates the rest of the options on this tab.
+|Skip error files?|Enable to move to the next file when a file cannot load or contains errors. you can report these skipped files in the output.
+|Error file field name|Add a field to the output stream to contain the names of the files that failed to process.
+|File error message field name|Add a field to the output sream to contain the error messages returned for the files.
+|Skip error lines?|Enable if you want to skip any lines that contain errors.
 You can generate an extra file that contains the line numbers on which the errors occurred.
-Lines with errors are not skipped, the fields that have parsing errors, will be empty (null)
-|Error count field name|Add a field to the output stream rows; this field contains the number of errors on the line
-|Error fields field name|Add a field to the output stream rows; this field contains the field names on which an error occurred
-|Error text field name|Add a field to the output stream rows; this field contains the descriptions of the parsing errors that have occurred
-|Warnings file directory|When warnings are generated, they are placed in this directory.
-The name of that file is <warning dir>/filename.<date_time>.<warning extension>
-|Error files directory|When errors occur related to non-existing or non-accessible files, they are placed in this directory.
-The name of the file is <errorfile_dir>/filename.<date_time>.<errorfile_extension>
-|Failing line numbers files directory|When a parsing error occurs on a line, the line number is placed in this directory.
-The name of that file is <errorline dir>/filename.<date_time>.<errorline extension>
+If lines with errors are not skipped, the fields that have parsing errors will be empty (null)
+|Error count field name|Add a field to the output stream to contain the number of errors on the line
+|Error fields field name|Add a field to the output stream to contain the field names on which an error occurred
+|Error text field name|Add a field to the output stream to contain the descriptions of the parsing errors that have occurred
+|Warnings file directory|When warnings are generated, they are written to a file in this directory.
+That file is automatically named <warning dir>/filename.<date_time>.<warning extension>
+|Extension|Specify the file extension for the warning file.
+|Browse|Click to navigate to the woarning directory or select the file to save warnings into if it already exists.
+|Error files directory|When errors occur related to non-existing or non-accessible files, they are written to a file in this directory.
+That file is automatically named <errorfile_dir>/filename.<date_time>.<errorfile_extension>
+|Extension|Specify the file extension for the error file.
+|Browse|Click to navigate to the error directory or select the file to save errors into if it already exists.
+|Failing line numbers files directory|When a parsing error occurs on a line, the line number is written to a file in this directory.
+That file is automatically named <errorline dir>/filename.<date_time>.<errorline extension>
+|Extension|Specify the file extension for the failed line file.
+|Browse|Click to navigate to the failed line directory or select the file to save failed lines into if it already exists.
 |===
 
 === Filters Tab
@@ -175,12 +194,12 @@ The table below describes the available options for defining filters:
 [options="header"]
 |===
 |Option|Description
-|Filter string|The string for which to search
-|Filter position|The position where the filter string has to be at in the line.
+|Filter string|The string to search for in the data values. Each data value is treated as aline of text regardless of how long it is.
+|Filter position|The position in the line to search for the filter string.
 Zero (0) is the first position in the line.
-If you specify a value below zero (0) here, the filter string is searched for in the entire string.
+Specifying a negative value here searches the entire line for the filter string.
 |Stop on filter|Specify Y here if you want to stop processing the current text file when the filter string is encountered.
-|Positive match|Specify Y here if you want to process lines that match the filter, or N if you want to ignore such lines.
+|Positive match|Specify Y here if you want to process lines that match the filter, or N if you want to ignore these lines.
 |===
 
 === Fields Tab
@@ -193,19 +212,19 @@ Available options include:
 |===
 |Option|Description
 |Schema Definition|Name of the xref:metadata-types/static-schema-definition.adoc[Schema Definition] that we want to reference.
-|Name|Name of the field
-|Type|Type of the field can be either String, Date or Number
+|Name|Name of the field to include in the output.
+|Type|Data type for the field. This can be either String, Date or Number
 |Format|See Number Formats for a complete description of format symbols.
 |Position|This is needed when processing the 'Fixed' filetype.
-It is zero based, so the first character is starting with position 0.
+It is zero based, so the first character starts with position 0.
 |Length|For Number: Total number of significant figures in a number; For String: total length of string; For Date: length of printed output of the string (e.g. 4 only gives back the year).
-|Precision|For Number: Number of floating point digits; For String, Date, Boolean: unused;
-|Currency|Used to interpret numbers like $10,000.00 or E5.000,00
-|Decimal|A decimal point can be a "." (10;000.00) or "," (5.000,00)
-|Grouping|A grouping can be a dot "," (10;000.00) or "." (5.000,00)
-|Null if|Treat this value as NULL
+|Precision|For Number: The number of floating point digits displayed
+|Currency|Used to interpret monetary values like $10,000.00 or E5.000,00
+|Decimal|The character used as the decimal point for numbers. Typically a "." (10,000.00) or "," (5.000,00)
+|Grouping|A character used as a thousands separator for numbers. Typically a "," (10,000.00) or "." (5.000,00)
+|Null if|Specify a value that will be replaced with a null value in the output.
 |Default|Default value in case the field in the text file was not specified (empty)
-|Trim|type trim this field (left, right, both) before processing
+|Trim type|Specify how whitespace is trimmed from the value in the column. This can be left (removes leading spaces), right (removes trailing spaces), both, or none.
 |Repeat|If the corresponding value in this row is empty, repeat the one from the last row when it was not empty.
 |===
 
@@ -273,10 +292,10 @@ For further information on valid date formats used in this transform, view the D
 |Option|Description
 |Short filename field|The field name that contains the filename without path information but with an extension.
 |Extension field|The field name that contains the extension of the filename.
-|Path field|The field name that contains the path in operating system format.
-|Size field|The field name that contains the size of the field.
-|Is hidden field|The field name that contains if the file is hidden or not (boolean).
-|Uri field|The field name that contains the URI.
+|Path field|The field name that contains the path to the file in operating system format.
+|Size field|The field name that contains the size of the file.
+|Is hidden field|The field name that contains whether the file is hidden (Boolean).
+|Uri field|The field name that contains the file's URL.
 |Root uri field|The field name that contains only the root part of the URI.
 |===
 
@@ -289,11 +308,11 @@ For further information on valid date formats used in this transform, view the D
 Note that if the pipeline is to be run on a separate server, the result might be incorrect.
 |Show file content|Displays the first lines of the text-file.
 Make sure that the file-format is correct.
-When in doubt, try both DOS and UNIX formats.
+You can try both DOS and UNIX formats to verify the correct format.
 |Show content from first data line|Helps you position the data lines in complex text files with multiple header lines and more.
-|Get fields|Allows you to guess the layout of the file.
-In case of a CSV file, this is performed almost automatically.
-When you select a file with fixed length fields, you must specify the field boundaries using a wizard.
-|Preview rows|Preview the rows generated by this transform.
+|Get fields|Retrieves the fields as defined by the settings in the File and Content tabs.
+In case of a CSV file, this is performed almost automatically using the columns defined in the header row to define the fields
+In the case of a file with fixed length fields, you must specify the field boundaries using a wizard.
+|Preview rows|Preview the rows generated by this transform, applying filters and field formatting.
 |===
 

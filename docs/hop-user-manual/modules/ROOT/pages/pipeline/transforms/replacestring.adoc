@@ -50,17 +50,17 @@ You can also use xref::variables.adoc#_hexadecimal_values[hexadecimal replacemen
 [options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform.
+|Transform name|Name of the transform. This must be unique within a plugin.
 |In stream field|The field in which a replacement has to take place.
-|Out stream field|The result field. If you leave the Out stream field empty, it will replace the value in the In stream field or it will create a new field.
-|use RegEx|Use regular expressions (Y/N).
-|Search|Search for a certain pattern. Can use a wildcard (*) for searching in the Search column.
-|Replace with|Replace with certain characters.
-|Set empty string?|Turn string into an empty string.
-|Replace with field|Replace the pattern with a field value.
-|Whole word|Whole word (Y/N).
-|Case sensitive|Is the search case sensitive (Y/N).
-|Is Unicode|Is the search unicode (Y/N)
+|Out stream field|The result field. If you leave the Out stream field empty, it will replace the value in the In stream field. Otherwise, the replacement value is output in a new field.
+|use RegEx|Specify whether a regular expression is used for specifying the value to replace. This value must be Y or N.
+|Search|Search for a certain pattern. You can use a wildcard (*) for matching multiple characters. If you are using a regular expression, specify the pattern in this field.
+|Replace with|Specify the value to replace the search pattern with. If you are using egular expressions, specify the replacement part of the string here.
+|Set empty string?|Specify whether the field value is replaced with a blank string. This value must be Y or N.
+|Replace with field|Replace the search pattern with the vlaue from the field you specify.
+|Whole word|Specify whether the whole word must match the search pattern to be replaced. This value must be Y or N.
+|Case sensitive|Specify whether the search is case sensitive. This value must be Y or N.
+|Is Unicode|Specify whether the search uses unicode encoding. This value must be Y or N.
 |===
 
 == Example

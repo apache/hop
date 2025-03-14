@@ -16,7 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
-:description: A Schema File Definition describes a stream layout that can be applied to a selected set of input/output transforms. The Schema Definition is a way to define a recurrent stream layout that can be reused around multiple pipelines by making the things easier by nit requiring the user to redefine if multiple times.
+:description: A Schema File Definition describes a stream layout that can be applied to a selected set of input/output transforms. The Schema Definition is a way to define a recurrent stream layout that can be reused in multiple pipelines, without requiring the user to redefine it multiple times.
 
 = Static Schema Definition
 
@@ -37,17 +37,18 @@ Transforms:
 * xref:pipeline/transforms/csvinput.adoc[CSV Input]
 * xref:pipeline/transforms/excelinput.adoc[Excel Input]
 * xref:pipeline/transforms/excelwriter.adoc[Excel Writer]
+* xref:pipeline/transforms/schemamapping.adoc[Schema Mapping]
 
 == Options
 
 [options="header"]
 |===
 |Option |Description
-|Name|The name to be used for this Beam file definition
-|Description|The description to be used for this Beam file definition
-|Field Separator|separator used between fields in the file definition
-|Enclosure|field enclosure used for fields in the file definition
-|Field Definitions|List of field's attributes that describes the file layout for this field definition.
+|Name|The name to be used for this schema definition
+|Description|The description to be used for this schema definition
+|Field Separator|separator used between fields in the schema definition
+|Enclosure|field enclosure used for fields in the schema definition
+|Field Definitions|List of fields and attributes that describe the file layout for this schema definition.
 |===
 
 ////

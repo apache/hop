@@ -61,7 +61,7 @@ You must specify the name of the flag field in that case (the type is boolean).
 |Temporary files directory|The directory in which the temporary files are stored (needed when the Include all rows option is enabled and the number or grouped rows exceed 5000 rows); the default is the standard temporary directory for the system
 |TMP-file prefix|Specify the file prefix used when naming temporary files
 |Add line number, restart in each group|Enable to add a line number that restarts at 1 in each group
-|Line number field name|Enable to add a line number that restarts at 1 in each group
+|Line number field name|The name of the field added to contain the line numbers.
 |Always give back a row|If you enable this option, the Group By transform will always give back a result row, even if there is no input row.
 This can be useful if you want to count the number of rows.
 Without this option you would never get a count of zero (0).

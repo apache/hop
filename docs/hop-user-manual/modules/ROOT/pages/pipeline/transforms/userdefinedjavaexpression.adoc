@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: This transform allows you to enter User Defined Java Expressions as a basis for the calculation of new values.
+:description: This transform allows you to enter Java expressions that are used to calculate new values or replace values in fields.
 
 = image:transforms/icons/janino.svg[User Defined Java Expression transform Icon, role="image-doc-icon"] User Defined Java Expression
 
@@ -25,7 +25,7 @@ under the License.
 |
 == Description
 
-This transform allows you to enter User Defined Java Expressions as a basis for the calculation of new values.  Any custom jar libraries that your expressions depend on need to be placed in the folder `plugins/transforms/janino/lib`
+This transform allows you to enter Java expressions that are used to calculate new values or replace values in fields. Any custom jar libraries that your expressions depend on need to be placed in the folder `plugins/transforms/janino/lib`
 
 |
 == Supported Engines
@@ -72,13 +72,14 @@ The values are exposed to the expressions as the Java objects they are :
 [options="header"]
 |===
 |Option|Description
-|New Field|The new field in the data stream.
-If you want to overwrite an existing field, you need to define the field here and in the "Replace value" option.
-|Java Expression|The Java Expression, see examples below.
-|Value Type|Type
-|Length|Length
-|Precision|Precision
-|Replace value|Select this identical to the "New field" name when you want to replace
+|Transform name|Specify a name for this transform. This must be unique wihin the pipeline.
+|New field|The new field in the data stream that contains the result of the expression.
+If you want to overwrite an existing field, you need to define the same field here and in the "Replace value" option.
+|Java expression|The Java expression to evaluate. See examples below.
+|Value type|The field's data type.
+|Length|The maximum length of a string in the new field.
+|Precision|The number of decimal places used to express numbers.
+|Replace value|Set this to be identical to the "New field" name when you want to replace the value in an existing field.
 |===
 
 == Examples

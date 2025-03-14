@@ -65,6 +65,24 @@ For more information about specifying file locations, see section "Selecting fil
 
 Example: You have a static directory of c:\temp where you expect files with an extension of .dat to be placed.
 Under file/directory you would specify c:\temp and under Wildcard you would have a RegEx with something like .*\.dat$
+[options="header"]
+|===
+|Option|Description
+
+|Is filename defined in a field?|Indicates whether the file you want to load is in a field that you can specify.
+|Get filename from field|The field to load the file name from.
+|Inclusion wildcard field (RegExp)|If you are loading multiple files, define a regular expression that matches the file names to load.
+|Exclusion wildcard field (RegExp)|Define a regular expression that matches files you want to exclude from the transform.
+|Include subfolders?|Indicates whether files in subfolders are considered by the expressions.
+|File or directory|If the file is not defined by a field, specify the file name or the directory to load multiple files from.
+|Add|Click to add the specified file, directory, and regular expressions to the selected file list.
+|Browse|Click to select a file.
+|Inclusion wildcard (RegExp)|If you are loading multiple files, a regular expression that matches the file names you want to load.
+|Exclusion wildcard (RegExp)|Define a regular expression that matches files you want to exclude from the transform.
+|Selected files|Lists the selected files and the inclusion/exclusion expressions defined for them.
+|Delete|Click to remove a file from the Selected files list.
+|Edit|Click to modify a file in the Selected file list.
+|===
 
 == Filters
 
@@ -81,6 +99,18 @@ It also gives you:
 * The ability to add the filename(s) to the result list
 * The ability to print an error message in case no files/folders are found without stop processing
 * The ability to raise an exception and stop processing in case no files/folders are found.
+[options="header"]
+|===
+|Option|Description
+
+|Filter type|Select what the filtering applies to. Select either all files and folders, only files, or only folders.
+|Include rownum in output?|Whether the row number is included as a field in the output.
+|Rownum fieldname|The name of the field the row number is reported in.
+|Do not report error|Indicates whether the pipeline fails quietly if no files or folders match the filtering. If not selected, an error is reported if no file sor folders are available.
+|Raise an exception and stop processing|Indicates whether an exception is thrown if no files of folders match the filtering, which also stops the pipeline from continuing. If not selected, the pipeline continues without the files.
+|Limit|The number of files and folders inluded in the output.
+|Add filename to result?|Indicates whether the file name is added as a field in the output.
+|===
 
 === Details on how exceptions are raised when no files are found
 As described above, if you enable the switch in the _Filter_ tab, Hop will raise an exception in case no files are found and will stop the process.

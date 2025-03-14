@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The `Copy Files` action copies one of more files or folders.
+The Copy Files action copies one of more files or folders.
 
 == Files tab
 
@@ -50,8 +50,7 @@ Use this if you already know a file path and you simply want to copy and paste i
 If you choose an option other than <Static> in the Destination Environment field, click the button in the field to view the Open File window.
 |===
 
-== Settings tab
-
+== Settings
 [options="header", width="90%", cols="1,3,1"]
 |===
 |Option|Description|Default
