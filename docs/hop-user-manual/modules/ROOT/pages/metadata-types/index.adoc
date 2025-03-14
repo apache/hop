@@ -40,6 +40,7 @@ By default, Hop contains the following metadata types:
 * xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]: Describes a connection to a Cassandra cluster
 * xref:metadata-types/data-set.adoc[Data Set]: This defines a data set, a static pre-defined collection of rows
 * xref:metadata-types/hop-server.adoc[Hop Server]: Defines a Hop Server
+* xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]: Defines a connection to an email server.
 * xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]: Describes a MongoDB connection
 * xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]: A shared connection to a Neo4j server
 * xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: Description of the nodes, relationships, indexes, ... of a Neo4j graph
@@ -49,6 +50,7 @@ By default, Hop contains the following metadata types:
 * xref:metadata-types/pipeline-run-config.adoc[Pipeline Run Configuration]: Describes how and with which engine a pipeline is to be executed
 * xref:metadata-types/pipeline-unit-test.adoc[Pipeline Unit Test]: Describes a test for a pipeline with alternative data sets as input from a certain transform and testing output against golden data
 * xref:metadata-types/rdbms-connection.adoc[Relational Database Connection]: Describes all the metadata needed to connect to a relational database
+* xref:metadata-types/rest-connection.adoc[REST Connection]: Describes a base connection to a REST api endpoint
 * xref:metadata-types/splunk-connection.adoc[Splunk Connection]: Describes a Splunk connection
 * xref:metadata-types/variable-resolver/index.adoc[Variable Resolver]: Use plugins to resolve variable values with a pipeline, a key store, a vaults, or secret managers.
 * xref:hop-server/web-service.adoc[Web Service]: Allows to run a pipeline to generate output for a servlet on Hop Server
