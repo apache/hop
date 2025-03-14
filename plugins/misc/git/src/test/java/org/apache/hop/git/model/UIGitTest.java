@@ -86,6 +86,7 @@ public class UIGitTest extends RepositoryTestCase {
       File f = new File(updatedPath);
       FileUtils.forceDeleteOnExit(f);
     }
+    db2.close();
   }
 
   @Test

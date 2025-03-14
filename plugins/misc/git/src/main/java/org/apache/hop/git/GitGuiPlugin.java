@@ -97,7 +97,7 @@ public class GitGuiPlugin
 
   private static GitGuiPlugin instance;
 
-  private UIGit git;
+  private static UIGit git;
   private Map<String, UIFile> changedFiles;
   private Map<String, String> ignoredFiles;
 
@@ -113,12 +113,6 @@ public class GitGuiPlugin
   }
 
   public GitGuiPlugin() {
-    if (instance != null) {
-      git = instance.git;
-    } else {
-      instance = this;
-      git = null;
-    }
 
     // Adjust color for dark mode
     if (PropsUi.getInstance().isDarkMode()) {
@@ -147,7 +141,8 @@ public class GitGuiPlugin
     explorerPerspective.getFilePaintListeners().add(this);
     explorerPerspective.getRefreshListeners().add(this);
     explorerPerspective.getSelectionListeners().add(this);
-    setBranchLabel(null);
+
+    enableButtons();
   }
 
   @GuiMenuElement(
