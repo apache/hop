@@ -11,7 +11,7 @@
   "virtualPath": "",
   "secureConnectionType": "",
   "useAuthentication": true,
-  "name": "james",
+  "name": "james-smtp",
   "useSecureAuthentication": false,
   "username": "user01@example.com"
 }

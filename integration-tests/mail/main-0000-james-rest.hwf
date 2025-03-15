@@ -88,8 +88,12 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <auth_user>${MAIL_SENDER_ADDRESS}</auth_user>
       <check_server_identity>N</check_server_identity>
       <comment>test body</comment>
-      <connectionName>james</connectionName>
+      <connectionName>james-smtp</connectionName>
+      <contact_persion/>
+      <contact_phone/>
       <destination>user01@example.com</destination>
+      <destinationBCc/>
+      <destinationCc/>
       <embeddedimages>
 </embeddedimages>
       <encoding>UTF-8</encoding>
@@ -97,18 +101,23 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <include_date>N</include_date>
       <include_files>N</include_files>
       <only_comment>N</only_comment>
+      <port/>
       <priority>normal</priority>
+      <replyToAddresses/>
       <replyto>user01@example.com</replyto>
       <replytoname>user01@example.com</replytoname>
       <secureconnectiontype>TLS</secureconnectiontype>
       <sensitivity>normal</sensitivity>
+      <server/>
       <subject>test subject</subject>
+      <trusted_hosts/>
       <use_HTML>N</use_HTML>
       <use_Priority>N</use_Priority>
       <use_auth>N</use_auth>
       <use_secure_auth>Y</use_secure_auth>
       <usexoauth2>N</usexoauth2>
       <zip_files>N</zip_files>
+      <zip_name/>
       <parallel>N</parallel>
       <xloc>576</xloc>
       <yloc>64</yloc>
@@ -131,46 +140,31 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <description/>
       <type>GET_POP</type>
       <attributes/>
-      <servername>james</servername>
-      <username>user01@example.com</username>
-      <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
-      <usessl>Y</usessl>
-      <sslport>993</sslport>
-      <usexoauth2>N</usexoauth2>
-      <outputdirectory>${PROJECT_HOME}/output</outputdirectory>
-      <filenamepattern>name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail</filenamepattern>
-      <retrievemails>0</retrievemails>
-      <firstmails/>
+      <createlocalfolder>Y</createlocalfolder>
+      <createmovetofolder>N</createmovetofolder>
       <delete>N</delete>
-      <savemessage>Y</savemessage>
-      <saveattachment>Y</saveattachment>
-      <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
-      <protocol>IMAP</protocol>
-      <attachmentfolder/>
-      <attachmentwildcard/>
-      <valueimaplist>imaplistall</valueimaplist>
+      <filenamepattern>name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail</filenamepattern>
       <imapfirstmails>0</imapfirstmails>
       <imapfolder>INBOX</imapfolder>
-      <sendersearch/>
-      <nottermsendersearch>N</nottermsendersearch>
-      <receipientsearch/>
-      <nottermreceipientsearch>N</nottermreceipientsearch>
-      <subjectsearch/>
-      <nottermsubjectsearch>N</nottermsubjectsearch>
-      <bodysearch/>
-      <nottermbodysearch>N</nottermbodysearch>
-      <conditionreceiveddate>ignore</conditionreceiveddate>
-      <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
-      <receiveddate1/>
-      <receiveddate2/>
-      <actiontype>get</actiontype>
-      <movetoimapfolder/>
-      <createmovetofolder>N</createmovetofolder>
-      <createlocalfolder>Y</createlocalfolder>
-      <aftergetimap>nothing</aftergetimap>
       <includesubfolders>N</includesubfolders>
+      <nottermbodysearch>N</nottermbodysearch>
+      <nottermreceipientsearh>N</nottermreceipientsearh>
+      <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
+      <nottermsendersearch>N</nottermsendersearch>
+      <nottermsubjectsearch>N</nottermsubjectsearch>
+      <outputdirectory>${PROJECT_HOME}/output</outputdirectory>
+      <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
+      <protocol>IMAP</protocol>
+      <retrievemails>0</retrievemails>
+      <saveattachment>Y</saveattachment>
+      <savemessage>Y</savemessage>
+      <servername>james</servername>
+      <sslport>993</sslport>
+      <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
       <useproxy>N</useproxy>
-      <proxyusername/>
+      <username>user01@example.com</username>
+      <usessl>Y</usessl>
+      <usexoauth2>N</usexoauth2>
       <parallel>N</parallel>
       <xloc>928</xloc>
       <yloc>64</yloc>

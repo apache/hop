@@ -458,7 +458,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     connection.setProxyUsername(wProxyUsername.getText());
 
     try {
-      connection.testConnection(connection.getSession(getVariables()));
+      connection.testConnection(connection.getSession(getVariables(), getHopGui().getLog()));
 
     } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error connecting mail server:", e);

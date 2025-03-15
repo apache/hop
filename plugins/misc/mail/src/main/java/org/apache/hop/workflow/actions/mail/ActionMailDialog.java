@@ -439,7 +439,7 @@ public class ActionMailDialog extends ActionDialog {
 
     Group wConnectionGroup = new Group(wContentComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wConnectionGroup);
-    wConnectionGroup.setText(BaseMessages.getString(PKG, "ActionMail.Group.ConnectionGroup.Label"));
+    wConnectionGroup.setText(BaseMessages.getString(PKG, "ActionMail.Connection.Group.Label"));
     FormLayout connectionGroupLayout = new FormLayout();
     connectionGroupLayout.marginWidth = 10;
     connectionGroupLayout.marginHeight = 10;
@@ -452,8 +452,8 @@ public class ActionMailDialog extends ActionDialog {
             MailServerConnection.class,
             wConnectionGroup,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            "Mail Connection",
-            "The name of the mail connection to use");
+            BaseMessages.getString(PKG, "ActionMail.Connection.Label"),
+            BaseMessages.getString(PKG, "ActionMail.Connection.ToolTip"));
     PropsUi.setLook(wSelectionLine);
     FormData fdSelectionLine = new FormData();
     fdSelectionLine.left = new FormAttachment(0, 0);

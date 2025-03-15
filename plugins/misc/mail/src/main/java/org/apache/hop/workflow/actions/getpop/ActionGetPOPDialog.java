@@ -27,10 +27,13 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.mail.MailServerConnection;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -139,6 +142,7 @@ public class ActionGetPOPDialog extends ActionDialog {
   private Button wTestIMAPFolder;
   private Button wSelectFolder;
   private MailConnection mailConn = null;
+  private MetaSelectionLine wSelectionLine;
 
   public ActionGetPOPDialog(
       Shell parent, ActionGetPOP action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -228,6 +232,46 @@ public class ActionGetPOPDialog extends ActionDialog {
     wGeneralComp.setLayout(generalLayout);
 
     // ////////////////////////
+    // START OF CONNECTION LINE GROUP
+    // /////////////////////////
+
+    Group wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wConnectionGroup);
+    wConnectionGroup.setText(BaseMessages.getString(PKG, "ActionGetPOP.Connection.Group.Label"));
+    FormLayout connectionGroupLayout = new FormLayout();
+    connectionGroupLayout.marginWidth = 10;
+    connectionGroupLayout.marginHeight = 10;
+    wConnectionGroup.setLayout(connectionGroupLayout);
+
+    wSelectionLine =
+        new MetaSelectionLine(
+            variables,
+            metadataProvider,
+            MailServerConnection.class,
+            wConnectionGroup,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "ActionGetPOP.Connection.Label"),
+            BaseMessages.getString(PKG, "ActionGetPOP.Connection.ToolTip"));
+    PropsUi.setLook(wSelectionLine);
+    FormData fdSelectionLine = new FormData();
+    fdSelectionLine.left = new FormAttachment(0, 0);
+    fdSelectionLine.top = new FormAttachment(wGeneralComp, 0);
+    fdSelectionLine.right = new FormAttachment(100, -margin);
+    wSelectionLine.setLayoutData(fdSelectionLine);
+    wSelectionLine.addListener(SWT.Selection, e -> action.setChanged(true));
+    try {
+      wSelectionLine.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error getting list of Mail Server connectioons", e);
+    }
+
+    FormData fdConnectionGroup = new FormData();
+    fdConnectionGroup.left = new FormAttachment(0, 0);
+    fdConnectionGroup.top = new FormAttachment(wName, margin);
+    fdConnectionGroup.right = new FormAttachment(100, 0);
+    wConnectionGroup.setLayoutData(fdConnectionGroup);
+
+    // ////////////////////////
     // START OF SERVER SETTINGS GROUP///
     // /
     Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
@@ -245,7 +289,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlServerName);
     FormData fdlServerName = new FormData();
     fdlServerName.left = new FormAttachment(0, 0);
-    fdlServerName.top = new FormAttachment(0, 2 * margin);
+    fdlServerName.top = new FormAttachment(wSelectionLine, 2 * margin);
     fdlServerName.right = new FormAttachment(middle, -margin);
     wlServerName.setLayoutData(fdlServerName);
     wServerName = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -253,7 +297,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment(middle, 0);
-    fdServerName.top = new FormAttachment(0, 2 * margin);
+    fdServerName.top = new FormAttachment(wSelectionLine, margin);
     fdServerName.right = new FormAttachment(100, 0);
     wServerName.setLayoutData(fdServerName);
 
@@ -453,7 +497,7 @@ public class ActionGetPOPDialog extends ActionDialog {
 
     FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment(0, margin);
-    fdServerSettings.top = new FormAttachment(wProtocol, margin);
+    fdServerSettings.top = new FormAttachment(wConnectionGroup, margin);
     fdServerSettings.right = new FormAttachment(100, -margin);
     wServerSettings.setLayoutData(fdServerSettings);
     // ///////////////////////////////////////////////////////////
@@ -1803,6 +1847,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     if (action.getName() != null) {
       wName.setText(action.getName());
     }
+    wSelectionLine.setText(Const.nullToEmpty(action.getConnectionName()));
     if (action.getServerName() != null) {
       wServerName.setText(action.getServerName());
     }
@@ -1921,6 +1966,7 @@ public class ActionGetPOPDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
+    action.setConnectionName(wSelectionLine.getText());
     action.setServerName(wServerName.getText());
     action.setUsername(wUserName.getText());
     action.setPassword(wPassword.getText());

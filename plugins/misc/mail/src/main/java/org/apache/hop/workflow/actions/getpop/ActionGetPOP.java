@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
@@ -183,6 +184,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "createlocalfolder")
   private boolean createLocalFolder;
+
+  @HopMetadataProperty private String connectionName;
 
   private static final String DEFAULT_FILE_NAME_PATTERN =
       "name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail";
@@ -354,6 +357,11 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
           break;
       }
 
+      if(!StringUtils.isEmpty(connectionName)){
+
+      }else{
+
+      }
       String realserver = getRealServername();
       String realusername = getRealUsername();
       String realpassword = getRealPassword(getPassword());

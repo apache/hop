@@ -17,17 +17,22 @@
 
 package org.apache.hop.metadata.mail;
 
+import com.sun.mail.imap.IMAPSSLStore;
+import com.sun.mail.pop3.POP3SSLStore;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.Store;
 import jakarta.mail.Transport;
+import jakarta.mail.URLName;
 import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -50,6 +55,8 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   private Session session;
   private IVariables variables;
+  private Properties props;
+  private Store store;
 
   @HopMetadataProperty private String protocol;
 
@@ -82,6 +89,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   public MailServerConnection() {
     super();
+    props = new Properties();
   }
 
   public MailServerConnection(IVariables variables) {
@@ -89,16 +97,16 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     this.variables = variables;
   }
 
-  public Session getSession(IVariables variables) {
+  public Session getSession(IVariables variables, ILogChannel log) {
     this.variables = variables;
 
+    // SMTP
     if (protocol.equals("SMTP")) {
       // Send an e-mail...
       // create some properties and get the default Session
-      Properties props = new Properties();
-      //    if (Utils.isEmpty(serverHost)) {
-      //      logError(BaseMessages.getString(PKG, "ActionMail.Error.HostNotSpecified"));
-      //    }
+      if (Utils.isEmpty(serverHost)) {
+        log.logError(BaseMessages.getString(PKG, "ActionMail.Error.HostNotSpecified"));
+      }
 
       protocol = "smtp";
       if (useSecureAuthentication) {
@@ -138,13 +146,46 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       if (useAuthentication) {
         props.put(CONST_MAIL + protocol + ".auth", "true");
       }
+    } else {
+      String protocolString = "";
+      if (protocol.equals("POP3")) {
+        props.setProperty("mail.pop3s.rsetbeforequit", "true");
+        props.setProperty("mail.pop3.rsetbeforequit", "true");
+        protocolString = "pop3";
+      } else if (protocol.equals("MBOX")) {
+        props.setProperty(
+            "mstor.mbox.metadataStrategy", "none"); // mstor.mbox.metadataStrategy={none|xml|yaml}
+        props.setProperty("mstor.cache.disabled", "true"); // prevent diskstore fail
+        protocolString = "mstor";
+      } else if (protocol.equals("IMAP")) {
+        protocolString = "imap";
+      }
 
-      session = Session.getInstance(props);
+      if (useSecureAuthentication && !protocol.equals("MBOX")) {
+        // Supports IMAP/POP3 connection with SSL, the connection is established via SSL.
+        props.setProperty(
+            CONST_MAIL + protocolString + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        props.setProperty(CONST_MAIL + protocolString + ".socketFactory.fallback", "false");
+        props.setProperty(
+            CONST_MAIL + protocolString + ".port", "" + variables.resolve(serverPort));
+        props.setProperty(
+            CONST_MAIL + protocolString + ".socketFactory.port",
+            "" + variables.resolve(serverPort));
+        if (useXOAuth2) {
+          props.setProperty(CONST_MAIL + protocolString + ".ssl.enable", "true");
+          props.setProperty(CONST_MAIL + protocolString + ".auth.mechanisms", "XOAUTH2");
+        }
+      } else {
+
+      }
     }
+    session = Session.getInstance(props);
+    session.setDebug(log.isDebug());
 
     return session;
   }
 
+  // SMTP
   public Transport getTransport() throws MessagingException {
     Transport transport = session.getTransport(protocol);
     String authPass = getPassword(password);
@@ -167,6 +208,38 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     }
 
     return transport;
+  }
+
+  // IMAP, POP, MBOX
+  private Store getStore() throws MessagingException {
+    if (useSecureAuthentication && !protocol.equals("MBOX")) {
+      URLName url =
+          new URLName(
+              protocol,
+              variables.resolve(serverHost),
+              Integer.valueOf(variables.resolve(serverPort)),
+              "",
+              variables.resolve(username),
+              variables.resolve(password));
+
+      switch (protocol) {
+        case "POP3":
+          store = new POP3SSLStore(session, url);
+          break;
+        case "IMAP":
+          store = new IMAPSSLStore(session, url);
+        default:
+          break;
+      }
+    } else {
+      if (protocol.equals("MBOX")) {
+        this.store = this.session.getStore(new URLName(protocol + ":" + serverHost));
+      } else {
+        this.store = this.session.getStore(protocol);
+      }
+    }
+
+    return store;
   }
 
   public MailServerConnection(MailServerConnection connection) {}
