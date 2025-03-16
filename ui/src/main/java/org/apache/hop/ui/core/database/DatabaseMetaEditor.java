@@ -267,7 +267,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     PropsUi.setLook(wToolBar, Props.WIDGET_STYLE_DEFAULT);
 
     ToolItem item = new ToolItem(wToolBar, SWT.PUSH);
-    item.setImage(GuiResource.getInstance().getImageHelpWeb());
+    item.setImage(GuiResource.getInstance().getImageHelp());
     item.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Help"));
     item.addListener(SWT.Selection, e -> onHelpDatabaseType());
 

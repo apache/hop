@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -61,101 +62,63 @@ import org.eclipse.swt.widgets.Display;
  */
 public class GuiResource {
 
-  public static final String CONST_FOR_PLUGIN = "] for plugin ";
-  public static final String CONST_ERROR_OCCURRED_LOADING_IMAGE = "Error occurred loading image [";
-  private static ILogChannel log = LogChannel.UI;
+  private static final String CONST_FOR_PLUGIN = "] for plugin ";
+  private static final String CONST_ERROR_OCCURRED_LOADING_IMAGE = "Error occurred loading image [";
+  private static final ILogChannel log = LogChannel.UI;
 
-  private Display display;
+  private final Display display;
 
   private double zoomFactor;
 
-  // 33 resources
+  // Colors
+  //
+  @Getter private Color colorBackground;
+  @Getter private Color colorGraph;
+  @Getter private Color colorTab;
+  @Getter private Color colorRed;
+  @Getter private Color colorDarkRed;
+  @Getter private Color colorSuccessGreen;
+  @Getter private Color colorBlueCustomGrid;
+  @Getter private Color colorGreen;
+  @Getter private Color colorDarkGreen;
+  @Getter private Color colorBlue;
+  @Getter private Color colorOrange;
+  @Getter private Color colorYellow;
+  @Getter private Color colorMagenta;
+  @Getter private Color colorPurple;
+  @Getter private Color colorIndigo;
+  @Getter private Color colorBlack;
+  @Getter private Color colorGray;
+  @Getter private Color colorDarkGray;
+  @Getter private Color colorVeryDarkGray;
+  @Getter private Color colorLightGray;
+  @Getter private Color colorDemoGray;
+  @Getter private Color colorWhite;
+  @Getter private Color colorDirectory;
+  @Getter private Color colorHop;
+  @Getter private Color colorLight;
+  @Getter private Color colorCream;
+  @Getter private Color colorLightBlue;
+  @Getter private Color colorCrystalText;
+  @Getter private Color colorHopDefault;
+  @Getter private Color colorHopTrue;
+  @Getter private Color colorDeprecated;
 
-  /* * * Colors * * */
-  private Color colorBackground;
-
-  private Color colorGraph;
-
-  private Color colorTab;
-
-  private Color colorRed;
-
-  private Color colorDarkRed;
-
-  private Color colorSuccessGreen;
-
-  private Color colorBlueCustomGrid;
-
-  private Color colorGreen;
-
-  private Color colorDarkGreen;
-
-  private Color colorBlue;
-
-  private Color colorOrange;
-
-  private Color colorYellow;
-
-  private Color colorMagenta;
-
-  private Color colorPurpule;
-
-  private Color colorIndigo;
-
-  private Color colorBlack;
-
-  private Color colorGray;
-
-  private Color colorDarkGray;
-
-  private Color colorVeryDarkGray;
-
-  private Color colorLightGray;
-
-  private Color colorDemoGray;
-
-  private Color colorWhite;
-
-  private Color colorDirectory;
-
-  private Color colorHop;
-
-  private Color colorLight;
-
-  private Color colorCream;
-
-  private Color colorLightBlue;
-
-  private Color colorCrystalText;
-
-  private Color colorHopDefault;
-
-  private Color colorHopTrue;
-
-  private Color colorDeprecated;
-
-  /* * * Fonts * * */
+  // Fonts
+  //
   private ManagedFont fontDefault;
-
   private ManagedFont fontGraph;
-
   private ManagedFont fontNote;
-
   private ManagedFont fontFixed;
-
   private ManagedFont fontMedium;
-
   private ManagedFont fontMediumBold;
-
   private ManagedFont fontLarge;
-
   private ManagedFont fontTiny;
-
   private ManagedFont fontSmall;
-
   private ManagedFont fontBold;
 
-  /* * * Images * * */
+  // Images
+  //
   private Map<String, SwtUniversalImage> imagesTransforms = new Hashtable<>();
 
   private Map<String, SwtUniversalImage> imagesActions;
@@ -215,67 +178,74 @@ public class GuiResource {
   private SwtUniversalImage imageBalance;
   private SwtUniversalImage imageCheckpoint;
 
-  private Image imageEmpty;
-  private Image imageExpandAll;
-  private Image imageCollapseAll;
-  private Image imageAdd;
-  private Image imageCheck;
-  private Image imageCopy;
-  private Image imageCancel;
-  private Image imageCut;
-  private Image imageDuplicate;
-  private Image imagePaste;
-  private Image imageTable;
-  private Image imageSchema;
-  private Image imageSynonym;
-  private Image imageView;
-  private Image imageCalendar;
-  private Image imageLabel;
-  private Image imageFunction;
-  private Image imageUser;
-  private Image imagePlugin;
-  private Image imageEditOption;
-  private Image imageColor;
-  private Image imageNote;
-  private Image imageResetOption;
-  private Image imageShowLog;
-  private Image imageShowGrid;
-  private Image imageShowHistory;
-  private Image imageShowPerf;
-  private Image imageShow;
-  private Image imageHide;
-  private Image imageShowSelected;
-  private Image imageShowAll;
-  private Image imageClosePanel;
-  private Image imageMaximizePanel;
-  private Image imageMinimizePanel;
-  private Image imageShowErrorLines;
-  private Image imageShowResults;
-  private Image imageHideResults;
-  private Image imageSearch;
-  private Image imageRegEx;
-  private Image imageAddAll;
-  private Image imageAddSingle;
-  private Image imageRemoveAll;
-  private Image imageRemoveSingle;
-  private Image imageNavigateBack;
-  private Image imageNavigateForward;
-  private Image imageNavigateUp;
-  private Image imageRefresh;
-  private Image imageHome;
-  private Image imagePrint;
-  private Image imageHelp;
-  private Image imageClose;
-  private Image imageDelete;
-  private Image imagePause;
-  private Image imageRun;
-  private Image imageStop;
-  private Image imageNew;
-  private Image imageDown;
-  private Image imageUp;
-  private Image imageLocation;
-  private Image imageOptions;
-  private Image imagePalette;
+  @Getter private Image imageAdd;
+  @Getter private Image imageAddAll;
+  @Getter private Image imageAddAbove;
+  @Getter private Image imageAddBelow;
+  @Getter private Image imageAddSingle;
+  @Getter private Image imageCalendar;
+  @Getter private Image imageCancel;
+  @Getter private Image imageCheck;
+  @Getter private Image imageClear;
+  @Getter private Image imageClose;
+  @Getter private Image imageClosePanel;
+  @Getter private Image imageCollapseAll;
+  @Getter private Image imageColor;
+  @Getter private Image imageCopy;
+  @Getter private Image imageCut;
+  @Getter private Image imageDelete;
+  @Getter private Image imageDown;
+  @Getter private Image imageDuplicate;
+  @Getter private Image imageEditOption;
+  @Getter private Image imageEmpty;
+  @Getter private Image imageExpandAll;
+  @Getter private Image imageFunction;
+  @Getter private Image imageHelp;
+  @Getter private Image imageHide;
+  @Getter private Image imageHideResults;
+  @Getter private Image imageHome;
+  @Getter private Image imageLabel;
+  @Getter private Image imageLocation;
+  @Getter private Image imageMaximizePanel;
+  @Getter private Image imageMinimizePanel;
+  @Getter private Image imageNavigateBack;
+  @Getter private Image imageNavigateForward;
+  @Getter private Image imageNavigateUp;
+  @Getter private Image imageNew;
+  @Getter private Image imageNote;
+  @Getter private Image imageOptions;
+  @Getter private Image imagePalette;
+  @Getter private Image imagePaste;
+  @Getter private Image imagePause;
+  @Getter private Image imagePlugin;
+  @Getter private Image imagePrint;
+  @Getter private Image imageRedo;
+  @Getter private Image imageRefresh;
+  @Getter private Image imageRegex;
+  @Getter private Image imageRemoveAll;
+  @Getter private Image imageRemoveSingle;
+  @Getter private Image imageResetOption;
+  @Getter private Image imageRun;
+  @Getter private Image imageSchema;
+  @Getter private Image imageSearch;
+  @Getter private Image imageSelectAll;
+  @Getter private Image imageShow;
+  @Getter private Image imageShowAll;
+  @Getter private Image imageShowErrorLines;
+  @Getter private Image imageShowGrid;
+  @Getter private Image imageShowHistory;
+  @Getter private Image imageShowLog;
+  @Getter private Image imageShowPerf;
+  @Getter private Image imageShowResults;
+  @Getter private Image imageShowSelected;
+  @Getter private Image imageStop;
+  @Getter private Image imageSynonym;
+  @Getter private Image imageTable;
+  @Getter private Image imageUndo;
+  @Getter private Image imageUnselectAll;
+  @Getter private Image imageUp;
+  @Getter private Image imageUser;
+  @Getter private Image imageView;
 
   private Map<String, Image> imageMap;
 
@@ -351,7 +321,7 @@ public class GuiResource {
     PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance(GuiResource.class);
   }
 
-  public static final GuiResource getInstance() {
+  public static GuiResource getInstance() {
     return (GuiResource) PROVIDER.getInstanceInternal();
   }
 
@@ -394,7 +364,7 @@ public class GuiResource {
     colorBlue = new Color(display, props.contrastColor(0, 0, 255));
     colorYellow = new Color(display, props.contrastColor(255, 255, 0));
     colorMagenta = new Color(display, props.contrastColor(255, 0, 255));
-    colorPurpule = new Color(display, props.contrastColor(128, 0, 128));
+    colorPurple = new Color(display, props.contrastColor(128, 0, 128));
     colorIndigo = new Color(display, props.contrastColor(75, 0, 130));
     colorOrange = new Color(display, props.contrastColor(255, 165, 0));
     colorBlueCustomGrid = new Color(display, props.contrastColor(240, 248, 255));
@@ -441,25 +411,11 @@ public class GuiResource {
 
     // Common images
     imageLogo.dispose();
-    imageCheck.dispose();
     imageDisabledHop.dispose();
     imageDatabase.dispose();
     imageData.dispose();
-    imageAdd.dispose();
-    imageTable.dispose();
     imagePreview.dispose();
-    imageSchema.dispose();
-    imageSynonym.dispose();
-    imageView.dispose();
-    imageLabel.dispose();
-    imageFunction.dispose();
-    imageCancel.dispose();
-    imageCopy.dispose();
-    imageCut.dispose();
-    imageDuplicate.dispose();
-    imagePaste.dispose();
     imageBol.dispose();
-    imageCalendar.dispose();
     imageServer.dispose();
     imageArrow.dispose();
     imageFile.dispose();
@@ -467,14 +423,9 @@ public class GuiResource {
     imageMissing.dispose();
     imageVariable.dispose();
     imagePipeline.dispose();
-    imagePlugin.dispose();
     imagePartitionSchema.dispose();
     imageWorkflow.dispose();
-    imageUser.dispose();
     imageFolderConnections.dispose();
-    imageShowResults.dispose();
-    imageHideResults.dispose();
-    imageCollapseAll.dispose();
     imageCopyRows.dispose();
     imageCopyRowsDisabled.dispose();
     imageError.dispose();
@@ -486,7 +437,7 @@ public class GuiResource {
     imageDeprecated.dispose();
     imageExpandAll.dispose();
     imageSearch.dispose();
-    imageRegEx.dispose();
+    imageRegex.dispose();
     imageNew.dispose();
     imageEdit.dispose();
     imageLocked.dispose();
@@ -509,27 +460,6 @@ public class GuiResource {
     imageInject.dispose();
     imageBalance.dispose();
     imageCheckpoint.dispose();
-    imageHelp.dispose();
-    imageAddAll.dispose();
-    imageAddSingle.dispose();
-    imageRemoveAll.dispose();
-    imageRemoveSingle.dispose();
-    imageNavigateBack.dispose();
-    imageNavigateForward.dispose();
-    imageNavigateUp.dispose();
-    imageRefresh.dispose();
-    imageHome.dispose();
-    imagePrint.dispose();
-    imageClose.dispose();
-    imageDelete.dispose();
-    imagePause.dispose();
-    imageRun.dispose();
-    imageStop.dispose();
-    imageSearch.dispose();
-    imageDown.dispose();
-    imageUp.dispose();
-    imageLocation.dispose();
-
     imageArrowDefault.dispose();
     imageArrowTrue.dispose();
     imageArrowFalse.dispose();
@@ -537,22 +467,69 @@ public class GuiResource {
     imageArrowDisabled.dispose();
     imageArrowCandidate.dispose();
 
-    disposeImage(imageNote);
-    disposeImage(imageColor);
-    disposeImage(imageEditOption);
-    disposeImage(imageResetOption);
-    disposeImage(imageShowLog);
-    disposeImage(imageShowGrid);
-    disposeImage(imageShowHistory);
-    disposeImage(imageShowPerf);
-    disposeImage(imageShow);
-    disposeImage(imageHide);
-    disposeImage(imageShowSelected);
-    disposeImage(imageShowAll);
+    // Small images 16x16
+    disposeImage(imageAdd);
+    disposeImage(imageAddAll);
+    disposeImage(imageAddAbove);
+    disposeImage(imageAddBelow);
+    disposeImage(imageAddSingle);
+    disposeImage(imageCalendar);
+    disposeImage(imageCancel);
+    disposeImage(imageCheck);
+    disposeImage(imageClear);
+    disposeImage(imageClose);
     disposeImage(imageClosePanel);
+    disposeImage(imageCollapseAll);
+    disposeImage(imageColor);
+    disposeImage(imageCopy);
+    disposeImage(imageCut);
+    disposeImage(imageDelete);
+    disposeImage(imageDown);
+    disposeImage(imageDuplicate);
+    disposeImage(imageEditOption);
+    disposeImage(imageFunction);
+    disposeImage(imageHelp);
+    disposeImage(imageHide);
+    disposeImage(imageHideResults);
+    disposeImage(imageHome);
+    disposeImage(imageLabel);
+    disposeImage(imageLocation);
     disposeImage(imageMaximizePanel);
     disposeImage(imageMinimizePanel);
+    disposeImage(imageNavigateBack);
+    disposeImage(imageNavigateForward);
+    disposeImage(imageNavigateUp);
+    disposeImage(imageNote);
+    disposeImage(imagePaste);
+    disposeImage(imagePause);
+    disposeImage(imagePlugin);
+    disposeImage(imagePrint);
+    disposeImage(imageRedo);
+    disposeImage(imageRefresh);
+    disposeImage(imageRemoveAll);
+    disposeImage(imageRemoveSingle);
+    disposeImage(imageResetOption);
+    disposeImage(imageRun);
+    disposeImage(imageSchema);
+    disposeImage(imageSearch);
+    disposeImage(imageSelectAll);
+    disposeImage(imageShow);
+    disposeImage(imageShowAll);
     disposeImage(imageShowErrorLines);
+    disposeImage(imageShowGrid);
+    disposeImage(imageShowHistory);
+    disposeImage(imageShowLog);
+    disposeImage(imageShowPerf);
+    disposeImage(imageShowResults);
+    disposeImage(imageShowSelected);
+    disposeImage(imageStop);
+    disposeImage(imageSynonym);
+    disposeImage(imageTable);
+    disposeImage(imageUndo);
+    disposeImage(imageUnselectAll);
+    disposeImage(imageUp);
+    disposeImage(imageUser);
+    disposeImage(imageView);
 
     // big images
     //
@@ -718,6 +695,10 @@ public class GuiResource {
     imageEmpty = new Image(display, 16, 16);
     imageAdd = loadAsResource(display, "ui/images/add.svg", ConstUi.SMALL_ICON_SIZE);
     imageAddAll = loadAsResource(display, "ui/images/add_all.svg", ConstUi.SMALL_ICON_SIZE);
+    imageAddAbove =
+        loadAsResource(display, "ui/images/add-item-above.svg", ConstUi.SMALL_ICON_SIZE);
+    imageAddBelow =
+        loadAsResource(display, "ui/images/add-item-below.svg", ConstUi.SMALL_ICON_SIZE);
     imageAddSingle = loadAsResource(display, "ui/images/add_single.svg", ConstUi.SMALL_ICON_SIZE);
     imageCalendar = loadAsResource(display, "ui/images/calendar.svg", ConstUi.SMALL_ICON_SIZE);
     imageCheck = loadAsResource(display, "ui/images/check.svg", ConstUi.SMALL_ICON_SIZE);
@@ -753,7 +734,7 @@ public class GuiResource {
     imagePlugin = loadAsResource(display, "ui/images/plugin.svg", ConstUi.SMALL_ICON_SIZE);
     imagePrint = loadAsResource(display, "ui/images/print.svg", ConstUi.SMALL_ICON_SIZE);
     imageRefresh = loadAsResource(display, "ui/images/refresh.svg", ConstUi.SMALL_ICON_SIZE);
-    imageRegEx = loadAsResource(display, "ui/images/regex.svg", ConstUi.SMALL_ICON_SIZE);
+    imageRegex = loadAsResource(display, "ui/images/regex.svg", ConstUi.SMALL_ICON_SIZE);
     imageRemoveAll = loadAsResource(display, "ui/images/remove_all.svg", ConstUi.SMALL_ICON_SIZE);
     imageRemoveSingle =
         loadAsResource(display, "ui/images/remove_single.svg", ConstUi.SMALL_ICON_SIZE);
@@ -788,6 +769,12 @@ public class GuiResource {
     imageLocation = loadAsResource(display, "ui/images/location.svg", ConstUi.SMALL_ICON_SIZE);
     imageOptions = loadAsResource(display, "ui/images/options.svg", ConstUi.SMALL_ICON_SIZE);
     imagePalette = loadAsResource(display, "ui/images/palette.svg", ConstUi.SMALL_ICON_SIZE);
+    imageUndo = loadAsResource(display, "ui/images/undo.svg", ConstUi.SMALL_ICON_SIZE);
+    imageRedo = loadAsResource(display, "ui/images/redo.svg", ConstUi.SMALL_ICON_SIZE);
+    imageClear = loadAsResource(display, "ui/images/clear.svg", ConstUi.SMALL_ICON_SIZE);
+    imageSelectAll = loadAsResource(display, "ui/images/select-all.svg", ConstUi.SMALL_ICON_SIZE);
+    imageUnselectAll =
+        loadAsResource(display, "ui/images/unselect-all.svg", ConstUi.SMALL_ICON_SIZE);
 
     // Svg image
     //
@@ -860,26 +847,6 @@ public class GuiResource {
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/hop-arrow-candidate.svg");
   }
 
-  public Image getImageLabel() {
-    return imageLabel;
-  }
-
-  public Image getImageDuplicate() {
-    return imageDuplicate;
-  }
-
-  public Image getImageCopy() {
-    return imageCopy;
-  }
-
-  public Image getImageFunction() {
-    return imageFunction;
-  }
-
-  public Image getImageEmpty() {
-    return imageEmpty;
-  }
-
   /** Load all transform images from files. */
   private void loadWorkflowActionImages() {
     imagesActions = new Hashtable<>();
@@ -889,9 +856,7 @@ public class GuiResource {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     List<IPlugin> plugins = registry.getPlugins(ActionPluginType.class);
-    for (int i = 0; i < plugins.size(); i++) {
-      IPlugin plugin = plugins.get(i);
-
+    for (IPlugin plugin : plugins) {
       SwtUniversalImage image = null;
       String filename = plugin.getImageFile();
       try {
@@ -951,168 +916,6 @@ public class GuiResource {
   }
 
   /**
-   * @return Returns the colorBackground.
-   */
-  public Color getColorBackground() {
-    return colorBackground;
-  }
-
-  /**
-   * @return Returns the colorBlack.
-   */
-  public Color getColorBlack() {
-    return colorBlack;
-  }
-
-  /**
-   * @return Returns the colorBlue.
-   */
-  public Color getColorBlue() {
-    return colorBlue;
-  }
-
-  /**
-   * @return Returns the colorDarkGray.
-   */
-  public Color getColorDarkGray() {
-    return colorDarkGray;
-  }
-
-  /**
-   * @return Returns veryDarkGray.
-   */
-  public Color getColorVeryDarkGray() {
-    return colorVeryDarkGray;
-  }
-
-  /**
-   * @return Returns the colorDemoGray.
-   */
-  public Color getColorDemoGray() {
-    return colorDemoGray;
-  }
-
-  /**
-   * @return Returns the colorDirectory.
-   */
-  public Color getColorDirectory() {
-    return colorDirectory;
-  }
-
-  /**
-   * @return Returns the colorGraph.
-   */
-  public Color getColorGraph() {
-    return colorGraph;
-  }
-
-  /**
-   * @return Returns the colorGray.
-   */
-  public Color getColorGray() {
-    return colorGray;
-  }
-
-  /**
-   * @return Returns the colorGreen.
-   */
-  public Color getColorGreen() {
-    return colorGreen;
-  }
-
-  /**
-   * @return Returns the color dark green.
-   */
-  public Color getColorDarkGreen() {
-    return colorDarkGreen;
-  }
-
-  /**
-   * @return Returns the colorLightGray.
-   */
-  public Color getColorLightGray() {
-    return colorLightGray;
-  }
-
-  /**
-   * @return Returns the colorLightBlue.
-   */
-  public Color getColorLightBlue() {
-    return colorLightBlue;
-  }
-
-  /**
-   * @return Returns the colorMagenta.
-   */
-  public Color getColorMagenta() {
-    return colorMagenta;
-  }
-
-  public Color getColorPurpule() {
-    return colorPurpule;
-  }
-
-  public Color getColorIndigo() {
-    return colorIndigo;
-  }
-
-  /**
-   * @return Returns the colorOrange.
-   */
-  public Color getColorOrange() {
-    return colorOrange;
-  }
-
-  /**
-   * @return Returns the colorSuccessGreen.
-   */
-  public Color getColorSuccessGreen() {
-    return colorSuccessGreen;
-  }
-
-  /**
-   * @return Returns the colorRed.
-   */
-  public Color getColorRed() {
-    return colorRed;
-  }
-
-  /**
-   * @return Returns the color dark red.
-   */
-  public Color getColorDarkRed() {
-    return colorDarkRed;
-  }
-
-  /**
-   * @return Returns the colorBlueCustomGrid.
-   */
-  public Color getColorBlueCustomGrid() {
-    return colorBlueCustomGrid;
-  }
-
-  /**
-   * @return Returns the colorTab.
-   */
-  public Color getColorTab() {
-    return colorTab;
-  }
-
-  /**
-   * @return Returns the colorWhite.
-   */
-  public Color getColorWhite() {
-    return colorWhite;
-  }
-
-  /**
-   * @return Returns the colorYellow.
-   */
-  public Color getColorYellow() {
-    return colorYellow;
-  }
-
-  /**
    * @return Returns the fontFixed.
    */
   public Font getFontFixed() {
@@ -1148,13 +951,6 @@ public class GuiResource {
   }
 
   /**
-   * @return Returns the imageCalendar.
-   */
-  public Image getImageCalendar() {
-    return imageCalendar;
-  }
-
-  /**
    * @return Returns the imageServer.
    */
   public Image getImageServer() {
@@ -1185,51 +981,12 @@ public class GuiResource {
     return imageData;
   }
 
-  public Image getImageAdd() {
-    return imageAdd;
-  }
-
-  /**
-   * @return Returns the table image.
-   */
-  public Image getImageTable() {
-    return imageTable;
-  }
-
   /**
    * @return Returns the preview image.
    */
   public Image getImagePreview() {
     return imagePreview.getAsBitmapForSize(
         display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
-  }
-
-  /**
-   * @return Returns the imageSchema.
-   */
-  public Image getImageSchema() {
-    return imageSchema;
-  }
-
-  /**
-   * @return Returns the imageSynonym.
-   */
-  public Image getImageSynonym() {
-    return imageSynonym;
-  }
-
-  /**
-   * @return Returns the imageView.
-   */
-  public Image getImageNote() {
-    return imageNote;
-  }
-
-  /**
-   * @return Returns the imageColor.
-   */
-  public Image getImageColor() {
-    return imageColor;
   }
 
   /**
@@ -1360,14 +1117,6 @@ public class GuiResource {
         imagePipeline, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  public Image getImagePlugin() {
-    return imagePlugin;
-  }
-
-  public Image getImageUser() {
-    return imageUser;
-  }
-
   public Image getImageFolderConnections() {
     return getZoomedImaged(
         imagePipeline, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
@@ -1385,10 +1134,6 @@ public class GuiResource {
 
   public Image getEditOptionButton() {
     return imageEditOption;
-  }
-
-  public Image getImageResetOption() {
-    return imageResetOption;
   }
 
   /**
@@ -1417,13 +1162,6 @@ public class GuiResource {
   }
 
   /**
-   * @return the color
-   */
-  public Color getColorHop() {
-    return colorHop;
-  }
-
-  /**
    * @return the imageLogoSmall
    */
   public Image getImageHopUi() {
@@ -1439,48 +1177,6 @@ public class GuiResource {
     } else {
       return getZoomedImaged(imageLogo, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
     }
-  }
-
-  /**
-   * @return the colorLight
-   */
-  public Color getColorLight() {
-    return colorLight;
-  }
-
-  /**
-   * @return the colorCream
-   */
-  public Color getColorCream() {
-    return colorCream;
-  }
-
-  /**
-   * @return the default color of text in the Crystal theme
-   */
-  public Color getColorCrystalText() {
-    return colorCrystalText;
-  }
-
-  /**
-   * @return the default color the hop lines for default/unconditional
-   */
-  public Color getColorHopDefault() {
-    return colorHopDefault;
-  }
-
-  /**
-   * @return the default color the hop lines for the "OK" condition
-   */
-  public Color getColorHopTrue() {
-    return colorHopTrue;
-  }
-
-  /**
-   * @return the default color the deprecated condition
-   */
-  public Color getColorDeprecated() {
-    return colorDeprecated;
   }
 
   public void drawGradient(Display display, GC gc, Rectangle rect, boolean vertical) {
@@ -1524,113 +1220,9 @@ public class GuiResource {
     return fontMediumBold.getFont();
   }
 
-  /**
-   * @return the imageShowLog
-   */
-  public Image getImageShowLog() {
-    return imageShowLog;
-  }
-
-  /**
-   * @return the imageShowGrid
-   */
-  public Image getImageShowGrid() {
-    return imageShowGrid;
-  }
-
-  /**
-   * @return the imageShowHistory
-   */
-  public Image getImageShowHistory() {
-    return imageShowHistory;
-  }
-
-  /**
-   * @return the imageShowPerf
-   */
-  public Image getImageShowPerf() {
-    return imageShowPerf;
-  }
-
-  /**
-   * @return the "hide" image
-   */
-  public Image getImageHide() {
-    return imageHide;
-  }
-
-  /**
-   * @return the "show" image
-   */
-  public Image getImageShow() {
-    return imageShow;
-  }
-
-  /**
-   * @return the "show selected" image
-   */
-  public Image getImageShowSelected() {
-    return imageShowSelected;
-  }
-
-  /**
-   * @return the "show all" image
-   */
-  public Image getImageShowAll() {
-    return imageShowAll;
-  }
-
-  /**
-   * @return the close panel image
-   */
-  public Image getImageClosePanel() {
-    return imageClosePanel;
-  }
-
-  /**
-   * @return the maximize panel image
-   */
-  public Image getImageMaximizePanel() {
-    return imageMaximizePanel;
-  }
-
-  /**
-   * @return the minimize panel image
-   */
-  public Image getImageMinimizePanel() {
-    return imageMinimizePanel;
-  }
-
-  /**
-   * @return the show error lines image
-   */
-  public Image getImageShowErrorLines() {
-    return imageShowErrorLines;
-  }
-
-  public Image getImageShowResults() {
-    return imageShowResults;
-  }
-
-  public Image getImageHideResults() {
-    return imageHideResults;
-  }
-
   public Image getImageClearText() {
     return getZoomedImaged(
         imageClearText, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
-  }
-
-  public Image getImageExpandAll() {
-    return imageExpandAll;
-  }
-
-  public Image getImageRegex() {
-    return imageRegEx;
-  }
-
-  public Image getImageCollapseAll() {
-    return imageCollapseAll;
   }
 
   public Image getImageCopyHop() {
@@ -1687,28 +1279,12 @@ public class GuiResource {
         imageDeprecated, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  public Image getImageNew() {
-    return imageNew;
-  }
-
   public Image getImageEdit() {
     return getZoomedImaged(imageEdit, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   public SwtUniversalImage getSwtImageEdit() {
     return imageEdit;
-  }
-
-  public Image getImageDelete() {
-    return imageDelete;
-  }
-
-  public Image getImageCancel() {
-    return imageCancel;
-  }
-
-  public Image getImageCut() {
-    return imageCut;
   }
 
   public Image getImageInput() {
@@ -2006,70 +1582,6 @@ public class GuiResource {
     return imageCheckpoint;
   }
 
-  public Image getImageHelpWeb() {
-    return imageHelp;
-  }
-
-  public Image getImageDown() {
-    return imageDown;
-  }
-
-  public Image getImageUp() {
-    return imageUp;
-  }
-
-  public Image getImageLocation() {
-    return imageLocation;
-  }
-
-  public Image getImageOptions() {
-    return imageOptions;
-  }
-
-  public Image getImagePalette() {
-    return imagePalette;
-  }
-
-  public Image getImageAddAll() {
-    return imageAddAll;
-  }
-
-  public Image getImageAddSingle() {
-    return imageAddSingle;
-  }
-
-  public Image getImageRemoveAll() {
-    return imageRemoveAll;
-  }
-
-  public Image getImageRemoveSingle() {
-    return imageRemoveSingle;
-  }
-
-  public Image getImageNavigateBack() {
-    return imageNavigateBack;
-  }
-
-  public Image getImageNavigateForward() {
-    return imageNavigateForward;
-  }
-
-  public Image getImageNavigateUp() {
-    return imageNavigateUp;
-  }
-
-  public Image getImageRefresh() {
-    return imageRefresh;
-  }
-
-  public Image getImageHome() {
-    return imageHome;
-  }
-
-  public Image getImagePrint() {
-    return imagePrint;
-  }
-
   public SwtUniversalImage getSwtImageArrowDefault() {
     return imageArrowDefault;
   }
@@ -2092,67 +1604,5 @@ public class GuiResource {
 
   public SwtUniversalImage getSwtImageArrowCandidate() {
     return imageArrowCandidate;
-  }
-
-  /**
-   * Gets imageToolbarClose
-   *
-   * @return value of imageToolbarClose
-   */
-  public Image getImageClose() {
-    return imageClose;
-  }
-
-  public Image getImageCheck() {
-    return imageCheck;
-  }
-
-  /**
-   * Gets imageToolbarPause
-   *
-   * @return value of imageToolbarPause
-   */
-  public Image getImagePause() {
-    return imagePause;
-  }
-
-  /**
-   * Gets image run 16x16
-   *
-   * @see #getImageStop
-   * @see #getImagePause
-   * @return image
-   */
-  public Image getImageRun() {
-    return imageRun;
-  }
-
-  /**
-   * Gets image stop 16x16
-   *
-   * @see #getImageRun
-   * @see #getImagePause
-   * @return image
-   */
-  public Image getImageStop() {
-    return imageStop;
-  }
-
-  /**
-   * Gets imageToolbarView
-   *
-   * @return value of imageToolbarView
-   */
-  public Image getImageView() {
-    return imageView;
-  }
-
-  /**
-   * Gets image search 16x16
-   *
-   * @return image
-   */
-  public Image getImageSearch() {
-    return imageSearch;
   }
 }

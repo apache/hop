@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -73,7 +74,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseListener;
@@ -383,8 +383,8 @@ public class TableView extends Composite {
     tableColumn[0].setAlignment(SWT.RIGHT);
 
     for (int i = 0; i < columns.length; i++) {
-      int allignment = columns[i].getAlignment();
-      tableColumn[i + 1] = new TableColumn(table, allignment);
+      int alignment = columns[i].getAlignment();
+      tableColumn[i + 1] = new TableColumn(table, alignment);
       tableColumn[i + 1].setResizable(true);
       String columnName = columns[i].getName();
       if (columnName != null) {
@@ -1174,236 +1174,141 @@ public class TableView extends Composite {
 
   private void addRightClickMenu(boolean undoEnabled) {
     Menu mRow = new Menu(table);
-    MenuItem miRowInsBef = new MenuItem(mRow, SWT.NONE);
-    miRowInsBef.setText(
+
+    MenuItem miInsertRowBefore = new MenuItem(mRow, SWT.NONE);
+    miInsertRowBefore.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.InsertBeforeRow")));
-    MenuItem miRowInsAft = new MenuItem(mRow, SWT.NONE);
-    miRowInsAft.setText(
+    miInsertRowBefore.setImage(GuiResource.getInstance().getImageAddAbove());
+    miInsertRowBefore.addListener(SWT.Selection, e -> insertRowBefore());
+
+    MenuItem miInsertRowAfter = new MenuItem(mRow, SWT.NONE);
+    miInsertRowAfter.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.InsertAfterRow")));
+    miInsertRowAfter.setImage(GuiResource.getInstance().getImageAddBelow());
+    miInsertRowAfter.addListener(SWT.Selection, e -> insertRowAfter());
+
     new MenuItem(mRow, SWT.SEPARATOR);
-    MenuItem miRowUp = new MenuItem(mRow, SWT.NONE);
-    miRowUp.setText(
+
+    MenuItem miMoveRowUp = new MenuItem(mRow, SWT.NONE);
+    miMoveRowUp.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.MoveUp")));
-    MenuItem miRowDown = new MenuItem(mRow, SWT.NONE);
-    miRowDown.setText(
+    miMoveRowUp.setImage(GuiResource.getInstance().getImageUp());
+    miMoveRowUp.addListener(SWT.Selection, e -> moveRowsUp());
+
+    MenuItem miMoveRowDown = new MenuItem(mRow, SWT.NONE);
+    miMoveRowDown.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.MoveDown")));
+    miMoveRowDown.setImage(GuiResource.getInstance().getImageDown());
+    miMoveRowDown.addListener(SWT.Selection, e -> moveRowsDown());
+
     MenuItem miCol1 = new MenuItem(mRow, SWT.NONE);
     miCol1.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.OptimalSizeWithHeader")));
+    miCol1.addListener(SWT.Selection, e -> optWidth(true));
+
     MenuItem miCol2 = new MenuItem(mRow, SWT.NONE);
     miCol2.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.OptimalSizeWithoutHeader")));
+    miCol2.addListener(SWT.Selection, e -> optWidth(false));
+
     new MenuItem(mRow, SWT.SEPARATOR);
+
     MenuItem miClear = new MenuItem(mRow, SWT.NONE);
     miClear.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.ClearAll")));
+    miClear.setImage(GuiResource.getInstance().getImageClear());
+    miClear.addListener(SWT.Selection, e -> clearAll());
+
     new MenuItem(mRow, SWT.SEPARATOR);
-    MenuItem miSelAll = new MenuItem(mRow, SWT.NONE);
-    miSelAll.setText(
+
+    MenuItem miSelectAll = new MenuItem(mRow, SWT.NONE);
+    miSelectAll.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.SelectAll")));
-    MenuItem miUnselAll = new MenuItem(mRow, SWT.NONE);
-    miUnselAll.setText(
+    miSelectAll.setImage(GuiResource.getInstance().getImageSelectAll());
+    miSelectAll.addListener(SWT.Selection, e -> selectAll());
+
+    MenuItem miUnselectAll = new MenuItem(mRow, SWT.NONE);
+    miUnselectAll.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.ClearSelection")));
+    miUnselectAll.setImage(GuiResource.getInstance().getImageUnselectAll());
+    miUnselectAll.addListener(SWT.Selection, e -> unselectAll());
+
     MenuItem miFilter = new MenuItem(mRow, SWT.NONE);
     miFilter.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.FilteredSelection")));
+    miFilter.addListener(SWT.Selection, e -> setFilter());
+
     new MenuItem(mRow, SWT.SEPARATOR);
-    MenuItem miClipAll = new MenuItem(mRow, SWT.NONE);
-    miClipAll.setText(
+
+    MenuItem miCopy = new MenuItem(mRow, SWT.NONE);
+    miCopy.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.CopyToClipboard")));
-    MenuItem miPasteAll = new MenuItem(mRow, SWT.NONE);
-    miPasteAll.setText(
+    miCopy.setImage(GuiResource.getInstance().getImageCopy());
+    miCopy.addListener(SWT.Selection, e -> copyToAll());
+
+    MenuItem miPaste = new MenuItem(mRow, SWT.NONE);
+    miPaste.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.PasteFromClipboard")));
-    MenuItem miCutAll = new MenuItem(mRow, SWT.NONE);
-    miCutAll.setText(
+    miPaste.setImage(GuiResource.getInstance().getImagePaste());
+    miPaste.addListener(SWT.Selection, e -> pasteSelected());
+
+    MenuItem miCut = new MenuItem(mRow, SWT.NONE);
+    miCut.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.CutSelected")));
-    MenuItem miDelAll = new MenuItem(mRow, SWT.NONE);
-    miDelAll.setText(
+    miCut.setImage(GuiResource.getInstance().getImageCut());
+    miCut.addListener(SWT.Selection, e -> cutSelected());
+
+    MenuItem miDelete = new MenuItem(mRow, SWT.NONE);
+    miDelete.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.DeleteSelected")));
+    miDelete.setImage(GuiResource.getInstance().getImageDelete());
+    miDelete.addListener(SWT.Selection, e -> delSelected());
+
     MenuItem miKeep = new MenuItem(mRow, SWT.NONE);
     miKeep.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.KeepSelected")));
+    miKeep.addListener(SWT.Selection, e -> keepSelected());
+
     new MenuItem(mRow, SWT.SEPARATOR);
+
     MenuItem miCopyToAll = new MenuItem(mRow, SWT.NONE);
     miCopyToAll.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.CopyFieldToAllRows")));
+    miCopyToAll.addListener(SWT.Selection, e -> copyToAll());
+
     if (undoEnabled) {
       new MenuItem(mRow, SWT.SEPARATOR);
       miEditUndo = new MenuItem(mRow, SWT.NONE);
+      miEditUndo.setImage(GuiResource.getInstance().getImageUndo());
+      miEditUndo.addListener(SWT.Selection, e -> undoAction());
       miEditRedo = new MenuItem(mRow, SWT.NONE);
+      miEditRedo.setImage(GuiResource.getInstance().getImageRedo());
+      miEditRedo.addListener(SWT.Selection, e -> redoAction());
       setUndoMenu();
     }
 
     if (readonly) {
-      miRowInsBef.setEnabled(false);
-      miRowInsAft.setEnabled(false);
-      miRowUp.setEnabled(false);
-      miRowDown.setEnabled(false);
+      miInsertRowBefore.setEnabled(false);
+      miInsertRowAfter.setEnabled(false);
+      miMoveRowUp.setEnabled(false);
+      miMoveRowDown.setEnabled(false);
       miClear.setEnabled(false);
       miCopyToAll.setEnabled(false);
-      miPasteAll.setEnabled(false);
-      miDelAll.setEnabled(false);
-      miCutAll.setEnabled(false);
+      miPaste.setEnabled(false);
+      miDelete.setEnabled(false);
+      miCut.setEnabled(false);
       miKeep.setEnabled(false);
     }
-
-    SelectionAdapter lsRowInsBef =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            insertRowBefore();
-          }
-        };
-    SelectionAdapter lsRowInsAft =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            insertRowAfter();
-          }
-        };
-    SelectionAdapter lsCol1 =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            optWidth(true);
-          }
-        };
-    SelectionAdapter lsCol2 =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            optWidth(false);
-          }
-        };
-    SelectionAdapter lsRowUp =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            moveRowsUp();
-          }
-        };
-    SelectionAdapter lsRowDown =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            moveRowsDown();
-          }
-        };
-    SelectionAdapter lsClear =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            clearAll(true);
-          }
-        };
-    SelectionAdapter lsClipAll =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            clipSelected();
-          }
-        };
-    SelectionAdapter lsCopyToAll =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            copyToAll();
-          }
-        };
-    SelectionAdapter lsSelAll =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            selectAll();
-          }
-        };
-    SelectionAdapter lsUnselAll =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            unselectAll();
-          }
-        };
-    SelectionAdapter lsPasteAll =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            pasteSelected();
-          }
-        };
-    SelectionAdapter lsCutAll =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            cutSelected();
-          }
-        };
-    SelectionAdapter lsDelAll =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            delSelected();
-          }
-        };
-    SelectionAdapter lsKeep =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            keepSelected();
-          }
-        };
-    SelectionAdapter lsFilter =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            setFilter();
-          }
-        };
-    if (undoEnabled) {
-      SelectionAdapter lsEditUndo =
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-              undoAction();
-            }
-          };
-      miEditUndo.addSelectionListener(lsEditUndo);
-      SelectionAdapter lsEditRedo =
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-              redoAction();
-            }
-          };
-      miEditRedo.addSelectionListener(lsEditRedo);
-    }
-
-    miRowInsBef.addSelectionListener(lsRowInsBef);
-    miRowInsAft.addSelectionListener(lsRowInsAft);
-    miCol1.addSelectionListener(lsCol1);
-    miCol2.addSelectionListener(lsCol2);
-    miRowUp.addSelectionListener(lsRowUp);
-    miRowDown.addSelectionListener(lsRowDown);
-    miClear.addSelectionListener(lsClear);
-    miClipAll.addSelectionListener(lsClipAll);
-    miCopyToAll.addSelectionListener(lsCopyToAll);
-    miSelAll.addSelectionListener(lsSelAll);
-    miUnselAll.addSelectionListener(lsUnselAll);
-    miPasteAll.addSelectionListener(lsPasteAll);
-    miCutAll.addSelectionListener(lsCutAll);
-    miDelAll.addSelectionListener(lsDelAll);
-    miKeep.addSelectionListener(lsKeep);
-    miFilter.addSelectionListener(lsFilter);
 
     table.setMenu(mRow);
   }
@@ -1554,7 +1459,7 @@ public class TableView extends Composite {
       // first time through, so update
       shouldRefresh = true;
       this.sortFieldLast = this.sortField;
-      this.sortingDescendingLast = Boolean.valueOf(this.sortingDescending);
+      this.sortingDescendingLast = this.sortingDescending;
 
       this.sortField = sortField;
       this.sortingDescending = sortingDescending;
@@ -1627,8 +1532,7 @@ public class TableView extends Composite {
 
       // Now populate a list of data rows...
       //
-      for (int i = 0; i < items.length; i++) {
-        TableItem item = items[i];
+      for (TableItem item : items) {
         Object[] r = new Object[table.getColumnCount() + 2];
 
         // First values are the color name + value!
@@ -1904,7 +1808,7 @@ public class TableView extends Composite {
   @GuiToolbarElement(
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_CLEAR_ALL,
-      image = "ui/images/delete.svg",
+      image = "ui/images/clear.svg",
       toolTip = "i18n::TableView.ToolBarWidget.ClearAllRows.ToolTip",
       separator = true)
   public void clearAllRows() {
@@ -1937,7 +1841,7 @@ public class TableView extends Composite {
   @GuiToolbarElement(
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_MOVE_ROWS_UP,
-      image = "ui/images/arrow-up.svg",
+      image = "ui/images/up.svg",
       toolTip = "i18n::TableView.ToolBarWidget.MoveRowsUp.ToolTip",
       separator = true)
   public void moveRowsUp() {
@@ -1947,7 +1851,7 @@ public class TableView extends Composite {
   @GuiToolbarElement(
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_MOVE_ROWS_DOWN,
-      image = "ui/images/arrow-down.svg",
+      image = "ui/images/down.svg",
       toolTip = "i18n::TableView.ToolBarWidget.MoveRowsDown.ToolTip")
   public void moveRowsDown() {
     moveRows(1);
@@ -2583,11 +2487,7 @@ public class TableView extends Composite {
       if (selectText) {
         textWidget.selectAll();
       }
-      if (tooltip != null) {
-        textWidget.setToolTipText(tooltip);
-      } else {
-        textWidget.setToolTipText("");
-      }
+      textWidget.setToolTipText(Objects.requireNonNullElse(tooltip, ""));
       textWidget.addTraverseListener(lsTraverse);
       textWidget.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       textWidget.addFocusListener(lsFocusText);
@@ -2609,11 +2509,7 @@ public class TableView extends Composite {
       if (selectText) {
         textWidget.selectAll();
       }
-      if (tooltip != null) {
-        textWidget.setToolTipText(tooltip);
-      } else {
-        textWidget.setToolTipText("");
-      }
+      textWidget.setToolTipText(Objects.requireNonNullElse(tooltip, ""));
       textWidget.addTraverseListener(lsTraverse);
       textWidget.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       textWidget.addFocusListener(lsFocusText);
@@ -2703,16 +2599,13 @@ public class TableView extends Composite {
   private String[] getComboValues(TableItem row, ColumnInfo colinfo) {
     if (colinfo.getType() == ColumnInfo.COLUMN_TYPE_FORMAT) {
       int type = ValueMetaFactory.getIdForValueMeta(row.getText(colinfo.getFieldTypeColumn()));
-      switch (type) {
-        case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
-          return Const.getDateFormats();
-        case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NUMBER:
-          return Const.getNumberFormats();
-        case IValueMeta.TYPE_STRING:
-          return Const.getConversionFormats();
-        default:
-          return new String[0];
-      }
+      return switch (type) {
+        case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> Const.getDateFormats();
+        case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NUMBER ->
+            Const.getNumberFormats();
+        case IValueMeta.TYPE_STRING -> Const.getConversionFormats();
+        default -> new String[0];
+      };
     }
     return colinfo.getComboValues();
   }
@@ -2868,11 +2761,7 @@ public class TableView extends Composite {
     buttonContent = row.getText(colNr);
 
     String tooltip = columns[colNr - 1].getToolTip();
-    if (tooltip != null) {
-      button.setToolTipText(tooltip);
-    } else {
-      button.setToolTipText("");
-    }
+    button.setToolTipText(Objects.requireNonNullElse(tooltip, ""));
     button.addTraverseListener(lsTraverse); // hop to next field
     button.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
     button.addTraverseListener(arg0 -> closeActiveButton());

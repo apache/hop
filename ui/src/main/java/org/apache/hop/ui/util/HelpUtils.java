@@ -62,7 +62,7 @@ public class HelpUtils {
   private static Button newButton(final Composite parent) {
     Button button = new Button(parent, SWT.PUSH);
     PropsUi.setLook(button);
-    button.setImage(GuiResource.getInstance().getImageHelpWeb());
+    button.setImage(GuiResource.getInstance().getImageHelp());
     button.setText(BaseMessages.getString(PKG, "System.Button.Help"));
     button.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Help"));
     FormData fdButton = new FormData();

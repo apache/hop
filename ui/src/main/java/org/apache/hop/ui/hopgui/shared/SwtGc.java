@@ -102,7 +102,7 @@ public class SwtGc implements IGc {
     this.green = GuiResource.getInstance().getColorGreen();
     this.blue = GuiResource.getInstance().getColorBlue();
     this.magenta = GuiResource.getInstance().getColorMagenta();
-    this.purpule = GuiResource.getInstance().getColorPurpule();
+    this.purpule = GuiResource.getInstance().getColorPurple();
     this.indigo = GuiResource.getInstance().getColorIndigo();
     this.gray = GuiResource.getInstance().getColorGray();
     this.lightGray = GuiResource.getInstance().getColorLightGray();
