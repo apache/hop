@@ -22,9 +22,11 @@ under the License.
 
 == Description
 
-The `Mail` action sends a text or HTML email with optional file attachments.
+The Mail action sends a text or HTML email with optional file attachments.
 
-Typical use cases are sending error and/or logging mails. For example, it is not uncommon at the end of a successful load, to send an email to a distribution list announcing that the load was successful and include a log file.
+This action can be used at the end of a workflow run to either announce a successful run or send a notifications about a failure in the workflow.
+
+For example, it is not uncommon at the end of a successful load, to send an email to a distribution list announcing that the load was successful and include a log file.
 
 If there are errors, an email can be sent to alert individuals on a distribution list.
 
@@ -79,37 +81,17 @@ To enter more than one address in the Cc: field, separate them with a space.
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Include date in message?|Enable to include date in message
+|Include date in message?|Enable to include the current date in the message
 |Only send comment in mail body?|If not enabled the email will contain information about the workflow and its execution in addition to the comment
 |Use HTML in mail body|The message is sent in HTML format
-|Encoding|Select encoding type
-|Manage Priority a|Enable to manage priority.
+|Encoding|Select the character encoding type used for the HTML format
+|Manage Priority a|Enable to set the priority and sensitivity of the message. Typically, failures might be sent with a higher priority than successes.
 Note: The support of this flag is depending on the mail server.
 
-* Priority
-* Importance
-* Sensitivity
+* Priority: Low, Normal, or High
+* Importance: Low, Normal, or High
+* Sensitivity: Normal, Personal, Private, or Confidential
 
-|Priority a|The priority for the email message. The available options are
-
-* Low
-* Normal (default)
-* Height
-
-|Importance a|The importance for the email message. The available options are
-
-* Low
-* Normal (default)
-* Height
-
-|Sensitivity a|The sensitivity for the email message. The available options are
-
-* Normal (default)
-* Personal
-* Private
-* Confidentinoal
-
-2+|Message
 |Subject|Enter the subject of the mail into this field.
 |Comment| Enter the comment within the body of the mail into this field.
 |===
@@ -155,7 +137,7 @@ This transforms expects the file name to be in a field (you can use e.g. "Genera
 
 **Attaching pipeline's log**
 
-You may easily attach a log file with log of a pipeline run by the workflow prior to sending the mail as follows (suppose we have the workflow Start -> Pipeline -> Mail):
+You can attach a log file with log of a pipeline run by the workflow prior to sending the mail as follows. This assumes the workflow consists of three actions: Start -> Pipeline -> Mail.
 
 1. In the Pipeline workflow action's options, check "Specify logfile?" and enter a name and extension for the file.
 You can also specify the desired log level.

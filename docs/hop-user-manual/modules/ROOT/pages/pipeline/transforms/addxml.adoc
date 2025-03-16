@@ -65,14 +65,14 @@ The table below describes each of the available properties for a field.
 |Fieldname|Name of the field
 |Element name|The name of the element in the XML file to use
 |Type|Type of the field can be either String, Date, or Number
-|Format|Format mask with which to convert data; see Number Formats for a complete description of format specifiers
+|Format|Select the date or number format to apply to the values in the field
 |Length|Output string is padded to this length if it is specified
-|Precision|The precision to use
+|Precision|The number of decimal places used to display floating point numbers.
 |Currency|Symbol used to represent currencies like $10,000.00 or E5.000,00
-|Decimal|A decimal point can be a "." (10,000.00) or "," (5.000,00)
-|Grouping|A grouping can be a "," (10,000.00) or "." (5.000,00)
+|Decimal|The symbol used to represent the decimal point in floating point numbers, typically "." (10.75) or "," (5,25)
+|Grouping|The symbol used to represent a thousands separator, typically "," (10,000.00) or "." (5.000,00)
 |Null|The string to use in case the field value is null.
-|Attribute|Make this an attribute (N means : element)
+|Attribute|If Y, makes this field an attribute. Otherwise, makes it an element.
 |Attribute parent name|You can specify the name of the parent element to add the attribute to if previous parameter attribute is set to Y.
 If no parent name is specified, the attribute is set in the parent element.
 |===

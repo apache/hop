@@ -27,7 +27,7 @@ under the License.
 |
 == Description
 
-the Pipeline Logging transform receives its input from a xref:metadata-types/pipeline-log.adoc[Pipeline Log] metadata item.
+The pipeline logging transform provides detailed logging information about a pipeline and its transforms. This transform receives input from a xref:metadata-types/pipeline-log.adoc[Pipeline Log] metadata item.
 
 The transform requires very little configuration, but provides a lot of information.
 

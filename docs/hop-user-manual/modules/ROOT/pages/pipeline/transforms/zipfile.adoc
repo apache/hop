@@ -44,13 +44,17 @@ The Zip File transform creates a standard ZIP archive using the options you spec
 |===
 |Option|Description
 |Transform name|Name of the transform.
-|Create target parent folder|Check this option to create the target parent folder
-|Overwrite target file|Check this option to overwrite the target file if it exists
-|Add zip filename to result|Check this option to add the zip filename to the internal result set
-|Source filename field|Define the field that contains the source
-|Target filename field|Define the field that contains the target zip filename
-|Keep source folders|Check this option to keep the source folder within the target zip filename
-|Base folder fieldname|Define the field that contains the base folder that is removed from the filename within the zip (used by the option keep source folders)
-|After zip|The action to take after zipping
-|Move to folder field|Define the field that contains the target directory to move the source files to after zipping
+|Create target parent folder|Check this option to create the target parent folder if needed.
+|Overwrite target file|Check this option to overwrite the target file if it exists.
+|Add zip filename to result|Check this option to add the zip filename to the internal result set.
+|Source filename field|Define the field that contains the source filename. This is the file that gets added to the zip archive.
+|Target filename field|Define the field that contains the target zip filename. This file is created if it does not exist, or overwritten if you allow it.
+|Keep source folders|Check this option to keep the source folder in the zip file's name.
+|Base folder fieldname|If Keep source folders is selected, define a field that contains any additional folders the source folder is nested in, which will be removed from the file name when the zip file is created. This preserves only the name of the folder the file was in as part of the zip file name, such as 'outputs/result.zip'
+|After zip a|The action to take on the source file after zipping. Select one of the following:
+
+*Do nothing: The source file is left in the folder.
+*Move source file: Moves the source file to the location specified in the Move to folder fieldname box.
+*Delete source file: Deletes the source file from the folder.
+|Move to folder fieldname|Define the field that contains the target folder to move the source file to after zipping.
 |===

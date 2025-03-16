@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Schema Mapping transform maps fields from and incoming stream over a specified Schema Definition. The result of this transform is an output stream that conforms to the mapped Schema Definition.
+:description: The Schema Mapping transform maps fields from an incoming stream over a specified Schema Definition. The result of this transform is an output stream that conforms to the mapped Schema Definition.
 
 = image:transforms/icons/schemamapping.svg[Schema Mapping transform Icon, role="image-doc-icon"] Schema Mapping
 
@@ -25,7 +25,7 @@ under the License.
 |
 == Description
 
-The Schema Mapping transform maps fields from and incoming stream over a specified Schema Definition. The result of this transform is an output stream that conforms to the mapped Schema Definition
+The Schema Mapping transform maps fields from an incoming stream over a specified Schema Definition. The result of this transform is an output stream that conforms to the mapped Schema Definition
 
 |
 == Supported Engines

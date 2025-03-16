@@ -123,7 +123,14 @@ public class TextFileInputReader implements IBaseFileInputReader {
       for (int i = 0; i < meta.content.nrLinesDocHeader; i++) {
         // Just skip these...
         TextFileLineUtil.getLine(
-            log, isr, data.encodingType, data.fileFormatType, data.lineStringBuilder); // header
+            log,
+            isr,
+            data.encodingType,
+            data.fileFormatType,
+            data.lineStringBuilder,
+            data.enclosure,
+            data.escapeCharacter,
+            meta.isBreakInEnclosureAllowed()); // header
         // and
         // footer: not
         // wrapped
@@ -449,7 +456,14 @@ public class TextFileInputReader implements IBaseFileInputReader {
     String line;
     line =
         TextFileLineUtil.getLine(
-            log, isr, data.encodingType, data.fileFormatType, data.lineStringBuilder);
+            log,
+            isr,
+            data.encodingType,
+            data.fileFormatType,
+            data.lineStringBuilder,
+            data.enclosure,
+            data.escapeCharacter,
+            meta.isBreakInEnclosureAllowed());
     if (line != null) {
       // when there is no header, check the filter for the first line
       if (applyFilter) {

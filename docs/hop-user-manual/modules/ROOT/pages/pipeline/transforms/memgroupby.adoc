@@ -48,12 +48,29 @@ TIP: When the number of rows is too large to fit into memory, use a combination 
 [options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform this name has to be unique in a single pipeline,
-|Always give back a result row|If you enable this option, the Group By transform will always give back a result row, even if there is no input row. +
-This can be useful if you want to count the number of rows. +
-Without this option you would never get a count of zero (0).
-|The field that make up the group|After retrieving fields using the Get Fields button, designate the fields to include in the group. +
-See the Group by transform for more details.
-|Aggregates|After retrieving fields using the Get lookup fields button, designate the fields to include in the group. +
-See the Group by transform for more details.
+|Transform name|Name of the transform. This name has to be unique in a single pipeline,
+|Always give back a result row|If you enable this option, the Group By transform will always give back a result row, even if there is no input row.
+
+This can be useful if you want to count the number of rows. Without this option you would never get a count of zero (0).
+|The fields that make up the group|Specify the fields over which you want to group. Click Get Fields to add all fields from the input stream(s).
+|Aggregates|Specify the fields that must be aggregated, the method and the name of the resulting new field. Click Get lookup fields to add all fields from the input stream(s). Here are the available aggregation methods:
+
+- Sum
+- Average (Mean)
+- Median
+- Percentile
+- Minimum
+- Maximum
+- Number of values (N)
+- Concatenate strings separated by , (comma)
+- First non-null value
+- Last non-null value
+- First value (including null)
+- Last value (including null)
+- Standard deviation
+- Concatenate strings separated by <Value>: specify the separator in the Value column (This supports hexadecimals)
+- Number of distinct values
+- Number of rows (without field argument)
+- Concatenate distinct values separated by <Value>: specify the separator in the Value column (This supports hexadecimals)
+
 |===

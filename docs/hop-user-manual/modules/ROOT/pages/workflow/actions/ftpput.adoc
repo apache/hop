@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The `Put a file with FTP` action uploads a file to an FTP server.
+The Put A File With FTP action uploads a file to an FTP server.
 
 == Options
 
@@ -34,8 +34,8 @@ The `Put a file with FTP` action uploads a file to an FTP server.
 |Action name|The name of the workflow action.
 2+|General tab
 |FTP server name/IP address|The name of the server or the IP address.
-|Port|Port number of the FTP server.
-|Username|The user name associated with FTP server account.
+|Port|The port number the FTP server connects on.
+|Username|The user name associated with the FTP server account.
 |Password|The password associated the FTP server account.
 |Proxy host|Proxy server host name.
 |Proxy port|Proxy server port number.
@@ -47,7 +47,7 @@ The `Put a file with FTP` action uploads a file to an FTP server.
 |Timeout|The FTP server timeout in seconds.
 |Use Active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open.
 The default is Passive mode.
-|Control Encoding|Encoding matters when retrieving file names that contain special characters.
+|Control Encoding|Select the character encoding to use for determining special characters in file names.
 For Western Europe and the USA, ISO-8859-1 usually suffices.
 Select encoding that is valid for your server.
 |===
@@ -60,12 +60,11 @@ Select encoding that is valid for your server.
 2+|Source (local) files
 |Local directory|The local directory from which to upload.
 |Browse...|Browse the filesystem for a local directory.
-|Wildcard (regular expression)|
-|Remove files after transferal|Whether or not to remove files after they've been uploaded.
-|Don't overwrite files|Skip already existing files.
-2+|Target (remote) files
-|Remote directory|The remote directory.
-|Test folder|Test if the remote directory exists.
+|Wildcard (regular expression)|If you are uploading multiple files, specify a regular expression that defines the set of files you want to upload.
+|Remove files after transferal?|Enable to remove files from the local directory after they've been uploaded.
+|Don't overwrite files|Enable to skip files that already exist in the remote directory.
+|Remote directory|The directory on the FTP server to upload files to.
+|Test folder|Test if the remote directory exists. This connects to the FTP server and attmepts to access the specfied directory. If this directory doesn't exist, the upload fails.
 |===
 
 === Socks Proxy
@@ -73,8 +72,8 @@ Select encoding that is valid for your server.
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Host|Socks Proxy host name.
-|Port|Socks Proxy port number.
-|Username|User name associated with the Socks Proxy account.
-|Password|Password associated with the Socks Proxy account.
+|Host|The Socks proxy server's  host name.
+|Port|The port number the Socks proxy connects on.
+|Username|The user name associated with the Socks proxy server account.
+|Password|The password associated with the Socks proxy server account.
 |===

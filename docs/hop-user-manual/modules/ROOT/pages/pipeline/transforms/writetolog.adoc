@@ -54,7 +54,7 @@ Example to print a parameter or variable in the Log Message section: ``COUNTER: 
 
 If a data row does not exist containing fields, logging fields, parameters, or variables will not work. You may use a "Generate rows" transform to create a dummy row in order to print variables or parameters.
 
-TIP: If an error stops anything from being written to the log, then disable the Hops that fail, and add logging just before the failure, and re-run.
+TIP: If an error stops anything from being written to the log, you can disable the Hops that fail, add logging just before the failure, and then re-run.
 
 == Options
 
@@ -68,7 +68,7 @@ In the example below, this value has been set to false, so only the actual value
 |Limit rows|Limit the number of rows given by the parameter "Nr. of rows to print".
 |Nr. of rows to print|The number of rows to print when option "limit rows" is checked.
 |Write to log|The text to use in the logging line(s).
-|Fields|The data from fields that should we written to the log.
+|Fields|The data from fields that should be written to the log.
 |===
 
 == Example log output

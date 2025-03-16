@@ -48,6 +48,8 @@ public class TextFileInputMetaNewInjectionTest
 
     check("ESCAPE_CHAR", () -> meta.content.escapeCharacter);
 
+    check("PREPEND_FILENAME", () -> meta.content.prependFileName);
+
     check("HEADER_PRESENT", () -> meta.content.header);
 
     check("NR_HEADER_LINES", () -> meta.content.nrHeaderLines);

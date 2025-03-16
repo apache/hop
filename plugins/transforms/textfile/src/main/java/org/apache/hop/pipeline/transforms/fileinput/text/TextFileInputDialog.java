@@ -167,6 +167,10 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   private Button wHeader;
 
+  private Button wPrependFileName;
+
+  private Button wEnclBreaks;
+
   private Label wlNrHeader;
   private Text wNrHeader;
 
@@ -984,16 +988,12 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdlEnclBreaks.top = new FormAttachment(wEnclosure, margin);
     fdlEnclBreaks.right = new FormAttachment(middle, -margin);
     wlEnclBreaks.setLayoutData(fdlEnclBreaks);
-    Button wEnclBreaks = new Button(wContentComp, SWT.CHECK);
+    wEnclBreaks = new Button(wContentComp, SWT.CHECK);
     PropsUi.setLook(wEnclBreaks);
     FormData fdEnclBreaks = new FormData();
     fdEnclBreaks.left = new FormAttachment(middle, 0);
     fdEnclBreaks.top = new FormAttachment(wlEnclBreaks, 0, SWT.CENTER);
     wEnclBreaks.setLayoutData(fdEnclBreaks);
-
-    // Disable until the logic works...
-    wlEnclBreaks.setEnabled(false);
-    wEnclBreaks.setEnabled(false);
 
     // Escape
     Label wlEscape = new Label(wContentComp, SWT.RIGHT);
@@ -1013,13 +1013,30 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdEscape.right = new FormAttachment(100, 0);
     wEscape.setLayoutData(fdEscape);
 
+    // Addition Prepend file name
+    Label wlPrependFileName = new Label(wContentComp, SWT.RIGHT);
+    wlPrependFileName.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.PrependFileName.Label"));
+    PropsUi.setLook(wlPrependFileName);
+    FormData fdlPrependFileName = new FormData();
+    fdlPrependFileName.left = new FormAttachment(0, 0);
+    fdlPrependFileName.top = new FormAttachment(wEscape, margin);
+    fdlPrependFileName.right = new FormAttachment(middle, -margin);
+    wlPrependFileName.setLayoutData(fdlPrependFileName);
+    wPrependFileName = new Button(wContentComp, SWT.CHECK);
+    PropsUi.setLook(wPrependFileName);
+    FormData fdPrependFileName = new FormData();
+    fdPrependFileName.left = new FormAttachment(middle, 0);
+    fdPrependFileName.top = new FormAttachment(wlPrependFileName, 0, SWT.CENTER);
+    wPrependFileName.setLayoutData(fdPrependFileName);
+
     // Header checkbox
     Label wlHeader = new Label(wContentComp, SWT.RIGHT);
     wlHeader.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Header.Label"));
     PropsUi.setLook(wlHeader);
     FormData fdlHeader = new FormData();
     fdlHeader.left = new FormAttachment(0, 0);
-    fdlHeader.top = new FormAttachment(wEscape, margin);
+    fdlHeader.top = new FormAttachment(wPrependFileName, margin);
     fdlHeader.right = new FormAttachment(middle, -margin);
     wlHeader.setLayoutData(fdlHeader);
     wHeader = new Button(wContentComp, SWT.CHECK);
@@ -2315,6 +2332,8 @@ public class TextFileInputDialog extends BaseTransformDialog
     if (meta.content.escapeCharacter != null) {
       wEscape.setText(meta.content.escapeCharacter);
     }
+    wEnclBreaks.setSelection(meta.content.breakInEnclosureAllowed);
+    wPrependFileName.setSelection(meta.content.prependFileName);
     wHeader.setSelection(meta.content.header);
     wNrHeader.setText("" + meta.content.nrHeaderLines);
     wFooter.setSelection(meta.content.footer);
@@ -2603,6 +2622,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.content.separator = wSeparator.getText();
     meta.content.enclosure = wEnclosure.getText();
     meta.content.escapeCharacter = wEscape.getText();
+    meta.content.breakInEnclosureAllowed = wEnclBreaks.getSelection();
     meta.content.rowLimit = Const.toLong(wLimit.getText(), 0L);
     meta.content.filenameField = wInclFilenameField.getText();
     meta.content.rowNumberField = wInclRownumField.getText();
@@ -2611,6 +2631,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.content.includeFilename = wInclFilename.getSelection();
     meta.content.includeRowNumber = wInclRownum.getSelection();
     meta.content.rowNumberByFile = wRownumByFile.getSelection();
+    meta.content.prependFileName = wPrependFileName.getSelection();
     meta.content.header = wHeader.getSelection();
     meta.content.nrHeaderLines = Const.toInt(wNrHeader.getText(), 1);
     meta.content.footer = wFooter.getSelection();
@@ -2935,12 +2956,26 @@ public class TextFileInputDialog extends BaseTransformDialog
             int skipped = 0;
             String line =
                 TextFileLineUtil.getLine(
-                    log, reader, encodingType, fileFormatType, lineStringBuilder);
+                    log,
+                    reader,
+                    encodingType,
+                    fileFormatType,
+                    lineStringBuilder,
+                    meta.getEnclosure(),
+                    meta.getEscapeCharacter(),
+                    meta.isBreakInEnclosureAllowed());
             while (line != null && skipped < meta.content.nrLinesDocHeader - 1) {
               skipped++;
               line =
                   TextFileLineUtil.getLine(
-                      log, reader, encodingType, fileFormatType, lineStringBuilder);
+                      log,
+                      reader,
+                      encodingType,
+                      fileFormatType,
+                      lineStringBuilder,
+                      meta.getEnclosure(),
+                      meta.getEscapeCharacter(),
+                      meta.isBreakInEnclosureAllowed());
             }
           }
 
@@ -2949,24 +2984,53 @@ public class TextFileInputDialog extends BaseTransformDialog
             int skipped = 0;
             String line =
                 TextFileLineUtil.getLine(
-                    log, reader, encodingType, fileFormatType, lineStringBuilder);
+                    log,
+                    reader,
+                    encodingType,
+                    fileFormatType,
+                    lineStringBuilder,
+                    meta.getEnclosure(),
+                    meta.getEscapeCharacter(),
+                    meta.isBreakInEnclosureAllowed());
             while (line != null && skipped < meta.content.nrHeaderLines - 1) {
               skipped++;
               line =
                   TextFileLineUtil.getLine(
-                      log, reader, encodingType, fileFormatType, lineStringBuilder);
+                      log,
+                      reader,
+                      encodingType,
+                      fileFormatType,
+                      lineStringBuilder,
+                      meta.getEnclosure(),
+                      meta.getEscapeCharacter(),
+                      meta.isBreakInEnclosureAllowed());
             }
           }
         }
 
         String line =
-            TextFileLineUtil.getLine(log, reader, encodingType, fileFormatType, lineStringBuilder);
+            TextFileLineUtil.getLine(
+                log,
+                reader,
+                encodingType,
+                fileFormatType,
+                lineStringBuilder,
+                meta.getEnclosure(),
+                meta.getEscapeCharacter(),
+                meta.isBreakInEnclosureAllowed());
         while (line != null && (linenr < maxnr || nrlines == 0)) {
           retval.add(line);
           linenr++;
           line =
               TextFileLineUtil.getLine(
-                  log, reader, encodingType, fileFormatType, lineStringBuilder);
+                  log,
+                  reader,
+                  encodingType,
+                  fileFormatType,
+                  lineStringBuilder,
+                  meta.getEnclosure(),
+                  meta.getEscapeCharacter(),
+                  meta.isBreakInEnclosureAllowed());
         }
       } catch (Exception e) {
         throw new HopException(

@@ -99,6 +99,9 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
   @Injection(name = "ENCLOSURE")
   private String enclosure;
 
+  @Injection(name = "BREAK_IN_ENCLOSURE")
+  public boolean breakInEnclosureAllowed;
+
   @Injection(name = "BUFFER_SIZE")
   private String bufferSize;
 
@@ -480,6 +483,15 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
    */
   public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
+  }
+
+  @Override
+  public boolean isBreakInEnclosureAllowed() {
+    return breakInEnclosureAllowed;
+  }
+
+  public void setBreakInEnclosureAllowed(boolean breakInEnclosureAllowed) {
+    this.breakInEnclosureAllowed = breakInEnclosureAllowed;
   }
 
   @Override

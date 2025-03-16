@@ -284,13 +284,31 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
     // However, if it doesn't have a header, take a new line
     //
 
-    line = TextFileLineUtil.getLine(log, reader, encodingType, fileFormatType, lineBuffer);
+    line =
+        TextFileLineUtil.getLine(
+            log,
+            reader,
+            encodingType,
+            fileFormatType,
+            lineBuffer,
+            meta.getEnclosure(),
+            meta.getEscapeCharacter(),
+            meta.isBreakInEnclosureAllowed());
     fileLineNumber++;
 
     if (meta.content.header) {
       int skipped = 0;
       while (line != null && skipped < meta.content.nrHeaderLines) {
-        line = TextFileLineUtil.getLine(log, reader, encodingType, fileFormatType, lineBuffer);
+        line =
+            TextFileLineUtil.getLine(
+                log,
+                reader,
+                encodingType,
+                fileFormatType,
+                lineBuffer,
+                meta.getEnclosure(),
+                meta.getEscapeCharacter(),
+                meta.isBreakInEnclosureAllowed());
         skipped++;
         fileLineNumber++;
       }
@@ -391,7 +409,16 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
 
       // Grab another line...
       //
-      line = TextFileLineUtil.getLine(log, reader, encodingType, fileFormatType, lineBuffer);
+      line =
+          TextFileLineUtil.getLine(
+              log,
+              reader,
+              encodingType,
+              fileFormatType,
+              lineBuffer,
+              meta.getEnclosure(),
+              meta.getEscapeCharacter(),
+              meta.isBreakInEnclosureAllowed());
     }
 
     monitor.worked(1);

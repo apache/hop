@@ -47,16 +47,18 @@ TIP: More information on this file format is available on https://en.wikipedia.o
 [options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform this name has to be unique in a single pipeline.
-|Filenames from field a|
-* Filename is defined in a field? : the previous transform is giving filenames in a certain field in the input stream.
-These are read.
-* Get filename from field : specify the field to the filenames from.
+|Transform name|Name of the transform. This name has to be unique in a single pipeline.
+|Filename is defined in a field?|The file name to read is available in a field in the input stream.
+|Get filename from field|Specify the field to read the file name from.
 |File or directory|Specifies the location and/or name of the input text file.
-Important: Click Add to add the file/directory/wildcard combination to the list of selected files (grid) below.
+|Add|Click to add the file/directory/wildcard combination to the list of selected files (grid) below.|
+|Browse|Click to select the file to load from a file browser.
 |Regular expression|Specifies the regular expression you want to use to select the files in the directory specified in the previous option.
-|Selected Files|Contains a list of selected files (or wildcard selections) and a property specifying if file is required or not.
-If a file is required and it is not found, an error is generated;otherwise, the file name is skipped.
+|Exclude Regular|Specifies a regular expression to exclude files from the specified directory. 
+|Selected Files|Contains a list of selected files (or wildcard selections) and a property specifying if that file is required or not.
+If a file is required and it is not found, an error is generated, otherwise, the file name is skipped.
+|Delete|Click to remove the selected file or wildcard selection from the list.
+|Edit|Click to modiy the selected file or wildcard.
 |Show filenames(s)...|Displays a list of all files that will be loaded based on the current selected file definitions
 |===
 
@@ -65,29 +67,48 @@ If a file is required and it is not found, an error is generated;otherwise, the 
 [options="header"]
 |===
 |Option|Description
-|Include filename in output?|Allows you to specify a field name to include the file name (String) in the output of this transform.
+|File Type|The file's type. This should be "Properties file".
+|Encoding|The character encoding used for the file. 
+|Section|If necessary, specify the section of the file to read.
+|Limit|Specify the maximum number of rows read from the file, or specify 0 for no limit.
+|Substitute variable for value|If the file was provided in a variable, resolve that variable to get the file name.
+|Include filename in output?|Allows you to specify a field name to include the file name in the output of this transform.
 |Rownum in output|Allows you to specify a field name to include the row number (Integer) in the output of this transform.
-|Reset rownum per file?|Enable this option if you want the generated row number (optional) to be reset (to 1) at the start of every individual file.
-|Limit|Limits the number of rows to this number (zero (0) means all rows).
-|Result filenames a|
-* Add files to result filename : Adds the names of the files read to the result of this pipeline.
-A unique list is being kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
+|Reset rownum per file?|Enable to reset the generated row number to 1 at the start of every individual file. Otherwise, the rownum counts all rows in all files.
+|Include section name in output?|Allows you specify a field name to include the section namemin the output of this transform.
+|Add filename to result?|Adds the names of the files read to the result of this pipeline.
+A unique list is kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
 |===
 
-=== Fields
+=== Fields Tab
 
 [options="header"]
 |===
 |Option|Description
 |Name|The name of the output field
 |Column|The attribute to read
-|Type|The data type to convert to
+|Type|The data type for the field. This might require conversion if the source file does not use the same type. The following options all apply to the result after conversion.
 |Format|The format or conversion mask to use in the data type conversion
-|Length|The length of the output data type
-|Precision|The precision of the output data type
-|Currency|The currency symbol to use during data type conversion
-|Decimal|The numeric decimal symbol to use during data type conversion
-|Group|The numeric grouping symbol to use during data type conversion
-|Trim type|The type of trimming to use during data type conversion
+|Length|The maximum number of characters for the output data type, or -1 for no limit.
+|Precision|The number of decimal places used for displaying floating-point numbers.
+|Currency|The currency symbol to display for monetary value.
+|Decimal|The decimal point symbol to use for numbers. Typically "." (10.5) or "," (10,5).
+|Group|The thousands separator symbol to use for numbers. Typically "," (5,200,820) or "." (5.200.820).
+|Trim type|The trimming method used to remove blank spaces from string values. This can be left (removes leading spaces), right (removes trailing spaces), both, or none.
 |Repeat|Repeat the column value of the previous row if the column value is empty (null)
+|===
+
+=== Additional output fields Tab
+
+[options="header"]
+|===
+|Option|Description
+|Short filename field|The field used to contain the filename, without the path.
+|Extension field|The field used to contain the file extension.
+|Path field|The field used to contain the file's path.
+|Size field|The field used to contain the file size.
+|Is hidden field|The field used to contain whether the file is hidden.
+|Last modification field|The field used to contain the date the file was last modified.
+|Uri field|The field used to contain the full source URL for the file. This could be an http:// or file:// URL depending on the file's source.
+|Root uri field|The field used to contain the root of the source URL for the file, including the protocol and top-level address.
 |===

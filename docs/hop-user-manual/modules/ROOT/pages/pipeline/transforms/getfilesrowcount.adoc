@@ -45,17 +45,19 @@ The Get Files Row Count transform counts the number of rows in a file or set of 
 [options="header"]
 |===
 |Option|Description
-|directory|
-|Expression|
-|File or|
-|Filename(s)|
-|Files|
-|Preview|
-|Regular|
-|Rows|
-|Selected|
-|Show|
-|Transform name|
+
+|Transform name|Name of the transform. This must be unique within the pipeline.
+|Get filename from field|Whether the file name is taken from the specified field.
+|Filename from field|Specify the field to read the file name from.
+|File or directory|Specify the path to the file or files you want to count rows for.
+|Add|Click to add the specified file, directory, and regular expression to the Selected files list.
+|Browse|Click to select a file or directory.
+|Regular Expression|If you want to load multiple files, an expression that matches the files you want to use.
+|!GetFilesRowsDialog.ExcludeFileMask.Label!|If you want to exclude files in the directory, an expression that matches the files to exclude.
+|Selected files|Lists the files that you have selected to use with this transform, including the location of each and the regular expression used to match or exclude files.
+|Delete|Click to remove a selected file from the list.
+|Edit|Click to modify a selected file in the list.
+|Show Filenames|Click to view all files that will be used.
 |===
 
 === Content tab
@@ -63,16 +65,12 @@ The Get Files Row Count transform counts the number of rows in a file or set of 
 [options="header"]
 |===
 |Option|Description
-|Rows Count|
-|fieldname|
-|Rows|
-|Separator|
-|type|
-|Row|
-|separator|
-|Include|
-|files count|
-|in output?|
-|Files Count|
-|fieldname|
+
+|Rows Count fieldname|The name of the field to store the row count in.
+|Rows Separator type|Select they type of character that defines the end of a line, either a carriage return, line feed, tab, or custom character.
+|Row separator|If you are using a custom character, the character that defines the end of a line.
+|Perform smart count|If not selected, the count returns the number of separators in the file. If selected, an extra pass is performed to try to return the actual number of lines. This can be used in cases where the row separator is the same as the column value delimiter or if the file contains blank lines.
+|Include files count in output?|Whether the file count is included in a field in the output.
+|Files Count fieldname|The name of the field to store the output file count in.
+|Add filename to result|Whether the file names are included as a field in the output.
 |===
