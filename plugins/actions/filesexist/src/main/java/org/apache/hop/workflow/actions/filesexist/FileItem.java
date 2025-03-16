@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,23 +17,34 @@
 
 package org.apache.hop.workflow.actions.filesexist;
 
-import java.util.Arrays;
-import java.util.List;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
-public class WorkflowActionFilesExistLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionFilesExist> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+@Setter
+@Getter
+public class FileItem {
 
-  @Override
-  protected Class<ActionFilesExist> getActionClass() {
-    return ActionFilesExist.class;
+  /** File name */
+  @HopMetadataProperty(key = "name")
+  private String fileName;
+
+  public FileItem() {}
+
+  public FileItem(String fileName) {
+    this.fileName = fileName;
   }
 
   @Override
-  protected List<String> listAttributes() {
-    return Arrays.asList(new String[] {"filename", "arguments"});
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    FileItem item = (FileItem) o;
+    return fileName.equals(item.fileName);
+  }
+
+  @Override
+  public int hashCode() {
+    return java.util.Objects.hash(fileName);
   }
 }

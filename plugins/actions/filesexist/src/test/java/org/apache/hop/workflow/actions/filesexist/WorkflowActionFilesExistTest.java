@@ -17,21 +17,23 @@
 
 package org.apache.hop.workflow.actions.filesexist;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import org.apache.hop.core.Result;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.utils.TestUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class WorkflowActionFilesExistTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
@@ -40,9 +42,12 @@ public class WorkflowActionFilesExistTest {
   private String existingFile1;
   private String existingFile2;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @BeforeAll
+  public static void setUpBeforeClass() {
+    HopLogStore.init();
+  }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionFilesExist();
@@ -61,47 +66,58 @@ public class WorkflowActionFilesExistTest {
   }
 
   @Test
+  void testSerialization() throws Exception {
+    ActionFilesExist meta =
+        ActionSerializationTestUtil.testSerialization(
+            "/files-exist-action.xml", ActionFilesExist.class);
+
+    assertEquals("/folder", meta.getFileItems().get(0).getFileName());
+    assertEquals("/archive.zip", meta.getFileItems().get(1).getFileName());
+    assertEquals(2, meta.getFileItems().size());
+  }
+
+  @Test
   public void testSetNrErrorsFalseResult() {
-    action.setArguments(new String[] {"nonExistingFile.ext"});
+    action.setFileItems(List.of(new FileItem("nonExistingFile.ext")));
 
     Result res = action.execute(new Result(), 0);
 
-    assertFalse("Entry should fail", res.getResult());
+    assertFalse(res.getResult(), "Entry should fail");
     assertEquals(
-        "Files not found. Result is false. But... No of errors should be zero",
         0,
-        res.getNrErrors());
+        res.getNrErrors(),
+        "Files not found. Result is false. But... No of errors should be zero");
   }
 
   @Test
   public void testExecuteWithException() {
-    action.setArguments(new String[] {null});
+    action.setFileItems(List.of(new FileItem(null)));
 
     Result res = action.execute(new Result(), 0);
 
-    assertFalse("Entry should fail", res.getResult());
+    assertFalse(res.getResult(), "Action should fail");
     assertEquals(
-        "File with wrong name was specified. One error should be reported", 1, res.getNrErrors());
+        1, res.getNrErrors(), "File with wrong name was specified. One error should be reported");
   }
 
   @Test
   public void testExecuteSuccess() {
-    action.setArguments(new String[] {existingFile1, existingFile2});
+    action.setFileItems(List.of(new FileItem(existingFile1), new FileItem(existingFile2)));
 
     Result res = action.execute(new Result(), 0);
-
-    assertTrue("Entry failed", res.getResult());
+    assertTrue(res.getResult());
   }
 
   @Test
   public void testExecuteFail() {
-    action.setArguments(
-        new String[] {
-          existingFile1, existingFile2, "nonExistingFile1.ext", "nonExistingFile2.ext"
-        });
+    action.setFileItems(
+        List.of(
+            new FileItem(existingFile1),
+            new FileItem(existingFile2),
+            new FileItem("nonExistingFile1.ext"),
+            new FileItem("nonExistingFile2.ext")));
 
     Result res = action.execute(new Result(), 0);
-
-    assertFalse("Entry should fail", res.getResult());
+    assertFalse(res.getResult());
   }
 }

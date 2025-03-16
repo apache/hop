@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.filesexist;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -24,8 +26,8 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
@@ -48,16 +50,7 @@ import org.eclipse.swt.widgets.Text;
 public class ActionFilesExistDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFilesExist.class;
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionFilesExist.Filetype.Text"),
-        BaseMessages.getString(PKG, "ActionFilesExist.Filetype.CSV"),
-        BaseMessages.getString(PKG, "ActionFilesExist.Filetype.All")
-      };
-
   private Text wName;
-
-  private TextVar wFilename;
 
   private ActionFilesExist action;
 
@@ -104,9 +97,10 @@ public class ActionFilesExistDialog extends ActionDialog {
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
-    // Filename line
+    // Action name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionFilesExist.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
+    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -122,114 +116,35 @@ public class ActionFilesExistDialog extends ActionDialog {
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 
-    // Filename line
-    Label wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.Filename.Label"));
-    PropsUi.setLook(wlFilename);
-    FormData fdlFilename = new FormData();
-    fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wName, 2 * margin);
-    fdlFilename.right = new FormAttachment(middle, -margin);
-    wlFilename.setLayoutData(fdlFilename);
-
-    // Browse Source folders button ...
-    Button wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbDirectory);
-    wbDirectory.setText(BaseMessages.getString(PKG, "ActionFilesExist.BrowseFolders.Label"));
-    FormData fdbDirectory = new FormData();
-    fdbDirectory.right = new FormAttachment(100, -margin);
-    fdbDirectory.top = new FormAttachment(wName, margin);
-    wbDirectory.setLayoutData(fdbDirectory);
-
-    wbDirectory.addListener(
-        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wFilename, variables));
-
-    Button wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbFilename);
-    wbFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.BrowseFiles.Label"));
-    FormData fdbFilename = new FormData();
-    fdbFilename.right = new FormAttachment(100, 0);
-    fdbFilename.top = new FormAttachment(wName, margin);
-    fdbFilename.right = new FormAttachment(wbDirectory, -margin);
-    wbFilename.setLayoutData(fdbFilename);
-
-    // Add or change
-    Button wbaFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbaFilename);
-    wbaFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.FilenameAdd.Button"));
-    FormData fdbaFilename = new FormData();
-    fdbaFilename.right = new FormAttachment(wbFilename, -margin);
-    fdbaFilename.top = new FormAttachment(wName, margin);
-    wbaFilename.setLayoutData(fdbaFilename);
-
-    wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wFilename);
-    wFilename.addModifyListener(lsMod);
-    FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.top = new FormAttachment(wName, 2 * margin);
-    fdFilename.right = new FormAttachment(wbaFilename, -margin);
-    wFilename.setLayoutData(fdFilename);
-
-    // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener(
-        e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
-    wbFilename.addListener(
-        SWT.Selection,
-        e ->
-            BaseDialog.presentFileDialog(
-                shell, wFilename, variables, new String[] {"*"}, FILETYPES, false));
-
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionFilesExist.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wFilename, margin);
+    fdlFields.top = new FormAttachment(wName, margin);
     wlFields.setLayoutData(fdlFields);
-
-    // Buttons to the right of the screen...
-    // Delete
-    Button wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbdFilename);
-    wbdFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.FilenameDelete.Button"));
-    wbdFilename.setToolTipText(
-        BaseMessages.getString(PKG, "ActionFilesExist.FilenameDelete.Tooltip"));
-    FormData fdbdFilename = new FormData();
-    fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wlFields, margin);
-    wbdFilename.setLayoutData(fdbdFilename);
-
-    // Edit
-    Button wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbeFilename);
-    wbeFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.FilenameEdit.Button"));
-    wbeFilename.setToolTipText(
-        BaseMessages.getString(PKG, "ActionFilesExist.FilenameEdit.Tooltip"));
-    FormData fdbeFilename = new FormData();
-    fdbeFilename.right = new FormAttachment(100, 0);
-    fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
-    fdbeFilename.top = new FormAttachment(wbdFilename, margin);
-    wbeFilename.setLayoutData(fdbeFilename);
-
-    int rows =
-        action.getArguments() == null
-            ? 1
-            : (action.getArguments().length == 0 ? 0 : action.getArguments().length);
-
-    final int nrFieldsRows = rows;
 
     ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "ActionFilesExist.Fields.Argument.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
+              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
               false),
         };
 
     columns[0].setUsingVariables(true);
     columns[0].setToolTip(BaseMessages.getString(PKG, "ActionFilesExist.Fields.Column"));
+    columns[0].setTextVarButtonSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            String filename = BaseDialog.presentFileDialog(shell, null, null, true);
+            if (filename != null) {
+              wFields.getActiveTableItem().setText(wFields.getActiveTableColumn(), filename);
+            }
+          }
+        });
 
     wFields =
         new TableView(
@@ -237,59 +152,17 @@ public class ActionFilesExistDialog extends ActionDialog {
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             columns,
-            nrFieldsRows,
+            action.getFileItems().size(),
             lsMod,
             props);
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(wbdFilename, -margin);
+    fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
-
-    // Add the file to the list of files...
-    SelectionAdapter selA =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            wFields.add(new String[] {wFilename.getText()});
-            wFilename.setText("");
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-            wFields.optWidth(true);
-          }
-        };
-    wbaFilename.addSelectionListener(selA);
-    wFilename.addSelectionListener(selA);
-
-    // Delete files from the list of files...
-    wbdFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int[] idx = wFields.getSelectionIndices();
-            wFields.remove(idx);
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          }
-        });
-
-    // Edit the selected file & remove from the list...
-    wbeFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int idx = wFields.getSelectionIndex();
-            if (idx >= 0) {
-              String[] string = wFields.getItem(idx);
-              wFilename.setText(string[0]);
-              wFields.remove(idx);
-            }
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          }
-        });
+    wFields.getTable().addListener(SWT.Resize, new ColumnsResizer(8, 92));
 
     getData();
 
@@ -304,20 +177,15 @@ public class ActionFilesExistDialog extends ActionDialog {
       wName.setText(action.getName());
     }
 
-    if (action.getArguments() != null) {
-      for (int i = 0; i < action.getArguments().length; i++) {
-        TableItem ti = wFields.table.getItem(i);
-        if (action.getArguments()[i] != null) {
-          ti.setText(1, action.getArguments()[i]);
-        }
+    int i = 0;
+    for (FileItem item : action.getFileItems()) {
+      TableItem ti = wFields.table.getItem(i++);
+      if (item.getFileName() != null) {
+        ti.setText(1, item.getFileName());
       }
-      wFields.setRowNums();
-      wFields.optWidth(true);
     }
-
-    if (action.getFilename() != null) {
-      wFilename.setText(action.getFilename());
-    }
+    wFields.setRowNums();
+    // wFields.optWidth(true);
 
     wName.selectAll();
     wName.setFocus();
@@ -338,26 +206,16 @@ public class ActionFilesExistDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setFilename(wFilename.getText());
 
-    int nrItems = wFields.nrNonEmpty();
-    int nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        nr++;
+    int numberOfItems = wFields.nrNonEmpty();
+    List<FileItem> items = new ArrayList<>();
+    for (int i = 0; i < numberOfItems; i++) {
+      String path = wFields.getNonEmpty(i).getText(1);
+      if (path != null && !path.isEmpty()) {
+        items.add(new FileItem(path));
       }
     }
-    String[] arguments = new String[nr];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        arguments[nr] = arg;
-        nr++;
-      }
-    }
-    action.setArguments(arguments);
+    action.setFileItems(items);
 
     dispose();
   }
