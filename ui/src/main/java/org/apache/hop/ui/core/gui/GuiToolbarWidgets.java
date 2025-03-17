@@ -18,11 +18,13 @@
 package org.apache.hop.ui.core.gui;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -56,9 +58,11 @@ import org.eclipse.swt.widgets.ToolItem;
 public class GuiToolbarWidgets extends BaseGuiWidgets {
 
   public static final String CONST_TOOLBAR_ITEM_WITH_ID = "toolbar item with id '";
+
   private Map<String, GuiToolbarItem> guiToolBarMap;
-  private Map<String, Control> widgetsMap;
+  @Getter private Map<String, Control> widgetsMap;
   private Map<String, ToolItem> toolItemMap;
+  private List<String> removeToolItems;
   private Color itemBackgroundColor;
 
   public GuiToolbarWidgets() {
@@ -66,6 +70,12 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     guiToolBarMap = new HashMap<>();
     widgetsMap = new HashMap<>();
     toolItemMap = new HashMap<>();
+    removeToolItems = new ArrayList<>();
+  }
+
+  public void createToolbarWidgets(Composite parent, String root, List<String> diabledToolItems) {
+    this.removeToolItems = diabledToolItems;
+    createToolbarWidgets(parent, root);
   }
 
   public void createToolbarWidgets(Composite parent, String root) {
@@ -84,7 +94,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     //
     for (GuiToolbarItem toolbarItem : toolbarItems) {
       boolean add = lookupToolbarItemFilter(toolbarItem, root);
-      if (add) {
+      if (add && !removeToolItems.contains(toolbarItem.getId())) {
         addToolbarWidgets(parent, toolbarItem);
       }
     }
@@ -140,11 +150,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     //
     guiToolBarMap.put(toolbarItem.getId(), toolbarItem);
 
-    if (!(parent instanceof ToolBar)) {
+    if (!(parent instanceof ToolBar toolBar)) {
       throw new RuntimeException(
           "We can only add toolbar items to a toolbar, not class " + parent.getClass().getName());
     }
-    ToolBar toolBar = (ToolBar) parent;
 
     // We want to add a separator if the annotation asked for it
     // We also want to add a separator in case the toolbar element type isn't a button
@@ -332,8 +341,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   /**
    * See if there's a shortcut worth mentioning and add it to tooltip...
    *
-   * @param toolItem
-   * @param guiToolbarItem
+   * @param toolItem the ToolItem to get the shortcut for
+   * @param guiToolbarItem the Toolbar where the item is part of
    */
   private void setToolItemKeyboardShortcut(ToolItem toolItem, GuiToolbarItem guiToolbarItem) {
     KeyboardShortcut shortcut =
@@ -343,7 +352,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
                 guiToolbarItem.getListenerMethod(),
                 Const.isOSX());
     if (shortcut != null) {
-      toolItem.setToolTipText(toolItem.getToolTipText() + " (" + shortcut.toString() + ')');
+      toolItem.setToolTipText(toolItem.getToolTipText() + " (" + shortcut + ')');
     }
   }
 
@@ -393,9 +402,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
    * Find the toolbar item with the given ID. Check the capability in the given file type Enable or
    * disable accordingly.
    *
-   * @param fileType
+   * @param fileType the IHopFileType to check
    * @param id The ID of the widget to look for
-   * @param permission
+   * @param permission check if the filetype has the capability you want
    * @return The toolbar item or null if nothing is found
    */
   public ToolItem enableToolbarItem(IHopFileType fileType, String id, String permission) {
@@ -406,9 +415,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
    * Find the toolbar item with the given ID. Check the capability in the given file type Enable or
    * disable accordingly.
    *
-   * @param fileType
+   * @param fileType the IHopFileType to check
    * @param id The ID of the widget to look for
-   * @param permission
+   * @param permission check if the filetype has the capability you want
    * @param active The state if the permission is available
    * @return The toolbar item or null if nothing is found
    */
@@ -476,71 +485,5 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         toolbarItem.getClassLoader(),
         toolbarItem.getListenerClass(),
         toolbarItem.getListenerMethod());
-  }
-
-  /**
-   * Gets widgetsMap
-   *
-   * @return value of widgetsMap
-   */
-  public Map<String, Control> getWidgetsMap() {
-    return widgetsMap;
-  }
-
-  /**
-   * @param widgetsMap The widgetsMap to set
-   */
-  public void setWidgetsMap(Map<String, Control> widgetsMap) {
-    this.widgetsMap = widgetsMap;
-  }
-
-  /**
-   * Gets toolItemMap
-   *
-   * @return value of toolItemMap
-   */
-  public Map<String, ToolItem> getToolItemMap() {
-    return toolItemMap;
-  }
-
-  /**
-   * @param toolItemMap The toolItemMap to set
-   */
-  public void setToolItemMap(Map<String, ToolItem> toolItemMap) {
-    this.toolItemMap = toolItemMap;
-  }
-
-  /**
-   * Gets guiToolBarMap
-   *
-   * @return value of guiToolBarMap
-   */
-  public Map<String, GuiToolbarItem> getGuiToolBarMap() {
-    return guiToolBarMap;
-  }
-
-  /**
-   * @param guiToolBarMap The guiToolBarMap to set
-   */
-  public void setGuiToolBarMap(Map<String, GuiToolbarItem> guiToolBarMap) {
-    this.guiToolBarMap = guiToolBarMap;
-  }
-
-  /**
-   * Gets itemBackgroundColor
-   *
-   * @return value of itemBackgroundColor
-   */
-  public Color getItemBackgroundColor() {
-    return itemBackgroundColor;
-  }
-
-  /**
-   * Sets itemBackgroundColor
-   *
-   * @param itemBackgroundColor value of itemBackgroundColor
-   */
-  public void setItemBackgroundColor(Color itemBackgroundColor) {
-    this.itemBackgroundColor = itemBackgroundColor;
   }
 }
