@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
@@ -131,36 +133,28 @@ public class TableView extends Composite {
   //
   private static final String CANCEL_KEYS = "org.eclipse.rap.rwt.cancelKeys";
   public static final String CONST_SHIFT_TAB = "SHIFT+TAB";
-
-  private final Composite parent;
+  private final Composite composite;
   private final ColumnInfo[] columns;
-  private boolean readonly;
+  @Getter @Setter private boolean readonly;
   private int buttonRowNr;
   private int buttonColNr;
   private String buttonContent;
-
   private boolean previousShift;
   private int selectionStart;
-
-  public final Table table;
-  private TableEditor editor;
+  @Getter public final Table table;
+  @Getter @Setter private TableEditor editor;
   private final TableColumn[] tableColumn;
-
   private final PropsUi props;
-
-  private final boolean toolbarEnabled;
-  private ToolBar toolbar;
-  private GuiToolbarWidgets toolbarWidgets;
-
+  @Getter private final boolean toolbarEnabled;
+  @Getter @Setter private ToolBar toolbar;
+  @Getter @Setter private GuiToolbarWidgets toolbarWidgets;
   private Control text;
   private Combo combo;
   private ComboVar comboVar;
   private Button button;
-
-  private TableItem activeTableItem;
-  private int activeTableColumn;
+  @Getter private TableItem activeTableItem;
+  @Getter private int activeTableColumn;
   private int activeTableRow;
-
   private final KeyListener lsKeyText;
   private final KeyListener lsKeyCombo;
   private final FocusListener lsFocusText;
@@ -169,71 +163,99 @@ public class TableView extends Composite {
   private final TraverseListener lsTraverse;
   private final Listener lsFocusInTabItem;
   private final Listener lsKeyUp;
-
-  private int sortField;
+  @Getter private int sortField;
   private int sortFieldLast;
-  private boolean sortingDescending;
+  @Setter @Getter private boolean sortingDescending;
   private Boolean sortingDescendingLast;
-  private boolean sortable;
+  @Getter private boolean sortable;
   private int lastRowCount;
   private boolean fieldChanged;
-
-  private boolean undoEnabled;
-
+  @Getter @Setter private boolean undoEnabled;
   private ModifyListener lsMod;
   private final ModifyListener lsUndo;
   private ModifyListener lsContent;
   private Clipboard clipboard;
-
   private ArrayList<ChangeAction> undo;
   private int undoPosition;
   private String[] beforeEdit;
   private MenuItem miEditUndo;
   private MenuItem miEditRedo;
-
   private static final String CLIPBOARD_DELIMITER = "\t";
-
   private Condition condition;
   private final Color defaultBackgroundColor;
   private final Map<String, Color> usedColors;
-  private ColumnInfo numberColumn;
+  @Getter @Setter private ColumnInfo numberColumn;
   protected int textWidgetCaretPosition;
-
   private final IVariables variables;
-
-  private boolean showingBlueNullValues;
-  private boolean showingConversionErrorsInline;
+  @Getter @Setter private boolean showingBlueNullValues;
+  @Getter private boolean showingConversionErrorsInline;
   private boolean isTextButton = false;
   private boolean addIndexColumn = true;
-
   private final Color nullTextColor;
+  private final List<String> removeToolItems;
 
+  /**
+   * Create a table to add to a dialog
+   *
+   * @param variables IVariables for variable resolution inside the table
+   * @param composite Composite to attach the table to
+   * @param style SWT style attributes
+   * @param columnInfo the column information (types)
+   * @param nrRows number of rows for the table
+   * @param lsm Listener that will be triggered on changes
+   * @param pr PropsUI
+   */
   public TableView(
       IVariables variables,
-      Composite parent,
+      Composite composite,
       int style,
       ColumnInfo[] columnInfo,
       int nrRows,
       ModifyListener lsm,
       PropsUi pr) {
-    this(variables, parent, style, columnInfo, nrRows, false, lsm, pr);
+    this(variables, composite, style, columnInfo, nrRows, false, lsm, pr);
   }
 
+  /**
+   * Create a table to add to a dialog
+   *
+   * @param variables IVariables for variable resolution inside the table
+   * @param composite Composite to attach the table to
+   * @param style SWT style attributes
+   * @param columnInfo the column information (types)
+   * @param nrRows number of rows for the table
+   * @param readOnly Should the table be read-only
+   * @param lsm Listener that will be triggered on changes
+   * @param pr PropsUI
+   */
   public TableView(
       IVariables variables,
-      Composite parent,
+      Composite composite,
       int style,
       ColumnInfo[] columnInfo,
       int nrRows,
       boolean readOnly,
       ModifyListener lsm,
       PropsUi pr) {
-    this(variables, parent, style, columnInfo, nrRows, readOnly, lsm, pr, true);
+    this(variables, composite, style, columnInfo, nrRows, readOnly, lsm, pr, true);
   }
 
+  /**
+   * Create a table to add to a dialog
+   *
+   * @param variables IVariables for variable resolution inside the table
+   * @param composite Composite to attach the table to
+   * @param style SWT style attributes
+   * @param columnInfo the column information (types)
+   * @param nrRows number of rows for the table
+   * @param readOnly Should the table be read-only
+   * @param lsm Listener that will be triggered on changes
+   * @param pr PropsUI
+   * @param addIndexColumn first column containing row number
+   */
   public TableView(
       IVariables variables,
-      Composite parent,
+      Composite composite,
       int style,
       ColumnInfo[] columnInfo,
       int nrRows,
@@ -241,12 +263,26 @@ public class TableView extends Composite {
       ModifyListener lsm,
       PropsUi pr,
       final boolean addIndexColumn) {
-    this(variables, parent, style, columnInfo, nrRows, readOnly, lsm, pr, addIndexColumn, null);
+    this(variables, composite, style, columnInfo, nrRows, readOnly, lsm, pr, addIndexColumn, null);
   }
 
+  /**
+   * Create a table to add to a dialog
+   *
+   * @param variables IVariables for variable resolution inside the table
+   * @param composite Composite to attach the table to
+   * @param style SWT style attributes
+   * @param columnInfo the column information (types)
+   * @param nrRows number of rows for the table
+   * @param readOnly Should the table be read-only
+   * @param lsm Listener that will be triggered on changes
+   * @param pr PropsUI
+   * @param addIndexColumn first column containing row number
+   * @param listener Listener that will be triggered on changes
+   */
   public TableView(
       IVariables variables,
-      Composite parent,
+      Composite composite,
       int style,
       ColumnInfo[] columnInfo,
       int nrRows,
@@ -257,7 +293,7 @@ public class TableView extends Composite {
       Listener listener) {
     this(
         variables,
-        parent,
+        composite,
         style,
         columnInfo,
         nrRows,
@@ -269,9 +305,24 @@ public class TableView extends Composite {
         true);
   }
 
+  /**
+   * Create a table to add to a dialog
+   *
+   * @param variables IVariables for variable resolution inside the table
+   * @param composite Composite to attach the table to
+   * @param style SWT style attributes
+   * @param columnInfo the column information (types)
+   * @param nrRows number of rows for the table
+   * @param readOnly Should the table be read-only
+   * @param lsm Listener that will be triggered on changes
+   * @param pr PropsUI
+   * @param addIndexColumn first column containing row number
+   * @param listener Listener that will be triggered on changes
+   * @param undoEnabled Enable undo actions
+   */
   public TableView(
       IVariables variables,
-      Composite parent,
+      Composite composite,
       int style,
       ColumnInfo[] columnInfo,
       int nrRows,
@@ -283,7 +334,7 @@ public class TableView extends Composite {
       boolean undoEnabled) {
     this(
         variables,
-        parent,
+        composite,
         style,
         columnInfo,
         nrRows,
@@ -296,9 +347,25 @@ public class TableView extends Composite {
         true);
   }
 
+  /**
+   * Create a table to add to a dialog
+   *
+   * @param variables IVariables for variable resolution inside the table
+   * @param composite Composite to attach the table to
+   * @param style SWT style attributes
+   * @param columnInfo the column information (types)
+   * @param nrRows number of rows for the table
+   * @param readOnly Should the table be read-only
+   * @param lsm Listener that will be triggered on changes
+   * @param pr PropsUI
+   * @param addIndexColumn first column containing row number
+   * @param listener Listener that will be triggered on changes
+   * @param undoEnabled Enable undo actions
+   * @param toolbarEnabled Enable or disable the toolbar above the table
+   */
   public TableView(
       IVariables variables,
-      Composite parent,
+      Composite composite,
       int style,
       ColumnInfo[] columnInfo,
       int nrRows,
@@ -309,8 +376,55 @@ public class TableView extends Composite {
       Listener listener,
       boolean undoEnabled,
       boolean toolbarEnabled) {
-    super(parent, SWT.NO_BACKGROUND | SWT.NO_FOCUS | SWT.NO_MERGE_PAINTS | SWT.NO_RADIO_GROUP);
-    this.parent = parent;
+    this(
+        variables,
+        composite,
+        style,
+        columnInfo,
+        nrRows,
+        readOnly,
+        lsm,
+        pr,
+        addIndexColumn,
+        listener,
+        undoEnabled,
+        toolbarEnabled,
+        new ArrayList<>());
+  }
+
+  /**
+   * Create a table to add to a dialog
+   *
+   * @param variables IVariables for variable resolution inside the table
+   * @param composite Composite to attach the table to
+   * @param style SWT style attributes
+   * @param columnInfo the column information (types)
+   * @param nrRows number of rows for the table
+   * @param readOnly Should the table be read-only
+   * @param lsm Listener that will be triggered on changes
+   * @param pr PropsUI
+   * @param addIndexColumn first column containing row number
+   * @param listener Listener that will be triggered on changes
+   * @param undoEnabled Enable undo actions
+   * @param toolbarEnabled Enable or disable the toolbar above the table
+   * @param removeToolItems List of tool item names that have to be removed
+   */
+  public TableView(
+      IVariables variables,
+      Composite composite,
+      int style,
+      ColumnInfo[] columnInfo,
+      int nrRows,
+      boolean readOnly,
+      ModifyListener lsm,
+      PropsUi pr,
+      final boolean addIndexColumn,
+      Listener listener,
+      boolean undoEnabled,
+      boolean toolbarEnabled,
+      List<String> removeToolItems) {
+    super(composite, SWT.NO_BACKGROUND | SWT.NO_FOCUS | SWT.NO_MERGE_PAINTS | SWT.NO_RADIO_GROUP);
+    this.composite = composite;
     this.columns = columnInfo;
     this.props = pr;
     this.readonly = readOnly;
@@ -320,6 +434,7 @@ public class TableView extends Composite {
     this.lsFocusInTabItem = listener;
     this.undoEnabled = undoEnabled;
     this.toolbarEnabled = toolbarEnabled;
+    this.removeToolItems = removeToolItems;
 
     sortField = 0;
     sortFieldLast = -1;
@@ -571,13 +686,10 @@ public class TableView extends Composite {
             && editor.getEditor() != null
             && !editor.getEditor().isDisposed()
             && activeTableColumn > 0) {
-          switch (columns[activeTableColumn - 1].getType()) {
-            case ColumnInfo.COLUMN_TYPE_TEXT:
-              applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
-              break;
-            case ColumnInfo.COLUMN_TYPE_CCOMBO:
-              applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
-              break;
+          if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_TEXT) {
+            applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
+          } else if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_CCOMBO) {
+            applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
           }
         }
         boolean rightClick = event.button == 3;
@@ -648,13 +760,10 @@ public class TableView extends Composite {
         && editor.getEditor() != null
         && !editor.getEditor().isDisposed()
         && activeTableColumn > 0) {
-      switch (columns[activeTableColumn - 1].getType()) {
-        case ColumnInfo.COLUMN_TYPE_TEXT:
-          applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
-          break;
-        case ColumnInfo.COLUMN_TYPE_CCOMBO:
-          applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
-          break;
+      if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_TEXT) {
+        applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
+      } else if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_CCOMBO) {
+        applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
       }
     }
   }
@@ -1175,33 +1284,44 @@ public class TableView extends Composite {
   private void addRightClickMenu(boolean undoEnabled) {
     Menu mRow = new Menu(table);
 
-    MenuItem miInsertRowBefore = new MenuItem(mRow, SWT.NONE);
-    miInsertRowBefore.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "TableView.menu.InsertBeforeRow")));
-    miInsertRowBefore.setImage(GuiResource.getInstance().getImageAddAbove());
-    miInsertRowBefore.addListener(SWT.Selection, e -> insertRowBefore());
+    if (!removeToolItems.contains(ID_TOOLBAR_INSERT_ROW_BEFORE)) {
+      MenuItem miInsertRowBefore = new MenuItem(mRow, SWT.NONE);
+      miInsertRowBefore.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.InsertBeforeRow")));
+      miInsertRowBefore.setImage(GuiResource.getInstance().getImageAddAbove());
+      miInsertRowBefore.addListener(SWT.Selection, e -> insertRowBefore());
+      miInsertRowBefore.setEnabled(!readonly);
+    }
 
-    MenuItem miInsertRowAfter = new MenuItem(mRow, SWT.NONE);
-    miInsertRowAfter.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "TableView.menu.InsertAfterRow")));
-    miInsertRowAfter.setImage(GuiResource.getInstance().getImageAddBelow());
-    miInsertRowAfter.addListener(SWT.Selection, e -> insertRowAfter());
+    if (!removeToolItems.contains(ID_TOOLBAR_INSERT_ROW_AFTER)) {
+      MenuItem miInsertRowAfter = new MenuItem(mRow, SWT.NONE);
+      miInsertRowAfter.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.InsertAfterRow")));
+      miInsertRowAfter.setImage(GuiResource.getInstance().getImageAddBelow());
+      miInsertRowAfter.addListener(SWT.Selection, e -> insertRowAfter());
+      new MenuItem(mRow, SWT.SEPARATOR);
+      miInsertRowAfter.setEnabled(!readonly);
+    }
 
-    new MenuItem(mRow, SWT.SEPARATOR);
+    if (!removeToolItems.contains(ID_TOOLBAR_MOVE_ROWS_UP)) {
+      MenuItem miMoveRowUp = new MenuItem(mRow, SWT.NONE);
+      miMoveRowUp.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.MoveUp")));
+      miMoveRowUp.setImage(GuiResource.getInstance().getImageUp());
+      miMoveRowUp.addListener(SWT.Selection, e -> moveRowsUp());
+      miMoveRowUp.setEnabled(!readonly);
+    }
 
-    MenuItem miMoveRowUp = new MenuItem(mRow, SWT.NONE);
-    miMoveRowUp.setText(
-        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.MoveUp")));
-    miMoveRowUp.setImage(GuiResource.getInstance().getImageUp());
-    miMoveRowUp.addListener(SWT.Selection, e -> moveRowsUp());
-
-    MenuItem miMoveRowDown = new MenuItem(mRow, SWT.NONE);
-    miMoveRowDown.setText(
-        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.MoveDown")));
-    miMoveRowDown.setImage(GuiResource.getInstance().getImageDown());
-    miMoveRowDown.addListener(SWT.Selection, e -> moveRowsDown());
+    if (!removeToolItems.contains(ID_TOOLBAR_MOVE_ROWS_DOWN)) {
+      MenuItem miMoveRowDown = new MenuItem(mRow, SWT.NONE);
+      miMoveRowDown.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.MoveDown")));
+      miMoveRowDown.setImage(GuiResource.getInstance().getImageDown());
+      miMoveRowDown.addListener(SWT.Selection, e -> moveRowsDown());
+      miMoveRowDown.setEnabled(!readonly);
+    }
 
     MenuItem miCol1 = new MenuItem(mRow, SWT.NONE);
     miCol1.setText(
@@ -1214,77 +1334,105 @@ public class TableView extends Composite {
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.OptimalSizeWithoutHeader")));
     miCol2.addListener(SWT.Selection, e -> optWidth(false));
-
     new MenuItem(mRow, SWT.SEPARATOR);
 
-    MenuItem miClear = new MenuItem(mRow, SWT.NONE);
-    miClear.setText(
-        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.ClearAll")));
-    miClear.setImage(GuiResource.getInstance().getImageClear());
-    miClear.addListener(SWT.Selection, e -> clearAll());
+    if (!removeToolItems.contains(ID_TOOLBAR_CLEAR_ALL)) {
+      MenuItem miClear = new MenuItem(mRow, SWT.NONE);
+      miClear.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.ClearAll")));
+      miClear.setImage(GuiResource.getInstance().getImageClear());
+      miClear.addListener(SWT.Selection, e -> clearAll());
+      new MenuItem(mRow, SWT.SEPARATOR);
+      miClear.setEnabled(!readonly);
+    }
 
-    new MenuItem(mRow, SWT.SEPARATOR);
+    if (!removeToolItems.contains(ID_TOOLBAR_SELECT_ALL_ROWS)) {
+      MenuItem miSelectAll = new MenuItem(mRow, SWT.NONE);
+      miSelectAll.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.SelectAll")));
+      miSelectAll.setImage(GuiResource.getInstance().getImageSelectAll());
+      miSelectAll.addListener(SWT.Selection, e -> selectAll());
+      miSelectAll.setEnabled(!readonly);
+    }
 
-    MenuItem miSelectAll = new MenuItem(mRow, SWT.NONE);
-    miSelectAll.setText(
-        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.SelectAll")));
-    miSelectAll.setImage(GuiResource.getInstance().getImageSelectAll());
-    miSelectAll.addListener(SWT.Selection, e -> selectAll());
+    if (!removeToolItems.contains(ID_TOOLBAR_CLEAR_SELECTION)) {
+      MenuItem miUnselectAll = new MenuItem(mRow, SWT.NONE);
+      miUnselectAll.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.ClearSelection")));
+      miUnselectAll.setImage(GuiResource.getInstance().getImageUnselectAll());
+      miUnselectAll.addListener(SWT.Selection, e -> unselectAll());
+      miUnselectAll.setEnabled(!readonly);
+    }
 
-    MenuItem miUnselectAll = new MenuItem(mRow, SWT.NONE);
-    miUnselectAll.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "TableView.menu.ClearSelection")));
-    miUnselectAll.setImage(GuiResource.getInstance().getImageUnselectAll());
-    miUnselectAll.addListener(SWT.Selection, e -> unselectAll());
+    if (!removeToolItems.contains(ID_TOOLBAR_FILTERED_SELECTION)) {
+      MenuItem miFilter = new MenuItem(mRow, SWT.NONE);
+      miFilter.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.FilteredSelection")));
+      miFilter.addListener(SWT.Selection, e -> setFilter());
+      new MenuItem(mRow, SWT.SEPARATOR);
+      miFilter.setEnabled(!readonly);
+    }
 
-    MenuItem miFilter = new MenuItem(mRow, SWT.NONE);
-    miFilter.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "TableView.menu.FilteredSelection")));
-    miFilter.addListener(SWT.Selection, e -> setFilter());
+    if (!removeToolItems.contains(ID_TOOLBAR_COPY_SELECTED)) {
+      MenuItem miCopy = new MenuItem(mRow, SWT.NONE);
+      miCopy.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.CopyToClipboard")));
+      miCopy.setImage(GuiResource.getInstance().getImageCopy());
+      miCopy.addListener(SWT.Selection, e -> copyToAll());
+      miCopy.setEnabled(!readonly);
+    }
 
-    new MenuItem(mRow, SWT.SEPARATOR);
+    if (!removeToolItems.contains(ID_TOOLBAR_PASTE_TO_TABLE)) {
+      MenuItem miPaste = new MenuItem(mRow, SWT.NONE);
+      miPaste.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.PasteFromClipboard")));
+      miPaste.setImage(GuiResource.getInstance().getImagePaste());
+      miPaste.addListener(SWT.Selection, e -> pasteSelected());
+      miPaste.setEnabled(!readonly);
+    }
 
-    MenuItem miCopy = new MenuItem(mRow, SWT.NONE);
-    miCopy.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "TableView.menu.CopyToClipboard")));
-    miCopy.setImage(GuiResource.getInstance().getImageCopy());
-    miCopy.addListener(SWT.Selection, e -> copyToAll());
+    if (!removeToolItems.contains(ID_TOOLBAR_CUT_SELECTED)) {
+      MenuItem miCut = new MenuItem(mRow, SWT.NONE);
+      miCut.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.CutSelected")));
+      miCut.setImage(GuiResource.getInstance().getImageCut());
+      miCut.addListener(SWT.Selection, e -> cutSelected());
+      miCut.setEnabled(!readonly);
+    }
 
-    MenuItem miPaste = new MenuItem(mRow, SWT.NONE);
-    miPaste.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "TableView.menu.PasteFromClipboard")));
-    miPaste.setImage(GuiResource.getInstance().getImagePaste());
-    miPaste.addListener(SWT.Selection, e -> pasteSelected());
+    if (!removeToolItems.contains(ID_TOOLBAR_DELETE_SELECTED)) {
+      MenuItem miDelete = new MenuItem(mRow, SWT.NONE);
+      miDelete.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.DeleteSelected")));
+      miDelete.setImage(GuiResource.getInstance().getImageDelete());
+      miDelete.addListener(SWT.Selection, e -> delSelected());
+      miDelete.setEnabled(!readonly);
+    }
 
-    MenuItem miCut = new MenuItem(mRow, SWT.NONE);
-    miCut.setText(
-        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.CutSelected")));
-    miCut.setImage(GuiResource.getInstance().getImageCut());
-    miCut.addListener(SWT.Selection, e -> cutSelected());
+    if (!removeToolItems.contains(ID_TOOLBAR_KEEP_SELECTED)) {
+      MenuItem miKeep = new MenuItem(mRow, SWT.NONE);
+      miKeep.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.KeepSelected")));
+      miKeep.addListener(SWT.Selection, e -> keepSelected());
+      new MenuItem(mRow, SWT.SEPARATOR);
+      miKeep.setEnabled(!readonly);
+    }
 
-    MenuItem miDelete = new MenuItem(mRow, SWT.NONE);
-    miDelete.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "TableView.menu.DeleteSelected")));
-    miDelete.setImage(GuiResource.getInstance().getImageDelete());
-    miDelete.addListener(SWT.Selection, e -> delSelected());
-
-    MenuItem miKeep = new MenuItem(mRow, SWT.NONE);
-    miKeep.setText(
-        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.KeepSelected")));
-    miKeep.addListener(SWT.Selection, e -> keepSelected());
-
-    new MenuItem(mRow, SWT.SEPARATOR);
-
-    MenuItem miCopyToAll = new MenuItem(mRow, SWT.NONE);
-    miCopyToAll.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "TableView.menu.CopyFieldToAllRows")));
-    miCopyToAll.addListener(SWT.Selection, e -> copyToAll());
+    if (!removeToolItems.contains(ID_TOOLBAR_COPY_TO_ALL_ROWS)) {
+      MenuItem miCopyToAll = new MenuItem(mRow, SWT.NONE);
+      miCopyToAll.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.CopyFieldToAllRows")));
+      miCopyToAll.addListener(SWT.Selection, e -> copyToAll());
+      miCopyToAll.setEnabled(!readonly);
+    }
 
     if (undoEnabled) {
       new MenuItem(mRow, SWT.SEPARATOR);
@@ -1295,19 +1443,6 @@ public class TableView extends Composite {
       miEditRedo.setImage(GuiResource.getInstance().getImageRedo());
       miEditRedo.addListener(SWT.Selection, e -> redoAction());
       setUndoMenu();
-    }
-
-    if (readonly) {
-      miInsertRowBefore.setEnabled(false);
-      miInsertRowAfter.setEnabled(false);
-      miMoveRowUp.setEnabled(false);
-      miMoveRowDown.setEnabled(false);
-      miClear.setEnabled(false);
-      miCopyToAll.setEnabled(false);
-      miPaste.setEnabled(false);
-      miDelete.setEnabled(false);
-      miCut.setEnabled(false);
-      miKeep.setEnabled(false);
     }
 
     table.setMenu(mRow);
@@ -1328,7 +1463,7 @@ public class TableView extends Composite {
       toolbar.setLayoutData(fdToolBar);
       PropsUi.setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
 
-      toolbarWidgets.createToolbarWidgets(toolbar, ID_TOOLBAR);
+      toolbarWidgets.createToolbarWidgets(toolbar, ID_TOOLBAR, removeToolItems);
       toolbar.pack();
     }
   }
@@ -1658,9 +1793,9 @@ public class TableView extends Composite {
   /**
    * Inform the content listener that content changed.
    *
-   * @param rowNr
-   * @param colNr
-   * @param textData
+   * @param rowNr RowNr that has changed
+   * @param colNr ColNr that has changed
+   * @param textData the new content of the cell
    */
   private void fireContentChangedListener(int rowNr, int colNr, String textData) {
 
@@ -1822,7 +1957,7 @@ public class TableView extends Composite {
   public void clearAll(boolean ask) {
     int id = SWT.YES;
     if (ask) {
-      MessageBox mb = new MessageBox(parent.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      MessageBox mb = new MessageBox(composite.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
       mb.setMessage(BaseMessages.getString(PKG, "TableView.MessageBox.ClearTable.message"));
       mb.setText(BaseMessages.getString(PKG, "TableView.MessageBox.ClearTable.title"));
       id = mb.open();
@@ -1832,7 +1967,7 @@ public class TableView extends Composite {
       table.removeAll();
       new TableItem(table, SWT.NONE);
       if (!readonly) {
-        parent.getDisplay().asyncExec(() -> edit(0, 1));
+        composite.getDisplay().asyncExec(() -> edit(0, 1));
       }
       this.setModified(); // timh
     }
@@ -2036,16 +2171,16 @@ public class TableView extends Composite {
   }
 
   private String getSelectedText() {
-    String selection = "";
+    StringBuilder selection = new StringBuilder();
 
     for (int c = 1; c < table.getColumnCount(); c++) {
       TableColumn tc = table.getColumn(c);
       if (c > 1) {
-        selection += CLIPBOARD_DELIMITER;
+        selection.append(CLIPBOARD_DELIMITER);
       }
-      selection += tc.getText();
+      selection.append(tc.getText());
     }
-    selection += Const.CR;
+    selection.append(Const.CR);
 
     TableItem[] items = table.getSelection();
     if (items.length == 0) {
@@ -2062,19 +2197,19 @@ public class TableView extends Composite {
       TableItem ti = items[r];
       for (int c = 1; c < table.getColumnCount(); c++) {
         if (c > 1) {
-          selection += CLIPBOARD_DELIMITER;
+          selection.append(CLIPBOARD_DELIMITER);
         }
         String value = ti.getText(c);
         if (StringUtils.isNotEmpty(value)) {
           Color textColor = ti.getForeground(c);
           if (!nullTextColor.equals(textColor) || !"<null>".equals(value)) {
-            selection += ti.getText(c);
+            selection.append(ti.getText(c));
           }
         }
       }
-      selection += Const.CR;
+      selection.append(Const.CR);
     }
-    return selection;
+    return selection.toString();
   }
 
   /*
@@ -2561,10 +2696,8 @@ public class TableView extends Composite {
     int strmax = TextSizeUtilFacade.textExtent(str).x + 20;
     int colmax = tableColumn[colNr].getWidth();
     if (strmax > colmax) {
-      if (!EnvironmentUtils.getInstance().isWeb()) {
-        if (Const.isOSX() || Const.isLinux()) {
-          strmax *= 1.4;
-        }
+      if (!EnvironmentUtils.getInstance().isWeb() && (Const.isOSX() || Const.isLinux())) {
+        strmax *= 1.4;
       }
       tableColumn[colNr].setWidth(strmax + 30);
 
@@ -2936,14 +3069,14 @@ public class TableView extends Composite {
     if (item != null) {
       if (colNr >= 0) {
         String str = item.getText(colNr);
-        if (str == null || str.length() == 0) {
+        if (str == null || str.isEmpty()) {
           empty = true;
         }
       } else {
         empty = true;
         for (int j = 1; j < table.getColumnCount(); j++) {
           String str = item.getText(j);
-          if (str != null && str.length() > 0) {
+          if (str != null && !str.isEmpty()) {
             empty = false;
           }
         }
@@ -2966,11 +3099,7 @@ public class TableView extends Composite {
     }
   }
 
-  private List<Integer> nonEmptyIndexes;
-
-  public List<Integer> getNonEmptyIndexes() {
-    return nonEmptyIndexes;
-  }
+  @Getter private List<Integer> nonEmptyIndexes;
 
   /**
    * Count non-empty rows in the table... IMPORTANT: always call this method before calling
@@ -3383,7 +3512,8 @@ public class TableView extends Composite {
       condition = new Condition();
     }
     IRowMeta f = getRowWithoutValues();
-    EnterConditionDialog ecd = new EnterConditionDialog(parent.getShell(), SWT.NONE, f, condition);
+    EnterConditionDialog ecd =
+        new EnterConditionDialog(composite.getShell(), SWT.NONE, f, condition);
     Condition cond = ecd.open();
     if (cond != null) {
       ArrayList<Integer> tokeep = new ArrayList<>();
@@ -3511,27 +3641,6 @@ public class TableView extends Composite {
   }
 
   /**
-   * @return Returns the readonly.
-   */
-  public boolean isReadonly() {
-    return readonly;
-  }
-
-  /**
-   * @param readonly The readonly to set.
-   */
-  public void setReadonly(boolean readonly) {
-    this.readonly = readonly;
-  }
-
-  /**
-   * @return the sortable
-   */
-  public boolean isSortable() {
-    return sortable;
-  }
-
-  /**
    * @param sortable the sortable to set
    */
   public void setSortable(boolean sortable) {
@@ -3601,71 +3710,10 @@ public class TableView extends Composite {
         }
       };
 
-  /**
-   * @return the getSortField
-   */
-  public int getSortField() {
-    return sortField;
-  }
-
-  /**
-   * @return the sortingDescending
-   */
-  public boolean isSortingDescending() {
-    return sortingDescending;
-  }
-
-  /**
-   * @param sortingDescending the sortingDescending to set
-   */
-  public void setSortingDescending(boolean sortingDescending) {
-    this.sortingDescending = sortingDescending;
-  }
-
-  public Table getTable() {
-    return table;
-  }
-
-  /**
-   * @return the numberColumn
-   */
-  public ColumnInfo getNumberColumn() {
-    return numberColumn;
-  }
-
-  /**
-   * @param numberColumn the numberColumn to set
-   */
-  public void setNumberColumn(ColumnInfo numberColumn) {
-    this.numberColumn = numberColumn;
-  }
-
-  public TableEditor getEditor() {
-    return editor;
-  }
-
-  public void setEditor(TableEditor editor) {
-    this.editor = editor;
-  }
-
   public void applyOSXChanges() {
     if (text != null && !text.isDisposed() && lsFocusText != null) {
       lsFocusText.focusLost(null);
     }
-  }
-
-  /**
-   * @return the showingBlueNullValues
-   */
-  public boolean isShowingBlueNullValues() {
-    return showingBlueNullValues;
-  }
-
-  /**
-   * @param showingBlueNullValues the showingBlueNullValues to set
-   */
-  public void setShowingBlueNullValues(boolean showingBlueNullValues) {
-    this.showingBlueNullValues = showingBlueNullValues;
   }
 
   /**
@@ -3683,20 +3731,6 @@ public class TableView extends Composite {
   }
 
   /**
-   * @return the showingConversionErrorsInline
-   */
-  public boolean isShowingConversionErrorsInline() {
-    return showingConversionErrorsInline;
-  }
-
-  /**
-   * @param showingConversionErrorsInline the showingConversionErrorsInline to set
-   */
-  public void setShowingConversionErrorsInline(boolean showingConversionErrorsInline) {
-    this.showingConversionErrorsInline = showingConversionErrorsInline;
-  }
-
-  /**
    * Returns copy of columns array in order to prevent unintented modifications.
    *
    * @return columns array
@@ -3705,80 +3739,7 @@ public class TableView extends Composite {
     return Arrays.copyOf(columns, columns.length);
   }
 
-  public TableItem getActiveTableItem() {
-    return activeTableItem;
-  }
-
-  public int getActiveTableColumn() {
-    return activeTableColumn;
-  }
-
-  public void setTableViewModifyListener(ITableViewModifyListener tableViewModifyListener) {
-    this.tableViewModifyListener = tableViewModifyListener;
-  }
-
   public boolean hasIndexColumn() {
     return this.addIndexColumn;
-  }
-
-  /**
-   * Gets undoEnabled
-   *
-   * @return value of undoEnabled
-   */
-  public boolean isUndoEnabled() {
-    return undoEnabled;
-  }
-
-  /**
-   * @param undoEnabled The undoEnabled to set
-   */
-  public void setUndoEnabled(boolean undoEnabled) {
-    this.undoEnabled = undoEnabled;
-  }
-
-  /**
-   * Gets toolbar
-   *
-   * @return value of toolbar
-   */
-  public ToolBar getToolbar() {
-    return toolbar;
-  }
-
-  /**
-   * Sets toolbar
-   *
-   * @param toolbar value of toolbar
-   */
-  public void setToolbar(ToolBar toolbar) {
-    this.toolbar = toolbar;
-  }
-
-  /**
-   * Gets toolbarWidgets
-   *
-   * @return value of toolbarWidgets
-   */
-  public GuiToolbarWidgets getToolbarWidgets() {
-    return toolbarWidgets;
-  }
-
-  /**
-   * Sets toolbarWidgets
-   *
-   * @param toolbarWidgets value of toolbarWidgets
-   */
-  public void setToolbarWidgets(GuiToolbarWidgets toolbarWidgets) {
-    this.toolbarWidgets = toolbarWidgets;
-  }
-
-  /**
-   * Gets toolbarEnabled
-   *
-   * @return value of toolbarEnabled
-   */
-  public boolean isToolbarEnabled() {
-    return toolbarEnabled;
   }
 }
