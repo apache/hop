@@ -449,7 +449,8 @@ public class ProjectsGuiPlugin {
       type = GuiToolbarElementType.COMBO,
       comboValuesMethod = "getProjectsList",
       extraWidth = 200,
-      toolTip = "i18n::HopGui.Toolbar.ProjectsList.Tooltip")
+      toolTip = "i18n::HopGui.Toolbar.ProjectsList.Tooltip",
+      readOnly = true)
   public void selectProject() {
     HopGui hopGui = HopGui.getInstance();
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
@@ -695,8 +696,7 @@ public class ProjectsGuiPlugin {
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_PROJECT_DELETE,
       toolTip = "i18n::HopGui.Toolbar.Project.Delete.Tooltip",
-      image = "project-delete.svg",
-      separator = true)
+      image = "project-delete.svg")
   public void deleteSelectedProject() {
     Combo combo = getProjectsCombo();
     if (combo == null) {
@@ -846,7 +846,8 @@ public class ProjectsGuiPlugin {
       type = GuiToolbarElementType.COMBO,
       comboValuesMethod = "getEnvironmentsList",
       extraWidth = 200,
-      toolTip = "i18n::HopGui.Toolbar.EnvironmentsList.Tooltip")
+      toolTip = "i18n::HopGui.Toolbar.EnvironmentsList.Tooltip",
+      readOnly = true)
   public void selectEnvironment() {
     HopGui hopGui = HopGui.getInstance();
     Combo envCombo = getEnvironmentsCombo();
@@ -938,8 +939,7 @@ public class ProjectsGuiPlugin {
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_TOOLBAR_ENVIRONMENT_DELETE,
       toolTip = "i18n::HopGui.Toolbar.Environment.Delete.Tooltip",
-      image = "environment-delete.svg",
-      separator = true)
+      image = "environment-delete.svg")
   public void deleteSelectedEnvironment() {
     Combo combo = getEnvironmentsCombo();
     if (combo == null) {

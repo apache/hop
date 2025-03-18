@@ -127,7 +127,17 @@ public @interface GuiToolbarElement {
   /**
    * The text alignment of label or combo widgets
    *
-   * @return
+   * @return If the text alignment should be right
    */
   boolean alignRight() default false;
+
+  /**
+   * Set the Element as read-only
+   *
+   * <p>Currently, this only works for COMBO
+   *
+   * @see GuiToolbarElementType#COMBO
+   * @return if the widget should be read-only
+   */
+  boolean readOnly() default false;
 }

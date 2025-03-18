@@ -92,6 +92,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     // Force re-layout
     //
     parent.layout(true, true);
+    parent.pack();
 
     // Clean up when the parent is disposed
     //
@@ -140,16 +141,15 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     //
     guiToolBarMap.put(toolbarItem.getId(), toolbarItem);
 
-    if (!(parent instanceof ToolBar)) {
+    if (!(parent instanceof ToolBar toolBar)) {
       throw new RuntimeException(
           "We can only add toolbar items to a toolbar, not class " + parent.getClass().getName());
     }
-    ToolBar toolBar = (ToolBar) parent;
 
     // We want to add a separator if the annotation asked for it
     // We also want to add a separator in case the toolbar element type isn't a button
     //
-    if (toolbarItem.isAddingSeparator() || toolbarItem.getType() != GuiToolbarElementType.BUTTON) {
+    if (toolbarItem.isAddingSeparator()) {
       new ToolItem(toolBar, SWT.SEPARATOR);
     }
 
@@ -173,7 +173,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     //
     switch (toolbarItem.getType()) {
       case LABEL:
-        addToolbarLabel(parent, toolbarItem, toolBar);
+        addToolbarLabel(toolbarItem, toolBar);
         break;
 
       case BUTTON:
@@ -185,11 +185,11 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         break;
 
       case COMBO:
-        addToolbarCombo(parent, toolbarItem, toolBar);
+        addToolbarCombo(toolbarItem, toolBar);
         break;
 
       case CHECKBOX:
-        addToolbarCheckbox(parent, toolbarItem, toolBar);
+        addToolbarCheckbox(toolbarItem, toolBar);
         break;
 
       default:
@@ -197,10 +197,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     }
   }
 
-  private void addToolbarLabel(Composite parent, GuiToolbarItem toolbarItem, ToolBar toolBar) {
+  private void addToolbarLabel(GuiToolbarItem toolbarItem, ToolBar toolBar) {
     ToolItem labelSeparator = new ToolItem(toolBar, SWT.SEPARATOR);
     CLabel label =
-        new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
+        new CLabel(toolBar, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
     label.setText(Const.NVL(toolbarItem.getLabel(), ""));
     label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     PropsUi.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
@@ -213,10 +213,15 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     label.addListener(SWT.MouseUp, listener);
   }
 
-  private void addToolbarCombo(Composite parent, GuiToolbarItem toolbarItem, ToolBar toolBar) {
-    ToolItem comboSeparator = new ToolItem(toolBar, SWT.SEPARATOR);
+  private void addToolbarCombo(GuiToolbarItem toolbarItem, ToolBar toolBar) {
+    ToolItem comboSeparator = new ToolItem(toolBar, SWT.SEPARATOR | SWT.BOTTOM);
     Combo combo =
-        new Combo(parent, SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
+        new Combo(
+            toolBar,
+            SWT.SINGLE
+                | SWT.CENTER
+                | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT)
+                | (toolbarItem.isReadOnly() ? SWT.READ_ONLY : SWT.NONE));
     combo.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     combo.setItems(getComboItems(toolbarItem));
     PropsUi.setLook(combo);
@@ -234,10 +239,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     PropsUi.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
   }
 
-  private void addToolbarCheckbox(Composite parent, GuiToolbarItem toolbarItem, ToolBar toolBar) {
+  private void addToolbarCheckbox(GuiToolbarItem toolbarItem, ToolBar toolBar) {
     ToolItem checkboxSeparator = new ToolItem(toolBar, SWT.SEPARATOR);
     Button checkbox =
-        new Button(parent, SWT.CHECK | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
+        new Button(toolBar, SWT.CHECK | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
     checkbox.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     checkbox.setText(Const.NVL(toolbarItem.getLabel(), ""));
     PropsUi.setLook(checkbox);

@@ -42,6 +42,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -663,6 +664,10 @@ public class PropsUi extends Props {
         && !foreground.isDisposed()
         && (widget instanceof Control controlWidget)) {
       controlWidget.setForeground(foreground);
+    }
+
+    if (widget instanceof Combo combo) {
+      combo.setBackground(gui.getColorWhite());
     }
   }
 
