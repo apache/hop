@@ -19,32 +19,26 @@ package org.apache.hop.core.gui.plugin.toolbar;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.gui.plugin.BaseGuiElements;
 
 /** This represents a list of GUI elements under a certain heading or ID */
+@Getter
+@Setter
 public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToolbarItem> {
 
   private String root;
-
   private String id;
-
   private String label;
-
   private String toolTip;
-
   private GuiToolbarElementType type;
-
   private String image;
   private String imageMethod;
-
   private boolean password;
-
   private String getComboValuesMethod;
-
   private boolean ignored;
-
   private boolean addingSeparator;
-
   private ClassLoader classLoader;
 
   // The singleton listener class to use
@@ -53,8 +47,8 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
   private String listenerMethod;
 
   private int extraWidth;
-
   private boolean alignRight;
+  private boolean readOnly;
 
   public GuiToolbarItem() {}
 
@@ -90,6 +84,7 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     this.classLoader = classLoader;
     this.extraWidth = toolbarElement.extraWidth();
     this.alignRight = toolbarElement.alignRight();
+    this.readOnly = toolbarElement.readOnly();
   }
 
   @Override
@@ -117,279 +112,5 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
   @Override
   public int compareTo(GuiToolbarItem o) {
     return id.compareTo(o.id);
-  }
-
-  /**
-   * Gets root
-   *
-   * @return value of root
-   */
-  public String getRoot() {
-    return root;
-  }
-
-  /**
-   * @param root The root to set
-   */
-  public void setRoot(String root) {
-    this.root = root;
-  }
-
-  /**
-   * Gets id
-   *
-   * @return value of id
-   */
-  public String getId() {
-    return id;
-  }
-
-  /**
-   * @param id The id to set
-   */
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  /**
-   * Gets label
-   *
-   * @return value of label
-   */
-  public String getLabel() {
-    return label;
-  }
-
-  /**
-   * @param label The label to set
-   */
-  public void setLabel(String label) {
-    this.label = label;
-  }
-
-  /**
-   * Gets toolTip
-   *
-   * @return value of toolTip
-   */
-  public String getToolTip() {
-    return toolTip;
-  }
-
-  /**
-   * @param toolTip The toolTip to set
-   */
-  public void setToolTip(String toolTip) {
-    this.toolTip = toolTip;
-  }
-
-  /**
-   * Gets type
-   *
-   * @return value of type
-   */
-  public GuiToolbarElementType getType() {
-    return type;
-  }
-
-  /**
-   * @param type The type to set
-   */
-  public void setType(GuiToolbarElementType type) {
-    this.type = type;
-  }
-
-  /**
-   * Gets image
-   *
-   * @return value of image
-   */
-  public String getImage() {
-    return image;
-  }
-
-  /**
-   * @param image The image to set
-   */
-  public void setImage(String image) {
-    this.image = image;
-  }
-
-  /**
-   * Gets imageMethod
-   *
-   * @return value of imageMethod
-   */
-  public String getImageMethod() {
-    return imageMethod;
-  }
-
-  /**
-   * Sets imageMethod
-   *
-   * @param imageMethod value of imageMethod
-   */
-  public void setImageMethod(String imageMethod) {
-    this.imageMethod = imageMethod;
-  }
-
-  /**
-   * Gets password
-   *
-   * @return value of password
-   */
-  public boolean isPassword() {
-    return password;
-  }
-
-  /**
-   * @param password The password to set
-   */
-  public void setPassword(boolean password) {
-    this.password = password;
-  }
-
-  /**
-   * Gets getComboValuesMethod
-   *
-   * @return value of getComboValuesMethod
-   */
-  public String getGetComboValuesMethod() {
-    return getComboValuesMethod;
-  }
-
-  /**
-   * @param getComboValuesMethod The getComboValuesMethod to set
-   */
-  public void setGetComboValuesMethod(String getComboValuesMethod) {
-    this.getComboValuesMethod = getComboValuesMethod;
-  }
-
-  /**
-   * Gets ignored
-   *
-   * @return value of ignored
-   */
-  public boolean isIgnored() {
-    return ignored;
-  }
-
-  /**
-   * @param ignored The ignored to set
-   */
-  public void setIgnored(boolean ignored) {
-    this.ignored = ignored;
-  }
-
-  /**
-   * Gets addingSeparator
-   *
-   * @return value of addingSeparator
-   */
-  public boolean isAddingSeparator() {
-    return addingSeparator;
-  }
-
-  /**
-   * @param addingSeparator The addingSeparator to set
-   */
-  public void setAddingSeparator(boolean addingSeparator) {
-    this.addingSeparator = addingSeparator;
-  }
-
-  /**
-   * Gets classLoader
-   *
-   * @return value of classLoader
-   */
-  public ClassLoader getClassLoader() {
-    return classLoader;
-  }
-
-  /**
-   * @param classLoader The classLoader to set
-   */
-  public void setClassLoader(ClassLoader classLoader) {
-    this.classLoader = classLoader;
-  }
-
-  /**
-   * Gets singleTon
-   *
-   * @return value of singleTon
-   */
-  public boolean isSingleTon() {
-    return singleTon;
-  }
-
-  /**
-   * @param singleTon The singleTon to set
-   */
-  public void setSingleTon(boolean singleTon) {
-    this.singleTon = singleTon;
-  }
-
-  /**
-   * Gets listenerClass
-   *
-   * @return value of listenerClass
-   */
-  public String getListenerClass() {
-    return listenerClass;
-  }
-
-  /**
-   * @param listenerClass The listenerClass to set
-   */
-  public void setListenerClass(String listenerClass) {
-    this.listenerClass = listenerClass;
-  }
-
-  /**
-   * Gets listenerMethod
-   *
-   * @return value of listenerMethodf
-   */
-  public String getListenerMethod() {
-    return listenerMethod;
-  }
-
-  /**
-   * @param listenerMethod The listenerMethod to set
-   */
-  public void setListenerMethod(String listenerMethod) {
-    this.listenerMethod = listenerMethod;
-  }
-
-  /**
-   * Gets extraWidth
-   *
-   * @return value of extraWidth
-   */
-  public int getExtraWidth() {
-    return extraWidth;
-  }
-
-  /**
-   * @param extraWidth The extraWidth to set
-   */
-  public void setExtraWidth(int extraWidth) {
-    this.extraWidth = extraWidth;
-  }
-
-  /**
-   * Gets alignRight
-   *
-   * @return value of alignRight
-   */
-  public boolean isAlignRight() {
-    return alignRight;
-  }
-
-  /**
-   * @param alignRight The alignRight to set
-   */
-  public void setAlignRight(boolean alignRight) {
-    this.alignRight = alignRight;
   }
 }

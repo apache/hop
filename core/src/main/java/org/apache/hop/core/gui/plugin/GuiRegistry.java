@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
@@ -52,6 +54,8 @@ import org.apache.hop.core.util.TranslateUtil;
  * then add menu items into it wherever they like. This registry keeps track of everything so that
  * menus can be built dynamically as needed.
  */
+@Setter
+@Getter
 public class GuiRegistry {
 
   private static GuiRegistry guiRegistry;
@@ -65,7 +69,6 @@ public class GuiRegistry {
 
   private Map<String, Map<String, GuiToolbarItem>> guiToolbarMap;
   private Map<String, List<GuiToolbarItemFilter>> toolbarItemFiltersMap;
-
   private Map<String, Map<String, GuiElements>> dataElementsMap;
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
   private Map<String, List<GuiAction>> contextActionsMap;
@@ -470,10 +473,6 @@ public class GuiRegistry {
     }
   }
 
-  public Map<String, List<GuiTabItem>> getGuiTabsMap() {
-    return guiTabsMap;
-  }
-
   public List<GuiTabItem> findGuiTabItems(String parent) {
     return guiTabsMap.get(parent);
   }
@@ -673,156 +672,5 @@ public class GuiRegistry {
 
   public List<GuiActionFilter> getGuiContextActionFilters(String parentContextId) {
     return contextActionFiltersMap.get(parentContextId);
-  }
-
-  /**
-   * Gets dataElementsMap
-   *
-   * @return value of dataElementsMap
-   */
-  public Map<String, Map<String, GuiElements>> getDataElementsMap() {
-    return dataElementsMap;
-  }
-
-  /**
-   * @param dataElementsMap The dataElementsMap to set
-   */
-  public void setDataElementsMap(Map<String, Map<String, GuiElements>> dataElementsMap) {
-    this.dataElementsMap = dataElementsMap;
-  }
-
-  /**
-   * Gets shortCutsMap
-   *
-   * @return value of shortCutsMap
-   */
-  public Map<String, List<KeyboardShortcut>> getShortCutsMap() {
-    return shortCutsMap;
-  }
-
-  /**
-   * @param shortCutsMap The shortCutsMap to set
-   */
-  public void setShortCutsMap(Map<String, List<KeyboardShortcut>> shortCutsMap) {
-    this.shortCutsMap = shortCutsMap;
-  }
-
-  /**
-   * Gets contextActionsMap
-   *
-   * @return value of contextActionsMap
-   */
-  public Map<String, List<GuiAction>> getContextActionsMap() {
-    return contextActionsMap;
-  }
-
-  /**
-   * @param contextActionsMap The contextActionsMap to set
-   */
-  public void setContextActionsMap(Map<String, List<GuiAction>> contextActionsMap) {
-    this.contextActionsMap = contextActionsMap;
-  }
-
-  /**
-   * Gets guiMenuMap
-   *
-   * @return value of guiMenuMap
-   */
-  public Map<String, Map<String, GuiMenuItem>> getGuiMenuMap() {
-    return guiMenuMap;
-  }
-
-  /**
-   * @param guiMenuMap The guiMenuMap to set
-   */
-  public void setGuiMenuMap(Map<String, Map<String, GuiMenuItem>> guiMenuMap) {
-    this.guiMenuMap = guiMenuMap;
-  }
-
-  /**
-   * Gets guiToolbarMap
-   *
-   * @return value of guiToolbarMap
-   */
-  public Map<String, Map<String, GuiToolbarItem>> getGuiToolbarMap() {
-    return guiToolbarMap;
-  }
-
-  /**
-   * @param guiToolbarMap The guiToolbarMap to set
-   */
-  public void setGuiToolbarMap(Map<String, Map<String, GuiToolbarItem>> guiToolbarMap) {
-    this.guiToolbarMap = guiToolbarMap;
-  }
-
-  /**
-   * Gets guiPluginObjectsMap
-   *
-   * @return value of guiPluginObjectsMap
-   */
-  public Map<String, Map<String, Map<String, Object>>> getGuiPluginObjectsMap() {
-    return guiPluginObjectsMap;
-  }
-
-  /**
-   * @param guiPluginObjectsMap The guiPluginObjectsMap to set
-   */
-  public void setGuiPluginObjectsMap(
-      Map<String, Map<String, Map<String, Object>>> guiPluginObjectsMap) {
-    this.guiPluginObjectsMap = guiPluginObjectsMap;
-  }
-
-  /**
-   * Gets contextActionFiltersMap
-   *
-   * @return value of contextActionFiltersMap
-   */
-  public Map<String, List<GuiActionFilter>> getContextActionFiltersMap() {
-    return contextActionFiltersMap;
-  }
-
-  /**
-   * @param contextActionFiltersMap The contextActionFiltersMap to set
-   */
-  public void setContextActionFiltersMap(
-      Map<String, List<GuiActionFilter>> contextActionFiltersMap) {
-    this.contextActionFiltersMap = contextActionFiltersMap;
-  }
-
-  /**
-   * Gets compositeGuiElements
-   *
-   * @return value of compositeGuiElements
-   */
-  public Map<String, List<GuiElements>> getCompositeGuiElements() {
-    return compositeGuiElements;
-  }
-
-  /**
-   * Sets compositeGuiElements
-   *
-   * @param compositeGuiElements value of compositeGuiElements
-   */
-  public void setCompositeGuiElements(Map<String, List<GuiElements>> compositeGuiElements) {
-    this.compositeGuiElements = compositeGuiElements;
-  }
-
-  /**
-   * Gets toolbarItemFiltersMap
-   *
-   * @return value of toolbarItemFiltersMap
-   */
-  public Map<String, List<GuiToolbarItemFilter>> getToolbarItemFiltersMap() {
-    return toolbarItemFiltersMap;
-  }
-
-  /**
-   * Sets toolbarItemFiltersMap
-   *
-   * @param toolbarItemFiltersMap value of toolbarItemFiltersMap
-   */
-  public void setToolbarItemFiltersMap(
-      Map<String, List<GuiToolbarItemFilter>> toolbarItemFiltersMap) {
-    this.toolbarItemFiltersMap = toolbarItemFiltersMap;
   }
 }
