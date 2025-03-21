@@ -17,11 +17,12 @@
 
 package org.apache.hop.metadata.rest;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +33,7 @@ import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
 @Getter
 @Setter
@@ -54,6 +56,20 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty(key = "test_url", injectionKey = "TEST_URL")
   private String testUrl;
 
+  @HopMetadataProperty(key = "auth_type")
+  private String authType;
+
+  // Basic auth
+  @HopMetadataProperty private String username;
+
+  @HopMetadataProperty(password = true)
+  private String password;
+
+  // Bearer auth
+  @HopMetadataProperty(key = "bearer_token")
+  private String bearerToken;
+
+  // API auth
   @HopMetadataProperty(key = "auth_header_name", injectionKey = "AUTH_HEADER_NAME")
   private String authorizationHeaderName;
 
@@ -70,36 +86,23 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   }
 
   public String getResponse(String url) throws HopException {
-    WebTarget target = client.target(testUrl);
-    Invocation.Builder invocationBuilder = target.request();
-    if (!StringUtils.isEmpty(variables.resolve(authorizationPrefix))) {
-      invocationBuilder.header(
-          variables.resolve(authorizationHeaderName),
-          variables.resolve(authorizationPrefix)
-              + " "
-              + variables.resolve(authorizationHeaderValue));
-    } else {
-      invocationBuilder.header(
-          variables.resolve(authorizationHeaderName), variables.resolve(authorizationHeaderValue));
-    }
-    Response response = invocationBuilder.get();
-
-    if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-      throw new HopException("Error connecting to " + testUrl + ": " + response.getStatus());
-    }
-    return response.readEntity(String.class);
+    return getResponseFromUrl(url).readEntity(String.class);
   }
 
-  public void disconnect() throws HopException {
-    client.close();
-  }
-
-  public void testConnection() throws HopException {
-    WebTarget target = client.target(variables.resolve(testUrl));
+  private Response getResponseFromUrl(String url) throws HopException {
+    WebTarget target = client.target(url);
     Invocation.Builder invocationBuilder = target.request();
 
-    // only set the header if we have a header name
-    if (!StringUtils.isEmpty(variables.resolve(authorizationHeaderName))) {
+    if (authType.equals("No Auth")) {
+      // Nothing required
+    }
+    if (authType.equals("Basic")) {
+      if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
+        client.register(HttpAuthenticationFeature.basic(username, password));
+        target = client.target(url);
+        invocationBuilder = target.request();
+      }
+    } else if (authType.equals("API Key")) {
       if (!StringUtils.isEmpty(variables.resolve(authorizationPrefix))) {
         invocationBuilder.header(
             variables.resolve(authorizationHeaderName),
@@ -111,12 +114,28 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
             variables.resolve(authorizationHeaderName),
             variables.resolve(authorizationHeaderValue));
       }
+    } else if (authType.equals("Bearer")) {
+      if (!StringUtils.isEmpty(bearerToken)) {
+        invocationBuilder.header(
+            HttpHeaders.AUTHORIZATION, "Bearer " + variables.resolve(bearerToken));
+      }
     }
     Response response = invocationBuilder.get();
+
     if (response.getStatus() != Response.Status.OK.getStatusCode()) {
       throw new HopException("Error connecting to " + testUrl + ": " + response.getStatus());
     }
+
+    return response;
+  }
+
+  public void testConnection() throws HopException {
+    Response response = getResponseFromUrl(variables.resolve(testUrl));
     response.close();
+  }
+
+  public void disconnect() throws HopException {
+    client.close();
   }
 
   public RestConnection() {}

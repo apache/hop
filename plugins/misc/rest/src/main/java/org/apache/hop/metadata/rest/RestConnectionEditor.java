@@ -17,6 +17,7 @@
 
 package org.apache.hop.metadata.rest;
 
+import java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
@@ -26,12 +27,16 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -45,23 +50,42 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
   private TextVar wBaseUrl;
   private TextVar wTestUrl;
+  private ComboVar wAuthType;
+  private static String[] authTypes = new String[] {"No Auth", "API Key", "Basic", "Bearer"};
+
+  private Composite wAuthComp;
+
+  // Bearer token
+  private PasswordTextVar wBearerValue;
+
+  // Basic auth token
+  private TextVar wUsername;
+  private TextVar wPassword;
+
+  // API Key
   private TextVar wAuthorizationName;
   private TextVar wAuthorizationPrefix;
   private PasswordTextVar wAuthorizationValue;
 
+  private PropsUi props;
+  private int middle;
+  private int margin;
+  private IVariables variables;
+  Control lastControl;
+
   public RestConnectionEditor(
       HopGui hopGui, MetadataManager<RestConnection> manager, RestConnection restConnection) {
     super(hopGui, manager, restConnection);
+    props = PropsUi.getInstance();
+
+    middle = props.getMiddlePct();
+    margin = props.getMargin();
   }
 
   @Override
   public void createControl(Composite composite) {
-    PropsUi props = PropsUi.getInstance();
 
-    int middle = props.getMiddlePct();
-    int margin = props.getMargin();
-
-    IVariables variables = hopGui.getVariables();
+    variables = hopGui.getVariables();
 
     // The name
     Label wlName = new Label(composite, SWT.RIGHT);
@@ -79,7 +103,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdName.left = new FormAttachment(middle, 0); // To the right of the label
     fdName.right = new FormAttachment(95, 0);
     wName.setLayoutData(fdName);
-    Control lastControl = wName;
+    lastControl = wName;
 
     Label wlBaseUrl = new Label(composite, SWT.RIGHT);
     PropsUi.setLook(wlBaseUrl);
@@ -115,16 +139,178 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wTestUrl.setLayoutData(fdTestUrl);
     lastControl = wTestUrl;
 
-    Label wlAuthorizationName = new Label(composite, SWT.RIGHT);
+    Label wlAuthType = new Label(composite, SWT.RIGHT);
+    PropsUi.setLook(wlAuthType);
+    wlAuthType.setText(BaseMessages.getString(PKG, "RestConnectionEditor.AuthType"));
+    FormData fdlAuthType = new FormData();
+    fdlAuthType.top = new FormAttachment(lastControl, margin);
+    fdlAuthType.left = new FormAttachment(0, 0);
+    fdlAuthType.right = new FormAttachment(middle, -margin);
+    wlAuthType.setLayoutData(fdlAuthType);
+    wAuthType = new ComboVar(variables, composite, SWT.READ_ONLY | SWT.BORDER);
+    PropsUi.setLook(wAuthType);
+    FormData fdAuthType = new FormData();
+    fdAuthType.top = new FormAttachment(wlAuthType, 0, SWT.CENTER);
+    fdAuthType.left = new FormAttachment(middle, 0);
+    fdAuthType.right = new FormAttachment(95, 0);
+    wAuthType.setLayoutData(fdAuthType);
+    lastControl = wAuthType;
+
+    wAuthType.setItems(authTypes);
+    wAuthType.addListener(
+        SWT.Selection,
+        e -> {
+          if (wAuthType.getText().equals("No Auth")) {
+            addNoAuthFields();
+          } else if (wAuthType.getText().equals("API Key")) {
+            addApiKeyFields();
+          } else if (wAuthType.getText().equals("Basic")) {
+            addBasicAuthFields();
+          } else if (wAuthType.getText().equals("Bearer")) {
+            addBearerFields();
+          }
+        });
+
+    ScrolledComposite wsAuthComp = new ScrolledComposite(composite, SWT.V_SCROLL | SWT.H_SCROLL);
+    props.setLook(wsAuthComp);
+    FormData fdAuthSComp = new FormData();
+    fdAuthSComp.top = new FormAttachment(lastControl, margin);
+    fdAuthSComp.left = new FormAttachment(0, 0);
+    fdAuthSComp.right = new FormAttachment(95, 0);
+    fdAuthSComp.bottom = new FormAttachment(95, 0);
+    wsAuthComp.setLayoutData(fdAuthSComp);
+
+    wAuthComp = new Composite(wsAuthComp, SWT.BACKGROUND);
+    PropsUi.setLook(wAuthComp);
+    wAuthComp.setLayout(new FormLayout());
+    FormData fdAuthComp = new FormData();
+    fdAuthComp.left = new FormAttachment(0, 0);
+    fdAuthComp.right = new FormAttachment(0, 0);
+    fdAuthComp.top = new FormAttachment(95, 0);
+    fdAuthComp.bottom = new FormAttachment(95, 0);
+    wAuthComp.setLayoutData(fdAuthComp);
+    wAuthComp.pack();
+
+    wsAuthComp.setContent(wAuthComp);
+
+    wAuthType.select(0);
+
+    wAuthComp.layout();
+
+    setWidgetsContent();
+
+    wsAuthComp.setExpandHorizontal(true);
+    wsAuthComp.setExpandVertical(true);
+    Rectangle authCompBounds = wAuthComp.getBounds();
+    wsAuthComp.setMinSize(authCompBounds.width, authCompBounds.height);
+
+    Control[] controls = {wName, wBaseUrl, wTestUrl, wAuthComp, wAuthType};
+    enableControls(controls);
+  }
+
+  private void enableControls(Control[] controls) {
+    for (Control control : controls) {
+      control.addListener(SWT.Modify, e -> setChanged());
+      control.addListener(SWT.Selection, e -> setChanged());
+    }
+  }
+
+  private void clearAuthComp() {
+    for (Control child : wAuthComp.getChildren()) {
+      child.dispose();
+    }
+  }
+
+  private void addNoAuthFields() {
+    clearAuthComp();
+    wAuthComp.pack();
+    wAuthComp.redraw();
+  }
+
+  private void addBasicAuthFields() {
+    clearAuthComp();
+
+    Label wlUsername = new Label(wAuthComp, SWT.RIGHT);
+    props.setLook(wlUsername);
+    wlUsername.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Username"));
+    FormData fdlUsername = new FormData();
+    fdlUsername.top = new FormAttachment(0, margin);
+    fdlUsername.left = new FormAttachment(0, 0);
+    fdlUsername.right = new FormAttachment(middle, -margin);
+    wlUsername.setLayoutData(fdlUsername);
+
+    wUsername = new TextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wUsername);
+    FormData fdUsername = new FormData();
+    fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
+    fdUsername.left = new FormAttachment(middle, 0);
+    fdUsername.right = new FormAttachment(95, margin);
+    wUsername.setLayoutData(fdUsername);
+    lastControl = wlUsername;
+
+    Label wlPassword = new Label(wAuthComp, SWT.RIGHT);
+    wlPassword.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Password"));
+    FormData fdlPassword = new FormData();
+    fdlPassword.top = new FormAttachment(lastControl, margin);
+    fdlPassword.left = new FormAttachment(0, 0);
+    fdlPassword.right = new FormAttachment(middle, -margin);
+    wlPassword.setLayoutData(fdlPassword);
+
+    wPassword = new PasswordTextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wPassword);
+    FormData fdPassword = new FormData();
+    fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
+    fdPassword.left = new FormAttachment(middle, 0);
+    fdPassword.right = new FormAttachment(95, 0);
+    wPassword.setLayoutData(fdPassword);
+
+    wAuthComp.pack();
+    wAuthComp.redraw();
+
+    Control[] controls = {wUsername, wPassword};
+    enableControls(controls);
+  }
+
+  private void addBearerFields() {
+    clearAuthComp();
+
+    Label wlBearer = new Label(wAuthComp, SWT.RIGHT);
+    PropsUi.setLook(wlBearer);
+    wlBearer.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Bearer.Token"));
+    FormData fdlBearer = new FormData();
+    fdlBearer.top = new FormAttachment(0, margin);
+    fdlBearer.left = new FormAttachment(0, 0);
+    fdlBearer.right = new FormAttachment(middle, -margin);
+    wlBearer.setLayoutData(fdlBearer);
+
+    wBearerValue = new PasswordTextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wBearerValue);
+    FormData fdBearer = new FormData();
+    fdBearer.top = new FormAttachment(wlBearer, 0, SWT.CENTER);
+    fdBearer.left = new FormAttachment(middle, 0);
+    fdBearer.right = new FormAttachment(95, 0);
+    wBearerValue.setLayoutData(fdBearer);
+
+    wAuthComp.pack();
+
+    Control[] controls = {wBearerValue};
+    enableControls(controls);
+  }
+
+  private void addApiKeyFields() {
+    clearAuthComp();
+
+    Label wlAuthorizationName = new Label(wAuthComp, SWT.RIGHT);
     PropsUi.setLook(wlAuthorizationName);
     wlAuthorizationName.setText(
-        BaseMessages.getString(PKG, "RestConnectionEditor.AuthorizationName"));
+        BaseMessages.getString(PKG, "RestConnectionEditor.API.AuthorizationName"));
     FormData fdlAuthorizationName = new FormData();
-    fdlAuthorizationName.top = new FormAttachment(lastControl, margin);
+    fdlAuthorizationName.top = new FormAttachment(0, margin);
     fdlAuthorizationName.left = new FormAttachment(0, 0);
     fdlAuthorizationName.right = new FormAttachment(middle, -margin);
     wlAuthorizationName.setLayoutData(fdlAuthorizationName);
-    wAuthorizationName = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+
+    wAuthorizationName = new TextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationName);
     FormData fdAuthorizationName = new FormData();
     fdAuthorizationName.top = new FormAttachment(wlAuthorizationName, 0, SWT.CENTER);
@@ -133,17 +319,17 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wAuthorizationName.setLayoutData(fdAuthorizationName);
     lastControl = wAuthorizationName;
 
-    Label wlAuthorizationPrefix = new Label(composite, SWT.RIGHT);
+    Label wlAuthorizationPrefix = new Label(wAuthComp, SWT.RIGHT);
     PropsUi.setLook(wlAuthorizationPrefix);
     wlAuthorizationPrefix.setText(
-        BaseMessages.getString(PKG, "RestConnectionEditor.AuthorizationPrefix"));
+        BaseMessages.getString(PKG, "RestConnectionEditor.API.AuthorizationPrefix"));
     FormData fdlAuthorizationPrefix = new FormData();
     fdlAuthorizationPrefix.top = new FormAttachment(lastControl, margin);
     fdlAuthorizationPrefix.left = new FormAttachment(0, 0);
     fdlAuthorizationPrefix.right = new FormAttachment(middle, -margin);
     wlAuthorizationPrefix.setLayoutData(fdlAuthorizationPrefix);
 
-    wAuthorizationPrefix = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAuthorizationPrefix = new TextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationPrefix);
     FormData fdAuthorizationPrefix = new FormData();
     fdAuthorizationPrefix.top = new FormAttachment(wlAuthorizationPrefix, 0, SWT.CENTER);
@@ -152,32 +338,28 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wAuthorizationPrefix.setLayoutData(fdAuthorizationPrefix);
     lastControl = wAuthorizationPrefix;
 
-    Label wlAuthorizationValue = new Label(composite, SWT.RIGHT);
+    Label wlAuthorizationValue = new Label(wAuthComp, SWT.RIGHT);
     PropsUi.setLook(wlAuthorizationValue);
     wlAuthorizationValue.setText(
-        BaseMessages.getString(PKG, "RestConnectionEditor.AuthorizationValue"));
+        BaseMessages.getString(PKG, "RestConnectionEditor.API.AuthorizationValue"));
     FormData fdlAuthorizationValue = new FormData();
     fdlAuthorizationValue.top = new FormAttachment(lastControl, margin);
     fdlAuthorizationValue.left = new FormAttachment(0, 0);
     fdlAuthorizationValue.right = new FormAttachment(middle, -margin);
     wlAuthorizationValue.setLayoutData(fdlAuthorizationValue);
     wAuthorizationValue =
-        new PasswordTextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new PasswordTextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationValue);
     FormData fdAuthorizationValue = new FormData();
     fdAuthorizationValue.top = new FormAttachment(wlAuthorizationValue, 0, SWT.CENTER);
     fdAuthorizationValue.left = new FormAttachment(middle, 0);
     fdAuthorizationValue.right = new FormAttachment(95, 0);
     wAuthorizationValue.setLayoutData(fdAuthorizationValue);
-    lastControl = wAuthorizationValue;
 
-    setWidgetsContent();
+    wAuthComp.pack();
 
-    Control[] controls = {wName, wAuthorizationName, wAuthorizationValue, wBaseUrl, wTestUrl};
-    for (Control control : controls) {
-      control.addListener(SWT.Modify, e -> setChanged());
-      control.addListener(SWT.Selection, e -> setChanged());
-    }
+    Control[] controls = {wAuthorizationName, wAuthorizationPrefix, wAuthorizationValue};
+    enableControls(controls);
   }
 
   @Override
@@ -199,9 +381,20 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       restConnection.setTestUrl(wTestUrl.getText());
     }
     restConnection.setBaseUrl(wBaseUrl.getText());
-    restConnection.setAuthorizationHeaderName(wAuthorizationName.getText());
-    restConnection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
-    restConnection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
+    restConnection.setTestUrl(wTestUrl.getText());
+    restConnection.setAuthType(wAuthType.getText());
+    if (wAuthType.getText().equals("No Auth")) {
+      // nothing required
+    } else if (wAuthType.getText().equals("Basic")) {
+      restConnection.setUsername(wUsername.getText());
+      restConnection.setPassword(wPassword.getText());
+    } else if (wAuthType.getText().equals("Bearer")) {
+      restConnection.setBearerToken(wBearerValue.getText());
+    } else if (wAuthType.getText().equals("API Key")) {
+      restConnection.setAuthorizationHeaderName(wAuthorizationName.getText());
+      restConnection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
+      restConnection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
+    }
     try {
       restConnection.testConnection();
       MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK);
@@ -223,12 +416,37 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
   @Override
   public void setWidgetsContent() {
+    // backwards compatibility: if we have authorization header values but no Auth Type,
+    // consider this to be an API Key auth
+    if (!StringUtils.isEmpty(metadata.getAuthorizationHeaderName())
+        && !StringUtils.isEmpty(metadata.getAuthorizationHeaderValue())
+        && StringUtils.isEmpty(metadata.getAuthType())) {
+      metadata.setAuthType("API Key");
+    }
+
     wName.setText(Const.NVL(metadata.getName(), ""));
     wBaseUrl.setText(Const.NVL(metadata.getBaseUrl(), ""));
     wTestUrl.setText(Const.NVL(metadata.getTestUrl(), ""));
-    wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
-    wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
-    wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
+    // wAuthType.setText(Const.NVL(metadata.getAuthType(), ""));
+    if (StringUtils.isEmpty(metadata.getAuthType())) {
+      metadata.setAuthType("No Auth");
+      wAuthType.select(0);
+    } else {
+      wAuthType.select(Arrays.asList(authTypes).indexOf(metadata.getAuthType()));
+    }
+    if (metadata.getAuthType().equals("Basic")) {
+      addBasicAuthFields();
+      wUsername.setText(Const.NVL(metadata.getUsername(), ""));
+      wPassword.setText(Const.NVL(metadata.getPassword(), ""));
+    } else if (metadata.getAuthType().equals("Bearer")) {
+      addBearerFields();
+      wBearerValue.setText(metadata.getBearerToken());
+    } else if (metadata.getAuthType().equals("API Key")) {
+      addApiKeyFields();
+      wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
+      wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
+      wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
+    }
   }
 
   @Override
@@ -236,9 +454,17 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setName(wName.getText());
     connection.setBaseUrl(wBaseUrl.getText());
     connection.setTestUrl(wTestUrl.getText());
-    connection.setAuthorizationHeaderName(wAuthorizationName.getText());
-    connection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
-    connection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
+    connection.setAuthType(wAuthType.getText());
+    if (wAuthType.getText().equals("Basic")) {
+      connection.setUsername(wUsername.getText());
+      connection.setPassword(wPassword.getText());
+    } else if (wAuthType.getText().equals("Bearer")) {
+      connection.setBearerToken(wBearerValue.getText());
+    } else if (wAuthType.getText().equals("API Key")) {
+      connection.setAuthorizationHeaderName(wAuthorizationName.getText());
+      connection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
+      connection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
+    }
   }
 
   @Override
