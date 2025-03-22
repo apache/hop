@@ -191,7 +191,7 @@ Specify the xml configuration file as the only argument:
 [source,shell]
 hop-server <Configuration File>
 
-The syntax of this configuration file is fairly simple:
+The syntax of this configuration file is straightforward. Hostname and port are required, other configuration options are optional.
 
 [source,xml]
 ----
@@ -202,6 +202,28 @@ The syntax of this configuration file is fairly simple:
     <hostname>localhost</hostname>
     <port>8181</port>
     <shutdownPort>8182</shutdownPort>
+    <webAppName></webAppName>
+    <username></username>
+    <password></password>
+
+    <!-- Proxy settings -->
+    <proxy_hostname></proxy_hostname>
+    <proxy_port></proxy_port>
+    <non_proxy_hosts></non_proxy_hosts>
+    <get_properties_from_master></get_properties_from_master>
+    <override_existing_properties></override_existing_properties>
+
+    <!-- Add the following line to support querying over https -->
+    <sslMode>Y</sslMode>
+    <!-- Configure SSL if enabled -->
+    <sslConfig>
+      <keyStore>/path/to/keystore</keyStore>
+      <keyStorePassword>password</keyStorePassword>
+      <keyPassword>keyPassword</keyPassword>
+    </sslConfig>
+
+    <!-- the network interface to use and then override the host name -->
+    <network_interface></network_interface>
   </hop-server>
 
   <!-- Join the web server thread and wait until it's finished.
@@ -228,6 +250,20 @@ The syntax of this configuration file is fairly simple:
        The default is that no metadata is configured: remotely executed pipelines and workflows will have their own metadata.
   -->
   <metadata_folder></metadata_folder>
+
+  <!-- Configure the Jetty server that powers Hop Server.
+       Check the Jetty docs for more information: https://jetty.org/docs/jetty/12/programming-guide/server/http.html#connector
+  -->
+  <jetty_options>
+     <!-- The number of thread dedicated to accepting incoming connections. The number of acceptors should be below or equal to the number of CPUs. -->
+     <acceptors></acceptors>
+
+     <!-- Number of connection requests that can be queued up before the operating system starts to send rejections. -->
+     <acceptQueuSize></acceptQueuSize>
+
+     <!-- This allows the server to rapidly close idle connections in order to gracefully handle high load situations. -->
+     <lowResourcesMaxIdleTime></lowResourcesMaxIdleTime>
+  </jetty_options>
 
 </hop-server-config>
 ----
