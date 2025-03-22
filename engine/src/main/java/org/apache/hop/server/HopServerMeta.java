@@ -33,6 +33,8 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.net.ssl.SSLContext;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -99,6 +101,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContexts;
 import org.w3c.dom.Node;
 
+@Getter
+@Setter
 @HopMetadata(
     key = "server",
     name = "i18n::HopServer.name",
@@ -140,7 +144,7 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
 
   private ILogChannel log;
 
-  @HopMetadataProperty private String hostname;
+  @Setter @Getter @HopMetadataProperty private String hostname;
 
   @HopMetadataProperty private String port;
 
@@ -158,10 +162,6 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
   @HopMetadataProperty private String proxyPort;
 
   @HopMetadataProperty private String nonProxyHosts;
-
-  @HopMetadataProperty private String propertiesMasterName;
-
-  @HopMetadataProperty private boolean overrideExistingProperties;
 
   private final Date changedDate;
 
@@ -246,9 +246,6 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     this.proxyHostname = XmlHandler.getTagValue(node, "proxy_hostname");
     this.proxyPort = XmlHandler.getTagValue(node, "proxy_port");
     this.nonProxyHosts = XmlHandler.getTagValue(node, "non_proxy_hosts");
-    this.propertiesMasterName = XmlHandler.getTagValue(node, "get_properties_from_master");
-    this.overrideExistingProperties =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "override_existing_properties"));
     this.log = new LogChannel(this);
 
     setSslMode("Y".equalsIgnoreCase(XmlHandler.getTagValue(node, SSL_MODE_TAG)));
@@ -340,140 +337,6 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
   @Override
   public int hashCode() {
     return name.toLowerCase().hashCode();
-  }
-
-  public String getHostname() {
-    return hostname;
-  }
-
-  public void setHostname(String urlString) {
-    this.hostname = urlString;
-  }
-
-  /**
-   * @return the password
-   */
-  public String getPassword() {
-    return password;
-  }
-
-  /**
-   * @param password the password to set
-   */
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  /**
-   * @return the username
-   */
-  public String getUsername() {
-    return username;
-  }
-
-  /**
-   * @param username the username to set
-   */
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  /**
-   * @return the username
-   */
-  public String getWebAppName() {
-    return webAppName;
-  }
-
-  /**
-   * @param webAppName the web application name to set
-   */
-  public void setWebAppName(String webAppName) {
-    this.webAppName = webAppName;
-  }
-
-  /**
-   * @return the nonProxyHosts
-   */
-  public String getNonProxyHosts() {
-    return nonProxyHosts;
-  }
-
-  /**
-   * @param nonProxyHosts the nonProxyHosts to set
-   */
-  public void setNonProxyHosts(String nonProxyHosts) {
-    this.nonProxyHosts = nonProxyHosts;
-  }
-
-  /**
-   * @return the proxyHostname
-   */
-  public String getProxyHostname() {
-    return proxyHostname;
-  }
-
-  /**
-   * @param proxyHostname the proxyHostname to set
-   */
-  public void setProxyHostname(String proxyHostname) {
-    this.proxyHostname = proxyHostname;
-  }
-
-  /**
-   * @return the proxyPort
-   */
-  public String getProxyPort() {
-    return proxyPort;
-  }
-
-  /**
-   * @param proxyPort the proxyPort to set
-   */
-  public void setProxyPort(String proxyPort) {
-    this.proxyPort = proxyPort;
-  }
-
-  /**
-   * @return the Master name for read properties
-   */
-  public String getPropertiesMasterName() {
-    return propertiesMasterName;
-  }
-
-  /**
-   * @return flag for read properties from Master
-   */
-  public boolean isOverrideExistingProperties() {
-    return overrideExistingProperties;
-  }
-
-  /**
-   * @return the port
-   */
-  public String getPort() {
-    return port;
-  }
-
-  /**
-   * @param port the port to set
-   */
-  public void setShutdownPort(String port) {
-    this.shutdownPort = port;
-  }
-
-  /**
-   * @return the shutdown port
-   */
-  public String getShutdownPort() {
-    return shutdownPort;
-  }
-
-  /**
-   * @param port the shutdown port to set
-   */
-  public void setPort(String port) {
-    this.port = port;
   }
 
   public String getPortSpecification(IVariables variables) {
@@ -1291,54 +1154,5 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     }
 
     log.logBasic(workflowName, "The remote workflow has finished.");
-  }
-
-  /**
-   * @return the changedDate
-   */
-  public Date getChangedDate() {
-    return changedDate;
-  }
-
-  /**
-   * @param sslMode
-   */
-  public void setSslMode(boolean sslMode) {
-    this.sslMode = sslMode;
-  }
-
-  /**
-   * @return the sslMode
-   */
-  public boolean isSslMode() {
-    return sslMode;
-  }
-
-  /**
-   * @return the sslConfig
-   */
-  public SslConfiguration getSslConfig() {
-    return sslConfig;
-  }
-
-  /**
-   * @param sslConfig The sslConfig to set
-   */
-  public void setSslConfig(SslConfiguration sslConfig) {
-    this.sslConfig = sslConfig;
-  }
-
-  /**
-   * @param overrideExistingProperties The overrideExistingProperties to set
-   */
-  public void setOverrideExistingProperties(boolean overrideExistingProperties) {
-    this.overrideExistingProperties = overrideExistingProperties;
-  }
-
-  /**
-   * @param propertiesMasterName The propertiesMasterName to set
-   */
-  public void setPropertiesMasterName(String propertiesMasterName) {
-    this.propertiesMasterName = propertiesMasterName;
   }
 }
