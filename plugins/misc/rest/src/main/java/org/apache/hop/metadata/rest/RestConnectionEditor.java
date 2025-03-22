@@ -23,6 +23,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
@@ -33,6 +34,8 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -40,6 +43,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -66,6 +70,12 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private TextVar wAuthorizationName;
   private TextVar wAuthorizationPrefix;
   private PasswordTextVar wAuthorizationValue;
+
+  // SSL
+  private TextVar wTrustStorePassword;
+  private TextVar wTrustStoreFile;
+  private Button wbTrustStoreFile;
+  private Button wIgnoreSsl;
 
   private PropsUi props;
   private int middle;
@@ -105,24 +115,33 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wName.setLayoutData(fdName);
     lastControl = wName;
 
-    Label wlBaseUrl = new Label(composite, SWT.RIGHT);
+    // start of URL group
+    Group gUrl = new Group(composite, SWT.SHADOW_ETCHED_IN);
+    gUrl.setText(BaseMessages.getString(PKG, "RestConnectionEditor.UrlGroup.Label"));
+    FormLayout gUrlLayout = new FormLayout();
+    gUrlLayout.marginWidth = 3;
+    gUrlLayout.marginHeight = 3;
+    gUrl.setLayout(gUrlLayout);
+    PropsUi.setLook(gUrl);
+
+    Label wlBaseUrl = new Label(gUrl, SWT.RIGHT);
     PropsUi.setLook(wlBaseUrl);
     wlBaseUrl.setText(BaseMessages.getString(PKG, "RestConnectionEditor.BaseUrl"));
     FormData fdlBaseUrl = new FormData();
-    fdlBaseUrl.top = new FormAttachment(lastControl, margin);
+    fdlBaseUrl.top = new FormAttachment(0, margin);
     fdlBaseUrl.left = new FormAttachment(0, 0);
     fdlBaseUrl.right = new FormAttachment(middle, -margin);
     wlBaseUrl.setLayoutData(fdlBaseUrl);
-    wBaseUrl = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBaseUrl = new TextVar(variables, gUrl, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBaseUrl);
     FormData fdBaseUrl = new FormData();
-    fdBaseUrl.top = new FormAttachment(wlBaseUrl, 0, SWT.CENTER);
+    fdBaseUrl.top = new FormAttachment(0, 0);
     fdBaseUrl.left = new FormAttachment(middle, 0);
     fdBaseUrl.right = new FormAttachment(95, 0);
     wBaseUrl.setLayoutData(fdBaseUrl);
     lastControl = wBaseUrl;
 
-    Label wlTestUrl = new Label(composite, SWT.RIGHT);
+    Label wlTestUrl = new Label(gUrl, SWT.RIGHT);
     PropsUi.setLook(wlTestUrl);
     wlTestUrl.setText(BaseMessages.getString(PKG, "RestConnectionEditor.TestUrl"));
     FormData fdlTestUrl = new FormData();
@@ -130,7 +149,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlTestUrl.left = new FormAttachment(0, 0);
     fdlTestUrl.right = new FormAttachment(middle, -margin);
     wlTestUrl.setLayoutData(fdlTestUrl);
-    wTestUrl = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTestUrl = new TextVar(variables, gUrl, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTestUrl);
     FormData fdTestUrl = new FormData();
     fdTestUrl.top = new FormAttachment(wlTestUrl, 0, SWT.CENTER);
@@ -139,7 +158,120 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wTestUrl.setLayoutData(fdTestUrl);
     lastControl = wTestUrl;
 
-    Label wlAuthType = new Label(composite, SWT.RIGHT);
+    FormData fdUrl = new FormData();
+    fdUrl.top = new FormAttachment(wlName, 0, 0);
+    fdUrl.left = new FormAttachment(0, 0);
+    fdUrl.right = new FormAttachment(95, 0);
+    gUrl.setLayoutData(fdUrl);
+    // end URL group
+
+    // start SSL group
+    Group gSSLTrustStore = new Group(composite, SWT.SHADOW_ETCHED_IN);
+    gSSLTrustStore.setText(BaseMessages.getString(PKG, "RestConnectionEditor.SSLGroup.Label"));
+    FormLayout gSSLTrustStoreLayout = new FormLayout();
+    gSSLTrustStoreLayout.marginWidth = 3;
+    gSSLTrustStoreLayout.marginHeight = 3;
+    gSSLTrustStore.setLayout(gSSLTrustStoreLayout);
+    PropsUi.setLook(gSSLTrustStore);
+
+    Label wlTrustStoreFile = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlTrustStoreFile.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.TrustStoreFile.Label"));
+    PropsUi.setLook(wlTrustStoreFile);
+    FormData fdlTrustStoreFile = new FormData();
+    fdlTrustStoreFile.left = new FormAttachment(0, 0);
+    fdlTrustStoreFile.top = new FormAttachment(0, margin);
+    fdlTrustStoreFile.right = new FormAttachment(middle, -margin);
+    wlTrustStoreFile.setLayoutData(fdlTrustStoreFile);
+
+    wbTrustStoreFile = new Button(gSSLTrustStore, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbTrustStoreFile);
+    wbTrustStoreFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbTrustStoreFile = new FormData();
+    fdbTrustStoreFile.right = new FormAttachment(100, 0);
+    fdbTrustStoreFile.top = new FormAttachment(0, 0);
+    wbTrustStoreFile.setLayoutData(fdbTrustStoreFile);
+
+    wbTrustStoreFile.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                hopGui.getShell(),
+                wTrustStoreFile,
+                variables,
+                new String[] {"*.)"},
+                new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")},
+                true));
+
+    wTrustStoreFile = new TextVar(variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTrustStoreFile);
+    //    wTrustStoreFile.addModifyListener(lsMod);
+    FormData fdTrustStoreFile = new FormData();
+    fdTrustStoreFile.left = new FormAttachment(middle, 0);
+    fdTrustStoreFile.top = new FormAttachment(0, margin);
+    fdTrustStoreFile.right = new FormAttachment(wbTrustStoreFile, -margin);
+    wTrustStoreFile.setLayoutData(fdTrustStoreFile);
+
+    Label wlTrustStorePassword = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlTrustStorePassword.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.TrustStorePassword.Label"));
+    PropsUi.setLook(wlTrustStorePassword);
+    FormData fdlTrustStorePassword = new FormData();
+    fdlTrustStorePassword.left = new FormAttachment(0, 0);
+    fdlTrustStorePassword.top = new FormAttachment(wbTrustStoreFile, margin);
+    fdlTrustStorePassword.right = new FormAttachment(middle, -margin);
+    wlTrustStorePassword.setLayoutData(fdlTrustStorePassword);
+    wTrustStorePassword =
+        new PasswordTextVar(variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTrustStorePassword);
+    //    wTrustStorePassword.addModifyListener(lsMod);
+    FormData fdTrustStorePassword = new FormData();
+    fdTrustStorePassword.left = new FormAttachment(middle, 0);
+    fdTrustStorePassword.top = new FormAttachment(wbTrustStoreFile, margin);
+    fdTrustStorePassword.right = new FormAttachment(100, 0);
+    wTrustStorePassword.setLayoutData(fdTrustStorePassword);
+
+    Label wlIgnoreSsl = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlIgnoreSsl.setText(BaseMessages.getString(PKG, "RestConnectionEditor.IgnoreSsl.Label"));
+    PropsUi.setLook(wlIgnoreSsl);
+    FormData fdLabel = new FormData();
+    fdLabel.left = new FormAttachment(0, 0);
+    fdLabel.top = new FormAttachment(wTrustStorePassword, margin);
+    fdLabel.right = new FormAttachment(middle, -margin);
+    wlIgnoreSsl.setLayoutData(fdLabel);
+    wIgnoreSsl = new Button(gSSLTrustStore, SWT.CHECK);
+    PropsUi.setLook(wIgnoreSsl);
+    FormData fdButton = new FormData();
+    fdButton.left = new FormAttachment(middle, 0);
+    fdButton.top = new FormAttachment(wlIgnoreSsl, 0, SWT.CENTER);
+    fdButton.right = new FormAttachment(100, 0);
+    wIgnoreSsl.setLayoutData(fdButton);
+    wIgnoreSsl.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            setChanged();
+            activateTrustoreFields();
+          }
+        });
+
+    FormData fdSSLTrustStore = new FormData();
+    fdSSLTrustStore.left = new FormAttachment(0, 0);
+    fdSSLTrustStore.right = new FormAttachment(100, 0);
+    fdSSLTrustStore.top = new FormAttachment(gUrl, margin);
+    gSSLTrustStore.setLayoutData(fdSSLTrustStore);
+    // end SSL group
+
+    // start authentication group
+    Group gAuth = new Group(composite, SWT.SHADOW_ETCHED_IN);
+    gAuth.setText(BaseMessages.getString(PKG, "RestConnectionEditor.AuthGroup.Label"));
+    FormLayout gAuthLayout = new FormLayout();
+    gAuthLayout.marginWidth = 3;
+    gAuthLayout.marginHeight = 3;
+    gAuth.setLayout(gAuthLayout);
+    PropsUi.setLook(gAuth);
+
+    Label wlAuthType = new Label(gAuth, SWT.RIGHT);
     PropsUi.setLook(wlAuthType);
     wlAuthType.setText(BaseMessages.getString(PKG, "RestConnectionEditor.AuthType"));
     FormData fdlAuthType = new FormData();
@@ -147,7 +279,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlAuthType.left = new FormAttachment(0, 0);
     fdlAuthType.right = new FormAttachment(middle, -margin);
     wlAuthType.setLayoutData(fdlAuthType);
-    wAuthType = new ComboVar(variables, composite, SWT.READ_ONLY | SWT.BORDER);
+    wAuthType = new ComboVar(variables, gAuth, SWT.READ_ONLY | SWT.BORDER);
     PropsUi.setLook(wAuthType);
     FormData fdAuthType = new FormData();
     fdAuthType.top = new FormAttachment(wlAuthType, 0, SWT.CENTER);
@@ -171,7 +303,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
           }
         });
 
-    ScrolledComposite wsAuthComp = new ScrolledComposite(composite, SWT.V_SCROLL | SWT.H_SCROLL);
+    ScrolledComposite wsAuthComp = new ScrolledComposite(gAuth, SWT.V_SCROLL | SWT.H_SCROLL);
     props.setLook(wsAuthComp);
     FormData fdAuthSComp = new FormData();
     fdAuthSComp.top = new FormAttachment(lastControl, margin);
@@ -196,6 +328,13 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wAuthType.select(0);
 
     wAuthComp.layout();
+
+    FormData fdAuth = new FormData();
+    fdAuth.left = new FormAttachment(0, 0);
+    fdAuth.top = new FormAttachment(gSSLTrustStore, margin);
+    fdAuth.right = new FormAttachment(100, 0);
+    fdAuth.bottom = new FormAttachment(100, 0);
+    gAuth.setLayoutData(fdAuth);
 
     setWidgetsContent();
 
@@ -427,7 +566,11 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wName.setText(Const.NVL(metadata.getName(), ""));
     wBaseUrl.setText(Const.NVL(metadata.getBaseUrl(), ""));
     wTestUrl.setText(Const.NVL(metadata.getTestUrl(), ""));
-    // wAuthType.setText(Const.NVL(metadata.getAuthType(), ""));
+
+    wTrustStoreFile.setText(Const.NVL(metadata.getTrustStoreFile(), ""));
+    wTrustStorePassword.setText(Const.NVL(metadata.getTrustStorePassword(), ""));
+    wIgnoreSsl.setSelection(metadata.isIgnoreSsl());
+
     if (StringUtils.isEmpty(metadata.getAuthType())) {
       metadata.setAuthType("No Auth");
       wAuthType.select(0);
@@ -454,6 +597,11 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setName(wName.getText());
     connection.setBaseUrl(wBaseUrl.getText());
     connection.setTestUrl(wTestUrl.getText());
+
+    connection.setTrustStoreFile(wTrustStoreFile.getText());
+    connection.setTrustStorePassword(wTrustStorePassword.getText());
+    connection.setIgnoreSsl(wIgnoreSsl.getSelection());
+
     connection.setAuthType(wAuthType.getText());
     if (wAuthType.getText().equals("Basic")) {
       connection.setUsername(wUsername.getText());
@@ -473,5 +621,11 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       return false;
     }
     return wName.setFocus();
+  }
+
+  private void activateTrustoreFields() {
+    wTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
+    wbTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
+    wTrustStorePassword.setEnabled(!wIgnoreSsl.getSelection());
   }
 }

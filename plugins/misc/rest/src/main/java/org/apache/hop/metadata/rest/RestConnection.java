@@ -17,6 +17,8 @@
 
 package org.apache.hop.metadata.rest;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -27,6 +29,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.HttpClientManager;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
@@ -50,19 +54,29 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   private ClientBuilder builder;
   private Client client;
 
-  @HopMetadataProperty(key = "base_url", injectionKey = "BASE_URL")
+  @HopMetadataProperty(key = "base_url")
   private String baseUrl;
 
-  @HopMetadataProperty(key = "test_url", injectionKey = "TEST_URL")
+  @HopMetadataProperty(key = "test_url")
   private String testUrl;
+
+  @HopMetadataProperty(key = "trustStoreFile")
+  private String trustStoreFile;
+
+  @HopMetadataProperty(key = "trustStorePassword", password = true)
+  private String trustStorePassword;
+
+  @HopMetadataProperty(key = "ignoreSsl")
+  private boolean ignoreSsl;
 
   @HopMetadataProperty(key = "auth_type")
   private String authType;
 
   // Basic auth
-  @HopMetadataProperty private String username;
+  @HopMetadataProperty(key = "username")
+  private String username;
 
-  @HopMetadataProperty(password = true)
+  @HopMetadataProperty(key = "username", password = true)
   private String password;
 
   // Bearer auth
@@ -70,28 +84,45 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   private String bearerToken;
 
   // API auth
-  @HopMetadataProperty(key = "auth_header_name", injectionKey = "AUTH_HEADER_NAME")
+  @HopMetadataProperty(key = "auth_header_name")
   private String authorizationHeaderName;
 
-  @HopMetadataProperty(key = "auth_header_prefix", injectionKey = "AUTH_HEADER_PREFIX")
+  @HopMetadataProperty(key = "auth_header_prefix")
   private String authorizationPrefix;
 
-  @HopMetadataProperty(key = "auth_header_value", injectionKey = "AUTH_HEADER_VALUE")
+  @HopMetadataProperty(key = "auth_header_value")
   private String authorizationHeaderValue;
 
   public RestConnection(IVariables variables) {
     this.variables = variables;
+  }
+
+  public Invocation.Builder getInvocationBuilder(String url) throws HopException {
+
     builder = ClientBuilder.newBuilder();
+
+    if (isIgnoreSsl() || !Utils.isEmpty(getTrustStoreFile())) {
+      builder.hostnameVerifier((s1, s2) -> true);
+      try {
+        builder.sslContext(HttpClientManager.getTrustAllSslContext());
+      } catch (NoSuchAlgorithmException | KeyManagementException e) {
+        throw new HopException("Error while setting up SSL context", e);
+      }
+    }
     client = builder.build();
-  }
 
-  public String getResponse(String url) throws HopException {
-    return getResponseFromUrl(url).readEntity(String.class);
-  }
-
-  private Response getResponseFromUrl(String url) throws HopException {
     WebTarget target = client.target(url);
     Invocation.Builder invocationBuilder = target.request();
+
+    // backwards compatibility with early version of this metadata type.
+    if (StringUtils.isEmpty(authType)) {
+      if (!StringUtils.isEmpty(authorizationHeaderName)
+          && !StringUtils.isEmpty(authorizationHeaderValue)) {
+        authType = "API Key";
+      } else {
+        authType = "No Auth";
+      }
+    }
 
     if (authType.equals("No Auth")) {
       // Nothing required
@@ -120,17 +151,24 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
             HttpHeaders.AUTHORIZATION, "Bearer " + variables.resolve(bearerToken));
       }
     }
-    Response response = invocationBuilder.get();
+    return invocationBuilder;
+  }
+
+  public String getResponse(String url) throws HopException {
+    return getResponseFromUrl(url).readEntity(String.class);
+  }
+
+  public Response getResponseFromUrl(String url) throws HopException {
+    Response response = getInvocationBuilder(url).get();
 
     if (response.getStatus() != Response.Status.OK.getStatusCode()) {
       throw new HopException("Error connecting to " + testUrl + ": " + response.getStatus());
     }
-
     return response;
   }
 
   public void testConnection() throws HopException {
-    Response response = getResponseFromUrl(variables.resolve(testUrl));
+    Response response = getInvocationBuilder(variables.resolve(testUrl)).get();
     response.close();
   }
 

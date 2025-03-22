@@ -112,7 +112,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
     WebTarget webResource = null;
     Client client = null;
+    Invocation.Builder invocationBuilder = null;
     Object[] newRow = null;
+    long startTime = 0;
     if (rowData != null) {
       newRow = rowData.clone();
     }
@@ -120,74 +122,83 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", data.realUrl));
       }
-      ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-      clientBuilder
-          .withConfig(data.config)
-          .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+      if (!StringUtils.isEmpty(meta.getConnectionName())) {
+        invocationBuilder = connection.getInvocationBuilder(data.realUrl);
+      } else {
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        clientBuilder
+            .withConfig(data.config)
+            .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
 
-      if (meta.isIgnoreSsl() || !Utils.isEmpty(data.trustStoreFile)) {
-        clientBuilder.hostnameVerifier((s1, s2) -> true);
-        clientBuilder.sslContext(data.sslContext);
-      }
-
-      client = clientBuilder.build();
-      if (data.basicAuthentication != null) {
-        client.register(data.basicAuthentication);
-      }
-      // create a WebResource object, which encapsulates a web resource for the client
-      webResource = client.target(data.realUrl);
-
-      // used for calculating the responseTime
-      long startTime = System.currentTimeMillis();
-
-      if (data.useMatrixParams) {
-        // Add matrix parameters
-        UriBuilder builder = webResource.getUriBuilder();
-        for (int i = 0; i < data.nrMatrixParams; i++) {
-          String value = data.inputRowMeta.getString(rowData, data.indexOfMatrixParamFields[i]);
-          if (isDebug()) {
-            logDebug(
-                BaseMessages.getString(
-                    PKG, "Rest.Log.matrixParameterValue", data.matrixParamNames[i], value));
-          }
-          builder =
-              builder.matrixParam(
-                  data.matrixParamNames[i],
-                  UriComponent.encode(value, UriComponent.Type.QUERY_PARAM));
+        if (meta.isIgnoreSsl() || !Utils.isEmpty(data.trustStoreFile)) {
+          clientBuilder.hostnameVerifier((s1, s2) -> true);
+          clientBuilder.sslContext(data.sslContext);
         }
-        webResource = client.target(builder.build());
-      }
 
-      if (data.useParams) {
-        // Add query parameters
-        for (int i = 0; i < data.nrParams; i++) {
-          String value = data.inputRowMeta.getString(rowData, data.indexOfParamFields[i]);
-          if (isDebug()) {
-            logDebug(
-                BaseMessages.getString(
-                    PKG, "Rest.Log.queryParameterValue", data.paramNames[i], value));
-          }
-          webResource = webResource.queryParam(data.paramNames[i], value);
+        client = clientBuilder.build();
+        if (data.basicAuthentication != null) {
+          client.register(data.basicAuthentication);
         }
+        // create a WebResource object, which encapsulates a web resource for the client
+        webResource = client.target(data.realUrl);
+
+        // used for calculating the responseTime
+        startTime = System.currentTimeMillis();
+
+        if (data.useMatrixParams) {
+          // Add matrix parameters
+          UriBuilder builder = webResource.getUriBuilder();
+          for (int i = 0; i < data.nrMatrixParams; i++) {
+            String value = data.inputRowMeta.getString(rowData, data.indexOfMatrixParamFields[i]);
+            if (isDebug()) {
+              logDebug(
+                  BaseMessages.getString(
+                      PKG, "Rest.Log.matrixParameterValue", data.matrixParamNames[i], value));
+            }
+            builder =
+                builder.matrixParam(
+                    data.matrixParamNames[i],
+                    UriComponent.encode(value, UriComponent.Type.QUERY_PARAM));
+          }
+          webResource = client.target(builder.build());
+        }
+
+        if (data.useParams) {
+          // Add query parameters
+          for (int i = 0; i < data.nrParams; i++) {
+            String value = data.inputRowMeta.getString(rowData, data.indexOfParamFields[i]);
+            if (isDebug()) {
+              logDebug(
+                  BaseMessages.getString(
+                      PKG, "Rest.Log.queryParameterValue", data.paramNames[i], value));
+            }
+            webResource = webResource.queryParam(data.paramNames[i], value);
+          }
+        }
+        if (isDebug()) {
+          logDebug(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", webResource.getUri()));
+        }
+        invocationBuilder = webResource.request();
       }
-      if (isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", webResource.getUri()));
-      }
-      Invocation.Builder invocationBuilder = webResource.request();
 
       // set the Authentication/Authorization header from the connection first, if available.
       // this transform's headers will override this value if available.
-      if (connection != null && !Utils.isEmpty(resolve(connection.getAuthorizationHeaderName()))) {
-        if (!StringUtils.isEmpty(resolve(connection.getAuthorizationPrefix()))) {
-          invocationBuilder.header(
-              resolve(connection.getAuthorizationHeaderName()),
-              resolve(connection.getAuthorizationPrefix())
-                  + " "
-                  + resolve(connection.getAuthorizationHeaderValue()));
-        } else {
-          invocationBuilder.header(
-              resolve(connection.getAuthorizationHeaderName()),
-              resolve(connection.getAuthorizationHeaderValue()));
+      if (connection != null) {
+        if (connection.getAuthType().equals("API Key")) {
+          if (!StringUtils.isEmpty(resolve(connection.getAuthorizationHeaderName())))
+            if (!Utils.isEmpty(resolve(connection.getAuthorizationHeaderName()))) {
+              if (!StringUtils.isEmpty(resolve(connection.getAuthorizationPrefix()))) {
+                invocationBuilder.header(
+                    resolve(connection.getAuthorizationHeaderName()),
+                    resolve(connection.getAuthorizationPrefix())
+                        + " "
+                        + resolve(connection.getAuthorizationHeaderValue()));
+              } else {
+                invocationBuilder.header(
+                    resolve(connection.getAuthorizationHeaderName()),
+                    resolve(connection.getAuthorizationHeaderValue()));
+              }
+            }
         }
       }
 
@@ -349,11 +360,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             ClientProperties.PROXY_URI, "http://" + data.realProxyHost + ":" + data.realProxyPort);
       }
       // HTTP BASIC AUTHENTICATION
-      if (!Utils.isEmpty(data.realHttpLogin) || !Utils.isEmpty(data.realHttpPassword)) {
-        data.basicAuthentication =
-            HttpAuthenticationFeature.basicBuilder()
-                .credentials(data.realHttpLogin, data.realHttpPassword)
-                .build();
+      if (StringUtils.isEmpty(meta.getConnectionName())) {
+        if (!Utils.isEmpty(data.realHttpLogin) || !Utils.isEmpty(data.realHttpPassword)) {
+          data.basicAuthentication =
+              HttpAuthenticationFeature.basicBuilder()
+                  .credentials(data.realHttpLogin, data.realHttpPassword)
+                  .build();
+        }
       }
       // SSL TRUST STORE CONFIGURATION
       if (!Utils.isEmpty(data.trustStoreFile) && !meta.isIgnoreSsl()) {
