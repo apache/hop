@@ -133,7 +133,6 @@ TIP: Using the "insert data from transform" drop down will block until the trans
 |Connection|The database connection from which to read data
 |SQL|The SQL statement used to read information from the database connection.
 You can also click Get SQL select statement... to browse tables and automatically generate a basic select statement.
-|Enable lazy conversion|When enabled, lazy conversion avoids unnecessary data type conversions and can result in a significant performance improvements.
 |Replace variables in script?|Enable to replace variables in the script; this feature was provided to allow you to test with or without performing variable substitutions.
 |Insert data from transform|Specify the input transform name where Hop can expect information to come from.
 This information can then be inserted into the SQL statement.
