@@ -17,17 +17,18 @@
 
 package org.apache.hop.metadata.rest;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
@@ -76,7 +77,7 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty(key = "username")
   private String username;
 
-  @HopMetadataProperty(key = "username", password = true)
+  @HopMetadataProperty(key = "password", password = true)
   private String password;
 
   // Bearer auth
@@ -90,7 +91,7 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty(key = "auth_header_prefix")
   private String authorizationPrefix;
 
-  @HopMetadataProperty(key = "auth_header_value")
+  @HopMetadataProperty(key = "auth_header_value", password = true)
   private String authorizationHeaderValue;
 
   public RestConnection(IVariables variables) {
@@ -129,7 +130,11 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     }
     if (authType.equals("Basic")) {
       if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
-        client.register(HttpAuthenticationFeature.basic(username, password));
+
+        client.register(
+            HttpAuthenticationFeature.basic(
+                variables.resolve(username),
+                Encr.decryptPasswordOptionallyEncrypted(variables.resolve(password))));
         target = client.target(url);
         invocationBuilder = target.request();
       }
@@ -139,11 +144,12 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
             variables.resolve(authorizationHeaderName),
             variables.resolve(authorizationPrefix)
                 + " "
-                + variables.resolve(authorizationHeaderValue));
+                + Encr.decryptPasswordOptionallyEncrypted(
+                    variables.resolve(authorizationHeaderValue)));
       } else {
         invocationBuilder.header(
             variables.resolve(authorizationHeaderName),
-            variables.resolve(authorizationHeaderValue));
+            Encr.decryptPasswordOptionallyEncrypted(variables.resolve(authorizationHeaderValue)));
       }
     } else if (authType.equals("Bearer")) {
       if (!StringUtils.isEmpty(bearerToken)) {
