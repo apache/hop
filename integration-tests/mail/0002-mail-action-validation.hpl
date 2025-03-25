@@ -34,71 +34,54 @@ limitations under the License.
     <created_date>2022/05/17 11:57:10.446</created_date>
     <modified_user>-</modified_user>
     <modified_date>2022/05/17 11:57:10.446</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
   <order>
     <hop>
-      <from>1 row</from>
-      <to>get mail messages</to>
+      <from>Detect empty stream</from>
+      <to>log no mails </to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>get mail messages</from>
-      <to>status==200</to>
+      <from>Filter rows</from>
+      <to>log invalid mails </to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>status==200</from>
-      <to>JSON input</to>
+      <from>Filter rows</from>
+      <to>ok</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>status==200</from>
-      <to>Unexpected status code</to>
+      <from>Load file content in memory</from>
+      <to>Detect empty stream</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>JSON input</from>
-      <to>Remove unwanted</to>
+      <from>Load file content in memory</from>
+      <to>log filename</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Remove unwanted</from>
-      <to>Sort by created</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Sort by created</from>
-      <to>Group by</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Group by</from>
-      <to>Last row only</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Last row only</from>
+      <from>log filename</from>
       <to>Filter rows</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Filter rows</from>
-      <to>Result</to>
+      <from>log invalid mails </from>
+      <to>Abort</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Filter rows</from>
-      <to>Unexpected status code 2</to>
+      <from>log no mails </from>
+      <to>Abort</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>1 row</name>
-    <type>RowGenerator</type>
+    <name>Abort</name>
+    <type>Abort</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -107,17 +90,30 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <fields>
-</fields>
-    <interval_in_ms>5000</interval_in_ms>
-    <last_time_field>FiveSecondsAgo</last_time_field>
-    <never_ending>N</never_ending>
-    <limit>1</limit>
-    <row_time_field>now</row_time_field>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
     <attributes/>
     <GUI>
-      <xloc>64</xloc>
-      <yloc>144</yloc>
+      <xloc>608</xloc>
+      <yloc>320</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Detect empty stream</name>
+    <type>DetectEmptyStream</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>320</yloc>
     </GUI>
   </transform>
   <transform>
@@ -131,149 +127,62 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to>Result</send_true_to>
-    <send_false_to>Unexpected status code 2</send_false_to>
     <compare>
       <condition>
-        <negated>N</negated>
         <conditions>
-          <condition>
-            <negated>N</negated>
-            <leftvalue>body</leftvalue>
-            <function>STARTS WITH</function>
-            <rightvalue/>
-            <value>
-              <name>constant</name>
-              <type>String</type>
-              <text>ACTION: </text>
-              <length>-1</length>
-              <precision>-1</precision>
-              <isnull>N</isnull>
-              <mask/>
-            </value>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>body</leftvalue>
-            <function>CONTAINS</function>
-            <rightvalue/>
-            <value>
-              <name>constant</name>
-              <type>String</type>
-              <text>Workflow:</text>
-              <length>-1</length>
-              <precision>-1</precision>
-              <isnull>N</isnull>
-              <mask/>
-            </value>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>body</leftvalue>
-            <function>CONTAINS</function>
-            <rightvalue/>
-            <value>
-              <name>constant</name>
-              <type>String</type>
-              <text>Path to this action:</text>
-              <length>-1</length>
-              <precision>-1</precision>
-              <isnull>N</isnull>
-              <mask/>
-            </value>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>body</leftvalue>
-            <function>CONTAINS</function>
-            <rightvalue/>
-            <value>
-              <name>constant</name>
-              <type>String</type>
-              <text>Previous results:</text>
-              <length>-1</length>
-              <precision>-1</precision>
-              <isnull>N</isnull>
-              <mask/>
-            </value>
-          </condition>
-        </conditions>
+</conditions>
+        <function>STARTS WITH</function>
+        <leftvalue>File content</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <name>constant</name>
+          <precision>-1</precision>
+          <text>Return-Path: &lt;user01@example.com></text>
+          <type>String</type>
+        </value>
       </condition>
     </compare>
+    <send_false_to>log invalid mails </send_false_to>
+    <send_true_to>ok</send_true_to>
     <attributes/>
     <GUI>
-      <xloc>592</xloc>
-      <yloc>256</yloc>
+      <xloc>608</xloc>
+      <yloc>96</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Group by</name>
-    <type>GroupBy</type>
+    <name>Load file content in memory</name>
+    <type>LoadFileInput</type>
     <description/>
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <add_linenr>Y</add_linenr>
-    <ignore_aggregate>N</ignore_aggregate>
-    <fields>
-      <field>
-        <aggregate>count</aggregate>
-        <type>COUNT_ANY</type>
-      </field>
-    </fields>
-    <give_back_row>Y</give_back_row>
-    <directory>${java.io.tmpdir}</directory>
-    <group>
-</group>
-    <linenr_fieldname>nr</linenr_fieldname>
-    <all_rows>Y</all_rows>
-    <prefix>grp</prefix>
-    <attributes/>
-    <GUI>
-      <xloc>368</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>JSON input</name>
-    <type>JsonInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <include>N</include>
-    <include_field/>
+    <include>Y</include>
+    <include_field>filename</include_field>
     <rownum>N</rownum>
-    <addresultfile>N</addresultfile>
-    <readurl>N</readurl>
-    <removeSourceField>N</removeSourceField>
+    <addresultfile>Y</addresultfile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
-    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
-    <ignoreMissingPath>Y</ignoreMissingPath>
-    <defaultPathLeafToNull>Y</defaultPathLeafToNull>
+    <IsIgnoreMissingPath>N</IsIgnoreMissingPath>
     <rownum_field/>
+    <encoding/>
     <file>
-      <name/>
-      <filemask/>
+      <name>${PROJECT_HOME}/output</name>
+      <filemask>name.*.mail</filemask>
       <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
     </file>
     <fields>
       <field>
-        <name>fromMailbox</name>
-        <path>items.*.From.Mailbox</path>
+        <name>File content</name>
+        <element_type>content</element_type>
         <type>String</type>
         <format/>
         <currency/>
@@ -285,100 +194,9 @@ limitations under the License.
         <repeat>N</repeat>
       </field>
       <field>
-        <name>fromDomain</name>
-        <path>items.*.From.Domain</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-      <field>
-        <name>toMailbox</name>
-        <path>items.*.To[0].Mailbox</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-      <field>
-        <name>toDomain</name>
-        <path>items.*.To[0].Domain</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-      <field>
-        <name>contentFrom</name>
-        <path>items.*.Content.Headers.From[0]</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-      <field>
-        <name>contentTo</name>
-        <path>items.*.Content.Headers.To[0]</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-      <field>
-        <name>contentSubject</name>
-        <path>items.*.Content.Headers.Subject[0]</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-      <field>
-        <name>body</name>
-        <path>items.*.MIME.Parts[0].Body</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-      <field>
-        <name>created</name>
-        <path>items.*.Created</path>
-        <type>None</type>
+        <name>File size</name>
+        <element_type>size</element_type>
+        <type>Integer</type>
         <format/>
         <currency/>
         <decimal/>
@@ -390,9 +208,8 @@ limitations under the License.
       </field>
     </fields>
     <limit>0</limit>
-    <IsInFields>Y</IsInFields>
-    <IsAFile>N</IsAFile>
-    <valueField>messages</valueField>
+    <IsInFields>N</IsInFields>
+    <DynamicFilenameField/>
     <shortFileFieldName/>
     <pathFieldName/>
     <hiddenFieldName/>
@@ -400,16 +217,15 @@ limitations under the License.
     <uriNameFieldName/>
     <rootUriNameFieldName/>
     <extensionFieldName/>
-    <sizeFieldName/>
     <attributes/>
     <GUI>
-      <xloc>464</xloc>
-      <yloc>144</yloc>
+      <xloc>160</xloc>
+      <yloc>96</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Last row only</name>
-    <type>FilterRows</type>
+    <name>log filename</name>
+    <type>WriteToLog</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -418,50 +234,81 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to/>
-    <send_false_to/>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <leftvalue>count</leftvalue>
-        <function>=</function>
-        <rightvalue>nr</rightvalue>
-      </condition>
-    </compare>
-    <attributes/>
-    <GUI>
-      <xloc>464</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Remove unwanted</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
+    <displayHeader>Y</displayHeader>
     <fields>
-      <select_unspecified>N</select_unspecified>
-      <remove>
-        <name>messages</name>
-      </remove>
-      <remove>
-        <name>statusCode</name>
-      </remove>
+      <field>
+        <name>filename</name>
+      </field>
     </fields>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <logmessage>####################
+mail messages found
+####################
+</logmessage>
     <attributes/>
     <GUI>
-      <xloc>592</xloc>
-      <yloc>144</yloc>
+      <xloc>416</xloc>
+      <yloc>96</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Result</name>
+    <name>log invalid mails </name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <displayHeader>Y</displayHeader>
+    <fields>
+</fields>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <logmessage>###############################
+Unexpected mail contents found
+###############################
+</logmessage>
+    <attributes/>
+    <GUI>
+      <xloc>608</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>log no mails </name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <displayHeader>Y</displayHeader>
+    <fields>
+</fields>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <logmessage>################
+No mails found
+################
+</logmessage>
+    <attributes/>
+    <GUI>
+      <xloc>448</xloc>
+      <yloc>320</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ok</name>
     <type>Dummy</type>
     <description/>
     <distribute>Y</distribute>
@@ -474,156 +321,7 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>768</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Sort by created</name>
-    <type>SortRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <directory>${java.io.tmpdir}</directory>
-    <prefix>out</prefix>
-    <sort_size>1000000</sort_size>
-    <free_memory/>
-    <compress>N</compress>
-    <compress_variable/>
-    <unique_rows>N</unique_rows>
-    <fields>
-      <field>
-        <name>created</name>
-        <ascending>Y</ascending>
-        <case_sensitive>N</case_sensitive>
-        <collator_enabled>N</collator_enabled>
-        <collator_strength>0</collator_strength>
-        <presorted>N</presorted>
-      </field>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>272</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Unexpected status code</name>
-    <type>Abort</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <abort_option>ABORT_WITH_ERROR</abort_option>
-    <always_log_rows>Y</always_log_rows>
-    <message>We reveiced an unexpected status code from the SMTP server during testing.</message>
-    <row_threshold>0</row_threshold>
-    <attributes/>
-    <GUI>
-      <xloc>336</xloc>
-      <yloc>32</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Unexpected status code 2</name>
-    <type>Abort</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <abort_option>ABORT_WITH_ERROR</abort_option>
-    <always_log_rows>Y</always_log_rows>
-    <message>We reveiced an unexpected status code from the SMTP server during testing.</message>
-    <row_threshold>0</row_threshold>
-    <attributes/>
-    <GUI>
-      <xloc>592</xloc>
-      <yloc>336</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>get mail messages</name>
-    <type>Http</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <url>http://${MAIL_SMTP_SERVER}:8025/api/v2/messages</url>
-    <urlInField>N</urlInField>
-    <ignoreSsl>N</ignoreSsl>
-    <urlField/>
-    <encoding>UTF-8</encoding>
-    <httpLogin/>
-    <httpPassword>Encrypted </httpPassword>
-    <proxyHost/>
-    <proxyPort/>
-    <socketTimeout>10000</socketTimeout>
-    <connectionTimeout>10000</connectionTimeout>
-    <closeIdleConnectionsTime>-1</closeIdleConnectionsTime>
-    <lookup>
-    </lookup>
-    <result>
-      <name>messages</name>
-      <code>statusCode</code>
-      <response_time/>
-      <response_header/>
-    </result>
-    <attributes/>
-    <GUI>
-      <xloc>208</xloc>
-      <yloc>144</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>status==200</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <send_true_to>JSON input</send_true_to>
-    <send_false_to>Unexpected status code</send_false_to>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <leftvalue>statusCode</leftvalue>
-        <function>=</function>
-        <rightvalue/>
-        <value>
-          <name>constant</name>
-          <type>Integer</type>
-          <text>200</text>
-          <length>-1</length>
-          <precision>0</precision>
-          <isnull>N</isnull>
-          <mask>####0;-####0</mask>
-        </value>
-      </condition>
-    </compare>
-    <attributes/>
-    <GUI>
-      <xloc>336</xloc>
-      <yloc>144</yloc>
+      <yloc>96</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
