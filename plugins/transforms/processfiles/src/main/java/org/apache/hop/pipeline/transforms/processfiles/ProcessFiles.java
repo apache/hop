@@ -167,9 +167,15 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
           if (((meta.isOverwriteTargetFile() && data.targetFile.exists())
                   || !data.targetFile.exists())
               && !meta.simulate) {
+            if (meta.isOverwriteTargetFile() && data.targetFile.exists())
+              logBasic(
+                  BaseMessages.getString(
+                      PKG, "ProcessFiles.Log.SourceFileCopied.TargetOverwritten", targetFilename));
+
             // Better to delete the file before because. sometime, it's not properly overwritten
             data.targetFile.delete();
             data.targetFile.copyFrom(data.sourceFile, new TextOneToOneFileSelector());
+
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
@@ -190,6 +196,10 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
           if (((meta.isOverwriteTargetFile() && data.targetFile.exists())
                   || !data.targetFile.exists())
               && !meta.simulate) {
+            if (meta.isOverwriteTargetFile() && data.targetFile.exists())
+              logBasic(
+                  BaseMessages.getString(
+                      PKG, "ProcessFiles.Log.SourceFileMoved.TargetOverwritten", targetFilename));
             data.sourceFile.moveTo(HopVfs.getFileObject(targetFilename, variables));
             if (isDetailed()) {
               logDetailed(
