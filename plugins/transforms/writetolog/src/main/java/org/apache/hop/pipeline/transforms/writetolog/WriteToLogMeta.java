@@ -25,15 +25,18 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.w3c.dom.Node;
 
 @Transform(
     id = "WriteToLog",
@@ -98,6 +101,49 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
     return retval;
   }
 
+  /**
+   * Added for backwards compatibility
+   *
+   * @deprecated
+   * @param transformNode The XML node of the transform
+   * @param metadataProvider The metadata provided
+   * @throws HopXmlException When unable to read the XML
+   */
+  @Override
+  @Deprecated(since = "2.13")
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    super.loadXml(transformNode, metadataProvider);
+    String loglevel = XmlHandler.getTagValue(transformNode, "loglevel");
+    if (loglevel.startsWith("log_level_")) {
+      switch (loglevel) {
+        case "log_level_nothing":
+          logLevel = LogLevel.NOTHING;
+          break;
+        case "log_level_error":
+          logLevel = LogLevel.ERROR;
+          break;
+        case "log_level_minimal":
+          logLevel = LogLevel.MINIMAL;
+          break;
+        case "log_level_basic":
+          logLevel = LogLevel.BASIC;
+          break;
+        case "log_level_detailed":
+          logLevel = LogLevel.DETAILED;
+          break;
+        case "log_level_debug":
+          logLevel = LogLevel.DEBUG;
+          break;
+        case "log_level_rowlevel":
+          logLevel = LogLevel.ROWLEVEL;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
   @Override
   public void setDefault() {
     displayHeader = true;
@@ -118,7 +164,7 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if (prev == null || prev.size() == 0) {
+    if (prev == null || prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_WARNING,
@@ -134,22 +180,23 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
               transformMeta);
       remarks.add(cr);
 
-      String errorMessage = "";
+      StringBuilder errorMessage = new StringBuilder();
       boolean errorFound = false;
 
       // Starting from selected fields in ...
       for (LogField field : logFields) {
         int idx = prev.indexOfValue(field.getName());
         if (idx < 0) {
-          errorMessage += "\t\t" + field.getName() + Const.CR;
+          errorMessage.append("\t\t" + field.getName() + Const.CR);
           errorFound = true;
         }
       }
       if (errorFound) {
-        errorMessage =
-            BaseMessages.getString(PKG, "WriteToLogMeta.CheckResult.FieldsFound", errorMessage);
+        errorMessage.append(
+            BaseMessages.getString(PKG, "WriteToLogMeta.CheckResult.FieldsFound", errorMessage));
 
-        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr =
+            new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
         remarks.add(cr);
       } else {
         if (logFields.isEmpty()) {
