@@ -19,6 +19,10 @@ package org.apache.hop.workflow.actions.columnsexist;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -36,8 +40,6 @@ import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
 
 /** This defines a column exists action. */
 @Action(
@@ -51,6 +53,8 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 public class ActionColumnsExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionColumnsExist.class;
 
+  @Setter
+  @Getter
   public static final class ColumnExist {
     public ColumnExist() {}
 
@@ -60,25 +64,25 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
 
     @HopMetadataProperty(key = "name")
     private String name;
-
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
   }
 
+  @Getter
+  @Setter
   @HopMetadataProperty(key = "schemaname")
   private String schemaName;
 
+  @Setter
+  @Getter
   @HopMetadataProperty(key = "tablename")
   private String tableName;
 
+  @Setter
+  @Getter
   @HopMetadataProperty(key = "connection", storeWithName = true)
   private DatabaseMeta databaseMeta;
 
+  @Setter
+  @Getter
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<ColumnExist> columns;
 
@@ -107,38 +111,6 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     return new ActionColumnsExist(this);
   }
 
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  public String getTableName() {
-    return tableName;
-  }
-
-  public void setSchemaName(String schemaname) {
-    this.schemaName = schemaname;
-  }
-
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  public List<ColumnExist> getColumns() {
-    return columns;
-  }
-
-  public void setColumns(List<ColumnExist> columns) {
-    this.columns = columns;
-  }
-
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
-  }
-
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
   @Override
   public boolean isEvaluation() {
     return true;
@@ -150,8 +122,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   }
 
   @Override
-  public Result execute(Result previousResult, int nr) {
-    Result result = previousResult;
+  public Result execute(Result result, int nr) {
     result.setResult(false);
     result.setNrErrors(1);
 
@@ -168,15 +139,15 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     }
     if (databaseMeta != null) {
       try (Database db = new Database(this, this, databaseMeta)) {
-        String realSchemaname = resolve(schemaName);
-        String realTablename = resolve(tableName);
+        String realSchemaName = resolve(schemaName);
+        String realTableName = resolve(tableName);
 
         db.connect();
 
-        if (db.checkTableExists(realSchemaname, realTablename)) {
+        if (db.checkTableExists(realSchemaName, realTableName)) {
           if (isDetailed()) {
             logDetailed(
-                BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableExists", realTablename));
+                BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableExists", realTableName));
           }
 
           for (ColumnExist column : columns) {
@@ -186,11 +157,11 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
 
             String realColumnname = resolve(column.getName());
 
-            if (db.checkColumnExists(realSchemaname, realTablename, realColumnname)) {
+            if (db.checkColumnExists(realSchemaName, realTableName, realColumnname)) {
               if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
-                        PKG, "ActionColumnsExist.Log.ColumnExists", realColumnname, realTablename));
+                        PKG, "ActionColumnsExist.Log.ColumnExists", realColumnname, realTableName));
               }
               nrexistcolums++;
             } else {
@@ -199,13 +170,13 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
                       PKG,
                       "ActionColumnsExist.Log.ColumnNotExists",
                       realColumnname,
-                      realTablename));
+                      realTableName));
               nrnotexistcolums++;
             }
           }
         } else {
           logError(
-              BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableNotExists", realTablename));
+              BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableNotExists", realTableName));
         }
       } catch (HopDatabaseException dbe) {
         logError(
@@ -249,17 +220,16 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    ActionValidatorUtils.andValidator()
-        .validate(
-            this,
-            "tablename",
-            remarks,
-            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
-    ActionValidatorUtils.andValidator()
-        .validate(
-            this,
-            "columnname",
-            remarks,
-            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+
+    if (StringUtils.isEmpty(variables.resolve(tableName))) {
+      String message =
+          BaseMessages.getString(PKG, "ActionColumnsExist.CheckResult.TableNameIsEmpty");
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, this));
+    }
+
+    if (columns == null || columns.isEmpty()) {
+      String message = BaseMessages.getString(PKG, "ActionColumnsExist.CheckResult.NothingToCheck");
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, message, this));
+    }
   }
 }
