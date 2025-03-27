@@ -374,7 +374,10 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
           "Y"
               .equalsIgnoreCase(
                   XmlHandler.getTagValue(transformnode, "file", "create_parent_folder"));
-      extension = XmlHandler.getTagValue(transformnode, "file", "extention");
+      extension =
+          Const.NVL(
+              XmlHandler.getTagValue(transformnode, "file", "extention"),
+              XmlHandler.getTagValue(transformnode, "file", "extension"));
       fileAppended = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "append"));
       transformNrInFilename =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "split"));

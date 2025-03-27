@@ -329,7 +329,10 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
           "Y"
               .equalsIgnoreCase(
                   XmlHandler.getTagValue(transformNode, "file", "create_parent_folder"));
-      extension = XmlHandler.getTagValue(transformNode, "file", "extention");
+      extension =
+          Const.NVL(
+              XmlHandler.getTagValue(transformNode, "file", "extention"),
+              XmlHandler.getTagValue(transformNode, "file", "extension"));
       transformNrInFilename =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "split"));
       partNrInFilename =

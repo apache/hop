@@ -321,7 +321,10 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
       setRepeatElement(XmlHandler.getTagValue(transformNode, "xml_repeat_element"));
 
       setFileName(XmlHandler.getTagValue(transformNode, "file", "name"));
-      setExtension(XmlHandler.getTagValue(transformNode, "file", "extention"));
+      setExtension(
+          Const.NVL(
+              XmlHandler.getTagValue(transformNode, "file", "extention"),
+              XmlHandler.getTagValue(transformNode, "file", "extension")));
 
       setDoNotOpenNewFileInit(
           "Y"

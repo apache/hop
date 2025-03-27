@@ -668,7 +668,10 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
           "Y"
               .equalsIgnoreCase(
                   XmlHandler.getTagValue(transformNode, "file", "do_not_open_new_file_init"));
-      extension = XmlHandler.getTagValue(transformNode, "file", "extention");
+      extension =
+          Const.NVL(
+              XmlHandler.getTagValue(transformNode, "file", "extention"),
+              XmlHandler.getTagValue(transformNode, "file", "extension"));
       fileAppended = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "append"));
       transformNrInFilename =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "split"));
