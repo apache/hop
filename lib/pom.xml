@@ -55,7 +55,7 @@
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.9.0</commons-net.version>
         <commons-pool.version>1.5.7</commons-pool.version>
-        <commons-vfs2.version>2.9.0</commons-vfs2.version>
+        <commons-vfs2.version>2.10.0</commons-vfs2.version>
         <curator.version>5.4.0</curator.version>
         <databricks.version>4.0.0</databricks.version>
         <encoder.version>1.2</encoder.version>
