@@ -1280,7 +1280,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
   private void collectInformation() {
     // The parameters...
     //
-    List<PipelineExecutorParameters> parameters = pipelineExecutorMeta.getParameters();
+    List<PipelineExecutorParameters> parameters = new ArrayList<>();
 
     int nrLines = wPipelineExecutorParameters.nrNonEmpty();
     for (int i = 0; i < nrLines; i++) {
@@ -1291,6 +1291,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       params.setInput(item.getText(3));
       parameters.add(params);
     }
+    pipelineExecutorMeta.setParameters(parameters);
     pipelineExecutorMeta.setInheritingAllVariables(wInheritAll.getSelection());
 
     // The group definition
