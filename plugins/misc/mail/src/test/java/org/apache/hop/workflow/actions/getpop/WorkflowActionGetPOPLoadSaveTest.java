@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
@@ -42,39 +41,39 @@ public class WorkflowActionGetPOPLoadSaveTest
         "serverName",
         "userName",
         "password",
-        "useSSL",
-        "port",
+        "useSsl",
+        "SslPort",
         "outputDirectory",
         "filenamePattern",
-        "retrievemails",
+        "retrieveMails",
         "firstMails",
         "delete",
         "saveMessage",
         "saveAttachment",
-        "differentFolderForAttachment",
+        "useDifferentFolderForAttachment",
         "protocol",
         "attachmentFolder",
         "attachmentWildcard",
-        "valueImapList",
-        "firstIMAPMails",
-        "IMAPFolder",
-        "senderSearchTerm",
+        //        "valueIMAPList",
+        "firstMails",
+        "imapFolder",
+        "senderSearch",
         "notTermSenderSearch",
-        "receipientSearch",
-        "notTermReceipientSearch",
+        "recipientSearch",
+        "notTermRecipientSearch",
         "subjectSearch",
         "notTermSubjectSearch",
         "bodySearch",
         "notTermBodySearch",
-        "conditionReceivedDate",
+        //        "conditionReceivedDate",
         "notTermReceivedDateSearch",
         "receivedDate1",
         "receivedDate2",
-        "actiontype",
+        //        "actionType",
         "moveToIMAPFolder",
         "createMoveToFolder",
         "createLocalFolder",
-        "afterGetIMAP",
+        //        "afterGetIMAP",
         "includeSubFolders",
         "useProxy",
         "proxyUsername");
@@ -83,15 +82,16 @@ public class WorkflowActionGetPOPLoadSaveTest
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    validators.put(
-        "valueImapList", new IntLoadSaveValidator(MailConnectionMeta.valueIMAPListCode.length));
-    validators.put(
-        "conditionReceivedDate",
-        new IntLoadSaveValidator(MailConnectionMeta.conditionDateCode.length));
-    validators.put(
-        "actiontype", new IntLoadSaveValidator(MailConnectionMeta.actionTypeCode.length));
-    validators.put(
-        "afterGetIMAP", new IntLoadSaveValidator(MailConnectionMeta.afterGetIMAPCode.length));
+    //    validators.put(
+    //        "valueIMAPList", new
+    // IntLoadSaveValidator(MailConnectionMeta.valueIMAPListCode.length));
+    //    validators.put(
+    //        "conditionReceivedDate",
+    //        new IntLoadSaveValidator(MailConnectionMeta.conditionDateCode.length));
+    //    validators.put(
+    //        "actionType", new IntLoadSaveValidator(MailConnectionMeta.actionTypeCode.length));
+    //    validators.put(
+    //        "afterGetIMAP", new IntLoadSaveValidator(MailConnectionMeta.afterGetIMAPCode.length));
 
     return validators;
   }

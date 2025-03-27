@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.getpop;
 
 import jakarta.mail.Flags.Flag;
+import jakarta.mail.Session;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -34,6 +35,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -41,6 +43,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.mail.MailServerConnection;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -62,7 +65,8 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
     image = "GetPOP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
     keywords = "i18n::ActionGetPOP.keyword",
-    documentationUrl = "/workflow/actions/getpop.html")
+    documentationUrl = "/workflow/actions/getpop.html",
+    actionTransformTypes = {ActionTransformType.MAIL})
 @SuppressWarnings("java:S1104")
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionGetPOP.class;
@@ -84,7 +88,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty(key = "servername")
   private String serverName;
 
-  @HopMetadataProperty private String username;
+  @HopMetadataProperty(key = "username")
+  private String userName;
 
   @HopMetadataProperty(password = true)
   private String password;
@@ -149,7 +154,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private boolean notTermSenderSearch;
 
   @HopMetadataProperty(key = "recipientsearch")
-  private String receipientSearch;
+  private String recipientSearch;
 
   @HopMetadataProperty(key = "subjectsearch")
   private String subjectSearch;
@@ -195,12 +200,15 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static final String FILENAME_SYS_DATE_OPEN = "{SYS|";
   private static final String FILENAME_SYS_DATE_CLOSE = "|}";
 
+  private MailServerConnection connection;
+  private MailConnection mailConn;
+
   private Pattern attachementPattern;
 
   public ActionGetPOP(String n) {
     super(n, "");
     serverName = null;
-    username = null;
+    userName = null;
     password = null;
     useSsl = false;
     sslPort = null;
@@ -212,14 +220,22 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     retrieveMails = 0;
     firstMails = null;
     delete = false;
-    protocol = MailConnectionMeta.PROTOCOL_STRING_POP3;
+    if (!StringUtils.isEmpty(getConnectionName())) {
+      protocol = MailServerConnection.PROTOCOL_STRING_POP3;
+    } else {
+      protocol = MailConnectionMeta.PROTOCOL_STRING_POP3;
+    }
     saveAttachment = true;
     saveMessage = true;
     useDifferentFolderForAttachment = false;
     attachmentFolder = null;
     attachmentWildcard = null;
     imapFirstMails = "0";
-    valueIMAPList = MailConnectionMeta.VALUE_IMAP_LIST_ALL;
+    if (!StringUtils.isEmpty(getConnectionName())) {
+      valueIMAPList = MailServerConnection.VALUE_IMAP_LIST_ALL;
+    } else {
+      valueIMAPList = MailConnectionMeta.VALUE_IMAP_LIST_ALL;
+    }
     imapFolder = null;
     // search term
     senderSearch = null;
@@ -231,7 +247,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     receivedDate1 = null;
     receivedDate2 = null;
     notTermReceivedDateSearch = false;
-    receipientSearch = null;
+    recipientSearch = null;
     subjectSearch = null;
     actionType = MailConnectionMeta.ACTION_TYPE_GET;
     moveToIMAPFolder = null;
@@ -264,7 +280,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealUsername() {
-    return resolve(getUsername());
+    return resolve(getUserName());
   }
 
   public String getRealServername() {
@@ -292,7 +308,9 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
     result.setResult(false);
 
-    MailConnection mailConn = null;
+    connection = null;
+    Session session = null;
+    mailConn = null;
     Date beginDate = null;
     Date endDate = null;
 
@@ -300,7 +318,12 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
     try {
 
-      boolean usePOP3 = getProtocol().equals(MailConnectionMeta.PROTOCOL_STRING_POP3);
+      boolean usePOP3;
+      if (connectionName != null) {
+        usePOP3 = getProtocol().equals(MailServerConnection.PROTOCOL_STRING_POP3);
+      } else {
+        usePOP3 = getProtocol().equals(MailConnectionMeta.PROTOCOL_STRING_POP3);
+      }
       boolean moveafter = false;
       int nbrmailtoretrieve =
           usePOP3
@@ -312,56 +335,98 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
       // Check destination folder
       String realMoveToIMAPFolder = resolve(getMoveToIMAPFolder());
-      if (getProtocol().equals(MailConnectionMeta.PROTOCOL_STRING_IMAP)
-              && (getActionType() == MailConnectionMeta.ACTION_TYPE_MOVE)
-          || (getActionType() == MailConnectionMeta.ACTION_TYPE_GET
-              && getAfterGetIMAP() == MailConnectionMeta.AFTER_GET_IMAP_MOVE)) {
-        if (Utils.isEmpty(realMoveToIMAPFolder)) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "ActionGetMailsFromPOP.Error.MoveToIMAPFolderEmpty"));
+      if (StringUtils.isEmpty(connectionName)) {
+        if (getProtocol().equals(MailServerConnection.PROTOCOL_STRING_IMAP)
+                && (getActionType() == MailServerConnection.ACTION_TYPE_MOVE)
+            || (getActionType() == MailServerConnection.ACTION_TYPE_GET
+                && getAfterGetIMAP() == MailServerConnection.AFTER_GET_IMAP_MOVE)) {
+          if (Utils.isEmpty(realMoveToIMAPFolder)) {
+            throw new HopException(
+                BaseMessages.getString(PKG, "ActionGetMailsFromPOP.Error.MoveToIMAPFolderEmpty"));
+          }
+          moveafter = true;
         }
-        moveafter = true;
+      } else {
+        if (getProtocol().equals(MailConnectionMeta.PROTOCOL_STRING_IMAP)
+                && (getActionType() == MailConnectionMeta.ACTION_TYPE_MOVE)
+            || (getActionType() == MailConnectionMeta.ACTION_TYPE_GET
+                && getAfterGetIMAP() == MailConnectionMeta.AFTER_GET_IMAP_MOVE)) {
+          if (Utils.isEmpty(realMoveToIMAPFolder)) {
+            throw new HopException(
+                BaseMessages.getString(PKG, "ActionGetMailsFromPOP.Error.MoveToIMAPFolderEmpty"));
+          }
+          moveafter = true;
+        }
       }
 
       // check search terms
       // Received Date
-      switch (getConditionReceivedDate()) {
-        case MailConnectionMeta.CONDITION_DATE_EQUAL,
-            MailConnectionMeta.CONDITION_DATE_GREATER,
-            MailConnectionMeta.CONDITION_DATE_SMALLER:
-          String realBeginDate = resolve(getReceivedDate1());
-          if (Utils.isEmpty(realBeginDate)) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "ActionGetMailsFromPOP.Error.ReceivedDateSearchTermEmpty"));
-          }
-          beginDate = df.parse(realBeginDate);
-          break;
-        case MailConnectionMeta.CONDITION_DATE_BETWEEN:
-          realBeginDate = resolve(getReceivedDate1());
-          if (Utils.isEmpty(realBeginDate)) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty"));
-          }
-          beginDate = df.parse(realBeginDate);
-          String realEndDate = resolve(getReceivedDate2());
-          if (Utils.isEmpty(realEndDate)) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty"));
-          }
-          endDate = df.parse(realEndDate);
-          break;
-        default:
-          break;
+      if (StringUtils.isEmpty(connectionName)) {
+        switch (getConditionReceivedDate()) {
+          case MailServerConnection.CONDITION_DATE_EQUAL,
+              MailServerConnection.CONDITION_DATE_GREATER,
+              MailServerConnection.CONDITION_DATE_SMALLER:
+            String realBeginDate = resolve(getReceivedDate1());
+            if (Utils.isEmpty(realBeginDate)) {
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG, "ActionGetMailsFromPOP.Error.ReceivedDateSearchTermEmpty"));
+            }
+            beginDate = df.parse(realBeginDate);
+            break;
+          case MailServerConnection.CONDITION_DATE_BETWEEN:
+            realBeginDate = resolve(getReceivedDate1());
+            if (Utils.isEmpty(realBeginDate)) {
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty"));
+            }
+            beginDate = df.parse(realBeginDate);
+            String realEndDate = resolve(getReceivedDate2());
+            if (Utils.isEmpty(realEndDate)) {
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty"));
+            }
+            endDate = df.parse(realEndDate);
+            break;
+          default:
+            break;
+        }
+      } else {
+        switch (getConditionReceivedDate()) {
+          case MailConnectionMeta.CONDITION_DATE_EQUAL,
+              MailConnectionMeta.CONDITION_DATE_GREATER,
+              MailConnectionMeta.CONDITION_DATE_SMALLER:
+            String realBeginDate = resolve(getReceivedDate1());
+            if (Utils.isEmpty(realBeginDate)) {
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG, "ActionGetMailsFromPOP.Error.ReceivedDateSearchTermEmpty"));
+            }
+            beginDate = df.parse(realBeginDate);
+            break;
+          case MailConnectionMeta.CONDITION_DATE_BETWEEN:
+            realBeginDate = resolve(getReceivedDate1());
+            if (Utils.isEmpty(realBeginDate)) {
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty"));
+            }
+            beginDate = df.parse(realBeginDate);
+            String realEndDate = resolve(getReceivedDate2());
+            if (Utils.isEmpty(realEndDate)) {
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty"));
+            }
+            endDate = df.parse(realEndDate);
+            break;
+          default:
+            break;
+        }
       }
 
-      if(!StringUtils.isEmpty(connectionName)){
-
-      }else{
-
-      }
       String realserver = getRealServername();
       String realusername = getRealUsername();
       String realpassword = getRealPassword(getPassword());
@@ -371,66 +436,131 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       String realProxyUsername = getRealProxyUsername();
 
       initVariables();
-      // create a mail connection object
-      mailConn =
-          new MailConnection(
-              getLogChannel(),
-              MailConnectionMeta.getProtocolFromString(
-                  getProtocol(), MailConnectionMeta.PROTOCOL_IMAP),
-              realserver,
-              realport,
-              realusername,
-              realpassword,
-              isUseSsl(),
-              isUseXOauth2(),
-              isUseProxy(),
-              realProxyUsername);
-      // connect
-      mailConn.connect();
+
+      // Check if we have a connection name, create a MailServerConnection (metadata item) if we
+      // have.
+      // Create a mail connection object (locally in the action) if we don't.
+      if (!StringUtils.isEmpty(connectionName)) {
+        try {
+          connection =
+              getMetadataProvider().getSerializer(MailServerConnection.class).load(connectionName);
+        } catch (HopException e) {
+          throw new RuntimeException(
+              "Mail server connection '" + connectionName + "' could not be found", e);
+        }
+        try {
+          connection.getSession(getVariables());
+          connection.getStore().connect();
+        } catch (Exception e) {
+          throw new RuntimeException(
+              "A connection to mail server connection '"
+                  + connectionName
+                  + "' could not be established",
+              e);
+        }
+      } else {
+        mailConn =
+            new MailConnection(
+                getLogChannel(),
+                MailConnectionMeta.getProtocolFromString(
+                    getProtocol(), MailConnectionMeta.PROTOCOL_IMAP),
+                realserver,
+                realport,
+                realusername,
+                realpassword,
+                isUseSsl(),
+                isUseXOauth2(),
+                isUseProxy(),
+                realProxyUsername);
+        // connect
+        mailConn.connect();
+      }
 
       if (moveafter) {
-        // Set destination folder
-        // Check if folder exists
-        mailConn.setDestinationFolder(realMoveToIMAPFolder, isCreateMoveToFolder());
+        if (connection != null) {
+          connection.setDestinationFolder(realMoveToIMAPFolder, isCreateMoveToFolder());
+        } else {
+          // Set destination folder
+          // Check if folder exists
+          mailConn.setDestinationFolder(realMoveToIMAPFolder, isCreateMoveToFolder());
+        }
       }
 
       // apply search term?
       String realSearchSender = resolve(getSenderSearch());
       if (!Utils.isEmpty(realSearchSender)) {
         // apply FROM
-        mailConn.setSenderTerm(realSearchSender, isNotTermSenderSearch());
+        if (connection != null) {
+          connection.setSenderTerm(realSearchSender, isNotTermSenderSearch());
+        } else {
+          mailConn.setSenderTerm(realSearchSender, isNotTermSenderSearch());
+        }
       }
-      String realSearchReceipient = resolve(getReceipientSearch());
+
+      String realSearchReceipient = resolve(getRecipientSearch());
       if (!Utils.isEmpty(realSearchReceipient)) {
         // apply TO
-        mailConn.setReceipientTerm(realSearchReceipient);
+        if (connection != null) {
+          connection.setReceipientTerm(realSearchReceipient);
+        } else {
+          mailConn.setReceipientTerm(realSearchReceipient);
+        }
       }
       String realSearchSubject = resolve(getSubjectSearch());
       if (!Utils.isEmpty(realSearchSubject)) {
         // apply Subject
-        mailConn.setSubjectTerm(realSearchSubject, isNotTermSubjectSearch());
+        if (connection != null) {
+          connection.setSubjectTerm(realSearchSubject, isNotTermSubjectSearch());
+        } else {
+          mailConn.setSubjectTerm(realSearchSubject, isNotTermSubjectSearch());
+        }
       }
+
       String realSearchBody = resolve(getBodySearch());
       if (!Utils.isEmpty(realSearchBody)) {
         // apply body
-        mailConn.setBodyTerm(realSearchBody, isNotTermBodySearch());
+        if (connection != null) {
+          connection.setBodyTerm(realSearchBody, isNotTermBodySearch());
+        } else {
+          mailConn.setBodyTerm(realSearchBody, isNotTermBodySearch());
+        }
       }
+
       // Received Date
-      switch (getConditionReceivedDate()) {
-        case MailConnectionMeta.CONDITION_DATE_EQUAL:
-          mailConn.setReceivedDateTermEQ(beginDate);
-          break;
-        case MailConnectionMeta.CONDITION_DATE_GREATER:
-          mailConn.setReceivedDateTermGT(beginDate);
-          break;
-        case MailConnectionMeta.CONDITION_DATE_SMALLER:
-          mailConn.setReceivedDateTermLT(beginDate);
-          break;
-        case MailConnectionMeta.CONDITION_DATE_BETWEEN:
-          mailConn.setReceivedDateTermBetween(beginDate, endDate);
-          break;
-        default:
-          break;
+      if (connection != null) {
+        switch (getConditionReceivedDate()) {
+          case MailServerConnection.CONDITION_DATE_EQUAL:
+            connection.setReceivedDateTermEQ(beginDate);
+            break;
+          case MailServerConnection.CONDITION_DATE_GREATER:
+            connection.setReceivedDateTermGT(beginDate);
+            break;
+          case MailServerConnection.CONDITION_DATE_SMALLER:
+            connection.setReceivedDateTermLT(beginDate);
+            break;
+          case MailServerConnection.CONDITION_DATE_BETWEEN:
+            connection.setReceivedDateTermBetween(beginDate, endDate);
+            break;
+          default:
+            break;
+        }
+      } else {
+        switch (getConditionReceivedDate()) {
+          case MailConnectionMeta.CONDITION_DATE_EQUAL:
+            mailConn.setReceivedDateTermEQ(beginDate);
+            break;
+          case MailConnectionMeta.CONDITION_DATE_GREATER:
+            mailConn.setReceivedDateTermGT(beginDate);
+            break;
+          case MailConnectionMeta.CONDITION_DATE_SMALLER:
+            mailConn.setReceivedDateTermLT(beginDate);
+            break;
+          case MailConnectionMeta.CONDITION_DATE_BETWEEN:
+            mailConn.setReceivedDateTermBetween(beginDate, endDate);
+            break;
+          default:
+            break;
+        }
       }
       // set FlagTerm?
       if (usePOP3) {
@@ -438,41 +568,75 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
         if (getRetrieveMails() == 1) {
           // New messages
           // POP doesn't support the concept of "new" messages!
-          mailConn.setFlagTermUnread();
+          if (connection != null) {
+            connection.setFlagTermUnread();
+          } else {
+            mailConn.setFlagTermUnread();
+          }
         }
       } else {
-        switch (getValueIMAPList()) {
-          case MailConnectionMeta.VALUE_IMAP_LIST_NEW:
-            mailConn.setFlagTermNew();
-            break;
-          case MailConnectionMeta.VALUE_IMAP_LIST_OLD:
-            mailConn.setFlagTermOld();
-            break;
-          case MailConnectionMeta.VALUE_IMAP_LIST_READ:
-            mailConn.setFlagTermRead();
-            break;
-          case MailConnectionMeta.VALUE_IMAP_LIST_UNREAD:
-            mailConn.setFlagTermUnread();
-            break;
-          case MailConnectionMeta.VALUE_IMAP_LIST_FLAGGED:
-            mailConn.setFlagTermFlagged();
-            break;
-          case MailConnectionMeta.VALUE_IMAP_LIST_NOT_FLAGGED:
-            mailConn.setFlagTermNotFlagged();
-            break;
-          case MailConnectionMeta.VALUE_IMAP_LIST_DRAFT:
-            mailConn.setFlagTermDraft();
-            break;
-          case MailConnectionMeta.VALUE_IMAP_LIST_NOT_DRAFT:
-            mailConn.setFlagTermNotDraft();
-            break;
-          default:
-            break;
+        if (connection != null) {
+          switch (getValueIMAPList()) {
+            case MailServerConnection.VALUE_IMAP_LIST_NEW:
+              connection.setFlagTermNew();
+              break;
+            case MailServerConnection.VALUE_IMAP_LIST_OLD:
+              connection.setFlagTermOld();
+              break;
+            case MailServerConnection.VALUE_IMAP_LIST_READ:
+              connection.setFlagTermRead();
+              break;
+            case MailServerConnection.VALUE_IMAP_LIST_UNREAD:
+              connection.setFlagTermUnread();
+              break;
+            case MailServerConnection.VALUE_IMAP_LIST_FLAGGED:
+              connection.setFlagTermFlagged();
+              break;
+            case MailServerConnection.VALUE_IMAP_LIST_NOT_FLAGGED:
+              connection.setFlagTermNotFlagged();
+              break;
+            case MailServerConnection.VALUE_IMAP_LIST_DRAFT:
+              connection.setFlagTermDraft();
+              break;
+            case MailServerConnection.VALUE_IMAP_LIST_NOT_DRAFT:
+              connection.setFlagTermNotDraft();
+              break;
+            default:
+              break;
+          }
+        } else {
+          switch (getValueIMAPList()) {
+            case MailConnectionMeta.VALUE_IMAP_LIST_NEW:
+              mailConn.setFlagTermNew();
+              break;
+            case MailConnectionMeta.VALUE_IMAP_LIST_OLD:
+              mailConn.setFlagTermOld();
+              break;
+            case MailConnectionMeta.VALUE_IMAP_LIST_READ:
+              mailConn.setFlagTermRead();
+              break;
+            case MailConnectionMeta.VALUE_IMAP_LIST_UNREAD:
+              mailConn.setFlagTermUnread();
+              break;
+            case MailConnectionMeta.VALUE_IMAP_LIST_FLAGGED:
+              mailConn.setFlagTermFlagged();
+              break;
+            case MailConnectionMeta.VALUE_IMAP_LIST_NOT_FLAGGED:
+              mailConn.setFlagTermNotFlagged();
+              break;
+            case MailConnectionMeta.VALUE_IMAP_LIST_DRAFT:
+              mailConn.setFlagTermDraft();
+              break;
+            case MailConnectionMeta.VALUE_IMAP_LIST_NOT_DRAFT:
+              mailConn.setFlagTermNotDraft();
+              break;
+            default:
+              break;
+          }
         }
       }
       // open folder and retrieve messages
       fetchOneFolder(
-          mailConn,
           usePOP3,
           realIMAPFolder,
           realOutputFolder,
@@ -487,7 +651,12 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
         if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "ActionGetPOP.FetchingSubFolders"));
         }
-        String[] subfolders = mailConn.returnAllFolders();
+        String[] subfolders = null;
+        if (connection != null) {
+          subfolders = connection.returnAllFolders();
+        } else {
+          subfolders = mailConn.returnAllFolders();
+        }
         if (subfolders.length == 0) {
           if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "ActionGetPOP.NoSubFolders"));
@@ -495,7 +664,6 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
         } else {
           for (int i = 0; i < subfolders.length; i++) {
             fetchOneFolder(
-                mailConn,
                 usePOP3,
                 subfolders[i],
                 realOutputFolder,
@@ -509,34 +677,38 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       }
 
       result.setResult(true);
-      result.setNrFilesRetrieved(mailConn.getSavedAttachedFilesCounter());
-      result.setNrLinesWritten(mailConn.getSavedMessagesCounter());
-      result.setNrLinesDeleted(mailConn.getDeletedMessagesCounter());
-      result.setNrLinesUpdated(mailConn.getMovedMessagesCounter());
+      if (connection != null) {
+        result.setNrFilesRetrieved(connection.getSavedAttachedFilesCounter());
+        result.setNrLinesWritten(connection.getSavedMessagesCounter());
+        result.setNrLinesDeleted(connection.getDeletedMessagesCounter());
+        result.setNrLinesUpdated(connection.getMovedMessagesCounter());
+      } else {
+        result.setNrFilesRetrieved(mailConn.getSavedAttachedFilesCounter());
+        result.setNrLinesWritten(mailConn.getSavedMessagesCounter());
+        result.setNrLinesDeleted(mailConn.getDeletedMessagesCounter());
+        result.setNrLinesUpdated(mailConn.getMovedMessagesCounter());
+      }
 
       if (isDetailed()) {
         logDetailed("=======================================");
         logDetailed(
             BaseMessages.getString(
-                PKG,
-                "ActionGetPOP.Log.Info.SavedMessages",
-                "" + mailConn.getSavedMessagesCounter()));
+                PKG, "ActionGetPOP.Log.Info.SavedMessages", "" + result.getNrLinesWritten()));
         logDetailed(
             BaseMessages.getString(
-                PKG,
-                "ActionGetPOP.Log.Info.DeletedMessages",
-                "" + mailConn.getDeletedMessagesCounter()));
+                PKG, "ActionGetPOP.Log.Info.DeletedMessages", "" + result.getNrLinesDeleted()));
         logDetailed(
             BaseMessages.getString(
-                PKG,
-                "ActionGetPOP.Log.Info.MovedMessages",
-                "" + mailConn.getMovedMessagesCounter()));
-        if (getActionType() == MailConnectionMeta.ACTION_TYPE_GET && isSaveAttachment()) {
+                PKG, "ActionGetPOP.Log.Info.MovedMessages", "" + result.getNrLinesUpdated()));
+
+        if (((connection != null && getActionType() == MailServerConnection.ACTION_TYPE_GET)
+                || (connection == null && getActionType() == MailConnectionMeta.ACTION_TYPE_GET))
+            && isSaveAttachment()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
                   "ActionGetPOP.Log.Info.AttachedMessagesSuccess",
-                  "" + mailConn.getSavedAttachedFilesCounter()));
+                  "" + result.getNrFilesRetrieved()));
         }
         logDetailed("=======================================");
       }
@@ -546,9 +718,14 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       logError(Const.getStackTracker(e));
     } finally {
       try {
-        if (mailConn != null) {
-          mailConn.disconnect();
-          mailConn = null;
+        if (connection != null) {
+          connection.disconnect();
+          connection = null;
+        } else {
+          if (mailConn != null) {
+            mailConn.disconnect();
+            mailConn = null;
+          }
         }
       } catch (Exception e) {
         /* Ignore */
@@ -559,7 +736,6 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   void fetchOneFolder(
-      MailConnection mailConn,
       boolean usePOP3,
       String realIMAPFolder,
       String realOutputFolder,
@@ -572,14 +748,31 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     try {
       // if it is not pop3 and we have non-default imap folder...
       if (!usePOP3 && !Utils.isEmpty(realIMAPFolder)) {
-        mailConn.openFolder(realIMAPFolder, true);
+        if (connection != null) {
+          connection.openFolder(realIMAPFolder, true);
+        } else {
+          mailConn.openFolder(realIMAPFolder, true);
+        }
       } else {
-        mailConn.openFolder(true);
+        if (connection != null) {
+          connection.openFolder(true);
+        } else {
+          mailConn.openFolder(true);
+        }
       }
 
-      mailConn.retrieveMessages();
+      if (connection != null) {
+        connection.retrieveMessages();
+      } else {
+        mailConn.retrieveMessages();
+      }
 
-      int messagesCount = mailConn.getMessagesCount();
+      int messagesCount;
+      if (connection != null) {
+        messagesCount = connection.getMessagesCount();
+      } else {
+        messagesCount = mailConn.getMessagesCount();
+      }
 
       if (isDetailed()) {
         logDetailed(
@@ -587,7 +780,9 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                 PKG,
                 "ActionGetMailsFromPOP.TotalMessagesFolder.Label",
                 "" + messagesCount,
-                Const.NVL(mailConn.getFolderName(), MailConnectionMeta.INBOX_FOLDER)));
+                (connection != null)
+                    ? Const.NVL(connection.getFolderName(), MailServerConnection.INBOX_FOLDER)
+                    : Const.NVL(mailConn.getFolderName(), MailConnectionMeta.INBOX_FOLDER)));
       }
 
       messagesCount =
@@ -596,169 +791,344 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
               : messagesCount;
 
       if (messagesCount > 0) {
-        switch (getActionType()) {
-          case MailConnectionMeta.ACTION_TYPE_DELETE:
-            if (nbrmailtoretrieve > 0) {
-              // We need to fetch all messages in order to retrieve
-              // only the first nbrmailtoretrieve ...
-              for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
-                // Get next message
-                mailConn.fetchNext();
-                // Delete this message
-                mailConn.deleteMessage();
-                if (isDebug()) {
-                  logDebug(BaseMessages.getString(PKG, CONST_MESSAGE_DELETED, "" + i));
-                }
-              }
-            } else {
-              // Delete messages
-              mailConn.deleteMessages(true);
-              if (isDebug()) {
-                logDebug(
-                    BaseMessages.getString(
-                        PKG, "ActionGetMailsFromPOP.MessagesDeleted", "" + messagesCount));
-              }
-            }
-            break;
-          case MailConnectionMeta.ACTION_TYPE_MOVE:
-            if (nbrmailtoretrieve > 0) {
-              // We need to fetch all messages in order to retrieve
-              // only the first nbrmailtoretrieve ...
-              for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
-                // Get next message
-                mailConn.fetchNext();
-                // Move this message
-                mailConn.moveMessage();
-                if (isDebug()) {
-                  logDebug(
-                      BaseMessages.getString(
-                          PKG, "ActionGetMailsFromPOP.MessageMoved", "" + i, realMoveToIMAPFolder));
-                }
-              }
-            } else {
-              // Move all messages
-              mailConn.moveMessages();
-              if (isDebug()) {
-                logDebug(
-                    BaseMessages.getString(
-                        PKG,
-                        "ActionGetMailsFromPOP.MessagesMoved",
-                        "" + messagesCount,
-                        realMoveToIMAPFolder));
-              }
-            }
-            break;
-          default:
-            // Get messages and save it in a local file
-            // also save attached files if needed
-            for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
-              // Get next message
-              mailConn.fetchNext();
-              int messagenumber = mailConn.getMessage().getMessageNumber();
-              boolean okPOP3 = usePOP3 ? true : false;
-              boolean okIMAP = !usePOP3;
-
-              if (okPOP3 || okIMAP) {
-                // display some infos on the current message
-                //
-                if (isDebug() && mailConn.getMessage() != null) {
-                  logDebug("--------------------------------------------------");
-                  logDebug(
-                      BaseMessages.getString(
-                          PKG, "ActionGetMailsFromPOP.MessageNumber.Label", "" + messagenumber));
-                  if (mailConn.getMessage().getReceivedDate() != null) {
-                    logDebug(
-                        BaseMessages.getString(
-                            PKG,
-                            "ActionGetMailsFromPOP.ReceivedDate.Label",
-                            df.format(mailConn.getMessage().getReceivedDate())));
+        if (connection != null) {
+          switch (getActionType()) {
+            case MailServerConnection.ACTION_TYPE_DELETE:
+              if (nbrmailtoretrieve > 0) {
+                // We need to fetch all messages in order to retrieve
+                // only the first nbrmailtoretrieve ...
+                for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
+                  // Get next message
+                  connection.fetchNext();
+                  // Delete this message
+                  connection.deleteMessage();
+                  if (isDebug()) {
+                    logDebug(BaseMessages.getString(PKG, CONST_MESSAGE_DELETED, "" + i));
                   }
-                  logDebug(
-                      BaseMessages.getString(
-                          PKG,
-                          "ActionGetMailsFromPOP.ContentType.Label",
-                          mailConn.getMessage().getContentType()));
-                  logDebug(
-                      BaseMessages.getString(
-                          PKG,
-                          "ActionGetMailsFromPOP.EmailFrom.Label",
-                          Const.NVL(mailConn.getMessage().getFrom()[0].toString(), "")));
-                  logDebug(
-                      BaseMessages.getString(
-                          PKG,
-                          "ActionGetMailsFromPOP.EmailSubject.Label",
-                          Const.NVL(mailConn.getMessage().getSubject(), "")));
                 }
-                if (isSaveMessage()) {
-                  // get local message filename
-                  String localfilenameMessage = replaceTokens(realFilenamePattern, i);
-
+              } else {
+                // Delete messages
+                connection.deleteMessages(true);
+                if (isDebug()) {
+                  logDebug(
+                      BaseMessages.getString(
+                          PKG, "ActionGetMailsFromPOP.MessagesDeleted", "" + messagesCount));
+                }
+              }
+              break;
+            case MailServerConnection.ACTION_TYPE_MOVE:
+              if (nbrmailtoretrieve > 0) {
+                // We need to fetch all messages in order to retrieve
+                // only the first nbrmailtoretrieve ...
+                for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
+                  // Get next message
+                  connection.fetchNext();
+                  // Move this message
+                  connection.moveMessage();
                   if (isDebug()) {
                     logDebug(
                         BaseMessages.getString(
                             PKG,
-                            "ActionGetMailsFromPOP.LocalFilename.Label",
-                            localfilenameMessage));
+                            "ActionGetMailsFromPOP.MessageMoved",
+                            "" + i,
+                            realMoveToIMAPFolder));
                   }
+                }
+              } else {
+                // Move all messages
+                connection.moveMessages();
+                if (isDebug()) {
+                  logDebug(
+                      BaseMessages.getString(
+                          PKG,
+                          "ActionGetMailsFromPOP.MessagesMoved",
+                          "" + messagesCount,
+                          realMoveToIMAPFolder));
+                }
+              }
+              break;
+            default:
+              // Get messages and save it in a local file
+              // also save attached files if needed
+              for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
+                // Get next message
+                connection.fetchNext();
+                int messagenumber = connection.getMessage().getMessageNumber();
+                boolean okPOP3 = usePOP3 ? true : false;
+                boolean okIMAP = !usePOP3;
 
-                  // save message content in the file
-                  mailConn.saveMessageContentToFile(localfilenameMessage, realOutputFolder);
-                  // explicitly set message as read
-                  mailConn.getMessage().setFlag(Flag.SEEN, true);
-
-                  if (isDetailed()) {
-                    logDetailed(
+                if (okPOP3 || okIMAP) {
+                  // display some infos on the current message
+                  //
+                  if (isDebug() && connection.getMessage() != null) {
+                    logDebug("--------------------------------------------------");
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG, "ActionGetMailsFromPOP.MessageNumber.Label", "" + messagenumber));
+                    if (connection.getMessage().getReceivedDate() != null) {
+                      logDebug(
+                          BaseMessages.getString(
+                              PKG,
+                              "ActionGetMailsFromPOP.ReceivedDate.Label",
+                              df.format(connection.getMessage().getReceivedDate())));
+                    }
+                    logDebug(
                         BaseMessages.getString(
                             PKG,
-                            "ActionGetMailsFromPOP.MessageSaved.Label",
-                            "" + messagenumber,
-                            localfilenameMessage,
-                            realOutputFolder));
+                            "ActionGetMailsFromPOP.ContentType.Label",
+                            connection.getMessage().getContentType()));
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionGetMailsFromPOP.EmailFrom.Label",
+                            Const.NVL(connection.getMessage().getFrom()[0].toString(), "")));
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionGetMailsFromPOP.EmailSubject.Label",
+                            Const.NVL(connection.getMessage().getSubject(), "")));
                   }
-                }
+                  if (isSaveMessage()) {
+                    // get local message filename
+                    String localfilenameMessage = replaceTokens(realFilenamePattern, i);
 
-                // Do we need to save attached file?
-                if (isSaveAttachment()) {
-                  mailConn.saveAttachedFiles(targetAttachmentFolder, attachementPattern);
-                }
-                // We successfully retrieved message
-                // do we need to make another action (delete, move)?
-                if (usePOP3) {
-                  if (isDelete()) {
-                    mailConn.deleteMessage();
                     if (isDebug()) {
                       logDebug(
-                          BaseMessages.getString(PKG, CONST_MESSAGE_DELETED, "" + messagenumber));
+                          BaseMessages.getString(
+                              PKG,
+                              "ActionGetMailsFromPOP.LocalFilename.Label",
+                              localfilenameMessage));
+                    }
+
+                    // save message content in the file
+                    connection.saveMessageContentToFile(localfilenameMessage, realOutputFolder);
+                    // explicitly set message as read
+                    connection.getMessage().setFlag(Flag.SEEN, true);
+
+                    if (isDetailed()) {
+                      logDetailed(
+                          BaseMessages.getString(
+                              PKG,
+                              "ActionGetMailsFromPOP.MessageSaved.Label",
+                              "" + messagenumber,
+                              localfilenameMessage,
+                              realOutputFolder));
                     }
                   }
-                } else {
-                  switch (getAfterGetIMAP()) {
-                    case MailConnectionMeta.AFTER_GET_IMAP_DELETE:
-                      // Delete messages
+
+                  // Do we need to save attached file?
+                  if (isSaveAttachment()) {
+                    connection.saveAttachedFiles(targetAttachmentFolder, attachementPattern);
+                  }
+                  // We successfully retrieved message
+                  // do we need to make another action (delete, move)?
+                  if (usePOP3) {
+                    if (isDelete()) {
+                      connection.deleteMessage();
+                      if (isDebug()) {
+                        logDebug(
+                            BaseMessages.getString(PKG, CONST_MESSAGE_DELETED, "" + messagenumber));
+                      }
+                    }
+                  } else {
+                    switch (getAfterGetIMAP()) {
+                      case MailServerConnection.AFTER_GET_IMAP_DELETE:
+                        // Delete messages
+                        connection.deleteMessage();
+                        if (isDebug()) {
+                          logDebug(
+                              BaseMessages.getString(
+                                  PKG, CONST_MESSAGE_DELETED, "" + messagenumber));
+                        }
+                        break;
+                      case MailServerConnection.AFTER_GET_IMAP_MOVE:
+                        // Move messages
+                        connection.moveMessage();
+                        if (isDebug()) {
+                          logDebug(
+                              BaseMessages.getString(
+                                  PKG,
+                                  "ActionGetMailsFromPOP.MessageMoved",
+                                  "" + messagenumber,
+                                  realMoveToIMAPFolder));
+                        }
+                        break;
+                      default:
+                    }
+                  }
+                }
+              }
+              break;
+          }
+        } else {
+          switch (getActionType()) {
+            case MailConnectionMeta.ACTION_TYPE_DELETE:
+              if (nbrmailtoretrieve > 0) {
+                // We need to fetch all messages in order to retrieve
+                // only the first nbrmailtoretrieve ...
+                for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
+                  // Get next message
+                  mailConn.fetchNext();
+                  // Delete this message
+                  mailConn.deleteMessage();
+                  if (isDebug()) {
+                    logDebug(BaseMessages.getString(PKG, CONST_MESSAGE_DELETED, "" + i));
+                  }
+                }
+              } else {
+                // Delete messages
+                mailConn.deleteMessages(true);
+                if (isDebug()) {
+                  logDebug(
+                      BaseMessages.getString(
+                          PKG, "ActionGetMailsFromPOP.MessagesDeleted", "" + messagesCount));
+                }
+              }
+              break;
+            case MailConnectionMeta.ACTION_TYPE_MOVE:
+              if (nbrmailtoretrieve > 0) {
+                // We need to fetch all messages in order to retrieve
+                // only the first nbrmailtoretrieve ...
+                for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
+                  // Get next message
+                  mailConn.fetchNext();
+                  // Move this message
+                  mailConn.moveMessage();
+                  if (isDebug()) {
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionGetMailsFromPOP.MessageMoved",
+                            "" + i,
+                            realMoveToIMAPFolder));
+                  }
+                }
+              } else {
+                // Move all messages
+                mailConn.moveMessages();
+                if (isDebug()) {
+                  logDebug(
+                      BaseMessages.getString(
+                          PKG,
+                          "ActionGetMailsFromPOP.MessagesMoved",
+                          "" + messagesCount,
+                          realMoveToIMAPFolder));
+                }
+              }
+              break;
+            default:
+              // Get messages and save it in a local file
+              // also save attached files if needed
+              for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
+                // Get next message
+                mailConn.fetchNext();
+                int messagenumber = mailConn.getMessage().getMessageNumber();
+                boolean okPOP3 = usePOP3 ? true : false;
+                boolean okIMAP = !usePOP3;
+
+                if (okPOP3 || okIMAP) {
+                  // display some infos on the current message
+                  //
+                  if (isDebug() && mailConn.getMessage() != null) {
+                    logDebug("--------------------------------------------------");
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG, "ActionGetMailsFromPOP.MessageNumber.Label", "" + messagenumber));
+                    if (mailConn.getMessage().getReceivedDate() != null) {
+                      logDebug(
+                          BaseMessages.getString(
+                              PKG,
+                              "ActionGetMailsFromPOP.ReceivedDate.Label",
+                              df.format(mailConn.getMessage().getReceivedDate())));
+                    }
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionGetMailsFromPOP.ContentType.Label",
+                            mailConn.getMessage().getContentType()));
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionGetMailsFromPOP.EmailFrom.Label",
+                            Const.NVL(mailConn.getMessage().getFrom()[0].toString(), "")));
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionGetMailsFromPOP.EmailSubject.Label",
+                            Const.NVL(mailConn.getMessage().getSubject(), "")));
+                  }
+                  if (isSaveMessage()) {
+                    // get local message filename
+                    String localfilenameMessage = replaceTokens(realFilenamePattern, i);
+
+                    if (isDebug()) {
+                      logDebug(
+                          BaseMessages.getString(
+                              PKG,
+                              "ActionGetMailsFromPOP.LocalFilename.Label",
+                              localfilenameMessage));
+                    }
+
+                    // save message content in the file
+                    mailConn.saveMessageContentToFile(localfilenameMessage, realOutputFolder);
+                    // explicitly set message as read
+                    mailConn.getMessage().setFlag(Flag.SEEN, true);
+
+                    if (isDetailed()) {
+                      logDetailed(
+                          BaseMessages.getString(
+                              PKG,
+                              "ActionGetMailsFromPOP.MessageSaved.Label",
+                              "" + messagenumber,
+                              localfilenameMessage,
+                              realOutputFolder));
+                    }
+                  }
+
+                  // Do we need to save attached file?
+                  if (isSaveAttachment()) {
+                    mailConn.saveAttachedFiles(targetAttachmentFolder, attachementPattern);
+                  }
+                  // We successfully retrieved message
+                  // do we need to make another action (delete, move)?
+                  if (usePOP3) {
+                    if (isDelete()) {
                       mailConn.deleteMessage();
                       if (isDebug()) {
                         logDebug(
                             BaseMessages.getString(PKG, CONST_MESSAGE_DELETED, "" + messagenumber));
                       }
-                      break;
-                    case MailConnectionMeta.AFTER_GET_IMAP_MOVE:
-                      // Move messages
-                      mailConn.moveMessage();
-                      if (isDebug()) {
-                        logDebug(
-                            BaseMessages.getString(
-                                PKG,
-                                "ActionGetMailsFromPOP.MessageMoved",
-                                "" + messagenumber,
-                                realMoveToIMAPFolder));
-                      }
-                      break;
-                    default:
+                    }
+                  } else {
+                    switch (getAfterGetIMAP()) {
+                      case MailConnectionMeta.AFTER_GET_IMAP_DELETE:
+                        // Delete messages
+                        mailConn.deleteMessage();
+                        if (isDebug()) {
+                          logDebug(
+                              BaseMessages.getString(
+                                  PKG, CONST_MESSAGE_DELETED, "" + messagenumber));
+                        }
+                        break;
+                      case MailConnectionMeta.AFTER_GET_IMAP_MOVE:
+                        // Move messages
+                        mailConn.moveMessage();
+                        if (isDebug()) {
+                          logDebug(
+                              BaseMessages.getString(
+                                  PKG,
+                                  "ActionGetMailsFromPOP.MessageMoved",
+                                  "" + messagenumber,
+                                  realMoveToIMAPFolder));
+                        }
+                        break;
+                      default:
+                    }
                   }
                 }
               }
-            }
-            break;
+              break;
+          }
         }
       }
     } catch (Exception e) {
@@ -864,11 +1234,13 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (!Utils.isEmpty(serverName)) {
-      String realServername = resolve(serverName);
-      ResourceReference reference = new ResourceReference(this);
-      reference.getEntries().add(new ResourceEntry(realServername, ResourceType.SERVER));
-      references.add(reference);
+    if (connection != null) {
+      if (!Utils.isEmpty(serverName)) {
+        String realServername = resolve(serverName);
+        ResourceReference reference = new ResourceReference(this);
+        reference.getEntries().add(new ResourceEntry(realServername, ResourceType.SERVER));
+        references.add(reference);
+      }
     }
     return references;
   }

@@ -1851,8 +1851,8 @@ public class ActionGetPOPDialog extends ActionDialog {
     if (action.getServerName() != null) {
       wServerName.setText(action.getServerName());
     }
-    if (action.getUsername() != null) {
-      wUserName.setText(action.getUsername());
+    if (action.getUserName() != null) {
+      wUserName.setText(action.getUserName());
     }
     if (action.getPassword() != null) {
       wPassword.setText(action.getPassword());
@@ -1910,8 +1910,8 @@ public class ActionGetPOPDialog extends ActionDialog {
       wSender.setText(action.getSenderSearch());
     }
     wNegateSender.setSelection(action.isNotTermSenderSearch());
-    if (action.getReceipientSearch() != null) {
-      wRecipient.setText(action.getReceipientSearch());
+    if (action.getRecipientSearch() != null) {
+      wRecipient.setText(action.getRecipientSearch());
     }
     wNegateReceipient.setSelection(action.isNotTermRecipientSearch());
     if (action.getSubjectSearch() != null) {
@@ -1968,7 +1968,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     action.setName(wName.getText());
     action.setConnectionName(wSelectionLine.getText());
     action.setServerName(wServerName.getText());
-    action.setUsername(wUserName.getText());
+    action.setUserName(wUserName.getText());
     action.setPassword(wPassword.getText());
     action.setUseSsl(wUseSSL.getSelection());
     action.setUseXOauth2(wUseXOAUTH2.getSelection());
@@ -1996,7 +1996,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     action.setSenderSearch(wSender.getText());
     action.setNotTermSenderSearch(wNegateSender.getSelection());
 
-    action.setReceipientSearch(wRecipient.getText());
+    action.setRecipientSearch(wRecipient.getText());
     action.setNotTermRecipientSearch(wNegateReceipient.getSelection());
     action.setSubjectSearch(wSubject.getText());
     action.setNotTermSubjectSearch(wNegateSubject.getSelection());

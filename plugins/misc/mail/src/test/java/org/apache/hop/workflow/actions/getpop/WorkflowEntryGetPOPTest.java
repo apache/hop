@@ -60,6 +60,7 @@ public class WorkflowEntryGetPOPTest {
     Mockito.when(parentWorkflow.getLogLevel()).thenReturn(LogLevel.BASIC);
     entry.setParentWorkflow(parentWorkflow);
     entry.setSaveMessage(true);
+    entry.setMailConn(mailConn);
 
     Mockito.when(message.getMessageNumber()).thenReturn(1);
     Mockito.when(message.getContent()).thenReturn(createMessageContent());
@@ -99,7 +100,6 @@ public class WorkflowEntryGetPOPTest {
   @Test
   public void testFetchOneFolderModePop3() throws HopException, MessagingException {
     entry.fetchOneFolder(
-        mailConn,
         true,
         "junitImapFolder",
         "junitRealOutputFolder",
@@ -124,7 +124,6 @@ public class WorkflowEntryGetPOPTest {
   @Test
   public void testFetchOneFolderModeIMAPWithNonDefFolder() throws HopException, MessagingException {
     entry.fetchOneFolder(
-        mailConn,
         false,
         "junitImapFolder",
         "junitRealOutputFolder",
@@ -149,7 +148,6 @@ public class WorkflowEntryGetPOPTest {
   @Test
   public void testFetchOneFolderModeIMAPWithIsDefFolder() throws HopException, MessagingException {
     entry.fetchOneFolder(
-        mailConn,
         false,
         null,
         "junitRealOutputFolder",

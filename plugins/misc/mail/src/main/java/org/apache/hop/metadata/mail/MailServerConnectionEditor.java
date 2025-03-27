@@ -22,6 +22,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -443,7 +444,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
   }
 
   private void testConnection() {
-    MailServerConnection connection = new MailServerConnection(getVariables());
+    MailServerConnection connection = new MailServerConnection();
     connection.setName(wName.getText());
     connection.setProtocol(wConnectionProtocol.getText());
     connection.setServerHost(wServerHost.getText());
@@ -458,8 +459,16 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     connection.setProxyUsername(wProxyUsername.getText());
 
     try {
-      connection.testConnection(connection.getSession(getVariables(), getHopGui().getLog()));
-
+      if (connection.testConnection(
+          connection.getSession(getVariables() /*, getHopGui().getLog()*/))) {
+        MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+        mb.setMessage(
+            BaseMessages.getString(PKG, "ActionGetPOP.Connected.OK", wServerHost.getText())
+                + Const.CR);
+        mb.setText(BaseMessages.getString(PKG, "ActionGetPOP.Connected.Title.Ok"));
+        mb.open();
+      }
+      ;
     } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error connecting mail server:", e);
     }

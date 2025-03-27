@@ -26,6 +26,7 @@ public enum ActionTransformType {
   DELETE,
   UPDATE,
   FILE,
+  MAIL,
   RDBMS,
   GRAPH,
   NOSQL,
