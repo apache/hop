@@ -39,7 +39,7 @@ import org.w3c.dom.Node;
 
 /**
  * This class describes the fact that a single Action can be used multiple times in the same
- * Workflow. Therefore it contains a link to a Action, a position, a number, etc.
+ * Workflow. Therefore, it contains a link to an Action, a position, a number, etc.
  */
 public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttributes, IBaseMeta {
   public static final String XML_TAG = "action";
@@ -300,6 +300,10 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
 
   public boolean isStart() {
     return action.isStart();
+  }
+
+  public boolean isJoin() {
+    return action.isJoin();
   }
 
   public boolean isMissing() {
