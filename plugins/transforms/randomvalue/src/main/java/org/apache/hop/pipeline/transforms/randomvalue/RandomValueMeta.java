@@ -18,6 +18,8 @@ package org.apache.hop.pipeline.transforms.randomvalue;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -45,6 +47,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::RandomValueMeta.keyword",
     documentationUrl = "/pipeline/transforms/generaterandomvalue.html")
+@Getter
+@Setter
 public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueData> {
   private static final Class<?> PKG = RandomValueMeta.class;
 
@@ -94,7 +98,7 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
         case UUID, UUID4:
           v = new ValueMetaString(field.getName(), 36, 0);
           break;
-        case HMAC_MD5, HMAC_SHA1:
+        case HMAC_MD5, HMAC_SHA1, HMAC_SHA256, HMAC_SHA512, HMAC_SHA384:
           v = new ValueMetaString(field.getName(), 100, 0);
           break;
         default:
@@ -140,6 +144,7 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
     }
   }
 
+  @Getter
   public enum RandomType implements IEnumHasCodeAndDescription {
     NONE("", ""),
     NUMBER("random number", BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomNumber")),
@@ -152,8 +157,19 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
         "random machmacmd5", BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACMD5")),
     HMAC_SHA1(
         "random machmacsha1",
-        BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACSHA1"));
+        BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACSHA1")),
+    HMAC_SHA256(
+        "random machmacsha256",
+        BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACSHA256")),
+    HMAC_SHA512(
+        "random machmacsha512",
+        BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACSHA512")),
+    HMAC_SHA384(
+        "random machmacsha384",
+        BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACSHA384"));
+
     private final String code;
+
     private final String description;
 
     RandomType(String code, String description) {
@@ -172,28 +188,10 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
     public static RandomType lookupCode(String code) {
       return IEnumHasCode.lookupCode(RandomType.class, code, NONE);
     }
-
-    /**
-     * Gets code
-     *
-     * @return value of code
-     */
-    @Override
-    public String getCode() {
-      return code;
-    }
-
-    /**
-     * Gets description
-     *
-     * @return value of description
-     */
-    @Override
-    public String getDescription() {
-      return description;
-    }
   }
 
+  @Getter
+  @Setter
   public static final class RVField {
     @HopMetadataProperty(key = "name")
     private String name;
@@ -210,77 +208,5 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
       this.name = f.name;
       this.type = f.type;
     }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    /**
-     * Gets type
-     *
-     * @return value of type
-     */
-    public RandomType getType() {
-      return type;
-    }
-
-    /**
-     * Sets type
-     *
-     * @param type value of type
-     */
-    public void setType(RandomType type) {
-      this.type = type;
-    }
-  }
-
-  /**
-   * Gets fields
-   *
-   * @return value of fields
-   */
-  public List<RVField> getFields() {
-    return fields;
-  }
-
-  /**
-   * Sets fields
-   *
-   * @param fields value of fields
-   */
-  public void setFields(List<RVField> fields) {
-    this.fields = fields;
-  }
-
-  /**
-   * Gets seed
-   *
-   * @return value of seed
-   */
-  public String getSeed() {
-    return seed;
-  }
-
-  /**
-   * Sets seed
-   *
-   * @param seed value of seed
-   */
-  public void setSeed(String seed) {
-    this.seed = seed;
   }
 }

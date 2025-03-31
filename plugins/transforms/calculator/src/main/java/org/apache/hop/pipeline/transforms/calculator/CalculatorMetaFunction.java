@@ -18,14 +18,19 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCode;
 
+@Getter
+@Setter
 public class CalculatorMetaFunction implements Cloneable {
   private static final Class<?> PKG = CalculatorMeta.class;
 
+  @Getter
   public enum CalculationType implements IEnumHasCode {
     NONE("-", "-", IValueMeta.TYPE_NONE),
     CONSTANT(
@@ -148,6 +153,18 @@ public class CalculatorMetaFunction implements Cloneable {
     SHA1(
         "SHA1",
         BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.SHA1"),
+        IValueMeta.TYPE_STRING),
+    SHA256(
+        "SHA256",
+        BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.SHA256"),
+        IValueMeta.TYPE_STRING),
+    SHA384(
+        "SHA384",
+        BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.SHA384"),
+        IValueMeta.TYPE_STRING),
+    SHA512(
+        "SHA512",
+        BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.SHA512"),
         IValueMeta.TYPE_STRING),
     LEVENSHTEIN_DISTANCE(
         "LEVENSHTEIN_DISTANCE",
@@ -381,34 +398,6 @@ public class CalculatorMetaFunction implements Cloneable {
       return descriptions;
     }
 
-    /**
-     * Gets code
-     *
-     * @return value of code
-     */
-    @Override
-    public String getCode() {
-      return code;
-    }
-
-    /**
-     * Gets description
-     *
-     * @return value of description
-     */
-    public String getDescription() {
-      return description;
-    }
-
-    /**
-     * Gets defaultResultType
-     *
-     * @return value of defaultResultType
-     */
-    public int getDefaultResultType() {
-      return defaultResultType;
-    }
-
     public static CalculationType getTypeWithCode(String code) {
       for (CalculationType value : values()) {
         if (value.getCode().equals(code)) {
@@ -603,213 +592,5 @@ public class CalculatorMetaFunction implements Cloneable {
         groupingSymbol,
         currencySymbol,
         removedFromResult);
-  }
-
-  /**
-   * Gets fieldName
-   *
-   * @return value of fieldName
-   */
-  public String getFieldName() {
-    return fieldName;
-  }
-
-  /**
-   * @param fieldName The fieldName to set
-   */
-  public void setFieldName(String fieldName) {
-    this.fieldName = fieldName;
-  }
-
-  /**
-   * Gets calcType
-   *
-   * @return value of calcType
-   */
-  public CalculationType getCalcType() {
-    return calcType;
-  }
-
-  /**
-   * @param calcType The calcType to set
-   */
-  public void setCalcType(CalculationType calcType) {
-    this.calcType = calcType;
-  }
-
-  /**
-   * Gets fieldA
-   *
-   * @return value of fieldA
-   */
-  public String getFieldA() {
-    return fieldA;
-  }
-
-  /**
-   * @param fieldA The fieldA to set
-   */
-  public void setFieldA(String fieldA) {
-    this.fieldA = fieldA;
-  }
-
-  /**
-   * Gets fieldB
-   *
-   * @return value of fieldB
-   */
-  public String getFieldB() {
-    return fieldB;
-  }
-
-  /**
-   * @param fieldB The fieldB to set
-   */
-  public void setFieldB(String fieldB) {
-    this.fieldB = fieldB;
-  }
-
-  /**
-   * Gets fieldC
-   *
-   * @return value of fieldC
-   */
-  public String getFieldC() {
-    return fieldC;
-  }
-
-  /**
-   * @param fieldC The fieldC to set
-   */
-  public void setFieldC(String fieldC) {
-    this.fieldC = fieldC;
-  }
-
-  /**
-   * Gets valueType
-   *
-   * @return value of valueType
-   */
-  public String getValueType() {
-    return valueType;
-  }
-
-  /**
-   * @param valueType The valueType to set
-   */
-  public void setValueType(String valueType) {
-    this.valueType = valueType;
-  }
-
-  /**
-   * Gets valueLength
-   *
-   * @return value of valueLength
-   */
-  public int getValueLength() {
-    return valueLength;
-  }
-
-  /**
-   * @param valueLength The valueLength to set
-   */
-  public void setValueLength(int valueLength) {
-    this.valueLength = valueLength;
-  }
-
-  /**
-   * Gets valuePrecision
-   *
-   * @return value of valuePrecision
-   */
-  public int getValuePrecision() {
-    return valuePrecision;
-  }
-
-  /**
-   * @param valuePrecision The valuePrecision to set
-   */
-  public void setValuePrecision(int valuePrecision) {
-    this.valuePrecision = valuePrecision;
-  }
-
-  /**
-   * Gets conversionMask
-   *
-   * @return value of conversionMask
-   */
-  public String getConversionMask() {
-    return conversionMask;
-  }
-
-  /**
-   * @param conversionMask The conversionMask to set
-   */
-  public void setConversionMask(String conversionMask) {
-    this.conversionMask = conversionMask;
-  }
-
-  /**
-   * Gets decimalSymbol
-   *
-   * @return value of decimalSymbol
-   */
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  /**
-   * @param decimalSymbol The decimalSymbol to set
-   */
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  /**
-   * Gets groupingSymbol
-   *
-   * @return value of groupingSymbol
-   */
-  public String getGroupingSymbol() {
-    return groupingSymbol;
-  }
-
-  /**
-   * @param groupingSymbol The groupingSymbol to set
-   */
-  public void setGroupingSymbol(String groupingSymbol) {
-    this.groupingSymbol = groupingSymbol;
-  }
-
-  /**
-   * Gets currencySymbol
-   *
-   * @return value of currencySymbol
-   */
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  /**
-   * @param currencySymbol The currencySymbol to set
-   */
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  /**
-   * Gets removedFromResult
-   *
-   * @return value of removedFromResult
-   */
-  public boolean isRemovedFromResult() {
-    return removedFromResult;
-  }
-
-  /**
-   * @param removedFromResult The removedFromResult to set
-   */
-  public void setRemovedFromResult(boolean removedFromResult) {
-    this.removedFromResult = removedFromResult;
   }
 }

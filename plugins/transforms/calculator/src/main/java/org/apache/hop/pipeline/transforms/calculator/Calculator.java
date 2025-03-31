@@ -416,6 +416,21 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
                 ValueDataUtil.createChecksum(metaA, dataA, "SHA-1", meta.isFailIfNoFile());
             resultType = calcType.getDefaultResultType();
             break;
+          case SHA256: // SHA-256
+            calcData[index] =
+                ValueDataUtil.createChecksum(metaA, dataA, "SHA-256", meta.isFailIfNoFile());
+            resultType = calcType.getDefaultResultType();
+            break;
+          case SHA384: // SHA-384
+            calcData[index] =
+                ValueDataUtil.createChecksum(metaA, dataA, "SHA-384", meta.isFailIfNoFile());
+            resultType = calcType.getDefaultResultType();
+            break;
+          case SHA512: // SHA-512
+            calcData[index] =
+                ValueDataUtil.createChecksum(metaA, dataA, "SHA-512", meta.isFailIfNoFile());
+            resultType = calcType.getDefaultResultType();
+            break;
           case LEVENSHTEIN_DISTANCE: // LEVENSHTEIN DISTANCE
             calcData[index] = ValueDataUtil.getLevenshtein_Distance(metaA, dataA, metaB, dataB);
             resultType = calcType.getDefaultResultType();

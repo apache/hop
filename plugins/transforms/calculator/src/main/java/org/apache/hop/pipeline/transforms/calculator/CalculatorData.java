@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.calculator;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -26,6 +28,8 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@Getter
+@Setter
 public class CalculatorData extends BaseTransformData implements ITransformData {
   private IRowMeta outputRowMeta;
   private IRowMeta calcRowMeta;
@@ -39,38 +43,6 @@ public class CalculatorData extends BaseTransformData implements ITransformData 
   public CalculatorData() {
     super();
     resultMetaMapping = new HashMap<>();
-  }
-
-  public IRowMeta getOutputRowMeta() {
-    return outputRowMeta;
-  }
-
-  public void setOutputRowMeta(IRowMeta outputRowMeta) {
-    this.outputRowMeta = outputRowMeta;
-  }
-
-  public IRowMeta getCalcRowMeta() {
-    return calcRowMeta;
-  }
-
-  public void setCalcRowMeta(IRowMeta calcRowMeta) {
-    this.calcRowMeta = calcRowMeta;
-  }
-
-  public Calculator.FieldIndexes[] getFieldIndexes() {
-    return fieldIndexes;
-  }
-
-  public void setFieldIndexes(Calculator.FieldIndexes[] fieldIndexes) {
-    this.fieldIndexes = fieldIndexes;
-  }
-
-  public int[] getTempIndexes() {
-    return tempIndexes;
-  }
-
-  public void setTempIndexes(int[] tempIndexes) {
-    this.tempIndexes = tempIndexes;
   }
 
   public IValueMeta getValueMetaFor(int resultType, String name) throws HopPluginException {
