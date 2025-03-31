@@ -428,6 +428,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-calculator</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-datagrid</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -453,6 +459,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-pipelineexecutor</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-randomvalue</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

@@ -34,6 +34,12 @@ public class RandomValueData extends BaseTransformData implements ITransformData
   KeyGenerator keyGenHmacMD5;
   /* Generating a random Message Authentication Code (MAC SHA1) */
   KeyGenerator keyGenHmacSHA1;
+  /* Generating a random Message Authentication Code (MAC SHA256) */
+  KeyGenerator keyGenHmacSHA256;
+  /* Generating a random Message Authentication Code (MAC SHA512) */
+  KeyGenerator keyGenHmacSHA512;
+  /* Generating a random Message Authentication Code (MAC SHA3) */
+  KeyGenerator keyGenHmacSHA384;
 
   public Random randomGenerator;
 

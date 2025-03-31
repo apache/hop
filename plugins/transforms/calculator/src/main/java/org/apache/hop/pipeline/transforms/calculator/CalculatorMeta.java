@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.calculator;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -44,6 +46,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::CalculatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/calculator.html")
+@Getter
+@Setter
 public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData> {
 
   private static final Class<?> PKG = CalculatorMeta.class;
@@ -86,11 +90,9 @@ public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     for (CalculatorMetaFunction calculation : functions) {
-      if (!calculation.isRemovedFromResult()) {
-        if (!Utils.isEmpty(calculation.getFieldName())) { // It's a new field!
-          IValueMeta v = getValueMeta(calculation, origin);
-          row.addValueMeta(v);
-        }
+      if (!calculation.isRemovedFromResult() && !Utils.isEmpty(calculation.getFieldName())) {
+        IValueMeta v = getValueMeta(calculation, origin);
+        row.addValueMeta(v);
       }
     }
   }
@@ -179,37 +181,5 @@ public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  /**
-   * Gets calculations
-   *
-   * @return value of calculations
-   */
-  public List<CalculatorMetaFunction> getFunctions() {
-    return functions;
-  }
-
-  /**
-   * @param functions The calculations to set
-   */
-  public void setFunctions(List<CalculatorMetaFunction> functions) {
-    this.functions = functions;
-  }
-
-  /**
-   * Gets failIfNoFile
-   *
-   * @return value of failIfNoFile
-   */
-  public boolean isFailIfNoFile() {
-    return failIfNoFile;
-  }
-
-  /**
-   * @param failIfNoFile The failIfNoFile to set
-   */
-  public void setFailIfNoFile(boolean failIfNoFile) {
-    this.failIfNoFile = failIfNoFile;
   }
 }

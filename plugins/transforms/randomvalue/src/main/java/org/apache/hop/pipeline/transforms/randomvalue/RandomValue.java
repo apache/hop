@@ -94,6 +94,39 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
             stopAll();
           }
           break;
+        case HMAC_SHA256:
+          try {
+            row[index] = generateRandomMACHash(RandomValueMeta.RandomType.HMAC_SHA256);
+          } catch (Exception e) {
+            logError(
+                BaseMessages.getString(
+                    PKG, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage()));
+            setErrors(1);
+            stopAll();
+          }
+          break;
+        case HMAC_SHA512:
+          try {
+            row[index] = generateRandomMACHash(RandomValueMeta.RandomType.HMAC_SHA512);
+          } catch (Exception e) {
+            logError(
+                BaseMessages.getString(
+                    PKG, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage()));
+            setErrors(1);
+            stopAll();
+          }
+          break;
+        case HMAC_SHA384:
+          try {
+            row[index] = generateRandomMACHash(RandomValueMeta.RandomType.HMAC_SHA384);
+          } catch (Exception e) {
+            logError(
+                BaseMessages.getString(
+                    PKG, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage()));
+            setErrors(1);
+            stopAll();
+          }
+          break;
         default:
           break;
       }
@@ -112,6 +145,15 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
         break;
       case HMAC_SHA1:
         sk = data.keyGenHmacSHA1.generateKey();
+        break;
+      case HMAC_SHA256:
+        sk = data.keyGenHmacSHA256.generateKey();
+        break;
+      case HMAC_SHA384:
+        sk = data.keyGenHmacSHA384.generateKey();
+        break;
+      case HMAC_SHA512:
+        sk = data.keyGenHmacSHA512.generateKey();
         break;
       default:
         break;
@@ -201,6 +243,9 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     boolean random = false;
     boolean genHmacMD5 = false;
     boolean genHmacSHA1 = false;
+    boolean genHmacSHA256 = false;
+    boolean genHmacSHA512 = false;
+    boolean genHmacSHA384 = false;
     boolean uuid4 = false;
 
     for (RandomValueMeta.RVField field : meta.getFields()) {
@@ -213,6 +258,15 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           break;
         case HMAC_SHA1:
           genHmacSHA1 = true;
+          break;
+        case HMAC_SHA256:
+          genHmacSHA256 = true;
+          break;
+        case HMAC_SHA512:
+          genHmacSHA512 = true;
+          break;
+        case HMAC_SHA384:
+          genHmacSHA384 = true;
           break;
         case UUID4:
           uuid4 = true;
@@ -242,6 +296,36 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     if (genHmacSHA1) {
       try {
         data.keyGenHmacSHA1 = KeyGenerator.getInstance("HmacSHA1");
+      } catch (NoSuchAlgorithmException s) {
+        logError(
+            BaseMessages.getString(
+                PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
+        return false;
+      }
+    }
+    if (genHmacSHA256) {
+      try {
+        data.keyGenHmacSHA256 = KeyGenerator.getInstance("HmacSHA256");
+      } catch (NoSuchAlgorithmException s) {
+        logError(
+            BaseMessages.getString(
+                PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
+        return false;
+      }
+    }
+    if (genHmacSHA512) {
+      try {
+        data.keyGenHmacSHA512 = KeyGenerator.getInstance("HmacSHA512");
+      } catch (NoSuchAlgorithmException s) {
+        logError(
+            BaseMessages.getString(
+                PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
+        return false;
+      }
+    }
+    if (genHmacSHA384) {
+      try {
+        data.keyGenHmacSHA384 = KeyGenerator.getInstance("HmacSHA384");
       } catch (NoSuchAlgorithmException s) {
         logError(
             BaseMessages.getString(
