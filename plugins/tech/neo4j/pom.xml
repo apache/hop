@@ -29,7 +29,7 @@
     <name>Hop Plugins Technology Neo4j</name>
 
     <properties>
-        <neo4j.driver.version>4.4.19</neo4j.driver.version>
+        <neo4j.driver.version>4.4.20</neo4j.driver.version>
     </properties>
 
     <dependencies>

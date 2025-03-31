@@ -48,12 +48,14 @@
         </dependencySet>
         <dependencySet>
             <includes>
+                <include>org.jetbrains.kotlin::jar</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
                 <include>com.squareup.retrofit2:retrofit:jar</include>
                 <include>com.squareup.okhttp3:okhttp:jar</include>
-                <include>org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar</include>
-                <include>org.jetbrains.kotlin:kotlin-stdlib:jar</include>
-                <include>org.jetbrains.kotlin:kotlin-stdlib-common:jar</include>
-                <include>org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar</include>
                 <include>org.apache.opennlp:opennlp-tools:jar</include>
                 <!--<include>org.jsoup:jsoup:jar</include>-->
                 <include>dev.ai4j:openai4j:jar</include>

@@ -35,7 +35,7 @@
         <apache-flink.version>1.16.3</apache-flink.version>
         <apache-spark.version>3.4.3</apache-spark.version>
         <asm.version>9.7</asm.version>
-        <avro.version>1.11.4</avro.version>
+        <avro.version>1.12.0</avro.version>
         <aws-java-sdk.version>1.12.347</aws-java-sdk.version>
         <bahir.version>2.1.1</bahir.version>
         <blueprints-core.version>2.6.0</blueprints-core.version>
@@ -55,7 +55,7 @@
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.9.0</commons-net.version>
         <commons-pool.version>1.5.7</commons-pool.version>
-        <commons-vfs2.version>2.9.0</commons-vfs2.version>
+        <commons-vfs2.version>2.10.0</commons-vfs2.version>
         <curator.version>5.4.0</curator.version>
         <databricks.version>4.0.0</databricks.version>
         <encoder.version>1.2</encoder.version>
@@ -72,13 +72,10 @@
         <google-cloud-storage.version>2.15.0</google-cloud-storage.version>
         <google-http-client.version>1.42.3</google-http-client.version>
         <google-oauth-client.version>1.34.1</google-oauth-client.version>
-        <!--check Beam BOM to find matching version https://repo1.maven.org/maven2/org/apache/beam/beam-runners-google-cloud-dataflow-java/xxx/beam-runners-google-cloud-dataflow-java-xxx.pom
-        Replace exclusions beam-vendor-guava-xxx-jre-->
-        <grpc.version>1.60.1</grpc.version>
         <gson.version>2.10</gson.version>
         <!--check Beam BOM to find matching version https://repo1.maven.org/maven2/org/apache/beam/beam-runners-google-cloud-dataflow-java/xxx/beam-runners-google-cloud-dataflow-java-xxx.pom
         Replace exclusions beam-vendor-guava-xxx-jre-->
-        <guava.version>33.1.0-jre</guava.version>
+        <guava.version>33.3.1-jre</guava.version>
         <hive.version>2.3.9</hive.version>
         <httpccore.version>4.4.15</httpccore.version>
         <httpclient.version>4.5.13</httpclient.version>
@@ -99,11 +96,13 @@
         <json4s.version>3.7.0-M11</json4s.version>
         <juniversalchardet.version>2.4.0</juniversalchardet.version>
         <kafka-clients.version>3.7.1</kafka-clients.version>
+        <kotlin.version>1.9.25</kotlin.version>
         <kryo.version>5.3.0</kryo.version>
         <log4j.version>2.23.1</log4j.version>
         <lz4.version>1.8.0</lz4.version>
         <metrics.version>4.2.12</metrics.version>
         <minlog.version>1.3.1</minlog.version>
+        <netty.version>4.1.119.Final</netty.version>
         <ognl.version>3.3.4</ognl.version>
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.9.0</okio.version>
@@ -113,6 +112,7 @@
         <picocli-version>4.6.3</picocli-version>
         <poi.version>5.3.0</poi.version>
         <protobuf-java.version>3.25.5</protobuf-java.version>
+        <reactor-netty.version>1.2.4</reactor-netty.version>
         <rhino.version>1.7.14</rhino.version>
         <saxon.version>8.7</saxon.version>
         <scala.version>2.12.17</scala.version>
@@ -340,6 +340,68 @@
                 <version>${picocli-version}</version>
             </dependency>
             <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-buffer</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http2</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-common</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler-proxy</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-epoll</artifactId>
+                <version>${netty.version}</version>
+                <classifier>linux-x86_64</classifier>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-kqueue</artifactId>
+                <version>${netty.version}</version>
+                <classifier>osx-x86_64</classifier>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-unix-common</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.projectreactor.netty</groupId>
+                <artifactId>reactor-netty-http</artifactId>
+                <version>${reactor-netty.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
                 <version>${byte-buddy.version}</version>
@@ -540,6 +602,16 @@
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
                 <version>${javassist.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib-jdk8</artifactId>
+                <version>${kotlin.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mozilla</groupId>
