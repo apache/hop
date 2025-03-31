@@ -50,6 +50,9 @@
             <excludes>
                 <exclude>org.apache.hop:hop-tech-azure:jar</exclude>
                 <exclude>org.jetbrains:annotations:jar</exclude>
+                <exclude>org.jetbrains.kotlin::jar</exclude>
+                <exclude>io.netty::jar</exclude>
+                <exclude>io.projectreactor.netty::jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/azure/lib</outputDirectory>
         </dependencySet>
@@ -57,6 +60,9 @@
             <scope>runtime</scope>
             <includes>
                 <include>org.jetbrains:annotations:jar</include>
+                <include>org.jetbrains.kotlin::jar</include>
+                <include>io.netty::jar</include>
+                <include>io.projectreactor.netty::jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

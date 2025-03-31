@@ -97,14 +97,14 @@
     </distributionManagement>
 
     <properties>
-        <apache-beam.version>2.59.0</apache-beam.version>
+        <apache-beam.version>2.62.0</apache-beam.version>
         <assembly_appendId>false</assembly_appendId>
         <assembly_package-phase>package</assembly_package-phase>
         <attach-sources-phase>verify</attach-sources-phase>
         <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
         <byte-buddy.version>1.14.15</byte-buddy.version>
         <cyclonedx-maven-plugin.version>2.8.1</cyclonedx-maven-plugin.version>
-        <hadoop.version>3.3.6</hadoop.version>
+        <hadoop.version>3.4.1</hadoop.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jandex.version>3.2.2</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>

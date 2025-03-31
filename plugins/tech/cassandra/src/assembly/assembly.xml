@@ -50,6 +50,7 @@
                 <exclude>org.ow2.asm:asm-util:jar</exclude>
                 <exclude>org.lz4:lz4-java:jar</exclude>
                 <exclude>org.yaml:snakeyaml:jar</exclude>
+                <exclude>io.netty::jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/cassandra/lib</outputDirectory>
         </dependencySet>
@@ -65,6 +66,7 @@
                 <include>org.ow2.asm:asm-util:jar</include>
                 <include>org.lz4:lz4-java:jar</include>
                 <include>org.yaml:snakeyaml:jar</include>
+                <include>io.netty::jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

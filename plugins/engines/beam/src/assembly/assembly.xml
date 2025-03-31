@@ -75,7 +75,15 @@
                 <exclude>org.codehaus.mojo:animal-sniffer-annotations:jar</exclude>
                 <exclude>com.google.api:api-common:jar</exclude>
                 <exclude>com.google.auto.value:auto-value-annotations:jar</exclude>
-                <exclude>com.google.guava:failureaccess:jar</exclude>
+                <exclude>com.google.guava::jar</exclude>
+                <exclude>org.jetbrains.kotlin::jar</exclude>
+                <exclude>io.netty::jar</exclude>
+                <exclude>org.codehaus.mojo:animal-sniffer-annotations:jar</exclude>
+                <exclude>io.projectreactor.netty::jar</exclude>
+                <exclude>io.grpc:grpc-netty-shaded:jar</exclude>
+                <exclude>io.grpc:grpc-xds:jar</exclude>
+                <exclude>org.apache.kafka::jar</exclude>
+                <exclude>org.xerial.snappy:snappy-java:jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -101,7 +109,11 @@
                 <include>org.codehaus.mojo:animal-sniffer-annotations:jar</include>
                 <include>com.google.api:api-common:jar</include>
                 <include>com.google.auto.value:auto-value-annotations:jar</include>
-                <include>com.google.guava:failureaccess:jar</include>
+                <include>org.jetbrains.kotlin::jar</include>
+                <include>io.netty::jar</include>
+                <include>io.projectreactor.netty::jar</include>
+                <include>io.grpc:grpc-netty-shaded:jar</include>
+                <include>org.apache.kafka::jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
