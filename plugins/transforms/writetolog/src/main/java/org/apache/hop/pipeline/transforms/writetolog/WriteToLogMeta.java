@@ -115,7 +115,7 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
       throws HopXmlException {
     super.loadXml(transformNode, metadataProvider);
     String loglevel = XmlHandler.getTagValue(transformNode, "loglevel");
-    if (loglevel.startsWith("log_level_")) {
+    if (loglevel != null && loglevel.startsWith("log_level_")) {
       switch (loglevel) {
         case "log_level_nothing":
           logLevel = LogLevel.NOTHING;
