@@ -176,84 +176,47 @@ public class SwtGc implements IGc {
     }
   }
 
-  public static final SwtUniversalImage getNativeImage(EImage image) {
-    switch (image) {
-      case LOCK:
-        return GuiResource.getInstance().getSwtImageLocked();
-      case FAILURE:
-        return GuiResource.getInstance().getSwtImageFailure();
-      case EDIT:
-        return GuiResource.getInstance().getSwtImageEdit();
-      case CONTEXT_MENU:
-        return GuiResource.getInstance().getSwtImageContextMenu();
-      case TRUE:
-        return GuiResource.getInstance().getSwtImageTrue();
-      case TRUE_DISABLED:
-        return GuiResource.getInstance().getSwtImageTrueDisabled();
-      case FALSE:
-        return GuiResource.getInstance().getSwtImageFalse();
-      case FALSE_DISABLED:
-        return GuiResource.getInstance().getSwtImageFalseDisabled();
-      case ERROR:
-        return GuiResource.getInstance().getSwtImageError();
-      case ERROR_DISABLED:
-        return GuiResource.getInstance().getSwtImageErrorDisabled();
-      case SUCCESS:
-        return GuiResource.getInstance().getSwtImageSuccess();
-      case INFO:
-        return GuiResource.getInstance().getSwtImageInfo();
-      case INFO_DISABLED:
-        return GuiResource.getInstance().getSwtImageInfoDisabled();
-      case TARGET:
-        return GuiResource.getInstance().getSwtImageTarget();
-      case TARGET_DISABLED:
-        return GuiResource.getInstance().getSwtImageTargetDisabled();
-      case INPUT:
-        return GuiResource.getInstance().getSwtImageInput();
-      case OUTPUT:
-        return GuiResource.getInstance().getSwtImageOutput();
-      case ARROW:
-        return GuiResource.getInstance().getSwtImageArrow();
-      case COPY_ROWS:
-        return GuiResource.getInstance().getSwtImageCopyRows();
-      case COPY_ROWS_DISABLED:
-        return GuiResource.getInstance().getSwtImageCopyRowsDisabled();
-      case LOAD_BALANCE:
-        return GuiResource.getInstance().getSwtImageBalance();
-      case CHECKPOINT:
-        return GuiResource.getInstance().getSwtImageCheckpoint();
-      case DB:
-        return GuiResource.getInstance().getSwtImageDatabase();
-      case PARALLEL:
-        return GuiResource.getInstance().getSwtImageParallel();
-      case PARALLEL_DISABLED:
-        return GuiResource.getInstance().getSwtImageParallelDisabled();
-      case UNCONDITIONAL:
-        return GuiResource.getInstance().getSwtImageUnconditional();
-      case UNCONDITIONAL_DISABLED:
-        return GuiResource.getInstance().getSwtImageUnconditionalDisabled();
-      case BUSY:
-        return GuiResource.getInstance().getSwtImageBusy();
-      case INJECT:
-        return GuiResource.getInstance().getSwtImageInject();
-      case ARROW_DEFAULT:
-        return GuiResource.getInstance().getSwtImageArrowDefault();
-      case ARROW_TRUE:
-        return GuiResource.getInstance().getSwtImageArrowTrue();
-      case ARROW_FALSE:
-        return GuiResource.getInstance().getSwtImageArrowFalse();
-      case ARROW_ERROR:
-        return GuiResource.getInstance().getSwtImageArrowError();
-      case ARROW_DISABLED:
-        return GuiResource.getInstance().getSwtImageArrowDisabled();
-      case ARROW_CANDIDATE:
-        return GuiResource.getInstance().getSwtImageArrowCandidate();
-      case DATA:
-        return GuiResource.getInstance().getSwtImageData();
-      default:
-        break;
-    }
-    return null;
+  public static SwtUniversalImage getNativeImage(EImage image) {
+    return switch (image) {
+      case LOCK -> GuiResource.getInstance().getSwtImageLocked();
+      case FAILURE -> GuiResource.getInstance().getSwtImageFailure();
+      case EDIT -> GuiResource.getInstance().getSwtImageEdit();
+      case CONTEXT_MENU -> GuiResource.getInstance().getSwtImageContextMenu();
+      case TRUE -> GuiResource.getInstance().getSwtImageTrue();
+      case TRUE_DISABLED -> GuiResource.getInstance().getSwtImageTrueDisabled();
+      case FALSE -> GuiResource.getInstance().getSwtImageFalse();
+      case FALSE_DISABLED -> GuiResource.getInstance().getSwtImageFalseDisabled();
+      case ERROR -> GuiResource.getInstance().getSwtImageError();
+      case ERROR_DISABLED -> GuiResource.getInstance().getSwtImageErrorDisabled();
+      case SUCCESS -> GuiResource.getInstance().getSwtImageSuccess();
+      case INFO -> GuiResource.getInstance().getSwtImageInfo();
+      case INFO_DISABLED -> GuiResource.getInstance().getSwtImageInfoDisabled();
+      case TARGET -> GuiResource.getInstance().getSwtImageTarget();
+      case TARGET_DISABLED -> GuiResource.getInstance().getSwtImageTargetDisabled();
+      case INPUT -> GuiResource.getInstance().getSwtImageInput();
+      case OUTPUT -> GuiResource.getInstance().getSwtImageOutput();
+      case ARROW -> GuiResource.getInstance().getSwtImageArrow();
+      case COPY_ROWS -> GuiResource.getInstance().getSwtImageCopyRows();
+      case COPY_ROWS_DISABLED -> GuiResource.getInstance().getSwtImageCopyRowsDisabled();
+      case LOAD_BALANCE -> GuiResource.getInstance().getSwtImageBalance();
+      case CHECKPOINT -> GuiResource.getInstance().getSwtImageCheckpoint();
+      case DB -> GuiResource.getInstance().getSwtImageDatabase();
+      case PARALLEL -> GuiResource.getInstance().getSwtImageParallel();
+      case PARALLEL_DISABLED -> GuiResource.getInstance().getSwtImageParallelDisabled();
+      case UNCONDITIONAL -> GuiResource.getInstance().getSwtImageUnconditional();
+      case UNCONDITIONAL_DISABLED -> GuiResource.getInstance().getSwtImageUnconditionalDisabled();
+      case BUSY -> GuiResource.getInstance().getSwtImageBusy();
+      case WAITING -> GuiResource.getInstance().getSwtImageWaiting();
+      case INJECT -> GuiResource.getInstance().getSwtImageInject();
+      case ARROW_DEFAULT -> GuiResource.getInstance().getSwtImageArrowDefault();
+      case ARROW_TRUE -> GuiResource.getInstance().getSwtImageArrowTrue();
+      case ARROW_FALSE -> GuiResource.getInstance().getSwtImageArrowFalse();
+      case ARROW_ERROR -> GuiResource.getInstance().getSwtImageArrowError();
+      case ARROW_DISABLED -> GuiResource.getInstance().getSwtImageArrowDisabled();
+      case ARROW_CANDIDATE -> GuiResource.getInstance().getSwtImageArrowCandidate();
+      case DATA -> GuiResource.getInstance().getSwtImageData();
+      default -> null;
+    };
   }
 
   @Override

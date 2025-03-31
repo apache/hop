@@ -77,6 +77,7 @@ public class SvgGc implements IGc {
   private static SvgFile imageUnconditional;
   private static SvgFile imageUnconditionalDisabled;
   private static SvgFile imageBusy;
+  private static SvgFile imageWaiting;
   private static SvgFile imageMissing;
   private static SvgFile imageDeprecated;
   private static SvgFile imageInject;
@@ -234,6 +235,7 @@ public class SvgGc implements IGc {
     imageUnconditionalDisabled =
         new SvgFile("ui/images/unconditional-disabled.svg", this.getClass().getClassLoader());
     imageBusy = new SvgFile("ui/images/busy.svg", this.getClass().getClassLoader());
+    imageWaiting = new SvgFile("ui/images/waiting.svg", this.getClass().getClassLoader());
     imageInject = new SvgFile("ui/images/inject.svg", this.getClass().getClassLoader());
     imageMissing = new SvgFile("ui/images/missing.svg", this.getClass().getClassLoader());
     imageDeprecated = new SvgFile("ui/images/deprecated.svg", this.getClass().getClassLoader());
@@ -594,80 +596,45 @@ public class SvgGc implements IGc {
     return area;
   }
 
-  public static final SvgFile getNativeImage(EImage image) {
-    switch (image) {
-      case LOCK:
-        return imageLocked;
-      case FAILURE:
-        return imageFailure;
-      case EDIT:
-        return imageEdit;
-      case CONTEXT_MENU:
-        return imageContextMenu;
-      case TRUE:
-        return imageTrue;
-      case TRUE_DISABLED:
-        return imageTrueDisabled;
-      case FALSE:
-        return imageFalse;
-      case FALSE_DISABLED:
-        return imageFalseDisabled;
-      case ERROR:
-        return imageError;
-      case ERROR_DISABLED:
-        return imageErrorDisabled;
-      case INFO:
-        return imageInfo;
-      case INFO_DISABLED:
-        return imageInfoDisabled;
-      case TARGET:
-        return imageTarget;
-      case TARGET_DISABLED:
-        return imageTargetDisabled;
-      case INPUT:
-        return imageInput;
-      case OUTPUT:
-        return imageOutput;
-      case ARROW:
-        return imageArrow;
-      case COPY_ROWS:
-        return imageCopyRows;
-      case COPY_ROWS_DISABLED:
-        return imageCopyRowsDisabled;
-      case LOAD_BALANCE:
-        return imageLoadBalance;
-      case CHECKPOINT:
-        return imageCheckpoint;
-      case DB:
-        return imageDatabase;
-      case PARALLEL:
-        return imageParallel;
-      case PARALLEL_DISABLED:
-        return imageParallelDisabled;
-      case UNCONDITIONAL:
-        return imageUnconditional;
-      case UNCONDITIONAL_DISABLED:
-        return imageUnconditionalDisabled;
-      case BUSY:
-        return imageBusy;
-      case INJECT:
-        return imageInject;
-      case ARROW_DEFAULT:
-        return imageArrowDefault;
-      case ARROW_TRUE:
-        return imageArrowTrue;
-      case ARROW_FALSE:
-        return imageArrowFalse;
-      case ARROW_ERROR:
-        return imageArrowError;
-      case ARROW_DISABLED:
-        return imageArrowDisabled;
-      case DATA:
-        return imageData;
-      default:
-        break;
-    }
-    return null;
+  public SvgFile getNativeImage(EImage image) {
+    return switch (image) {
+      case LOCK -> imageLocked;
+      case FAILURE -> imageFailure;
+      case EDIT -> imageEdit;
+      case CONTEXT_MENU -> imageContextMenu;
+      case TRUE -> imageTrue;
+      case TRUE_DISABLED -> imageTrueDisabled;
+      case FALSE -> imageFalse;
+      case FALSE_DISABLED -> imageFalseDisabled;
+      case ERROR -> imageError;
+      case ERROR_DISABLED -> imageErrorDisabled;
+      case INFO -> imageInfo;
+      case INFO_DISABLED -> imageInfoDisabled;
+      case TARGET -> imageTarget;
+      case TARGET_DISABLED -> imageTargetDisabled;
+      case INPUT -> imageInput;
+      case OUTPUT -> imageOutput;
+      case ARROW -> imageArrow;
+      case COPY_ROWS -> imageCopyRows;
+      case COPY_ROWS_DISABLED -> imageCopyRowsDisabled;
+      case LOAD_BALANCE -> imageLoadBalance;
+      case CHECKPOINT -> imageCheckpoint;
+      case DB -> imageDatabase;
+      case PARALLEL -> imageParallel;
+      case PARALLEL_DISABLED -> imageParallelDisabled;
+      case UNCONDITIONAL -> imageUnconditional;
+      case UNCONDITIONAL_DISABLED -> imageUnconditionalDisabled;
+      case BUSY -> imageBusy;
+      case WAITING -> imageWaiting;
+      case INJECT -> imageInject;
+      case ARROW_DEFAULT -> imageArrowDefault;
+      case ARROW_TRUE -> imageArrowTrue;
+      case ARROW_FALSE -> imageArrowFalse;
+      case ARROW_ERROR -> imageArrowError;
+      case ARROW_DISABLED -> imageArrowDisabled;
+      case DATA -> imageData;
+      default -> null;
+    };
   }
 
   @Override

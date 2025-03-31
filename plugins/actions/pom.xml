@@ -57,6 +57,7 @@
         <module>ftp</module>
         <module>getpop</module>
         <module>http</module>
+        <module>join</module>
         <module>mail</module>
         <module>mailvalidator</module>
         <module>movefiles</module>
