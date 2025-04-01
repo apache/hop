@@ -544,15 +544,6 @@ This product bundles caffeine 2.9.2, which is available under a
 This product bundles cassandra-all 4.1.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles checker-qual 3.10.0, which is available under a
-"The MIT" license. For details, see licenses/LICENSE-MIT.
-
-This product bundles checker-qual 3.42.0, which is available under a
-"The MIT" license. For details, see licenses/LICENSE-MIT.
-
-This product bundles checker-qual 3.43.0, which is available under a
-"The MIT" license. For details, see licenses/LICENSE-MIT.
-
 This product bundles checker-qual 3.47.0, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
@@ -589,16 +580,10 @@ This product bundles com.wcohen.secondstring 0.1, which is available under a
 This product bundles common 1.0.0-beta.2, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
-This product bundles common-utils 7.5.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles common-utils 7.6.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles commons-beanutils 1.9.4, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles commons-cli 1.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles commons-cli 1.5.0, which is available under a
@@ -751,13 +736,7 @@ This product bundles eclipse-collections-api 11.1.0, which is available under a
 This product bundles encoder 1.2, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles error_prone_annotations 2.28.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles error_prone_annotations 2.35.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles error_prone_annotations 2.5.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles exporter-metrics 0.31.0, which is available under a
@@ -1438,13 +1417,10 @@ This product bundles jna 4.2.1, which is available under a
 This product bundles jna 5.13.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jna 5.9.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles jna-platform 4.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jna-platform 5.6.0, which is available under a
+This product bundles jna-platform 5.13.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jnr-a64asm 1.0.0, which is available under a
@@ -1462,13 +1438,7 @@ This product bundles jnr-posix 3.1.15, which is available under a
 This product bundles jnr-x86asm 1.0.2, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
-This product bundles joda-time 2.10.14, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles joda-time 2.8.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles joda-time 2.9.9, which is available under a
+This product bundles joda-time 2.12.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jsch 0.1.55, which is available under a
@@ -2104,9 +2074,6 @@ This product bundles re2j 1.6, which is available under a
 This product bundles re2j 1.7, which is available under a
 "Go License" license. For details, see licenses/LICENSE-GO.
 
-This product bundles reactive-streams 1.0.3, which is available under a
-"Creative Commons" license. For details, see licenses/LICENSE-CC0.
-
 This product bundles reactive-streams 1.0.4, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
@@ -2226,9 +2193,6 @@ This product bundles ST4 4.0.8, which is available under a
 
 This product bundles ST4 4.3.1, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
-
-This product bundles stax2-api 4.2.1, which is available under a
-"2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
 This product bundles stax2-api 4.2.2, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
@@ -2418,9 +2382,6 @@ This product bundles xstream 1.4.20, which is available under a
 
 This product bundles xz 1.9, which is available under a
 "Public Domain" license. For details, see Public Domain.
-
-This product bundles zstd-jni 1.5.5-1, which is available under a
-"2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
 This product bundles zstd-jni 1.5.6-3, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.

@@ -49,8 +49,16 @@
             <scope>runtime</scope>
             <excludes>
                 <exclude>org.apache.hop:hop-tech-aws:jar</exclude>
+                <exclude>joda-time:joda-time:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/aws/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>runtime</scope>
+            <includes>
+                <include>joda-time:joda-time:jar</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
         <dependencySet>
             <scope>provided</scope>

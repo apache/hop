@@ -50,8 +50,16 @@
             <scope>runtime</scope>
             <excludes>
                 <exclude>org.apache.hop:hop-tech-dropbox:jar</exclude>
+                <exclude>com.google.code.findbugs:jsr305:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/dropbox/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>runtime</scope>
+            <includes>
+                <include>com.google.code.findbugs:jsr305:jar</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>
