@@ -84,6 +84,13 @@
                 <exclude>io.grpc:grpc-xds:jar</exclude>
                 <exclude>org.apache.kafka::jar</exclude>
                 <exclude>org.xerial.snappy:snappy-java:jar</exclude>
+                <exclude>org.eclipse.jetty::jar</exclude>
+                <exclude>com.google.cloud:google-cloud-storage:jar</exclude>
+                <exclude>io.grpc::jar</exclude>
+                <exclude>com.google.cloud:google-cloud-core-grpc:jar</exclude>
+                <exclude>com.google.api.grpc:grpc-google-cloud-storage-v2:jar</exclude>
+                <exclude>com.google.api:gax-grpc:jar</exclude>
+                <exclude>com.google.api.grpc::jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -114,6 +121,12 @@
                 <include>io.projectreactor.netty::jar</include>
                 <include>io.grpc:grpc-netty-shaded:jar</include>
                 <include>org.apache.kafka::jar</include>
+                <include>com.google.cloud:google-cloud-storage:jar</include>
+                <include>io.grpc::jar</include>
+                <include>com.google.cloud:google-cloud-core-grpc:jar</include>
+                <include>com.google.api.grpc:grpc-google-cloud-storage-v2:jar</include>
+                <include>com.google.api:gax-grpc:jar</include>
+                <include>com.google.api.grpc::jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

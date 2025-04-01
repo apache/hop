@@ -427,6 +427,7 @@
                             <sortExecutions>true</sortExecutions>
                             <sortDependencies>scope,groupId,artifactId</sortDependencies>
                             <sortDependencyExclusions>scope,groupId,artifactId</sortDependencyExclusions>
+                            <sortDependencyManagement>false</sortDependencyManagement>
                         </sortPom>
                     </pom>
                 </configuration>
