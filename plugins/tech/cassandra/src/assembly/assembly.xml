@@ -51,6 +51,13 @@
                 <exclude>org.lz4:lz4-java:jar</exclude>
                 <exclude>org.yaml:snakeyaml:jar</exclude>
                 <exclude>io.netty::jar</exclude>
+                <exclude>org.checkerframework:checker-qual:jar</exclude>
+                <exclude>commons-cli:commons-cli:jar</exclude>
+                <exclude>com.google.errorprone:error_prone_annotations:jar</exclude>
+                <exclude>com.github.stephenc.jcip:jcip-annotations:jar</exclude>
+                <exclude>net.java.dev.jna::jar</exclude>
+                <exclude>com.github.luben:zstd-jni:jar</exclude>
+                <exclude>org.reactivestreams:reactive-streams:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/cassandra/lib</outputDirectory>
         </dependencySet>
@@ -67,6 +74,13 @@
                 <include>org.lz4:lz4-java:jar</include>
                 <include>org.yaml:snakeyaml:jar</include>
                 <include>io.netty::jar</include>
+                <include>org.checkerframework:checker-qual:jar</include>
+                <include>commons-cli:commons-cli:jar</include>
+                <include>com.google.errorprone:error_prone_annotations:jar</include>
+                <include>com.github.stephenc.jcip:jcip-annotations:jar</include>
+                <include>net.java.dev.jna::jar</include>
+                <include>com.github.luben:zstd-jni:jar</include>
+                <include>org.reactivestreams:reactive-streams:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

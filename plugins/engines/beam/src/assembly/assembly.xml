@@ -91,6 +91,46 @@
                 <exclude>com.google.api.grpc:grpc-google-cloud-storage-v2:jar</exclude>
                 <exclude>com.google.api:gax-grpc:jar</exclude>
                 <exclude>com.google.api.grpc::jar</exclude>
+                <exclude>org.checkerframework:checker-qual:jar</exclude>
+                <exclude>io.confluent:common-utils:jar</exclude>
+                <exclude>commons-cli:commons-cli:jar</exclude>
+                <exclude>commons-codec:commons-codec:jar</exclude>
+                <exclude>commons-logging:commons-logging:jar</exclude>
+                <exclude>org.apache.commons:commons-text:jar</exclude>
+                <exclude>com.google.cloud.opentelemetry:detector-resources-support:jar</exclude>
+                <exclude>com.google.errorprone:error_prone_annotations:jar</exclude>
+                <exclude>com.google.cloud.opentelemetry:exporter-metrics:jar</exclude>
+                <exclude>com.google.api:gax:jar</exclude>
+                <exclude>com.google.api:gax-httpjson:jar</exclude>
+                <exclude>com.google.apis:google-api-services-storage:jar</exclude>
+                <exclude>com.google.auth:google-auth-library-credentials:jar</exclude>
+                <exclude>com.google.auth:google-auth-library-oauth2-http:jar</exclude>
+                <exclude>com.google.cloud:google-cloud-core:jar</exclude>
+                <exclude>com.google.cloud:google-cloud-core-http:jar</exclude>
+                <exclude>com.google.cloud:google-cloud-monitoring:jar</exclude>
+                <exclude>com.google.http-client:google-http-client-gson:jar</exclude>
+                <exclude>org.apache.httpcomponents:httpclient:jar</exclude>
+                <exclude>org.apache.httpcomponents:httpcore:jar</exclude>
+                <exclude>com.google.j2objc:j2objc-annotations:jar</exclude>
+                <exclude>com.fasterxml.jackson.core::jar</exclude>
+                <exclude>com.fasterxml.jackson.dataformat::jar</exclude>
+                <exclude>com.fasterxml.jackson.datatype::jar</exclude>
+                <exclude>com.fasterxml.jackson::jar</exclude>
+                <exclude>com.github.stephenc.jcip:jcip-annotations:jar</exclude>
+                <exclude>net.java.dev.jna::jar</exclude>
+                <exclude>com.google.code.findbugs:jsr305:jar</exclude>
+                <exclude>com.squareup.okhttp3:okhttp:jar</exclude>
+                <exclude>com.squareup.okio::jar</exclude>
+                <exclude>io.opentelemetry::jar</exclude>
+                <exclude>com.google.cloud.opentelemetry:shared-resourcemapping:jar</exclude>
+                <exclude>org.codehaus.woodstox:stax2-api:jar</exclude>
+                <exclude>org.threeten::jar</exclude>
+                <exclude>org.lz4:lz4-java:jar</exclude>
+                <exclude>io.opentelemetry.contrib::jar</exclude>
+                <exclude>io.opentelemetry.semconv::jar</exclude>
+                <exclude>io.perfmark:perfmark-api:jar</exclude>
+                <exclude>com.google.re2j:re2j:jar</exclude>
+                <exclude>org.reactivestreams:reactive-streams:jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -126,7 +166,47 @@
                 <include>com.google.cloud:google-cloud-core-grpc:jar</include>
                 <include>com.google.api.grpc:grpc-google-cloud-storage-v2:jar</include>
                 <include>com.google.api:gax-grpc:jar</include>
+                <include>com.google.api:gax:jar</include>
                 <include>com.google.api.grpc::jar</include>
+                <include>org.checkerframework:checker-qual:jar</include>
+                <include>io.confluent:common-utils:jar</include>
+                <include>commons-cli:commons-cli:jar</include>
+                <include>commons-codec:commons-codec:jar</include>
+                <include>commons-logging:commons-logging:jar</include>
+                <include>org.apache.commons:commons-text:jar</include>
+                <include>com.google.cloud.opentelemetry:detector-resources-support:jar</include>
+                <include>com.google.errorprone:error_prone_annotations:jar</include>
+                <include>com.google.cloud.opentelemetry:exporter-metrics:jar</include>
+                <include>com.google.api:gax-httpjson:jar</include>
+                <include>com.google.apis:google-api-services-storage:jar</include>
+                <include>com.google.auth:google-auth-library-credentials:jar</include>
+                <include>com.google.auth:google-auth-library-oauth2-http:jar</include>
+                <include>com.google.cloud:google-cloud-core:jar</include>
+                <include>com.google.cloud:google-cloud-core-http:jar</include>
+                <include>com.google.cloud:google-cloud-monitoring:jar</include>
+                <include>com.google.http-client:google-http-client-gson:jar</include>
+                <include>org.apache.httpcomponents:httpclient:jar</include>
+                <include>org.apache.httpcomponents:httpcore:jar</include>
+                <include>com.google.j2objc:j2objc-annotations:jar</include>
+                <include>com.fasterxml.jackson.core::jar</include>
+                <include>com.fasterxml.jackson.dataformat::jar</include>
+                <include>com.fasterxml.jackson.datatype::jar</include>
+                <include>com.fasterxml.jackson::jar</include>
+                <include>com.github.stephenc.jcip:jcip-annotations:jar</include>
+                <include>net.java.dev.jna::jar</include>
+                <include>com.google.code.findbugs:jsr305:jar</include>
+                <include>com.squareup.okhttp3:okhttp:jar</include>
+                <include>com.squareup.okio::jar</include>
+                <include>io.opentelemetry::jar</include>
+                <include>io.opentelemetry.contrib::jar</include>
+                <include>io.opentelemetry.semconv::jar</include>
+                <include>com.google.cloud.opentelemetry:shared-resourcemapping:jar</include>
+                <include>org.codehaus.woodstox:stax2-api:jar</include>
+                <include>org.threeten::jar</include>
+                <include>org.lz4:lz4-java:jar</include>
+                <include>io.perfmark:perfmark-api:jar</include>
+                <include>com.google.re2j:re2j:jar</include>
+                <include>org.reactivestreams:reactive-streams:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

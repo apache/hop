@@ -53,6 +53,11 @@
                 <exclude>org.jetbrains.kotlin::jar</exclude>
                 <exclude>io.netty::jar</exclude>
                 <exclude>io.projectreactor.netty::jar</exclude>
+                <exclude>com.github.stephenc.jcip:jcip-annotations:jar</exclude>
+                <exclude>joda-time:joda-time:jar</exclude>
+                <exclude>com.squareup.okhttp3:okhttp:jar</exclude>
+                <exclude>com.squareup.okio::jar</exclude>
+                <exclude>org.reactivestreams:reactive-streams:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/azure/lib</outputDirectory>
         </dependencySet>
@@ -63,6 +68,11 @@
                 <include>org.jetbrains.kotlin::jar</include>
                 <include>io.netty::jar</include>
                 <include>io.projectreactor.netty::jar</include>
+                <include>com.github.stephenc.jcip:jcip-annotations:jar</include>
+                <include>joda-time:joda-time:jar</include>
+                <include>com.squareup.okhttp3:okhttp:jar</include>
+                <include>com.squareup.okio::jar</include>
+                <include>org.reactivestreams:reactive-streams:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

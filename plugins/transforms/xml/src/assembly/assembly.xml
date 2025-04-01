@@ -52,6 +52,7 @@
                 <exclude>org.apache.hop:hop-transform-xml:jar</exclude>
                 <exclude>xerces:xercesImpl:jar</exclude>
                 <exclude>net.sf.saxon:*:jar</exclude>
+                <exclude>org.codehaus.woodstox:stax2-api:jar</exclude>
             </excludes>
             <outputDirectory>plugins/transforms/xml/lib</outputDirectory>
         </dependencySet>

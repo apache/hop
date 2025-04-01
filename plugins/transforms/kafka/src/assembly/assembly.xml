@@ -55,6 +55,8 @@
             <scope>runtime</scope>
             <excludes>
                 <exclude>org.apache.hop:hop-transform-kafka:jar</exclude>
+                <exclude>io.confluent:common-utils:jar</exclude>
+                <exclude>org.yaml:snakeyaml:jar</exclude>
             </excludes>
             <outputDirectory>plugins/transforms/kafka/lib</outputDirectory>
         </dependencySet>
@@ -67,6 +69,8 @@
                 <include>com.github.luben:*:jar</include>
                 <include>org.lz4:*:jar</include>
                 <include>org.xerial.snappy:*:jar</include>
+                <include>io.confluent:common-utils:jar</include>
+                <include>org.yaml:snakeyaml:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

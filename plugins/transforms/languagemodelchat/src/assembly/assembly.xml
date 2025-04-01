@@ -49,13 +49,13 @@
         <dependencySet>
             <includes>
                 <include>org.jetbrains.kotlin::jar</include>
+                <include>com.squareup.okhttp3:okhttp:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
         <dependencySet>
             <includes>
                 <include>com.squareup.retrofit2:retrofit:jar</include>
-                <include>com.squareup.okhttp3:okhttp:jar</include>
                 <include>org.apache.opennlp:opennlp-tools:jar</include>
                 <!--<include>org.jsoup:jsoup:jar</include>-->
                 <include>dev.ai4j:openai4j:jar</include>
