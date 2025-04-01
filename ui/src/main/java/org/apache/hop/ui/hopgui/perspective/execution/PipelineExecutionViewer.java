@@ -415,7 +415,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   private void addMetricsTab() {
     metricsTab = new CTabItem(tabFolder, SWT.NONE);
     metricsTab.setFont(GuiResource.getInstance().getFontDefault());
-    metricsTab.setImage(GuiResource.getInstance().getImageData());
+    metricsTab.setImage(GuiResource.getInstance().getImageShowGrid());
     metricsTab.setText(BaseMessages.getString(PKG, "PipelineExecutionViewer.MetricsTab.Title"));
 
     // An empty table view on the right.  This will be populated during a refresh.
