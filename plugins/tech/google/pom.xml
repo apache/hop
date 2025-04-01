@@ -33,30 +33,33 @@
       Run 'mvn dependency:tree' in that plugin to verify.
     -->
     <properties>
-        <commons-vfs2.version>2.9.0</commons-vfs2.version>
         <google-analytics.version>0.65.0</google-analytics.version>
         <google-api-drive.version>v3-rev20250216-2.0.0</google-api-drive.version>
         <google-api-sheets.version>v4-rev20250211-2.0.0</google-api-sheets.version>
         <google-api-sqladmin.version>v1-rev20230721-2.0.0</google-api-sqladmin.version>
-        <google-cloud-storage.version>2.15.0</google-cloud-storage.version>
-        <google-http-client.version>1.46.3</google-http-client.version>
-        <google-oauth-client.version>1.38.0</google-oauth-client.version>
         <jetty-client.version>6.1.26</jetty-client.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.google.cloud</groupId>
-                <artifactId>libraries-bom</artifactId>
-                <version>26.58.0</version>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-libs</artifactId>
-                <version>${project.version}</version>
+                <groupId>org.apache.beam</groupId>
+                <artifactId>beam-sdks-java-google-cloud-platform-bom</artifactId>
+                <version>${apache-beam.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>26.58.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -117,7 +120,6 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-storage</artifactId>
-            <version>${google-cloud-storage.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
@@ -136,7 +138,6 @@
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
-            <version>${google-http-client.version}</version>
             <exclusions>
                 <!-- Vulnerable component - need more recent version [PPP-3571] -->
                 <exclusion>
@@ -148,25 +149,27 @@
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-jackson2</artifactId>
-            <version>${google-http-client.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client</artifactId>
-            <version>${google-oauth-client.version}</version>
         </dependency>
         <!-- Google VFS dependencies -->
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-java6</artifactId>
-            <version>${google-oauth-client.version}</version>
         </dependency>
 
         <!-- Google Sheets dependencies -->
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-jetty</artifactId>
-            <version>${google-oauth-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -176,6 +179,12 @@
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-client</artifactId>
             <version>${jetty-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>
