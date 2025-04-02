@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.vfs.azure.metadatatype;
+package org.apache.hop.vfs.gs.metadatatype;
 
 import java.io.Serializable;
 import lombok.Getter;
@@ -26,26 +26,27 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
-    key = "AzureConnectionDefinition",
-    name = "i18n::AzureMetadataType.Name",
-    description = "i18n::AzureMetadataType.Description",
+    key = "GoogleStorageConnectionDefinition",
+    name = "i18n::GoogleStorageMetadataType.Name",
+    description = "i18n::GoogleStorageMetadataType.Description",
     image = "ui/images/authentication.svg",
     documentationUrl = "/metadata-types/azure-authentication.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_AZURE_CONNECTION)
 @Getter
 @Setter
-public class AzureMetadataType extends HopMetadataBase implements Serializable, IHopMetadata {
+public class GoogleStorageMetadataType extends HopMetadataBase
+    implements Serializable, IHopMetadata {
 
-  private static final Class<?> PKG = AzureMetadataType.class;
+  private static final Class<?> PKG = GoogleStorageMetadataType.class;
   @HopMetadataProperty private String description;
-  @HopMetadataProperty private String storageAccountName;
+
+  @HopMetadataProperty(password = true)
+  private GoogleStorageCredentialsType storageCredentialsType;
 
   @HopMetadataProperty(password = true)
   private String storageAccountKey;
 
-  @HopMetadataProperty private String storageAccountEndpoint;
-
-  public AzureMetadataType() {
+  public GoogleStorageMetadataType() {
     // Do nothing
   }
 }

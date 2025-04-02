@@ -24,13 +24,13 @@ import org.apache.commons.vfs2.provider.AbstractFileName;
 
 public class GoogleStorageFileName extends AbstractFileName {
 
-  public GoogleStorageFileName(String absPath, FileType type) {
-    super("gs", absPath, type);
+  public GoogleStorageFileName(String scheme, String absPath, FileType type) {
+    super(scheme, absPath, type);
   }
 
   @Override
   public FileName createName(String absPath, FileType type) {
-    return new GoogleStorageFileName(absPath, type);
+    return new GoogleStorageFileName(getScheme(), absPath, type);
   }
 
   @Override

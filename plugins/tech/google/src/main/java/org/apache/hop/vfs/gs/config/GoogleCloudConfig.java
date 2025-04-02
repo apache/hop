@@ -17,6 +17,11 @@
 
 package org.apache.hop.vfs.gs.config;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class GoogleCloudConfig {
 
   public static final String HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY = "googleCloud";
@@ -28,21 +33,5 @@ public class GoogleCloudConfig {
   public GoogleCloudConfig(GoogleCloudConfig config) {
     this();
     serviceAccountKeyFile = config.serviceAccountKeyFile;
-  }
-
-  /**
-   * Gets serviceAccountKeyFile
-   *
-   * @return value of serviceAccountKeyFile
-   */
-  public String getServiceAccountKeyFile() {
-    return serviceAccountKeyFile;
-  }
-
-  /**
-   * @param serviceAccountKeyFile The serviceAccountKeyFile to set
-   */
-  public void setServiceAccountKeyFile(String serviceAccountKeyFile) {
-    this.serviceAccountKeyFile = serviceAccountKeyFile;
   }
 }
