@@ -32,6 +32,7 @@ import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Text;
 
 public class HopGuiKeyHandler extends KeyAdapter {
 
@@ -81,6 +82,15 @@ public class HopGuiKeyHandler extends KeyAdapter {
 
   private boolean handleKey(Object parentObject, KeyEvent event, KeyboardShortcut shortcut) {
 
+    // Ignore Copy paste shortcuts on Text widgets
+    if (event.widget instanceof Text) {
+      if (shortcut.toString().equals("Cmd+V")
+          || shortcut.toString().equals("Ctrl+V")
+          || shortcut.toString().equals("Cmd+C")
+          || shortcut.toString().equals("Ctrl+C")) {
+        return false;
+      }
+    }
     // If this is a control, only handle the shortcut if the control is visible
     // This prevents keyboard shortcuts being applied to a workflow or pipeline which
     // isn't visible (in another tab for example).
