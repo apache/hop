@@ -114,7 +114,7 @@ limitations under the License.
         <target_field_name>bar_avro</target_field_name>
       </field>
     </fields>
-    <namespace>apache-hop</namespace>
+    <namespace>apacheHop</namespace>
     <output_field>avro</output_field>
     <schema_name>hopschema</schema_name>
     <attributes/>
