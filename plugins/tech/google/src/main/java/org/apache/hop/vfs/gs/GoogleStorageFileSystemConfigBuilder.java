@@ -18,13 +18,14 @@
 
 package org.apache.hop.vfs.gs;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemConfigBuilder;
 import org.apache.commons.vfs2.FileSystemOptions;
 
 public class GoogleStorageFileSystemConfigBuilder extends FileSystemConfigBuilder {
 
-  private static final String JSON_CLIENT_ID_RESOURCE = "jsonClientIdResource";
+  private static final String GOOGLE_CREDENTIALS = "googleCredentials";
   private static final GoogleStorageFileSystemConfigBuilder builder =
       new GoogleStorageFileSystemConfigBuilder();
 
@@ -34,12 +35,20 @@ public class GoogleStorageFileSystemConfigBuilder extends FileSystemConfigBuilde
 
   private GoogleStorageFileSystemConfigBuilder() {}
 
-  public void setClientIdJSON(FileSystemOptions opts, String jsonClientIdResource) {
-    setParam(opts, JSON_CLIENT_ID_RESOURCE, jsonClientIdResource);
+  public void setGoogleCredentials(FileSystemOptions opts, GoogleCredentials credentials) {
+    setParam(opts, GOOGLE_CREDENTIALS, credentials);
   }
 
-  public String getClientIdJSON(FileSystemOptions opts) {
-    return (String) getParam(opts, JSON_CLIENT_ID_RESOURCE);
+  public GoogleCredentials getGoogleCredentials(FileSystemOptions opts) {
+    return (GoogleCredentials) getParam(opts, GOOGLE_CREDENTIALS);
+  }
+
+  public void setSchema(FileSystemOptions opts, String schema) {
+    setParam(opts, "Schema", schema);
+  }
+
+  public String getSchema(FileSystemOptions opts) {
+    return (String) getParam(opts, "Schema");
   }
 
   @Override

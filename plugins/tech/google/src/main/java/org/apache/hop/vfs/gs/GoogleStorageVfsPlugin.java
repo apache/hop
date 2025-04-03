@@ -17,11 +17,16 @@
 
 package org.apache.hop.vfs.gs;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.vfs.gs.metadatatype.GoogleStorageMetadataType;
 
 @VfsPlugin(type = "gs", typeDescription = "Google Storage VFS")
 public class GoogleStorageVfsPlugin implements IVfs {
@@ -37,6 +42,20 @@ public class GoogleStorageVfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
-    return null;
+    Map<String, FileProvider> providers = new HashMap<>();
+    try {
+      IHopMetadataProvider metadataProvider =
+          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+      List<GoogleStorageMetadataType> googleStorageMetadataTypes =
+          metadataProvider.getSerializer(GoogleStorageMetadataType.class).loadAll();
+      for (GoogleStorageMetadataType googleStorageMetadataType : googleStorageMetadataTypes) {
+        providers.put(
+            googleStorageMetadataType.getName(),
+            new GoogleStorageFileProvider(variables, googleStorageMetadataType));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return providers;
   }
 }

@@ -18,6 +18,8 @@
 
 package org.apache.hop.vfs.gs.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
@@ -36,6 +38,8 @@ import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptio
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
+@Setter
+@Getter
 @ConfigPlugin(
     id = "GoogleCloudStorageConfigPlugin",
     description = "Configuration options for Google Cloud",
@@ -115,7 +119,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
   @Override
   public void widgetModified(
       GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-    // Do nothing
+    persistContents(compositeWidgets);
   }
 
   @Override
@@ -136,21 +140,5 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
     } catch (Exception e) {
       new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error saving option", e);
     }
-  }
-
-  /**
-   * Gets serviceAccountKeyFile
-   *
-   * @return value of serviceAccountKeyFile
-   */
-  public String getServiceAccountKeyFile() {
-    return serviceAccountKeyFile;
-  }
-
-  /**
-   * @param serviceAccountKeyFile The serviceAccountKeyFile to set
-   */
-  public void setServiceAccountKeyFile(String serviceAccountKeyFile) {
-    this.serviceAccountKeyFile = serviceAccountKeyFile;
   }
 }

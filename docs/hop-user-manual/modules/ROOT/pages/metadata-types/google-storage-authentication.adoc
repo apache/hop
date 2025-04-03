@@ -1,0 +1,36 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: This is used to register multiple Google cloud storage accounts
+
+= Google Storage Authentication
+
+== Description
+This metadata type can be used to add a new Google Cloud Storage file system to your project. This allows you to connect to multiple storage accounts at the same time.
+
+NOTE: We support variables, but VFS filesystems are only loaded at startup. This means only variables from the Hop system, project or environment level are supported
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name| Name of the file system, this will be used in file paths `name://`
+|Description| Description field for additional information
+|Storage Account Key| The primary or secondary key of the storage account
+|===

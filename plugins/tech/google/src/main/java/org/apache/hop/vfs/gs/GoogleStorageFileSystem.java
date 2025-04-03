@@ -18,14 +18,9 @@
 
 package org.apache.hop.vfs.gs;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Collection;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -33,22 +28,25 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
-import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
-import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 
 public class GoogleStorageFileSystem extends AbstractFileSystem {
 
   Storage storage = null;
+  FileSystemOptions fileSystemOptions;
 
   protected GoogleStorageFileSystem(
       FileName rootName, FileObject parentLayer, FileSystemOptions fileSystemOptions)
       throws FileSystemException {
     super(rootName, parentLayer, fileSystemOptions);
+    this.fileSystemOptions = fileSystemOptions;
   }
 
   @Override
   protected FileObject createFile(AbstractFileName name) throws Exception {
-    return new GoogleStorageFileObject(name, this);
+    return new GoogleStorageFileObject(
+        GoogleStorageFileSystemConfigBuilder.getInstance().getSchema(fileSystemOptions),
+        name,
+        this);
   }
 
   @Override
@@ -56,29 +54,14 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
     caps.addAll(GoogleStorageFileProvider.capabilities);
   }
 
-  Storage setupStorage() throws IOException {
+  Storage setupStorage() {
     if (storage != null) {
       return storage;
     }
 
-    // Hop configuration options
-    //
-    GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
-
-    GoogleCredentials credentials;
-
-    // If we don't have a setting for a service account key file we try the default
-    //
-    if (StringUtils.isEmpty(config.getServiceAccountKeyFile())) {
-      credentials = ServiceAccountCredentials.getApplicationDefault();
-    } else {
-      credentials =
-          ServiceAccountCredentials.fromStream(
-              new FileInputStream(config.getServiceAccountKeyFile()));
-    }
-
     StorageOptions.Builder optionsBuilder = StorageOptions.newBuilder();
-    optionsBuilder.setCredentials(credentials);
+    optionsBuilder.setCredentials(
+        GoogleStorageFileSystemConfigBuilder.getInstance().getGoogleCredentials(fileSystemOptions));
     return storage = optionsBuilder.build().getService();
   }
 

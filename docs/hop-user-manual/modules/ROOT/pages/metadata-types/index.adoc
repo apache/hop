@@ -36,9 +36,11 @@ By default, Hop contains the following metadata types:
 
 
 * xref:hop-server/async-web-service.adoc[Asynchronous Web Service]: Execute and query a workflow asynchronously through a web service.
+* xref:metadata-types/azure-authentication.adoc[Azure Blob Storage Authentication]: A Azure Blob Storage connection type.
 * xref:metadata-types/beam-file-definition.adoc[Beam File Definition]: Describes a file layout in a Beam Pipeline
 * xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]: Describes a connection to a Cassandra cluster
 * xref:metadata-types/data-set.adoc[Data Set]: This defines a data set, a static pre-defined collection of rows
+* xref:metadata-types/google-storage-authentication.adoc[Google Storage Authentication]: A Google Cloud Storage connection type.
 * xref:metadata-types/hop-server.adoc[Hop Server]: Defines a Hop Server
 * xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]: Describes a MongoDB connection
 * xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]: A shared connection to a Neo4j server
