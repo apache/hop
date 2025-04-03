@@ -313,7 +313,7 @@ public class MetadataManager<T extends IHopMetadata> {
     if (serializer.exists(newName)) {
       MessageBox messageBox =
           new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_ERROR | SWT.OK);
-      messageBox.setText(getManagedName());
+      messageBox.setText(TranslateUtil.translate(getManagedName(), getManagedClass()));
       messageBox.setMessage("Name '" + newName + "' already existe.");
       messageBox.open();
 

@@ -233,7 +233,8 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
       MessageBox messageDialog =
           new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-      messageDialog.setText(manager.getManagedName());
+      messageDialog.setText(
+          TranslateUtil.translate(manager.getManagedName(), manager.getManagedClass()));
       messageDialog.setMessage(
           BaseMessages.getString(
               PKG, "MetadataEditor.WantToSaveBeforeClosing.Message", getTitle()));
