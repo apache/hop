@@ -87,7 +87,11 @@ public class HopGuiKeyHandler extends KeyAdapter {
       if (shortcut.toString().equals("Cmd+V")
           || shortcut.toString().equals("Ctrl+V")
           || shortcut.toString().equals("Cmd+C")
-          || shortcut.toString().equals("Ctrl+C")) {
+          || shortcut.toString().equals("Ctrl+C")
+          || shortcut.toString().equals("Cmd+A")
+          || shortcut.toString().equals("Ctrl+A")
+          || shortcut.toString().equals("Cmd+X")
+          || shortcut.toString().equals("Ctrl+X")) {
         return false;
       }
     }
