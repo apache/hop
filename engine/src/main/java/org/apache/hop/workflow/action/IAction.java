@@ -266,6 +266,13 @@ public interface IAction extends IVariables, IHasLogChannel, ICheckResultSource,
   boolean isStart();
 
   /**
+   * Checks if the action is a join point of parallel execution
+   *
+   * @return true if joining point, false otherwise
+   */
+  boolean isJoin();
+
+  /**
    * This method is called when a action is duplicated in HopGui. It needs to return a deep copy of
    * this action object. It is essential that the implementing class creates proper deep copies if
    * the action configuration is stored in modifiable objects, such as lists or custom helper
