@@ -153,17 +153,17 @@ If the pipeline runs with all tests passed, you'll receive a notification in the
 
 [source,bash]
 ----
-2021/04/21 21:16:43 - get year.0 - Finished processing (I=0, O=0, R=10000, W=10000, U=0, E=0)
-2021/04/21 21:16:43 - count by year.0 - Finished processing (I=0, O=0, R=10000, W=22, U=0, E=0)
-2021/04/21 21:16:43 - sort by year.0 - Finished processing (I=0, O=0, R=22, W=22, U=0, E=0)
-2021/04/21 21:16:43 - customers by year out.0 - Finished processing (I=0, O=0, R=22, W=22, U=0, E=0)
-2021/04/21 21:16:43 - read-customers - Unit test 'read-customers UNIT' passed succesfully
-2021/04/21 21:16:43 - read-customers - ----------------------------------------------
-2021/04/21 21:16:43 - read-customers - customers by year out - customers-by-year : Test passed succesfully against golden data set
-2021/04/21 21:16:43 - read-customers - Test passed succesfully against unit test
-2021/04/21 21:16:43 - read-customers - ----------------------------------------------
-2021/04/21 21:16:43 - read-customers - Pipeline duration : 0.108 seconds [  0.108 ]
-2021/04/21 21:16:43 - read-customers - Execution finished on a local pipeline engine with run configuration 'local'
+2025/04/02 21:16:43 - get year.0 - Finished processing (I=0, O=0, R=10000, W=10000, U=0, E=0)
+2025/04/02 21:16:43 - count by year.0 - Finished processing (I=0, O=0, R=10000, W=22, U=0, E=0)
+2025/04/02 21:16:43 - sort by year.0 - Finished processing (I=0, O=0, R=22, W=22, U=0, E=0)
+2025/04/02 21:16:43 - customers by year out.0 - Finished processing (I=0, O=0, R=22, W=22, U=0, E=0)
+2025/04/02 21:16:43 - read-customers - Unit test 'read-customers UNIT' passed succesfully
+2025/04/02 21:16:43 - read-customers - ----------------------------------------------
+2025/04/02 21:16:43 - read-customers - customers by year out - customers-by-year : Test passed succesfully against golden data set
+2025/04/02 21:16:43 - read-customers - Test passed succesfully against unit test
+2025/04/02 21:16:43 - read-customers - ----------------------------------------------
+2025/04/02 21:16:43 - read-customers - Pipeline duration : 0.108 seconds [  0.108 ]
+2025/04/02 21:16:43 - read-customers - Execution finished on a local pipeline engine with run configuration 'local'
 ----
 
 If changes to the pipeline cause the test to fail, a popup will be shown for the failed rows.
@@ -207,12 +207,12 @@ In the workflow logging output, you'll find information about the exit state of 
 
 [source,bash]
 ----
-2021/04/22 10:05:23 - read-customers - Unit test 'read-customers UNIT' passed succesfully
-2021/04/22 10:05:23 - read-customers - ----------------------------------------------
-2021/04/22 10:05:23 - read-customers - customers by year out - customers-by-year : Test passed succesfully against golden data set
-2021/04/22 10:05:23 - read-customers - Test passed succesfully against unit test
-2021/04/22 10:05:23 - read-customers - ----------------------------------------------
-2021/04/22 10:05:23 - read-customers - Pipeline duration : 0.227 seconds [  0.227" ]
+2025/04/02 10:05:23 - read-customers - Unit test 'read-customers UNIT' passed succesfully
+2025/04/02 10:05:23 - read-customers - ----------------------------------------------
+2025/04/02 10:05:23 - read-customers - customers by year out - customers-by-year : Test passed succesfully against golden data set
+2025/04/02 10:05:23 - read-customers - Test passed succesfully against unit test
+2025/04/02 10:05:23 - read-customers - ----------------------------------------------
+2025/04/02 10:05:23 - read-customers - Pipeline duration : 0.227 seconds [  0.227" ]
 ----
 
 === Run unit tests in a pipeline
@@ -220,3 +220,11 @@ In the workflow logging output, you'll find information about the exit state of 
 Similar to the workflow action, there's a transform to run your unit tests:
 
 image:pipeline-unit-testing-run-unit-tests-pipeline.png[Unit Test - Run Unit Tests,width="90%"]
+
+== Examples
+
+The Apache Hop project runs hundreds of integration tests on a daily basis to test the Apache Hop functionality. A lot of these integration tests use unit tests.
+
+Each of the subfolders in our GitHub's https://github.com/apache/hop/tree/main/integration-tests[`integration-tests`] folder is a self-contained Apache Hop project that can be added to and opened in Hop Gui (check for the `project-config.json`). A basic environment configuration file `dev-env-config.json` is available in these projects, and can be added to your project.
+
+For example, you can add the https://github.com/apache/hop/tree/main/integration-tests/transforms[`transforms`] folder as a project to your local Apache Hop installation and run the available pipelines to learn more about unit testing in Apache Hop.

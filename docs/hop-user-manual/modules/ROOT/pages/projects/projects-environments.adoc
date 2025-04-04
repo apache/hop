@@ -47,7 +47,7 @@ image:hop-gui/environment/create-project-dialog.png[Create a project,width="90%"
 |Company|The company this environment belongs to|No|No|
 |Department|The department this environment is created for|No|No|
 |Metadata base folder|The folder where this environment's metadata will be stored|Yes|Yes|{openvar}PROJECT_HOME{closevar}/metadata
-|Unit test base path|The folder where this environment's unit tests will be stored|Yes|Yes|{openvar}PROJECT_HOME{closevar}
+|Unit test base path|The base path to use for unit tests in the project. If your `Unit test base path` is defined as `{openvar}PROJECT_HOME{closevar}/my_pipelines`, unit tests will refer to a pipeline in this folder as `./my_pipeline.hpl`. |Yes|Yes|{openvar}PROJECT_HOME{closevar}
 |Data Sets CSV Folder|The folder where this environment's data files will be stored|Yes|Yes|{openvar}PROJECT_HOME{closevar}/datasets
 |Enforce execution in project home|Give an error when trying to execute a pipeline or workflow which is not located in the environment home directory or in a sub-directory|Yes|Yes|checked
 |Project variables to set|A list of variable names, values and variable descriptions to use with this project|No|Yes|
