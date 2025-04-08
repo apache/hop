@@ -22,7 +22,7 @@ under the License.
 
 == Description
 This metadata type can be used to add a new Azure Storage file system to your project. This allows you to connect to multiple storage accounts at the same time.
-Using an Azure authentication to connect to a blob store requires you to specify the container name in the path. For example, if your Azure authentication is named az, you would need to specify the container as **az:/containerName**.
+Using an Azure authentication to connect to a blob store requires you to specify the container name in the path. For example, if your Azure authentication is named az, you would need to specify the container as **name:/containerName**.
 
 == Options
 
@@ -35,3 +35,6 @@ Using an Azure authentication to connect to a blob store requires you to specify
 |Storage Account Key| The primary or secondary key of the storage account
 |Storage Endpoint| Leave empty for default Azure endpoints or fill in when using a compatible service
 |===
+
+=== Example
+When you create an authentication type with name `myAzure` the path you can use to access this account is `myAzure://[containername]/`
