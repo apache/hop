@@ -1219,8 +1219,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
       if (id != null) {
         shell.setImage(
             GuiResource.getInstance()
-                .getImagesTransforms()
-                .get(id)
+                .getSwtImageTransform(id)
                 .getAsBitmapForSize(shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE));
       }
     }

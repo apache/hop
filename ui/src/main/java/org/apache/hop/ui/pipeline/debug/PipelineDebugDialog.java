@@ -273,8 +273,7 @@ public class PipelineDebugDialog extends Dialog {
       TableItem item = new TableItem(wTransforms.table, SWT.NONE);
       Image image =
           resource
-              .getImagesTransforms()
-              .get(transformMeta.getTransformPluginId())
+              .getSwtImageTransform(transformMeta.getTransformPluginId())
               .getAsBitmapForSize(display, ConstUi.ICON_SIZE, ConstUi.ICON_SIZE);
       item.setImage(0, image);
       item.setText(0, "");
