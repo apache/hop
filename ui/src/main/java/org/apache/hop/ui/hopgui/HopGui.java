@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui;
 
+import static org.apache.hop.core.Const.getDocUrl;
+
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -107,6 +109,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectiveManager;
+import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
@@ -1623,6 +1626,20 @@ public class HopGui
       }
     }
     return false;
+  }
+
+  @GuiKeyboardShortcut(key = SWT.F1)
+  @GuiOsxKeyboardShortcut(key = SWT.F1)
+  public void help() {
+    HopPerspectivePlugin plugin =
+        activePerspective.getClass().getAnnotation(HopPerspectivePlugin.class);
+    if (plugin != null) {
+      try {
+        EnvironmentUtils.getInstance().openUrl(getDocUrl(plugin.documentationUrl()));
+      } catch (Exception e) {
+        new ErrorDialog(shell, "Error", "Error opening URL", e);
+      }
+    }
   }
 
   /**

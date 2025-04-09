@@ -92,7 +92,8 @@ import org.neo4j.driver.types.Path;
     id = "HopNeo4jPerspective",
     name = "Neo4j",
     description = "Neo4j Perspective",
-    image = "neo4j_logo.svg")
+    image = "neo4j_logo.svg",
+    documentationUrl = "/hop-gui/perspective-neo4j.html")
 @GuiPlugin
 public class HopNeo4jPerspective implements IHopPerspective {
 

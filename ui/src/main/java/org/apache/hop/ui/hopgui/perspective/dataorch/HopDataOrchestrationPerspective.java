@@ -73,7 +73,8 @@ import org.eclipse.swt.widgets.Event;
     id = "100-HopDataOrchestrationPerspective",
     name = "i18n::DataOrchestrationPerspective.Name",
     image = "ui/images/data_orch.svg",
-    description = "i18n::DataOrchestrationPerspective.Description")
+    description = "i18n::DataOrchestrationPerspective.Description",
+    documentationUrl = "/hop-gui/perspective-data-orchestration.html")
 @GuiPlugin(description = "i18n::DataOrchestrationPerspective.GuiPlugin.Description")
 public class HopDataOrchestrationPerspective implements IHopPerspective, TabClosable {
 

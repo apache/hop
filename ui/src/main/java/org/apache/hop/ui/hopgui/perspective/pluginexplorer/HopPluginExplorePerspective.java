@@ -65,7 +65,8 @@ import org.eclipse.swt.widgets.TableItem;
     id = "500-HopPluginExplorerPerspective",
     name = "i18n::PluginExplorerPerspective.Name",
     description = "i18n::PluginExplorerPerspective.Description",
-    image = "ui/images/plugin.svg")
+    image = "ui/images/plugin.svg",
+    documentationUrl = "/hop-gui/perspective-plugin.html")
 @GuiPlugin(description = "i18n::PluginExplorerPerspective.GuiPlugin.Description")
 public class HopPluginExplorePerspective implements IHopPerspective {
   public static final Class<?> PKG = HopPluginExplorePerspective.class; // i18n

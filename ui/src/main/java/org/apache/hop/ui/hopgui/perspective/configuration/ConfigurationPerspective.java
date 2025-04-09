@@ -51,7 +51,8 @@ import org.eclipse.swt.widgets.Control;
     id = "160-HopConfigurationPerspective",
     name = "i18n::ConfigurationPerspective.Name",
     description = "i18n::ConfigurationPerspective.Description",
-    image = "ui/images/gear.svg")
+    image = "ui/images/gear.svg",
+    documentationUrl = "/hop-gui/perspective-configuration.html")
 @GuiPlugin(description = "i18n::HopConfigurationPerspective.GuiPlugin.Description")
 public class ConfigurationPerspective implements IHopPerspective, TabClosable {
 
