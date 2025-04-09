@@ -70,7 +70,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-/** created by: dzmitry_bahdanovich date: 10/18/13 */
 public class S3FileObjectTest {
 
   public static final String HOST = "S3";

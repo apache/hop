@@ -20,8 +20,9 @@ package org.apache.hop.core.metadata;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonToken;
 import java.io.ByteArrayInputStream;
-import org.apache.hop.core.Const;
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -106,20 +107,28 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
     this.description = "Serializable metadata provider (source is JSON)";
     try {
 
-      ByteArrayInputStream inputStream = null;
-      try {
-        inputStream = new ByteArrayInputStream(storeJson.getBytes(Const.XML_ENCODING));
+      try (ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(storeJson.getBytes(StandardCharsets.UTF_8))) {
 
         JsonFactory jsonFactory = new JsonFactory();
         com.fasterxml.jackson.core.JsonParser jsonParser = jsonFactory.createParser(inputStream);
 
         // Loop over the classes until there's no more left
         //
-        jsonParser.nextToken(); // skip {
+        jsonParser.nextToken(); // skip "{"
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
 
           String classKey = jsonParser.getText();
-          Class<IHopMetadata> managedClass = getMetadataClassForKey(classKey);
+          Class<IHopMetadata> managedClass = getManagedClass(classKey);
+
+          if (managedClass == null) {
+            // Skip this JSON Array
+            jsonParser.nextToken(); // skip "{"
+            while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+              // Go to END_ARRAY
+            }
+            continue;
+          }
 
           JsonMetadataParser<IHopMetadata> metadataParser =
               new JsonMetadataParser<>(managedClass, this);
@@ -128,19 +137,32 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
 
           // Loop over the metadata objects in the JSON for the given class...
           //
-          jsonParser.nextToken(); // skip {
+          jsonParser.nextToken(); // skip "{"
           while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             IHopMetadata object = metadataParser.loadJsonObject(managedClass, jsonParser);
-            serializer.save(object);
+            if (object != null) {
+              serializer.save(object);
+            }
           }
-        }
-      } finally {
-        if (inputStream != null) {
-          inputStream.close();
         }
       }
     } catch (Exception e) {
       throw new HopException("Error reading metadata from JSON", e);
     }
+  }
+
+  /**
+   * @param classKey
+   * @return
+   */
+  private Class<IHopMetadata> getManagedClass(String classKey) {
+    Class<IHopMetadata> managedClass;
+    try {
+      managedClass = getMetadataClassForKey(classKey);
+    } catch (HopException e) {
+      LogChannel.GENERAL.logError("Error loading class " + classKey, e);
+      managedClass = null;
+    }
+    return managedClass;
   }
 }

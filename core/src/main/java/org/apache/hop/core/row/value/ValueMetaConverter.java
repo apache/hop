@@ -32,8 +32,6 @@ import org.apache.hop.core.row.IValueMetaConverter;
  * This class is intended to facilitate any needed conversions of a IValueMeta field from one type
  * to another. It was initially implemented for Orc storage in the hadoop shims project. This class
  * is added here because the converstions are not dependendant on orc in any way.
- *
- * <p>Created by tkafalas on 12/8/2017.
  */
 public class ValueMetaConverter implements Serializable, IValueMetaConverter {
   private static final String DEFAULT_DATE_FORMAT = ValueMetaBase.DEFAULT_DATE_FORMAT_MASK;

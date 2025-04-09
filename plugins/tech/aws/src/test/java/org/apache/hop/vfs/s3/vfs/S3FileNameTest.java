@@ -24,7 +24,6 @@ import org.apache.hop.vfs.s3.s3.vfs.S3FileName;
 import org.junit.Before;
 import org.junit.Test;
 
-/** created by: rfellows date: 05/17/2012 */
 public class S3FileNameTest {
 
   private S3FileName fileName = null;

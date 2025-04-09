@@ -23,11 +23,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import org.apache.hop.core.exception.HopPluginException;
 
-/**
- * This is a holder of Plugin Class mappings which supplement those of the stock Plugin.
- *
- * <p>Created by nbaker on 3/17/17.
- */
+/** This is a holder of Plugin Class mappings which supplement those of the stock Plugin. */
 public class SupplementalPlugin extends Plugin implements IClassLoadingPlugin {
   Map<Class, Callable> factoryMap = new HashMap<>();
   private Class<? extends IPluginType> pluginClass;

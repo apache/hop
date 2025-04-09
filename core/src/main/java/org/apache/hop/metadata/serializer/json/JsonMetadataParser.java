@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
@@ -42,8 +44,9 @@ import org.json.simple.JSONObject;
 
 public class JsonMetadataParser<T extends IHopMetadata> {
 
-  private Class<T> managedClass;
-  private IHopMetadataProvider metadataProvider;
+  private final Class<T> managedClass;
+
+  @Setter @Getter private IHopMetadataProvider metadataProvider;
 
   public JsonMetadataParser(Class<T> managedClass, IHopMetadataProvider metadataProvider) {
     this.managedClass = managedClass;
@@ -400,21 +403,5 @@ public class JsonMetadataParser<T extends IHopMetadata> {
           "Error saving POJO field with key " + key + ", field type '" + fieldType.getName() + "'",
           e);
     }
-  }
-
-  /**
-   * Gets provider
-   *
-   * @return value of provider
-   */
-  public IHopMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  /**
-   * @param metadataProvider The provider to set
-   */
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
   }
 }

@@ -24,7 +24,6 @@ import org.apache.hop.vfs.s3.s3.vfs.S3FileName;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileNameParser;
 import org.junit.Test;
 
-/** created by: rfellows date: 5/25/12 */
 public class S3FileNameParserIT {
 
   @Test

@@ -101,9 +101,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     try {
       // Load the JSON in a streaming fashion so we can parse the properties one by one...
       //
-      InputStream fileInputStream = null;
-      try {
-        fileInputStream = HopVfs.getInputStream(filename);
+      try (InputStream fileInputStream = HopVfs.getInputStream(filename)) {
         JsonFactory jsonFactory = new JsonFactory();
         try (com.fasterxml.jackson.core.JsonParser jsonParser =
             jsonFactory.createParser(fileInputStream)) {
@@ -115,10 +113,6 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
           inheritVariables(t);
           t.setMetadataProviderName(metadataProvider.getDescription());
           return t;
-        }
-      } finally {
-        if (fileInputStream != null) {
-          fileInputStream.close();
         }
       }
     } catch (Exception e) {
@@ -250,7 +244,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   public List<String> listObjectNames() throws HopException {
     List<String> names = new ArrayList<>();
 
-    // Read only access doesn't require a folder;
+    // Read-only access doesn't require a folder
     validateBaseFolder(false);
     if (!baseFolderExists) {
       // This is not an error.  We simply don't have objects of the given type.
@@ -274,7 +268,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
 
   @Override
   public boolean exists(String name) throws HopException {
-    // Read only access doesn't require a folder;
+    // Read-only access doesn't require a folder
     validateBaseFolder(false);
     if (!baseFolderExists) {
       return false;
