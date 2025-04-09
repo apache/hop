@@ -30,7 +30,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::GoogleStorageMetadataType.Name",
     description = "i18n::GoogleStorageMetadataType.Description",
     image = "ui/images/authentication.svg",
-    documentationUrl = "/metadata-types/azure-authentication.html",
+    documentationUrl = "/metadata-types/google-storage-authentication.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_AZURE_CONNECTION)
 @Getter
 @Setter
