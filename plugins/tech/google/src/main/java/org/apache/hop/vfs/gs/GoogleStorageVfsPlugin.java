@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
@@ -54,7 +55,7 @@ public class GoogleStorageVfsPlugin implements IVfs {
             new GoogleStorageFileProvider(variables, googleStorageMetadataType));
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      LogChannel.GENERAL.logError("Unable to load Google Storage VFS providers", e);
     }
     return providers;
   }

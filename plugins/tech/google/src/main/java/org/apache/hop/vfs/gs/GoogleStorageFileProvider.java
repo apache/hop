@@ -32,6 +32,7 @@ import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
@@ -117,7 +118,13 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
           .setGoogleCredentials(newFileSystemOptions, credentials);
       GoogleStorageFileSystemConfigBuilder.getInstance().setSchema(newFileSystemOptions, scheme);
     } catch (Exception e) {
-      e.printStackTrace();
+      // Do not log error for the default GS account
+      if (googleStorageMetadataType != null) {
+        LogChannel.GENERAL.logError(
+            "Unable to set service account credentials for vfs name: "
+                + googleStorageMetadataType.getName(),
+            e);
+      }
     }
   }
 }
