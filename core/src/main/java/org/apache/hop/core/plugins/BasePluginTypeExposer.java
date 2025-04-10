@@ -28,8 +28,6 @@ import java.lang.annotation.Annotation;
  * way.
  *
  * <p>Unless you're running within OSGI, you should never use this class.
- *
- * <p>Created by nbaker on 2/11/15.
  */
 public class BasePluginTypeExposer {
   private BasePluginType pluginType;

@@ -29,6 +29,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchable;
@@ -111,6 +112,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   public static final String TOOLBAR_ITEM_REFRESH = "MetadataPerspective-Toolbar-10100-Refresh";
 
   public static final String KEY_HELP = "Help";
+  public static final String FOLDER = "Folder";
+  public static final String VIRTUAL_PATH = "virtualPath";
+  public static final String ERROR = "Error";
 
   private static MetadataPerspective instance;
 
@@ -123,10 +127,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   private Tree tree;
   private TreeEditor treeEditor;
   private CTabFolder tabFolder;
-  private ToolBar toolBar;
   private GuiToolbarWidgets toolBarWidgets;
 
-  private List<MetadataEditor<?>> editors = new ArrayList<>();
+  private final List<MetadataEditor<?>> editors = new ArrayList<>();
 
   private final MetadataFileType metadataFileType;
 
@@ -221,7 +224,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
     // Create toolbar
     //
-    toolBar = new ToolBar(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    ToolBar toolBar = new ToolBar(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);
     toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
@@ -270,8 +273,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             MenuItem menuItem;
 
             switch ((String) treeItem.getData("type")) {
-              case "MetadataItem":
-              case "Folder":
+              case "MetadataItem", FOLDER:
                 menuItem = new MenuItem(menu, SWT.POP_UP);
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.New"));
                 menuItem.addListener(SWT.Selection, e -> onNewMetadata());
@@ -300,6 +302,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                 menuItem.addListener(SWT.Selection, e -> onDeleteMetadata());
 
                 new MenuItem(menu, SWT.SEPARATOR);
+                break;
+              default:
                 break;
             }
 
@@ -534,7 +538,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                 metadataClass,
                 hopGui.getShell());
 
-        manager.newMetadataWithEditor((String) treeItem.getData("virtualPath"));
+        manager.newMetadataWithEditor((String) treeItem.getData(VIRTUAL_PATH));
 
         hopGui.getEventsHandler().fire(HopGuiEvents.MetadataCreated.name());
       } catch (Exception e) {
@@ -567,7 +571,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
           hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
         } catch (Exception e) {
-          new ErrorDialog(getShell(), "Error", "Error editing metadata", e);
+          new ErrorDialog(getShell(), ERROR, "Error editing metadata", e);
         }
       }
 
@@ -623,6 +627,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
               case SWT.ESC:
                 text.dispose();
                 break;
+              default:
+                break;
             }
           });
       text.selectAll();
@@ -662,7 +668,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
         hopGui.getEventsHandler().fire(HopGuiEvents.MetadataDeleted.name());
       } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error delete metadata", e);
+        new ErrorDialog(getShell(), ERROR, "Error delete metadata", e);
       }
     }
   }
@@ -733,7 +739,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());
         HelpUtils.openHelp(getShell(), plugin);
       } catch (Exception ex) {
-        new ErrorDialog(getShell(), "Error", "Error opening URL", ex);
+        new ErrorDialog(getShell(), ERROR, "Error opening URL", ex);
       }
     }
   }
@@ -810,7 +816,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         classItem.setExpanded(true);
         classItem.setData(annotation.key());
         classItem.setData(KEY_HELP, annotation.description());
-        classItem.setData("virtualPath", "");
+        classItem.setData(VIRTUAL_PATH, "");
         classItem.setData("type", "MetadataItem");
 
         // level 1: object names
@@ -821,7 +827,14 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         Collections.sort(names);
 
         for (final String name : names) {
-          IHopMetadata hopMetadata = serializer.load(name);
+          IHopMetadata hopMetadata;
+          try {
+            hopMetadata = serializer.load(name);
+          } catch (HopException e) {
+            // Ignore missing metadata items
+            LogChannel.GENERAL.logError("Error loading metadata object:" + name);
+            continue;
+          }
           TreeItem parentItem = classItem;
 
           if (hopMetadata.getVirtualPath() != null && !hopMetadata.getVirtualPath().isEmpty()) {
@@ -836,7 +849,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                 // check if folder already exists on this level
                 alreadyExists = null;
                 for (TreeItem childItem : parentItem.getItems()) {
-                  if (childItem.getData("type").equals("Folder")
+                  if (childItem.getData("type").equals(FOLDER)
                       && childItem.getText().equals(folder)) {
                     alreadyExists = childItem;
                   }
@@ -850,9 +863,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                   folderItem.setData(annotation.key());
                   folderItem.setImage(GuiResource.getInstance().getImageFolder());
                   folderItem.setData(
-                      "virtualPath",
-                      folderItem.getParentItem().getData("virtualPath") + "/" + folder);
-                  folderItem.setData("type", "Folder");
+                      VIRTUAL_PATH,
+                      folderItem.getParentItem().getData(VIRTUAL_PATH) + "/" + folder);
+                  folderItem.setData("type", FOLDER);
                   parentItem = folderItem;
                 }
               }
@@ -861,7 +874,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
           TreeItem item = new TreeItem(parentItem, SWT.NONE);
           item.setText(0, Const.NVL(name, ""));
-          item.setData("virtualPath", parentItem.getData("virtualPath"));
+          item.setData(VIRTUAL_PATH, parentItem.getData(VIRTUAL_PATH));
           item.setData("type", "File");
           MetadataEditor<?> editor = this.findEditor(annotation.key(), name);
           if (editor != null && editor.hasChanged()) {
@@ -905,24 +918,22 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
-    if (typeHandler instanceof MetadataEditor editor) {
-      if (editor.isCloseable()) {
+    if (typeHandler instanceof MetadataEditor editor && editor.isCloseable()) {
 
-        editors.remove(editor);
+      editors.remove(editor);
 
-        for (CTabItem item : tabFolder.getItems()) {
-          if (editor.equals(item.getData())) {
-            item.dispose();
-          }
+      for (CTabItem item : tabFolder.getItems()) {
+        if (editor.equals(item.getData())) {
+          item.dispose();
         }
-
-        // Refresh tree to remove bold
-        //
-        this.refresh();
-
-        // Update Gui menu and toolbar
-        this.updateGui();
       }
+
+      // Refresh tree to remove bold
+      //
+      this.refresh();
+
+      // Update Gui menu and toolbar
+      this.updateGui();
     }
 
     return false;
@@ -1065,7 +1076,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             BaseMessages.getString(
                 PKG,
                 "MetadataPerspective.CreateFolder.Message",
-                (String) item.getData("virtualPath")));
+                (String) item.getData(VIRTUAL_PATH)));
     String folder = dialog.open();
     if (folder != null) {
       for (TreeItem treeItem : item.getItems()) {
@@ -1085,8 +1096,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
       newFolder.setText(folder);
       newFolder.setData(item.getData());
       newFolder.setImage(GuiResource.getInstance().getImageFolder());
-      newFolder.setData("virtualPath", item.getData("virtualPath") + "/" + folder);
-      newFolder.setData("type", "Folder");
+      newFolder.setData(VIRTUAL_PATH, item.getData(VIRTUAL_PATH) + "/" + folder);
+      newFolder.setData("type", FOLDER);
     }
   }
 }
