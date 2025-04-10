@@ -1726,49 +1726,83 @@ public class WorkflowMeta extends AbstractMeta
       IProgressMonitor monitor,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
+    try {
+      // Start with a clean slate...
+      remarks.clear();
 
-    // Start with a clean slate...
-    remarks.clear();
-
-    if (monitor == null) {
-      monitor = new ProgressNullMonitorListener();
-    }
-
-    List<ActionMeta> actions = (onlySelected) ? this.getSelectedActions() : getActions();
-
-    monitor.beginTask(
-        BaseMessages.getString(PKG, "WorkflowMeta.Monitor.VerifyingThisActionTask.Title"),
-        actions.size());
-
-    int worked = 1;
-    for (ActionMeta actionMeta : actions) {
-      if (monitor.isCanceled()) {
-        break;
+      if (monitor == null) {
+        monitor = new ProgressNullMonitorListener();
       }
 
-      IAction action = actionMeta.getAction();
-      if (action != null) {
-        monitor.subTask(
-            BaseMessages.getString(
-                PKG, "WorkflowMeta.Monitor.VerifyingAction.Title", action.getName()));
+      List<ActionMeta> actions = (onlySelected) ? this.getSelectedActions() : getActions();
 
-        if (isActionUsedInHops(actionMeta) || getActions().size() == 1) {
-          action.check(remarks, this, variables, metadataProvider);
-        } else {
-          remarks.add(
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_WARNING,
-                  BaseMessages.getString(
-                      PKG,
-                      "WorkflowMeta.CheckResult.TypeResultWarning.ActionIsNotUsed.Description"),
-                  action));
+      monitor.beginTask(
+          BaseMessages.getString(PKG, "WorkflowMeta.Monitor.VerifyingThisActionTask.Title"),
+          actions.size());
+
+      // Check for the presence of a start action
+      if (findStart() == null) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "WorkflowMeta.CheckResult.StartActionIsMissing.Description"),
+                null));
+      }
+
+      int worked = 1;
+      for (ActionMeta actionMeta : actions) {
+        if (monitor.isCanceled()) {
+          break;
         }
-      }
-      // Progress bar...
-      monitor.worked(worked++);
-    }
 
-    monitor.done();
+        IAction action = actionMeta.getAction();
+        if (action != null) {
+          monitor.subTask(
+              BaseMessages.getString(
+                  PKG, "WorkflowMeta.Monitor.VerifyingAction.Title", action.getName()));
+
+          // Check missing action plugin
+          if (action instanceof MissingAction missingAction) {
+            remarks.add(
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(
+                        PKG,
+                        "WorkflowMeta.CheckResult.ActionPluginNotFound.Description",
+                        missingAction.getMissingPluginId()),
+                    action));
+          }
+
+          // Check deprecated action plugin
+          if (actionMeta.isDeprecated()) {
+            remarks.add(
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_WARNING,
+                    BaseMessages.getString(
+                        PKG, "WorkflowMeta.CheckResult.DeprecatedActionPlugin.Description"),
+                    action));
+          }
+
+          if (isActionUsedInHops(actionMeta) || getActions().size() == 1) {
+            action.check(remarks, this, variables, metadataProvider);
+          } else {
+            remarks.add(
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_WARNING,
+                    BaseMessages.getString(
+                        PKG, "WorkflowMeta.CheckResult.ActionIsNotUsed.Description"),
+                    action));
+          }
+        }
+        // Progress bar...
+        monitor.worked(worked++);
+      }
+
+      monitor.done();
+    } catch (Exception e) {
+      throw new RuntimeException("Error checking workflow", e);
+    }
   }
 
   /**

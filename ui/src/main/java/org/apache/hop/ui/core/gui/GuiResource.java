@@ -119,10 +119,8 @@ public class GuiResource {
 
   // Images
   //
-  private Map<String, SwtUniversalImage> imagesTransforms = new Hashtable<>();
-
+  private Map<String, SwtUniversalImage> imagesTransforms;
   private Map<String, SwtUniversalImage> imagesActions;
-
   private Map<String, Image> imagesValueMeta;
 
   private SwtUniversalImage imageLogo;
@@ -298,14 +296,14 @@ public class GuiResource {
               @Override
               public void pluginAdded(Object serviceObject) {
                 // make sure we load up the images for any new actions that have been registered
-                loadWorkflowActionImages();
+                loadActionImages();
               }
 
               @Override
               public void pluginRemoved(Object serviceObject) {
                 // rebuild the image map, in effect removing the image(s) for actions that have gone
                 // away
-                loadWorkflowActionImages();
+                loadActionImages();
               }
 
               @Override
@@ -389,7 +387,7 @@ public class GuiResource {
     loadFonts();
     loadCommonImages();
     loadTransformImages();
-    loadWorkflowActionImages();
+    loadActionImages();
     loadValueMetaImages();
   }
 
@@ -562,7 +560,7 @@ public class GuiResource {
 
   /** Load all transform images from files. */
   private void loadTransformImages() {
-    imagesTransforms.clear();
+    imagesTransforms = new Hashtable<>();
 
     // TRANSFORM IMAGES TO LOAD
     //
@@ -847,14 +845,13 @@ public class GuiResource {
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/hop-arrow-candidate.svg");
   }
 
-  /** Load all transform images from files. */
-  private void loadWorkflowActionImages() {
+  /** Load all action images from files. */
+  private void loadActionImages() {
     imagesActions = new Hashtable<>();
 
     // ACTION IMAGES TO LOAD
     //
     PluginRegistry registry = PluginRegistry.getInstance();
-
     List<IPlugin> plugins = registry.getPlugins(ActionPluginType.class);
     for (IPlugin plugin : plugins) {
       SwtUniversalImage image = null;
@@ -1020,6 +1017,34 @@ public class GuiResource {
    */
   public Map<String, SwtUniversalImage> getImagesTransforms() {
     return imagesTransforms;
+  }
+
+  /**
+   * Get an image of an action or a missing image if not found.
+   *
+   * @param pluginId the action plugin id
+   * @return image
+   */
+  public SwtUniversalImage getSwtImageAction(String pluginId) {
+    SwtUniversalImage image = imagesActions.get(pluginId);
+    if (image == null) {
+      return getSwtImageMissing();
+    }
+    return image;
+  }
+
+  /**
+   * Get an image of a transform or a missing image if not found.
+   *
+   * @param pluginId the transform plugin id
+   * @return image
+   */
+  public SwtUniversalImage getSwtImageTransform(String pluginId) {
+    SwtUniversalImage image = imagesTransforms.get(pluginId);
+    if (image == null) {
+      return getSwtImageMissing();
+    }
+    return image;
   }
 
   /**

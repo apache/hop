@@ -243,8 +243,7 @@ public class HopGuiWorkflowCheckDelegate {
         if (source instanceof IAction action) {
           Image image =
               GuiResource.getInstance()
-                  .getImagesActions()
-                  .get(action.getPluginId())
+                  .getSwtImageAction(action.getPluginId())
                   .getAsBitmapForSize(
                       hopGui.getDisplay(), ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE);
           if (image != null) {

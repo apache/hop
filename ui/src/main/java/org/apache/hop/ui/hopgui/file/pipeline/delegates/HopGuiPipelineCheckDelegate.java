@@ -268,8 +268,7 @@ public class HopGuiPipelineCheckDelegate {
         if (source instanceof TransformMeta transform) {
           Image image =
               GuiResource.getInstance()
-                  .getImagesTransforms()
-                  .get(transform.getPluginId())
+                  .getSwtImageTransform(transform.getPluginId())
                   .getAsBitmapForSize(
                       hopGui.getDisplay(), ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE);
           if (image != null) {

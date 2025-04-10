@@ -967,8 +967,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
 
         Image image =
             GuiResource.getInstance()
-                .getImagesTransforms()
-                .get(transformMeta.getPluginId())
+                .getSwtImageTransform(transformMeta.getPluginId())
                 .getAsBitmapForSize(shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE);
         transformItem.setImage(image);
 

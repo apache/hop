@@ -19,7 +19,6 @@ package org.apache.hop.ui.hopgui.shared;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
@@ -73,8 +72,6 @@ public class SwtGc implements IGc {
 
   private int miniIconSize;
 
-  private Map<String, SwtUniversalImage> images;
-
   private float currentMagnification = 1.0f;
 
   private List<Color> colors;
@@ -85,7 +82,6 @@ public class SwtGc implements IGc {
 
   public SwtGc(GC gc, int width, int height, int iconSize) {
     this.gc = gc;
-    this.images = GuiResource.getInstance().getImagesTransforms();
     this.iconSize = iconSize;
     this.miniIconSize = iconSize / 2;
     this.area = new Point(width, height);
@@ -481,7 +477,7 @@ public class SwtGc implements IGc {
     } else {
       String pluginId = transformMeta.getPluginId();
       if (pluginId != null) {
-        swtImage = GuiResource.getInstance().getImagesTransforms().get(pluginId);
+        swtImage = GuiResource.getInstance().getSwtImageTransform(pluginId);
       }
     }
 
@@ -515,7 +511,7 @@ public class SwtGc implements IGc {
     } else {
       String pluginId = actionMeta.getAction().getPluginId();
       if (pluginId != null) {
-        swtImage = GuiResource.getInstance().getImagesActions().get(pluginId);
+        swtImage = GuiResource.getInstance().getSwtImageAction(pluginId);
       }
     }
 

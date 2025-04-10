@@ -2819,6 +2819,29 @@ public class PipelineMeta extends AbstractMeta
             BaseMessages.getString(
                 PKG, "PipelineMeta.Monitor.VerifyingTransformTask.Title", transformMeta.getName()));
 
+        // Check missing transform plugin
+        if (transformMeta.getTransform() instanceof Missing missingTransform) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG,
+                      "PipelineMeta.CheckResult.TypeResultError.TransformPluginNotFound.Description",
+                      missingTransform.getMissingPluginId()),
+                  transformMeta));
+        }
+
+        // Check deprecated transform plugin
+        if (transformMeta.isDeprecated()) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_WARNING,
+                  BaseMessages.getString(
+                      PKG,
+                      "PipelineMeta.CheckResult.TypeResultWarning.DeprecatedTransformPlugin.Description"),
+                  transformMeta));
+        }
+
         int nrinfo = findNrInfoTransforms(transformMeta);
         TransformMeta[] infoTransform = null;
         if (nrinfo > 0) {
@@ -3016,7 +3039,7 @@ public class PipelineMeta extends AbstractMeta
 
       monitor.done();
     } catch (Exception e) {
-      throw new RuntimeException("Error checking transforms", e);
+      throw new RuntimeException("Error checking pipeline", e);
     }
   }
 
