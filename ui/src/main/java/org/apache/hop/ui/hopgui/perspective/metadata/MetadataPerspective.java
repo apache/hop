@@ -958,25 +958,36 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void navigateToPreviousFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() - 1);
-    updateGui();
+    if (hasNavigationPreviousFile()) {
+      int index = tabFolder.getSelectionIndex() - 1;
+      if (index < 0) {
+        index = tabFolder.getItemCount() - 1;
+      }
+      tabFolder.setSelection(index);
+      updateGui();
+    }
   }
 
   @Override
   public void navigateToNextFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() + 1);
-    updateGui();
+    if (hasNavigationNextFile()) {
+      int index = tabFolder.getSelectionIndex() + 1;
+      if (index >= tabFolder.getItemCount()) {
+        index = 0;
+      }
+      tabFolder.setSelection(index);
+      updateGui();
+    }
   }
 
   @Override
   public boolean hasNavigationPreviousFile() {
-    return tabFolder.getSelectionIndex() > 0;
+    return tabFolder.getItemCount() > 1;
   }
 
   @Override
   public boolean hasNavigationNextFile() {
-    return (tabFolder.getItemCount() > 0)
-        && (tabFolder.getSelectionIndex() < (tabFolder.getItemCount() - 1));
+    return tabFolder.getItemCount() > 1;
   }
 
   @Override
