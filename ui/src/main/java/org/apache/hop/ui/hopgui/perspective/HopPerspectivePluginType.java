@@ -62,4 +62,9 @@ public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugi
   protected String extractCategory(HopPerspectivePlugin annotation) {
     return annotation.category();
   }
+
+  @Override
+  protected String extractDocumentationUrl(HopPerspectivePlugin annotation) {
+    return annotation.documentationUrl();
+  }
 }

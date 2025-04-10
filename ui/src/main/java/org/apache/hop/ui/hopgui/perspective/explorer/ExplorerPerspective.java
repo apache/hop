@@ -117,7 +117,8 @@ import org.eclipse.swt.widgets.Widget;
     id = "300-HopExplorerPerspective",
     name = "i18n::ExplorerPerspective.Name",
     description = "The Hop Explorer Perspective",
-    image = "ui/images/folder.svg")
+    image = "ui/images/folder.svg",
+    documentationUrl = "/hop-gui/perspective-file-explorer.html")
 @GuiPlugin(description = "i18n::ExplorerPerspective.GuiPlugin.Description")
 @SuppressWarnings("java:S1104")
 public class ExplorerPerspective implements IHopPerspective, TabClosable {

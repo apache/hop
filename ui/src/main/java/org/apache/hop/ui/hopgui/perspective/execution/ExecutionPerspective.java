@@ -93,7 +93,8 @@ import org.w3c.dom.Node;
     id = "150-HopExecutionPerspective",
     name = "i18n::ExecutionPerspective.Name",
     description = "i18n::ExecutionPerspective.Description",
-    image = "ui/images/execution.svg")
+    image = "ui/images/execution.svg",
+    documentationUrl = "/hop-gui/perspective-execution-information.html")
 @GuiPlugin
 public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
