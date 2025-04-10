@@ -294,6 +294,11 @@ public abstract class ActionBase
     return false;
   }
 
+  @Override
+  public boolean isJoin() {
+    return false;
+  }
+
   /**
    * Checks if the action executes a workflow
    *
