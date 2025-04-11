@@ -131,6 +131,7 @@
                 <exclude>io.perfmark:perfmark-api:jar</exclude>
                 <exclude>com.google.re2j:re2j:jar</exclude>
                 <exclude>org.reactivestreams:reactive-streams:jar</exclude>
+                <exclude>io.projectreactor:reactor-core:jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -159,6 +160,7 @@
                 <include>org.jetbrains.kotlin::jar</include>
                 <include>io.netty::jar</include>
                 <include>io.projectreactor.netty::jar</include>
+                <include>io.projectreactor:reactor-core:jar</include>
                 <include>io.grpc:grpc-netty-shaded:jar</include>
                 <include>org.apache.kafka::jar</include>
                 <include>com.google.cloud:google-cloud-storage:jar</include>
