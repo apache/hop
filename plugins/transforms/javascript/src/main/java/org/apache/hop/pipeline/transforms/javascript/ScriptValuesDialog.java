@@ -54,7 +54,6 @@ import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -74,7 +73,6 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -584,7 +582,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   }
 
   private void setActiveCtab(String strName) {
-    if (strName.length() == 0) {
+    if (strName.isEmpty()) {
       folder.setSelection(0);
     } else {
       folder.setSelection(getCTabPosition(strName));
@@ -622,7 +620,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       wScript.addLineStyleListener();
     }
 
-    if ((strScript != null) && strScript.length() > 0) {
+    if ((strScript != null) && !strScript.isEmpty()) {
       wScript.setText(strScript);
     } else {
       wScript.setText(
@@ -768,7 +766,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   private String getNextName(String strActualName) {
     String strRC = "";
-    if (strActualName.length() == 0) {
+    if (strActualName.isEmpty()) {
       strActualName = "Item";
     }
 
@@ -798,7 +796,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     }
 
     for (int i = 0; i < input.getFieldname().length; i++) {
-      if (input.getFieldname()[i] != null && input.getFieldname()[i].length() > 0) {
+      if (input.getFieldname()[i] != null && !input.getFieldname()[i].isEmpty()) {
         TableItem item = wFields.table.getItem(i);
         item.setText(1, input.getFieldname()[i]);
         if (input.getRename()[i] != null && !input.getFieldname()[i].equals(input.getRename()[i])) {
@@ -895,7 +893,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       meta.getFieldname()[i] = item.getText(1);
       meta.getRename()[i] = item.getText(2);
       if (meta.getRename()[i] == null
-          || meta.getRename()[i].length() == 0
+          || meta.getRename()[i].isEmpty()
           || meta.getRename()[i].equalsIgnoreCase(meta.getFieldname()[i])) {
         meta.getRename()[i] = meta.getFieldname()[i];
       }
@@ -1300,7 +1298,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
           // Checking for StartScript
           if (strActiveStartScript != null
               && !folder.getSelection().getText().equals(strActiveStartScript)
-              && strActiveStartScript.length() > 0) {
+              && !strActiveStartScript.isEmpty()) {
             String strStartScript =
                 getStyledTextComp(folder.getItem(getCTabPosition(strActiveStartScript))).getText();
             /* Object startScript = */ jscx.evaluateString(
@@ -1672,7 +1670,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       }
     }
     strRC = sbRC.toString();
-    if (strRC.length() > 0) {
+    if (!strRC.isEmpty()) {
       strRC = strRC.substring(0, sbRC.length() - 2);
     }
     return strRC;
@@ -1861,11 +1859,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
             TreeItem pItem = tItem.getParentItem();
 
             if (pItem != null && pItem.equals(wTreeScriptsItem)) {
-              if (folder.getItemCount() > 1) {
-                tMenu.getItem(0).setEnabled(true);
-              } else {
-                tMenu.getItem(0).setEnabled(false);
-              }
+              tMenu.getItem(0).setEnabled(folder.getItemCount() > 1);
               tMenu.getItem(1).setEnabled(true);
               tMenu.getItem(3).setEnabled(false);
             } else if (tItem.equals(wTreeClassesitem)) {
@@ -1889,6 +1883,9 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   private void addRenameTowTreeScriptItems() {
     lastItem = new TreeItem[1];
     editor = new TreeEditor(wTree);
+    editor.horizontalAlignment = SWT.LEFT;
+    editor.grabHorizontal = true;
+
     wTree.addListener(
         SWT.Selection,
         event -> {
@@ -1898,78 +1895,45 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   }
 
   // This function is for a Windows Like renaming inside the tree
-  private void renameFunction(TreeItem tItem) {
-    final TreeItem item = tItem;
-    if (item.getParentItem() != null
+  private void renameFunction(TreeItem item) {
+    if (item != null
+        && item.getParentItem() != null
         && item.getParentItem().equals(wTreeScriptsItem)
-        && item != null
         && item == lastItem[0]) {
-      boolean isCarbon = SWT.getPlatform().equals("carbon");
-      final Composite composite = new Composite(wTree, SWT.NONE);
-      if (!isCarbon) {
-        composite.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-      }
-      final Text text = new Text(composite, SWT.NONE);
-      final int inset = isCarbon ? 0 : 1;
-      composite.addListener(
-          SWT.Resize,
-          e -> {
-            Rectangle rect = composite.getClientArea();
-            text.setBounds(
-                rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2);
+
+      final Text text = new Text(wTree, SWT.BORDER);
+      text.addListener(
+          SWT.FocusOut,
+          event -> {
+            if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
+              // Check if the name Exists
+              modifyCTabItem(item, RENAME_ITEM, text.getText());
+              item.setText(text.getText());
+            }
+            text.dispose();
           });
-      Listener textListener =
-          e -> {
-            switch (e.type) {
-              case SWT.FocusOut:
+      text.addListener(
+          SWT.Traverse,
+          event -> {
+            switch (event.detail) {
+              case SWT.TRAVERSE_RETURN:
                 if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
                   // Check if the name Exists
                   modifyCTabItem(item, RENAME_ITEM, text.getText());
                   item.setText(text.getText());
                 }
-                composite.dispose();
+                text.dispose();
                 break;
-              case SWT.Verify:
-                String newText = text.getText();
-                String leftText = newText.substring(0, e.start);
-                String rightText = newText.substring(e.end, newText.length());
-                Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
-                size = text.computeSize(size.x, SWT.DEFAULT);
-                editor.horizontalAlignment = SWT.LEFT;
-                Rectangle itemRect = item.getBounds();
-                Rectangle rect = wTree.getClientArea();
-                editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
-                int left = itemRect.x;
-                int right = rect.x + rect.width;
-                editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
-                editor.minimumHeight = size.y + inset * 2;
-                editor.layout();
-                break;
-              case SWT.Traverse:
-                switch (e.detail) {
-                  case SWT.TRAVERSE_RETURN:
-                    if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
-                      // Check if the name Exists
-                      modifyCTabItem(item, RENAME_ITEM, text.getText());
-                      item.setText(text.getText());
-                    }
-                    break;
-                  case SWT.TRAVERSE_ESCAPE:
-                    composite.dispose();
-                    e.doit = false;
-                    break;
-                  default:
-                    break;
-                }
+              case SWT.TRAVERSE_ESCAPE:
+                text.dispose();
+                event.doit = false;
                 break;
               default:
                 break;
             }
-          };
-      text.addListener(SWT.FocusOut, textListener);
-      text.addListener(SWT.Traverse, textListener);
-      text.addListener(SWT.Verify, textListener);
-      editor.setEditor(composite, item);
+          });
+
+      editor.setEditor(text, item);
       text.setText(item.getText());
       text.selectAll();
       text.setFocus();
