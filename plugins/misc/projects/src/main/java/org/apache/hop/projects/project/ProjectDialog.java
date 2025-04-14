@@ -173,13 +173,13 @@ public class ProjectDialog extends Dialog {
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
-    fdlName.top = new FormAttachment(0, margin);
+    fdlName.top = new FormAttachment(0, margin * 2);
     wlName.setLayoutData(fdlName);
     wName = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, margin);
-    fdName.right = new FormAttachment(98, 0);
+    fdName.right = new FormAttachment(99, 0);
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     wName.setLayoutData(fdName);
     Control lastControl = wName;
@@ -196,7 +196,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wbHome);
     wbHome.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.Browse"));
     FormData fdbHome = new FormData();
-    fdbHome.right = new FormAttachment(98, 0);
+    fdbHome.right = new FormAttachment(99, 0);
     fdbHome.top = new FormAttachment(wlHome, 0, SWT.CENTER);
     wbHome.setLayoutData(fdbHome);
     wbHome.addListener(SWT.Selection, this::browseHomeFolder);
@@ -221,7 +221,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wbConfigFile);
     wbConfigFile.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.Browse"));
     FormData fdbConfigFile = new FormData();
-    fdbConfigFile.right = new FormAttachment(98, 0);
+    fdbConfigFile.right = new FormAttachment(99, 0);
     fdbConfigFile.top = new FormAttachment(wlConfigFile, 0, SWT.CENTER);
     wbConfigFile.setLayoutData(fdbConfigFile);
     wbConfigFile.addListener(SWT.Selection, this::browseConfigFolder);
@@ -246,7 +246,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wParentProject);
     FormData fdParentProject = new FormData();
     fdParentProject.left = new FormAttachment(middle, margin);
-    fdParentProject.right = new FormAttachment(98, 0);
+    fdParentProject.right = new FormAttachment(99, 0);
     fdParentProject.top = new FormAttachment(wlParentProject, 0, SWT.CENTER);
     wParentProject.setLayoutData(fdParentProject);
     lastControl = wParentProject;
@@ -263,7 +263,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wDescription);
     FormData fdDescription = new FormData();
     fdDescription.left = new FormAttachment(middle, margin);
-    fdDescription.right = new FormAttachment(98, 0);
+    fdDescription.right = new FormAttachment(99, 0);
     fdDescription.top = new FormAttachment(wlDescription, 0, SWT.CENTER);
     wDescription.setLayoutData(fdDescription);
     lastControl = wDescription;
@@ -280,7 +280,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wCompany);
     FormData fdCompany = new FormData();
     fdCompany.left = new FormAttachment(middle, margin);
-    fdCompany.right = new FormAttachment(98, 0);
+    fdCompany.right = new FormAttachment(99, 0);
     fdCompany.top = new FormAttachment(wlCompany, 0, SWT.CENTER);
     wCompany.setLayoutData(fdCompany);
     lastControl = wCompany;
@@ -297,7 +297,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wDepartment);
     FormData fdDepartment = new FormData();
     fdDepartment.left = new FormAttachment(middle, margin);
-    fdDepartment.right = new FormAttachment(98, 0);
+    fdDepartment.right = new FormAttachment(99, 0);
     fdDepartment.top = new FormAttachment(wlDepartment, 0, SWT.CENTER);
     wDepartment.setLayoutData(fdDepartment);
     lastControl = wDepartment;
@@ -315,7 +315,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wMetadataBaseFolder);
     FormData fdMetadataBaseFolder = new FormData();
     fdMetadataBaseFolder.left = new FormAttachment(middle, margin);
-    fdMetadataBaseFolder.right = new FormAttachment(98, 0);
+    fdMetadataBaseFolder.right = new FormAttachment(99, 0);
     fdMetadataBaseFolder.top = new FormAttachment(wlMetadataBaseFolder, 0, SWT.CENTER);
     wMetadataBaseFolder.setLayoutData(fdMetadataBaseFolder);
     wMetadataBaseFolder.addModifyListener(e -> updateIVariables());
@@ -334,7 +334,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wUnitTestsBasePath);
     FormData fdUnitTestsBasePath = new FormData();
     fdUnitTestsBasePath.left = new FormAttachment(middle, margin);
-    fdUnitTestsBasePath.right = new FormAttachment(98, 0);
+    fdUnitTestsBasePath.right = new FormAttachment(99, 0);
     fdUnitTestsBasePath.top = new FormAttachment(wlUnitTestsBasePath, 0, SWT.CENTER);
     wUnitTestsBasePath.setLayoutData(fdUnitTestsBasePath);
     wUnitTestsBasePath.addModifyListener(e -> updateIVariables());
@@ -352,7 +352,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wDataSetCsvFolder);
     FormData fdDataSetCsvFolder = new FormData();
     fdDataSetCsvFolder.left = new FormAttachment(middle, margin);
-    fdDataSetCsvFolder.right = new FormAttachment(98, 0);
+    fdDataSetCsvFolder.right = new FormAttachment(99, 0);
     fdDataSetCsvFolder.top = new FormAttachment(wlDataSetCsvFolder, 0, SWT.CENTER);
     wDataSetCsvFolder.setLayoutData(fdDataSetCsvFolder);
     wDataSetCsvFolder.addModifyListener(e -> updateIVariables());
@@ -371,7 +371,7 @@ public class ProjectDialog extends Dialog {
     PropsUi.setLook(wEnforceHomeExecution);
     FormData fdEnforceHomeExecution = new FormData();
     fdEnforceHomeExecution.left = new FormAttachment(middle, margin);
-    fdEnforceHomeExecution.right = new FormAttachment(98, 0);
+    fdEnforceHomeExecution.right = new FormAttachment(99, 0);
     fdEnforceHomeExecution.top = new FormAttachment(wlEnforceHomeExecution, 0, SWT.CENTER);
     wEnforceHomeExecution.setLayoutData(fdEnforceHomeExecution);
     lastControl = wlEnforceHomeExecution;
@@ -381,8 +381,8 @@ public class ProjectDialog extends Dialog {
     wlVariables.setText(
         BaseMessages.getString(PKG, "ProjectDialog.Group.Label.ProjectVariablesToSet"));
     FormData fdlVariables = new FormData();
-    fdlVariables.left = new FormAttachment(0, 0);
-    fdlVariables.right = new FormAttachment(98, 0);
+    fdlVariables.left = new FormAttachment(1, 0);
+    fdlVariables.right = new FormAttachment(99, 0);
     fdlVariables.top = new FormAttachment(lastControl, 2 * margin);
     wlVariables.setLayoutData(fdlVariables);
 
@@ -418,10 +418,11 @@ public class ProjectDialog extends Dialog {
             props);
     PropsUi.setLook(wVariables);
     FormData fdVariables = new FormData();
-    fdVariables.left = new FormAttachment(0, 0);
-    fdVariables.right = new FormAttachment(98, 0);
+    fdVariables.left = new FormAttachment(1, 0);
+    fdVariables.right = new FormAttachment(99, 0);
     fdVariables.top = new FormAttachment(wlVariables, margin);
-    fdVariables.bottom = new FormAttachment(100, -margin * 2);
+    fdVariables.bottom = new FormAttachment(100, -margin * 4);
+    fdVariables.width = 300;
     wVariables.setLayoutData(fdVariables);
     wVariables.addModifyListener(e -> needingProjectRefresh = true);
 
