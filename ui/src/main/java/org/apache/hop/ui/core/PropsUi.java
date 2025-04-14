@@ -78,6 +78,8 @@ public class PropsUi extends Props {
   private static final String DARK_MODE = "DarkMode";
   private static final String GLOBAL_ZOOMFACTOR = "GlobalZoomFactor";
   private static final String MAX_EXECUTION_LOGGING_TEXT_SIZE = "MaxExecutionLoggingTextSize";
+  private static final String GRAPH_EXTRA_VIEW_VERTICAL_ORIENTATION =
+      "GraphExtraViewVerticalOrientation";
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
@@ -417,6 +419,16 @@ public class PropsUi extends Props {
   public boolean getSaveConfirmation() {
     String saveconf = getProperty(STRING_SAVE_CONF);
     return YES.equalsIgnoreCase(saveconf); // Default = OFF
+  }
+
+  public boolean isGraphExtraViewVerticalOrientation() {
+    String vertical = this.getProperty(GRAPH_EXTRA_VIEW_VERTICAL_ORIENTATION);
+    return YES.equalsIgnoreCase(vertical);
+  }
+
+  /** Set true for vertical orientation */
+  public void setGraphExtraViewVerticalOrientation(boolean vertical) {
+    setProperty(GRAPH_EXTRA_VIEW_VERTICAL_ORIENTATION, vertical ? YES : NO);
   }
 
   public void setAutoSplit(boolean autosplit) {

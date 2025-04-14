@@ -482,7 +482,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // To allow for a splitter later on, we will add the splitter here...
     //
-    sashForm = new SashForm(mainComposite, SWT.VERTICAL);
+    sashForm =
+        new SashForm(
+            mainComposite,
+            PropsUi.getInstance().isGraphExtraViewVerticalOrientation()
+                ? SWT.VERTICAL
+                : SWT.HORIZONTAL);
     FormData fdSashForm = new FormData();
     fdSashForm.left = new FormAttachment(0, 0);
     fdSashForm.top = new FormAttachment(0, 0);
@@ -3933,7 +3938,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
+  private void rotateExtraView() {
+    // Toggle orientation
+    boolean orientation = !PropsUi.getInstance().isGraphExtraViewVerticalOrientation();
+    PropsUi.getInstance().setGraphExtraViewVerticalOrientation(orientation);
+
+    if (orientation) {
+      sashForm.setOrientation(SWT.VERTICAL);
+      rotateItem.setImage(GuiResource.getInstance().getImageRotateRight());
+    } else {
+      sashForm.setOrientation(SWT.HORIZONTAL);
+      rotateItem.setImage(GuiResource.getInstance().getImageRotateLeft());
+    }
+  }
+
   private ToolItem minMaxItem;
+  private ToolItem rotateItem;
 
   /** Add an extra view to the main composite SashForm */
   public void addExtraView() {
@@ -3974,6 +3994,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     minMaxItem.setToolTipText(
         BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     minMaxItem.addListener(SWT.Selection, e -> minMaxExtraView());
+
+    rotateItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+    rotateItem.setImage(
+        PropsUi.getInstance().isGraphExtraViewVerticalOrientation()
+            ? GuiResource.getInstance().getImageRotateRight()
+            : GuiResource.getInstance().getImageRotateLeft());
+    rotateItem.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.RotateButton.Tooltip"));
+    rotateItem.addListener(SWT.Selection, e -> rotateExtraView());
 
     ToolItem closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
     closeItem.setImage(GuiResource.getInstance().getImageClosePanel());
