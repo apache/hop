@@ -55,12 +55,13 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   }
 
   protected GoogleStorageFileObject(
-      AbstractFileName name, GoogleStorageFileSystem fs, Bucket bucket, Blob blob) {
+      String scheme, AbstractFileName name, GoogleStorageFileSystem fs, Bucket bucket, Blob blob) {
     super(name, fs);
     bucketName = getAbstractFileSystem().getBucketName(getName()).trim();
     bucketPath = getAbstractFileSystem().getBucketPath(getName()).trim();
     this.bucket = bucket;
     this.blob = blob;
+    this.scheme = scheme;
   }
 
   private boolean hasBucket() {
@@ -259,6 +260,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
         }
         results.add(
             new GoogleStorageFileObject(
+                scheme,
                 new GoogleStorageFileName(
                     scheme,
                     getName().getPath() + "/" + lastPathElement(stripTrailingSlash(b.getName())),
