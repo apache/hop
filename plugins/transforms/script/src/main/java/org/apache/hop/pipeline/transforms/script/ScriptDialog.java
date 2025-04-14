@@ -32,7 +32,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.script.ScriptMeta.SScript;
 import org.apache.hop.pipeline.transforms.script.ScriptMeta.ScriptType;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -63,10 +62,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -74,7 +70,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -109,8 +104,6 @@ public class ScriptDialog extends BaseTransformDialog {
   private Image imageInactiveScript;
   private Image imageActiveStartScript;
   private Image imageActiveEndScript;
-  private Image imageArrowOrange;
-  private Image imageArrowGreen;
 
   private CTabFolder folder;
   private Menu cMenu;
@@ -147,30 +140,12 @@ public class ScriptDialog extends BaseTransformDialog {
     input = transformMeta;
 
     try {
-      imageArrowGreen =
-          GuiResource.getInstance()
-              .getImage(
-                  "arrowGreen.svg",
-                  getClass().getClassLoader(),
-                  ConstUi.SMALL_ICON_SIZE,
-                  ConstUi.SMALL_ICON_SIZE);
-      imageArrowOrange =
-          GuiResource.getInstance()
-              .getImage(
-                  "arrowOrange.svg",
-                  getClass().getClassLoader(),
-                  ConstUi.SMALL_ICON_SIZE,
-                  ConstUi.SMALL_ICON_SIZE);
-
       imageActiveScript = GuiResource.getInstance().getImage("ui/images/script-active.svg");
       imageInactiveScript = GuiResource.getInstance().getImage("ui/images/script-inactive.svg");
       imageActiveStartScript = GuiResource.getInstance().getImage("ui/images/script-start.svg");
       imageActiveEndScript = GuiResource.getInstance().getImage("ui/images/script-end.svg");
 
     } catch (Exception e) {
-      imageArrowOrange = GuiResource.getInstance().getImageEmpty();
-      imageArrowGreen = GuiResource.getInstance().getImageEmpty();
-
       imageActiveScript = GuiResource.getInstance().getImageEmpty();
       imageInactiveScript = GuiResource.getInstance().getImageEmpty();
       imageActiveStartScript = GuiResource.getInstance().getImageEmpty();
@@ -463,7 +438,7 @@ public class ScriptDialog extends BaseTransformDialog {
 
     // Adding the Default Transform Scripts Item to the Tree
     wTreeScriptsItem = new TreeItem(wTree, SWT.NULL);
-    wTreeScriptsItem.setImage(GuiResource.getInstance().getImageBol());
+    wTreeScriptsItem.setImage(GuiResource.getInstance().getImageFolder());
     wTreeScriptsItem.setText(BaseMessages.getString(PKG, "ScriptDialog.TransformScript.Label"));
 
     // Set the shell size, based upon previous time...
@@ -771,7 +746,7 @@ public class ScriptDialog extends BaseTransformDialog {
 
   private String getNextName(String strActualName) {
     String strRC = "";
-    if (strActualName.length() == 0) {
+    if (strActualName.isEmpty()) {
       strActualName = "Item";
     }
 
@@ -895,7 +870,7 @@ public class ScriptDialog extends BaseTransformDialog {
       field.setName(item.getText(1));
       field.setRename(item.getText(2));
       if (field.getRename() == null
-          || field.getRename().length() == 0
+          || field.getRename().isEmpty()
           || field.getRename().equalsIgnoreCase(field.getName())) {
         field.setRename(field.getName());
       }
@@ -968,18 +943,18 @@ public class ScriptDialog extends BaseTransformDialog {
   private void buildSpecialFunctionsTree() {
 
     TreeItem item = new TreeItem(wTree, SWT.NULL);
-    item.setImage(GuiResource.getInstance().getImageBol());
+    item.setImage(GuiResource.getInstance().getImageFolder());
     item.setText(BaseMessages.getString(PKG, "ScriptDialog.TransformConstant.Label"));
     TreeItem itemT = new TreeItem(item, SWT.NULL);
-    itemT.setImage(imageArrowGreen);
+    itemT.setImage(GuiResource.getInstance().getImageLabel());
     itemT.setText("SKIP_TRANSFORMATION");
     itemT.setData("SKIP_TRANSFORMATION");
     itemT = new TreeItem(item, SWT.NULL);
-    itemT.setImage(imageArrowGreen);
+    itemT.setImage(GuiResource.getInstance().getImageLabel());
     itemT.setText("ERROR_TRANSFORMATION");
     itemT.setData("ERROR_TRANSFORMATION");
     itemT = new TreeItem(item, SWT.NULL);
-    itemT.setImage(imageArrowGreen);
+    itemT.setImage(GuiResource.getInstance().getImageLabel());
     itemT.setText("CONTINUE_TRANSFORMATION");
     itemT.setData("CONTINUE_TRANSFORMATION");
   }
@@ -1017,12 +992,12 @@ public class ScriptDialog extends BaseTransformDialog {
                   strItemInToAdd = v.getName();
 
                   TreeItem itemFields = new TreeItem(itemInput, SWT.NULL);
-                  itemFields.setImage(imageArrowOrange);
+                  itemFields.setImage(GuiResource.getInstance().getImage(v));
                   itemFields.setText(strItemInToAdd);
                   itemFields.setData(strItemInToAdd);
 
                   itemFields = new TreeItem(itemOutput, SWT.NULL);
-                  itemFields.setImage(imageArrowOrange);
+                  itemFields.setImage(GuiResource.getInstance().getImage(v));
                   itemFields.setText(strItemToAddOut);
                   itemFields.setData(strItemToAddOut);
                 }
@@ -1033,7 +1008,7 @@ public class ScriptDialog extends BaseTransformDialog {
                   String renameField = item.getText(2);
                   strItemToAddOut = StringUtils.isEmpty(renameField) ? fieldName : renameField;
                   TreeItem itemFields = new TreeItem(itemOutput, SWT.NULL);
-                  itemFields.setImage(imageArrowOrange);
+                  itemFields.setImage(GuiResource.getInstance().getImageLabel());
                   itemFields.setText(strItemToAddOut);
                   itemFields.setData(strItemToAddOut);
                 }
@@ -1204,6 +1179,9 @@ public class ScriptDialog extends BaseTransformDialog {
   private void addRenameToTreeScriptItems() {
     lastItem = new TreeItem[1];
     editor = new TreeEditor(wTree);
+    editor.horizontalAlignment = SWT.LEFT;
+    editor.grabHorizontal = true;
+
     wTree.addListener(
         SWT.Selection,
         event -> {
@@ -1213,81 +1191,45 @@ public class ScriptDialog extends BaseTransformDialog {
   }
 
   // This function is for a Windows Like renaming inside the tree
-
-  private void renameFunction(TreeItem tItem) {
-    final TreeItem item = tItem;
+  private void renameFunction(TreeItem item) {
     if (item != null
         && item.getParentItem() != null
         && item.getParentItem().equals(wTreeScriptsItem)
         && item == lastItem[0]) {
-      boolean isCarbon = SWT.getPlatform().equals("carbon");
-      final Composite composite = new Composite(wTree, SWT.NONE);
-      if (!isCarbon) {
-        composite.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-      }
-      final Text text = new Text(composite, SWT.NONE);
-      final int inset = isCarbon ? 0 : 1;
-      composite.addListener(
-          SWT.Resize,
-          e -> {
-            Rectangle rect = composite.getClientArea();
-            text.setBounds(
-                rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2);
+
+      final Text text = new Text(wTree, SWT.BORDER);
+      text.addListener(
+          SWT.FocusOut,
+          event -> {
+            if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
+              // Check if the name Exists
+              modifyCTabItem(item, RENAME_ITEM, text.getText());
+              item.setText(text.getText());
+            }
+            text.dispose();
           });
-      Listener textListener =
-          e -> {
-            switch (e.type) {
-              case SWT.FocusOut:
-                // Check if the name Exists
-                if (text.getText().length() > 0 && (getCTabItemByName(text.getText()) == null)) {
+      text.addListener(
+          SWT.Traverse,
+          event -> {
+            switch (event.detail) {
+              case SWT.TRAVERSE_RETURN:
+                if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
+                  // Check if the name Exists
                   modifyCTabItem(item, RENAME_ITEM, text.getText());
                   item.setText(text.getText());
                 }
-                composite.dispose();
+                text.dispose();
                 break;
-              case SWT.Verify:
-                String newText = text.getText();
-                String leftText = newText.substring(0, e.start);
-                String rightText = newText.substring(e.end);
-                GC gc = new GC(text);
-                Point size = gc.textExtent(leftText + e.text + rightText);
-                gc.dispose();
-                size = text.computeSize(size.x, SWT.DEFAULT);
-                editor.horizontalAlignment = SWT.LEFT;
-                Rectangle itemRect = item.getBounds();
-                Rectangle rect = wTree.getClientArea();
-                editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
-                int left = itemRect.x;
-                int right = rect.x + rect.width;
-                editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
-                editor.minimumHeight = size.y + inset * 2;
-                editor.layout();
-                break;
-              case SWT.Traverse:
-                switch (e.detail) {
-                  case SWT.TRAVERSE_RETURN:
-                    if (text.getText().length() > 0
-                        && (getCTabItemByName(text.getText()) == null)) {
-                      modifyCTabItem(item, RENAME_ITEM, text.getText());
-                      item.setText(text.getText());
-                    }
-                    break;
-                  case SWT.TRAVERSE_ESCAPE:
-                    composite.dispose();
-                    e.doit = false;
-                    break;
-                  default:
-                    break;
-                }
+              case SWT.TRAVERSE_ESCAPE:
+                text.dispose();
+                event.doit = false;
                 break;
               default:
                 break;
             }
-          };
-      text.addListener(SWT.FocusOut, textListener);
-      text.addListener(SWT.Traverse, textListener);
-      text.addListener(SWT.Verify, textListener);
-      editor.setEditor(composite, item);
+          });
+
+      editor.setEditor(text, item);
       text.setText(item.getText());
       text.selectAll();
       text.setFocus();

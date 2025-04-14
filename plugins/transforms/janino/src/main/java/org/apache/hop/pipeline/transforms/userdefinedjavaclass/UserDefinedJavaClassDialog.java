@@ -65,7 +65,6 @@ import org.apache.hop.ui.core.widget.JavaStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
-import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -86,7 +85,6 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -903,7 +901,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
       wScript.addLineStyleListener();
     }
 
-    if ((tabCode != null) && tabCode.length() > 0) {
+    if ((tabCode != null) && !tabCode.isEmpty()) {
       wScript.setText(tabCode);
     } else {
       wScript.setText(snippitsHelper.getDefaultCode());
@@ -1041,7 +1039,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   private String getNextName(String strActualName) {
     String strRC = "";
-    if (strActualName.length() == 0) {
+    if (strActualName.isEmpty()) {
       strActualName = "ExtraClass";
     }
 
@@ -1796,6 +1794,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   private void addRenameToTreeScriptItems() {
     lastItem = new TreeItem[1];
     editor = new TreeEditor(wTree);
+    editor.horizontalAlignment = SWT.LEFT;
+    editor.grabHorizontal = true;
+
     wTree.addListener(
         SWT.Selection,
         event -> {
@@ -1805,77 +1806,45 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   // This function is for a Windows Like renaming inside the tree
-  private void renameFunction(TreeItem tItem) {
-    final TreeItem item = tItem;
-    if (item.getParentItem() != null
+  private void renameFunction(TreeItem item) {
+    if (item != null
+        && item.getParentItem() != null
         && item.getParentItem().equals(wTreeClassesItem)
-        && item != null
         && item == lastItem[0]) {
-      boolean isCarbon = SWT.getPlatform().equals("carbon");
-      final Composite composite = new Composite(wTree, SWT.NONE);
-      if (!isCarbon) {
-        composite.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-      }
-      final Text text = new Text(composite, SWT.NONE);
-      final int inset = isCarbon ? 0 : 1;
-      composite.addListener(
-          SWT.Resize,
-          e -> {
-            Rectangle rect = composite.getClientArea();
-            text.setBounds(
-                rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2);
+
+      final Text text = new Text(wTree, SWT.BORDER);
+      text.addListener(
+          SWT.FocusOut,
+          event -> {
+            if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
+              // Check if the name Exists
+              modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
+              item.setText(text.getText());
+            }
+            text.dispose();
           });
-      Listener textListener =
-          e -> {
-            switch (e.type) {
-              case SWT.FocusOut:
+      text.addListener(
+          SWT.Traverse,
+          event -> {
+            switch (event.detail) {
+              case SWT.TRAVERSE_RETURN:
                 if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
-                  // Check if the field_name Exists
+                  // Check if the name Exists
                   modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
-                  item.setText(cleanClassName(text.getText()));
+                  item.setText(text.getText());
                 }
-                composite.dispose();
+                text.dispose();
                 break;
-              case SWT.Verify:
-                String newText = text.getText();
-                String leftText = newText.substring(0, e.start);
-                String rightText = newText.substring(e.end, newText.length());
-                Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
-                size = text.computeSize(size.x, SWT.DEFAULT);
-                editor.horizontalAlignment = SWT.LEFT;
-                Rectangle itemRect = item.getBounds();
-                Rectangle rect = wTree.getClientArea();
-                editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
-                int left = itemRect.x;
-                int right = rect.x + rect.width;
-                editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
-                editor.minimumHeight = size.y + inset * 2;
-                editor.layout();
-                break;
-              case SWT.Traverse:
-                switch (e.detail) {
-                  case SWT.TRAVERSE_RETURN:
-                    if (!text.getText().isEmpty() && getCTabItemByName(text.getText()) == null) {
-                      // Check if the field_name Exists
-                      modifyCTabItem(item, TabActions.RENAME_ITEM, text.getText());
-                      item.setText(cleanClassName(text.getText()));
-                    }
-                  case SWT.TRAVERSE_ESCAPE:
-                    composite.dispose();
-                    e.doit = false;
-                    break;
-                  default:
-                    break;
-                }
+              case SWT.TRAVERSE_ESCAPE:
+                text.dispose();
+                event.doit = false;
                 break;
               default:
                 break;
             }
-          };
-      text.addListener(SWT.FocusOut, textListener);
-      text.addListener(SWT.Traverse, textListener);
-      text.addListener(SWT.Verify, textListener);
-      editor.setEditor(composite, item);
+          });
+
+      editor.setEditor(text, item);
       text.setText(item.getText());
       text.selectAll();
       text.setFocus();
