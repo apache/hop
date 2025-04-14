@@ -716,8 +716,7 @@ public class WorkflowDialog extends Dialog {
     String id = plugin.getIds()[0];
     if (id != null) {
       return GuiResource.getInstance()
-          .getImagesActions()
-          .get(id)
+          .getSwtImageAction(id)
           .getAsBitmapForSize(shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE);
     }
     return null;
