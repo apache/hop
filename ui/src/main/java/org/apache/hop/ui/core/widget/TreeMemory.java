@@ -114,7 +114,7 @@ public class TreeMemory {
 
     Boolean expanded = map.get(key);
     if (expanded != null) {
-      return expanded.booleanValue();
+      return expanded;
     } else {
       return false;
     }
