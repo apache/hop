@@ -3033,22 +3033,3 @@ Portable Contraints: The result of this function may change across locales. If s
 |expression|result|comment
 |UPPER("Habc7") |"HABC7"|Lowercase converted to upper case, other characters just copied to result.
 |===
-
-==== URLENCODE
-
-
-|===
-|*description*|Applies URL-Encoding to a text given in the first parameter using the encoding specified in the second parameter. If no encoding is given, UTF-8 is assumed.
-|*syntax*|URLENCODE( Text text, Text encoding )
-|*returns*|Text
-|*semantics*|text is the string to encode, encoding is the character set to use when encoding.
-|*constraints*|Encoding must be a valid character set.
-|===
-
-*Examples*
-|===
-|expression|result|comment
-|URLENCODE("&PARAM1=value?param2=value2") |%26PARAM1%3Dvalue%3Fparam2%3Dvalue2|
-|===
-
-

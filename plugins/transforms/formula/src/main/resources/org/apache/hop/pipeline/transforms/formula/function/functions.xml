@@ -2984,19 +2984,6 @@ System 2    The week containing the first Thursday of the year is the first week
 
   <function>
     <category>%Category.Text</category>
-    <name>URLENCODE</name>
-    <description>Applies URL-Encoding to a text given in the first parameter using the encoding specified in the second parameter. If no encoding is given, UTF-8 is assumed.</description>
-    <syntax>URLENCODE( Text text, Text encoding )</syntax>
-    <returns>Text</returns>
-    <constraints>Encoding must be a valid character set.</constraints>
-    <semantics>text is the string to encode, encoding is the character set to use when encoding.</semantics>
-    <examples>
-      <example><expression>URLENCODE("&amp;PARAM1=value?param2=value2")</expression> <result>%26PARAM1%3Dvalue%3Fparam2%3Dvalue2</result> <level>1</level> <comment></comment></example>
-    </examples>
-  </function>
-
-  <function>
-    <category>%Category.Text</category>
     <name>UNICHAR</name>
     <description>Converts a code number into a Unicode character or letter.</description>
     <syntax>UNICHAR( Integer )</syntax>
