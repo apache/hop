@@ -283,48 +283,49 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
   /*
    * build the SQL statement to send to Salesforce
    */
-  private String BuiltSOQl() {
-    String sql = "";
+  private String buildSOQl() {
+    StringBuilder sql = new StringBuilder();
     SalesforceInputField[] fields = meta.getInputFields();
 
     switch (meta.getRecordsFilter()) {
       case SalesforceConnectionUtils.RECORDS_FILTER_UPDATED:
         for (int i = 0; i < data.nrFields; i++) {
           SalesforceInputField field = fields[i];
-          sql += resolve(field.getField());
+          sql.append(resolve(field.getField()));
           if (i < data.nrFields - 1) {
-            sql += ",";
+            sql.append(",");
           }
         }
         break;
       case SalesforceConnectionUtils.RECORDS_FILTER_DELETED:
-        sql += "SELECT ";
+        sql.append("SELECT ");
         for (int i = 0; i < data.nrFields; i++) {
           SalesforceInputField field = fields[i];
-          sql += resolve(field.getField());
+          sql.append(resolve(field.getField()));
           if (i < data.nrFields - 1) {
-            sql += ",";
+            sql.append(",");
           }
         }
-        sql += " FROM " + resolve(meta.getModule()) + " WHERE isDeleted = true";
+        sql.append(" FROM ").append(resolve(meta.getModule())).append(" WHERE isDeleted = true");
         break;
       default:
-        sql += "SELECT ";
+        sql.append("SELECT ");
         for (int i = 0; i < data.nrFields; i++) {
           SalesforceInputField field = fields[i];
-          sql += resolve(field.getField());
+          sql.append(resolve(field.getField()));
           if (i < data.nrFields - 1) {
-            sql += ",";
+            sql.append(",");
           }
         }
-        sql = sql + " FROM " + resolve(meta.getModule());
+        sql.append(" FROM ").append(resolve(meta.getModule()));
         if (!Utils.isEmpty(resolve(meta.getCondition()))) {
-          sql += " WHERE " + resolve(meta.getCondition().replace("\n\r", "").replace("\n", ""));
+          sql.append(" WHERE ")
+              .append(resolve(meta.getCondition().replace("\n\r", "").replace("\n", "")));
         }
         break;
     }
 
-    return sql;
+    return sql.toString();
   }
 
   /**
@@ -407,10 +408,10 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
           if (meta.getRecordsFilter() == SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
             // Return fields list
-            data.connection.setFieldsList(BuiltSOQl());
+            data.connection.setFieldsList(buildSOQl());
           } else {
             // Build now SOQL
-            data.connection.setSQL(BuiltSOQl());
+            data.connection.setSQL(buildSOQl());
           }
         }
 

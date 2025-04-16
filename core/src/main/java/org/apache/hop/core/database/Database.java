@@ -1909,7 +1909,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       boolean unique,
       boolean bitmap,
       boolean semiColon) {
-    String crIndex = "";
+    StringBuilder crIndex = new StringBuilder();
     IDatabase iDatabase = databaseMeta.getIDatabase();
 
     // Exasol does not support explicit handling of indexes
@@ -1917,36 +1917,36 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       return "";
     }
 
-    crIndex += "CREATE ";
+    crIndex.append("CREATE ");
 
     if (unique || (tk && iDatabase.isSybaseVariant())) {
-      crIndex += "UNIQUE ";
+      crIndex.append("UNIQUE ");
     }
 
     if (bitmap && databaseMeta.supportsBitmapIndex()) {
-      crIndex += "BITMAP ";
+      crIndex.append("BITMAP ");
     }
 
-    crIndex += "INDEX " + databaseMeta.quoteField(indexname) + " ";
-    crIndex += "ON ";
+    crIndex.append("INDEX ").append(databaseMeta.quoteField(indexname)).append(" ");
+    crIndex.append("ON ");
     // assume table has already been quoted (and possibly includes schema)
-    crIndex += tableName;
-    crIndex += "(";
+    crIndex.append(tableName);
+    crIndex.append("(");
     for (int i = 0; i < idxFields.length; i++) {
       if (i > 0) {
-        crIndex += ", ";
+        crIndex.append(", ");
       }
-      crIndex += databaseMeta.quoteField(idxFields[i]);
+      crIndex.append(databaseMeta.quoteField(idxFields[i]));
     }
-    crIndex += ")" + Const.CR;
+    crIndex.append(")").append(Const.CR);
 
-    crIndex += iDatabase.getIndexTablespaceDDL(variables, databaseMeta);
+    crIndex.append(iDatabase.getIndexTablespaceDDL(variables, databaseMeta));
 
     if (semiColon) {
-      crIndex += ";" + Const.CR;
+      crIndex.append(";").append(Const.CR);
     }
 
-    return crIndex;
+    return crIndex.toString();
   }
 
   public String getCreateSequenceStatement(
@@ -2540,37 +2540,38 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
       String table = databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
 
-      String sql = "SELECT ";
+      StringBuilder sql = new StringBuilder();
+      sql.append("SELECT ");
 
       for (int i = 0; i < gets.length; i++) {
         if (i != 0) {
-          sql += ", ";
+          sql.append(", ");
         }
-        sql += databaseMeta.quoteField(gets[i]);
+        sql.append(databaseMeta.quoteField(gets[i]));
         if (rename != null && rename[i] != null && !gets[i].equalsIgnoreCase(rename[i])) {
-          sql += " AS " + databaseMeta.quoteField(rename[i]);
+          sql.append(" AS ").append(databaseMeta.quoteField(rename[i]));
         }
       }
 
-      sql += " FROM " + table + " WHERE ";
+      sql.append(" FROM ").append(table).append(" WHERE ");
 
       for (int i = 0; i < codes.length; i++) {
         if (i != 0) {
-          sql += " AND ";
+          sql.append(" AND ");
         }
-        sql += databaseMeta.quoteField(codes[i]);
+        sql.append(databaseMeta.quoteField(codes[i]));
         if (CONST_BETWEEN.equalsIgnoreCase(condition[i])) {
-          sql += CONST_BETWEEN_AND;
+          sql.append(CONST_BETWEEN_AND);
         } else if (CONST_IS_NULL.equalsIgnoreCase(condition[i])
             || CONST_IS_NOT_NULL.equalsIgnoreCase(condition[i])) {
-          sql += " " + condition[i] + " ";
+          sql.append(" ").append(condition[i]).append(" ");
         } else {
-          sql += " " + condition[i] + " ? ";
+          sql.append(" ").append(condition[i]).append(" ? ");
         }
       }
 
       if (orderby != null && orderby.length() != 0) {
-        sql += " ORDER BY " + orderby;
+        sql.append(" ORDER BY ").append(orderby);
       }
 
       try {
@@ -2674,24 +2675,24 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     try {
       log.snap(Metrics.METRIC_DATABASE_PREPARE_DELETE_START, databaseMeta.getName());
 
-      String sql;
+      StringBuilder sql = new StringBuilder();
 
       String table = databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
-      sql = databaseMeta.getSqlDeleteStmt(table) + Const.CR;
-      sql += "WHERE ";
+      sql.append(databaseMeta.getSqlDeleteStmt(table)).append(Const.CR);
+      sql.append("WHERE ");
 
       for (int i = 0; i < codes.length; i++) {
         if (i != 0) {
-          sql += "AND   ";
+          sql.append("AND   ");
         }
-        sql += codes[i];
+        sql.append(codes[i]);
         if (CONST_BETWEEN.equalsIgnoreCase(condition[i])) {
-          sql += CONST_BETWEEN_AND;
+          sql.append(CONST_BETWEEN_AND);
         } else if (CONST_IS_NULL.equalsIgnoreCase(condition[i])
             || CONST_IS_NOT_NULL.equalsIgnoreCase(condition[i])) {
-          sql += " " + condition[i] + " ";
+          sql.append(" ").append(condition[i]).append(" ");
         } else {
-          sql += " " + condition[i] + " ? ";
+          sql.append(" ").append(condition[i]).append(" ? ");
         }
       }
 
@@ -2716,37 +2717,37 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       throws HopDatabaseException {
     try {
       log.snap(Metrics.METRIC_DATABASE_PREPARE_DBPROC_START, databaseMeta.getName());
-      String sql;
+      StringBuilder sql = new StringBuilder();
       int pos = 0;
 
-      sql = "{ ";
+      sql.append("{ ");
       if (returnvalue != null && returnvalue.length() != 0) {
-        sql += "? = ";
+        sql.append("? = ");
       }
-      sql += "call " + proc + " ";
+      sql.append("call " + proc + " ");
 
       if (arg.length > 0) {
-        sql += "(";
+        sql.append("(");
       }
 
       for (int i = 0; i < arg.length; i++) {
         if (i != 0) {
-          sql += ", ";
+          sql.append(", ");
         }
-        sql += " ?";
+        sql.append(" ?");
       }
 
       if (arg.length > 0) {
-        sql += ")";
+        sql.append(")");
       }
 
-      sql += "}";
+      sql.append("}");
 
       try {
         if (log.isDetailed()) {
           log.logDetailed("DBA setting callableStatement to [" + sql + "]");
         }
-        cstmt = connection.prepareCall(sql);
+        cstmt = connection.prepareCall(sql.toString());
         pos = 1;
         if (!Utils.isEmpty(returnvalue)) {
           switch (returntype) {
@@ -2992,7 +2993,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       String pk,
       boolean semicolon)
       throws HopDatabaseException {
-    String retval = "";
+    StringBuilder retval = new StringBuilder();
 
     // Get the fields that are in the table now:
     IRowMeta tabFields = getTableFields(tableName);
@@ -3013,7 +3014,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (missing.size() != 0) {
       for (int i = 0; i < missing.size(); i++) {
         IValueMeta v = missing.getValueMeta(i);
-        retval += databaseMeta.getAddColumnStatement(tableName, v, tk, useAutoIncrement, pk, true);
+        retval.append(
+            databaseMeta.getAddColumnStatement(tableName, v, tk, useAutoIncrement, pk, true));
       }
     }
 
@@ -3030,7 +3032,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (surplus.size() != 0) {
       for (int i = 0; i < surplus.size(); i++) {
         IValueMeta v = surplus.getValueMeta(i);
-        retval += databaseMeta.getDropColumnStatement(tableName, v, tk, useAutoIncrement, pk, true);
+        retval.append(
+            databaseMeta.getDropColumnStatement(tableName, v, tk, useAutoIncrement, pk, true));
       }
     }
 
@@ -3056,12 +3059,12 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (modify.size() > 0) {
       for (int i = 0; i < modify.size(); i++) {
         IValueMeta v = modify.getValueMeta(i);
-        retval +=
-            databaseMeta.getModifyColumnStatement(tableName, v, tk, useAutoIncrement, pk, true);
+        retval.append(
+            databaseMeta.getModifyColumnStatement(tableName, v, tk, useAutoIncrement, pk, true));
       }
     }
 
-    return retval;
+    return retval.toString();
   }
 
   public void truncateTable(String tableName) throws HopDatabaseException {
@@ -4639,20 +4642,22 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
       BufferedReader buff = new BufferedReader(bis);
       String sLine = null;
-      String sql = Const.CR;
+      StringBuilder sql = new StringBuilder();
+
+      sql.append(Const.CR);
 
       while ((sLine = buff.readLine()) != null) {
         if (Utils.isEmpty(sLine)) {
-          sql = sql + Const.CR;
+          sql.append(Const.CR);
         } else {
-          sql = sql + Const.CR + sLine;
+          sql.append(Const.CR + sLine);
         }
       }
 
       if (sendSinglestatement) {
-        return execStatement(sql);
+        return execStatement(sql.toString());
       } else {
-        return execStatements(sql);
+        return execStatements(sql.toString());
       }
 
     } catch (Exception e) {

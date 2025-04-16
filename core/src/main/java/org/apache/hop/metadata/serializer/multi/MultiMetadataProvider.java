@@ -74,17 +74,19 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
   }
 
   private String calculateDescription() {
-    String descr = "Multi Metadata Provider with " + providers.size() + " providers";
+    StringBuilder descr = new StringBuilder();
+
+    descr.append("Multi Metadata Provider with " + providers.size() + " providers");
     for (int i = 0; i < providers.size(); i++) {
       IHopMetadataProvider provider = providers.get(i);
       if (i == 0) {
-        descr += ": ";
+        descr.append(": ");
       } else {
-        descr += ", ";
+        descr.append(", ");
       }
-      descr += provider.getDescription();
+      descr.append(provider.getDescription());
     }
-    return descr;
+    return descr.toString();
   }
 
   @Override

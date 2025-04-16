@@ -154,7 +154,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     if (databaseMeta != null) {
       FileObject sqlFile = null;
       try (Database db = new Database(this, this, databaseMeta)) {
-        String theSql = null;
+        StringBuilder theSql = new StringBuilder();
         db.connect();
 
         if (sqlFromFile) {
@@ -184,13 +184,13 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
 
               BufferedReader buff = new BufferedReader(inputStreamReader);
               String sLine = null;
-              theSql = Const.CR;
+              theSql.append(Const.CR);
 
               while ((sLine = buff.readLine()) != null) {
                 if (Utils.isEmpty(sLine)) {
-                  theSql = theSql + Const.CR;
+                  theSql.append(Const.CR);
                 } else {
-                  theSql = theSql + Const.CR + sLine;
+                  theSql.append(Const.CR).append(sLine);
                 }
               }
             } finally {
@@ -202,20 +202,21 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
           }
 
         } else {
-          theSql = sql;
+          theSql.append(sql);
         }
         if (!Utils.isEmpty(theSql)) {
           // let it run
+          String executionSql = theSql.toString();
           if (useVariableSubstitution) {
-            theSql = resolve(theSql);
+            executionSql = resolve(executionSql);
           }
           if (isDetailed()) {
-            logDetailed(BaseMessages.getString(PKG, "ActionSQL.Log.SQlStatement", theSql));
+            logDetailed(BaseMessages.getString(PKG, "ActionSQL.Log.SQlStatement", executionSql));
           }
           if (sendOneStatement) {
-            db.execStatement(theSql);
+            db.execStatement(executionSql);
           } else {
-            db.execStatements(theSql);
+            db.execStatements(executionSql);
           }
         }
       } catch (HopDatabaseException je) {

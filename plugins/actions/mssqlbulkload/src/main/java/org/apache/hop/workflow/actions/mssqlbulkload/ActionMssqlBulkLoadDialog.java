@@ -1233,15 +1233,15 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
           dialog.setAvoidQuickSearch();
           dialog.setSelectedNrs(idxSource);
           if (dialog.open() != null) {
-            String columns = "";
+            StringBuilder columns = new StringBuilder();
             int[] idx = dialog.getSelectionIndeces();
             for (int i = 0; i < idx.length; i++) {
               if (i > 0) {
-                columns += ", ";
+                columns.append(", ");
               }
-              columns += available[idx[i]];
+              columns.append(available[idx[i]]);
             }
-            wOrderBy.setText(columns);
+            wOrderBy.setText(columns.toString());
           }
         } catch (HopDatabaseException e) {
           new ErrorDialog(

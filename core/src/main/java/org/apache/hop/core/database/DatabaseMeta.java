@@ -1638,10 +1638,10 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       list.add(r);
 
       // List of reserved words
-      String reserved = "";
+      StringBuilder reserved = new StringBuilder();
       if (getReservedWords() != null) {
         for (int i = 0; i < getReservedWords().length; i++) {
-          reserved += (i > 0 ? ", " : "") + getReservedWords()[i];
+          reserved.append(i > 0 ? ", " : "").append(getReservedWords()[i]);
         }
       }
       r = new RowMetaAndData();
@@ -1666,11 +1666,11 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       list.add(r);
 
       // List of table types
-      String types = "";
+      StringBuilder types = new StringBuilder();
       String[] slist = getTableTypes();
       if (slist != null) {
         for (int i = 0; i < slist.length; i++) {
-          types += (i > 0 ? ", " : "") + slist[i];
+          types.append(i > 0 ? ", " : "").append(slist[i]);
         }
       }
       r = new RowMetaAndData();
@@ -1679,11 +1679,11 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       list.add(r);
 
       // List of view types
-      types = "";
+      types.setLength(0);
       slist = getViewTypes();
       if (slist != null) {
         for (int i = 0; i < slist.length; i++) {
-          types += (i > 0 ? ", " : "") + slist[i];
+          types.append(i > 0 ? ", " : "").append(slist[i]);
         }
       }
       r = new RowMetaAndData();
@@ -1692,11 +1692,11 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       list.add(r);
 
       // List of synonym types
-      types = "";
+      types.setLength(0);
       slist = getSynonymTypes();
       if (slist != null) {
         for (int i = 0; i < slist.length; i++) {
-          types += (i > 0 ? ", " : "") + slist[i];
+          types.append(i > 0 ? ", " : "").append(slist[i]);
         }
       }
       r = new RowMetaAndData();

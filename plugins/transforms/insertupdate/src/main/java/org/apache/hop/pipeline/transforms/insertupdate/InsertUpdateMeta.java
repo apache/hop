@@ -177,7 +177,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    String errorMessage = "";
+    StringBuilder errorMessage = new StringBuilder();
     Database db = null;
 
     try {
@@ -198,7 +198,6 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
 
           boolean first = true;
           boolean errorFound = false;
-          errorMessage = "";
 
           // Check fields in table
           IRowMeta r =
@@ -221,17 +220,24 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
               if (v == null) {
                 if (first) {
                   first = false;
-                  errorMessage +=
-                      BaseMessages.getString(
-                              PKG, "InsertUpdateMeta.CheckResult.MissingCompareFieldsInTargetTable")
-                          + Const.CR;
+                  errorMessage
+                      .append(
+                          BaseMessages.getString(
+                              PKG,
+                              "InsertUpdateMeta.CheckResult.MissingCompareFieldsInTargetTable"))
+                      .append(Const.CR);
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + insertUpdateKeyField.getKeyLookup() + Const.CR;
+                errorMessage
+                    .append("\t\t")
+                    .append(insertUpdateKeyField.getKeyLookup())
+                    .append(Const.CR);
               }
             }
             if (errorFound) {
-              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+              cr =
+                  new CheckResult(
+                      ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
             } else {
               cr =
                   new CheckResult(
@@ -245,7 +251,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
             // How about the fields to insert/update in the table?
             first = true;
             errorFound = false;
-            errorMessage = "";
+            errorMessage.setLength(0);
 
             for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
               InsertUpdateValue insertUpdateValue = insertUpdateLookupField.getValueFields().get(i);
@@ -254,18 +260,24 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
               if (v == null) {
                 if (first) {
                   first = false;
-                  errorMessage +=
-                      BaseMessages.getString(
+                  errorMessage
+                      .append(
+                          BaseMessages.getString(
                               PKG,
-                              "InsertUpdateMeta.CheckResult.MissingFieldsToUpdateInTargetTable")
-                          + Const.CR;
+                              "InsertUpdateMeta.CheckResult.MissingFieldsToUpdateInTargetTable"))
+                      .append(Const.CR);
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + insertUpdateValue.getUpdateLookup() + Const.CR;
+                errorMessage
+                    .append("\t\t")
+                    .append(insertUpdateValue.getUpdateLookup())
+                    .append(Const.CR);
               }
             }
             if (errorFound) {
-              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+              cr =
+                  new CheckResult(
+                      ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
             } else {
               cr =
                   new CheckResult(
@@ -276,9 +288,12 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
             }
             remarks.add(cr);
           } else {
-            errorMessage =
-                BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.CouldNotReadTableInfo");
-            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(
+                        PKG, "InsertUpdateMeta.CheckResult.CouldNotReadTableInfo"),
+                    transformMeta);
             remarks.add(cr);
           }
         }
@@ -296,7 +311,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
           remarks.add(cr);
 
           boolean first = true;
-          errorMessage = "";
+          errorMessage.setLength(0);
           boolean errorFound = false;
 
           for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
@@ -306,12 +321,17 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
             if (v == null) {
               if (first) {
                 first = false;
-                errorMessage +=
-                    BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.MissingFieldsInInput")
-                        + Const.CR;
+                errorMessage
+                    .append(
+                        BaseMessages.getString(
+                            PKG, "InsertUpdateMeta.CheckResult.MissingFieldsInInput"))
+                    .append(Const.CR);
               }
               errorFound = true;
-              errorMessage += "\t\t" + insertUpdateKeyField.getKeyStream() + Const.CR;
+              errorMessage
+                  .append("\t\t")
+                  .append(insertUpdateKeyField.getKeyStream())
+                  .append(Const.CR);
             }
 
             if (!Utils.isEmpty(insertUpdateKeyField.getKeyStream2())) {
@@ -319,19 +339,25 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
               if (v == null) {
                 if (first) {
                   first = false;
-                  errorMessage +=
-                      BaseMessages.getString(
-                              PKG, "InsertUpdateMeta.CheckResult.MissingFieldsInInput")
-                          + Const.CR;
+                  errorMessage
+                      .append(
+                          BaseMessages.getString(
+                              PKG, "InsertUpdateMeta.CheckResult.MissingFieldsInInput"))
+                      .append(Const.CR);
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + insertUpdateKeyField.getKeyStream2() + Const.CR;
+                errorMessage
+                    .append("\t\t")
+                    .append(insertUpdateKeyField.getKeyStream2())
+                    .append(Const.CR);
               }
             }
           }
 
           if (errorFound) {
-            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
           } else {
             cr =
                 new CheckResult(
@@ -345,7 +371,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
           // How about the fields to insert/update the table with?
           first = true;
           errorFound = false;
-          errorMessage = "";
+          errorMessage.setLength(0);
 
           for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
             InsertUpdateValue insertUpdateValue = insertUpdateLookupField.getValueFields().get(i);
@@ -354,17 +380,23 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
             if (v == null) {
               if (first) {
                 first = false;
-                errorMessage +=
-                    BaseMessages.getString(
-                            PKG, "InsertUpdateMeta.CheckResult.MissingInputStreamFields")
-                        + Const.CR;
+                errorMessage
+                    .append(
+                        BaseMessages.getString(
+                            PKG, "InsertUpdateMeta.CheckResult.MissingInputStreamFields"))
+                    .append(Const.CR);
               }
               errorFound = true;
-              errorMessage += "\t\t" + insertUpdateValue.getUpdateStream() + Const.CR;
+              errorMessage
+                  .append("\t\t")
+                  .append(insertUpdateValue.getUpdateStream())
+                  .append(Const.CR);
             }
           }
           if (errorFound) {
-            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
           } else {
             cr =
                 new CheckResult(
@@ -375,18 +407,22 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
           }
           remarks.add(cr);
         } else {
-          errorMessage =
-              BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.MissingFieldsInInput3")
-                  + Const.CR;
-          cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+          cr =
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.MissingFieldsInInput3")
+                      + Const.CR,
+                  transformMeta);
           remarks.add(cr);
         }
       }
     } catch (HopException e) {
-      errorMessage =
-          BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.DatabaseErrorOccurred")
-              + e.getMessage();
-      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.DatabaseErrorOccurred")
+                  + e.getMessage(),
+              transformMeta);
       remarks.add(cr);
     } finally {
       db.disconnect();
@@ -523,7 +559,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
           }
 
           String sql = crTable + Const.CR + crIndex;
-          if (sql.length() == 0) {
+          if (sql.isEmpty()) {
             sqlStatement.setSql(null);
           } else {
             sqlStatement.setSql(sql);

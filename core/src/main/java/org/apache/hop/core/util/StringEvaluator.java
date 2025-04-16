@@ -475,17 +475,18 @@ public class StringEvaluator {
       //
       for (int i = 1; i <= 15; i++) {
 
-        String mask = " ";
+        StringBuilder mask = new StringBuilder();
+        mask.append(" ");
         for (int x = 0; x < i; x++) {
-          mask += "0";
+          mask.append("0");
         }
-        mask += ";-";
+        mask.append(";-");
         for (int x = 0; x < i; x++) {
-          mask += "0";
+          mask.append("0");
         }
 
         conversionMeta = new ValueMetaInteger("integer-zero-padded-" + i);
-        conversionMeta.setConversionMask(mask);
+        conversionMeta.setConversionMask(mask.toString());
         conversionMeta.setLength(i);
         evaluationResults.add(new StringEvaluationResult(conversionMeta));
       }

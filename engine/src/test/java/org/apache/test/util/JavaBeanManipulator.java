@@ -50,16 +50,16 @@ public class JavaBeanManipulator<T> {
 
   private String getPrefixedName(String prefix, String name) {
     String[] underScoreSplit = name.split("_");
-    name = "";
+    StringBuilder result = new StringBuilder();
     for (String part : underScoreSplit) {
-      if (part.length() > 0) {
-        name += part.substring(0, 1).toUpperCase();
+      if (!part.isEmpty()) {
+        result.append(part.substring(0, 1).toUpperCase());
         if (part.length() > 1) {
-          name += part.substring(1);
+          result.append(part.substring(1));
         }
       }
     }
-    return prefix + name;
+    return prefix + result;
   }
 
   private void populateGetters(List<String> attributes) {

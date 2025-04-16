@@ -402,16 +402,19 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
         int[] keyNrs = new int[keys.length];
 
-        String refSql = "SELECT ";
-        String cmpSql = "SELECT ";
+        StringBuilder refSql = new StringBuilder();
+        refSql.append("SELECT ");
+        StringBuilder cmpSql = new StringBuilder();
+
+        cmpSql.append("SELECT ");
         for (int i = 0; i < keys.length; i++) {
           if (i > 0) {
-            refSql += ", ";
-            cmpSql += ", ";
+            refSql.append(", ");
+            cmpSql.append(", ");
           }
           keyNrs[i] = i;
-          refSql += refConnectionDatabaseMeta.quoteField(keys[i]);
-          cmpSql += refConnectionDatabaseMeta.quoteField(keys[i]);
+          refSql.append(refConnectionDatabaseMeta.quoteField(keys[i]));
+          cmpSql.append(refConnectionDatabaseMeta.quoteField(keys[i]));
         }
         int[] valueNrs = new int[refFields.size() - keys.length];
         int valueNr = keys.length;
@@ -419,7 +422,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
         for (int i = 0; i < refFields.getFieldNames().length; i++) {
           String field = refFields.getFieldNames()[i];
           if (Const.indexOfString(field, keys) < 0) {
-            refSql += ", " + refConnectionDatabaseMeta.quoteField(field);
+            refSql.append(", ").append(refConnectionDatabaseMeta.quoteField(field));
             valueRowMeta.addValueMeta(refFields.searchValueMeta(field));
             valueNrs[valueIndex++] = valueNr++;
           }
@@ -427,24 +430,24 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
         for (String field : cmpFields.getFieldNames()) {
           if (Const.indexOfString(field, keys) < 0) {
-            cmpSql += ", " + compConnectionDatabaseMeta.quoteField(field);
+            cmpSql.append(", ").append(compConnectionDatabaseMeta.quoteField(field));
           }
         }
-        refSql += " FROM " + refSchemaTable + " ORDER BY ";
-        cmpSql += " FROM " + cmpSchemaTable + " ORDER BY ";
+        refSql.append(" FROM ").append(refSchemaTable).append(" ORDER BY ");
+        cmpSql.append(" FROM ").append(cmpSchemaTable).append(" ORDER BY ");
         for (int i = 0; i < keys.length; i++) {
           if (i > 0) {
-            refSql += ", ";
-            cmpSql += ", ";
+            refSql.append(", ");
+            cmpSql.append(", ");
           }
-          refSql += refConnectionDatabaseMeta.quoteField(keys[i]);
-          cmpSql += refConnectionDatabaseMeta.quoteField(keys[i]);
+          refSql.append(refConnectionDatabaseMeta.quoteField(keys[i]));
+          cmpSql.append(refConnectionDatabaseMeta.quoteField(keys[i]));
         }
 
         // Now we execute the SQL...
         //
-        ResultSet refSet = data.referenceDb.openQuery(refSql);
-        ResultSet cmpSet = data.compareDb.openQuery(cmpSql);
+        ResultSet refSet = data.referenceDb.openQuery(refSql.toString());
+        ResultSet cmpSet = data.compareDb.openQuery(cmpSql.toString());
 
         // Now grab rows of data and start comparing the individual rows ...
         //
