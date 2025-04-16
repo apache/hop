@@ -24,6 +24,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -168,23 +169,34 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog {
 
   private void setTransformNames() {
     previousTransforms = pipelineMeta.getTransformNames();
-    String[] nextTransforms = pipelineMeta.getNextTransformNames(transformMeta);
+    List<String> nextTransforms = getNextTransforms(new ArrayList<>(), transformMeta);
 
     List<String> entries = new ArrayList<>();
     for (String previousTransform : previousTransforms) {
       if (!previousTransform.equals(transformName)) {
-        if (nextTransforms != null && nextTransforms.length > 0) {
+        if (nextTransforms != null && !nextTransforms.isEmpty()) {
+          boolean found = false;
           for (String nextTransform : nextTransforms) {
-            if (!nextTransform.equals(previousTransform)) {
-              entries.add(previousTransform);
+            if (nextTransform.equals(previousTransform)) {
+              found = true;
             }
           }
-        } else {
-          entries.add(previousTransform);
+          if (!found) {
+            entries.add(previousTransform);
+          }
         }
       }
     }
-    previousTransforms = entries.toArray(new String[entries.size()]);
+    previousTransforms = entries.toArray(new String[0]);
+  }
+
+  private List<String> getNextTransforms(List<String> transformNames, TransformMeta transformMeta) {
+    List<TransformMeta> nextTransformMeta = pipelineMeta.findNextTransforms(transformMeta);
+    for (TransformMeta nextTransform : nextTransformMeta) {
+      transformNames.add(nextTransform.getName());
+      getNextTransforms(transformNames, nextTransform);
+    }
+    return transformNames.stream().distinct().toList();
   }
 
   private void get() {

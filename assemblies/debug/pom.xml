@@ -434,6 +434,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-blockuntiltransformsfinish</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-calculator</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
