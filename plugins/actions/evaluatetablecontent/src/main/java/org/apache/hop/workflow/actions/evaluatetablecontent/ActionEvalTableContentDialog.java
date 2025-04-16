@@ -532,14 +532,15 @@ public class ActionEvalTableContentDialog extends ActionDialog {
           new DatabaseExplorerDialog(
               shell, SWT.NONE, variables, inf, getWorkflowMeta().getDatabases());
       if (std.open()) {
-        String sql =
-            "SELECT *"
-                + Const.CR
-                + "FROM "
-                + inf.getQuotedSchemaTableCombination(
-                    variables, std.getSchemaName(), std.getTableName())
-                + Const.CR;
-        wSql.setText(sql);
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT *")
+            .append(Const.CR)
+            .append("FROM ")
+            .append(
+                inf.getQuotedSchemaTableCombination(
+                    variables, std.getSchemaName(), std.getTableName()))
+            .append(Const.CR);
+        wSql.setText(sql.toString());
 
         MessageBox yn = new MessageBox(shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION);
         yn.setMessage(BaseMessages.getString(PKG, "ActionEvalTableContent.IncludeFieldNamesInSQL"));
@@ -549,29 +550,30 @@ public class ActionEvalTableContentDialog extends ActionDialog {
           case SWT.CANCEL:
             break;
           case SWT.NO:
-            wSql.setText(sql);
+            wSql.setText(sql.toString());
             break;
           case SWT.YES:
             try (Database db = new Database(loggingObject, variables, inf)) {
               db.connect();
-              IRowMeta fields = db.getQueryFields(sql, false);
+              IRowMeta fields = db.getQueryFields(sql.toString(), false);
               if (fields != null) {
-                sql = "SELECT" + Const.CR;
+                sql.setLength(0);
+                sql.append("SELECT").append(Const.CR);
                 for (int i = 0; i < fields.size(); i++) {
                   IValueMeta field = fields.getValueMeta(i);
                   if (i == 0) {
-                    sql += "  ";
+                    sql.append("  ");
                   } else {
-                    sql += ", ";
+                    sql.append(", ");
                   }
-                  sql += inf.quoteField(field.getName()) + Const.CR;
+                  sql.append(inf.quoteField(field.getName())).append(Const.CR);
                 }
-                sql +=
-                    "FROM "
-                        + inf.getQuotedSchemaTableCombination(
-                            variables, std.getSchemaName(), std.getTableName())
-                        + Const.CR;
-                wSql.setText(sql);
+                sql.append("FROM ")
+                    .append(
+                        inf.getQuotedSchemaTableCombination(
+                            variables, std.getSchemaName(), std.getTableName()))
+                    .append(Const.CR);
+                wSql.setText(sql.toString());
               } else {
                 MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
                 mb.setMessage(

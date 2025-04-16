@@ -65,8 +65,10 @@ public class SasExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     fdText.bottom = new FormAttachment(100, 0);
     wText.setLayoutData(fdText);
 
-    String message = explorerFile.getFilename() + Const.CR;
-    message += Const.CR;
+    StringBuilder message = new StringBuilder();
+
+    message.append(explorerFile.getFilename()).append(Const.CR);
+    message.append(Const.CR);
 
     try {
       try (InputStream inputStream =
@@ -81,19 +83,30 @@ public class SasExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
           int length = format.getWidth() == 0 ? -1 : format.getWidth();
           int precision = format.getPrecision() == 0 ? -1 : format.getWidth();
 
-          message += "Column " + (c + 1) + Const.CR;
-          message += "   Name      : " + Const.NVL(column.getName(), "") + Const.CR;
-          message += "   Type      : " + SasUtil.getHopDataTypeDesc(column.getType()) + Const.CR;
-          message += "   Length    : " + (length < 0 ? "" : Integer.toString(length)) + Const.CR;
-          message +=
-              "   Precision : " + (precision < 0 ? "" : Integer.toString(precision)) + Const.CR;
+          message.append("Column ").append(c + 1).append(Const.CR);
+          message
+              .append("   Name      : ")
+              .append(Const.NVL(column.getName(), ""))
+              .append(Const.CR);
+          message
+              .append("   Type      : ")
+              .append(SasUtil.getHopDataTypeDesc(column.getType()))
+              .append(Const.CR);
+          message
+              .append("   Length    : ")
+              .append(length < 0 ? "" : Integer.toString(length))
+              .append(Const.CR);
+          message
+              .append("   Precision : ")
+              .append(precision < 0 ? "" : Integer.toString(precision))
+              .append(Const.CR);
         }
       } catch (Exception e) {
         throw new HopException("Error reading from file: " + explorerFile.getFilename());
       }
     } catch (Exception e) {
-      message += Const.CR + Const.getSimpleStackTrace(e);
+      message.append(Const.CR).append(Const.getSimpleStackTrace(e));
     }
-    wText.setText(message);
+    wText.setText(message.toString());
   }
 }

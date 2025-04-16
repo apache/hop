@@ -1841,6 +1841,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return
    */
   @Override
+  @SuppressWarnings("java:S1643")
   public String getSafeFieldname(String fieldname) {
     StringBuilder newName = new StringBuilder(fieldname.length());
 

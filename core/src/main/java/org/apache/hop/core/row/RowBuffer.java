@@ -94,14 +94,16 @@ public class RowBuffer {
 
   @JsonIgnore
   public String getXml() throws IOException {
-    String xml = XmlHandler.openTag(XML_TAG);
-    xml += rowMeta.getMetaXml();
-    for (Object[] row : buffer) {
-      xml += rowMeta.getDataXml(row);
-    }
-    xml += XmlHandler.closeTag(XML_TAG);
+    StringBuilder xml = new StringBuilder();
 
-    return xml;
+    xml.append(XmlHandler.openTag(XML_TAG));
+    xml.append(rowMeta.getMetaXml());
+    for (Object[] row : buffer) {
+      xml.append(rowMeta.getDataXml(row));
+    }
+    xml.append(XmlHandler.closeTag(XML_TAG));
+
+    return xml.toString();
   }
 
   public RowBuffer(Node node) throws HopException {

@@ -511,18 +511,18 @@ public class BeanInjectionInfo<Meta extends Object> {
   }
 
   private String calcPropertyName(Injection metaInj, BeanLevelInfo leaf) {
-    String name = metaInj.name();
+    StringBuilder name = new StringBuilder(metaInj.name());
     while (leaf != null) {
       if (StringUtils.isNotEmpty(leaf.nameKey)) {
-        name = leaf.nameKey + "." + name;
+        name.insert(0, leaf.nameKey + ".");
       }
       leaf = leaf.parent;
     }
-    if (!name.equals(metaInj.name()) && !metaInj.group().isEmpty()) {
+    if (!name.toString().equals(metaInj.name()) && !metaInj.group().isEmpty()) {
       // group exist with prefix
       throw new RuntimeException("Group shouldn't be declared with prefix in " + clazz);
     }
-    return name;
+    return name.toString();
   }
 
   public class Property {

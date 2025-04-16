@@ -277,17 +277,17 @@ public class SalesforceUpsert
                     err.getMessage()));
           }
 
-          String errorMessage = "";
+          StringBuilder errorMessage = new StringBuilder();
           for (int i = 0; i < data.upsertResult[j].getErrors().length; i++) {
             // get the next error
             com.sforce.soap.partner.Error err = data.upsertResult[j].getErrors()[i];
-            errorMessage +=
+            errorMessage.append(
                 BaseMessages.getString(
                     PKG,
                     "SalesforceUpsert.Error.FlushBuffer",
                     j,
                     err.getStatusCode(),
-                    err.getMessage());
+                    err.getMessage()));
           }
 
           // Simply add this row to the error row
@@ -298,7 +298,7 @@ public class SalesforceUpsert
               getInputRowMeta(),
               data.outputBuffer[j],
               1,
-              errorMessage,
+              errorMessage.toString(),
               null,
               "SalesforceUpsert001");
         }

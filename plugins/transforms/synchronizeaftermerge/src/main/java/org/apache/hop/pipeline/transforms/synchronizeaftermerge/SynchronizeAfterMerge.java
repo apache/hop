@@ -586,113 +586,119 @@ public class SynchronizeAfterMerge
     data.lookupParameterRowMeta = new RowMeta();
     data.lookupReturnRowMeta = new RowMeta();
 
-    String sql = "SELECT ";
+    StringBuilder sql = new StringBuilder();
+
+    sql.append("SELECT ");
 
     for (int i = 0; i < meta.getUpdateLookup().length; i++) {
       if (i != 0) {
-        sql += ", ";
+        sql.append(", ");
       }
-      sql += data.databaseMeta.quoteField(meta.getUpdateLookup()[i]);
+      sql.append(data.databaseMeta.quoteField(meta.getUpdateLookup()[i]));
       data.lookupReturnRowMeta.addValueMeta(
           rowMeta.searchValueMeta(meta.getUpdateStream()[i]).clone());
     }
 
-    sql += " FROM " + data.realSchemaTable + " WHERE ";
+    sql.append(" FROM ").append(data.realSchemaTable).append(" WHERE ");
 
     for (int i = 0; i < meta.getKeyLookup().length; i++) {
       if (i != 0) {
-        sql += " AND ";
+        sql.append(" AND ");
       }
-      sql += data.databaseMeta.quoteField(meta.getKeyLookup()[i]);
+      sql.append(data.databaseMeta.quoteField(meta.getKeyLookup()[i]));
       if (CONST_BETWEEN.equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += CONST_BETWEEN_AND;
+        sql.append(CONST_BETWEEN_AND);
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
       } else {
         if (CONST_IS_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])
             || CONST_IS_NOT_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])) {
-          sql += " " + meta.getKeyCondition()[i] + " ";
+          sql.append(" ").append(meta.getKeyCondition()[i]).append(" ");
         } else {
-          sql += " " + meta.getKeyCondition()[i] + " ? ";
+          sql.append(" ").append(meta.getKeyCondition()[i]).append(" ? ");
           data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
         }
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   // Lookup certain fields in a table
   public String getUpdateStatement(IRowMeta rowMeta) throws HopDatabaseException {
     data.updateParameterRowMeta = new RowMeta();
 
-    String sql = "UPDATE " + data.realSchemaTable + Const.CR;
-    sql += "SET ";
+    StringBuilder sql = new StringBuilder();
+
+    sql.append("UPDATE ").append(data.realSchemaTable).append(Const.CR);
+    sql.append("SET ");
 
     boolean comma = false;
 
     for (int i = 0; i < meta.getUpdateLookup().length; i++) {
       if (meta.getUpdate()[i].booleanValue()) {
         if (comma) {
-          sql += ",   ";
+          sql.append(",   ");
         } else {
           comma = true;
         }
 
-        sql += data.databaseMeta.quoteField(meta.getUpdateLookup()[i]);
-        sql += " = ?" + Const.CR;
+        sql.append(data.databaseMeta.quoteField(meta.getUpdateLookup()[i]));
+        sql.append(" = ?").append(Const.CR);
         data.updateParameterRowMeta.addValueMeta(
             rowMeta.searchValueMeta(meta.getUpdateStream()[i]).clone());
       }
     }
 
-    sql += "WHERE ";
+    sql.append("WHERE ");
 
     for (int i = 0; i < meta.getKeyLookup().length; i++) {
       if (i != 0) {
-        sql += "AND   ";
+        sql.append("AND   ");
       }
-      sql += data.databaseMeta.quoteField(meta.getKeyLookup()[i]);
+      sql.append(data.databaseMeta.quoteField(meta.getKeyLookup()[i]));
       if (CONST_BETWEEN.equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += CONST_BETWEEN_AND;
+        sql.append(CONST_BETWEEN_AND);
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
       } else if (CONST_IS_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])
           || CONST_IS_NOT_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += " " + meta.getKeyCondition()[i] + " ";
+        sql.append(" ").append(meta.getKeyCondition()[i]).append(" ");
       } else {
-        sql += " " + meta.getKeyCondition()[i] + " ? ";
+        sql.append(" ").append(meta.getKeyCondition()[i]).append(" ? ");
         data.updateParameterRowMeta.addValueMeta(
             rowMeta.searchValueMeta(meta.getKeyStream()[i]).clone());
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   public String getDeleteStatement(IRowMeta rowMeta) throws HopDatabaseException {
     data.deleteParameterRowMeta = new RowMeta();
 
-    String sql = "DELETE FROM " + data.realSchemaTable + Const.CR;
+    StringBuilder sql = new StringBuilder();
 
-    sql += "WHERE ";
+    sql.append("DELETE FROM ").append(data.realSchemaTable).append(Const.CR);
+
+    sql.append("WHERE ");
 
     for (int i = 0; i < meta.getKeyLookup().length; i++) {
       if (i != 0) {
-        sql += "AND   ";
+        sql.append("AND   ");
       }
-      sql += data.databaseMeta.quoteField(meta.getKeyLookup()[i]);
+      sql.append(data.databaseMeta.quoteField(meta.getKeyLookup()[i]));
       if (CONST_BETWEEN.equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += CONST_BETWEEN_AND;
+        sql.append(CONST_BETWEEN_AND);
         data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
         data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
       } else if (CONST_IS_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])
           || CONST_IS_NOT_NULL.equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += " " + meta.getKeyCondition()[i] + " ";
+        sql.append(" ").append(meta.getKeyCondition()[i]).append(" ");
       } else {
-        sql += " " + meta.getKeyCondition()[i] + " ? ";
+        sql.append(" ").append(meta.getKeyCondition()[i]).append(" ? ");
         data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   @Override

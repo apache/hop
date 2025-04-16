@@ -355,62 +355,66 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
     DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
-    String sql = "SELECT ";
+    StringBuilder sql = new StringBuilder();
+
+    sql.append("SELECT ");
 
     for (int i = 0; i < meta.getInsertUpdateLookupField().getValueFields().size(); i++) {
       InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
       if (i != 0) {
-        sql += ", ";
+        sql.append(", ");
       }
-      sql += databaseMeta.quoteField(valueField.getUpdateLookup());
+      sql.append(databaseMeta.quoteField(valueField.getUpdateLookup()));
       data.lookupReturnRowMeta.addValueMeta(
           rowMeta.searchValueMeta(valueField.getUpdateStream()).clone());
     }
 
-    sql += " FROM " + data.schemaTable + " WHERE ";
+    sql.append(" FROM ").append(data.schemaTable).append(" WHERE ");
 
     for (int i = 0; i < meta.getInsertUpdateLookupField().getLookupKeys().size(); i++) {
       InsertUpdateKeyField keyField = meta.getInsertUpdateLookupField().getLookupKeys().get(i);
       if (i != 0) {
-        sql += " AND ";
+        sql.append(" AND ");
       }
 
-      sql += " ( ( ";
+      sql.append(" ( ( ");
 
-      sql += databaseMeta.quoteField(keyField.getKeyLookup());
+      sql.append(databaseMeta.quoteField(keyField.getKeyLookup()));
       if (CONST_BETWEEN.equalsIgnoreCase(keyField.getKeyCondition())) {
-        sql += " BETWEEN ? AND ? ";
+        sql.append(" BETWEEN ? AND ? ");
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream2()));
       } else {
         if (CONST_IS_NULL.equalsIgnoreCase(keyField.getKeyCondition())
             || CONST_IS_NOT_NULL.equalsIgnoreCase(keyField.getKeyCondition())) {
-          sql += " " + keyField.getKeyCondition() + " ";
+          sql.append(" ").append(keyField.getKeyCondition()).append(" ");
         } else if (CONST_NULL.equalsIgnoreCase(keyField.getKeyCondition())) {
 
-          sql += " IS NULL AND ";
+          sql.append(" IS NULL AND ");
 
           if (databaseMeta.requiresCastToVariousForIsNull()) {
-            sql += " CAST(? AS VARCHAR(256)) IS NULL ";
+            sql.append(" CAST(? AS VARCHAR(256)) IS NULL ");
           } else {
-            sql += " ? IS NULL ";
+            sql.append(" ? IS NULL ");
           }
           // null check
           data.lookupParameterRowMeta.addValueMeta(
               rowMeta.searchValueMeta(keyField.getKeyStream()));
-          sql += " ) OR ( " + databaseMeta.quoteField(keyField.getKeyLookup()) + " = ? ";
+          sql.append(" ) OR ( ")
+              .append(databaseMeta.quoteField(keyField.getKeyLookup()))
+              .append(" = ? ");
           // equality check, cloning so auto-rename because of adding same fieldname does not cause
           // problems
           data.lookupParameterRowMeta.addValueMeta(
               rowMeta.searchValueMeta(keyField.getKeyStream()).clone());
 
         } else {
-          sql += " " + keyField.getKeyCondition() + " ? ";
+          sql.append(" ").append(keyField.getKeyCondition()).append(" ? ");
           data.lookupParameterRowMeta.addValueMeta(
               rowMeta.searchValueMeta(keyField.getKeyStream()));
         }
       }
-      sql += " ) ) ";
+      sql.append(" ) ) ");
     }
 
     try {
@@ -431,8 +435,10 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     data.updateParameterRowMeta = new RowMeta();
 
-    String sql = "UPDATE " + data.schemaTable + Const.CR;
-    sql += "SET ";
+    StringBuilder sql = new StringBuilder();
+
+    sql.append("UPDATE ").append(data.schemaTable).append(Const.CR);
+    sql.append("SET ");
 
     boolean comma = false;
 
@@ -440,57 +446,59 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
       if (valueField.isUpdate()) {
         if (comma) {
-          sql += ",   ";
+          sql.append(",   ");
         } else {
           comma = true;
         }
 
-        sql += databaseMeta.quoteField(valueField.getUpdateLookup());
-        sql += " = ?" + Const.CR;
+        sql.append(databaseMeta.quoteField(valueField.getUpdateLookup()));
+        sql.append(" = ?").append(Const.CR);
         data.updateParameterRowMeta.addValueMeta(
             rowMeta.searchValueMeta(valueField.getUpdateStream()).clone());
       }
     }
 
-    sql += "WHERE ";
+    sql.append("WHERE ");
 
     for (int i = 0; i < meta.getInsertUpdateLookupField().getLookupKeys().size(); i++) {
       InsertUpdateKeyField keyField = meta.getInsertUpdateLookupField().getLookupKeys().get(i);
       if (i != 0) {
-        sql += "AND   ";
+        sql.append("AND   ");
       }
-      sql += " ( ( ";
-      sql += databaseMeta.quoteField(keyField.getKeyLookup());
+      sql.append(" ( ( ");
+      sql.append(databaseMeta.quoteField(keyField.getKeyLookup()));
       if (CONST_BETWEEN.equalsIgnoreCase(keyField.getKeyCondition())) {
-        sql += " BETWEEN ? AND ? ";
+        sql.append(" BETWEEN ? AND ? ");
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream2()));
       } else if (CONST_IS_NULL.equalsIgnoreCase(keyField.getKeyCondition())
           || CONST_IS_NOT_NULL.equalsIgnoreCase(keyField.getKeyCondition())) {
-        sql += " " + keyField.getKeyCondition() + " ";
+        sql.append(" ").append(keyField.getKeyCondition()).append(" ");
       } else if (CONST_NULL.equalsIgnoreCase(keyField.getKeyCondition())) {
 
-        sql += " IS NULL AND ";
+        sql.append(" IS NULL AND ");
 
         if (databaseMeta.requiresCastToVariousForIsNull()) {
-          sql += "CAST(? AS VARCHAR(256)) IS NULL";
+          sql.append("CAST(? AS VARCHAR(256)) IS NULL");
         } else {
-          sql += "? IS NULL";
+          sql.append("? IS NULL");
         }
         // null check
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
-        sql += " ) OR ( " + databaseMeta.quoteField(keyField.getKeyLookup()) + " = ?";
+        sql.append(" ) OR ( ")
+            .append(databaseMeta.quoteField(keyField.getKeyLookup()))
+            .append(" = ?");
         // equality check, cloning so auto-rename because of adding same fieldname does not cause
         // problems
         data.updateParameterRowMeta.addValueMeta(
             rowMeta.searchValueMeta(keyField.getKeyStream()).clone());
 
       } else {
-        sql += " " + keyField.getKeyCondition() + " ? ";
+        sql.append(" ").append(keyField.getKeyCondition()).append(" ? ");
         data.updateParameterRowMeta.addValueMeta(
             rowMeta.searchValueMeta(keyField.getKeyStream()).clone());
       }
-      sql += " ) ) ";
+      sql.append(" ) ) ");
     }
 
     try {

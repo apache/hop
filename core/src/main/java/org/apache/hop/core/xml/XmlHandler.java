@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -1223,16 +1224,18 @@ public class XmlHandler {
     //
     String realLicenseFile = variables.resolve(licenseFile);
     try (InputStream inputStream = HopVfs.getInputStream(realLicenseFile)) {
-      List<String> lines = IOUtils.readLines(inputStream, Const.XML_ENCODING);
+      List<String> lines = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
       if (lines.isEmpty()) {
         return "";
       }
-      String xml = "<!--" + Const.CR;
+      StringBuilder xml = new StringBuilder();
+
+      xml.append("<!--").append(Const.CR);
       for (String line : lines) {
-        xml += line + Const.CR;
+        xml.append(line).append(Const.CR);
       }
-      xml += "-->" + Const.CR;
-      return xml;
+      xml.append("-->").append(Const.CR);
+      return xml.toString();
     } catch (Exception e) {
       throw new HopException("Error reading license file : " + realLicenseFile, e);
     }

@@ -234,17 +234,17 @@ public class SalesforceInsert
                     err.getMessage()));
           }
 
-          String errorMessage = "";
+          StringBuilder errorMessage = new StringBuilder();
           for (int i = 0; i < data.saveResult[j].getErrors().length; i++) {
             // get the next error
             com.sforce.soap.partner.Error err = data.saveResult[j].getErrors()[i];
-            errorMessage +=
+            errorMessage.append(
                 BaseMessages.getString(
                     PKG,
                     "SalesforceInsert.Error.FlushBuffer",
                     j,
                     err.getStatusCode(),
-                    err.getMessage());
+                    err.getMessage()));
           }
 
           // Simply add this row to the error row
@@ -255,7 +255,7 @@ public class SalesforceInsert
               getInputRowMeta(),
               data.outputBuffer[j],
               1,
-              errorMessage,
+              errorMessage.toString(),
               null,
               "SalesforceInsert001");
         }

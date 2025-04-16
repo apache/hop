@@ -556,7 +556,7 @@ public class SynchronizeAfterMergeMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    String errorMessage = "";
+    StringBuilder errorMessage = new StringBuilder();
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
     if (databaseMeta != null) {
@@ -573,7 +573,6 @@ public class SynchronizeAfterMergeMeta
 
           boolean first = true;
           boolean errorFound = false;
-          errorMessage = "";
 
           // Check fields in table
           IRowMeta r = db.getTableFieldsMeta(schemaName, tableName);
@@ -592,18 +591,21 @@ public class SynchronizeAfterMergeMeta
               if (v == null) {
                 if (first) {
                   first = false;
-                  errorMessage +=
-                      BaseMessages.getString(
+                  errorMessage
+                      .append(
+                          BaseMessages.getString(
                               PKG,
-                              "SynchronizeAfterMergeMeta.CheckResult.MissingCompareFieldsInTargetTable")
-                          + Const.CR;
+                              "SynchronizeAfterMergeMeta.CheckResult.MissingCompareFieldsInTargetTable"))
+                      .append(Const.CR);
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + lufield + Const.CR;
+                errorMessage.append("\t\t").append(lufield).append(Const.CR);
               }
             }
             if (errorFound) {
-              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+              cr =
+                  new CheckResult(
+                      ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
             } else {
               cr =
                   new CheckResult(
@@ -617,7 +619,7 @@ public class SynchronizeAfterMergeMeta
             // How about the fields to insert/update in the table?
             first = true;
             errorFound = false;
-            errorMessage = "";
+            errorMessage.setLength(0);
 
             for (int i = 0; i < updateLookup.length; i++) {
               String lufield = updateLookup[i];
@@ -625,18 +627,21 @@ public class SynchronizeAfterMergeMeta
               if (v == null) {
                 if (first) {
                   first = false;
-                  errorMessage +=
-                      BaseMessages.getString(
+                  errorMessage
+                      .append(
+                          BaseMessages.getString(
                               PKG,
-                              "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsToUpdateInTargetTable")
-                          + Const.CR;
+                              "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsToUpdateInTargetTable"))
+                      .append(Const.CR);
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + lufield + Const.CR;
+                errorMessage.append("\t\t").append(lufield).append(Const.CR);
               }
             }
             if (errorFound) {
-              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+              cr =
+                  new CheckResult(
+                      ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
             } else {
               cr =
                   new CheckResult(
@@ -648,10 +653,12 @@ public class SynchronizeAfterMergeMeta
             }
             remarks.add(cr);
           } else {
-            errorMessage =
-                BaseMessages.getString(
-                    PKG, "SynchronizeAfterMergeMeta.CheckResult.CouldNotReadTableInfo");
-            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(
+                        PKG, "SynchronizeAfterMergeMeta.CheckResult.CouldNotReadTableInfo"),
+                    transformMeta);
             remarks.add(cr);
           }
         }
@@ -669,7 +676,7 @@ public class SynchronizeAfterMergeMeta
           remarks.add(cr);
 
           boolean first = true;
-          errorMessage = "";
+          errorMessage.setLength(0);
           boolean errorFound = false;
 
           for (int i = 0; i < keyStream.length; i++) {
@@ -677,13 +684,14 @@ public class SynchronizeAfterMergeMeta
             if (v == null) {
               if (first) {
                 first = false;
-                errorMessage +=
-                    BaseMessages.getString(
-                            PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsInInput")
-                        + Const.CR;
+                errorMessage
+                    .append(
+                        BaseMessages.getString(
+                            PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsInInput"))
+                    .append(Const.CR);
               }
               errorFound = true;
-              errorMessage += "\t\t" + keyStream[i] + Const.CR;
+              errorMessage.append("\t\t").append(keyStream[i]).append(Const.CR);
             }
           }
           for (int i = 0; i < keyStream2.length; i++) {
@@ -692,18 +700,21 @@ public class SynchronizeAfterMergeMeta
               if (v == null) {
                 if (first) {
                   first = false;
-                  errorMessage +=
-                      BaseMessages.getString(
-                              PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsInInput")
-                          + Const.CR;
+                  errorMessage
+                      .append(
+                          BaseMessages.getString(
+                              PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsInInput"))
+                      .append(Const.CR);
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + keyStream[i] + Const.CR;
+                errorMessage.append("\t\t").append(keyStream[i]).append(Const.CR);
               }
             }
           }
           if (errorFound) {
-            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
           } else {
             cr =
                 new CheckResult(
@@ -717,7 +728,7 @@ public class SynchronizeAfterMergeMeta
           // How about the fields to insert/update the table with?
           first = true;
           errorFound = false;
-          errorMessage = "";
+          errorMessage.setLength(0);
 
           for (int i = 0; i < updateStream.length; i++) {
             String lufield = updateStream[i];
@@ -726,17 +737,20 @@ public class SynchronizeAfterMergeMeta
             if (v == null) {
               if (first) {
                 first = false;
-                errorMessage +=
-                    BaseMessages.getString(
-                            PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingInputStreamFields")
-                        + Const.CR;
+                errorMessage
+                    .append(
+                        BaseMessages.getString(
+                            PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingInputStreamFields"))
+                    .append(Const.CR);
               }
               errorFound = true;
-              errorMessage += "\t\t" + lufield + Const.CR;
+              errorMessage.append("\t\t").append(lufield).append(Const.CR);
             }
           }
           if (errorFound) {
-            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
           } else {
             cr =
                 new CheckResult(
@@ -750,9 +764,9 @@ public class SynchronizeAfterMergeMeta
           // --------------------------> check fields in stream and tables (type)
           // Check fields in table
 
-          String errorMsgDiffField = "";
+          StringBuilder errorMsgDiffField = new StringBuilder();
           boolean errorDiffLenField = false;
-          String errorMsgDiffLenField = "";
+          StringBuilder errorMsgDiffLenField = new StringBuilder();
           boolean errorDiffField = false;
 
           IRowMeta r = db.getTableFieldsMeta(schemaName, tableName);
@@ -766,36 +780,36 @@ public class SynchronizeAfterMergeMeta
               IValueMeta vt = r.searchValueMeta(lufieldtable);
               if (vs != null && vt != null) {
                 if (!vs.getTypeDesc().equalsIgnoreCase(vt.getTypeDesc())) {
-                  errorMsgDiffField +=
-                      Const.CR
-                          + "The input field ["
-                          + vs.getName()
-                          + "] ( Type="
-                          + vs.getTypeDesc()
-                          + ") is not the same as the type in the target table (Type="
-                          + vt.getTypeDesc()
-                          + ")"
-                          + Const.CR;
+                  errorMsgDiffField
+                      .append(Const.CR)
+                      .append("The input field [")
+                      .append(vs.getName())
+                      .append("] ( Type=")
+                      .append(vs.getTypeDesc())
+                      .append(") is not the same as the type in the target table (Type=")
+                      .append(vt.getTypeDesc())
+                      .append(")")
+                      .append(Const.CR);
                   errorDiffField = true;
                 } else {
                   // check Length
                   if ((vt.getLength() < vs.getLength() || vs.getLength() == -1)
                       && vt.getLength() != -1) {
-                    errorMsgDiffLenField +=
-                        Const.CR
-                            + "The input field ["
-                            + vs.getName()
-                            + "] "
-                            + "("
-                            + vs.getTypeDesc()
-                            + ")"
-                            + " has a length ("
-                            + vs.getLength()
-                            + ")"
-                            + " that is higher than that in the target table ("
-                            + vt.getLength()
-                            + ")."
-                            + Const.CR;
+                    errorMsgDiffLenField
+                        .append(Const.CR)
+                        .append("The input field [")
+                        .append(vs.getName())
+                        .append("] ")
+                        .append("(")
+                        .append(vs.getTypeDesc())
+                        .append(")")
+                        .append(" has a length (")
+                        .append(vs.getLength())
+                        .append(")")
+                        .append(" that is higher than that in the target table (")
+                        .append(vt.getLength())
+                        .append(").")
+                        .append(Const.CR);
                     errorDiffLenField = true;
                   }
                 }
@@ -803,47 +817,55 @@ public class SynchronizeAfterMergeMeta
             }
             // add error/Warning
             if (errorDiffField) {
-              errorMsgDiffField =
-                  BaseMessages.getString(
-                          PKG, "SynchronizeAfterMergeMeta.CheckResult.FieldsTypeDifferent")
-                      + Const.CR
-                      + errorMsgDiffField;
-              cr =
-                  new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMsgDiffField, transformMeta);
-            }
-            if (errorDiffLenField) {
-              errorMsgDiffLenField =
-                  BaseMessages.getString(
-                          PKG, "SynchronizeAfterMergeMeta.CheckResult.FieldsLenDifferent")
-                      + Const.CR
-                      + errorMsgDiffLenField;
               cr =
                   new CheckResult(
-                      ICheckResult.TYPE_RESULT_WARNING, errorMsgDiffLenField, transformMeta);
+                      ICheckResult.TYPE_RESULT_ERROR,
+                      BaseMessages.getString(
+                              PKG, "SynchronizeAfterMergeMeta.CheckResult.FieldsTypeDifferent")
+                          + Const.CR
+                          + errorMsgDiffField,
+                      transformMeta);
+            }
+            if (errorDiffLenField) {
+              cr =
+                  new CheckResult(
+                      ICheckResult.TYPE_RESULT_WARNING,
+                      BaseMessages.getString(
+                              PKG, "SynchronizeAfterMergeMeta.CheckResult.FieldsLenDifferent")
+                          + Const.CR
+                          + errorMsgDiffLenField,
+                      transformMeta);
             }
             remarks.add(cr);
           }
           // --------------------------> check fields in stream and tables (type)
         } else {
-          errorMessage =
-              BaseMessages.getString(
-                      PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsInInput3")
-                  + Const.CR;
-          cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+          cr =
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                          PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsInInput3")
+                      + Const.CR,
+                  transformMeta);
           remarks.add(cr);
         }
       } catch (HopException e) {
-        errorMessage =
-            BaseMessages.getString(
-                    PKG, "SynchronizeAfterMergeMeta.CheckResult.DatabaseErrorOccurred")
-                + e.getMessage();
-        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                        PKG, "SynchronizeAfterMergeMeta.CheckResult.DatabaseErrorOccurred")
+                    + e.getMessage(),
+                transformMeta);
         remarks.add(cr);
       }
     } else {
-      errorMessage =
-          BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.CheckResult.InvalidConnection");
-      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "SynchronizeAfterMergeMeta.CheckResult.InvalidConnection"),
+              transformMeta);
       remarks.add(cr);
     }
 

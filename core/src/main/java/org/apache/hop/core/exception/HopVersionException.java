@@ -64,34 +64,36 @@ public class HopVersionException extends Exception {
   /** get the messages back to it's origin cause. */
   @Override
   public String getMessage() {
-    String retval = Const.CR;
-    retval += super.getMessage() + Const.CR;
+    StringBuilder retval = new StringBuilder();
+
+    retval.append(Const.CR);
+    retval.append(super.getMessage()).append(Const.CR);
 
     Throwable cause = getCause();
     if (cause != null) {
       String message = cause.getMessage();
       if (message != null) {
-        retval += message + Const.CR;
+        retval.append(message).append(Const.CR);
       } else {
         // Add with stack trace elements of cause...
         StackTraceElement[] ste = cause.getStackTrace();
         for (int i = ste.length - 1; i >= 0; i--) {
-          retval +=
-              " at "
-                  + ste[i].getClassName()
-                  + "."
-                  + ste[i].getMethodName()
-                  + " ("
-                  + ste[i].getFileName()
-                  + ":"
-                  + ste[i].getLineNumber()
-                  + ")"
-                  + Const.CR;
+          retval
+              .append(" at ")
+              .append(ste[i].getClassName())
+              .append(".")
+              .append(ste[i].getMethodName())
+              .append(" (")
+              .append(ste[i].getFileName())
+              .append(":")
+              .append(ste[i].getLineNumber())
+              .append(")")
+              .append(Const.CR);
         }
       }
     }
 
-    return retval;
+    return retval.toString();
   }
 
   public String getSuperMessage() {

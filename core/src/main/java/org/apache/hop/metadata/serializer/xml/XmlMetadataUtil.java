@@ -54,11 +54,11 @@ public class XmlMetadataUtil {
   public static String serializeObjectToXml(Object object) throws HopException {
     Class<?> objectClass = object.getClass();
 
-    String xml = "";
+    StringBuilder xml = new StringBuilder();
 
     HopMetadataWrapper wrapper = objectClass.getAnnotation(HopMetadataWrapper.class);
     if (wrapper != null) {
-      xml += XmlHandler.openTag(wrapper.tag());
+      xml.append(XmlHandler.openTag(wrapper.tag()));
     }
 
     // Pick up all the fields with @HopMetadataProperty annotation, sorted by name.
@@ -101,9 +101,9 @@ public class XmlMetadataUtil {
           // We only serialize non-null values to save space and performance.
           //
           if (property.storeWithName()) {
-            xml += XmlHandler.addTagValue(tag, ((IHopMetadata) value).getName());
+            xml.append(XmlHandler.addTagValue(tag, ((IHopMetadata) value).getName()));
           } else {
-            xml +=
+            xml.append(
                 serializeObjectToXml(
                     property,
                     value,
@@ -111,17 +111,17 @@ public class XmlMetadataUtil {
                     tag,
                     isPassword,
                     storeWithCode,
-                    property.intCodeConverter());
+                    property.intCodeConverter()));
           }
         }
       }
     }
 
     if (wrapper != null) {
-      xml += XmlHandler.closeTag(wrapper.tag());
+      xml.append(XmlHandler.closeTag(wrapper.tag()));
     }
 
-    return xml;
+    return xml.toString();
   }
 
   private static String serializeObjectToXml(
@@ -134,28 +134,28 @@ public class XmlMetadataUtil {
       Class<? extends IIntCodeConverter> intCodeConverterClass)
       throws HopException {
 
-    String xml = "";
+    StringBuilder xml = new StringBuilder();
 
     if (value == null) {
-      xml += XmlHandler.addTagValue(tag, (String) null);
+      xml.append(XmlHandler.addTagValue(tag, (String) null));
     } else {
       if (value instanceof String string) {
         // Hang on, is this a password?
         //
         if (password) {
-          xml += XmlHandler.addTagValue(tag, Encr.encryptPasswordIfNotUsingVariables(string));
+          xml.append(XmlHandler.addTagValue(tag, Encr.encryptPasswordIfNotUsingVariables(string)));
         } else {
-          xml += XmlHandler.addTagValue(tag, string);
+          xml.append(XmlHandler.addTagValue(tag, string));
         }
       } else if (value instanceof Boolean bool) {
-        xml += XmlHandler.addTagValue(tag, bool);
+        xml.append(XmlHandler.addTagValue(tag, bool));
       } else if (value instanceof Integer integer) {
         if (intCodeConverterClass.equals(IIntCodeConverter.None.class)) {
-          xml += XmlHandler.addTagValue(tag, integer);
+          xml.append(XmlHandler.addTagValue(tag, integer));
         } else {
           try {
             IIntCodeConverter converter = intCodeConverterClass.getConstructor().newInstance();
-            xml += XmlHandler.addTagValue(tag, converter.getCode((int) value));
+            xml.append(XmlHandler.addTagValue(tag, converter.getCode((int) value)));
           } catch (Exception e) {
             throw new HopException(
                 "Error converting int to String code using converter class "
@@ -164,16 +164,16 @@ public class XmlMetadataUtil {
           }
         }
       } else if (value instanceof Long longValue) {
-        xml += XmlHandler.addTagValue(tag, longValue);
+        xml.append(XmlHandler.addTagValue(tag, longValue));
       } else if (value instanceof Double doubleValue) {
-        xml += XmlHandler.addTagValue(tag, doubleValue);
+        xml.append(XmlHandler.addTagValue(tag, doubleValue));
       } else if (value instanceof Date date) {
-        xml += XmlHandler.addTagValue(tag, date);
+        xml.append(XmlHandler.addTagValue(tag, date));
       } else if (value.getClass().isEnum()) {
         if (storeWithCode) {
-          xml += XmlHandler.addTagValue(tag, ((IEnumHasCode) value).getCode());
+          xml.append(XmlHandler.addTagValue(tag, ((IEnumHasCode) value).getCode()));
         } else {
-          xml += XmlHandler.addTagValue(tag, ((Enum) value).name());
+          xml.append(XmlHandler.addTagValue(tag, ((Enum) value).name()));
         }
       } else if (value instanceof java.util.List list) {
 
@@ -182,14 +182,14 @@ public class XmlMetadataUtil {
         // Store the items in that block
         //
         if (StringUtils.isNotEmpty(groupKey)) {
-          xml += XmlHandler.openTag(groupKey) + Const.CR;
+          xml.append(XmlHandler.openTag(groupKey)).append(Const.CR);
         }
 
         // Add the elements...
         //
         List listItems = list;
         for (Object listItem : listItems) {
-          xml +=
+          xml.append(
               serializeObjectToXml(
                   property,
                   listItem,
@@ -197,11 +197,11 @@ public class XmlMetadataUtil {
                   tag,
                   password,
                   storeWithCode,
-                  property.intCodeConverter());
+                  property.intCodeConverter()));
         }
 
         if (StringUtils.isNotEmpty(groupKey)) {
-          xml += XmlHandler.closeTag(groupKey) + Const.CR;
+          xml.append(XmlHandler.closeTag(groupKey)).append(Const.CR);
         }
 
       } else {
@@ -211,15 +211,15 @@ public class XmlMetadataUtil {
         // We wrap the POJO properties in the provided tag
         //
         if (!property.inline()) {
-          xml += XmlHandler.openTag(tag) + Const.CR;
+          xml.append(XmlHandler.openTag(tag)).append(Const.CR);
         }
-        xml += serializeObjectToXml(value);
+        xml.append(serializeObjectToXml(value));
         if (!property.inline()) {
-          xml += XmlHandler.closeTag(tag) + Const.CR;
+          xml.append(XmlHandler.closeTag(tag)).append(Const.CR);
         }
       }
     }
-    return xml;
+    return xml.toString();
   }
 
   /**

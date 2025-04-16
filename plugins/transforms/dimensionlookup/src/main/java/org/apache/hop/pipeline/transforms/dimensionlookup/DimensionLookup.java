@@ -290,33 +290,35 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       // Retrieve: tk, version, from, to, natural keys, retrieval fields.
       // Store these rows in the cache.
       //
-      String sql = "SELECT " + data.databaseMeta.quoteField(f.getReturns().getKeyField());
+      StringBuilder sql = new StringBuilder();
+
+      sql.append("SELECT ").append(data.databaseMeta.quoteField(f.getReturns().getKeyField()));
 
       // Add the natural key field in the table.
       //
       for (DLKey key : f.getKeys()) {
-        sql += ", " + data.databaseMeta.quoteField(key.getLookup());
+        sql.append(", ").append(data.databaseMeta.quoteField(key.getLookup()));
       }
 
       // Add the extra fields to retrieve.
       //
       for (DLField field : f.getFields()) {
-        sql += ", " + data.databaseMeta.quoteField(field.getLookup());
+        sql.append(", ").append(data.databaseMeta.quoteField(field.getLookup()));
       }
 
       // Add the date range fields
       //
-      sql += ", " + data.databaseMeta.quoteField(f.getDate().getFrom());
-      sql += ", " + data.databaseMeta.quoteField(f.getDate().getTo());
+      sql.append(", ").append(data.databaseMeta.quoteField(f.getDate().getFrom()));
+      sql.append(", ").append(data.databaseMeta.quoteField(f.getDate().getTo()));
 
-      sql += " FROM " + data.schemaTable;
+      sql.append(" FROM ").append(data.schemaTable);
 
       if (isDetailed()) {
         logDetailed(
             "Pre-loading cache by reading from database with: " + Const.CR + sql + Const.CR);
       }
 
-      List<Object[]> rows = data.db.getRows(sql, -1);
+      List<Object[]> rows = data.db.getRows(sql.toString(), -1);
       IRowMeta rowMeta = data.db.getReturnRowMeta();
 
       data.preloadKeyIndexes = new int[f.getKeys().size()];
@@ -865,40 +867,40 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
      * SELECT <tk>, <version>, ... , FROM <table> WHERE key1=keys[1] AND key2=keys[2] ... AND ( <datefrom> is null OR
      * <datefrom> <= <datefield> ) AND <dateto> >= <datefield>
      */
-    String sql =
-        "SELECT "
-            + data.databaseMeta.quoteField(f.getReturns().getKeyField())
-            + ", "
-            + data.databaseMeta.quoteField(f.getReturns().getVersionField());
+    StringBuilder sql = new StringBuilder();
+
+    sql.append("SELECT ")
+        .append(data.databaseMeta.quoteField(f.getReturns().getKeyField()))
+        .append(", ")
+        .append(data.databaseMeta.quoteField(f.getReturns().getVersionField()));
 
     for (DLField field : f.getFields()) {
       // Don't retrieve the fields without input
       if (StringUtils.isNotEmpty(field.getLookup())
           && isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
-        sql += ", " + data.databaseMeta.quoteField(field.getLookup());
+        sql.append(", ").append(data.databaseMeta.quoteField(field.getLookup()));
 
         if (StringUtils.isNotEmpty(field.getName()) && !field.getLookup().equals(field.getName())) {
-          sql += " AS " + data.databaseMeta.quoteField(field.getName());
+          sql.append(" AS ").append(data.databaseMeta.quoteField(field.getName()));
         }
       }
     }
 
     if (meta.getCacheSize() >= 0) {
-      sql +=
-          ", "
-              + data.databaseMeta.quoteField(f.getDate().getFrom())
-              + ", "
-              + data.databaseMeta.quoteField(f.getDate().getTo());
+      sql.append(", ")
+          .append(data.databaseMeta.quoteField(f.getDate().getFrom()))
+          .append(", ")
+          .append(data.databaseMeta.quoteField(f.getDate().getTo()));
     }
 
-    sql += " FROM " + data.schemaTable + CONST_WHERE;
+    sql.append(" FROM ").append(data.schemaTable).append(CONST_WHERE);
 
     for (int i = 0; i < f.getKeys().size(); i++) {
       DLKey key = f.getKeys().get(i);
       if (i != 0) {
-        sql += " AND ";
+        sql.append(" AND ");
       }
-      sql += data.databaseMeta.quoteField(key.getLookup()) + " = ? ";
+      sql.append(data.databaseMeta.quoteField(key.getLookup())).append(" = ? ");
       data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]));
     }
 
@@ -909,16 +911,21 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         || meta.getStartDateAlternative() == COLUMN_VALUE) {
       // Null as a start date is possible...
       //
-      sql += " AND ( " + dateFromField + " IS NULL OR " + dateFromField + " <= ? )" + Const.CR;
-      sql += " AND " + dateToField + " > ?" + Const.CR;
+      sql.append(" AND ( ")
+          .append(dateFromField)
+          .append(" IS NULL OR ")
+          .append(dateFromField)
+          .append(" <= ? )")
+          .append(Const.CR);
+      sql.append(" AND ").append(dateToField).append(" > ?").append(Const.CR);
 
       data.lookupRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getFrom()));
       data.lookupRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getTo()));
     } else {
       // Null as a start date is NOT possible
       //
-      sql += " AND ? >= " + dateFromField + Const.CR;
-      sql += " AND ? < " + dateToField + Const.CR;
+      sql.append(" AND ? >= ").append(dateFromField).append(Const.CR);
+      sql.append(" AND ? < ").append(dateToField).append(Const.CR);
 
       data.lookupRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getFrom()));
       data.lookupRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getTo()));
@@ -972,33 +979,34 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
        * last_updated, last_inserted, last_version)
        */
 
-      String sql = "INSERT INTO " + data.schemaTable + "( ";
+      StringBuilder sql = new StringBuilder();
+
+      sql.append("INSERT INTO ").append(data.schemaTable).append("( ");
 
       if (!isAutoIncrement()) {
         // NO AUTOINCREMENT
-        sql += data.databaseMeta.quoteField(f.getReturns().getKeyField()) + ", ";
+        sql.append(data.databaseMeta.quoteField(f.getReturns().getKeyField())).append(", ");
         insertRowMeta.addValueMeta(
             data.outputRowMeta.getValueMeta(inputRowMeta.size())); // the first return value
         // after the input
       } else {
         if (data.databaseMeta.needsPlaceHolder()) {
-          sql += "0, "; // placeholder on informix!
+          sql.append("0, "); // placeholder on informix!
         }
       }
 
-      sql +=
-          data.databaseMeta.quoteField(f.getReturns().getVersionField())
-              + ", "
-              + data.databaseMeta.quoteField(f.getDate().getFrom())
-              + ", "
-              + data.databaseMeta.quoteField(f.getDate().getTo());
+      sql.append(data.databaseMeta.quoteField(f.getReturns().getVersionField()))
+          .append(", ")
+          .append(data.databaseMeta.quoteField(f.getDate().getFrom()))
+          .append(", ")
+          .append(data.databaseMeta.quoteField(f.getDate().getTo()));
       insertRowMeta.addValueMeta(new ValueMetaInteger(f.getReturns().getVersionField()));
       insertRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getFrom()));
       insertRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getTo()));
 
       for (int i = 0; i < f.getKeys().size(); i++) {
         DLKey key = f.getKeys().get(i);
-        sql += ", " + data.databaseMeta.quoteField(key.getLookup());
+        sql.append(", ").append(data.databaseMeta.quoteField(key.getLookup()));
         insertRowMeta.addValueMeta(inputRowMeta.getValueMeta(data.keynrs[i]));
       }
 
@@ -1008,7 +1016,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         // back of the row).
         //
         if (meta.isUpdate() && field.getUpdateType().isWithArgument()) {
-          sql += ", " + data.databaseMeta.quoteField(field.getLookup());
+          sql.append(", ").append(data.databaseMeta.quoteField(field.getLookup()));
           insertRowMeta.addValueMeta(inputRowMeta.getValueMeta(data.fieldnrs[i]));
         }
       }
@@ -1029,27 +1037,27 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
             break;
         }
         if (valueMeta != null) {
-          sql += ", " + data.databaseMeta.quoteField(valueMeta.getName());
+          sql.append(", ").append(data.databaseMeta.quoteField(valueMeta.getName()));
           insertRowMeta.addValueMeta(valueMeta);
         }
       }
 
-      sql += ") VALUES (";
+      sql.append(") VALUES (");
 
       if (!isAutoIncrement()) {
-        sql += "?, ";
+        sql.append("?, ");
       }
-      sql += "?, ?, ?";
+      sql.append("?, ?, ?");
 
       for (int i = 0; i < data.keynrs.length; i++) {
-        sql += ", ?";
+        sql.append(", ?");
       }
 
       for (DLField field : f.getFields()) {
         // Ignore last_version, last_updated, etc. These are handled below...
         //
         if (meta.isUpdate() && field.getUpdateType().isWithArgument()) {
-          sql += ", ?";
+          sql.append(", ?");
         }
       }
 
@@ -1058,14 +1066,14 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       for (DLField field : f.getFields()) {
         switch (field.getUpdateType()) {
           case DATE_INSERTED_UPDATED, DATE_INSERTED, LAST_VERSION:
-            sql += ", ?";
+            sql.append(", ?");
             break;
           default:
             break;
         }
       }
 
-      sql += " )";
+      sql.append(" )");
 
       try {
         if (technicalKey == null && data.databaseMeta.supportsAutoGeneratedKeys()) {
@@ -1090,11 +1098,16 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
        */
       IRowMeta updateRowMeta = new RowMeta();
 
-      String sqlUpdate = CONST_UPDATE + data.schemaTable + Const.CR;
+      StringBuilder sqlUpdate = new StringBuilder();
+      sqlUpdate.append(CONST_UPDATE).append(data.schemaTable).append(Const.CR);
 
       // The end of the date range
       //
-      sqlUpdate += "SET " + data.databaseMeta.quoteField(f.getDate().getTo()) + " = ?" + Const.CR;
+      sqlUpdate
+          .append("SET ")
+          .append(data.databaseMeta.quoteField(f.getDate().getTo()))
+          .append(" = ?")
+          .append(Const.CR);
       updateRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getTo()));
 
       // The special update fields...
@@ -1112,22 +1125,31 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
             break;
         }
         if (valueMeta != null) {
-          sqlUpdate += ", " + data.databaseMeta.quoteField(valueMeta.getName()) + " = ?" + Const.CR;
+          sqlUpdate
+              .append(", ")
+              .append(data.databaseMeta.quoteField(valueMeta.getName()))
+              .append(" = ?")
+              .append(Const.CR);
           updateRowMeta.addValueMeta(valueMeta);
         }
       }
 
-      sqlUpdate += "WHERE ";
+      sqlUpdate.append("WHERE ");
       for (int i = 0; i < f.getKeys().size(); i++) {
         DLKey key = f.getKeys().get(i);
         if (i > 0) {
-          sqlUpdate += CONST_AND;
+          sqlUpdate.append(CONST_AND);
         }
-        sqlUpdate += data.databaseMeta.quoteField(key.getLookup()) + " = ?" + Const.CR;
+        sqlUpdate
+            .append(data.databaseMeta.quoteField(key.getLookup()))
+            .append(" = ?")
+            .append(Const.CR);
         updateRowMeta.addValueMeta(inputRowMeta.getValueMeta(data.keynrs[i]));
       }
-      sqlUpdate +=
-          CONST_AND + data.databaseMeta.quoteField(f.getReturns().getVersionField()) + " = ? ";
+      sqlUpdate
+          .append(CONST_AND)
+          .append(data.databaseMeta.quoteField(f.getReturns().getVersionField()))
+          .append(" = ? ");
       updateRowMeta.addValueMeta(new ValueMetaInteger(f.getReturns().getVersionField()));
 
       try {
@@ -1325,18 +1347,22 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
        * UPDATE d_customer SET fieldlookup[] = row.getValue(fieldnrs) , last_updated = <now> WHERE returnkey = dimkey
        */
 
-      String sql = CONST_UPDATE + data.schemaTable + Const.CR + "SET ";
+      StringBuilder sql = new StringBuilder();
+
+      sql.append(CONST_UPDATE).append(data.schemaTable).append(Const.CR).append("SET ");
       boolean comma = false;
       for (int i = 0; i < f.getFields().size(); i++) {
         DLField field = f.getFields().get(i);
         if (meta.isUpdate() && field.getUpdateType().isWithArgument()) {
           if (comma) {
-            sql += ", ";
+            sql.append(", ");
           } else {
-            sql += "  ";
+            sql.append("  ");
           }
           comma = true;
-          sql += data.databaseMeta.quoteField(field.getLookup()) + " = ?" + Const.CR;
+          sql.append(data.databaseMeta.quoteField(field.getLookup()))
+              .append(" = ?")
+              .append(Const.CR);
           data.dimensionUpdateRowMeta.addValueMeta(rowMeta.getValueMeta(data.fieldnrs[i]));
         }
       }
@@ -1354,17 +1380,21 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         }
         if (valueMeta != null) {
           if (comma) {
-            sql += ", ";
+            sql.append(", ");
           } else {
-            sql += "  ";
+            sql.append("  ");
           }
           comma = true;
-          sql += data.databaseMeta.quoteField(valueMeta.getName()) + " = ?" + Const.CR;
+          sql.append(data.databaseMeta.quoteField(valueMeta.getName()))
+              .append(" = ?")
+              .append(Const.CR);
           data.dimensionUpdateRowMeta.addValueMeta(valueMeta);
         }
       }
 
-      sql += "WHERE  " + data.databaseMeta.quoteField(f.getReturns().getKeyField()) + " = ?";
+      sql.append("WHERE  ")
+          .append(data.databaseMeta.quoteField(f.getReturns().getKeyField()))
+          .append(" = ?");
       data.dimensionUpdateRowMeta.addValueMeta(
           new ValueMetaInteger(f.getReturns().getKeyField())); // The tk
 
@@ -1417,19 +1447,23 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
        * UPDATE table SET punchv1 = fieldx, ... , last_updated = <now> WHERE keylookup[] = keynrs[]
        */
 
-      String sqlUpdate = CONST_UPDATE + data.schemaTable + Const.CR;
-      sqlUpdate += "SET ";
+      StringBuilder sqlUpdate = new StringBuilder();
+      sqlUpdate.append(CONST_UPDATE).append(data.schemaTable).append(Const.CR);
+      sqlUpdate.append("SET ");
       boolean first = true;
       for (int i = 0; i < f.getFields().size(); i++) {
         DLField field = f.getFields().get(i);
         if (field.getUpdateType() == PUNCH_THROUGH) {
           if (!first) {
-            sqlUpdate += ", ";
+            sqlUpdate.append(", ");
           } else {
-            sqlUpdate += "  ";
+            sqlUpdate.append("  ");
           }
           first = false;
-          sqlUpdate += data.databaseMeta.quoteField(field.getLookup()) + " = ?" + Const.CR;
+          sqlUpdate
+              .append(data.databaseMeta.quoteField(field.getLookup()))
+              .append(" = ?")
+              .append(Const.CR);
           data.punchThroughRowMeta.addValueMeta(rowMeta.getValueMeta(data.fieldnrs[i]));
         }
       }
@@ -1446,18 +1480,25 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
             break;
         }
         if (valueMeta != null) {
-          sqlUpdate += ", " + data.databaseMeta.quoteField(valueMeta.getName()) + " = ?" + Const.CR;
+          sqlUpdate
+              .append(", ")
+              .append(data.databaseMeta.quoteField(valueMeta.getName()))
+              .append(" = ?")
+              .append(Const.CR);
           data.punchThroughRowMeta.addValueMeta(valueMeta);
         }
       }
 
-      sqlUpdate += "WHERE ";
+      sqlUpdate.append("WHERE ");
       for (int i = 0; i < f.getKeys().size(); i++) {
         DLKey key = f.getKeys().get(i);
         if (i > 0) {
-          sqlUpdate += CONST_AND;
+          sqlUpdate.append(CONST_AND);
         }
-        sqlUpdate += data.databaseMeta.quoteField(key.getLookup()) + " = ?" + Const.CR;
+        sqlUpdate
+            .append(data.databaseMeta.quoteField(key.getLookup()))
+            .append(" = ?")
+            .append(Const.CR);
         data.punchThroughRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]));
       }
 

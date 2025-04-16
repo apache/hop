@@ -364,60 +364,64 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
     DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
-    String sql = "SELECT ";
+    StringBuilder sql = new StringBuilder();
+
+    sql.append("SELECT ");
 
     for (int i = 0; i < meta.getLookupField().getUpdateFields().size(); i++) {
       UpdateField fieldItem = meta.getLookupField().getUpdateFields().get(i);
 
       if (i != 0) {
-        sql += ", ";
+        sql.append(", ");
       }
-      sql += databaseMeta.quoteField(fieldItem.getUpdateLookup());
+      sql.append(databaseMeta.quoteField(fieldItem.getUpdateLookup()));
       data.lookupReturnRowMeta.addValueMeta(rowMeta.searchValueMeta(fieldItem.getUpdateStream()));
     }
 
-    sql += " FROM " + data.schemaTable + " WHERE ";
+    sql.append(" FROM " + data.schemaTable + " WHERE ");
 
     for (int i = 0; i < meta.getLookupField().getLookupKeys().size(); i++) {
       UpdateKeyField keyItem = meta.getLookupField().getLookupKeys().get(i);
       if (i != 0) {
-        sql += " AND ";
+        sql.append(" AND ");
       }
 
-      sql += " ( ( ";
+      sql.append(" ( ( ");
 
-      sql += databaseMeta.quoteField(keyItem.getKeyLookup());
+      sql.append(databaseMeta.quoteField(keyItem.getKeyLookup()));
       if (CONST_BETWEEN.equalsIgnoreCase(keyItem.getKeyCondition())) {
-        sql += " BETWEEN ? AND ? ";
+        sql.append(" BETWEEN ? AND ? ");
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream2()));
       } else {
         if (CONST_IS_NULL.equalsIgnoreCase(keyItem.getKeyCondition())
             || CONST_IS_NOT_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
-          sql += " " + keyItem.getKeyCondition() + " ";
+          sql.append(" ").append(keyItem.getKeyCondition()).append(" ");
         } else if (CONST_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
 
-          sql += " IS NULL AND ";
+          sql.append(" IS NULL AND ");
 
           if (databaseMeta.requiresCastToVariousForIsNull()) {
-            sql += "CAST(? AS VARCHAR(256)) IS NULL";
+            sql.append("CAST(? AS VARCHAR(256)) IS NULL");
           } else {
-            sql += "? IS NULL";
+            sql.append("? IS NULL");
           }
           // null check
           data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
-          sql += " ) OR ( " + databaseMeta.quoteField(keyItem.getKeyLookup()) + " = ?";
+          sql.append(" ) OR ( ")
+              .append(databaseMeta.quoteField(keyItem.getKeyLookup()))
+              .append(" = ?");
           // equality check, cloning so auto-rename because of adding same fieldname does not cause
           // problems
           data.lookupParameterRowMeta.addValueMeta(
               rowMeta.searchValueMeta(keyItem.getKeyStream()).clone());
 
         } else {
-          sql += " " + keyItem.getKeyCondition() + " ? ";
+          sql.append(" ").append(keyItem.getKeyCondition()).append(" ? ");
           data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
         }
       }
-      sql += " ) ) ";
+      sql.append(" ) ) ");
     }
 
     try {
@@ -437,62 +441,66 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     data.updateParameterRowMeta = new RowMeta();
 
-    String sql = "UPDATE " + data.schemaTable + Const.CR;
-    sql += "SET ";
+    StringBuilder sql = new StringBuilder();
+
+    sql.append("UPDATE ").append(data.schemaTable).append(Const.CR);
+    sql.append("SET ");
 
     for (int i = 0; i < meta.getLookupField().getUpdateFields().size(); i++) {
 
       UpdateField fieldItem = meta.getLookupField().getUpdateFields().get(i);
 
       if (i != 0) {
-        sql += ",   ";
+        sql.append(",   ");
       }
-      sql += databaseMeta.quoteField(fieldItem.getUpdateLookup());
-      sql += " = ?" + Const.CR;
+      sql.append(databaseMeta.quoteField(fieldItem.getUpdateLookup()));
+      sql.append(" = ?").append(Const.CR);
       data.updateParameterRowMeta.addValueMeta(
           rowMeta.searchValueMeta(fieldItem.getUpdateStream()));
     }
 
-    sql += "WHERE ";
+    sql.append("WHERE ");
 
     for (int i = 0; i < meta.getLookupField().getLookupKeys().size(); i++) {
 
       UpdateKeyField keyItem = meta.getLookupField().getLookupKeys().get(i);
 
       if (i != 0) {
-        sql += "AND   ";
+        sql.append("AND   ");
       }
-      sql += " ( ( ";
-      sql += databaseMeta.quoteField(keyItem.getKeyLookup());
+      sql.append(" ( ( ");
+      sql.append(databaseMeta.quoteField(keyItem.getKeyLookup()));
       if (CONST_BETWEEN.equalsIgnoreCase(keyItem.getKeyCondition())) {
-        sql += " BETWEEN ? AND ? ";
+        sql.append(" BETWEEN ? AND ? ");
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream2()));
       } else if (CONST_IS_NULL.equalsIgnoreCase(keyItem.getKeyCondition())
           || CONST_IS_NOT_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
-        sql += " " + keyItem.getKeyCondition() + " ";
+        sql.append(" ").append(keyItem.getKeyCondition()).append(" ");
       } else if (CONST_NULL.equalsIgnoreCase(keyItem.getKeyCondition())) {
 
-        sql += " IS NULL AND ";
+        sql.append(" IS NULL AND ");
 
         if (databaseMeta.requiresCastToVariousForIsNull()) {
-          sql += "CAST(? AS VARCHAR(256)) IS NULL";
+          sql.append("CAST(? AS VARCHAR(256)) IS NULL");
         } else {
-          sql += "? IS NULL";
+          sql.append("? IS NULL");
         }
         // null check
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
-        sql += " ) OR ( " + databaseMeta.quoteField(keyItem.getKeyLookup()) + " = ?";
+        sql.append(" ) OR ( ")
+            .append(databaseMeta.quoteField(keyItem.getKeyLookup()))
+            .append(" = ?");
         // equality check, cloning so auto-rename because of adding same fieldname does not cause
         // problems
         data.updateParameterRowMeta.addValueMeta(
             rowMeta.searchValueMeta(keyItem.getKeyStream()).clone());
 
       } else {
-        sql += " " + keyItem.getKeyCondition() + " ? ";
+        sql.append(" ").append(keyItem.getKeyCondition()).append(" ? ");
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
       }
-      sql += " ) ) ";
+      sql.append(" ) ) ");
     }
     try {
       if (isDetailed()) {

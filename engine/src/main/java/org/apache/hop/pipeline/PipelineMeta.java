@@ -2757,16 +2757,16 @@ public class PipelineMeta extends AbstractMeta
    * @throws HopTransformException if any errors occur during Sql statement generation
    */
   public String getSqlStatementsString(IVariables variables) throws HopTransformException {
-    String sql = "";
+    StringBuilder sql = new StringBuilder();
     List<SqlStatement> stats = getSqlStatements(variables);
     for (int i = 0; i < stats.size(); i++) {
       SqlStatement stat = stats.get(i);
       if (!stat.hasError() && stat.hasSql()) {
-        sql += stat.getSql();
+        sql.append(stat.getSql());
       }
     }
 
-    return sql;
+    return sql.toString();
   }
 
   /**
