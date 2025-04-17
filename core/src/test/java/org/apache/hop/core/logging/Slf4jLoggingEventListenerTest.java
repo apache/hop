@@ -19,20 +19,21 @@ package org.apache.hop.core.logging;
 
 import static org.apache.hop.core.logging.LogLevel.BASIC;
 import static org.apache.hop.core.logging.LogLevel.ERROR;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.function.Function;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
-@RunWith(MockitoJUnitRunner.class)
-public class Slf4jLoggingEventListenerTest {
+@ExtendWith(MockitoExtension.class)
+class Slf4jLoggingEventListenerTest {
 
   @Mock private Logger pipelineLogger, workflowLogger, hopLogger;
   @Mock private HopLoggingEvent logEvent;
@@ -47,60 +48,60 @@ public class Slf4jLoggingEventListenerTest {
 
   private Slf4jLoggingEventListener listener = new Slf4jLoggingEventListener();
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     listener.pipelineLogger = pipelineLogger;
     listener.workflowLogger = workflowLogger;
     listener.hopLogger = hopLogger;
     listener.logObjProvider = logObjProvider;
-    when(logEvent.getMessage()).thenReturn(message);
-    when(message.getLogChannelId()).thenReturn(logChannelId);
-    when(message.getLevel()).thenReturn(logLevel);
-    when(message.getMessage()).thenReturn(msgText);
-    when(message.getSubject()).thenReturn(messageSub);
+    lenient().when(logEvent.getMessage()).thenReturn(message);
+    lenient().when(message.getLogChannelId()).thenReturn(logChannelId);
+    lenient().when(message.getLevel()).thenReturn(logLevel);
+    lenient().when(message.getMessage()).thenReturn(msgText);
+    lenient().when(message.getSubject()).thenReturn(messageSub);
   }
 
   @Test
-  public void testAddLogEventNoRegisteredLogObject() {
+  void testAddLogEventNoRegisteredLogObject() {
     listener.eventAdded(logEvent);
-    verify(hopLogger).info(messageSub + " " + msgText);
+    verify(hopLogger).info(String.format("%s %s", messageSub, msgText));
 
     when(message.getLevel()).thenReturn(ERROR);
     listener.eventAdded(logEvent);
-    verify(hopLogger).error(messageSub + " " + msgText);
+    verify(hopLogger).error(String.format("%s %s", messageSub, msgText));
     verifyNoInteractions(pipelineLogger);
     verifyNoInteractions(workflowLogger);
   }
 
   @Test
-  public void testAddLogEventPipeline() {
+  void testAddLogEventPipeline() {
     when(logObjProvider.apply(logChannelId)).thenReturn(loggingObject);
     when(loggingObject.getObjectType()).thenReturn(LoggingObjectType.PIPELINE);
     when(loggingObject.getFilename()).thenReturn("filename");
     when(message.getLevel()).thenReturn(LogLevel.BASIC);
     listener.eventAdded(logEvent);
 
-    verify(pipelineLogger).info("[filename]  " + msgText);
+    verify(pipelineLogger).info(String.format("[filename]  %s", msgText));
     when(message.getLevel()).thenReturn(LogLevel.ERROR);
     listener.eventAdded(logEvent);
-    verify(pipelineLogger).error("[filename]  " + msgText);
+    verify(pipelineLogger).error(String.format("[filename]  %s", msgText));
     verifyNoInteractions(hopLogger);
     verifyNoInteractions(workflowLogger);
   }
 
   @Test
-  public void testAddLogEventJob() {
+  void testAddLogEventJob() {
     when(logObjProvider.apply(logChannelId)).thenReturn(loggingObject);
     when(loggingObject.getObjectType()).thenReturn(LoggingObjectType.WORKFLOW);
     when(loggingObject.getFilename()).thenReturn("filename");
     when(message.getLevel()).thenReturn(LogLevel.BASIC);
     listener.eventAdded(logEvent);
 
-    verify(workflowLogger).info("[filename]  " + msgText);
+    verify(workflowLogger).info(String.format("[filename]  %s", msgText));
 
     when(message.getLevel()).thenReturn(LogLevel.ERROR);
     listener.eventAdded(logEvent);
-    verify(workflowLogger).error("[filename]  " + msgText);
+    verify(workflowLogger).error(String.format("[filename]  %s", msgText));
     verifyNoInteractions(hopLogger);
     verifyNoInteractions(pipelineLogger);
   }

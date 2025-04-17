@@ -108,7 +108,7 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
     while (loggingObject != null) {
       if (loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == WORKFLOW) {
         String filename = loggingObject.getFilename();
-        if (filename != null && filename.length() > 0) {
+        if (filename != null && !filename.isEmpty()) {
           subjects.add(filename);
         }
       }
