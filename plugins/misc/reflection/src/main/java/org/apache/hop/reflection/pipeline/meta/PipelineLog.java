@@ -46,7 +46,7 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
 
   public PipelineLog() {
     enabled = true;
-    loggingParentsOnly = true;
+    loggingParentsOnly = false;
     executingAtStart = true;
     executingPeriodically = false;
     intervalInSeconds = "30";

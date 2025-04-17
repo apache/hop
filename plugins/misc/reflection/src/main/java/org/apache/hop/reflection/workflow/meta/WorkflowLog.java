@@ -46,7 +46,7 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
 
   public WorkflowLog() {
     enabled = true;
-    loggingParentsOnly = true;
+    loggingParentsOnly = false;
     executingAtStart = true;
     executingPeriodically = false;
     intervalInSeconds = "30";
