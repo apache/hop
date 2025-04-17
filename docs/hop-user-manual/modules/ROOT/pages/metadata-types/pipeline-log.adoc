@@ -52,7 +52,7 @@ image:metadata-types/pipeline-log.png[Pipeline Log, width="75%"]
 |Option|Default|Description
 |Name|The name to be used for this pipeline log|
 |Enabled?|true|
-|Logging parent pipelines only|true|
+|Logging parent pipelines only|false|If you enable this, only the parent pipelines, executed by Hop Run, GUI, Server or API will be logged. When disabled, every pipeline execution will be logged.
 |Pipeline executed to capture logging||the pipeline to process the logging information for this pipeline log
 |Execute at the start of the pipeline?|true|Should this pipeline log be executed at the start of a pipeline run
 |Execute at the end of the pipeline?|false|Should this pipeline log be executed at the end of a pipeline run

@@ -52,7 +52,7 @@ image:metadata-types/workflow-log.png[Workflow Log, width="75%"]
 |Option|Default|Description
 |Name|The name to be used for this workflow log|
 |Enabled?|true|
-|Logging parent workflow only|true|
+|Logging parent workflow only|false|If you enable this, only the parent workflow, executed by Hop Run, GUI, Server or API will be logged. When disabled, every workflow execution will be logged.
 |Pipeline executed to capture logging||the pipeline to process the logging information for this workflow log
 |Execute at the start of the workflow?|true|Should this workflow log be executed at the start of a workflow run
 |Execute at the end of the workflow?|false|Should this workflow log be executed at the end of a workflow run

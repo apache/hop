@@ -46,8 +46,8 @@ These are the options:
 |Use this to enable or disable pipeline logging for this object
 
 |Logging parent pipelines only?
-|If you enable this only the parent pipelines, executed by Hop Run, GUI, Server or API will be logged.
-When disabled every pipeline will be logged with the exclusion of logging and data probing pipelines obviously.
+|If you enable this, only the parent pipelines, executed by Hop Run, GUI, Server or API will be logged.
+When disabled, every pipeline will be logged with the exclusion of logging and data probing pipelines.
 
 |Pipeline executed to capture logging
 |The filename of the pipeline which will get executed every time a pipeline is executed.
@@ -231,8 +231,8 @@ These are the options:
 |Use this to enable or disable workflow logging for this object
 
 |Logging parent workflows only?
-|If you enable this only the parent pipelines, executed by Hop Run, GUI, Server or API will be logged.
-When disabled every workflow execution will be logged.
+|If you enable this, only the parent workflows, executed by Hop Run, GUI, Server or API will be logged.
+When disabled, every workflow execution will be logged.
 
 |Pipeline executed to capture logging
 |The filename of the pipeline which will get executed every time a workflow is executed.
