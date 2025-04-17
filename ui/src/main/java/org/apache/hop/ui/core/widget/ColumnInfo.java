@@ -129,29 +129,29 @@ public class ColumnInfo {
    * Creates a column info class for use with the TableView class. The type of column info to be
    * created is : COLUMN_TYPE_CCOMBO
    *
-   * @param colname The column name
-   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param name The column name
+   * @param type The column type (see: COLUMN_TYPE_...)
    * @param combo The choices in the combo box
-   * @param ro true if the column is read-only (you can't type in the combo box, you CAN make a
+   * @param readOnly true if the column is read-only (you can't type in the combo box, you CAN make a
    *     choice)
    */
-  public ColumnInfo(String colname, int coltype, String[] combo, boolean ro) {
-    this(colname, coltype, combo);
-    readonly = ro;
+  public ColumnInfo(String name, int type, String[] combo, boolean readOnly) {
+    this(name, type, combo);
+    readonly = readOnly;
   }
 
   /**
    * Creates a column info class for use with the TableView class.
    *
-   * @param colname The column name
-   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param name The column name
+   * @param type The column type (see: COLUMN_TYPE_...)
    * @param num true if the column type is numeric. Use setValueType() to specify the type of
    *     numeric: IValueMeta.TYPE_INTEGER is the default.
-   * @param ro true if the column is read-only.
+   * @param readOnly true if the column is read-only.
    */
-  public ColumnInfo(String colname, int coltype, boolean num, boolean ro) {
-    this(colname, coltype, num);
-    readonly = ro;
+  public ColumnInfo(String name, int type, boolean num, boolean readOnly) {
+    this(name, type, num);
+    readonly = readOnly;
   }
 
   /**

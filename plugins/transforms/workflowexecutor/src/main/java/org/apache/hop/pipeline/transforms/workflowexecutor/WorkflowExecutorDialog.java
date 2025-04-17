@@ -544,6 +544,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
               false),
         };
     parameterColumns[1].setUsingVariables(true);
+    parameterColumns[2].setUsingVariables(true);
 
     List<WorkflowExecutorParameters> parameters = workflowExecutorMeta.getParameters();
     wWorkflowExecutorParameters =
