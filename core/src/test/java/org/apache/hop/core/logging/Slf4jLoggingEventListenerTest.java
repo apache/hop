@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 @RunWith(MockitoJUnitRunner.class)
 public class Slf4jLoggingEventListenerTest {
 
-  @Mock private Logger pipelineLogger, jobLogger, diLogger;
+  @Mock private Logger pipelineLogger, workflowLogger, hopLogger;
   @Mock private HopLoggingEvent logEvent;
   @Mock private ILoggingObject loggingObject;
   @Mock private LogMessage message;
@@ -50,8 +50,8 @@ public class Slf4jLoggingEventListenerTest {
   @Before
   public void before() {
     listener.pipelineLogger = pipelineLogger;
-    listener.jobLogger = jobLogger;
-    listener.diLogger = diLogger;
+    listener.workflowLogger = workflowLogger;
+    listener.hopLogger = hopLogger;
     listener.logObjProvider = logObjProvider;
     when(logEvent.getMessage()).thenReturn(message);
     when(message.getLogChannelId()).thenReturn(logChannelId);
@@ -63,13 +63,13 @@ public class Slf4jLoggingEventListenerTest {
   @Test
   public void testAddLogEventNoRegisteredLogObject() {
     listener.eventAdded(logEvent);
-    verify(diLogger).info(messageSub + " " + msgText);
+    verify(hopLogger).info(messageSub + " " + msgText);
 
     when(message.getLevel()).thenReturn(ERROR);
     listener.eventAdded(logEvent);
-    verify(diLogger).error(messageSub + " " + msgText);
+    verify(hopLogger).error(messageSub + " " + msgText);
     verifyNoInteractions(pipelineLogger);
-    verifyNoInteractions(jobLogger);
+    verifyNoInteractions(workflowLogger);
   }
 
   @Test
@@ -84,8 +84,8 @@ public class Slf4jLoggingEventListenerTest {
     when(message.getLevel()).thenReturn(LogLevel.ERROR);
     listener.eventAdded(logEvent);
     verify(pipelineLogger).error("[filename]  " + msgText);
-    verifyNoInteractions(diLogger);
-    verifyNoInteractions(jobLogger);
+    verifyNoInteractions(hopLogger);
+    verifyNoInteractions(workflowLogger);
   }
 
   @Test
@@ -96,12 +96,12 @@ public class Slf4jLoggingEventListenerTest {
     when(message.getLevel()).thenReturn(LogLevel.BASIC);
     listener.eventAdded(logEvent);
 
-    verify(jobLogger).info("[filename]  " + msgText);
+    verify(workflowLogger).info("[filename]  " + msgText);
 
     when(message.getLevel()).thenReturn(LogLevel.ERROR);
     listener.eventAdded(logEvent);
-    verify(jobLogger).error("[filename]  " + msgText);
-    verifyNoInteractions(diLogger);
+    verify(workflowLogger).error("[filename]  " + msgText);
+    verifyNoInteractions(hopLogger);
     verifyNoInteractions(pipelineLogger);
   }
 }
