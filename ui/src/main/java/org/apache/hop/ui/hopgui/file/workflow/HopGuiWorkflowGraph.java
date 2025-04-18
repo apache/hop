@@ -326,7 +326,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private Composite mainComposite;
 
-  private ToolItem closeItem;
+  private ToolItem rotateItem;
   private ToolItem minMaxItem;
 
   private List<AreaOwner> areaOwners;
@@ -408,7 +408,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // To allow for a splitter later on, we will add the splitter here...
     //
-    sashForm = new SashForm(mainComposite, SWT.VERTICAL);
+    sashForm =
+        new SashForm(
+            mainComposite,
+            PropsUi.getInstance().isGraphExtraViewVerticalOrientation()
+                ? SWT.VERTICAL
+                : SWT.HORIZONTAL);
 
     // Add a canvas below it, use up all space
     //
@@ -3402,7 +3407,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     minMaxItem.addListener(SWT.Selection, e -> minMaxExtraView());
 
-    closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+    rotateItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+    rotateItem.setImage(
+        PropsUi.getInstance().isGraphExtraViewVerticalOrientation()
+            ? GuiResource.getInstance().getImageRotateRight()
+            : GuiResource.getInstance().getImageRotateLeft());
+    rotateItem.setToolTipText(
+        BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.RotateButton.Tooltip"));
+    rotateItem.addListener(SWT.Selection, e -> rotateExtraView());
+
+    ToolItem closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
     closeItem.setImage(GuiResource.getInstance().getImageClosePanel());
     closeItem.setToolTipText(
         BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
@@ -3433,6 +3447,21 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void checkEmptyExtraView() {
     if (extraViewTabFolder.getItemCount() == 0) {
       disposeExtraView();
+    }
+  }
+
+  private void rotateExtraView() {
+
+    // Toggle orientation
+    boolean orientation = !PropsUi.getInstance().isGraphExtraViewVerticalOrientation();
+    PropsUi.getInstance().setGraphExtraViewVerticalOrientation(orientation);
+
+    if (orientation) {
+      sashForm.setOrientation(SWT.VERTICAL);
+      rotateItem.setImage(GuiResource.getInstance().getImageRotateRight());
+    } else {
+      sashForm.setOrientation(SWT.HORIZONTAL);
+      rotateItem.setImage(GuiResource.getInstance().getImageRotateLeft());
     }
   }
 

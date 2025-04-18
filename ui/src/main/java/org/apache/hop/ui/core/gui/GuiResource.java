@@ -223,6 +223,8 @@ public class GuiResource {
   @Getter private Image imageRemoveAll;
   @Getter private Image imageRemoveSingle;
   @Getter private Image imageResetOption;
+  @Getter private Image imageRotateLeft;
+  @Getter private Image imageRotateRight;
   @Getter private Image imageRun;
   @Getter private Image imageSchema;
   @Getter private Image imageSearch;
@@ -507,6 +509,8 @@ public class GuiResource {
     disposeImage(imageRemoveAll);
     disposeImage(imageRemoveSingle);
     disposeImage(imageResetOption);
+    disposeImage(imageRotateLeft);
+    disposeImage(imageRotateRight);
     disposeImage(imageRun);
     disposeImage(imageSchema);
     disposeImage(imageSearch);
@@ -738,6 +742,9 @@ public class GuiResource {
         loadAsResource(display, "ui/images/remove_single.svg", ConstUi.SMALL_ICON_SIZE);
     imageResetOption =
         loadAsResource(display, "ui/images/reset_option.svg", ConstUi.SMALL_ICON_SIZE);
+    imageRotateLeft = loadAsResource(display, "ui/images/rotate-left.svg", ConstUi.SMALL_ICON_SIZE);
+    imageRotateRight =
+        loadAsResource(display, "ui/images/rotate-right.svg", ConstUi.SMALL_ICON_SIZE);
     imageSchema = loadAsResource(display, "ui/images/user.svg", ConstUi.SMALL_ICON_SIZE);
     imageSearch = loadAsResource(display, "ui/images/search.svg", ConstUi.SMALL_ICON_SIZE);
     imageShowAll = loadAsResource(display, "ui/images/show-all.svg", ConstUi.SMALL_ICON_SIZE);
