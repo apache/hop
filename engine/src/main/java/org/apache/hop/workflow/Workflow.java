@@ -714,7 +714,7 @@ public abstract class Workflow extends Variables
                 + ")");
       }
 
-      // Which entry is next?
+      // Which action is next?
       IAction action = actionMeta.getAction();
       action.getLogChannel().setLogLevel(logLevel);
 
@@ -821,11 +821,11 @@ public abstract class Workflow extends Variables
       final ActionMeta nextAction = workflowMeta.findNextAction(actionMeta, i);
 
       // See if we need to execute this...
-      final WorkflowHopMeta hi = workflowMeta.findWorkflowHop(actionMeta, nextAction);
+      final WorkflowHopMeta hopMeta = workflowMeta.findWorkflowHop(actionMeta, nextAction);
 
       // The next comment...
       final String nextComment;
-      if (hi.isUnconditional()) {
+      if (hopMeta.isUnconditional()) {
         nextComment = BaseMessages.getString(PKG, "Workflow.Comment.FollowedUnconditional");
       } else {
         if (newResult.getResult()) {
@@ -840,9 +840,17 @@ public abstract class Workflow extends Variables
       // If the start point was an evaluation and the link color is correct:
       // green or red, execute the next action...
       //
-      if (hi.isUnconditional()
-          || (actionMeta.isEvaluation() && (hi.isEvaluation() == newResult.getResult()))) {
-        // Start this next transform!
+      if (hopMeta.isUnconditional()
+          || (actionMeta.isEvaluation() && (hopMeta.isEvaluation() == newResult.getResult()))) {
+
+        // If the next action is a join, only execute once
+        if (nextAction.isJoin()) {
+          if (activeActions.contains(nextAction)) {
+            continue;
+          }
+        }
+
+        // Start this next action!
         if (log.isBasic()) {
           log.logBasic(
               BaseMessages.getString(PKG, "Workflow.Log.StartingAction", nextAction.getName()));
@@ -1490,9 +1498,9 @@ public abstract class Workflow extends Variables
   }
 
   /**
-   * Gets the activeJobEntryPipelines.
+   * Gets the active actions.
    *
-   * @return the activeJobEntryPipelines
+   * @return the active actions
    */
   @Override
   public Set<ActionMeta> getActiveActions() {

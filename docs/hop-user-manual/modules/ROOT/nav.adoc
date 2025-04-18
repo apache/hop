@@ -327,6 +327,7 @@ under the License.
 *** xref:workflow/actions/getpop.adoc[Get mails (POP3/IMAP)]
 *** xref:workflow/actions/http.adoc[HTTP]
 *** xref:workflow/actions/eval.adoc[JavaScript]
+*** xref:workflow/actions/join.adoc[Join]
 *** xref:workflow/actions/mail.adoc[Mail]
 *** xref:workflow/actions/mailvalidator.adoc[Mail validator]
 *** xref:workflow/actions/movefiles.adoc[Move files]

@@ -172,6 +172,7 @@ public class GuiResource {
   private SwtUniversalImage imageParallel;
   private SwtUniversalImage imageParallelDisabled;
   private SwtUniversalImage imageBusy;
+  private SwtUniversalImage imageWaiting;
   private SwtUniversalImage imageInject;
   private SwtUniversalImage imageBalance;
   private SwtUniversalImage imageCheckpoint;
@@ -831,6 +832,7 @@ public class GuiResource {
     imageUnconditionalDisabled =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/unconditional-disabled.svg");
     imageBusy = SwtSvgImageUtil.getImageAsResource(display, "ui/images/busy.svg");
+    imageWaiting = SwtSvgImageUtil.getImageAsResource(display, "ui/images/waiting.svg");
     imageInject = SwtSvgImageUtil.getImageAsResource(display, "ui/images/inject.svg");
     imageBalance = SwtSvgImageUtil.getImageAsResource(display, "ui/images/scales.svg");
     imageCheckpoint = SwtSvgImageUtil.getImageAsResource(display, "ui/images/checkpoint.svg");
@@ -1587,6 +1589,10 @@ public class GuiResource {
 
   public SwtUniversalImage getSwtImageBusy() {
     return imageBusy;
+  }
+
+  public SwtUniversalImage getSwtImageWaiting() {
+    return imageWaiting;
   }
 
   public Image getImageInject() {

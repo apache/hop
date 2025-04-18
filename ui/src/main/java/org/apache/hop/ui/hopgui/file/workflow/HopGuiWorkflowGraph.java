@@ -2947,9 +2947,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               125,
               true);
         }
-      } catch (HopException e) {
+      } catch (Exception e) {
         throw new HopException("Error drawing workflow", e);
       }
+
     } finally {
       gc.dispose();
     }

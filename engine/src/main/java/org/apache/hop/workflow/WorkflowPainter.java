@@ -318,7 +318,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       gc.setForeground(EColor.BLUE);
       int iconX = (x + iconSize) - (miniIconSize / 2) + 1;
       int iconY = y - (miniIconSize / 2) - 1;
-      gc.drawImage(EImage.BUSY, iconX, iconY, magnification);
+
+      gc.drawImage(actionMeta.isJoin() ? EImage.WAITING : EImage.BUSY, iconX, iconY, magnification);
       areaOwners.add(
           new AreaOwner(
               AreaType.ACTION_BUSY,
