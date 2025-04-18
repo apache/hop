@@ -132,8 +132,8 @@ public class ColumnInfo {
    * @param name The column name
    * @param type The column type (see: COLUMN_TYPE_...)
    * @param combo The choices in the combo box
-   * @param readOnly true if the column is read-only (you can't type in the combo box, you CAN make a
-   *     choice)
+   * @param readOnly true if the column is read-only (you can't type in the combo box, you CAN make
+   *     a choice)
    */
   public ColumnInfo(String name, int type, String[] combo, boolean readOnly) {
     this(name, type, combo);
