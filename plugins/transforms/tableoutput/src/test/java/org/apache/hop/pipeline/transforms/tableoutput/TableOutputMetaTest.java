@@ -17,49 +17,42 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class TableOutputMetaTest {
+class TableOutputMetaTest {
 
-  private IVariables variables;
-  private List<DatabaseMeta> databases;
-  private IHopMetadataProvider metadataProvider;
   Class<TableOutputMeta> testMetaClass = TableOutputMeta.class;
 
-  @Before
-  public void setUp() {
-    variables = mock(IVariables.class);
-    databases = mock(List.class);
-    metadataProvider = new MemoryMetadataProvider();
+  @BeforeEach
+  void setUp() throws HopException {
+    HopEnvironment.init();
+    PluginRegistry.init();
   }
 
   @Test
-  public void testIsReturningGeneratedKeys() {
+  void testIsReturningGeneratedKeys() {
     TableOutputMeta tableOutputMeta = new TableOutputMeta(),
         tableOutputMetaSpy = spy(tableOutputMeta);
 
@@ -75,7 +68,7 @@ public class TableOutputMetaTest {
   }
 
   @Test
-  public void testSetupDefault() {
+  void testSetupDefault() {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     tableOutputMeta.setDefault();
     assertEquals("", tableOutputMeta.getTableName());
@@ -89,7 +82,8 @@ public class TableOutputMetaTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  @SuppressWarnings("java:S1874")
+  void testClone() throws Exception {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     tableOutputMeta.setDefault();
     tableOutputMeta.getFields().add(new TableOutputField("d1", "1"));
@@ -101,7 +95,7 @@ public class TableOutputMetaTest {
   }
 
   @Test
-  public void testSupportsErrorHandling() {
+  void testSupportsErrorHandling() {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IDatabase iDatabase = mock(IDatabase.class);
@@ -110,14 +104,8 @@ public class TableOutputMetaTest {
     assertTrue(tableOutputMeta.supportsErrorHandling());
   }
 
-  @Before
-  public void setUpLoadSave() throws Exception {
-    HopEnvironment.init();
-    PluginRegistry.init();
-  }
-
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
 
     LoadSaveTester<TableOutputMeta> tester = new LoadSaveTester<>(testMetaClass);
 

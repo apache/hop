@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
@@ -43,10 +43,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class TableOutputTest {
+class TableOutputTest {
   private DatabaseMeta databaseMeta;
 
   private TransformMeta transformMeta;
@@ -57,8 +57,8 @@ public class TableOutputTest {
   private Database db;
   private PipelineMeta pipelineMeta;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     databaseMeta = mock(DatabaseMeta.class);
     doReturn("").when(databaseMeta).quoteField(anyString());
@@ -88,7 +88,7 @@ public class TableOutputTest {
     setupTableOutputSpy();
   }
 
-  private void setupTableOutputSpy() throws Exception {
+  private void setupTableOutputSpy() {
 
     tableOutput =
         new TableOutput(
@@ -106,18 +106,19 @@ public class TableOutputTest {
   }
 
   @Test
-  public void testWriteToTable() throws Exception {
+  void testWriteToTable() throws Exception {
     tableOutputSpy.writeToTable(mock(IRowMeta.class), new Object[] {});
+    verify(tableOutputSpy, times(1)).writeToTable(any(), any());
   }
 
   @Test
-  public void testTruncateTableOff() throws Exception {
+  void testTruncateTableOff() throws Exception {
     tableOutputSpy.truncateTable();
     verify(db, never()).truncateTable(anyString(), anyString());
   }
 
   @Test
-  public void testTruncateTable_on() throws Exception {
+  void testTruncateTable_on() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     when(tableOutputSpy.getCopy()).thenReturn(0);
 
@@ -126,7 +127,7 @@ public class TableOutputTest {
   }
 
   @Test
-  public void testTruncateTable_on_PartitionId() throws Exception {
+  void testTruncateTable_on_PartitionId() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     when(tableOutputSpy.getCopy()).thenReturn(1);
     when(tableOutputSpy.getPartitionId()).thenReturn("partition id");
@@ -136,7 +137,7 @@ public class TableOutputTest {
   }
 
   @Test
-  public void testProcessRow_truncatesIfNoRowsAvailable() throws Exception {
+  void testProcessRow_truncatesIfNoRowsAvailable() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
 
     doReturn(null).when(tableOutputSpy).getRow();
@@ -148,7 +149,7 @@ public class TableOutputTest {
   }
 
   @Test
-  public void testProcessRow_doesNotTruncateIfNoRowsAvailableAndTruncateIsOff() throws Exception {
+  void testProcessRow_doesNotTruncateIfNoRowsAvailableAndTruncateIsOff() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(false);
 
     doReturn(null).when(tableOutputSpy).getRow();
@@ -160,13 +161,13 @@ public class TableOutputTest {
   }
 
   @Test
-  public void testProcessRow_truncatesOnFirstRow() throws Exception {
+  void testProcessRow_truncatesOnFirstRow() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     Object[] row = new Object[] {};
     doReturn(row).when(tableOutputSpy).getRow();
 
     try {
-      boolean result = tableOutputSpy.processRow();
+      tableOutputSpy.processRow();
     } catch (NullPointerException npe) {
       // not everything is set up to process an entire row, but we don't need that for this test
     }
@@ -174,7 +175,7 @@ public class TableOutputTest {
   }
 
   @Test
-  public void testProcessRow_doesNotTruncateOnOtherRows() throws Exception {
+  void testProcessRow_doesNotTruncateOnOtherRows() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     Object[] row = new Object[] {};
     doReturn(row).when(tableOutputSpy).getRow();
@@ -188,7 +189,7 @@ public class TableOutputTest {
   }
 
   @Test
-  public void testInit_unsupportedConnection() {
+  void testInit_unsupportedConnection() {
 
     IDatabase dbInterface = mock(IDatabase.class);
 

@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -53,6 +55,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::TableOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/tableoutput.html",
     actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.RDBMS})
+@Getter
+@Setter
 public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputData> {
   private static final Class<?> PKG = TableOutputMeta.class;
 
@@ -181,147 +185,6 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
       hopMetadataPropertyType = HopMetadataPropertyType.FIELD_LIST)
   private List<TableOutputField> fields;
 
-  public List<TableOutputField> getFields() {
-    return fields;
-  }
-
-  public void setFields(List<TableOutputField> fields) {
-    this.fields = fields;
-  }
-
-  /**
-   * @return Returns the generatedKeyField.
-   */
-  public String getGeneratedKeyField() {
-    return generatedKeyField;
-  }
-
-  /**
-   * @param generatedKeyField The generatedKeyField to set.
-   */
-  public void setGeneratedKeyField(String generatedKeyField) {
-    this.generatedKeyField = generatedKeyField;
-  }
-
-  /**
-   * @return Returns the returningGeneratedKeys.
-   */
-  public boolean isReturningGeneratedKeys() {
-    return returningGeneratedKeys;
-  }
-
-  /**
-   * @param returningGeneratedKeys The returningGeneratedKeys to set.
-   */
-  public void setReturningGeneratedKeys(boolean returningGeneratedKeys) {
-    this.returningGeneratedKeys = returningGeneratedKeys;
-  }
-
-  /**
-   * @return Returns the tableNameInTable.
-   */
-  public boolean isTableNameInTable() {
-    return tableNameInTable;
-  }
-
-  /**
-   * @param tableNameInTable The tableNameInTable to set.
-   */
-  public void setTableNameInTable(boolean tableNameInTable) {
-    this.tableNameInTable = tableNameInTable;
-  }
-
-  /**
-   * @return Returns the tableNameField.
-   */
-  public String getTableNameField() {
-    return tableNameField;
-  }
-
-  /**
-   * @param tableNameField The tableNameField to set.
-   */
-  public void setTableNameField(String tableNameField) {
-    this.tableNameField = tableNameField;
-  }
-
-  /**
-   * @return Returns the tableNameInField.
-   */
-  public boolean isTableNameInField() {
-    return tableNameInField;
-  }
-
-  /**
-   * @param tableNameInField The tableNameInField to set.
-   */
-  public void setTableNameInField(boolean tableNameInField) {
-    this.tableNameInField = tableNameInField;
-  }
-
-  /**
-   * @return Returns the partitioningDaily.
-   */
-  public boolean isPartitioningDaily() {
-    return partitioningDaily;
-  }
-
-  /**
-   * @param partitioningDaily The partitioningDaily to set.
-   */
-  public void setPartitioningDaily(boolean partitioningDaily) {
-    this.partitioningDaily = partitioningDaily;
-  }
-
-  /**
-   * @return Returns the partitioningMontly.
-   */
-  public boolean isPartitioningMonthly() {
-    return partitioningMonthly;
-  }
-
-  /**
-   * @param partitioningMontly The partitioningMontly to set.
-   */
-  public void setPartitioningMonthly(boolean partitioningMontly) {
-    this.partitioningMonthly = partitioningMontly;
-  }
-
-  /**
-   * @return Returns the partitioningEnabled.
-   */
-  public boolean isPartitioningEnabled() {
-    return partitioningEnabled;
-  }
-
-  /**
-   * @param partitioningEnabled The partitioningEnabled to set.
-   */
-  public void setPartitioningEnabled(boolean partitioningEnabled) {
-    this.partitioningEnabled = partitioningEnabled;
-  }
-
-  /**
-   * @return Returns the partitioningField.
-   */
-  public String getPartitioningField() {
-    return partitioningField;
-  }
-
-  /**
-   * @param partitioningField The partitioningField to set.
-   */
-  public void setPartitioningField(String partitioningField) {
-    this.partitioningField = partitioningField;
-  }
-
-  /**
-   * @return Returns the partitionDataPer value
-   */
-  public String getPartitionDataPer() {
-    return partitionDataPer;
-  }
-
   /**
    * @param partitionDataPer The partitionDataPer to set
    */
@@ -342,123 +205,6 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   @Override
   public Object clone() {
     return super.clone();
-  }
-
-  public String getConnection() {
-    return connection;
-  }
-
-  public void setConnection(String connection) {
-    this.connection = connection;
-  }
-
-  /**
-   * @return Returns the commitSize.
-   */
-  public String getCommitSize() {
-    return commitSize;
-  }
-
-  /**
-   * @param commitSizeInt The commitSize to set.
-   */
-  public void setCommitSize(int commitSizeInt) {
-    this.commitSize = Integer.toString(commitSizeInt);
-  }
-
-  /**
-   * @param commitSize The commitSize to set.
-   */
-  public void setCommitSize(String commitSize) {
-    this.commitSize = commitSize;
-  }
-
-  /**
-   * Returns the table name.
-   *
-   * @return
-   */
-  public String getTableName() {
-    return tableName;
-  }
-
-  /**
-   * Assign the table name to write to.
-   *
-   * @param tableName The table name to set
-   */
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  /**
-   * @return Returns the truncate table flag.
-   */
-  public boolean isTruncateTable() {
-    return truncateTable;
-  }
-
-  /**
-   * @param truncateTable The truncate table flag to set.
-   */
-  public void setTruncateTable(boolean truncateTable) {
-    this.truncateTable = truncateTable;
-  }
-
-  /**
-   * @return Returns the onlyWhenHaveRows flag.
-   */
-  public boolean isOnlyWhenHaveRows() {
-    return onlyWhenHaveRows;
-  }
-
-  /**
-   * @param onlyWhenHaveRows The onlyWhenHaveRows to set.
-   */
-  public void setOnlyWhenHaveRows(boolean onlyWhenHaveRows) {
-    this.onlyWhenHaveRows = onlyWhenHaveRows;
-  }
-
-  /**
-   * @param ignoreErrors The ignore errors flag to set.
-   */
-  public void setIgnoreErrors(boolean ignoreErrors) {
-    this.ignoreErrors = ignoreErrors;
-  }
-
-  /**
-   * @return Returns the ignore errors flag.
-   */
-  public boolean isIgnoreErrors() {
-    return ignoreErrors;
-  }
-
-  /**
-   * @param specifyFields The specify fields flag to set.
-   */
-  public void setSpecifyFields(boolean specifyFields) {
-    this.specifyFields = specifyFields;
-  }
-
-  /**
-   * @return Returns the specify fields flag.
-   */
-  public boolean isSpecifyFields() {
-    return specifyFields;
-  }
-
-  /**
-   * @param useBatchUpdate The useBatchUpdate flag to set.
-   */
-  public void setUseBatchUpdate(boolean useBatchUpdate) {
-    this.useBatchUpdate = useBatchUpdate;
-  }
-
-  /**
-   * @return Returns the useBatchUpdate flag.
-   */
-  public boolean isUseBatchUpdate() {
-    return useBatchUpdate;
   }
 
   @Override
@@ -553,7 +299,7 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
                         transformMeta);
                 remarks.add(cr);
 
-                String errorMessage = "";
+                StringBuilder errorMessage = new StringBuilder();
                 boolean errorFound = false;
                 // OK, we have the table fields.
                 // Now see what we can find as previous transform...
@@ -572,21 +318,25 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
                       IValueMeta pv = prev.getValueMeta(i);
                       int idx = r.indexOfValue(pv.getName());
                       if (idx < 0) {
-                        errorMessage +=
-                            "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
+                        errorMessage
+                            .append("\t\t")
+                            .append(pv.getName())
+                            .append(" (")
+                            .append(pv.getTypeDesc())
+                            .append(")")
+                            .append(Const.CR);
                         errorFound = true;
                       }
                     }
                     if (errorFound) {
-                      errorMessage =
-                          BaseMessages.getString(
-                              PKG,
-                              "TableOutputMeta.CheckResult.FieldsNotFoundInOutput",
-                              errorMessage);
-
                       cr =
                           new CheckResult(
-                              ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+                              ICheckResult.TYPE_RESULT_ERROR,
+                              BaseMessages.getString(
+                                  PKG,
+                                  "TableOutputMeta.CheckResult.FieldsNotFoundInOutput",
+                                  errorMessage),
+                              transformMeta);
                       remarks.add(cr);
                     } else {
                       cr =
@@ -602,20 +352,19 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
                     for (TableOutputField tf : fields) {
                       int idx = r.indexOfValue(tf.getFieldDatabase());
                       if (idx < 0) {
-                        errorMessage += "\t\t" + tf.getFieldDatabase() + Const.CR;
+                        errorMessage.append("\t\t").append(tf.getFieldDatabase()).append(Const.CR);
                         errorFound = true;
                       }
                     }
                     if (errorFound) {
-                      errorMessage =
-                          BaseMessages.getString(
-                              PKG,
-                              "TableOutputMeta.CheckResult.FieldsSpecifiedNotInTable",
-                              errorMessage);
-
                       cr =
                           new CheckResult(
-                              ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+                              ICheckResult.TYPE_RESULT_ERROR,
+                              BaseMessages.getString(
+                                  PKG,
+                                  "TableOutputMeta.CheckResult.FieldsSpecifiedNotInTable",
+                                  errorMessage),
+                              transformMeta);
                       remarks.add(cr);
                     } else {
                       cr =
@@ -628,26 +377,30 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
                     }
                   }
 
-                  errorMessage = "";
+                  errorMessage.setLength(0);
                   if (!isSpecifyFields()) {
                     // Starting from table fields in r...
                     for (int i = 0; i < fields.size(); i++) {
                       IValueMeta rv = r.getValueMeta(i);
                       int idx = prev.indexOfValue(rv.getName());
                       if (idx < 0) {
-                        errorMessage +=
-                            "\t\t" + rv.getName() + " (" + rv.getTypeDesc() + ")" + Const.CR;
+                        errorMessage
+                            .append("\t\t")
+                            .append(rv.getName())
+                            .append(" (")
+                            .append(rv.getTypeDesc())
+                            .append(")")
+                            .append(Const.CR);
                         errorFound = true;
                       }
                     }
                     if (errorFound) {
-                      errorMessage =
-                          BaseMessages.getString(
-                              PKG, "TableOutputMeta.CheckResult.FieldsNotFound", errorMessage);
-
                       cr =
                           new CheckResult(
-                              ICheckResult.TYPE_RESULT_WARNING, errorMessage, transformMeta);
+                              ICheckResult.TYPE_RESULT_WARNING,
+                              BaseMessages.getString(
+                                  PKG, "TableOutputMeta.CheckResult.FieldsNotFound", errorMessage),
+                              transformMeta);
                       remarks.add(cr);
                     } else {
                       cr =
@@ -663,20 +416,19 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
                     for (TableOutputField tf : fields) {
                       int idx = prev.indexOfValue(tf.getFieldStream());
                       if (idx < 0) {
-                        errorMessage += "\t\t" + tf.getFieldStream() + Const.CR;
+                        errorMessage.append("\t\t").append(tf.getFieldStream()).append(Const.CR);
                         errorFound = true;
                       }
                     }
                     if (errorFound) {
-                      errorMessage =
-                          BaseMessages.getString(
-                              PKG,
-                              "TableOutputMeta.CheckResult.FieldsSpecifiedNotFound",
-                              errorMessage);
-
                       cr =
                           new CheckResult(
-                              ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+                              ICheckResult.TYPE_RESULT_ERROR,
+                              BaseMessages.getString(
+                                  PKG,
+                                  "TableOutputMeta.CheckResult.FieldsSpecifiedNotFound",
+                                  errorMessage),
+                              transformMeta);
                       remarks.add(cr);
                     } else {
                       cr =
@@ -731,6 +483,13 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
                 transformMeta);
         remarks.add(cr);
       }
+    } catch (HopDatabaseException e) {
+      CheckResult cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "TableOutputMeta.Error.ErrorConnecting", e.getMessage()),
+              transformMeta);
+      remarks.add(cr);
     } catch (HopException e) {
       CheckResult cr =
           new CheckResult(
