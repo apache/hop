@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -117,11 +118,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   public static final String VIRTUAL_PATH = "virtualPath";
   public static final String ERROR = "Error";
 
-  private static MetadataPerspective instance;
-
-  public static MetadataPerspective getInstance() {
-    return instance;
-  }
+  @Getter private static MetadataPerspective instance;
 
   private HopGui hopGui;
   private SashForm sash;
@@ -154,7 +151,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void perspectiveActivated() {
-    this.refresh();
     this.updateSelection();
     this.updateGui();
   }
@@ -251,7 +247,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         SWT.DefaultSelection,
         event -> {
           TreeItem treeItem = tree.getSelection()[0];
-          if (treeItem != null) {
+          if (treeItem != null && treeItem.getData("type").equals("File")) {
             if (treeItem.getParentItem() == null) {
               onNewMetadata();
             } else {
@@ -550,6 +546,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             e);
       }
     }
+    refresh();
   }
 
   public void onEditMetadata() {
@@ -596,6 +593,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     if (item != null) {
       if (item.getParentItem() == null) return;
       String objectKey = (String) item.getParentItem().getData();
+      String objectName = item.getText(0);
 
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(tree, SWT.BORDER);
@@ -610,7 +608,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                 if (!item.getText().equals(text.getText())) {
                   try {
                     MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
-                    if (manager.rename(item.getText(), text.getText())) {
+                    if (manager.rename(objectName, text.getText())) {
                       item.setText(text.getText());
                       text.dispose();
                     }
@@ -656,6 +654,12 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     }
 
     TreeItem treeItem = tree.getSelection()[0];
+    // No delete on folder
+
+    if (!treeItem.getData("type").equals("File")) {
+      return;
+    }
+
     if (treeItem != null && treeItem.getParentItem() != null) {
       String objectKey = (String) treeItem.getParentItem().getData();
       String objectName = treeItem.getText(0);
@@ -1077,11 +1081,13 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             BaseMessages.getString(
                 PKG,
                 "MetadataPerspective.CreateFolder.Message",
-                (String) item.getData(VIRTUAL_PATH)));
+                ((String) item.getData(VIRTUAL_PATH)).isEmpty()
+                    ? item.getText()
+                    : (String) item.getData(VIRTUAL_PATH)));
     String folder = dialog.open();
-    if (folder != null) {
+    if (folder != null && !folder.isEmpty()) {
       for (TreeItem treeItem : item.getItems()) {
-        if (folder.equals(treeItem.getText())) {
+        if (folder.equals(treeItem.getText()) && treeItem.getData("type").equals(FOLDER)) {
           ShowMessageDialog msgDialog =
               new ShowMessageDialog(
                   getShell(),
@@ -1099,6 +1105,12 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
       newFolder.setImage(GuiResource.getInstance().getImageFolder());
       newFolder.setData(VIRTUAL_PATH, item.getData(VIRTUAL_PATH) + "/" + folder);
       newFolder.setData("type", FOLDER);
+      TreeItem emptyString = new TreeItem(newFolder, SWT.NONE);
+      emptyString.setText(
+          BaseMessages.getString(PKG, "MetadataPerspective.CreateFolder.EmptyFolder"));
+      emptyString.setData("type", "Label");
+      emptyString.setForeground(tree.getDisplay().getSystemColor(SWT.COLOR_GRAY));
+      newFolder.setExpanded(true);
     }
   }
 }

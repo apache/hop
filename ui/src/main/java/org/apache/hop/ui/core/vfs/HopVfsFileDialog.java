@@ -1318,7 +1318,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
             BaseMessages.getString(PKG, "HopVfsFileDialog.CreateFolder.Header"),
             BaseMessages.getString(PKG, "HopVfsFileDialog.CreateFolder.Message", activeFolder));
     folder = dialog.open();
-    if (folder != null) {
+    if (folder != null && !folder.isEmpty()) {
       String newPath = activeFolder.toString();
       if (!newPath.endsWith("/") && !newPath.endsWith("\\")) {
         newPath += "/";

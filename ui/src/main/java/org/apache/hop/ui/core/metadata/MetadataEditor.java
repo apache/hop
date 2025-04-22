@@ -20,6 +20,7 @@ package org.apache.hop.ui.core.metadata;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -55,14 +56,14 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   private static final Class<?> PKG = MetadataEditorDialog.class;
 
-  protected HopGui hopGui;
+  @Getter protected HopGui hopGui;
   protected MetadataManager<T> manager;
   protected T metadata;
 
   protected String title;
   protected String toolTip;
   protected Image titleImage;
-  protected Image image;
+  @Getter protected Image image;
   protected boolean isChanged = false;
   protected String originalName;
 
@@ -133,10 +134,6 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     return HelpUtils.createHelpButton(shell, plugin);
   }
 
-  public HopGui getHopGui() {
-    return hopGui;
-  }
-
   public MetadataManager<T> getMetadataManager() {
     return manager;
   }
@@ -153,10 +150,6 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   public Shell getShell() {
     return hopGui.getShell();
-  }
-
-  public Image getImage() {
-    return image;
   }
 
   protected void setImage(Image image) {

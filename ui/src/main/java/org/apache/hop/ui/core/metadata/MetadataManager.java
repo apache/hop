@@ -22,6 +22,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -46,7 +48,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 /**
- * This is a utility class which allows you to create or edit metadata objects in a generic fashion
+ * This is a utility class that allows you to create or edit metadata objects in a generic fashion
  */
 public class MetadataManager<T extends IHopMetadata> {
 
@@ -54,11 +56,10 @@ public class MetadataManager<T extends IHopMetadata> {
   public static final String CONST_ERROR = "Error";
   public static final String CONST_ERROR_EDITING_METADATA = "Error editing metadata";
   private final Shell parentShell;
-  private IHopMetadataProvider metadataProvider;
-  private IVariables variables;
-  private ClassLoader classLoader;
-
-  private Class<T> managedClass;
+  @Getter @Setter private IHopMetadataProvider metadataProvider;
+  @Getter @Setter private IVariables variables;
+  @Getter @Setter private ClassLoader classLoader;
+  @Setter @Getter private Class<T> managedClass;
 
   public MetadataManager(
       IVariables variables,
@@ -157,7 +158,7 @@ public class MetadataManager<T extends IHopMetadata> {
    * dialog.
    *
    * @param elementName The name of the element to edit
-   * @return True if anything was changed
+   * @return True, if anything was changed
    */
   public boolean editMetadata(String elementName) {
 
@@ -314,7 +315,7 @@ public class MetadataManager<T extends IHopMetadata> {
       MessageBox messageBox =
           new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_ERROR | SWT.OK);
       messageBox.setText(TranslateUtil.translate(getManagedName(), getManagedClass()));
-      messageBox.setMessage("Name '" + newName + "' already existe.");
+      messageBox.setMessage("Name '" + newName + "' already exists.");
       messageBox.open();
 
       return false;
@@ -559,76 +560,12 @@ public class MetadataManager<T extends IHopMetadata> {
     }
   }
 
-  /**
-   * Gets metadataProvider
-   *
-   * @return value of metadataProvider
-   */
-  public IHopMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
-  }
-
-  /**
-   * Gets variables variables
-   *
-   * @return value of variables variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
-  /**
-   * @param variables The variables variables to set
-   */
-  public void setVariables(IVariables variables) {
-    this.variables = variables;
-  }
-
-  /**
-   * Gets classLoader
-   *
-   * @return value of classLoader
-   */
-  public ClassLoader getClassLoader() {
-    return classLoader;
-  }
-
-  /**
-   * @param classLoader The classLoader to set
-   */
-  public void setClassLoader(ClassLoader classLoader) {
-    this.classLoader = classLoader;
-  }
-
-  /**
-   * Gets managedClass
-   *
-   * @return value of managedClass
-   */
-  public Class<T> getManagedClass() {
-    return managedClass;
-  }
-
   protected String getManagedName() {
     HopMetadata annotation = managedClass.getAnnotation(HopMetadata.class);
     if (annotation != null) {
       return annotation.name();
     }
     return null;
-  }
-
-  /**
-   * @param managedClass The managedClass to set
-   */
-  public void setManagedClass(Class<T> managedClass) {
-    this.managedClass = managedClass;
   }
 
   public T loadElement(String selectedItem) throws HopException {
