@@ -18,19 +18,17 @@
 
 package org.apache.hop.workflow.actions.checkdbconnection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class ActionCheckDbConnectionsTest {
+class ActionCheckDbConnectionsTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init();
     DatabaseMeta databaseMeta = new DatabaseMeta();
     databaseMeta.setName("unit-test-db");
@@ -42,11 +40,12 @@ public class ActionCheckDbConnectionsTest {
         ActionSerializationTestUtil.testSerialization(
             "/check-db-connections-action.xml", ActionCheckDbConnections.class, provider);
 
-    assertEquals(1, action.getConnections().size());
-    assertNotNull(action.getConnections().get(0).getDatabaseMeta());
-    assertEquals("unit-test-db", action.getConnections().get(0).getDatabaseMeta().getName());
-    assertEquals("500", action.getConnections().get(0).getWaitTime());
-    assertEquals(
+    Assertions.assertEquals(1, action.getConnections().size());
+    Assertions.assertNotNull(action.getConnections().get(0).getDatabaseMeta());
+    Assertions.assertEquals(
+        "unit-test-db", action.getConnections().get(0).getDatabaseMeta().getName());
+    Assertions.assertEquals("500", action.getConnections().get(0).getWaitTime());
+    Assertions.assertEquals(
         ActionCheckDbConnections.WaitTimeUnit.MILLISECOND,
         action.getConnections().get(0).getWaitTimeUnit());
   }

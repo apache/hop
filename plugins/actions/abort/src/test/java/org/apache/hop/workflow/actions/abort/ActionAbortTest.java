@@ -17,16 +17,17 @@
 
 package org.apache.hop.workflow.actions.abort;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.action.ActionMeta;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ActionAbortTest {
+class ActionAbortTest {
 
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     final String message = "This is a test message";
     ActionAbort action = new ActionAbort();
     action.setMessageAbort(message);
@@ -37,6 +38,6 @@ public class ActionAbortTest {
     ActionAbort action2 = new ActionAbort();
     action2.loadXml(XmlHandler.loadXmlString(actionXml, ActionMeta.XML_TAG), null, new Variables());
 
-    Assert.assertEquals(action.getMessageAbort(), action2.getMessageAbort());
+    assertEquals(action.getMessageAbort(), action2.getMessageAbort());
   }
 }

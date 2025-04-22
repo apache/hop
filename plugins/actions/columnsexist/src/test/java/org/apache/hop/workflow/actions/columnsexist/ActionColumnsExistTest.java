@@ -17,13 +17,12 @@
 
 package org.apache.hop.workflow.actions.columnsexist;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for column exist action. */
 public class ActionColumnsExistTest {
@@ -41,11 +40,11 @@ public class ActionColumnsExistTest {
         ActionSerializationTestUtil.testSerialization(
             "/columns-exist-action.xml", ActionColumnsExist.class, provider);
 
-    assertEquals("unit-test-db", action.getDatabaseMeta().getName());
-    assertEquals("SCHEMA", action.getSchemaName());
-    assertEquals("TABLE", action.getTableName());
-    assertEquals(2, action.getColumns().size());
-    assertEquals("F1", action.getColumns().get(0).getName());
-    assertEquals("F2", action.getColumns().get(1).getName());
+    Assertions.assertEquals("unit-test-db", action.getDatabaseMeta().getName());
+    Assertions.assertEquals("SCHEMA", action.getSchemaName());
+    Assertions.assertEquals("TABLE", action.getTableName());
+    Assertions.assertEquals(2, action.getColumns().size());
+    Assertions.assertEquals("F1", action.getColumns().get(0).getName());
+    Assertions.assertEquals("F2", action.getColumns().get(1).getName());
   }
 }
