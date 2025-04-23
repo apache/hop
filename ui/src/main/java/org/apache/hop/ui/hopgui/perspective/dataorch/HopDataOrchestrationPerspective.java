@@ -20,7 +20,6 @@ package org.apache.hop.ui.hopgui.perspective.dataorch;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -79,6 +78,7 @@ import org.eclipse.swt.widgets.Event;
 public class HopDataOrchestrationPerspective implements IHopPerspective, TabClosable {
 
   private static final Class<?> PKG = HopDataOrchestrationPerspective.class;
+
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";
 
   private final HopPipelineFileType<PipelineMeta> pipelineFileType;
@@ -92,17 +92,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   private CTabFolder tabFolder;
 
   private List<TabItemHandler> items;
-  private TabItemHandler activeItem;
-
-  private Stack<Integer> tabSelectionHistory;
-  private int tabSelectionIndex;
 
   public HopDataOrchestrationPerspective() {
     items = new CopyOnWriteArrayList<>();
-
-    activeItem = null;
-    tabSelectionHistory = new Stack<>();
-    tabSelectionIndex = 0;
 
     pipelineFileType = new HopPipelineFileType<>();
     workflowFileType = new HopWorkflowFileType<>();
@@ -118,15 +110,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
-
-    // Select the active file if there's any and if it's not already selected.
-    //
-    if (activeItem != null) {
-      CTabItem selection = tabFolder.getSelection();
-      if (activeItem.getTabItem() != selection) {
-        tabFolder.setSelection(activeItem.getTabItem());
-      }
-    }
   }
 
   @Override
@@ -193,16 +176,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
 
   private void handleTabSelectionEvent(Event event) {
     CTabItem tabItem = (CTabItem) event.item;
-    activeItem = findTabItemHandler(tabItem);
+    TabItemHandler activeItem = findTabItemHandler(tabItem);
     if (activeItem != null) {
       activeItem.getTypeHandler().redraw();
       activeItem.getTypeHandler().updateGui();
-    }
-    int tabIndex = tabFolder.indexOf(tabItem);
-    Integer lastIndex = tabSelectionHistory.isEmpty() ? null : tabSelectionHistory.peek();
-    if (lastIndex == null || lastIndex != tabIndex) {
-      tabSelectionHistory.push(tabIndex);
-      tabSelectionIndex = tabSelectionHistory.size() - 1;
     }
   }
 
@@ -212,11 +189,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   }
 
   public TabItemHandler findTabItemHandler(CTabItem tabItem) {
-    int index = tabFolder.indexOf(tabItem);
-    if (index < 0 || index >= items.size()) {
-      return null;
-    }
-    return items.get(index);
+    return (TabItemHandler) tabItem.getData();
   }
 
   public TabItemHandler findTabItemHandler(IHopFileTypeHandler handler) {
@@ -247,8 +220,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
     //
     updateTabLabel(tabItem, pipelineMeta.getFilename(), pipelineMeta.getName());
 
+    TabItemHandler itemHandler = new TabItemHandler(tabItem, pipelineGraph);
+    items.add(itemHandler);
+
     // Assign the control to the tab
     tabItem.setControl(pipelineGraph);
+    tabItem.setData(itemHandler);
 
     // If it's a new pipeline, the file name will be null. So, ignore
     //
@@ -267,17 +244,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
 
     // Switch to the tab
     tabFolder.setSelection(tabItem);
-    activeItem = new TabItemHandler(tabItem, pipelineGraph);
-    items.add(activeItem);
-
-    // Remove all the history above the current tabSelectionIndex
-    //
-    while (tabSelectionHistory.size() - 1 > tabSelectionIndex) {
-      tabSelectionHistory.pop();
-    }
-    int tabIndex = tabFolder.indexOf(tabItem);
-    tabSelectionHistory.add(tabIndex);
-    tabSelectionIndex = tabSelectionHistory.size() - 1;
 
     try {
       ExtensionPointHandler.callExtensionPoint(
@@ -317,9 +283,15 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
     tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setImage(GuiResource.getInstance().getImageWorkflow());
+
     HopGuiWorkflowGraph workflowGraph =
         new HopGuiWorkflowGraph(tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile);
+
+    TabItemHandler itemHandler = new TabItemHandler(tabItem, workflowGraph);
+    items.add(itemHandler);
+
     tabItem.setControl(workflowGraph);
+    tabItem.setData(itemHandler);
 
     // If it's a new workflow, the file name will be null
     //
@@ -342,17 +314,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
 
     // Switch to the tab
     tabFolder.setSelection(tabItem);
-    activeItem = new TabItemHandler(tabItem, workflowGraph);
-    items.add(activeItem);
-
-    // Remove all the history above the current tabSelectionIndex
-    //
-    while (tabSelectionHistory.size() - 1 > tabSelectionIndex) {
-      tabSelectionHistory.pop();
-    }
-    int tabIndex = tabFolder.indexOf(tabItem);
-    tabSelectionHistory.add(tabIndex);
-    tabSelectionIndex = tabSelectionHistory.size() - 1;
 
     try {
       ExtensionPointHandler.callExtensionPoint(
@@ -439,6 +400,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
    */
   @Override
   public IHopFileTypeHandler getActiveFileTypeHandler() {
+    TabItemHandler activeItem = this.getActiveItem();
     if (activeItem == null) {
       return new EmptyHopFileTypeHandler();
     }
@@ -460,7 +422,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
     tabFolder.setSelection(tabItemHandler.getTabItem());
     tabFolder.showItem(tabItemHandler.getTabItem());
     tabFolder.setFocus();
-    activeItem = tabItemHandler;
   }
 
   @Override
@@ -471,33 +432,35 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   @Override
   public void navigateToPreviousFile() {
     if (hasNavigationPreviousFile()) {
-      tabSelectionIndex--;
-      Integer tabIndex = tabSelectionHistory.get(tabSelectionIndex);
-      activeItem = items.get(tabIndex);
-      tabFolder.setSelection(tabIndex);
-      activeItem.getTypeHandler().updateGui();
+      int index = tabFolder.getSelectionIndex() - 1;
+      if (index < 0) {
+        index = tabFolder.getItemCount() - 1;
+      }
+      tabFolder.setSelection(index);
+      getActiveItem().getTypeHandler().updateGui();
     }
   }
 
   @Override
   public void navigateToNextFile() {
     if (hasNavigationNextFile()) {
-      tabSelectionIndex++;
-      Integer tabIndex = tabSelectionHistory.get(tabSelectionIndex);
-      activeItem = items.get(tabIndex);
-      tabFolder.setSelection(tabIndex);
-      activeItem.getTypeHandler().updateGui();
+      int index = tabFolder.getSelectionIndex() + 1;
+      if (index >= tabFolder.getItemCount()) {
+        index = 0;
+      }
+      tabFolder.setSelection(index);
+      getActiveItem().getTypeHandler().updateGui();
     }
   }
 
   @Override
   public boolean hasNavigationPreviousFile() {
-    return tabSelectionIndex > 0 && tabSelectionIndex < tabSelectionHistory.size();
+    return tabFolder.getItemCount() > 1;
   }
 
   @Override
   public boolean hasNavigationNextFile() {
-    return tabSelectionIndex + 1 < tabSelectionHistory.size();
+    return tabFolder.getItemCount() > 1;
   }
 
   /**
@@ -587,9 +550,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
     // given ID
     //
     for (TabItemHandler item : items) {
-      if (item.getTypeHandler() instanceof HopGuiPipelineGraph hopGuiPipelineGraph) {
-        HopGuiPipelineGraph graph = hopGuiPipelineGraph;
-        IPipelineEngine<PipelineMeta> pipeline = graph.getPipeline();
+      if (item.getTypeHandler() instanceof HopGuiPipelineGraph pipelineGraph) {
+        IPipelineEngine<PipelineMeta> pipeline = pipelineGraph.getPipeline();
         if (pipeline != null && logChannelId.equals(pipeline.getLogChannelId())) {
           return item;
         }
@@ -602,9 +564,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
     // Go over all the workflow graphs and see if there's one that has a IWorkflow with the given ID
     //
     for (TabItemHandler item : items) {
-      if (item.getTypeHandler() instanceof HopGuiWorkflowGraph hopGuiWorkflowGraph) {
-        HopGuiWorkflowGraph graph = hopGuiWorkflowGraph;
-        IWorkflowEngine<WorkflowMeta> workflow = graph.getWorkflow();
+      if (item.getTypeHandler() instanceof HopGuiWorkflowGraph workflowGraph) {
+        IWorkflowEngine<WorkflowMeta> workflow = workflowGraph.getWorkflow();
         if (workflow != null && logChannelId.equals(workflow.getLogChannelId())) {
           return item;
         }
@@ -636,14 +597,26 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
    * @return value of activeItem
    */
   public TabItemHandler getActiveItem() {
-    return activeItem;
+    if (tabFolder.getItemCount() == 0) {
+      return null;
+    }
+
+    CTabItem tabItem = tabFolder.getItem(tabFolder.getSelectionIndex());
+    return (TabItemHandler) tabItem.getData();
   }
 
   /**
+   * Select the active file if there's any and if it's not already selected.
+   *
    * @param activeItem The activeItem to set
    */
   public void setActiveItem(TabItemHandler activeItem) {
-    this.activeItem = activeItem;
+    if (activeItem != null) {
+      CTabItem selection = tabFolder.getSelection();
+      if (activeItem.getTabItem() != selection) {
+        tabFolder.setSelection(activeItem.getTabItem());
+      }
+    }
   }
 
   /**
@@ -685,18 +658,18 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   }
 
   /**
-   * Gets pipelineFileType
+   * Gets pipeline file type
    *
-   * @return value of pipelineFileType
+   * @return value of public HopPipelineFileType<PipelineMeta> getPipelineFileType() {
    */
   public HopPipelineFileType<PipelineMeta> getPipelineFileType() {
     return pipelineFileType;
   }
 
   /**
-   * Gets jobFileType
+   * Gets workflow file type
    *
-   * @return value of jobFileType
+   * @return value of HopWorkflowFileType
    */
   public HopWorkflowFileType<WorkflowMeta> getWorkflowFileType() {
     return workflowFileType;
@@ -736,70 +709,28 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
       return;
     }
 
-    // Also switch to the last used tab
-    // But first remove all from the selection history
+    // Switch to the previous tab
     //
     if (tabIndex >= 0) {
-      // Remove the index from the tab selection history
-      //
-      int historyIndex = tabSelectionHistory.indexOf(tabIndex);
-      while (historyIndex >= 0) {
-        if (historyIndex <= tabSelectionIndex) {
-          tabSelectionIndex--;
-        }
-        tabSelectionHistory.remove(historyIndex);
-
-        // Search again
-        historyIndex = tabSelectionHistory.indexOf(tabIndex);
+      // If last
+      if (tabIndex == tabFolder.getItemCount()) {
+        tabIndex--;
       }
 
-      // Compress the history: 2 the same files visited after each other become one.
-      //
-      Stack<Integer> newHistory = new Stack<>();
-      Integer previous = null;
-      for (int i = 0; i < tabSelectionHistory.size(); i++) {
-        Integer index = tabSelectionHistory.get(i);
-        if (previous == null || previous != index) {
-          newHistory.add(index);
-        } else {
-          if (tabSelectionIndex >= i) {
-            tabSelectionIndex--;
-          }
-        }
-        previous = index;
-      }
-      tabSelectionHistory = newHistory;
-
-      // Correct the history taken the removed tab into account
-      //
-      for (int i = 0; i < tabSelectionHistory.size(); i++) {
-        int index = tabSelectionHistory.get(i);
-        if (index > tabIndex) {
-          tabSelectionHistory.set(i, index--);
-        }
+      tabItem = tabFolder.getItem(tabIndex);
+      if (tabIndex < 0) {
+        tabIndex = tabFolder.getItemCount() - 1;
       }
 
-      // Select the appropriate tab on the stack
-      //
-      if (tabSelectionIndex < 0) {
-        tabSelectionIndex = 0;
-      } else if (tabSelectionIndex >= tabSelectionHistory.size()) {
-        tabSelectionIndex = tabSelectionHistory.size() - 1;
-      }
-      if (!tabSelectionHistory.isEmpty()) {
-        Integer activeIndex = tabSelectionHistory.get(tabSelectionIndex);
-        if (activeIndex < items.size()) {
-          activeItem = items.get(activeIndex);
-          tabFolder.setSelection(activeIndex);
-          activeItem.getTypeHandler().updateGui();
-        }
-      }
+      TabItemHandler activeItem = (TabItemHandler) tabItem.getData();
+      // tabFolder.setSelection(activeIndex);
+      activeItem.getTypeHandler().updateGui();
+    }
 
-      // If all tab are closed
-      //
-      if (tabFolder.getItemCount() == 0) {
-        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
-      }
+    // If all tab are closed
+    //
+    if (tabFolder.getItemCount() == 0) {
+      HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
     }
   }
 }

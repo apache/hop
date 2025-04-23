@@ -711,30 +711,35 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     return Collections.emptyList();
   }
 
-  @Override
   public void navigateToPreviousFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() - 1);
+    if (hasNavigationPreviousFile()) {
+      int index = tabFolder.getSelectionIndex() - 1;
+      if (index < 0) {
+        index = tabFolder.getItemCount() - 1;
+      }
+      tabFolder.setSelection(index);
+    }
   }
 
   @Override
   public void navigateToNextFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() + 1);
+    if (hasNavigationNextFile()) {
+      int index = tabFolder.getSelectionIndex() + 1;
+      if (index >= tabFolder.getItemCount()) {
+        index = 0;
+      }
+      tabFolder.setSelection(index);
+    }
   }
 
   @Override
   public boolean hasNavigationPreviousFile() {
-    if (tabFolder.getItemCount() == 0) {
-      return false;
-    }
-    return tabFolder.getSelectionIndex() >= 1;
+    return tabFolder.getItemCount() > 1;
   }
 
   @Override
   public boolean hasNavigationNextFile() {
-    if (tabFolder.getItemCount() == 0) {
-      return false;
-    }
-    return tabFolder.getSelectionIndex() < tabFolder.getItemCount();
+    return tabFolder.getItemCount() > 1;
   }
 
   @Override
