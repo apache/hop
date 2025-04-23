@@ -476,6 +476,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wRownumByFile.addSelectionListener(lsFlags);
     wErrorIgnored.addSelectionListener(lsFlags);
     wSkipBadFiles.addSelectionListener(lsFlags);
+    wPrependFileName.addSelectionListener(lsFlags);
     wHeader.addSelectionListener(lsFlags);
     wFooter.addSelectionListener(lsFlags);
     wWraps.addSelectionListener(lsFlags);
