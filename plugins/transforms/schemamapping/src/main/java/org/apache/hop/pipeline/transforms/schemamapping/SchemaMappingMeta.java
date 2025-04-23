@@ -119,6 +119,6 @@ public class SchemaMappingMeta extends BaseTransformMeta<SchemaMapping, SchemaMa
 
   @Override
   public void setDefault() {
-    this.mappingFieldset = new ArrayList<SchemaMappingField>();
+    this.mappingFieldset = new ArrayList<>();
   }
 }

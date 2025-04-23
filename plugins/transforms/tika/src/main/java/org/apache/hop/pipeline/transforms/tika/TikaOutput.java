@@ -25,6 +25,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Arrays;
@@ -102,7 +103,7 @@ public class TikaOutput {
       return new OutputStreamWriter(output, encoding);
     } else if (System.getProperty("os.name").toLowerCase().startsWith("mac os x")) {
       // TIKA-324: Override the default encoding on Mac OS X
-      return new OutputStreamWriter(output, "UTF-8");
+      return new OutputStreamWriter(output, StandardCharsets.UTF_8);
     } else {
       return new OutputStreamWriter(output);
     }

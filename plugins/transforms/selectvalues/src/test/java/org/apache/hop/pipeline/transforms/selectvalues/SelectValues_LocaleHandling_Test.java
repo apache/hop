@@ -38,11 +38,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Note: In Europe (e.g. in UK), week starts on Monday. In USA, it starts on Sunday. */
-public class SelectValues_LocaleHandling_Test {
+class SelectValues_LocaleHandling_Test {
   private static HopGuiEnvironment env;
 
   @BeforeAll
-  public static void initHop() throws Exception {
+  static void initHop() throws Exception {
     env = new HopGuiEnvironment();
     HopEnvironment.init();
   }
@@ -52,7 +52,7 @@ public class SelectValues_LocaleHandling_Test {
   private TransformMockHelper<SelectValuesMeta, SelectValuesData> helper;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     current = Locale.getDefault();
     Locale.setDefault(Locale.UK);
 
@@ -75,7 +75,7 @@ public class SelectValues_LocaleHandling_Test {
   }
 
   @AfterEach
-  public void tearDown() throws Exception {
+  void tearDown() throws Exception {
     transform = null;
 
     Locale.setDefault(current);
@@ -85,22 +85,22 @@ public class SelectValues_LocaleHandling_Test {
   }
 
   @Test
-  public void returns53_ForNull() throws Exception {
+  void returns53_ForNull() throws Exception {
     executeAndCheck(null, "53");
   }
 
   @Test
-  public void returns53_ForEmpty() throws Exception {
+  void returns53_ForEmpty() throws Exception {
     executeAndCheck("", "53");
   }
 
   @Test
-  public void returns53_ForEn_GB() throws Exception {
+  void returns53_ForEn_GB() throws Exception {
     executeAndCheck("en_GB", "53");
   }
 
   @Test
-  public void returns01_ForEn_US() throws Exception {
+  void returns01_ForEn_US() throws Exception {
     executeAndCheck("en_US", "01");
   }
 

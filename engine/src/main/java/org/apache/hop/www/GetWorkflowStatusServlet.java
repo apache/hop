@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,7 +55,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
   private static final String CONST_TD_CLOSE = "</td>";
 
   private static final byte[] XML_HEADER =
-      XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(Charset.forName(Const.XML_ENCODING));
+      XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8);
 
   public GetWorkflowStatusServlet() {}
 
@@ -161,7 +161,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
             // XML
             //
             String xml = workflowStatus.getXml();
-            byte[] data = xml.getBytes(Charset.forName(Const.XML_ENCODING));
+            byte[] data = xml.getBytes(StandardCharsets.UTF_8);
             response.setContentLength(XML_HEADER.length + data.length);
             out.write(XML_HEADER);
             out.write(data);
@@ -171,7 +171,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
             ObjectMapper mapper = HopJson.newMapper();
             String jsonString =
                 mapper.writerWithDefaultPrettyPrinter().writeValueAsString(workflowStatus);
-            byte[] data = jsonString.getBytes(Charset.forName(Const.XML_ENCODING));
+            byte[] data = jsonString.getBytes(StandardCharsets.UTF_8);
             response.setContentLength(data.length);
             out.write(data);
           }

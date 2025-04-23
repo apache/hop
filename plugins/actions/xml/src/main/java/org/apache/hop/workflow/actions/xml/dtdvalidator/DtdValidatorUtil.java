@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.vfs2.FileObject;
@@ -131,7 +132,7 @@ public class DtdValidatorUtil {
 
           docBuilderFactory.setValidating(false);
           ByteArrayInputStream ba =
-              new ByteArrayInputStream(xmlStringbuffer.toString().getBytes("UTF-8"));
+              new ByteArrayInputStream(xmlStringbuffer.toString().getBytes(StandardCharsets.UTF_8));
           Document xmlDocDTD = docBuilder.parse(ba);
           if (ba != null) {
             ba.close();

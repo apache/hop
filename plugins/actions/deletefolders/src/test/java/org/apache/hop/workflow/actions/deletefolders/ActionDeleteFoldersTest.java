@@ -25,10 +25,10 @@ import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class ActionDeleteFoldersTest {
+class ActionDeleteFoldersTest {
 
   @BeforeAll
-  public static void setUpBeforeClass() {
+  static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
@@ -48,7 +48,7 @@ public class ActionDeleteFoldersTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     ActionDeleteFolders meta =
         ActionSerializationTestUtil.testSerialization(
             "/delete-folders-action.xml", ActionDeleteFolders.class);

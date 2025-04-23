@@ -33,7 +33,7 @@ public class AccessOutputData extends BaseTransformData implements ITransformDat
 
   public AccessOutputData() {
     super();
-    rows = new ArrayList<Object[]>();
+    rows = new ArrayList<>();
     oneFileOpened = false;
   }
 }

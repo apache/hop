@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -240,13 +240,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
           retval = Const.NULL_BINARY;
         }
       } else {
-        try {
-          retval = new String(valueMeta.getBinary(valueData), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-          // chances are small we'll get here. UTF-8 is
-          // mandatory.
-          retval = Const.NULL_BINARY;
-        }
+        retval = new String(valueMeta.getBinary(valueData), StandardCharsets.UTF_8);
       }
     } else {
       // Boolean

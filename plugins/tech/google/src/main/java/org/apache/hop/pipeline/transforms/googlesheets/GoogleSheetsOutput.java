@@ -73,8 +73,8 @@ public class GoogleSheetsOutput
   /** Initialize and do work where other transforms need to wait for... */
   @Override
   public boolean init() {
-    JsonFactory JSON_FACTORY;
-    NetHttpTransport HTTP_TRANSPORT;
+    JsonFactory jsonFactory;
+    NetHttpTransport httpTransport;
     String scope;
     Boolean exists = false;
 
@@ -82,8 +82,8 @@ public class GoogleSheetsOutput
 
       // Check if file exists
       try {
-        HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        JSON_FACTORY = JacksonFactory.getDefaultInstance();
+        httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        jsonFactory = JacksonFactory.getDefaultInstance();
         scope = "https://www.googleapis.com/auth/drive";
 
         HttpRequestInitializer credential =
@@ -94,12 +94,13 @@ public class GoogleSheetsOutput
                 variables);
         Drive service =
             new Drive.Builder(
-                    HTTP_TRANSPORT,
-                    JSON_FACTORY,
+                    httpTransport,
+                    jsonFactory,
                     GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
                 .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                 .build();
         spreadsheetID = resolve(meta.getSpreadsheetKey());
+        @SuppressWarnings("java:S125")
         // "properties has { key='id' and value='"+wsID+"'}";
         String q = "mimeType='application/vnd.google-apps.spreadsheet'";
         FileList result =
@@ -115,7 +116,6 @@ public class GoogleSheetsOutput
         List<File> spreadsheets = result.getFiles();
 
         for (File spreadsheet : spreadsheets) {
-          // log.logBasic(wsID+" VS "+spreadsheet.getId());
           if (spreadsheetID.equals(spreadsheet.getId())) {
             exists = true; // file exists
             logBasic("Spreadsheet:" + spreadsheetID + " exists");
@@ -126,8 +126,8 @@ public class GoogleSheetsOutput
         if (exists) {
           data.service =
               new Sheets.Builder(
-                      HTTP_TRANSPORT,
-                      JSON_FACTORY,
+                      httpTransport,
+                      jsonFactory,
                       GoogleSheetsCredentials.setHttpTimeout(
                           credential, resolve(meta.getTimeout())))
                   .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
@@ -160,16 +160,15 @@ public class GoogleSheetsOutput
         }
 
         // If it does not exist & create checkbox is checker create it.
-        // log.logBasic("Create if Not exist is :"+meta.getCreate());
         if (!exists && meta.isCreate()) {
-          if (!meta.isAppend()) { // si append + create alors erreur
+          if (Boolean.FALSE.equals(meta.isAppend())) { // si append + create alors erreur
             // Init Service
             scope = "https://www.googleapis.com/auth/spreadsheets";
 
             data.service =
                 new Sheets.Builder(
-                        HTTP_TRANSPORT,
-                        JSON_FACTORY,
+                        httpTransport,
+                        jsonFactory,
                         GoogleSheetsCredentials.setHttpTimeout(
                             credential, resolve(meta.getTimeout())))
                     .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
@@ -179,12 +178,10 @@ public class GoogleSheetsOutput
             Spreadsheet spreadsheet =
                 new Spreadsheet()
                     .setProperties(new SpreadsheetProperties().setTitle(spreadsheetID));
-            // new Spreadsheet().setProperties(new SpreadsheetProperties().setTitle(wsID));
             Sheets.Spreadsheets.Create request = data.service.spreadsheets().create(spreadsheet);
             Spreadsheet response = request.execute();
             spreadsheetID = response.getSpreadsheetId();
             meta.setSpreadsheetKey(spreadsheetID); //
-            // log.logBasic(response);
             // If it does not exist we use the Worksheet ID to rename 'Sheet ID'
             if (resolve(meta.getWorksheetId()) != "Sheet1") {
 
@@ -284,6 +281,7 @@ public class GoogleSheetsOutput
     return false;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] row = getRow();
     List<Object> r;
@@ -300,7 +298,7 @@ public class GoogleSheetsOutput
         data.currentRow++;
       } else {
         logBasic("Writing header");
-        r = new ArrayList<Object>();
+        r = new ArrayList<>();
         for (int i = 0; i < data.outputRowMeta.size(); i++) {
           IValueMeta v = data.outputRowMeta.getValueMeta(i);
           r.add(v.getName());
@@ -319,8 +317,8 @@ public class GoogleSheetsOutput
           logBasic(
               "Clearing range" + range + " in Spreadsheet :" + resolve(meta.getSpreadsheetKey()));
           // Creating service
-          NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-          JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+          NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+          JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
           String scope = SheetsScopes.SPREADSHEETS;
           HttpRequestInitializer credential =
               GoogleSheetsCredentials.getCredentialsJson(
@@ -330,8 +328,8 @@ public class GoogleSheetsOutput
                   variables);
           data.service =
               new Sheets.Builder(
-                      HTTP_TRANSPORT,
-                      JSON_FACTORY,
+                      httpTransport,
+                      jsonFactory,
                       GoogleSheetsCredentials.setHttpTimeout(
                           credential, resolve(meta.getTimeout())))
                   .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
@@ -393,11 +391,9 @@ public class GoogleSheetsOutput
         setOutputDone();
         return false;
       } else {
-        r = new ArrayList<Object>();
+        r = new ArrayList<>();
         for (int i = 0; i < data.outputRowMeta.size(); i++) {
           int length = row.length;
-          // logBasic("Row length:"+length+" VS rowMeta "+data.outputRowMeta.size()+" i="+i);
-
           if (i < length && row[i] != null) {
             r.add(row[i].toString());
           } else {

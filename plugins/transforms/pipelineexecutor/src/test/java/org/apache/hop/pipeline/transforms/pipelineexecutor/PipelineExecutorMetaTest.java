@@ -23,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
-public class PipelineExecutorMetaTest {
+class PipelineExecutorMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     PipelineExecutorMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/pipeline-executor-transform.xml", PipelineExecutorMeta.class);
@@ -56,7 +56,7 @@ public class PipelineExecutorMetaTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     PipelineExecutorMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/pipeline-executor-transform.xml", PipelineExecutorMeta.class);

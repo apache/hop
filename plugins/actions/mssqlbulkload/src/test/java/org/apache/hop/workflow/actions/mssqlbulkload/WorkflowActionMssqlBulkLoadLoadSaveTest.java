@@ -66,7 +66,7 @@ public class WorkflowActionMssqlBulkLoadLoadSaveTest
   }
 
   @Test
-  public void testNewSerialization() throws Exception {
+  void testNewSerialization() throws Exception {
     ActionMssqlBulkLoad meta =
         ActionSerializationTestUtil.testSerialization(
             "/mssql-bulkloader-action.xml", ActionMssqlBulkLoad.class);
@@ -85,7 +85,7 @@ public class WorkflowActionMssqlBulkLoadLoadSaveTest
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     ActionMssqlBulkLoad meta =
         ActionSerializationTestUtil.testSerialization(
             "/mssql-bulkloader-action.xml", ActionMssqlBulkLoad.class);

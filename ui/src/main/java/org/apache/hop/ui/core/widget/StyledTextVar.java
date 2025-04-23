@@ -26,8 +26,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.highlight.JavaHighlight;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ExtendedModifyEvent;
-import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
@@ -75,8 +73,8 @@ public class StyledTextVar extends TextComposite {
 
     super(parent, SWT.NONE);
 
-    undoStack = new LinkedList<UndoRedoStack>();
-    redoStack = new LinkedList<UndoRedoStack>();
+    undoStack = new LinkedList<>();
+    redoStack = new LinkedList<>();
 
     wText = new StyledText(this, style);
     wPopupMenu = new Menu(parent.getShell(), SWT.POP_UP);
@@ -281,6 +279,7 @@ public class StyledTextVar extends TextComposite {
     wText.setMenu(menu);
   }
 
+  @Override
   protected boolean isSupportUnoRedo() {
     return true;
   }
@@ -297,51 +296,47 @@ public class StyledTextVar extends TextComposite {
         });
 
     wText.addExtendedModifyListener(
-        new ExtendedModifyListener() {
-          public void modifyText(ExtendedModifyEvent event) {
-            int eventLength = event.length;
-            int eventStartPostition = event.start;
+        event -> {
+          int eventLength = event.length;
+          int eventStartPostition = event.start;
 
-            String newText = getText();
-            String repText = event.replacedText;
-            String oldText = "";
-            int eventType = -1;
+          String newText = getText();
+          String repText = event.replacedText;
+          String oldText = "";
+          int eventType = -1;
 
-            if ((event.length != newText.length()) || (fullSelection)) {
-              if (repText != null && repText.length() > 0) {
-                oldText =
-                    newText.substring(0, event.start)
-                        + repText
-                        + newText.substring(event.start + event.length);
-                eventType = UndoRedoStack.DELETE;
-                eventLength = repText.length();
-              } else {
-                oldText =
-                    newText.substring(0, event.start)
-                        + newText.substring(event.start + event.length);
-                eventType = UndoRedoStack.INSERT;
-              }
-
-              if ((oldText != null && oldText.length() > 0)
-                  || (eventStartPostition == event.length)) {
-                UndoRedoStack urs =
-                    new UndoRedoStack(
-                        eventStartPostition, newText, oldText, eventLength, eventType);
-
-                // Stack is full
-                if (undoStack.size() == MAX_STACK_SIZE) {
-                  undoStack.remove(undoStack.size() - 1);
-                }
-                undoStack.add(0, urs);
-              }
+          if ((event.length != newText.length()) || (fullSelection)) {
+            if (repText != null && !repText.isEmpty()) {
+              oldText =
+                  newText.substring(0, event.start)
+                      + repText
+                      + newText.substring(event.start + event.length);
+              eventType = UndoRedoStack.DELETE;
+              eventLength = repText.length();
+            } else {
+              oldText =
+                  newText.substring(0, event.start) + newText.substring(event.start + event.length);
+              eventType = UndoRedoStack.INSERT;
             }
-            fullSelection = false;
+
+            if ((oldText != null && !oldText.isEmpty()) || (eventStartPostition == event.length)) {
+              UndoRedoStack urs =
+                  new UndoRedoStack(eventStartPostition, newText, oldText, eventLength, eventType);
+
+              // Stack is full
+              if (undoStack.size() == MAX_STACK_SIZE) {
+                undoStack.remove(undoStack.size() - 1);
+              }
+              undoStack.add(0, urs);
+            }
           }
+          fullSelection = false;
         });
   }
 
+  @Override
   protected void undo() {
-    if (undoStack.size() > 0) {
+    if (!undoStack.isEmpty()) {
       UndoRedoStack undo = undoStack.remove(0);
       if (redoStack.size() == MAX_STACK_SIZE) {
         redoStack.remove(redoStack.size() - 1);
@@ -368,8 +363,9 @@ public class StyledTextVar extends TextComposite {
     }
   }
 
+  @Override
   protected void redo() {
-    if (redoStack.size() > 0) {
+    if (!redoStack.isEmpty()) {
       UndoRedoStack redo = redoStack.remove(0);
       if (undoStack.size() == MAX_STACK_SIZE) {
         undoStack.remove(undoStack.size() - 1);

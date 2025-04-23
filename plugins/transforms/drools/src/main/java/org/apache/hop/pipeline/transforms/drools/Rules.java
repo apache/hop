@@ -28,7 +28,7 @@ public class Rules {
     private final boolean external;
 
     public Row() {
-      this(new Hashtable<String, Object>(), false);
+      this(new Hashtable<>(), false);
     }
 
     public Row(Map<String, Object> row) {
@@ -36,7 +36,7 @@ public class Rules {
     }
 
     public Row(boolean external) {
-      this(new Hashtable<String, Object>(), external);
+      this(new Hashtable<>(), external);
     }
 
     public Row(Map<String, Object> row, boolean external) {

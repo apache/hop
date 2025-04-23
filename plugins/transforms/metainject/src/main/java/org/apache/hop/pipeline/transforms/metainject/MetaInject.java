@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.metainject;
 
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +34,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -310,8 +310,8 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       }
 
       os = HopVfs.getOutputStream(targetFilePath, false, variables);
-      os.write(XmlHandler.getXmlHeader().getBytes(Const.XML_ENCODING));
-      os.write(data.pipelineMeta.getXml(this).getBytes(Const.XML_ENCODING));
+      os.write(XmlHandler.getXmlHeader().getBytes(StandardCharsets.UTF_8));
+      os.write(data.pipelineMeta.getXml(this).getBytes(StandardCharsets.UTF_8));
     } catch (Exception e) {
       throw new HopException(
           "Unable to write target file (hpl after injection) to file '" + targetFilePath + "'", e);

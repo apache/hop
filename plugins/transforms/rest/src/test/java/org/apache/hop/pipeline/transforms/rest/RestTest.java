@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
@@ -41,14 +41,14 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.glassfish.jersey.client.ClientResponse;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.MockedStatic;
 
-public class RestTest {
+class RestTest {
 
   private MockedStatic<Client> mockedClient;
 
@@ -63,7 +63,7 @@ public class RestTest {
   }
 
   @Test
-  public void testCreateMultivalueMap() {
+  void testCreateMultivalueMap() {
     TransformMeta transformMeta = new TransformMeta();
     transformMeta.setName("TestRest");
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -82,9 +82,9 @@ public class RestTest {
     assertTrue(val1.contains("%7D"));
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void testCallEndpointWithDeleteVerb() throws HopException {
+  void testCallEndpointWithDeleteVerb() throws HopException {
     MultivaluedMap<String, String> headers = null;
     headers.add("Content-Type", "application/json");
 

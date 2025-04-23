@@ -131,7 +131,7 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
 
   public ExecSqlMeta() {
     super();
-    arguments = new ArrayList<ExecSqlArgumentItem>();
+    arguments = new ArrayList<>();
   }
 
   /**

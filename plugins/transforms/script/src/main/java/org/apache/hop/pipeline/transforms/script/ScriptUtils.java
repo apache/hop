@@ -113,7 +113,7 @@ public class ScriptUtils {
   }
 
   public static List<String> getScriptLanguageNames() {
-    List<String> scriptEngineNames = new ArrayList<String>();
+    List<String> scriptEngineNames = new ArrayList<>();
     engineFactories = getScriptEngineManager().getEngineFactories();
     if (engineFactories != null) {
       for (ScriptEngineFactory factory : engineFactories) {
