@@ -24,7 +24,7 @@ under the License.
 * xref:plugin-development.adoc[Plugins Development]
 * xref:plugin-samples.adoc[Plugins Samples]
 * xref:svg-files.adoc[SVG Files]
-** xref:start-your-own-plugin.adoc[Creating your own plugin]
+* xref:start-your-own-plugin.adoc[Creating your own plugin]
 * xref:apache-release/index.adoc[Apache Release Process]
 ** xref:apache-release/creating-a-release.adoc[Creating a Release]
 ** xref:apache-release/promoting-a-release.adoc[Promoting a Release]
