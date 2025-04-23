@@ -918,8 +918,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
    * @param event The selection event
    */
   private void handleTabSelectionEvent(Event event) {
-    if (event.item instanceof CTabItem cTabItem) {
-      CTabItem tabItem = cTabItem;
+    if (event.item instanceof CTabItem tabItem) {
       ExplorerFile explorerFile = (ExplorerFile) tabItem.getData();
       selectInTree(explorerFile.getFilename());
       updateGui();
@@ -929,6 +928,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public void addFile(ExplorerFile explorerFile) {
 
     if (files.contains(explorerFile)) {
+      // Select and show tab item
+      for (CTabItem tabItem : tabFolder.getItems()) {
+        ExplorerFile file = (ExplorerFile) tabItem.getData();
+        if (explorerFile.getFilename().equals(file.getFilename())) {
+          tabFolder.setSelection(tabItem);
+          tabFolder.showItem(tabItem);
+          tabFolder.setFocus();
+        }
+      }
       return;
     }
 
@@ -1286,9 +1294,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       //
       refreshFolder(rootItem, rootFolder, 0);
 
-      tree.setRedraw(true);
-
       TreeMemory.setExpandedFromMemory(tree, FILE_EXPLORER_TREE);
+
+      tree.setRedraw(true);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
