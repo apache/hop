@@ -37,6 +37,7 @@ import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -3520,7 +3521,7 @@ public class ValueMetaBase implements IValueMeta {
     if (string == null) {
       outputStream.writeInt(-1);
     } else {
-      byte[] chars = string.getBytes(Const.XML_ENCODING);
+      byte[] chars = string.getBytes(StandardCharsets.UTF_8);
       outputStream.writeInt(chars.length);
       outputStream.write(chars);
     }
@@ -3533,7 +3534,7 @@ public class ValueMetaBase implements IValueMeta {
     } else {
       ObjectMapper objectMapper = new ObjectMapper();
       String string = objectMapper.writeValueAsString(jsonNode);
-      byte[] chars = string.getBytes(Const.XML_ENCODING);
+      byte[] chars = string.getBytes(StandardCharsets.UTF_8);
       outputStream.writeInt(chars.length);
       outputStream.write(chars);
     }
@@ -3560,7 +3561,7 @@ public class ValueMetaBase implements IValueMeta {
     byte[] chars = new byte[inputLength];
     inputStream.readFully(chars);
 
-    return new String(chars, Const.XML_ENCODING);
+    return new String(chars, StandardCharsets.UTF_8);
   }
 
   protected JsonNode readJson(DataInputStream inputStream) throws IOException {

@@ -27,6 +27,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.exception.HopValueException;
@@ -70,7 +71,7 @@ public class StreamEncoder {
     this.columnCount = this.columns.size();
     this.rowNulls = new BitSet(this.columnCount);
 
-    this.charset = Charset.forName("UTF-8");
+    this.charset = StandardCharsets.UTF_8;
 
     CharBuffer charBuffer = CharBuffer.allocate(MAX_CHAR_LENGTH);
     CharsetEncoder charEncoder = charset.newEncoder();

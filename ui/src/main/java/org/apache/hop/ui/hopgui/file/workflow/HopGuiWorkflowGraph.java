@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.file.workflow;
 
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -3321,8 +3322,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       String xml = workflowMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(workflowMeta.getFilename(), false);
       try {
-        out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(Const.XML_ENCODING));
-        out.write(xml.getBytes(Const.XML_ENCODING));
+        out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+        out.write(xml.getBytes(StandardCharsets.UTF_8));
         workflowMeta.clearChanged();
         updateGui();
         HopGui.getDataOrchestrationPerspective().updateTabs();

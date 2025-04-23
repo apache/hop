@@ -20,7 +20,6 @@ package org.apache.hop.beam.transforms.bigtable;
 import com.google.bigtable.v2.Mutation;
 import com.google.protobuf.ByteString;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
@@ -184,7 +183,7 @@ public class HopToBigtableFn extends DoFn<HopRow, KV<ByteString, Iterable<Mutati
       case IValueMeta.TYPE_STRING:
       default:
         // Already converted to a native value
-        bytes = value.toString().getBytes(Charset.forName("UTF-8"));
+        bytes = value.toString().getBytes(StandardCharsets.UTF_8);
         break;
     }
     return ByteString.copyFrom(bytes);

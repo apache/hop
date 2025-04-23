@@ -19,9 +19,8 @@ package org.apache.hop.testing.xp;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -68,12 +67,8 @@ public class PipelineMetaModifier {
     // Clone seems to has problems so we'll take the long (XML) way around...
     //
     InputStream stream;
-    try {
-      stream =
-          new ByteArrayInputStream(pipelineMeta.getXml(variables).getBytes(Const.XML_ENCODING));
-    } catch (UnsupportedEncodingException e) {
-      throw new HopException("Encoding error", e);
-    }
+    stream =
+        new ByteArrayInputStream(pipelineMeta.getXml(variables).getBytes(StandardCharsets.UTF_8));
     PipelineMeta copyPipelineMeta = new PipelineMeta(stream, metadataProvider, variables);
 
     // Pass the metadata references...

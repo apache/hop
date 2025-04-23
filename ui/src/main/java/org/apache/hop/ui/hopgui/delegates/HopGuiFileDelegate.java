@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.delegates;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -357,7 +357,7 @@ public class HopGuiFileDelegate {
           OutputStream outputStream = null;
           try {
             outputStream = HopVfs.getOutputStream(file, false);
-            outputStream.write(svgXml.getBytes(Const.XML_ENCODING));
+            outputStream.write(svgXml.getBytes(StandardCharsets.UTF_8));
           } finally {
             if (outputStream != null) {
               outputStream.close();

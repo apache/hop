@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -3679,8 +3680,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       String xml = pipelineMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(pipelineMeta.getFilename(), false);
       try {
-        out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(Const.XML_ENCODING));
-        out.write(xml.getBytes(Const.XML_ENCODING));
+        out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+        out.write(xml.getBytes(StandardCharsets.UTF_8));
         pipelineMeta.clearChanged();
         updateGui();
         HopGui.getDataOrchestrationPerspective().updateTabs();

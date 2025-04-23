@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.setvariables;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -190,7 +191,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
       if (!Utils.isEmpty(realFilename)) {
         try (InputStream is = HopVfs.getInputStream(realFilename);
             // for UTF8 properties files
-            InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+            InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
             BufferedReader reader = new BufferedReader(isr); ) {
           Properties properties = new Properties();
           properties.load(reader);

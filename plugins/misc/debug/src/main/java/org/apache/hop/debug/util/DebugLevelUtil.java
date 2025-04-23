@@ -18,6 +18,7 @@
 package org.apache.hop.debug.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +49,8 @@ public class DebugLevelUtil {
         Integer.toString(debugLevel.getEndRow()));
 
     String conditionXmlString =
-        Base64.getEncoder().encodeToString(debugLevel.getCondition().getXml().getBytes("UTF-8"));
+        Base64.getEncoder()
+            .encodeToString(debugLevel.getCondition().getXml().getBytes(StandardCharsets.UTF_8));
     debugGroupAttributesMap.put(
         transformName + " : " + Defaults.TRANSFORM_ATTR_CONDITION, conditionXmlString);
   }
@@ -78,7 +80,8 @@ public class DebugLevelUtil {
     debugLevel.setEndRow(Const.toInt(endRowString, -1));
 
     if (StringUtils.isNotEmpty(conditionString)) {
-      String conditionXml = new String(Base64.getDecoder().decode(conditionString), "UTF-8");
+      String conditionXml =
+          new String(Base64.getDecoder().decode(conditionString), StandardCharsets.UTF_8);
       debugLevel.setCondition(new Condition(conditionXml));
     }
     return debugLevel;

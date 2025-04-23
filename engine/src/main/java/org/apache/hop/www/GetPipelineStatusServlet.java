@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -67,7 +67,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
   public static final String SEND_RESULT = "sendResult";
 
   private static final byte[] XML_HEADER =
-      XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(Charset.forName(Const.XML_ENCODING));
+      XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8);
 
   public GetPipelineStatusServlet() {}
 
@@ -181,7 +181,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
             // XML
             //
             String xml = pipelineStatus.getXml(sendResultXmlWithStatus);
-            byte[] data = xml.getBytes(Charset.forName(Const.XML_ENCODING));
+            byte[] data = xml.getBytes(StandardCharsets.UTF_8);
             response.setContentLength(XML_HEADER.length + data.length);
             out.write(XML_HEADER);
             out.write(data);
@@ -191,7 +191,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
             ObjectMapper mapper = HopJson.newMapper();
             String jsonString =
                 mapper.writerWithDefaultPrettyPrinter().writeValueAsString(pipelineStatus);
-            byte[] data = jsonString.getBytes(Charset.forName(Const.XML_ENCODING));
+            byte[] data = jsonString.getBytes(StandardCharsets.UTF_8);
             response.setContentLength(data.length);
             out.write(data);
           }
