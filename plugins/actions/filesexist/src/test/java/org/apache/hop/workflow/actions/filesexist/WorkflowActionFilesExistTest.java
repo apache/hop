@@ -35,7 +35,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class WorkflowActionFilesExistTest {
+class WorkflowActionFilesExistTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionFilesExist action;
 
@@ -43,12 +43,12 @@ public class WorkflowActionFilesExistTest {
   private String existingFile2;
 
   @BeforeAll
-  public static void setUpBeforeClass() {
+  static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionFilesExist();
 
@@ -77,7 +77,7 @@ public class WorkflowActionFilesExistTest {
   }
 
   @Test
-  public void testSetNrErrorsFalseResult() {
+  void testSetNrErrorsFalseResult() {
     action.setFileItems(List.of(new FileItem("nonExistingFile.ext")));
 
     Result res = action.execute(new Result(), 0);
@@ -90,7 +90,7 @@ public class WorkflowActionFilesExistTest {
   }
 
   @Test
-  public void testExecuteWithException() {
+  void testExecuteWithException() {
     action.setFileItems(List.of(new FileItem(null)));
 
     Result res = action.execute(new Result(), 0);
@@ -101,7 +101,7 @@ public class WorkflowActionFilesExistTest {
   }
 
   @Test
-  public void testExecuteSuccess() {
+  void testExecuteSuccess() {
     action.setFileItems(List.of(new FileItem(existingFile1), new FileItem(existingFile2)));
 
     Result res = action.execute(new Result(), 0);
@@ -109,7 +109,7 @@ public class WorkflowActionFilesExistTest {
   }
 
   @Test
-  public void testExecuteFail() {
+  void testExecuteFail() {
     action.setFileItems(
         List.of(
             new FileItem(existingFile1),

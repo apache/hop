@@ -48,19 +48,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ActionDeleteFilesTest {
+class ActionDeleteFilesTest {
   private static final String PATH_TO_FILE = "path/to/file";
   private static final String STRING_SPACES_ONLY = "   ";
 
   private ActionDeleteFiles action;
 
   @BeforeAll
-  public static void setUpBeforeClass() {
+  static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     action = new ActionDeleteFiles();
     IWorkflowEngine<WorkflowMeta> parentWorkflow = mock(Workflow.class);
     doReturn(false).when(parentWorkflow).isStopped();
@@ -86,7 +86,7 @@ public class ActionDeleteFilesTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     ActionDeleteFiles meta =
         ActionSerializationTestUtil.testSerialization(
             "/delete-files-action.xml", ActionDeleteFiles.class);
@@ -99,7 +99,7 @@ public class ActionDeleteFilesTest {
   }
 
   @Test
-  public void filesWithNoPath_AreNotProcessed_ArgsOfCurrentWorkflow() throws Exception {
+  void filesWithNoPath_AreNotProcessed_ArgsOfCurrentWorkflow() throws Exception {
     action.setFileItems(
         List.of(new FileItem(Const.EMPTY_STRING, null), new FileItem(STRING_SPACES_ONLY, null)));
     action.setArgFromPrevious(false);
@@ -109,7 +109,7 @@ public class ActionDeleteFilesTest {
   }
 
   @Test
-  public void filesWithPath_AreProcessed_ArgsOfCurrentWorkflow() throws Exception {
+  void filesWithPath_AreProcessed_ArgsOfCurrentWorkflow() throws Exception {
     action.setFileItems(
         List.of(new FileItem(PATH_TO_FILE, null), new FileItem(STRING_SPACES_ONLY, null)));
     action.setArgFromPrevious(false);
@@ -120,7 +120,7 @@ public class ActionDeleteFilesTest {
   }
 
   @Test
-  public void filesWithNoPath_AreNotProcessed_ArgsOfPreviousMeta() throws Exception {
+  void filesWithNoPath_AreNotProcessed_ArgsOfPreviousMeta() throws Exception {
     action.setArgFromPrevious(true);
 
     Result prevMetaResult = new Result();
@@ -136,7 +136,7 @@ public class ActionDeleteFilesTest {
   }
 
   @Test
-  public void filesPath_AreProcessed_ArgsOfPreviousMeta() throws Exception {
+  void filesPath_AreProcessed_ArgsOfPreviousMeta() throws Exception {
     action.setArgFromPrevious(true);
 
     Result prevMetaResult = new Result();
@@ -151,7 +151,7 @@ public class ActionDeleteFilesTest {
   }
 
   @Test
-  public void filesPathVariables_AreProcessed_OnlyIfValueIsNotBlank() throws Exception {
+  void filesPathVariables_AreProcessed_OnlyIfValueIsNotBlank() throws Exception {
     final String pathToFileBlankValue = "pathToFileBlankValue";
     final String pathToFileValidValue = "pathToFileValidValue";
 
@@ -171,7 +171,7 @@ public class ActionDeleteFilesTest {
   }
 
   @Test
-  public void specifyingTheSamePath_WithDifferentWildcards() throws Exception {
+  void specifyingTheSamePath_WithDifferentWildcards() throws Exception {
     final String fileExtensionTxt = ".txt";
     final String fileExtensionXml = ".xml";
 

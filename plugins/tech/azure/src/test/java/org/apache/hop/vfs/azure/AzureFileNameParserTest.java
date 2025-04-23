@@ -17,14 +17,13 @@
 
 package org.apache.hop.vfs.azure;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.stream.Stream;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.VfsComponentContext;
 import org.apache.hop.vfs.azure.config.AzureConfig;
 import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,12 +32,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-public class AzureFileNameParserTest {
+class AzureFileNameParserTest {
 
   private AzureFileNameParser parser;
 
   @BeforeAll
-  public static void init() {
+  static void init() {
     AzureConfig azureConfig = new AzureConfig();
     azureConfig.setAccount("hopsa");
     azureConfig.setKey("aGVsbG93b3JsZA==");
@@ -48,7 +47,7 @@ public class AzureFileNameParserTest {
   }
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     parser = new AzureFileNameParser();
   }
 
@@ -65,7 +64,7 @@ public class AzureFileNameParserTest {
   //    this.expectedType = expectedType;
   //  }
 
-  public static Stream<Arguments> azureUris() {
+  static Stream<Arguments> azureUris() {
     return Stream.of(
         Arguments.of(
             "azfs://hopsa/container/folder1/parquet-test-delo2-azfs-00-0001.parquet",
@@ -130,9 +129,9 @@ public class AzureFileNameParserTest {
     System.out.println("Path: " + actual.getPath());
     System.out.println("--------------------------");
 
-    assertEquals(expectedScheme, actual.getScheme());
-    assertEquals(expectedContainer, actual.getContainer());
-    assertEquals(expectedPathAfterContainer, actual.getPathAfterContainer());
-    assertEquals(expectedType, actual.getType());
+    Assertions.assertEquals(expectedScheme, actual.getScheme());
+    Assertions.assertEquals(expectedContainer, actual.getContainer());
+    Assertions.assertEquals(expectedPathAfterContainer, actual.getPathAfterContainer());
+    Assertions.assertEquals(expectedType, actual.getType());
   }
 }

@@ -39,7 +39,7 @@ class WorkflowActionDosToUnixTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     ActionDosToUnix meta =
         ActionSerializationTestUtil.testSerialization(
             "/dos-unix-converter-action.xml", ActionDosToUnix.class);

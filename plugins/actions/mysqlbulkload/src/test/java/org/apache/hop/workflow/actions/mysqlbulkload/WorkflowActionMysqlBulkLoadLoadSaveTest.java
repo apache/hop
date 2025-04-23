@@ -55,7 +55,7 @@ public class WorkflowActionMysqlBulkLoadLoadSaveTest
   }
 
   @Test
-  public void testNewSerialization() throws Exception {
+  void testNewSerialization() throws Exception {
     ActionMysqlBulkLoad meta =
         ActionSerializationTestUtil.testSerialization(
             "/mysql-bulkloader-action.xml", ActionMysqlBulkLoad.class);
@@ -70,7 +70,7 @@ public class WorkflowActionMysqlBulkLoadLoadSaveTest
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     ActionMysqlBulkLoad meta =
         ActionSerializationTestUtil.testSerialization(
             "/mysql-bulkloader-action.xml", ActionMysqlBulkLoad.class);

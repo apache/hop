@@ -23,11 +23,11 @@ import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class RestTest {
+class RestTest {
 
   @Test
   @Disabled
-  public void testRestConnection() {
+  void testRestConnection() {
     RestConnection restConnection = new RestConnection(Variables.getADefaultVariableSpace());
     restConnection.setBaseUrl("");
     restConnection.setTestUrl("");

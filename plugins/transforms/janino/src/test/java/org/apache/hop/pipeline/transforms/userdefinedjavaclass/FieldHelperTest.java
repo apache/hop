@@ -40,11 +40,11 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class FieldHelperTest {
+class FieldHelperTest {
 
   @BeforeEach
   void setUpStaticMocks() {
@@ -57,7 +57,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getNativeDataTypeSimpleName_Unknown() throws Exception {
+  void getNativeDataTypeSimpleName_Unknown() throws Exception {
     HopValueException e = new HopValueException();
 
     IValueMeta v = mock(IValueMeta.class);
@@ -70,31 +70,31 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getNativeDataTypeSimpleName_String() {
+  void getNativeDataTypeSimpleName_String() {
     ValueMetaString v = new ValueMetaString();
     assertEquals("String", FieldHelper.getNativeDataTypeSimpleName(v));
   }
 
   @Test
-  public void getNativeDataTypeSimpleName_InetAddress() {
+  void getNativeDataTypeSimpleName_InetAddress() {
     ValueMetaInternetAddress v = new ValueMetaInternetAddress();
     assertEquals("InetAddress", FieldHelper.getNativeDataTypeSimpleName(v));
   }
 
   @Test
-  public void getNativeDataTypeSimpleName_Timestamp() {
+  void getNativeDataTypeSimpleName_Timestamp() {
     ValueMetaTimestamp v = new ValueMetaTimestamp();
     assertEquals("Timestamp", FieldHelper.getNativeDataTypeSimpleName(v));
   }
 
   @Test
-  public void getNativeDataTypeSimpleName_Binary() {
+  void getNativeDataTypeSimpleName_Binary() {
     ValueMetaBinary v = new ValueMetaBinary();
     assertEquals("Binary", FieldHelper.getNativeDataTypeSimpleName(v));
   }
 
   @Test
-  public void getGetSignature_String() {
+  void getGetSignature_String() {
     ValueMetaString v = new ValueMetaString("Name");
     String accessor = FieldHelper.getAccessor(true, "Name");
 
@@ -104,7 +104,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getGetSignature_InetAddress() {
+  void getGetSignature_InetAddress() {
     ValueMetaInternetAddress v = new ValueMetaInternetAddress("IP");
     String accessor = FieldHelper.getAccessor(true, "IP");
 
@@ -114,7 +114,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getGetSignature_Timestamp() {
+  void getGetSignature_Timestamp() {
     ValueMetaTimestamp v = new ValueMetaTimestamp("TS");
     String accessor = FieldHelper.getAccessor(true, "TS");
 
@@ -124,7 +124,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getGetSignature_Binary() {
+  void getGetSignature_Binary() {
     ValueMetaBinary v = new ValueMetaBinary("Data");
     String accessor = FieldHelper.getAccessor(true, "Data");
 
@@ -134,7 +134,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getGetSignature_BigNumber() {
+  void getGetSignature_BigNumber() {
     ValueMetaBigNumber v = new ValueMetaBigNumber("Number");
     String accessor = FieldHelper.getAccessor(true, "Number");
 
@@ -144,7 +144,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getGetSignature_Boolean() {
+  void getGetSignature_Boolean() {
     ValueMetaBoolean v = new ValueMetaBoolean("Value");
     String accessor = FieldHelper.getAccessor(true, "Value");
 
@@ -154,7 +154,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getGetSignature_Date() {
+  void getGetSignature_Date() {
     ValueMetaDate v = new ValueMetaDate("DT");
     String accessor = FieldHelper.getAccessor(true, "DT");
 
@@ -163,7 +163,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getGetSignature_Integer() {
+  void getGetSignature_Integer() {
     ValueMetaInteger v = new ValueMetaInteger("Value");
     String accessor = FieldHelper.getAccessor(true, "Value");
 
@@ -173,7 +173,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getGetSignature_Number() {
+  void getGetSignature_Number() {
     ValueMetaNumber v = new ValueMetaNumber("Value");
     String accessor = FieldHelper.getAccessor(true, "Value");
 
@@ -183,7 +183,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getGetSignature_Serializable() throws Exception {
+  void getGetSignature_Serializable() throws Exception {
     LogChannel log = mock(LogChannel.class);
 
     ValueMetaSerializable v = new ValueMetaSerializable("Data");
@@ -195,7 +195,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getInetAddress_Test() throws Exception {
+  void getInetAddress_Test() throws Exception {
     ValueMetaInternetAddress v = new ValueMetaInternetAddress("IP");
 
     IRowMeta row = mock(IRowMeta.class);
@@ -208,7 +208,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getTimestamp_Test() throws Exception {
+  void getTimestamp_Test() throws Exception {
     ValueMetaTimestamp v = new ValueMetaTimestamp("TS");
 
     IRowMeta row = mock(IRowMeta.class);
@@ -222,7 +222,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getSerializable_Test() throws Exception {
+  void getSerializable_Test() throws Exception {
     ValueMetaSerializable v = new ValueMetaSerializable("Data");
 
     IRowMeta row = mock(IRowMeta.class);
@@ -233,7 +233,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void getBinary_Test() throws Exception {
+  void getBinary_Test() throws Exception {
     ValueMetaBinary v = new ValueMetaBinary("Data");
 
     IRowMeta row = mock(IRowMeta.class);
@@ -246,7 +246,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void setValue_String() {
+  void setValue_String() {
     ValueMetaString v = new ValueMetaString("Name");
 
     IRowMeta row = mock(IRowMeta.class);
@@ -260,7 +260,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void setValue_InetAddress() throws Exception {
+  void setValue_InetAddress() throws Exception {
     ValueMetaInternetAddress v = new ValueMetaInternetAddress("IP");
 
     IRowMeta row = mock(IRowMeta.class);
@@ -274,7 +274,7 @@ public class FieldHelperTest {
   }
 
   @Test
-  public void setValue_ValueMetaBinary() throws Exception {
+  void setValue_ValueMetaBinary() throws Exception {
     ValueMetaBinary v = new ValueMetaBinary("Data");
 
     IRowMeta row = mock(IRowMeta.class);
