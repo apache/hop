@@ -19,13 +19,10 @@ package org.apache.hop.workflow.actions.abort;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
 
 public class WorkflowActionAbortLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionAbort> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
   protected Class<ActionAbort> getActionClass() {

@@ -18,16 +18,13 @@
 package org.apache.hop.workflow.actions.addresultfilenames;
 
 import java.util.UUID;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.Before;
-import org.junit.ClassRule;
 
 public class WorkflowActionAddResultFilenamesLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionAddResultFilenames> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
   protected Class<ActionAddResultFilenames> getActionClass() {

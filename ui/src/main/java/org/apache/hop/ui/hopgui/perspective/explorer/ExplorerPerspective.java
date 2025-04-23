@@ -1164,7 +1164,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             BaseMessages.getString(PKG, "ExplorerPerspective.CreateFolder.Header"),
             BaseMessages.getString(PKG, "ExplorerPerspective.CreateFolder.Message", tif.path));
     String folder = dialog.open();
-    if (folder != null) {
+    if (folder != null && !folder.isEmpty()) {
       String newPath = tif.path;
       if (!newPath.endsWith("/") && !newPath.endsWith("\\")) {
         newPath += "/";

@@ -18,19 +18,16 @@
 
 package org.apache.hop.workflow.actions.checkfilelocked;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class ActionCheckFilesLockedTest {
+class ActionCheckFilesLockedTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init();
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
 
@@ -38,12 +35,12 @@ public class ActionCheckFilesLockedTest {
         ActionSerializationTestUtil.testSerialization(
             "/check-files-locked-action.xml", ActionCheckFilesLocked.class, provider);
 
-    assertFalse(action.isArgFromPrevious());
-    assertTrue(action.isIncludeSubfolders());
-    Assert.assertEquals(2, action.getCheckedFiles().size());
-    Assert.assertEquals("/tmp/folder1", action.getCheckedFiles().get(0).getName());
-    Assert.assertEquals(".*\\.txt$", action.getCheckedFiles().get(0).getWildcard());
-    Assert.assertEquals("/tmp/folder2", action.getCheckedFiles().get(1).getName());
-    Assert.assertEquals(".*\\.zip$", action.getCheckedFiles().get(1).getWildcard());
+    Assertions.assertFalse(action.isArgFromPrevious());
+    Assertions.assertTrue(action.isIncludeSubfolders());
+    Assertions.assertEquals(2, action.getCheckedFiles().size());
+    Assertions.assertEquals("/tmp/folder1", action.getCheckedFiles().get(0).getName());
+    Assertions.assertEquals(".*\\.txt$", action.getCheckedFiles().get(0).getWildcard());
+    Assertions.assertEquals("/tmp/folder2", action.getCheckedFiles().get(1).getName());
+    Assertions.assertEquals(".*\\.zip$", action.getCheckedFiles().get(1).getWildcard());
   }
 }
