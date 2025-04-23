@@ -52,7 +52,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     workBook = new XSSFWorkbook();
     workSheet = workBook.createSheet();
     sheetRow = workSheet.createRow(0);
-    replaceMap = new HashMap<String, String>();
+    replaceMap = new HashMap<>();
 
     return true;
   }

@@ -75,7 +75,7 @@ public class BeamHiveMetastoreInputTransform extends PTransform<PBegin, PCollect
       //
       BeamHop.init();
 
-      Map<String, String> configProperties = new HashMap<String, String>();
+      Map<String, String> configProperties = new HashMap<>();
       configProperties.put("hive.metastore.uris", hiveMetastoreUris);
 
       PCollection<HopRow> output;

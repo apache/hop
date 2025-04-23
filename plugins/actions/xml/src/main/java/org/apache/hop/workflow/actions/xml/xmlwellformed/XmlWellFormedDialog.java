@@ -788,7 +788,7 @@ public class XmlWellFormedDialog extends ActionDialog {
     String[] sourceFilefolder = new String[nr];
     String[] wildcard = new String[nr];
     nr = 0;
-    List<XmlWellFormedField> fieldList = new ArrayList<XmlWellFormedField>();
+    List<XmlWellFormedField> fieldList = new ArrayList<>();
     for (int i = 0; i < nritems; i++) {
       XmlWellFormedField field = new XmlWellFormedField();
       String source = wFields.getNonEmpty(i).getText(1);

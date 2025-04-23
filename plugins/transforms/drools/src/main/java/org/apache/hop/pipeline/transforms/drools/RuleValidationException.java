@@ -33,7 +33,7 @@ public class RuleValidationException extends Exception {
    */
   public RuleValidationException(List<Message> messages) {
     super();
-    this.messages = new ArrayList<String>();
+    this.messages = new ArrayList<>();
     for (Message item : messages) {
 
       this.messages.add(
