@@ -56,7 +56,8 @@ import org.apache.hop.resource.ResourceDefinition;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::AccessOutput.Keyword",
     documentationUrl = "/pipeline/transforms/accessoutput.html",
-    classLoaderGroup = "access-db")
+    classLoaderGroup = "access-db",
+    isIncludeJdbcDrivers = true)
 public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutputData> {
   private static final Class<?> PKG = AccessOutputMeta.class;
 
