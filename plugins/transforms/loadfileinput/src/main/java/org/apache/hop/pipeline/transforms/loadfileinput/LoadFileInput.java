@@ -388,6 +388,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
             break;
           case LoadFileInputField.ELEMENT_TYPE_FILESIZE:
             o = String.valueOf(data.fileSize);
+            outputRowData[indexField] = targetValueMeta.convertData(sourceValueMeta, o);
             break;
           default:
             break;

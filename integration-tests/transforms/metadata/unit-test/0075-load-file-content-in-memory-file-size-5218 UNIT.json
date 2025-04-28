@@ -1,0 +1,33 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "File content",
+          "data_set_field": "File content"
+        },
+        {
+          "transform_field": "File size",
+          "data_set_field": "File size"
+        }
+      ],
+      "field_order": [
+        "File content",
+        "File size"
+      ],
+      "data_set_name": "golden-load-file-content-in-memory-file-size",
+      "transform_name": "preview"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0075-load-file-content-in-memory-file-size-5218 UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0075-load-file-content-in-memory-file-size-5218.hpl"
+}
