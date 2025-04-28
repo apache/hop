@@ -45,7 +45,7 @@ public class AccessDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getURL(String hostname, String port, String database) {
-    return "jdbc:ucanaccess://" + database + ";showSchema=true;newDatabaseVersion=V2010";
+    return "jdbc:ucanaccess://" + database + ";showSchema=true";
   }
 
   @Override

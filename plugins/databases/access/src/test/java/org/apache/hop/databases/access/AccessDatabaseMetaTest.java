@@ -55,7 +55,7 @@ public class AccessDatabaseMetaTest {
     assertEquals("net.ucanaccess.jdbc.UcanaccessDriver", nativeMeta.getDriverClass());
     assertEquals(8388607, nativeMeta.getMaxTextFieldLength());
     assertEquals(
-        "jdbc:ucanaccess://e://Dir//Contacts.accdb;showSchema=true;newDatabaseVersion=V2010",
+        "jdbc:ucanaccess://e://Dir//Contacts.accdb;showSchema=true",
         nativeMeta.getURL(
             null,
             null,
