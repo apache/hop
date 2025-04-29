@@ -388,11 +388,11 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
         // The value is provided by a field in an input row
         //
         if (StringUtils.isNotEmpty(fieldName)) {
-          int idx = getInputRowMeta().indexOfValue(fieldName);
+          int idx = getInputRowMeta().indexOfValue(this.resolve(fieldName));
           if (idx < 0) {
             throw new HopException(
                 BaseMessages.getString(
-                    PKG, "WorkflowExecutor.Exception.UnableToFindField", fieldName));
+                    PKG, "WorkflowExecutor.Exception.UnableToFindField", this.resolve(fieldName)));
           }
           variableValue = data.groupBuffer.get(0).getString(idx, "");
         } else {
