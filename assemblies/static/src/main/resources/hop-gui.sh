@@ -83,6 +83,30 @@ Linux)
     CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/$(uname -m)/*"
   fi
   ;;
+*BSD)
+  os_path="unix"
+  os_arch="$(${_HOP_JAVA} -XshowSettings:properties -version 2>&1 | grep "os.arch" | awk -F= '{print $2}' | xargs)"
+  arch_path="$(echo "$os_arch" | sed 's/aarch/arm/g' | sed 's/amd/x86_/g')"
+  if [ "${XDG_SESSION_TYPE}" = "wayland" ]; then
+    export GDK_BACKEND=x11
+  fi
+  if ! pkg info swt >/dev/null 2>&1; then
+    echo "Install swt package..."
+    pkg install -y swt >/dev/null
+  fi
+  swt_path="$ORIGINDIR/lib/swt/$os_path/$arch_path"
+  if [ ! -f "$swt_path/swt.jar" ]; then
+    [ ! -d "$swt_path" ] && mkdir -p "$swt_path"
+    cp /usr/local/share/java/classes/swt.jar "$swt_path"
+  fi
+  lib_path="$HOME/.swt/lib/$(uname -s | tr '[:upper:]' '[:lower:]')/$os_arch"
+  mkdir -p "$(dirname "$lib_path")"
+  if [ ! -L "$lib_path" ]; then
+    [ -d "$lib_path" ] && rm "$lib_path"
+    ln -s /usr/local/lib "$lib_path"
+  fi
+  CLASSPATH="lib/core/*:lib/beam/*:lib/swt/$os_path/$arch_path/*"
+  ;;
 Darwin)
   if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
     CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/arm64/*"
