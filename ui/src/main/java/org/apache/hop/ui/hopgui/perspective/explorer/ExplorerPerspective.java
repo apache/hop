@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -129,23 +130,26 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       "ExplorerPerspective-Toolbar-Created";
   public static final String GUI_CONTEXT_MENU_CREATED_CALLBACK_ID =
       "ExplorerPerspective-ContextMenu-Created";
-
-  private static final String FILE_EXPLORER_TREE = "File explorer tree";
-
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "ExplorerPerspective-Toolbar";
   public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID = "ExplorerPerspective-ContextMenu";
-
   public static final String TOOLBAR_ITEM_OPEN = "ExplorerPerspective-Toolbar-10000-Open";
   public static final String TOOLBAR_ITEM_CREATE_FOLDER =
       "ExplorerPerspective-Toolbar-10050-CreateFolder";
+  public static final String TOOLBAR_ITEM_EXPAND_ALL =
+      "ExplorerPerspective-Toolbar-10060-ExpandAll";
+  public static final String TOOLBAR_ITEM_COLLAPSE_ALL =
+      "ExplorerPerspective-Toolbar-10070-CollapseAll";
   public static final String TOOLBAR_ITEM_DELETE = "ExplorerPerspective-Toolbar-10100-Delete";
   public static final String TOOLBAR_ITEM_RENAME = "ExplorerPerspective-Toolbar-10200-Rename";
   public static final String TOOLBAR_ITEM_REFRESH = "ExplorerPerspective-Toolbar-10300-Refresh";
   public static final String TOOLBAR_ITEM_SHOW_HIDDEN =
       "ExplorerPerspective-Toolbar-10400-Show-hidden";
-
   public static final String CONTEXT_MENU_CREATE_FOLDER =
       "ExplorerPerspective-ContextMenu-10050-CreateFolder";
+  public static final String CONTEXT_MENU_EXPAND_ALL =
+      "ExplorerPerspective-ContextMenu-10060-ExpandAll";
+  public static final String CONTEXT_MENU_COLLAPSE_ALL =
+      "ExplorerPerspective-ContextMenu-10070-CollapseAll";
   public static final String CONTEXT_MENU_OPEN = "ExplorerPerspective-ContextMenu-10100-Open";
   public static final String CONTEXT_MENU_RENAME = "ExplorerPerspective-ContextMenu-10300-Rename";
   public static final String CONTEXT_MENU_COPY_NAME =
@@ -153,70 +157,29 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public static final String CONTEXT_MENU_COPY_PATH =
       "ExplorerPerspective-ContextMenu-10401-CopyPath";
   public static final String CONTEXT_MENU_DELETE = "ExplorerPerspective-ContextMenu-90000-Delete";
-
+  private static final String FILE_EXPLORER_TREE = "File explorer tree";
   private static ExplorerPerspective instance;
-
-  public static ExplorerPerspective getInstance() {
-    // There can be only one
-    if (instance == null) {
-      new ExplorerPerspective();
-    }
-    return instance;
-  }
-
+  @Getter private static GuiToolbarWidgets toolBarWidgets;
+  private final ExplorerFileType explorerFileType;
+  boolean first = true;
   private HopGui hopGui;
   private SashForm sash;
-  private Tree tree;
+  @Getter private Tree tree;
   private TreeEditor treeEditor;
   private CTabFolder tabFolder;
   private ToolBar toolBar;
-  private static GuiToolbarWidgets toolBarWidgets;
-  private GuiMenuWidgets menuWidgets;
+  @Getter private GuiMenuWidgets menuWidgets;
   private List<ExplorerFile> files = new ArrayList<>();
-  private final ExplorerFileType explorerFileType;
   private boolean showingHiddenFiles;
-
-  private String rootFolder;
-  private String rootName;
+  @Getter private String rootFolder;
+  @Getter private String rootName;
   private String dragFile;
   private int dropOperation;
-
-  private class TreeItemFolder {
-    public TreeItem treeItem;
-    public String path;
-    public String name;
-    public IHopFileType fileType;
-    public int depth;
-    public boolean folder;
-    public boolean loaded;
-
-    public TreeItemFolder(
-        TreeItem treeItem,
-        String path,
-        String name,
-        IHopFileType fileType,
-        int depth,
-        boolean folder,
-        boolean loaded) {
-      this.treeItem = treeItem;
-      this.path = path;
-      this.name = name;
-      this.fileType = fileType;
-      this.depth = depth;
-      this.folder = folder;
-      this.loaded = loaded;
-    }
-  }
-
-  private List<IExplorerFilePaintListener> filePaintListeners;
-
-  private List<IExplorerRootChangedListener> rootChangedListeners;
-
-  private List<IExplorerRefreshListener> refreshListeners;
-  private List<IExplorerSelectionListener> selectionListeners;
-
+  @Getter private List<IExplorerFilePaintListener> filePaintListeners;
+  @Getter private List<IExplorerRootChangedListener> rootChangedListeners;
+  @Getter private List<IExplorerRefreshListener> refreshListeners;
+  @Getter private List<IExplorerSelectionListener> selectionListeners;
   private List<IHopFileType> fileTypes;
-
   private Map<String, Image> typeImageMap;
 
   public ExplorerPerspective() {
@@ -230,6 +193,14 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     this.selectionListeners = new ArrayList<>();
     this.typeImageMap = new HashMap<>();
     this.showingHiddenFiles = false;
+  }
+
+  public static ExplorerPerspective getInstance() {
+    // There can be only one
+    if (instance == null) {
+      new ExplorerPerspective();
+    }
+    return instance;
   }
 
   @Override
@@ -354,18 +325,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             image.dispose();
           }
         });
-  }
-
-  public static class DetermineRootFolderExtension {
-    public HopGui hopGui;
-    public String rootFolder;
-    public String rootName;
-
-    public DetermineRootFolderExtension(HopGui hopGui, String rootFolder, String rootName) {
-      this.hopGui = hopGui;
-      this.rootFolder = rootFolder;
-      this.rootName = rootName;
-    }
   }
 
   public void determineRootFolderName(HopGui hopGui) {
@@ -1072,6 +1031,14 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     return null;
   }
 
+  public ExplorerFile getActiveFile() {
+    if (tabFolder.getSelectionIndex() < 0) {
+      return null;
+    }
+
+    return (ExplorerFile) tabFolder.getSelection().getData();
+  }
+
   public void setActiveFile(ExplorerFile file) {
     for (CTabItem item : tabFolder.getItems()) {
       if (item.getData().equals(file)) {
@@ -1082,14 +1049,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             .handleFileCapabilities(explorerFileType, file.isChanged(), false, false);
       }
     }
-  }
-
-  public ExplorerFile getActiveFile() {
-    if (tabFolder.getSelectionIndex() < 0) {
-      return null;
-    }
-
-    return (ExplorerFile) tabFolder.getSelection().getData();
   }
 
   @Override
@@ -1185,6 +1144,71 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EXPAND_ALL,
+      toolTip = "i18n::ExplorerPerspective.ToolbarElement.ExpandAll.Tooltip",
+      image = "ui/images/expand-all.svg")
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_EXPAND_ALL,
+      label = "i18n::ExplorerPerspective.Menu.ExpandAll",
+      image = "ui/images/expand-all.svg")
+  public void expandAll() {
+    tree.setRedraw(false); // Stop redraw until operation complete
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length == 0) {
+      expandCollapse(tree.getTopItem(), true);
+    } else {
+      TreeItemFolder treeItemFolder = (TreeItemFolder) selection[0].getData();
+      if (treeItemFolder != null && !treeItemFolder.loaded) {
+        BusyIndicator.showWhile(
+            hopGui.getDisplay(),
+            () -> {
+              refreshFolder(selection[0], treeItemFolder.path, treeItemFolder.depth + 1);
+              treeItemFolder.loaded = true;
+            });
+      }
+      expandCollapse(selection[0], true);
+    }
+    tree.setRedraw(true);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_COLLAPSE_ALL,
+      toolTip = "i18n::ExplorerPerspective.ToolbarElement.CollapseAll.Tooltip",
+      image = "ui/images/collapse-all.svg")
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_COLLAPSE_ALL,
+      label = "i18n::ExplorerPerspective.Menu.CollapseAll",
+      image = "ui/images/collapse-all.svg")
+  public void collapsedAll() {
+    tree.setRedraw(false); // Stop redraw until operation complete
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length == 0) {
+      expandCollapse(tree.getTopItem(), false);
+    } else {
+      expandCollapse(selection[0], false);
+    }
+    tree.setRedraw(true);
+  }
+
+  public void expandCollapse(TreeItem item, boolean expand) {
+    TreeItem[] items = item.getItems();
+    item.setExpanded(expand);
+    TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, expand);
+
+    for (TreeItem childItem : items) {
+      if (childItem.getItemCount() >= 1) {
+        expandCollapse(childItem, expand);
+      }
+    }
+  }
+
   @GuiMenuElement(
       root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
       parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
@@ -1261,8 +1285,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     GuiResource.getInstance().toClipboard(folder.path);
   }
 
-  boolean first = true;
-
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
@@ -1293,7 +1315,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       // Paint the top level folder only
       //
       refreshFolder(rootItem, rootFolder, 0);
-
+      TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
       TreeMemory.setExpandedFromMemory(tree, FILE_EXPLORER_TREE);
 
       tree.setRedraw(true);
@@ -1604,84 +1626,42 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     activeHandler.updateGui();
   }
 
-  /**
-   * Gets rootChangedListeners
-   *
-   * @return value of rootChangedListeners
-   */
-  public List<IExplorerRootChangedListener> getRootChangedListeners() {
-    return rootChangedListeners;
+  public static class DetermineRootFolderExtension {
+    public HopGui hopGui;
+    public String rootFolder;
+    public String rootName;
+
+    public DetermineRootFolderExtension(HopGui hopGui, String rootFolder, String rootName) {
+      this.hopGui = hopGui;
+      this.rootFolder = rootFolder;
+      this.rootName = rootName;
+    }
   }
 
-  /**
-   * Gets toolBarWidgets
-   *
-   * @return value of toolBarWidgets
-   */
-  public static GuiToolbarWidgets getToolBarWidgets() {
-    return toolBarWidgets;
-  }
+  private class TreeItemFolder {
+    public TreeItem treeItem;
+    public String path;
+    public String name;
+    public IHopFileType fileType;
+    public int depth;
+    public boolean folder;
+    public boolean loaded;
 
-  /**
-   * Gets context menu widgets
-   *
-   * @return
-   */
-  public GuiMenuWidgets getMenuWidgets() {
-    return menuWidgets;
-  }
-
-  /**
-   * Gets filePaintListeners
-   *
-   * @return value of filePaintListeners
-   */
-  public List<IExplorerFilePaintListener> getFilePaintListeners() {
-    return filePaintListeners;
-  }
-
-  /**
-   * Gets rootFolder
-   *
-   * @return value of rootFolder
-   */
-  public String getRootFolder() {
-    return rootFolder;
-  }
-
-  /**
-   * Gets rootName
-   *
-   * @return value of rootName
-   */
-  public String getRootName() {
-    return rootName;
-  }
-
-  /**
-   * Gets refreshListeners
-   *
-   * @return value of refreshListeners
-   */
-  public List<IExplorerRefreshListener> getRefreshListeners() {
-    return refreshListeners;
-  }
-
-  /**
-   * Gets selectionListeners
-   *
-   * @return value of selectionListeners
-   */
-  public List<IExplorerSelectionListener> getSelectionListeners() {
-    return selectionListeners;
-  }
-
-  /**
-   * Gets tree
-   *
-   * @return value of tree
-   */
-  public Tree getTree() {
-    return tree;
+    public TreeItemFolder(
+        TreeItem treeItem,
+        String path,
+        String name,
+        IHopFileType fileType,
+        int depth,
+        boolean folder,
+        boolean loaded) {
+      this.treeItem = treeItem;
+      this.path = path;
+      this.name = name;
+      this.fileType = fileType;
+      this.depth = depth;
+      this.folder = folder;
+      this.loaded = loaded;
+    }
   }
 }
