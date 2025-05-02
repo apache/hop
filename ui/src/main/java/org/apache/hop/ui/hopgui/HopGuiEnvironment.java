@@ -17,14 +17,18 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -40,12 +44,15 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public class HopGuiEnvironment extends HopClientEnvironment {
 
@@ -74,6 +81,22 @@ public class HopGuiEnvironment extends HopClientEnvironment {
    * @throws HopException
    */
   public static void initGuiPlugins() throws HopException {
+    List<String> excludedGuiElements = new ArrayList<>();
+
+    // Try loading code exclusions
+    try {
+      String path = Const.HOP_CONFIG_FOLDER + File.separator + "disabledGuiElements.xml";
+
+      Document document = XmlHandler.loadXmlFile(path);
+      Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
+      List<Node> exclusionNodes = XmlHandler.getNodes(exclusionsNode, "exclusion");
+
+      for (Node exclusionNode : exclusionNodes) {
+        excludedGuiElements.add(exclusionNode.getTextContent());
+      }
+    } catch (HopXmlException e) {
+      // ignore
+    }
 
     try {
       GuiRegistry guiRegistry = GuiRegistry.getInstance();
@@ -92,7 +115,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
 
         for (Field field : fields) {
           GuiWidgetElement guiElement = field.getAnnotation(GuiWidgetElement.class);
-          if (guiElement != null) {
+          if (guiElement != null && !excludedGuiElements.contains(guiElement.id())) {
             // Add the GUI Element to the registry...
             //
             guiRegistry.addGuiWidgetElement(guiPluginClassName, guiElement, field);
@@ -108,7 +131,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
             guiRegistry.addGuiMenuElement(guiPluginClassName, menuElement, method, classLoader);
           }
           GuiToolbarElement toolbarElement = method.getAnnotation(GuiToolbarElement.class);
-          if (toolbarElement != null) {
+          if (toolbarElement != null && !excludedGuiElements.contains(toolbarElement.id())) {
             guiRegistry.addGuiToolbarElement(
                 guiPluginClassName, toolbarElement, method, classLoader);
           }
@@ -135,7 +158,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
             guiRegistry.addKeyboardShortcut(guiPluginClassName, method, osxShortcut);
           }
           GuiContextAction contextAction = method.getAnnotation(GuiContextAction.class);
-          if (contextAction != null) {
+          if (contextAction != null && !excludedGuiElements.contains(contextAction.id())) {
             guiRegistry.addGuiContextAction(guiPluginClassName, method, contextAction, classLoader);
           }
 
@@ -150,7 +173,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           }
 
           GuiWidgetElement guiWidgetElement = method.getAnnotation(GuiWidgetElement.class);
-          if (guiWidgetElement != null) {
+          if (guiWidgetElement != null && !excludedGuiElements.contains(guiWidgetElement.id())) {
             if (guiWidgetElement.type() == GuiElementType.COMPOSITE) {
               guiRegistry.addCompositeGuiWidgetElement(guiWidgetElement, method, classLoader);
             } else {
@@ -160,7 +183,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           }
 
           GuiTab guiTab = method.getAnnotation(GuiTab.class);
-          if (guiTab != null) {
+          if (guiTab != null && !excludedGuiElements.contains(guiTab.id())) {
             guiRegistry.addGuiTab(guiPluginClassName, method, guiTab, classLoader);
           }
         }

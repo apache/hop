@@ -16,6 +16,7 @@ under the License.
 ////
 * xref:getting-started.adoc[Getting started]
 * xref:docker-container.adoc[Docker container]
+* xref:disable-ui-elements.adoc[Disable UI elements]
 * xref:hop-vs-kettle/index.adoc[Kettle/PDI and Hop]
 ** xref:hop-vs-kettle/hop-vs-kettle.adoc[Hop vs Kettle]
 ** xref:hop-vs-kettle/if-you-know-kettle.adoc[If you know Kettle]

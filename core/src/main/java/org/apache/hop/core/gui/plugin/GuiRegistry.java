@@ -97,7 +97,7 @@ public class GuiRegistry {
     guiTabsMap = new HashMap<>();
   }
 
-  public static final GuiRegistry getInstance() {
+  public static GuiRegistry getInstance() {
     if (guiRegistry == null) {
       guiRegistry = new GuiRegistry();
     }

@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui;
 
 import static org.apache.hop.core.Const.getDocUrl;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -41,6 +42,7 @@ import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.IUndo;
@@ -67,6 +69,7 @@ import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
@@ -141,6 +144,8 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 @GuiPlugin(description = "The main hop graphical user interface")
 @SuppressWarnings("java:S1104")
@@ -499,6 +504,23 @@ public class HopGui
   }
 
   private void loadPerspectives() {
+    List<String> excludedGuiElements = new ArrayList<>();
+
+    // Try loading code exclusions
+    try {
+      String path = Const.HOP_CONFIG_FOLDER + File.separator + "disabledGuiElements.xml";
+
+      Document document = XmlHandler.loadXmlFile(path);
+      Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
+      List<Node> exclusionNodes = XmlHandler.getNodes(exclusionsNode, "exclusion");
+
+      for (Node exclusionNode : exclusionNodes) {
+        excludedGuiElements.add(exclusionNode.getTextContent());
+      }
+    } catch (HopXmlException e) {
+      // ignore
+    }
+
     try {
       // Preload the perspectives and store them in the manager as well as the GuiRegistry
       //
@@ -512,6 +534,11 @@ public class HopGui
       Collections.sort(perspectivePlugins, Comparator.comparing(p -> p.getIds()[0]));
 
       for (Plugin perspectivePlugin : perspectivePlugins) {
+
+        if (excludedGuiElements.contains(perspectivePlugin.getIds()[0])) {
+          continue;
+        }
+
         Class<IHopPerspective> perspectiveClass =
             pluginRegistry.getClass(perspectivePlugin, IHopPerspective.class);
 
