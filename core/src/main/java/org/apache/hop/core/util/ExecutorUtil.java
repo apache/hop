@@ -17,8 +17,10 @@
 
 package org.apache.hop.core.util;
 
+import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExecutorUtil {
@@ -40,5 +42,33 @@ public class ExecutorUtil {
 
   public static ExecutorService getExecutor() {
     return executor;
+  }
+
+  public static void cleanup(Timer timer) {
+    cleanup(timer, 0);
+  }
+
+  public static void cleanup(Timer timer, long delayMs) {
+    Runnable runnable = () -> cleanTimer(timer);
+    if (delayMs <= 0) {
+      runnable.run();
+      return;
+    }
+    executor.submit(
+        () -> {
+          try {
+            TimeUnit.MILLISECONDS.sleep(delayMs);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+          runnable.run();
+        });
+  }
+
+  private static void cleanTimer(Timer timer) {
+    if (timer != null) {
+      timer.cancel();
+      timer.purge();
+    }
   }
 }
