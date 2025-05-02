@@ -228,8 +228,15 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
     // Take only the first from the list
     //
+    int iLimit;
+    if (limit > 0) {
+      iLimit = Math.min(limit, datedIds.size());
+    } else {
+      iLimit = datedIds.size();
+    }
+
     List<String> list = new ArrayList<>();
-    for (int i = 0; i < datedIds.size() && i < limit; i++) {
+    for (int i = 0; i < iLimit; i++) {
       list.add(datedIds.get(i).getId());
     }
     return list;

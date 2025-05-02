@@ -202,15 +202,13 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       String body =
           """
                     {
-                       "query": {
-                         "term": {
-                           "id.keyword": {
-                             "value": "executionId"
-                           }
-                         }
-                       }, "_source": false
-                     }
-                  """;
+                      "query": {
+                        "query_string": {
+                          "query": "executionId"
+                        }
+                      }, "_source": false
+                    }
+            """;
 
       body = body.replace("executionId", cacheEntry.getId());
 
@@ -242,26 +240,30 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         return;
       }
 
-      JSONObject jHit = (JSONObject) jHits.get(0);
-      String elasticId = (String) jHit.get("_id");
+      // Delete all the hits (in case some duplicates were introduced)
+      //
+      for (int i = 0; i < jHits.size(); i++) {
+        JSONObject jHit = (JSONObject) jHits.get(i);
+        String elasticId = (String) jHit.get("_id");
 
-      URI deleteUri = uri.resolve(actualIndexName + "/_doc/" + elasticId);
-      HttpRequest deleteRequest =
-          HttpRequest.newBuilder()
-              .uri(deleteUri)
-              .header("Content-Type", "application/json")
-              .header("Accept", "application/json")
-              .header("Authorization", "ApiKey " + actualApiKey)
-              .DELETE()
-              .build();
-      HttpResponse<String> deleteResponse =
-          client.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
-      if (deleteResponse.statusCode() != 200) {
-        throw new HopException(
-            "Unable to delete Elastic document with _id : '"
-                + elasticId
-                + "', status code : "
-                + deleteResponse.statusCode());
+        URI deleteUri = uri.resolve(actualIndexName + "/_doc/" + elasticId);
+        HttpRequest deleteRequest =
+            HttpRequest.newBuilder()
+                .uri(deleteUri)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", "ApiKey " + actualApiKey)
+                .DELETE()
+                .build();
+        HttpResponse<String> deleteResponse =
+            client.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
+        if (deleteResponse.statusCode() != 200) {
+          throw new HopException(
+              "Unable to delete Elastic document with _id : '"
+                  + elasticId
+                  + "', status code : "
+                  + deleteResponse.statusCode());
+        }
       }
     } catch (Exception e) {
       throw new HopException("Error deleting caching file entry from Elastic", e);
