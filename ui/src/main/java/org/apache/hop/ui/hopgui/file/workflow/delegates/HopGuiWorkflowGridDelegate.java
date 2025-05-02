@@ -166,7 +166,12 @@ public class HopGuiWorkflowGridDelegate {
         };
     timer.schedule(refreshTask, 10L, 2000L); // refresh every 2 seconds...
 
-    wTree.addListener(SWT.Dispose, event -> timer.cancel());
+    wTree.addListener(
+        SWT.Dispose,
+        event -> {
+          timer.cancel();
+          timer.purge();
+        });
   }
 
   /** Refresh the data in the tree-table... Use the data from the WorkflowTracker in the workflow */

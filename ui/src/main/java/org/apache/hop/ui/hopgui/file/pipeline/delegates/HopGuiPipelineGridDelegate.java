@@ -264,7 +264,11 @@ public class HopGuiPipelineGridDelegate {
 
     tim.schedule(timtask, 0L, UPDATE_TIME_VIEW);
 
-    pipelineGridTab.addDisposeListener(disposeEvent -> tim.cancel());
+    pipelineGridTab.addDisposeListener(
+        disposeEvent -> {
+          tim.cancel();
+          tim.purge();
+        });
 
     pipelineGridTab.setControl(pipelineGridComposite);
 
