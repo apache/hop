@@ -358,11 +358,11 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
               "_source": false
             }
           """;
-
+      String limitClause = "";
       if (limit > 0) {
-        String limitClause = "\"size\": " + limit + ",";
-        body = body.replace("__LIMIT_CLAUSE__", limitClause);
+        limitClause = "\"size\": " + limit + ",";
       }
+      body = body.replace("__LIMIT_CLAUSE__", limitClause);
 
       HttpRequest request =
           HttpRequest.newBuilder()
