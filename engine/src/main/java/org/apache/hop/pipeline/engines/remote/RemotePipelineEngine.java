@@ -515,19 +515,25 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         for (TransformStatus transformStatus : pipelineStatus.getTransformStatusList()) {
           EngineComponent component =
               new EngineComponent(transformStatus.getTransformName(), transformStatus.getCopy());
-          component.setErrors(transformStatus.getErrors());
           status =
               ComponentExecutionStatus.getStatusFromDescription(
                   transformStatus.getStatusDescription());
-          statusDescription = status.getDescription();
           boolean running = status == ComponentExecutionStatus.STATUS_RUNNING;
-          component.setRunning(running);
           boolean halted =
               status == ComponentExecutionStatus.STATUS_HALTED
                   || status == ComponentExecutionStatus.STATUS_HALTING;
           if (halted) {
             hasHaltedComponents = true;
           }
+
+          // Set the pipeline engine component state
+          component.setErrors(transformStatus.getErrors());
+          component.setStatus(status);
+          component.setRunning(running);
+          component.setStopped(status == ComponentExecutionStatus.STATUS_STOPPED);
+          component.setLogText(transformStatus.getLogText());
+
+          // Set the pipeline engine component metrics
           engineMetrics.setComponentStatus(component, transformStatus.getStatusDescription());
           engineMetrics.setComponentRunning(component, running);
           engineMetrics.setComponentMetric(
@@ -552,6 +558,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
           engineMetrics.getComponents().add(component);
         }
 
+        statusDescription = pipelineStatus.getStatusDescription();
         running = pipelineStatus.isRunning();
         finished = pipelineStatus.isFinished();
         stopped = pipelineStatus.isStopped();

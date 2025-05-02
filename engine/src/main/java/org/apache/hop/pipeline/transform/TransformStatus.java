@@ -25,10 +25,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.owasp.encoder.Encode;
@@ -40,27 +43,29 @@ public class TransformStatus {
   public static final String XML_TAG = "transform_status";
   private static final String CONST_SAMPLES = "samples";
 
-  private String transformName;
-  private int copy;
-  private long linesRead;
-  private long linesWritten;
-  private long linesInput;
-  private long linesOutput;
-  private long linesUpdated;
-  private long linesRejected;
-  private long inputBufferSize;
-  private long outputBufferSize;
-  private long errors;
-  private String statusDescription;
-  private double seconds;
-  private String speed;
-  private String priority;
-  private boolean stopped;
-  private boolean paused;
+  @Setter @Getter private String transformName;
+  @Getter @Setter private int copy;
+  @Setter @Getter private long linesRead;
+  @Setter @Getter private long linesWritten;
+  @Setter @Getter private long linesInput;
+  @Getter @Setter private long linesOutput;
+  @Setter @Getter private long linesUpdated;
+  @Setter @Getter private long linesRejected;
+  @Setter @Getter private long inputBufferSize;
+  @Setter @Getter private long outputBufferSize;
+  @Setter @Getter private long errors;
+  @Setter @Getter private String statusDescription;
+  @Setter @Getter private double seconds;
+  @Setter @Getter private String speed;
+  @Setter @Getter private String priority;
+  @Setter @Getter private boolean stopped;
+  @Setter @Getter private boolean paused;
+  @Setter @Getter private String logText;
+  @Setter @Getter private IRowMeta sampleRowMeta;
+  @Setter @Getter private List<Object[]> sampleRows;
+
   private long accumulatedRuntime;
 
-  private IRowMeta sampleRowMeta;
-  private List<Object[]> sampleRows;
   private final DecimalFormat speedDf = new DecimalFormat("#,###,###,###,##0");
 
   public TransformStatus() {
@@ -85,6 +90,7 @@ public class TransformStatus {
     this.errors = errors + component.getErrors();
     this.accumulatedRuntime = accumulatedRuntime + component.getExecutionDuration();
     this.statusDescription = component.getStatusDescription();
+    this.logText = component.getLogText();
 
     long inProc = Math.max(linesInput, linesRead);
     long outProc = Math.max(linesOutput + linesUpdated, linesWritten + linesRejected);
@@ -98,7 +104,7 @@ public class TransformStatus {
       outSpeed = Math.floor(10 * (outProc / lapsed)) / 10;
     }
 
-    double speedNumber = (inSpeed > outSpeed ? inSpeed : outSpeed);
+    double speedNumber = Math.max(inSpeed, outSpeed);
 
     this.seconds = Math.floor((lapsed * 10) + 0.5) / 10;
     this.speed = lapsed == 0 ? "-" : " " + speedDf.format(speedNumber);
@@ -182,6 +188,7 @@ public class TransformStatus {
       xml.append(XmlHandler.addTagValue("priority", priority, false));
       xml.append(XmlHandler.addTagValue("stopped", stopped, false));
       xml.append(XmlHandler.addTagValue("paused", paused, false));
+      xml.append(XmlHandler.addTagValue("log_text", XmlHandler.buildCDATA(logText)));
 
       if (sampleRowMeta != null) {
         xml.append(XmlHandler.openTag(CONST_SAMPLES));
@@ -226,6 +233,11 @@ public class TransformStatus {
     priority = XmlHandler.getTagValue(node, "priority");
     stopped = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "stopped"));
     paused = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "paused"));
+
+    String logTextData = XmlHandler.getTagValue(node, "log_text");
+    if (!Utils.isEmpty(logTextData)) {
+      logText = logTextData.substring("<![CDATA[".length(), logTextData.length() - "]]>".length());
+    }
 
     Node samplesNode = XmlHandler.getSubNode(node, CONST_SAMPLES);
     if (samplesNode != null) {
@@ -278,11 +290,10 @@ public class TransformStatus {
       return retval;
     }
 
-    double donnee = seconds;
-    int mn = (int) donnee / 60;
+    int mn = (int) seconds / 60;
     int h = mn / 60;
     mn = mn % 60;
-    int s = (int) donnee % 60;
+    int s = (int) seconds % 60;
 
     if (h > 0) {
       retval = h + "h " + mn + "mn " + s + "s";
@@ -313,263 +324,5 @@ public class TransformStatus {
       speed,
       priority,
     };
-  }
-
-  /**
-   * @return the copy
-   */
-  public int getCopy() {
-    return copy;
-  }
-
-  /**
-   * @param copy the copy to set
-   */
-  public void setCopy(int copy) {
-    this.copy = copy;
-  }
-
-  /**
-   * @return the errors
-   */
-  public long getErrors() {
-    return errors;
-  }
-
-  /**
-   * @param errors the errors to set
-   */
-  public void setErrors(long errors) {
-    this.errors = errors;
-  }
-
-  /**
-   * @return the linesInput
-   */
-  public long getLinesInput() {
-    return linesInput;
-  }
-
-  /**
-   * @param linesInput the linesInput to set
-   */
-  public void setLinesInput(long linesInput) {
-    this.linesInput = linesInput;
-  }
-
-  /**
-   * @return the linesOutput
-   */
-  public long getLinesOutput() {
-    return linesOutput;
-  }
-
-  /**
-   * @param linesOutput the linesOutput to set
-   */
-  public void setLinesOutput(long linesOutput) {
-    this.linesOutput = linesOutput;
-  }
-
-  /**
-   * @return the linesRead
-   */
-  public long getLinesRead() {
-    return linesRead;
-  }
-
-  /**
-   * @param linesRead the linesRead to set
-   */
-  public void setLinesRead(long linesRead) {
-    this.linesRead = linesRead;
-  }
-
-  /**
-   * @return the linesUpdated
-   */
-  public long getLinesUpdated() {
-    return linesUpdated;
-  }
-
-  /**
-   * @param linesUpdated the linesUpdated to set
-   */
-  public void setLinesUpdated(long linesUpdated) {
-    this.linesUpdated = linesUpdated;
-  }
-
-  /**
-   * @return the linesWritten
-   */
-  public long getLinesWritten() {
-    return linesWritten;
-  }
-
-  /**
-   * @param linesWritten the linesWritten to set
-   */
-  public void setLinesWritten(long linesWritten) {
-    this.linesWritten = linesWritten;
-  }
-
-  /**
-   * @return the priority
-   */
-  public String getPriority() {
-    return priority;
-  }
-
-  /**
-   * @param priority the priority to set
-   */
-  public void setPriority(String priority) {
-    this.priority = priority;
-  }
-
-  /**
-   * @return the seconds
-   */
-  public double getSeconds() {
-    return seconds;
-  }
-
-  /**
-   * @param seconds the seconds to set
-   */
-  public void setSeconds(double seconds) {
-    this.seconds = seconds;
-  }
-
-  /**
-   * @return the speed
-   */
-  public String getSpeed() {
-    return speed;
-  }
-
-  /**
-   * @param speed the speed to set
-   */
-  public void setSpeed(String speed) {
-    this.speed = speed;
-  }
-
-  /**
-   * @return the statusDescription
-   */
-  public String getStatusDescription() {
-    return statusDescription;
-  }
-
-  /**
-   * @param statusDescription the statusDescription to set
-   */
-  public void setStatusDescription(String statusDescription) {
-    this.statusDescription = statusDescription;
-  }
-
-  /**
-   * @return the transformName
-   */
-  public String getTransformName() {
-    return transformName;
-  }
-
-  /**
-   * @param transformName the transformName to set
-   */
-  public void setTransformName(String transformName) {
-    this.transformName = transformName;
-  }
-
-  /**
-   * @return the linesRejected
-   */
-  public long getLinesRejected() {
-    return linesRejected;
-  }
-
-  /**
-   * @param linesRejected the linesRejected to set
-   */
-  public void setLinesRejected(long linesRejected) {
-    this.linesRejected = linesRejected;
-  }
-
-  /**
-   * @return the stopped
-   */
-  public boolean isStopped() {
-    return stopped;
-  }
-
-  /**
-   * @param stopped the stopped to set
-   */
-  public void setStopped(boolean stopped) {
-    this.stopped = stopped;
-  }
-
-  /**
-   * @return the paused
-   */
-  public boolean isPaused() {
-    return paused;
-  }
-
-  /**
-   * @param paused the paused to set
-   */
-  public void setPaused(boolean paused) {
-    this.paused = paused;
-  }
-
-  public IRowMeta getSampleRowMeta() {
-    return sampleRowMeta;
-  }
-
-  public void setSampleRowMeta(IRowMeta sampleRowMeta) {
-    this.sampleRowMeta = sampleRowMeta;
-  }
-
-  public List<Object[]> getSampleRows() {
-    return sampleRows;
-  }
-
-  public void setSampleRows(List<Object[]> sampleRows) {
-    this.sampleRows = sampleRows;
-  }
-
-  /**
-   * Gets inputBufferSize
-   *
-   * @return value of inputBufferSize
-   */
-  public long getInputBufferSize() {
-    return inputBufferSize;
-  }
-
-  /**
-   * @param inputBufferSize The inputBufferSize to set
-   */
-  public void setInputBufferSize(long inputBufferSize) {
-    this.inputBufferSize = inputBufferSize;
-  }
-
-  /**
-   * Gets outputBufferSize
-   *
-   * @return value of outputBufferSize
-   */
-  public long getOutputBufferSize() {
-    return outputBufferSize;
-  }
-
-  /**
-   * @param outputBufferSize The outputBufferSize to set
-   */
-  public void setOutputBufferSize(long outputBufferSize) {
-    this.outputBufferSize = outputBufferSize;
   }
 }
