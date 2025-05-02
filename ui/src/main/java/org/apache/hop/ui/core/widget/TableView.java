@@ -47,6 +47,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -1579,6 +1580,7 @@ public class TableView extends Composite {
     } else {
       sortField = colNr;
       sortingDescending = false;
+      optWidth(true);
     }
 
     sortTable(sortField, sortingDescending);
@@ -2945,13 +2947,16 @@ public class TableView extends Composite {
       TableColumn tc = table.getColumn(c);
       int max = 0;
       if (header) {
-        max = TextSizeUtilFacade.textExtent(tc.getText()).x;
+        max = TextSizeUtilFacade.textExtent(tc.getText()).x + extraForMargin;
+        if (tc.getImage() != null) {
+          max += tc.getImage().getBounds().width;
+        }
 
         // Check if the column has a sorted mark set. In that case, we need the
         // header to be a bit wider...
         //
         if (c == sortField && sortable) {
-          max += extraForMargin;
+          max += ConstUi.SMALL_ICON_SIZE + extraForMargin;
         }
       }
       Set<String> columnStrings = new HashSet<>();
