@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.Getter;
 import org.apache.hop.core.Const;
@@ -258,13 +259,31 @@ public class HopGuiPipelineGridDelegate {
           public void run() {
             if (!hopGui.getDisplay().isDisposed()) {
               hopGui.getDisplay().asyncExec(HopGuiPipelineGridDelegate.this::refreshView);
+              if (pipelineGraph.getPipeline() != null
+                  && (pipelineGraph.getPipeline().isFinished()
+                      || pipelineGraph.getPipeline().isStopped())) {
+                new Thread(
+                        () -> {
+                          try {
+                            TimeUnit.MILLISECONDS.sleep(UPDATE_TIME_VIEW + 10);
+                          } catch (InterruptedException ignore) {
+                          }
+                          tim.cancel();
+                          tim.purge();
+                        })
+                    .start();
+              }
             }
           }
         };
 
     tim.schedule(timtask, 0L, UPDATE_TIME_VIEW);
 
-    pipelineGridTab.addDisposeListener(disposeEvent -> tim.cancel());
+    pipelineGridTab.addDisposeListener(
+        disposeEvent -> {
+          tim.cancel();
+          tim.purge();
+        });
 
     pipelineGridTab.setControl(pipelineGridComposite);
 

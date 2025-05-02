@@ -565,6 +565,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @Override
+  public void dispose() {
+    disposeExtraView();
+    super.dispose();
+  }
+
+  @Override
   public void mouseDoubleClick(MouseEvent e) {
 
     if (!PropsUi.getInstance().useDoubleClick()) {

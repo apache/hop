@@ -180,7 +180,11 @@ public class HopGuiLogBrowser {
 
     // Make sure the timer goes down when the widget is disposed
     //
-    text.addDisposeListener(event -> logRefreshTimer.cancel());
+    text.addDisposeListener(
+        event -> {
+          logRefreshTimer.cancel();
+          logRefreshTimer.purge();
+        });
 
     // Make sure the timer goes down when the Display is disposed
     // Lambda expression cannot be used here as it causes SecurityException in RAP.
