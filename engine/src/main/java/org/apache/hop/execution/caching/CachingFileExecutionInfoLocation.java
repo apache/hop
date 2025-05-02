@@ -45,6 +45,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.Execution;
@@ -204,7 +205,7 @@ public class CachingFileExecutionInfoLocation implements IExecutionInfoLocation 
   @Override
   public synchronized void close() throws HopException {
     try {
-      cacheTimer.cancel();
+      ExecutorUtil.cleanup(cacheTimer);
       for (CacheEntry cacheEntry : cache.values()) {
         if (cacheEntry.isDirty()) {
           cacheEntry.writeToDisk(actualRootFolder);

@@ -32,6 +32,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
@@ -260,6 +261,7 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
                         eventProcessor.endWait();
                       }
                       logDetailed("Done processing after max wait time.");
+                      ExecutorUtil.cleanup(timer, 1);
                     }
                   }
                 }

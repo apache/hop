@@ -33,6 +33,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.ExecutionBuilder;
@@ -428,9 +429,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
   }
 
   public void stopExecutionInfoTimer() throws HopException {
-    if (executionInfoTimer != null) {
-      executionInfoTimer.cancel();
-    }
+    ExecutorUtil.cleanup(executionInfoTimer);
 
     if (executionInfoLocation == null) {
       return;

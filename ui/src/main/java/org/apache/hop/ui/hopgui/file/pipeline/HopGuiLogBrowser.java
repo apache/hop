@@ -36,6 +36,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILogParentProvided;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.i18n.BaseMessages;
@@ -180,11 +181,7 @@ public class HopGuiLogBrowser {
 
     // Make sure the timer goes down when the widget is disposed
     //
-    text.addDisposeListener(
-        event -> {
-          logRefreshTimer.cancel();
-          logRefreshTimer.purge();
-        });
+    text.addDisposeListener(event -> ExecutorUtil.cleanup(logRefreshTimer));
 
     // Make sure the timer goes down when the Display is disposed
     // Lambda expression cannot be used here as it causes SecurityException in RAP.

@@ -50,6 +50,7 @@ import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableRegistry;
@@ -573,7 +574,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         //
         if (finished) {
           firePipelineExecutionFinishedListeners();
-          refreshTimer.cancel();
+          ExecutorUtil.cleanup(refreshTimer);
           logChannel.logBasic(
               "Execution finished on a remote pipeline engine with run configuration '"
                   + pipelineRunConfiguration.getName()

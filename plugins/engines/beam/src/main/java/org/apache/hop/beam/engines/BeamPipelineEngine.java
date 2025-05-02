@@ -399,7 +399,7 @@ public abstract class BeamPipelineEngine extends Variables
                     fireExecutionFinishedListeners();
                     populateEngineMetrics(); // get the final state
                     if (refreshTimer != null) {
-                      refreshTimer.cancel(); // no more needed
+                      ExecutorUtil.cleanup(refreshTimer);
                     }
                   } catch (Exception e) {
                     throw new RuntimeException("Error post-processing a beam pipeline", e);
@@ -421,7 +421,7 @@ public abstract class BeamPipelineEngine extends Variables
                 // Stop this timer in case of error (hardening in case of race condition)
                 //
                 if (hasStartupErrors.get()) {
-                  refreshTimer.cancel(); // no more needed
+                  ExecutorUtil.cleanup(refreshTimer);
                 }
               } catch (Throwable e) {
                 logChannel.logError(
@@ -616,9 +616,7 @@ public abstract class BeamPipelineEngine extends Variables
         }
       }
       if (cancelRefreshTimer) {
-        if (refreshTimer != null) {
-          refreshTimer.cancel();
-        }
+        ExecutorUtil.cleanup(refreshTimer);
       }
     }
   }
@@ -1193,7 +1191,7 @@ public abstract class BeamPipelineEngine extends Variables
       return;
     }
 
-    executionInfoTimer.cancel();
+    ExecutorUtil.cleanup(executionInfoTimer);
 
     // Register one final last state of the pipeline
     //

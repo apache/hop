@@ -82,6 +82,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -1231,7 +1232,7 @@ public abstract class Pipeline
           //
           if (pipelineMeta.isCapturingTransformPerformanceSnapShots()
               && transformPerformanceSnapShotTimer != null) {
-            transformPerformanceSnapShotTimer.cancel();
+            ExecutorUtil.cleanup(transformPerformanceSnapShotTimer);
           }
 
           setFinished(true);
