@@ -25,6 +25,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.ExecutorUtil;
 
 public class HopLogStore {
 
@@ -70,9 +71,7 @@ public class HopLogStore {
   }
 
   public void replaceLogCleaner(final int maxLogTimeoutMinutes) {
-    if (logCleanerTimer != null) {
-      logCleanerTimer.cancel();
-    }
+    ExecutorUtil.cleanup(logCleanerTimer);
     logCleanerTimer = new Timer(true);
 
     TimerTask timerTask =

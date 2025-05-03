@@ -25,6 +25,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -166,12 +167,7 @@ public class HopGuiWorkflowGridDelegate {
         };
     timer.schedule(refreshTask, 10L, 2000L); // refresh every 2 seconds...
 
-    wTree.addListener(
-        SWT.Dispose,
-        event -> {
-          timer.cancel();
-          timer.purge();
-        });
+    wTree.addListener(SWT.Dispose, event -> ExecutorUtil.cleanup(timer));
   }
 
   /** Refresh the data in the tree-table... Use the data from the WorkflowTracker in the workflow */

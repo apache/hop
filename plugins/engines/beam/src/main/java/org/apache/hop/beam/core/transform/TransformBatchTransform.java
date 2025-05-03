@@ -50,6 +50,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.ExecutionDataBuilder;
@@ -307,9 +308,7 @@ public class TransformBatchTransform extends TransformTransform {
 
     @Teardown
     public void tearDown() {
-      if (timer != null) {
-        timer.cancel();
-      }
+      ExecutorUtil.cleanup(timer);
       try {
         if (executor != null) {
           executor.dispose();
@@ -317,9 +316,7 @@ public class TransformBatchTransform extends TransformTransform {
           // Send last data from the data samplers over to the location (if any)
           //
           if (executionInfoLocation != null) {
-            if (executionInfoTimer != null) {
-              executionInfoTimer.cancel();
-            }
+            ExecutorUtil.cleanup(executionInfoTimer);
             sendSamplesToLocation(true);
 
             // Close the location

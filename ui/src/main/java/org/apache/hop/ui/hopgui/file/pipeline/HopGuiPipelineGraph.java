@@ -89,6 +89,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
@@ -4591,11 +4592,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   protected void stopRedrawTimer() {
-    if (redrawTimer != null) {
-      redrawTimer.cancel();
-      redrawTimer.purge();
-      redrawTimer = null;
-    }
+    ExecutorUtil.cleanup(redrawTimer);
+    redrawTimer = null;
   }
 
   private void checkPipelineEnded() {

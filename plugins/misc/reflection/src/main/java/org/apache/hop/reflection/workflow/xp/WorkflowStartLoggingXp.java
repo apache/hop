@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -137,7 +138,7 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
             engine -> {
               executeLoggingPipeline(
                   workflowLog, "end", loggingPipelineFilename, workflow, variables);
-              timer.cancel();
+              ExecutorUtil.cleanup(timer);
             });
       }
 

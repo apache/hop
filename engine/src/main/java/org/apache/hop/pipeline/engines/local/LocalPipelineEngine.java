@@ -35,6 +35,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionBuilder;
 import org.apache.hop.execution.ExecutionDataBuilder;
@@ -466,8 +467,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
         if (transformExecutionInfoTimerTask != null) {
           transformExecutionInfoTimerTask.cancel();
         }
-        transformExecutionInfoTimer.cancel();
-        transformExecutionInfoTimer.purge();
+        ExecutorUtil.cleanup(transformExecutionInfoTimer);
         transformExecutionInfoTimer = null;
       }
 

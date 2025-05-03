@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.Getter;
 import org.apache.hop.core.Const;
@@ -35,6 +34,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.engine.EngineMetrics;
@@ -262,16 +262,7 @@ public class HopGuiPipelineGridDelegate {
               if (pipelineGraph.getPipeline() != null
                   && (pipelineGraph.getPipeline().isFinished()
                       || pipelineGraph.getPipeline().isStopped())) {
-                new Thread(
-                        () -> {
-                          try {
-                            TimeUnit.MILLISECONDS.sleep(UPDATE_TIME_VIEW + 10);
-                          } catch (InterruptedException ignore) {
-                          }
-                          tim.cancel();
-                          tim.purge();
-                        })
-                    .start();
+                ExecutorUtil.cleanup(tim, UPDATE_TIME_VIEW + 10);
               }
             }
           }
@@ -279,11 +270,7 @@ public class HopGuiPipelineGridDelegate {
 
     tim.schedule(timtask, 0L, UPDATE_TIME_VIEW);
 
-    pipelineGridTab.addDisposeListener(
-        disposeEvent -> {
-          tim.cancel();
-          tim.purge();
-        });
+    pipelineGridTab.addDisposeListener(disposeEvent -> ExecutorUtil.cleanup(tim));
 
     pipelineGridTab.setControl(pipelineGridComposite);
 

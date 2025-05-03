@@ -28,6 +28,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -159,7 +160,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
             engine -> {
               executeLoggingPipeline(
                   pipelineLog, "end", loggingPipelineFilename, pipeline, variables);
-              timer.cancel();
+              ExecutorUtil.cleanup(timer);
             });
         pipeline.addExecutionStoppedListener(
             engine -> {
@@ -173,7 +174,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
                         + "'",
                     e);
               }
-              timer.cancel();
+              ExecutorUtil.cleanup(timer);
             });
       }
 

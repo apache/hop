@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineComponent;
@@ -114,7 +115,7 @@ public class PeriodicPipelineStatusUpdateExtensionPoint
     pipeline.addExecutionFinishedListener(
         engine -> {
           timerTask.cancel();
-          timer.cancel();
+          ExecutorUtil.cleanup(timer);
           try {
             updatePipelineStatus(engine, service, grandParentWorkflow);
           } catch (IOException e) {

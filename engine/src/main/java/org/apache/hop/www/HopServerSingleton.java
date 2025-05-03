@@ -32,6 +32,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -194,6 +195,7 @@ public class HopServerSingleton {
                                 + " from "
                                 + workflow.getExecutionStartDate());
                       }
+                      ExecutorUtil.cleanup(timer, 1);
                     }
                   }
 
