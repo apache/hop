@@ -38,6 +38,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
@@ -182,7 +183,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   @Override
   public synchronized void close() throws HopException {
     try {
-      cacheTimer.cancel();
+      ExecutorUtil.cleanup(cacheTimer);
       for (CacheEntry cacheEntry : cache.values()) {
         if (cacheEntry.isDirty()) {
           persistCacheEntry(cacheEntry);
