@@ -698,8 +698,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         case HOP_ERROR_ICON:
           // Click on the error icon means: Edit error handling
           //
-          TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
-          pipelineTransformDelegate.editTransformErrorHandling(pipelineMeta, transformMeta);
+          pipelineTransformDelegate.editTransformErrorHandling(
+              pipelineMeta, (TransformMeta) areaOwner.getParent());
           break;
 
         case TRANSFORM_ICON:
@@ -715,7 +715,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             }
           }
 
-          transformMeta = (TransformMeta) areaOwner.getOwner();
+          TransformMeta transformMeta = (TransformMeta) areaOwner.getOwner();
           currentTransform = transformMeta;
 
           for (ITransformSelectionListener listener : currentTransformListeners) {

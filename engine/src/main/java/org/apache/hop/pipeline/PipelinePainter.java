@@ -45,7 +45,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.pipeline.engine.EngineComponent;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
@@ -623,10 +623,13 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         List<IEngineComponent> transforms = pipeline.getComponentCopies(transformMeta.getName());
 
         for (IEngineComponent transform : transforms) {
-          String transformStatus = transform.getStatusDescription();
-          if (transformStatus != null
-              && transformStatus.equalsIgnoreCase(
-                  EngineComponent.ComponentExecutionStatus.STATUS_FINISHED.getDescription())) {
+          if (transform.getStatus() == ComponentExecutionStatus.STATUS_PAUSED) {
+            gc.drawImage(
+                EImage.WAITING,
+                (x + iconSize) - (miniIconSize / 2) + 1,
+                y - (miniIconSize / 2) - 1,
+                magnification);
+          } else if (transform.getStatus() == ComponentExecutionStatus.STATUS_FINISHED) {
             gc.drawImage(
                 EImage.SUCCESS,
                 (x + iconSize) - (miniIconSize / 2) + 1,
@@ -658,7 +661,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       RowBuffer rowBuffer = outputRowsMap.get(transformMeta.getName());
       if (rowBuffer != null && !rowBuffer.isEmpty()) {
-        int iconWidth = miniIconSize;
         int iconX = x + iconSize - (miniIconSize / 2) + 1;
         int iconY = y + iconSize - (miniIconSize / 2) + 1;
         gc.drawImage(EImage.DATA, iconX, iconY, magnification);
@@ -667,8 +669,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
                 AreaType.TRANSFORM_OUTPUT_DATA,
                 iconX,
                 iconY,
-                iconWidth,
-                iconWidth,
+                miniIconSize,
+                miniIconSize,
                 offset,
                 transformMeta,
                 rowBuffer));
