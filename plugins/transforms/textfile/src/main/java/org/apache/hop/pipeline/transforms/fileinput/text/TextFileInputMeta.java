@@ -309,6 +309,8 @@ public class TextFileInputMeta
           YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "enclosure_breaks"));
       content.escapeCharacter = XmlHandler.getTagValue(transformNode, "escapechar");
       content.header = YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "header"));
+      content.prependFileName =
+          YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "prependFileName"));
       content.nrHeaderLines =
           Const.toInt(XmlHandler.getTagValue(transformNode, "nr_headerlines"), 1);
       content.footer = YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "footer"));
