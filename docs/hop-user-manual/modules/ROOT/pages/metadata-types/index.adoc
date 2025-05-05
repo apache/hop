@@ -16,7 +16,7 @@ under the License.
 ////
 :page-pagination:
 :page-pagination-no-back:
-:description: Metadata is one of the cornerstones in Hop and can be defined as workflows, pipelines and any other type of metadata objects. Hop Gui has a Metadata Perspective to manage all types of metadata: run configurations, database (relational and NoSQL) connections, logging, and pipeline probes just to name a few.
+:description: An overview of the different metadata types that are available in Hop.
 
 = Metadata Types
 

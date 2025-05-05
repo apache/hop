@@ -277,6 +277,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
+      // Force re-load of the execution information
+      //
+      iLocation.unBuffer(execution.getId());
+
       // Don't load execution logging since that can be a lot of data at times.
       //
       executionState = iLocation.getExecutionState(execution.getId(), false);
