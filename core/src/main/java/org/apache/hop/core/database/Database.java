@@ -2052,7 +2052,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   public IRowMeta getQueryFields(String sql, boolean param, IRowMeta inform, Object[] data)
       throws HopDatabaseException {
-    IRowMeta fields;
+    IRowMeta fields = null;
     DbCache dbcache = DbCache.getInstance();
 
     DbCacheEntry entry = null;
@@ -2083,6 +2083,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     // For now, we just try to get the field layout on the re-bound in the
     // exception block below.
     //
+    boolean maybeScanTable = false;
     try {
       if (databaseMeta.supportsPreparedStatementMetadataRetrieval()) {
         // On with the regular program.
@@ -2092,11 +2093,23 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         if (isDataServiceConnection()) {
           fields = getQueryFieldsFromDatabaseMetaData(sql);
         } else {
+          maybeScanTable = true;
           fields = getQueryFieldsFromDatabaseMetaData();
         }
       }
     } catch (Exception e) {
-      fields = getQueryFieldsFallback(sql, param, inform, data);
+      if (maybeScanTable) {
+        String fastFetchSql = sql.replaceAll("\\b((?i)WHERE)\\b(\\s)", "$1 1=2 AND$2");
+        if (fastFetchSql.length() > sql.length()) {
+          try {
+            fields = getQueryFieldsFallback(sql, param, inform, data);
+          } catch (HopDatabaseException ignore) {
+          }
+        }
+      }
+      if (fields == null) {
+        fields = getQueryFieldsFallback(sql, param, inform, data);
+      }
     }
 
     // Store in cache!!
