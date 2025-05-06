@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -75,6 +77,7 @@ import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -345,6 +348,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private boolean ignoreNextClick;
   private boolean doubleClick;
   private WorkflowHopMeta clickedWorkflowHop;
+
+  private Timer redrawTimer;
 
   public HopGuiWorkflowGraph(
       Composite parent,
@@ -1523,6 +1528,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void start() {
     workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
     ServerPushSessionFacade.start();
+
     Thread thread =
         new Thread(
             () ->
@@ -1534,6 +1540,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                                 hopGui.getVariables(), workflowMeta, null);
                             ServerPushSessionFacade.stop();
                           } catch (Exception e) {
+                            stopRedrawTimer();
                             new ErrorDialog(
                                 getShell(),
                                 "Execute workflow",
@@ -3748,6 +3755,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // Link to the new workflow tracker
           workflowGridDelegate.setWorkflowTracker(workflow.getWorkflowTracker());
 
+          startRedrawTimer();
+
           updateGui();
 
           // Attach a listener to notify us that the workflow has finished.
@@ -3812,6 +3821,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (workflow != null && workflow.isInitialized() && workflow.isFinished()) {
       log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.WorkflowHasEnded"));
     }
+
+    stopRedrawTimer();
+
     updateGui();
   }
 
@@ -4248,5 +4260,33 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
     return true;
+  }
+
+  private void startRedrawTimer() {
+    redrawTimer = new Timer("WorkflowGraph auto refresh: " + workflow.getWorkflowName());
+    TimerTask timerTask =
+        new TimerTask() {
+          @Override
+          public void run() {
+            if (!hopDisplay().isDisposed()) {
+              hopDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (!HopGuiWorkflowGraph.this.canvas.isDisposed()) {
+                          if (perspective.isActive() && HopGuiWorkflowGraph.this.isVisible()) {
+                            updateGui();
+                          }
+                        }
+                      });
+            }
+          }
+        };
+
+    redrawTimer.schedule(timerTask, 0L, ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH);
+  }
+
+  protected void stopRedrawTimer() {
+    ExecutorUtil.cleanup(redrawTimer);
+    redrawTimer = null;
   }
 }

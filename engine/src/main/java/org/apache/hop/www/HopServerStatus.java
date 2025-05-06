@@ -20,6 +20,8 @@ package org.apache.hop.www;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
@@ -30,29 +32,20 @@ import org.w3c.dom.Node;
 public class HopServerStatus {
   public static final String XML_TAG = "serverstatus";
 
-  private String statusDescription;
-  private String errorDescription;
-
-  private List<HopServerPipelineStatus> pipelineStatusList;
-  private List<HopServerWorkflowStatus> workflowStatusList;
-
-  private long memoryFree;
-  private long memoryTotal;
-
-  private int cpuCores;
-  private long cpuProcessTime;
-
-  private long uptime;
-
-  private int threadCount;
-
-  private double loadAvg;
-
-  private String osName;
-
-  private String osVersion;
-
-  private String osArchitecture;
+  @Getter @Setter private String statusDescription;
+  @Getter @Setter private String errorDescription;
+  @Getter @Setter private List<HopServerPipelineStatus> pipelineStatusList;
+  @Getter @Setter private List<HopServerWorkflowStatus> workflowStatusList;
+  @Getter @Setter private long memoryFree;
+  @Getter @Setter private long memoryTotal;
+  @Getter @Setter private int cpuCores;
+  @Getter @Setter private long cpuProcessTime;
+  @Getter @Setter private long uptime;
+  @Getter @Setter private int threadCount;
+  @Getter @Setter private double loadAvg;
+  @Getter @Setter private String osName;
+  @Getter @Setter private String osVersion;
+  @Getter @Setter private String osArchitecture;
 
   public HopServerStatus() {
     pipelineStatusList = new ArrayList<>();
@@ -67,15 +60,15 @@ public class HopServerStatus {
   /**
    * @param statusDescription
    * @param pipelineStatusList
-   * @param jobStatusList
+   * @param workflowStatusList
    */
   public HopServerStatus(
       String statusDescription,
       List<HopServerPipelineStatus> pipelineStatusList,
-      List<HopServerWorkflowStatus> jobStatusList) {
+      List<HopServerWorkflowStatus> workflowStatusList) {
     this.statusDescription = statusDescription;
     this.pipelineStatusList = pipelineStatusList;
-    this.workflowStatusList = jobStatusList;
+    this.workflowStatusList = workflowStatusList;
   }
 
   @JsonIgnore
@@ -101,18 +94,16 @@ public class HopServerStatus {
     xml.append(XmlHandler.addTagValue("os_arch", osArchitecture));
 
     xml.append("  <pipeline_status_list>").append(Const.CR);
-    for (int i = 0; i < pipelineStatusList.size(); i++) {
-      HopServerPipelineStatus pipelineStatus = pipelineStatusList.get(i);
+    for (HopServerPipelineStatus pipelineStatus : pipelineStatusList) {
       xml.append("    ").append(pipelineStatus.getXml()).append(Const.CR);
     }
     xml.append("  </pipeline_status_list>").append(Const.CR);
 
-    xml.append("  <job_status_list>").append(Const.CR);
-    for (int i = 0; i < workflowStatusList.size(); i++) {
-      HopServerWorkflowStatus jobStatus = workflowStatusList.get(i);
-      xml.append("    ").append(jobStatus.getXml()).append(Const.CR);
+    xml.append("  <workflow_status_list>").append(Const.CR);
+    for (HopServerWorkflowStatus workflowStatus : workflowStatusList) {
+      xml.append("    ").append(workflowStatus.getXml()).append(Const.CR);
     }
-    xml.append("  </job_status_list>").append(Const.CR);
+    xml.append("  </workflow_status_list>").append(Const.CR);
 
     xml.append("</" + XML_TAG + ">").append(Const.CR);
 
@@ -140,7 +131,7 @@ public class HopServerStatus {
     osArchitecture = XmlHandler.getTagValue(statusNode, "os_arch");
 
     Node listPipelineNode = XmlHandler.getSubNode(statusNode, "pipeline_status_list");
-    Node listWorkflowsNode = XmlHandler.getSubNode(statusNode, "job_status_list");
+    Node listWorkflowsNode = XmlHandler.getSubNode(statusNode, "workflow_status_list");
 
     int nrPipelines = XmlHandler.countNodes(listPipelineNode, HopServerPipelineStatus.XML_TAG);
     int nrWorkflows = XmlHandler.countNodes(listWorkflowsNode, HopServerWorkflowStatus.XML_TAG);
@@ -163,51 +154,8 @@ public class HopServerStatus {
     return new HopServerStatus(XmlHandler.getSubNode(document, XML_TAG));
   }
 
-  /**
-   * @return the statusDescription
-   */
-  public String getStatusDescription() {
-    return statusDescription;
-  }
-
-  /**
-   * @param statusDescription the statusDescription to set
-   */
-  public void setStatusDescription(String statusDescription) {
-    this.statusDescription = statusDescription;
-  }
-
-  /**
-   * @return the pipelineStatusList
-   */
-  public List<HopServerPipelineStatus> getPipelineStatusList() {
-    return pipelineStatusList;
-  }
-
-  /**
-   * @param pipelineStatusList the pipelineStatusList to set
-   */
-  public void setPipelineStatusList(List<HopServerPipelineStatus> pipelineStatusList) {
-    this.pipelineStatusList = pipelineStatusList;
-  }
-
-  /**
-   * @return the errorDescription
-   */
-  public String getErrorDescription() {
-    return errorDescription;
-  }
-
-  /**
-   * @param errorDescription the errorDescription to set
-   */
-  public void setErrorDescription(String errorDescription) {
-    this.errorDescription = errorDescription;
-  }
-
   public HopServerPipelineStatus findPipelineStatus(String pipelineName, String id) {
-    for (int i = 0; i < pipelineStatusList.size(); i++) {
-      HopServerPipelineStatus pipelineStatus = pipelineStatusList.get(i);
+    for (HopServerPipelineStatus pipelineStatus : pipelineStatusList) {
       if (pipelineStatus.getPipelineName().equalsIgnoreCase(pipelineName)
           && (Utils.isEmpty(id) || pipelineStatus.getId().equals(id))) {
         return pipelineStatus;
@@ -216,132 +164,13 @@ public class HopServerStatus {
     return null;
   }
 
-  public HopServerWorkflowStatus findJobStatus(String workflowName, String id) {
-    for (int i = 0; i < workflowStatusList.size(); i++) {
-      HopServerWorkflowStatus jobStatus = workflowStatusList.get(i);
-      if (jobStatus.getWorkflowName().equalsIgnoreCase(workflowName)
-          && (Utils.isEmpty(id) || jobStatus.getId().equals(id))) {
-        return jobStatus;
+  public HopServerWorkflowStatus findWorkflowStatus(String workflowName, String id) {
+    for (HopServerWorkflowStatus workflowStatus : workflowStatusList) {
+      if (workflowStatus.getWorkflowName().equalsIgnoreCase(workflowName)
+          && (Utils.isEmpty(id) || workflowStatus.getId().equals(id))) {
+        return workflowStatus;
       }
     }
     return null;
-  }
-
-  /**
-   * @return the jobStatusList
-   */
-  public List<HopServerWorkflowStatus> getWorkflowStatusList() {
-    return workflowStatusList;
-  }
-
-  /**
-   * @param workflowStatusList the jobStatusList to set
-   */
-  public void setWorkflowStatusList(List<HopServerWorkflowStatus> workflowStatusList) {
-    this.workflowStatusList = workflowStatusList;
-  }
-
-  /**
-   * @return the memoryFree
-   */
-  public double getMemoryFree() {
-    return memoryFree;
-  }
-
-  /**
-   * @param memoryFree the memoryFree to set
-   */
-  public void setMemoryFree(long memoryFree) {
-    this.memoryFree = memoryFree;
-  }
-
-  /**
-   * @return the memoryTotal
-   */
-  public double getMemoryTotal() {
-    return memoryTotal;
-  }
-
-  /**
-   * @param memoryTotal the memoryTotal to set
-   */
-  public void setMemoryTotal(long memoryTotal) {
-    this.memoryTotal = memoryTotal;
-  }
-
-  /**
-   * @return the cpuCores
-   */
-  public int getCpuCores() {
-    return cpuCores;
-  }
-
-  /**
-   * @param cpuCores the cpuCores to set
-   */
-  public void setCpuCores(int cpuCores) {
-    this.cpuCores = cpuCores;
-  }
-
-  /**
-   * @return the cpuProcessTime
-   */
-  public long getCpuProcessTime() {
-    return cpuProcessTime;
-  }
-
-  /**
-   * @param cpuProcessTime the cpuProcessTime to set
-   */
-  public void setCpuProcessTime(long cpuProcessTime) {
-    this.cpuProcessTime = cpuProcessTime;
-  }
-
-  public void setUptime(long uptime) {
-    this.uptime = uptime;
-  }
-
-  public long getUptime() {
-    return uptime;
-  }
-
-  public void setThreadCount(int threadCount) {
-    this.threadCount = threadCount;
-  }
-
-  public int getThreadCount() {
-    return threadCount;
-  }
-
-  public void setLoadAvg(double loadAvg) {
-    this.loadAvg = loadAvg;
-  }
-
-  public double getLoadAvg() {
-    return loadAvg;
-  }
-
-  public void setOsName(String osName) {
-    this.osName = osName;
-  }
-
-  public String getOsName() {
-    return osName;
-  }
-
-  public void setOsVersion(String osVersion) {
-    this.osVersion = osVersion;
-  }
-
-  public String getOsVersion() {
-    return osVersion;
-  }
-
-  public void setOsArchitecture(String osArch) {
-    this.osArchitecture = osArch;
-  }
-
-  public String getOsArchitecture() {
-    return osArchitecture;
   }
 }
