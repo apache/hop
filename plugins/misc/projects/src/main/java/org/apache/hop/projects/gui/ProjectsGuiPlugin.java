@@ -941,6 +941,7 @@ public class ProjectsGuiPlugin {
       toolTip = "i18n::HopGui.Toolbar.Environment.Delete.Tooltip",
       image = "environment-delete.svg")
   public void deleteSelectedEnvironment() {
+    HopGui hopGui = HopGui.getInstance();
     Combo combo = getEnvironmentsCombo();
     if (combo == null) {
       return;
@@ -971,11 +972,17 @@ public class ProjectsGuiPlugin {
     int answer = box.open();
     if ((answer & SWT.YES) != 0) {
       try {
+        String projectName = getProjectsCombo().getText(); // The default is the active project
+        ProjectConfig projectConfig = config.findProjectConfig(projectName);
+        Project project = projectConfig.loadProject(hopGui.getVariables());
+
         config.removeEnvironment(environmentName);
         ProjectsConfigSingleton.saveConfig();
 
         refreshEnvironmentsList();
         selectEnvironmentInList(null);
+        enableHopGuiProject(
+            projectName, project, null); // Reload the project to clear current variables
       } catch (Exception e) {
         new ErrorDialog(
             HopGui.getInstance().getShell(),
