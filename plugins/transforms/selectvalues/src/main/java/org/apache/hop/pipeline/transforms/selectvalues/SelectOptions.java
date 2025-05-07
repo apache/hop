@@ -33,18 +33,30 @@ public class SelectOptions {
     meta = new ArrayList<>();
   }
 
-  @HopMetadataProperty(key = "field", injectionKey = "FIELD", injectionGroupKey = "FIELDS")
+  @HopMetadataProperty(
+      key = "field",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "SelectValues.Injection.FIELDS")
   private List<SelectField> selectFields;
 
-  @HopMetadataProperty(key = "select_unspecified", injectionKey = "SELECT_UNSPECIFIED")
+  @HopMetadataProperty(
+      key = "select_unspecified",
+      injectionKey = "SELECT_UNSPECIFIED",
+      injectionKeyDescription = "SelectValues.Injection.SELECT_UNSPECIFIED")
   private boolean selectingAndSortingUnspecifiedFields;
 
   // DE-SELECT mode
   /** Names of the fields to be removed! */
-  @HopMetadataProperty(key = "remove", injectionKey = "REMOVE", injectionGroupKey = "REMOVES")
+  @HopMetadataProperty(
+      key = "remove",
+      injectionGroupKey = "REMOVES",
+      injectionGroupDescription = "SelectValues.Injection.REMOVES")
   private List<DeleteField> deleteName;
 
   // META-DATA mode
-  @HopMetadataProperty(key = "meta", injectionKey = "META", injectionGroupKey = "METAS")
+  @HopMetadataProperty(
+      key = "meta",
+      injectionGroupKey = "METAS",
+      injectionGroupDescription = "SelectValues.Injection.METAS")
   private List<SelectMetadataChange> meta;
 }

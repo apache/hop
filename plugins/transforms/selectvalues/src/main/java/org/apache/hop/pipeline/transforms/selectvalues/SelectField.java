@@ -28,24 +28,30 @@ public class SelectField {
   public SelectField() {}
 
   /** Select: Name of the selected field */
-  @HopMetadataProperty(key = "name", injectionKey = "FIELD_NAME", injectionGroupKey = "FIELD")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "FIELD_NAME",
+      injectionKeyDescription = "SelectValues.Injection.FIELD_NAME")
   private String name;
 
   /** Select: Rename to ... */
-  // @Injection(name = "FIELD_RENAME", group = "FIELDS")
-  @HopMetadataProperty(key = "rename", injectionKey = "FIELD_RENAME", injectionGroupKey = "FIELD")
+  @HopMetadataProperty(
+      key = "rename",
+      injectionKey = "FIELD_RENAME",
+      injectionKeyDescription = "SelectValues.Injection.FIELD_RENAME")
   private String rename;
 
   /** Select: length of field */
-  // @Injection(name = "FIELD_LENGTH", group = "FIELDS")
-  @HopMetadataProperty(key = "length", injectionKey = "FIELD_LENGTH", injectionGroupKey = "FIELD")
+  @HopMetadataProperty(
+      key = "length",
+      injectionKey = "FIELD_LENGTH",
+      injectionKeyDescription = "SelectValues.Injection.FIELD_LENGTH")
   private int length = SelectValuesMeta.UNDEFINED;
 
   /** Select: Precision of field (for numbers) */
-  // @Injection(name = "FIELD_PRECISION", group = "FIELDS")
   @HopMetadataProperty(
       key = "precision",
       injectionKey = "FIELD_PRECISION",
-      injectionGroupKey = "FIELD")
+      injectionKeyDescription = "SelectValues.Injection.FIELD_PRECISION")
   private int precision = SelectValuesMeta.UNDEFINED;
 }

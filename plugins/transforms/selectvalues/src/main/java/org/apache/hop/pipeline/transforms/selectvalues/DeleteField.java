@@ -26,7 +26,10 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @Setter
 public class DeleteField implements Cloneable {
 
-  @HopMetadataProperty(key = "name", injectionKey = "REMOVE_NAME", injectionGroupKey = "REMOVE")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKeyDescription = "SelectValues.Injection.REMOVE_NAME",
+      injectionKey = "REMOVE_NAME")
   private String name;
 
   public DeleteField() {}
