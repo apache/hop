@@ -45,6 +45,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.text.Format;
 import org.apache.hop.ui.core.widget.text.TextFormatter;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -154,8 +155,14 @@ public class HopGuiLogBrowser {
 
                             // Erase it all in one go
                             // This makes it a bit more efficient
-                            //
-                            int size = text.getLineCount();
+                            // getLineCount is not supported in RAP
+                            int size;
+                            if (!EnvironmentUtils.getInstance().isWeb()) {
+                              size = text.getLineCount();
+                            } else {
+                              size = text.getText().length();
+                            }
+
                             if (maxSize > 0 && size > maxSize) {
                               int dropIndex =
                                   StringUtils.lastOrdinalIndexOf(text.getText(), "\n", maxSize + 1);
