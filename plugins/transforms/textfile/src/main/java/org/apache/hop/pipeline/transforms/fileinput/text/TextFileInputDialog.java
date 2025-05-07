@@ -63,6 +63,7 @@ import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialogResult;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -2865,27 +2866,44 @@ public class TextFileInputDialog extends BaseTransformDialog
         String lineText =
             BaseMessages.getString(PKG, "TextFileInputDialog.LinesToView.DialogMessage");
         EnterNumberDialog end = new EnterNumberDialog(shell, 100, shellText, lineText);
-        int nrLines = end.open();
-        if (nrLines >= 0) {
-          List<String> linesList = getFirst(nrLines, skipHeaders);
-          if (linesList != null && !linesList.isEmpty()) {
-            String firstlines = "";
+        EnterNumberDialogResult result = end.openWithFromTo();
+        if (result.getNumberOfLines() >= 0 || result.getFromLine() >= 0) {
+          List<String> linesList =
+              getFirst(
+                  result.getNumberOfLines(), result.getFromLine(), result.getToLine(), skipHeaders);
+          if (!linesList.isEmpty()) {
+            StringBuilder firstlines = new StringBuilder();
             for (String aLinesList : linesList) {
-              firstlines += aLinesList + Const.CR;
+              firstlines.append(aLinesList).append(Const.CR);
             }
+
+            String message;
+            if (result.getNumberOfLines() == -1 && result.getToLine() > 0) {
+              message =
+                  BaseMessages.getString(
+                      PKG,
+                      "TextFileInputDialog.ContentOfFirstFile.NLinesFromTo.DialogMessage",
+                      result.getFromLine(),
+                      result.getToLine());
+            } else if (result.getNumberOfLines() > 0 && result.getFromLine() == 0) {
+              message =
+                  BaseMessages.getString(
+                      PKG,
+                      "TextFileInputDialog.ContentOfFirstFile.NLines.DialogMessage",
+                      result.getNumberOfLines());
+            } else {
+              message =
+                  BaseMessages.getString(
+                      PKG, "TextFileInputDialog.ContentOfFirstFile.AllLines.DialogMessage");
+            }
+
             EnterTextDialog etd =
                 new EnterTextDialog(
                     shell,
                     BaseMessages.getString(
                         PKG, "TextFileInputDialog.ContentOfFirstFile.DialogTitle"),
-                    (nrLines == 0
-                        ? BaseMessages.getString(
-                            PKG, "TextFileInputDialog.ContentOfFirstFile.AllLines.DialogMessage")
-                        : BaseMessages.getString(
-                            PKG,
-                            "TextFileInputDialog.ContentOfFirstFile.NLines.DialogMessage",
-                            "" + nrLines)),
-                    firstlines,
+                    message,
+                    firstlines.toString(),
                     true);
             etd.setReadOnly();
             etd.open();
@@ -2918,7 +2936,8 @@ public class TextFileInputDialog extends BaseTransformDialog
   }
 
   // Get the first x lines
-  private List<String> getFirst(int nrlines, boolean skipHeaders) throws HopException {
+  private List<String> getFirst(int nrLines, int fromLine, int toLine, boolean skipHeaders)
+      throws HopException {
     TextFileInputMeta meta = new TextFileInputMeta();
     getInfo(meta, true);
     FileInputList textFileList = meta.getFileInputList(variables);
@@ -2941,15 +2960,19 @@ public class TextFileInputDialog extends BaseTransformDialog
         f = provider.createInputStream(fi);
 
         InputStreamReader reader;
-        if (meta.getEncoding() != null && meta.getEncoding().length() > 0) {
+        if (meta.getEncoding() != null && !meta.getEncoding().isEmpty()) {
           reader = new InputStreamReader(f, meta.getEncoding());
         } else {
           reader = new InputStreamReader(f);
         }
         EncodingType encodingType = EncodingType.guessEncodingType(reader.getEncoding());
 
-        int linenr = 0;
-        int maxnr = nrlines + (meta.content.header ? meta.content.nrHeaderLines : 0);
+        int lineNr = 0;
+
+        // change nrLines when toLine is filled in
+        nrLines = (toLine > 0) ? toLine : nrLines;
+
+        int maxNr = nrLines + (meta.content.header ? meta.content.nrHeaderLines : 0);
 
         if (skipHeaders) {
           // Skip the header lines first if more then one, it helps us position
@@ -3019,9 +3042,11 @@ public class TextFileInputDialog extends BaseTransformDialog
                 meta.getEnclosure(),
                 meta.getEscapeCharacter(),
                 meta.isBreakInEnclosureAllowed());
-        while (line != null && (linenr < maxnr || nrlines == 0)) {
-          retval.add(line);
-          linenr++;
+        while (line != null && (lineNr < maxNr || nrLines == 0)) {
+          if (lineNr >= fromLine) {
+            retval.add(line);
+          }
+          lineNr++;
           line =
               TextFileLineUtil.getLine(
                   log,
@@ -3038,7 +3063,7 @@ public class TextFileInputDialog extends BaseTransformDialog
             BaseMessages.getString(
                 PKG,
                 "TextFileInputDialog.Exception.ErrorGettingFirstLines",
-                "" + nrlines,
+                "" + nrLines,
                 file.getName().getURI()),
             e);
       } finally {

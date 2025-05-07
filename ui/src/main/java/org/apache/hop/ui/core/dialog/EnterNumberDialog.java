@@ -43,6 +43,8 @@ public class EnterNumberDialog extends Dialog {
   private static final Class<?> PKG = EnterNumberDialog.class;
 
   protected Text wNumber;
+  protected Text wFrom;
+  protected Text wTo;
   protected Button wOk;
   protected Button wCancel;
   protected Button wCheckbox;
@@ -57,6 +59,7 @@ public class EnterNumberDialog extends Dialog {
   private PropsUi props;
 
   private int width;
+  EnterNumberDialogResult result = new EnterNumberDialogResult();
 
   public EnterNumberDialog(Shell parent, int samples, String shellText, String lineText) {
     this(parent, samples, shellText, lineText, null);
@@ -83,7 +86,17 @@ public class EnterNumberDialog extends Dialog {
     this.checkboxLabel = checkboxLabel;
   }
 
+  public EnterNumberDialogResult openWithFromTo() {
+    createDialog(true);
+    return result;
+  }
+
   public int open() {
+    createDialog(false);
+    return samples;
+  }
+
+  private void createDialog(boolean withFromTo) {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET);
@@ -97,7 +110,7 @@ public class EnterNumberDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(shellText);
 
-    // From transform line
+    // Number of lines
     Label wlNumber = new Label(shell, SWT.NONE);
     wlNumber.setText(lineText);
     PropsUi.setLook(wlNumber);
@@ -142,6 +155,38 @@ public class EnterNumberDialog extends Dialog {
       lastControl = wlCheckbox;
     }
 
+    if (withFromTo) {
+      // Add from-to
+      Label wlFrom = new Label(shell, SWT.RIGHT);
+      wlFrom.setText("From:");
+      PropsUi.setLook(wlFrom);
+      FormData fdlFrom = new FormData();
+      fdlFrom.left = new FormAttachment(0, 0);
+      fdlFrom.top = new FormAttachment(lastControl, BaseDialog.ELEMENT_SPACING);
+      wlFrom.setLayoutData(fdlFrom);
+      wFrom = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+      PropsUi.setLook(wFrom);
+      FormData fdFrom = new FormData();
+      fdFrom.left = new FormAttachment(wlFrom, BaseDialog.ELEMENT_SPACING);
+      fdFrom.top = new FormAttachment(lastControl, BaseDialog.ELEMENT_SPACING);
+      wFrom.setLayoutData(fdFrom);
+      wFrom.addModifyListener(e -> wNumber.setEnabled(wFrom.getText().isEmpty()));
+      Label wlTo = new Label(shell, SWT.RIGHT);
+      wlTo.setText("To:");
+      PropsUi.setLook(wlTo);
+      FormData fdlTo = new FormData();
+      fdlTo.left = new FormAttachment(wFrom, BaseDialog.ELEMENT_SPACING);
+      fdlTo.top = new FormAttachment(lastControl, BaseDialog.ELEMENT_SPACING);
+      wlTo.setLayoutData(fdlTo);
+      wTo = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+      PropsUi.setLook(wTo);
+      FormData fdTo = new FormData();
+      fdTo.left = new FormAttachment(wlTo, BaseDialog.ELEMENT_SPACING);
+      fdTo.top = new FormAttachment(lastControl, BaseDialog.ELEMENT_SPACING);
+      wTo.setLayoutData(fdTo);
+      lastControl = wlFrom;
+    }
+
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
@@ -168,8 +213,6 @@ public class EnterNumberDialog extends Dialog {
     getData();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
-    return samples;
   }
 
   public void dispose() {
@@ -184,12 +227,22 @@ public class EnterNumberDialog extends Dialog {
 
   private void cancel() {
     samples = -1;
+    result.setNumberOfLines(-1);
+    result.setFromLine(-1);
+    result.setToLine(-1);
     dispose();
   }
 
   protected void ok() {
     try {
-      samples = Integer.parseInt(wNumber.getText());
+      if (wFrom != null && !wFrom.getText().isEmpty()) {
+        result.setNumberOfLines(-1);
+        result.setFromLine(Integer.parseInt(wFrom.getText()));
+        result.setToLine(Integer.parseInt(wTo.getText()));
+      } else {
+        samples = Integer.parseInt(wNumber.getText());
+        result.setNumberOfLines(Integer.parseInt(wNumber.getText()));
+      }
       dispose();
     } catch (Exception e) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
