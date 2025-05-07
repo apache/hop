@@ -13,11 +13,11 @@
     "description" : "The sender's mail address"
   }, {
     "name" : "MAIL_SMTP_SERVER",
-    "value" : "mailhog",
+    "value" : "james",
     "description" : "The server address (link in docker file)"
   }, {
     "name" : "MAIL_SMTP_PORT",
-    "value" : "1025",
+    "value" : "25",
     "description" : "The server port to use"
   }, {
     "name" : "MAIL_MESSAGE",

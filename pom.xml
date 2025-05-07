@@ -375,6 +375,9 @@
                         <exclude>**/integration-tests/**/*.json</exclude>
                         <exclude>**/integration-tests/**/*.json.old</exclude>
                         <exclude>**/integration-tests/**/*.edi</exclude>
+                        <exclude>**/integration-tests/**/db.data</exclude>
+                        <exclude>**/integration-tests/**/jmxremote.*</exclude>
+                        <exclude>**/integration-tests/**/jwt_publickey</exclude>
 
                         <!-- Samples Exclusions -->
                         <!-- plugins/engines/beam -->

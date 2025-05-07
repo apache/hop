@@ -48,6 +48,9 @@ On this tab you will find the general mail server connection settings:
 |===
 |Option|Description
 |Transform name|Name of the transform.
+2+|**Mail Server Connection**
+|Mail Connection|If a mail server connection is selected here, the rest of this tab is ignored. The server configuration will be taken from the xref:metadata-types/mail-server-connection.adoc[Mail Server Connection] metadata item.
+2+|**Server settings**
 |Source host|The mail server host
 |Use SSL?|Check this option if your server needs an SSL connection
 |Use XOAUTH2 |If checked XOAuth2 will be used to authenticate with the server.

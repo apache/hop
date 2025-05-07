@@ -182,12 +182,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-getpop</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-http</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -195,18 +189,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-join</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-mail</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-mailvalidator</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -681,6 +663,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-import</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-mail</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1210,18 +1198,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-loadfileinput</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-mail</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-mailinput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
