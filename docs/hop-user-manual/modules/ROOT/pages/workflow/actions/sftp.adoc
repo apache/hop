@@ -26,6 +26,9 @@ The `Get a file with SFTP` action retrieves one or more files from an FTP server
 
 The action returns true if the specified file(s) or pattern were retrieved successfully, false it there were problems retrieving the file(s).
 
+TIP: If you run into a `Algorithm Negotiation Fail` error when connecting to your SFTP server, check the link:#negotiation_error[Algorith Negotiation Fail Error] section at the end of this page.
+
+
 == Options
 
 === General tab
@@ -85,4 +88,15 @@ A.*[ENG:0-9].txt  : files tarting with A, ending with a number and .txt
 |Create target folder|Check this option if the destination folder does not exist and should be created.
 |Add filenames to result|If checked the name of the file is added to the result stream.
 |===
+
+== Algorithm Negotiation Fail Error [[negotiation_error]]
+
+If your `Get a file with SFTP` action returns an error message like the one below, you (or the server you are connecting to) are probably using key types that are considered unsafe in the dependencies used by this action in recent Apache Hop versions.
+
+`com.jcraft.jsch.JSchhAlgoNegoFailException: Algorithm negotiation fail...`
+
+The better and more secure option is to upgrade your keys to more secure types. However, you can still connect to this SFTP server by adding the options below to the `HOP_OPTIONS` variable in your startup command (in `hop-gui.sh/bat` or `hop-run.sh/bat`, or in your `HOP_OPTIONS` environment variable):
+
+`-Djsch.client_pubkey=ssh-rsa,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256 -Djsch.server_host_key=ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256,ssh-rsa`
+
 

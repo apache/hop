@@ -26,6 +26,8 @@ The `Put a file with SFTP` action pushes one or more files to an FTP server usin
 
 The action returns true if the specified file(s) or pattern were uploaded successfully, false it there were problems uploading the file(s).
 
+TIP: If you run into a `Algorithm Negotiation Fail` error when connecting to your SFTP server, check the link:#negotiation_error[Algorith Negotiation Fail Error] section at the end of this page.
+
 == Options
 
 === General Tab
@@ -99,3 +101,15 @@ If checked the name of the file is added to the result stream.
 Use the "test folder" button to connect to the remote server and validate that the folder exists.
 |Create folder|Check this option if the destination folder does not exist and should be created.
 |===
+
+== Algorithm Negotiation Fail Error [[negotiation_error]]
+
+If your `Put a file with SFTP` action returns an error message like the one below, you (or the server you are connecting to) are probably using key types that are considered unsafe in the dependencies used by this action in recent Apache Hop versions.
+
+`com.jcraft.jsch.JSchhAlgoNegoFailException: Algorithm negotiation fail...`
+
+The better and more secure option is to upgrade your keys to more secure types. However, you can still connect to this SFTP server by adding the options below to the `HOP_OPTIONS` variable in your startup command (in `hop-gui.sh/bat` or `hop-run.sh/bat`, or in your `HOP_OPTIONS` environment variable):
+
+`-Djsch.client_pubkey=ssh-rsa,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256 -Djsch.server_host_key=ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256,ssh-rsa`
+
+
