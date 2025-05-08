@@ -29,14 +29,12 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -54,7 +52,6 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.w3c.dom.Node;
 
 /** Meta-data for the Pipeline Executor transform. */
 @Transform(
@@ -230,32 +227,6 @@ public class PipelineExecutorMeta
 
   public PipelineExecutorMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  /**
-   * @deprecated Added for backwards compatibility for old parameter style
-   * @param transformNode Transform node XML
-   * @param metadataProvider Metadata provider
-   * @throws HopXmlException when unable to parse XML
-   */
-  @Override
-  @Deprecated(since = "2.13")
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
-    try {
-      // Load inherit_all_vars
-      //
-      Node parametersNode = XmlHandler.getSubNode(transformNode, "parameters");
-      setInheritingAllVariables(
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(parametersNode, "inherit_all_vars")));
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "PipelineExecutorMeta.Exception.ErrorLoadingPipelineExecutorDetailsFromXML"),
-          e);
-    }
   }
 
   @Override
