@@ -3915,6 +3915,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void disposeExtraView() {
+    if (extraViewTabFolder == null) {
+      return;
+    }
 
     extraViewTabFolder.dispose();
     sashForm.layout();

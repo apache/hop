@@ -605,13 +605,13 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             switch (event.keyCode) {
               case SWT.CR, SWT.KEYPAD_CR:
                 // If name changed
-                if (!item.getText().equals(text.getText())) {
+                if (!objectName.equals(text.getText())) {
                   try {
                     MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
                     if (manager.rename(objectName, text.getText())) {
-                      item.setText(text.getText());
                       text.dispose();
                     }
+                    hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
                   } catch (Exception e) {
                     new ErrorDialog(
                         getShell(),
@@ -633,12 +633,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
       text.selectAll();
       text.setFocus();
       treeEditor.setEditor(text, item);
-
-      try {
-        hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
-      } catch (HopException e) {
-        throw new RuntimeException("Error fire metadata changed event", e);
-      }
     }
   }
 

@@ -711,19 +711,15 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
 
     // Switch to the previous tab
     //
-    if (tabIndex >= 0) {
+    if (tabIndex >= 0 && tabFolder.getItemCount() >= 1) {
       // If last
       if (tabIndex == tabFolder.getItemCount()) {
         tabIndex--;
       }
 
       tabItem = tabFolder.getItem(tabIndex);
-      if (tabIndex < 0) {
-        tabIndex = tabFolder.getItemCount() - 1;
-      }
 
       TabItemHandler activeItem = (TabItemHandler) tabItem.getData();
-      // tabFolder.setSelection(activeIndex);
       activeItem.getTypeHandler().updateGui();
     }
 

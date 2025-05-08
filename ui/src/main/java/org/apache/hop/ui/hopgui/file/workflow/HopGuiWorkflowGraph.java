@@ -471,6 +471,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return HopGui.getActiveWorkflowGraph();
   }
 
+  @Override
+  public void dispose() {
+    disposeExtraView();
+    super.dispose();
+  }
+
   protected void hideToolTips() {
     toolTip.setVisible(false);
   }
@@ -3468,6 +3474,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   private void disposeExtraView() {
+    if (extraViewTabFolder == null) {
+      return;
+    }
+
     extraViewTabFolder.dispose();
     sashForm.layout();
     sashForm.setWeights(100);
