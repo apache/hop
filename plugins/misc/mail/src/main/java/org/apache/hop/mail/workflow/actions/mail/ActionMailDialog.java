@@ -558,7 +558,7 @@ public class ActionMailDialog extends ActionDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setUseAuth();
+            onSetUseAuth();
             action.setChanged();
           }
         });
@@ -630,7 +630,7 @@ public class ActionMailDialog extends ActionDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setSecureConnectiontype();
+            onSetSecureConnectiontype();
             action.setChanged();
           }
         });
@@ -662,7 +662,7 @@ public class ActionMailDialog extends ActionDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setSecureConnectiontype();
+            onSetSecureConnectiontype();
             action.setChanged();
           }
         });
@@ -1422,7 +1422,8 @@ public class ActionMailDialog extends ActionDialog {
     setEnabledEncoding();
     activeUsePriority();
     setFlags();
-    setUseAuth();
+    onSetUseAuth();
+    onSetSecureConnectiontype();
 
     wTabFolder.setSelection(0);
 
@@ -1456,11 +1457,11 @@ public class ActionMailDialog extends ActionDialog {
     wFields.setEnabled(wUseHTML.getSelection());
   }
 
-  protected void setSecureConnectiontype() {
-    wTrustedHosts.setEnabled(wUseSecAuth.getSelection());
-    wCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
+  protected void onSetSecureConnectiontype() {
     wSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wlSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
+    wTrustedHosts.setEnabled(wUseSecAuth.getSelection());
+    wCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
   }
 
   protected void setFlags() {
@@ -1471,19 +1472,13 @@ public class ActionMailDialog extends ActionDialog {
     wZipFilename.setEnabled(wIncludeFiles.getSelection() && wZipFiles.getSelection());
   }
 
-  protected void setUseAuth() {
+  protected void onSetUseAuth() {
     wAuthUser.setEnabled(wUseAuth.getSelection());
     wAuthPass.setEnabled(wUseAuth.getSelection());
-    wUseSecAuth.setEnabled(wUseAuth.getSelection());
-    wlUseSecAuth.setEnabled(wUseAuth.getSelection());
     wlUseXOAUTH2.setEnabled(wUseAuth.getSelection());
     wUseXOAUTH2.setEnabled(wUseAuth.getSelection());
     if (!wUseAuth.getSelection()) {
-      wSecureConnectionType.setEnabled(false);
-      wlSecureConnectionType.setEnabled(false);
       wUseXOAUTH2.setEnabled(false);
-    } else {
-      setSecureConnectiontype();
     }
   }
 
