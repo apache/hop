@@ -31,6 +31,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -43,6 +44,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -63,6 +65,7 @@ import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.w3c.dom.Node;
 
 /** Meta-data for the Workflow executor transform. */
 @Transform(
@@ -224,6 +227,36 @@ public class WorkflowExecutorMeta
 
   public WorkflowExecutorMeta() {
     super(); // allocate BaseTransformMeta
+  }
+
+  /**
+   * @deprecated keep for backwards compatibility
+   * @param transformNode the XML of the transform node
+   * @param metadataProvider the metadata provider
+   * @throws HopXmlException when unable to parse the XML
+   */
+  @Override
+  @Deprecated(since = "2.13")
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    try {
+      super.loadXml(transformNode, metadataProvider);
+
+      // Load inherit_all_vars
+      //
+      String value =
+          XmlHandler.getTagValue(
+              XmlHandler.getSubNode(transformNode, "parameters"), "inherit_all_vars");
+      if (value != null) {
+        setInheritingAllVariables("Y".equalsIgnoreCase(value));
+      }
+
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(
+              PKG, "WorkflowExecutorMeta.Exception.ErrorLoadingJobExecutorDetailsFromXML"),
+          e);
+    }
   }
 
   @Override
