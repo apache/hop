@@ -244,9 +244,12 @@ public class WorkflowExecutorMeta
 
       // Load inherit_all_vars
       //
-      Node parametersNode = XmlHandler.getSubNode(transformNode, "parameters");
-      setInheritingAllVariables(
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(parametersNode, "inherit_all_vars")));
+      String value =
+          XmlHandler.getTagValue(
+              XmlHandler.getSubNode(transformNode, "parameters"), "inherit_all_vars");
+      if (value != null) {
+        setInheritingAllVariables("Y".equalsIgnoreCase(value));
+      }
 
     } catch (Exception e) {
       throw new HopXmlException(
