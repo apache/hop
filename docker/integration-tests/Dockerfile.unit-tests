@@ -97,7 +97,7 @@ VOLUME ["/files"]
 USER ${JENKINS_USER}
 ENV PATH=$PATH:${DEPLOYMENT_PATH}/hop
 ENV GOOGLE_APPLICATION_CREDENTIALS="/tmp/google-key-apache-hop-it.json"
-ENV HOP_OPTIONS="${HOP_OPTIONS} -Djavax.net.ssl.keyStore=/tmp/keystore -Djavax.net.ssl.trustStore=/tmp/keystore -Djavax.net.ssl.keyStorePassword=james72laBalle" 
+ENV HOP_OPTIONS="${HOP_OPTIONS}"
 WORKDIR /home/${JENKINS_USER}
 # CMD ["/bin/bash"]
 ENTRYPOINT []

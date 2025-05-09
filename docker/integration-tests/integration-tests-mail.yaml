@@ -20,9 +20,8 @@ services:
     extends:
       file: integration-tests-base.yaml
       service: integration_test
-    # depends_on:
-    #   mailhog:
-    #     condition: service_healthy
+    environment:
+      HOP_OPTIONS: "${HOP_OPTIONS} -Djavax.net.ssl.keyStore=/tmp/keystore -Djavax.net.ssl.trustStore=/tmp/keystore -Djavax.net.ssl.keyStorePassword=james72laBalle"
     depends_on:
       - james
     links: 
@@ -39,24 +38,10 @@ services:
       - "993"
       - "8000"
     volumes: 
-      - ./resource/mail/conf:/root/conf  
-    # post_start: 
-    #   - command: james-cli addDomain example.com && james-cli addUser user01@example.com password
-    #     user: root 
+      - ./resource/mail/conf:/root/conf
     healthcheck:
       test: [ "CMD-SHELL", "true" ]
       start_period: 2s
       retries: 5
       interval: 3s
       timeout: 15s
-  # mailhog:
-  #   image: 'mailhog/mailhog:latest'
-  #   ports:
-  #     - "1025"
-  #     - "8025"
-  #   healthcheck:
-  #     test: [ "CMD-SHELL", "true" ]
-  #     start_period: 2s
-  #     retries: 5
-  #     interval: 3s
-  #     timeout: 15s
