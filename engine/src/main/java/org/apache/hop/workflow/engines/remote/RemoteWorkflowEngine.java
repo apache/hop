@@ -67,6 +67,8 @@ import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.action.ActionStatus;
+import org.apache.hop.workflow.action.Status;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -101,8 +103,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   protected ILogChannel logChannel;
   protected LoggingObject loggingObject;
   protected LogLevel logLevel;
-  protected long serverPollDelay;
-  protected long serverPollInterval;
   protected HopServerMeta hopServer;
   protected String containerId;
   protected int lastLogLineNr;
@@ -255,11 +255,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
               + workflowRunConfiguration.getName()
               + "'");
 
-      serverPollDelay =
-          Const.toLong(resolve(remoteWorkflowRunConfiguration.getServerPollDelay()), 1000L);
-      serverPollInterval =
-          Const.toLong(resolve(remoteWorkflowRunConfiguration.getServerPollInterval()), 2000L);
-
       hopServer = metadataProvider.getSerializer(HopServerMeta.class).load(hopServerName);
       if (hopServer == null) {
         throw new HopException("Hop server '" + hopServerName + "' could not be found");
@@ -305,8 +300,12 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     try {
       // Start with a little bit of a wait
       //
+      long serverPollDelay =
+          Const.toLong(resolve(remoteWorkflowRunConfiguration.getServerPollDelay()), 1000L);
       Thread.sleep(serverPollDelay);
 
+      long serverPollInterval =
+          Const.toLong(resolve(remoteWorkflowRunConfiguration.getServerPollInterval()), 500L);
       while (!stopped && !finished) {
         getWorkflowStatus();
         Thread.sleep(serverPollInterval);
@@ -336,8 +335,24 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       running = workflowStatus.isRunning();
       active = running; // TODO: differentiate
       statusDescription = workflowStatus.getStatusDescription();
-
       result = workflowStatus.getResult();
+
+      this.actionResults.clear();
+      this.activeActions.clear();
+
+      for (ActionStatus actionStatus : workflowStatus.getActionStatusList()) {
+        ActionMeta actionMeta = workflowMeta.findAction(actionStatus.getName());
+
+        if (actionStatus.getStatus() == Status.FINISHED) {
+          ActionResult actionResult = new ActionResult();
+          actionResult.setActionName(actionStatus.getName());
+          actionResult.setResult(actionStatus.getResult());
+          this.actionResults.add(actionResult);
+        } else if (actionStatus.getStatus() == Status.RUNNING) {
+          this.activeActions.add(actionMeta);
+        }
+      }
+
     } catch (Exception e) {
       throw new HopException("Error getting workflow status", e);
     }
@@ -933,38 +948,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
-  }
-
-  /**
-   * Gets serverPollDelay
-   *
-   * @return value of serverPollDelay
-   */
-  public long getServerPollDelay() {
-    return serverPollDelay;
-  }
-
-  /**
-   * @param serverPollDelay The serverPollDelay to set
-   */
-  public void setServerPollDelay(long serverPollDelay) {
-    this.serverPollDelay = serverPollDelay;
-  }
-
-  /**
-   * Gets serverPollInterval
-   *
-   * @return value of serverPollInterval
-   */
-  public long getServerPollInterval() {
-    return serverPollInterval;
-  }
-
-  /**
-   * @param serverPollInterval The serverPollInterval to set
-   */
-  public void setServerPollInterval(long serverPollInterval) {
-    this.serverPollInterval = serverPollInterval;
   }
 
   /**
