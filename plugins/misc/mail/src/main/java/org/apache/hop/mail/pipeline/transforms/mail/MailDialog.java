@@ -813,7 +813,7 @@ public class MailDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setUseAuth();
+            onSetUseAuth();
             input.setChanged();
           }
         });
@@ -928,7 +928,7 @@ public class MailDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setSecureConnectiontype();
+            onSetSecureConnectiontype();
             input.setChanged();
           }
         });
@@ -959,7 +959,7 @@ public class MailDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setSecureConnectiontype();
+            onSetSecureConnectiontype();
             input.setChanged();
           }
         });
@@ -984,7 +984,7 @@ public class MailDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setSecureConnectiontype();
+            onSetSecureConnectiontype();
             input.setChanged();
           }
         });
@@ -2190,8 +2190,8 @@ public class MailDialog extends BaseTransformDialog {
     activateUsePriority();
     setDynamicZip();
     setZip();
-    setUseAuth();
-    setSecureConnectiontype();
+    onSetUseAuth();
+    onSetSecureConnectiontype();
     activateIsAttachContentField();
     setOutputMessage();
     input.setChanged(changed);
@@ -2463,7 +2463,7 @@ public class MailDialog extends BaseTransformDialog {
     wFields.setEnabled(wUseHTML.getSelection());
   }
 
-  protected void setSecureConnectiontype() {
+  protected void onSetSecureConnectiontype() {
     wSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wlSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wTrustedHosts.setEnabled(wUseSecAuth.getSelection());
@@ -2490,21 +2490,13 @@ public class MailDialog extends BaseTransformDialog {
     }
   }
 
-  protected void setUseAuth() {
+  protected void onSetUseAuth() {
     wlAuthUser.setEnabled(wUseAuth.getSelection());
     wAuthUser.setEnabled(wUseAuth.getSelection());
     wlAuthPass.setEnabled(wUseAuth.getSelection());
     wAuthPass.setEnabled(wUseAuth.getSelection());
-    wUseSecAuth.setEnabled(wUseAuth.getSelection());
-    wlUseSecAuth.setEnabled(wUseAuth.getSelection());
     wlUseXOAUTH2.setEnabled(wUseAuth.getSelection());
     wUseXOAUTH2.setEnabled(wUseAuth.getSelection());
-    if (!wUseAuth.getSelection()) {
-      wSecureConnectionType.setEnabled(false);
-      wlSecureConnectionType.setEnabled(false);
-    } else {
-      setSecureConnectiontype();
-    }
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
