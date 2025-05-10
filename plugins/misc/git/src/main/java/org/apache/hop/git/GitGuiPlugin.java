@@ -57,7 +57,6 @@ import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerFilePaintListener;
 import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerRefreshListener;
 import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerRootChangedListener;
 import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerSelectionListener;
-import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -101,9 +100,11 @@ public class GitGuiPlugin
   private Map<String, UIFile> changedFiles;
   private Map<String, String> ignoredFiles;
 
-  private Color colorIgnored;
-  private Color colorStaged;
-  private Color colorUnstaged;
+  private final Color colorIgnored;
+  private final Color colorStagedUnchanged;
+  private final Color colorStagedAdd;
+  private final Color colorStagedModify;
+  private final Color colorUnstaged;
 
   public static GitGuiPlugin getInstance() {
     if (instance == null) {
@@ -114,15 +115,18 @@ public class GitGuiPlugin
 
   public GitGuiPlugin() {
 
-    // Adjust color for dark mode
+    // Adjust color for light/dark mode
     if (PropsUi.getInstance().isDarkMode()) {
-      colorStaged = GuiResource.getInstance().getColorLightBlue();
+      colorStagedModify = GuiResource.getInstance().getColorLightBlue();
       colorIgnored = GuiResource.getInstance().getColorGray();
+      colorUnstaged = GuiResource.getInstance().getColor(217, 105, 73);
     } else {
-      colorStaged = GuiResource.getInstance().getColorBlue();
+      colorStagedModify = GuiResource.getInstance().getColorBlue();
       colorIgnored = GuiResource.getInstance().getColorDarkGray();
+      colorUnstaged = GuiResource.getInstance().getColor(225, 30, 70);
     }
-    colorUnstaged = GuiResource.getInstance().getColor(225, 30, 70);
+    colorStagedUnchanged = GuiResource.getInstance().getColorBlack();
+    colorStagedAdd = GuiResource.getInstance().getColorDarkGreen();
 
     refreshChangedFiles();
   }
@@ -349,7 +353,7 @@ public class GitGuiPlugin
             EnterSelectionDialog selectionDialog =
                 new EnterSelectionDialog(
                     HopGui.getInstance().getShell(),
-                    branches.toArray(new String[branches.size()]),
+                    branches.toArray(new String[0]),
                     BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.Branch.DeleteBranch.Header"),
                     BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.Branch.DeleteBranch.Message"));
             String branchToDelete = selectionDialog.open();
@@ -381,7 +385,7 @@ public class GitGuiPlugin
             EnterSelectionDialog selectionDialog =
                 new EnterSelectionDialog(
                     HopGui.getInstance().getShell(),
-                    branches.toArray(new String[branches.size()]),
+                    branches.toArray(new String[0]),
                     BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.Branch.MergeBranch.Header"),
                     BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.Branch.MergeBranch.Message"));
             String branchToMerge = selectionDialog.open();
@@ -594,8 +598,8 @@ public class GitGuiPlugin
   /**
    * Normalize absolute filename.
    *
-   * @param path
-   * @return
+   * @param path the path to normalize
+   * @return normalized path
    */
   private String getAbsoluteFilename(String path) {
     try {
@@ -693,18 +697,21 @@ public class GitGuiPlugin
     // Changed git file colored blue
     UIFile file = changedFiles.get(absolutePath);
     if (file != null) {
-      if (file.getChangeType().equals(DiffEntry.ChangeType.ADD)) {
-        if (Boolean.TRUE.equals(file.getIsStaged())) {
-          treeItem.setForeground(colorStaged);
-        } else {
-          treeItem.setForeground(colorUnstaged);
-        }
-      } else {
-        treeItem.setForeground(colorStaged);
+      switch (file.getChangeType()) {
+        case ADD:
+        case COPY:
+        case RENAME:
+          treeItem.setForeground(file.isStaged() ? colorStagedAdd : colorUnstaged);
+          break;
+        case MODIFY:
+          treeItem.setForeground(file.isStaged() ? colorStagedModify : colorUnstaged);
+          break;
+        case DELETE:
+          treeItem.setForeground(colorStagedUnchanged);
       }
     }
-    String ignored = ignoredFiles.get(absolutePath);
-    if (ignored != null) {
+
+    if (ignoredFiles.containsKey(absolutePath)) {
       treeItem.setForeground(colorIgnored);
     }
   }

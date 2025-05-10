@@ -18,41 +18,17 @@
 
 package org.apache.hop.git.model;
 
+import lombok.Getter;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 
 public class UIFile {
+  @Getter private final String name;
+  @Getter private final ChangeType changeType;
+  @Getter private final boolean staged;
 
-  private String name;
-  private ChangeType changeType;
-  private Boolean isStaged = false;
-
-  public UIFile(String name, ChangeType changeType, Boolean isStaged) {
+  public UIFile(String name, ChangeType changeType, boolean staged) {
     this.name = name;
     this.changeType = changeType;
-    this.isStaged = isStaged;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public ChangeType getChangeType() {
-    return changeType;
-  }
-
-  public void setChangeType(ChangeType changeType) {
-    this.changeType = changeType;
-  }
-
-  public Boolean getIsStaged() {
-    return isStaged;
-  }
-
-  public void setIsStaged(Boolean isStaged) {
-    this.isStaged = isStaged;
+    this.staged = staged;
   }
 }
