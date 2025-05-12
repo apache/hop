@@ -72,13 +72,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-/** Show git information about a file or folder : revisions */
+/** Show git information about a file or folder: revisions */
 public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     implements IExplorerFileTypeHandler, Listener {
 
   public static final String CONST_GIT = "git: ";
   public static final String CONST_S_S_S = "%s (%s -> %s)";
-  private String id;
+  private final String id;
 
   private Composite parentComposite;
 
@@ -87,7 +87,6 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   private Text wBranch;
   private TableView wFiles;
   private TableView wRevisions;
-  private Composite wDiffComposite;
   private Text wDiff;
   private Button wbDiff;
 
@@ -244,7 +243,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     PropsUi.setLook(wFiles);
     wFiles.table.addListener(SWT.Selection, e -> fileSelected());
 
-    wDiffComposite = new Composite(sashForm, SWT.NONE);
+    Composite wDiffComposite = new Composite(sashForm, SWT.NONE);
     wDiffComposite.setLayout(new FormLayout());
 
     wbDiff = new Button(wDiffComposite, SWT.PUSH);
@@ -691,7 +690,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       item.setText(1, Const.NVL(file.getName(), ""));
       if (showStaged) {
         item.setText(2, Const.NVL(file.getChangeType().name(), ""));
-        item.setText(3, file.getIsStaged() ? "Y" : "N");
+        item.setText(3, file.isStaged() ? "Y" : "N");
       }
     }
     wFiles.optimizeTableView();
@@ -731,20 +730,14 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
         return "Ignored";
       }
     } else {
-      switch (file.getChangeType()) {
-        case ADD:
-          return "Not added";
-        case COPY:
-          return "Copied";
-        case MODIFY:
-          return "Modified";
-        case DELETE:
-          return "Deleted";
-        case RENAME:
-          return "Renamed";
-        default:
-          return "Changed";
-      }
+      return switch (file.getChangeType()) {
+        case ADD -> "Not added";
+        case COPY -> "Copied";
+        case MODIFY -> "Modified";
+        case DELETE -> "Deleted";
+        case RENAME -> "Renamed";
+        default -> "Changed";
+      };
     }
   }
 
