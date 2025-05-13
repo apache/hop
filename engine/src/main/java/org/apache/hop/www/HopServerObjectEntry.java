@@ -19,13 +19,15 @@ package org.apache.hop.www;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Comparator;
+import lombok.Getter;
+import lombok.Setter;
 
-/** A carte object entry in the pipeline or workflow maps */
+/** A hop server object entry in the pipeline or workflow maps */
 @XmlRootElement
 public class HopServerObjectEntry
     implements Comparator<HopServerObjectEntry>, Comparable<HopServerObjectEntry> {
-  private String name;
-  private String id;
+  @Getter @Setter private String name;
+  @Getter @Setter private String id;
 
   public HopServerObjectEntry() {}
 
@@ -65,33 +67,5 @@ public class HopServerObjectEntry
   @Override
   public int compareTo(HopServerObjectEntry o) {
     return compare(this, o);
-  }
-
-  /**
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name the name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * @return the id
-   */
-  public String getId() {
-    return id;
-  }
-
-  /**
-   * @param id the id to set
-   */
-  public void setId(String id) {
-    this.id = id;
   }
 }
