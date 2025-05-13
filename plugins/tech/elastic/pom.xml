@@ -28,5 +28,5 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Technology Elastic</name>
 
-    <properties />
+    <properties></properties>
 </project>
