@@ -660,7 +660,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   /**
    * Gets pipeline file type
    *
-   * @return value of public HopPipelineFileType<PipelineMeta> getPipelineFileType() {
+   * @return HopPipelineFileType of the PipelineMeta
    */
   public HopPipelineFileType<PipelineMeta> getPipelineFileType() {
     return pipelineFileType;
