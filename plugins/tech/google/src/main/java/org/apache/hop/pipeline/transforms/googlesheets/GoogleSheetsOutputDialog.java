@@ -150,7 +150,6 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
 
     CTabFolder tabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
-    tabFolder.setSimple(false);
 
     /*
      * BEGIN Service Account Tab
