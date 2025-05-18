@@ -23,7 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.apache.hop.core.gui.plugin.toolbar.EmptyTypeFilename;
-import org.apache.hop.core.gui.plugin.toolbar.EmptyTypeMetadata;
+import org.apache.hop.metadata.api.IHopMetadata;
 
 /**
  * This annotation allows a method in a GuiPlugin to be identified as a contributor to the Hop UI
@@ -131,9 +131,9 @@ public @interface GuiWidgetElement {
   Class<? extends ITypeFilename> typeFilename() default EmptyTypeFilename.class;
 
   /**
-   * You can provide more information about the Metadata type like the metadata class
+   * You can provide information about the metadata class
    *
    * @return
    */
-  Class<? extends ITypeMetadata> typeMetadata() default EmptyTypeMetadata.class;
+  Class<? extends IHopMetadata> metadata() default IHopMetadata.class;
 }

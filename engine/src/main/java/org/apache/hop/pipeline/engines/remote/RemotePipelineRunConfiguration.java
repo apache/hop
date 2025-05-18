@@ -24,6 +24,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
+import org.apache.hop.server.HopServerMeta;
 
 @GuiPlugin(description = "Remote pipeline run configuration widgets")
 public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguration
@@ -35,7 +36,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
       type = GuiElementType.METADATA,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.HopServer.Label",
-      typeMetadata = HopServerTypeMetadata.class)
+      metadata = HopServerMeta.class)
   @HopMetadataProperty(key = "hop_server")
   protected String hopServerName;
 
@@ -45,7 +46,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
       type = GuiElementType.METADATA,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.RunConfiguration.Label",
-      typeMetadata = PipelineRunConfigurationTypeMetadata.class)
+      metadata = PipelineRunConfiguration.class)
   @HopMetadataProperty(key = "run_config")
   protected String runConfigurationName;
 
