@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -63,7 +64,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -1484,19 +1484,17 @@ public class GetXmlDataDialog extends BaseTransformDialog {
           // Read file
           String str = xmlSource;
           if (str == null) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
-            dialog.setFilterNames(
-                new String[] {
-                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_XMLFILES),
-                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
-                });
-
-            if (dialog.open() != null) {
-              str =
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName();
+            String filePath =
+                BaseDialog.presentFileDialog(
+                    shell,
+                    new String[] {"*.xml;*.XML", "*"},
+                    new String[] {
+                      BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_XMLFILES),
+                      BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
+                    },
+                    false);
+            if (!StringUtil.isEmpty(filePath)) {
+              str = filePath;
             }
             readFilePdOption = new PdOption();
             readFilePdOption.setEncoding(
@@ -1611,19 +1609,17 @@ public class GetXmlDataDialog extends BaseTransformDialog {
           // Read file
           String str = xmlSource;
           if (str == null) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
-            dialog.setFilterNames(
-                new String[] {
-                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_XMLFILES),
-                  BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
-                });
-
-            if (dialog.open() != null) {
-              str =
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName();
+            String filePath =
+                BaseDialog.presentFileDialog(
+                    shell,
+                    new String[] {"*.xml;*.XML", "*"},
+                    new String[] {
+                      BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_XMLFILES),
+                      BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
+                    },
+                    false);
+            if (!StringUtil.isEmpty(filePath)) {
+              str = filePath;
             }
           }
           XmlInputFieldsImportProgressDialog prd =
