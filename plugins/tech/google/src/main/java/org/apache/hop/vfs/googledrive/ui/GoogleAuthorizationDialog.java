@@ -198,7 +198,8 @@ public class GoogleAuthorizationDialog extends Dialog {
       browserFormData.right = new FormAttachment(100, -5);
       browser.setLayoutData(browserFormData);
 
-      browser.addCloseWindowListener(
+      browser.addListener(
+          SWT.Dispose,
           event -> {
             Browser browser = (Browser) event.widget;
             Shell shell = browser.getShell();
