@@ -674,7 +674,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
     fdSash.bottom = new FormAttachment(wOk, -margin);
     wSash.setLayoutData(fdSash);
 
-    wSash.setWeights(60, 40);
+    wSash.setWeights(new int[] {60, 40});
 
     // Add listeners
 

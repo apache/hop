@@ -564,9 +564,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fdBrowseSash.bottom = new FormAttachment(100, 0);
 
     browseSash.setLayoutData(fdBrowseSash);
-    browseSash.setWeights(90, 10);
+    browseSash.setWeights(new int[] {90, 10});
 
-    sashForm.setWeights(15, 85);
+    sashForm.setWeights(new int[] {15, 85});
 
     getData();
 

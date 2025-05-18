@@ -408,7 +408,7 @@ public class ScriptDialog extends BaseTransformDialog {
     fdSash.bottom = new FormAttachment(wOk, -2 * margin);
     wSash.setLayoutData(fdSash);
 
-    wSash.setWeights(75, 25);
+    wSash.setWeights(new int[] {75, 25});
 
     // Add listeners
     folder.addCTabFolder2Listener(

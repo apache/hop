@@ -257,9 +257,9 @@ public class FormulaEditor extends Dialog implements KeyListener {
     fdMessage.bottom = new FormAttachment(0, 100);
     message.setLayoutData(fdMessage);
 
-    rightSash.setWeights(10, 80);
+    rightSash.setWeights(new int[] {10, 80});
 
-    sashForm.setWeights(15, 85);
+    sashForm.setWeights(new int[] {15, 85});
 
     red = new Color(shell.getDisplay(), 255, 0, 0);
     green = new Color(shell.getDisplay(), 0, 220, 0);
