@@ -38,6 +38,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
+import org.apache.hop.ui.util.SwtErrorHandler;
 
 public class HopGuiAuditDelegate {
 
@@ -172,8 +173,10 @@ public class HopGuiAuditDelegate {
       }
 
     } catch (Exception e) {
-      throw new HopException(
-          "Error opening metadata object '" + name + "' of class " + className, e);
+      if (!SwtErrorHandler.handleException(e)) {
+        throw new HopException(
+            "Error opening metadata object '" + name + "' of class " + className, e);
+      }
     }
   }
 

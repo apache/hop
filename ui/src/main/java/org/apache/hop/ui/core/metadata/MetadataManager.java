@@ -44,6 +44,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextHandler;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
+import org.apache.hop.ui.util.SwtErrorHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
@@ -211,7 +212,9 @@ public class MetadataManager<T extends IHopMetadata> {
       }
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, CONST_ERROR_EDITING_METADATA, e);
+      if (!SwtErrorHandler.handleException(e)) {
+        new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, CONST_ERROR_EDITING_METADATA, e);
+      }
       return false;
     }
   }
@@ -248,7 +251,9 @@ public class MetadataManager<T extends IHopMetadata> {
         perspective.setActiveEditor(editor);
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, CONST_ERROR_EDITING_METADATA, e);
+      if (!SwtErrorHandler.handleException(e)) {
+        new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, CONST_ERROR_EDITING_METADATA, e);
+      }
     }
   }
 
@@ -475,8 +480,10 @@ public class MetadataManager<T extends IHopMetadata> {
 
       return element;
     } catch (Exception e) {
-      new ErrorDialog(
-          hopGui.getActiveShell(), CONST_ERROR, "Error creating new metadata element", e);
+      if (SwtErrorHandler.handleException(e)) {
+        new ErrorDialog(
+            hopGui.getActiveShell(), CONST_ERROR, "Error creating new metadata element", e);
+      }
       return null;
     }
   }
