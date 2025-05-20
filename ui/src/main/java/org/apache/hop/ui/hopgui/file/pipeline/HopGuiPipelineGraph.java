@@ -4024,7 +4024,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
 
-    sashForm.setWeights(60, 40);
+    sashForm.setWeights(new int[] {60, 40});
   }
 
   public synchronized void start(PipelineExecutionConfiguration executionConfiguration)

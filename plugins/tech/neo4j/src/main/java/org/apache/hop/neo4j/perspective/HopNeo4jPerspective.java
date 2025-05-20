@@ -477,7 +477,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     cypherTab.setControl(wCypher);
 
     tabFolder.setSelection(0);
-    sashForm.setWeights(30, 70);
+    sashForm.setWeights(new int[] {30, 70});
 
     defaultTabFont = lineageTab.getFont();
 

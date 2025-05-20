@@ -182,7 +182,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     createTree(sash);
     createTabFolder(sash);
 
-    sash.setWeights(20, 80);
+    sash.setWeights(new int[] {20, 80});
 
     this.refresh();
     this.updateSelection();

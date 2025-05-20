@@ -252,7 +252,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     createTree(sash);
     createTabFolder(sash);
 
-    sash.setWeights(20, 80);
+    sash.setWeights(new int[] {20, 80});
 
     // refresh the file explorer when project activated or updated.
     //

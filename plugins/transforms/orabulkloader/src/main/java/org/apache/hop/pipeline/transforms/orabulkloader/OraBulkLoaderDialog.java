@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.orabulkloader;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
@@ -27,10 +28,13 @@ import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -63,7 +67,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -319,6 +322,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdSqlldr.top = new FormAttachment(wTable, margin);
     fdSqlldr.right = new FormAttachment(wbSqlldr, -margin);
     wSqlldr.setLayoutData(fdSqlldr);
+    wbSqlldr.setData(wSqlldr);
 
     // Load Method line
     Label wlLoadMethod = new Label(wBulkLoaderComposite, SWT.RIGHT);
@@ -469,6 +473,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdControlFile.top = new FormAttachment(wReadSize, margin);
     fdControlFile.right = new FormAttachment(wbControlFile, -margin);
     wControlFile.setLayoutData(fdControlFile);
+    wbControlFile.setData(wControlFile);
 
     // Data file line
     Label wlDataFile = new Label(wBulkLoaderComposite, SWT.RIGHT);
@@ -494,6 +499,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdDataFile.top = new FormAttachment(wControlFile, margin);
     fdDataFile.right = new FormAttachment(wbDataFile, -margin);
     wDataFile.setLayoutData(fdDataFile);
+    wbDataFile.setData(wDataFile);
 
     // Log file line
     Label wlLogFile = new Label(wBulkLoaderComposite, SWT.RIGHT);
@@ -519,6 +525,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdLogFile.top = new FormAttachment(wDataFile, margin);
     fdLogFile.right = new FormAttachment(wbLogFile, -margin);
     wLogFile.setLayoutData(fdLogFile);
+    wbLogFile.setData(wLogFile);
 
     // Bad file line
     Label wlBadFile = new Label(wBulkLoaderComposite, SWT.RIGHT);
@@ -544,6 +551,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdBadFile.top = new FormAttachment(wLogFile, margin);
     fdBadFile.right = new FormAttachment(wbBadFile, -margin);
     wBadFile.setLayoutData(fdBadFile);
+    wbBadFile.setData(wBadFile);
 
     // Discard file line
     Label wlDiscardFile = new Label(wBulkLoaderComposite, SWT.RIGHT);
@@ -569,6 +577,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdDiscardFile.top = new FormAttachment(wBadFile, margin);
     fdDiscardFile.right = new FormAttachment(wbDiscardFile, -margin);
     wDiscardFile.setLayoutData(fdDiscardFile);
+    wDiscardFile.setData(wDiscardFile);
 
     //
     // Control encoding line
@@ -852,106 +861,36 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    wbSqlldr.addSelectionListener(
+    SelectionListener fileSelectionListener =
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wSqlldr.getText() != null) {
-              dialog.setFileName(wSqlldr.getText());
+            if (e.widget == null || !(e.widget.getData() instanceof TextVar)) {
+              return;
             }
-            dialog.setFilterNames(ALL_FILETYPES);
-            if (dialog.open() != null) {
-              wSqlldr.setText(dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
+            TextVar wText = (TextVar) e.widget.getData();
+            FileObject fileObject = null;
+            if (!StringUtil.isEmpty(wText.getText())) {
+              try {
+                fileObject = HopVfs.getFileObject(variables.resolve(wText.getText()));
+              } catch (HopFileException ignored) {
+              }
+            }
+            String filePath =
+                BaseDialog.presentFileDialog(
+                    false, shell, wText, fileObject, new String[] {"*"}, ALL_FILETYPES, false);
+            if (!StringUtil.isEmpty(filePath)) {
+              wText.setText(filePath);
             }
           }
-        });
+        };
 
-    wbControlFile.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wControlFile.getText() != null) {
-              dialog.setFileName(wControlFile.getText());
-            }
-            dialog.setFilterNames(ALL_FILETYPES);
-            if (dialog.open() != null) {
-              wControlFile.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
-
-    wbDataFile.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wDataFile.getText() != null) {
-              dialog.setFileName(wDataFile.getText());
-            }
-            dialog.setFilterNames(ALL_FILETYPES);
-            if (dialog.open() != null) {
-              wDataFile.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
-
-    wbLogFile.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wLogFile.getText() != null) {
-              dialog.setFileName(wLogFile.getText());
-            }
-            dialog.setFilterNames(ALL_FILETYPES);
-            if (dialog.open() != null) {
-              wLogFile.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
-
-    wbBadFile.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wBadFile.getText() != null) {
-              dialog.setFileName(wBadFile.getText());
-            }
-            dialog.setFilterNames(ALL_FILETYPES);
-            if (dialog.open() != null) {
-              wBadFile.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
-
-    wbDiscardFile.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wDiscardFile.getText() != null) {
-              dialog.setFileName(wDiscardFile.getText());
-            }
-            dialog.setFilterNames(ALL_FILETYPES);
-            if (dialog.open() != null) {
-              wDiscardFile.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbSqlldr.addSelectionListener(fileSelectionListener);
+    wbControlFile.addSelectionListener(fileSelectionListener);
+    wbDataFile.addSelectionListener(fileSelectionListener);
+    wbLogFile.addSelectionListener(fileSelectionListener);
+    wbBadFile.addSelectionListener(fileSelectionListener);
+    wbDiscardFile.addSelectionListener(fileSelectionListener);
 
     getData();
     wTabFolder.setSelection(0);

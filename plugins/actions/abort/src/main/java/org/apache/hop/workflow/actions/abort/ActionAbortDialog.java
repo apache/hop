@@ -32,6 +32,8 @@ import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -127,7 +129,13 @@ public class ActionAbortDialog extends ActionDialog {
     fdMessageAbort.right = new FormAttachment(100, 0);
     wMessageAbort.setLayoutData(fdMessageAbort);
 
-    SelectionListener slMod = SelectionListener.widgetSelectedAdapter(event -> action.setChanged());
+    SelectionListener slMod =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            action.setChanged();
+          }
+        };
     // Always log rows
     wAlwaysLogRows = new Button(shell, SWT.CHECK);
     wAlwaysLogRows.setSelection(true);

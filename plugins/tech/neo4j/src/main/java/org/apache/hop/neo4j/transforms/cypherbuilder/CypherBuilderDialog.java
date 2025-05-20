@@ -471,7 +471,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     PropsUi.setLook(wOperationsComp);
     wOperationsComp.setBackground(GuiResource.getInstance().getColorBackground());
 
-    sashForm.setWeights(20, 80);
+    sashForm.setWeights(new int[] {20, 80});
   }
 
   private void operationEdit() {

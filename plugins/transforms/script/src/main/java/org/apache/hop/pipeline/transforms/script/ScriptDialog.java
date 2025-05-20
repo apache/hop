@@ -55,6 +55,7 @@ import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -408,7 +409,7 @@ public class ScriptDialog extends BaseTransformDialog {
     fdSash.bottom = new FormAttachment(wOk, -2 * margin);
     wSash.setLayoutData(fdSash);
 
-    wSash.setWeights(75, 25);
+    wSash.setWeights(new int[] {75, 25});
 
     // Add listeners
     folder.addCTabFolder2Listener(
@@ -497,7 +498,7 @@ public class ScriptDialog extends BaseTransformDialog {
 
     // Create the drag source on the tree
     DragSource ds = new DragSource(wTree, DND.DROP_MOVE);
-    ds.setTransfer(TextTransfer.getInstance());
+    ds.setTransfer(new Transfer[] {TextTransfer.getInstance()});
     ds.addDragListener(
         new DragSourceAdapter() {
 

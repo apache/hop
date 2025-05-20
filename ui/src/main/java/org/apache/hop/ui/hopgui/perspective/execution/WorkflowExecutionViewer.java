@@ -235,7 +235,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     hopGui.replaceKeyboardShortcutListeners(this);
 
     tabFolder.setSelection(0);
-    sash.setWeights(60, 40);
+    sash.setWeights(new int[] {60, 40});
   }
 
   private void addInfoTab() {
@@ -376,7 +376,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
     dataView.optimizeTableView();
 
-    dataSash.setWeights(15, 85);
+    dataSash.setWeights(new int[] {15, 85});
 
     dataTab.setControl(dataSash);
   }

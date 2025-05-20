@@ -282,7 +282,7 @@ public class EnterListDialog extends Dialog {
           }
         });
 
-    sashform.setWeights(40, 16, 40);
+    sashform.setWeights(new int[] {40, 16, 40});
 
     // Add listeners
 
