@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
+import org.apache.hop.ui.util.SwtErrorHandler;
 import org.eclipse.swt.widgets.Shell;
 
 public class GuiContextUtil {
@@ -181,7 +182,9 @@ public class GuiContextUtil {
                       IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
                       actionLambda.executeAction(dialog.isShiftClicked(), dialog.isCtrlClicked());
                     } catch (Exception e) {
-                      new ErrorDialog(parent, "Error", "An error occurred executing action", e);
+                      if (!SwtErrorHandler.handleException(e)) {
+                        new ErrorDialog(parent, "Error", "An error occurred executing action", e);
+                      }
                     }
                   });
 
