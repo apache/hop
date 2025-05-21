@@ -1261,39 +1261,63 @@ public class ActionFtpDialog extends ActionDialog {
     closeFtpConnection();
   }
 
-  private void checkRemoteFolder(boolean ftpFolfer, boolean checkMoveFolder, String foldername) {
-    if (!Utils.isEmpty(foldername) && connectToFtp(ftpFolfer, checkMoveFolder)) {
-
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      mb.setMessage(
-          BaseMessages.getString(PKG, "ActionFtp.FolderExists.OK", foldername) + Const.CR);
-      mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Ok"));
-      mb.open();
+  private void checkRemoteFolder(boolean ftpFolder, boolean checkMoveFolder, String foldername) {
+    if (!Utils.isEmpty(foldername) && connectToFtp(ftpFolder, checkMoveFolder)) {
+      try {
+        boolean exists = ftpclient.changeWorkingDirectory(foldername);
+        if (exists) {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "ActionFtp.FolderExists.OK", foldername) + Const.CR);
+          mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Ok"));
+          mb.open();
+        } else {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "ActionFtp.FolderExists.NOK", foldername) + Const.CR);
+          mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Bad"));
+          mb.open();
+        }
+      } catch (Exception e) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage("Error checking remote folder: " + e.getMessage());
+        mb.setText("Folder Check Failed");
+        mb.open();
+      }
     }
   }
 
   private boolean connectToFtp(boolean checkFolder, boolean checkMoveToFolder) {
-    boolean retval = false;
-    String realServername = null;
     try {
       if (ftpclient == null || !ftpclient.isConnected()) {
         ActionFtp actionFtp = new ActionFtp();
         getInfo(actionFtp);
 
-        // Create ftp client to host:port ...
         ftpclient =
             FtpClientUtil.connectAndLogin(LogChannel.UI, variables, actionFtp, wName.getText());
+
+        // Explicit authentication verification
+        try {
+          if (ftpclient == null || !ftpclient.isConnected()) {
+            throw new Exception("FTP client is null or not connected.");
+          }
+          // Attempting to list files to validate authentication
+          ftpclient.listFiles();
+        } catch (Exception authEx) {
+          throw new Exception("FTP authentication failed: " + authEx.getMessage(), authEx);
+        }
+
       }
-      retval = true;
+      return true;
     } catch (Exception e) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-          BaseMessages.getString(PKG, "ActionFtp.ErrorConnect.NOK", realServername, e.getMessage())
-              + Const.CR);
+          BaseMessages.getString(
+              PKG, "ActionFtp.ErrorConnect.NOK", wServerName.getText(), e.getMessage()));
       mb.setText(BaseMessages.getString(PKG, "ActionFtp.ErrorConnect.Title.Bad"));
       mb.open();
+      return false;
     }
-    return retval;
   }
 
   private void activeSuccessCondition() {
