@@ -37,5 +37,3 @@ The `Delete files` action deletes a set of specified files, optionally with subf
 For example to delete all files ending in .dat, the regular expression would be ".*\.dat$".
 |Files/Folders|The complete list of files/folders to delete
 |===
-
-After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.
