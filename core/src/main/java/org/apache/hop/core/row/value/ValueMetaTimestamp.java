@@ -452,7 +452,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
       IVariables variables, DatabaseMeta databaseMeta, ResultSet rs) throws HopDatabaseException {
 
     try {
-      if (java.sql.Types.TIMESTAMP == rs.getInt("COLUMN_TYPE")) {
+      if (java.sql.Types.TIMESTAMP == rs.getInt("DATA_TYPE")) {
         IValueMeta vmi = super.getMetadataPreview(variables, databaseMeta, rs);
         IValueMeta valueMeta;
         if (databaseMeta.supportsTimestampDataType()) {
