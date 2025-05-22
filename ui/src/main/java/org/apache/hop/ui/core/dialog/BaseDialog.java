@@ -448,6 +448,23 @@ public abstract class BaseDialog extends Dialog {
 
   public static String presentDirectoryDialog(
       Shell shell, TextVar textVar, String message, IVariables variables) {
+    String path = null;
+    if (textVar != null && textVar.getText() != null) {
+      path = textVar.getText();
+    }
+
+    String directory = presentDirectoryDialog(shell, path, message, variables);
+
+    // Set the text box to the new selection
+    if (textVar != null && directory != null) {
+      textVar.setText(directory);
+    }
+
+    return directory;
+  }
+
+  public static String presentDirectoryDialog(
+      Shell shell, String path, String message, IVariables variables) {
 
     boolean useNativeFileDialog =
         "Y"
@@ -465,8 +482,8 @@ public abstract class BaseDialog extends Dialog {
       directoryDialog.setMessage(message);
     }
     directoryDialog.setText(BaseMessages.getString(PKG, "BaseDialog.OpenDirectory"));
-    if (textVar != null && variables != null && textVar.getText() != null) {
-      directoryDialog.setFilterPath(variables.resolve(textVar.getText()));
+    if (variables != null && path != null) {
+      directoryDialog.setFilterPath(variables.resolve(path));
     }
     String directoryName = null;
 
@@ -493,11 +510,6 @@ public abstract class BaseDialog extends Dialog {
         }
       } catch (Exception xe) {
         LogChannel.UI.logError("Error handling extension point 'HopGuiDirectorySelected'", xe);
-      }
-
-      // Set the text box to the new selection
-      if (textVar != null && directoryName != null) {
-        textVar.setText(directoryName);
       }
     }
 
