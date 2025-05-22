@@ -43,7 +43,6 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.engines.remote.PipelineRunConfigurationTypeMetadata;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.TypePipelineFile;
@@ -76,7 +75,7 @@ public class VariableResolverPipeline implements IVariableResolver {
       order = "02",
       label = "i18n::VariableResolverEditor.label.RunConfigurationName",
       type = GuiElementType.METADATA,
-      typeMetadata = PipelineRunConfigurationTypeMetadata.class,
+      metadata = PipelineRunConfiguration.class,
       parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID)
   @HopMetadataProperty
   private String runConfigurationName;
