@@ -353,16 +353,16 @@ public abstract class Workflow extends Variables
     return result;
   }
 
-  private void emergencyWriteWorkflowTracker(Result res) {
-    ActionResult jerFinalResult =
+  private void emergencyWriteWorkflowTracker(Result result) {
+    ActionResult actionResult =
         new ActionResult(
-            res,
+            result,
             this.getLogChannelId(),
             BaseMessages.getString(PKG, CONST_WORKFLOW_FINISHED),
             null,
             null,
             null);
-    WorkflowTracker finalTrack = new WorkflowTracker(this.getWorkflowMeta(), jerFinalResult);
+    WorkflowTracker finalTrack = new WorkflowTracker(this.getWorkflowMeta(), actionResult);
     // workflowTracker is up to date too.
     this.workflowTracker.addWorkflowTracker(finalTrack);
   }
@@ -731,25 +731,28 @@ public abstract class Workflow extends Variables
 
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader(action.getClass().getClassLoader());
-      // Execute this action..
-      IAction cloneJei = (IAction) action.clone();
-      cloneJei.copyFrom(this);
-      cloneJei.getLogChannel().setLogLevel(getLogLevel());
-      cloneJei.setMetadataProvider(metadataProvider);
-      cloneJei.setParentWorkflow(this);
-      cloneJei.setParentWorkflowMeta(this.getWorkflowMeta());
+
+      // Execute this action
+      IAction cloneAction = (IAction) action.clone();
+      cloneAction.copyFrom(this);
+      cloneAction.getLogChannel().setLogLevel(getLogLevel());
+      cloneAction.setMetadataProvider(metadataProvider);
+      cloneAction.setParentWorkflow(this);
+      cloneAction.setParentWorkflowMeta(this.getWorkflowMeta());
       final long start = System.currentTimeMillis();
 
-      cloneJei.getLogChannel().logDetailed("Starting action");
+      cloneAction.getLogChannel().logDetailed("Starting action");
       for (IActionListener actionListener : actionListeners) {
-        actionListener.beforeExecution(this, actionMeta, cloneJei);
+        actionListener.beforeExecution(this, actionMeta, cloneAction);
       }
+
+      // TODO: Remove interactive mode, the JOIN action use active actions to work.
       if (interactive) {
         getActiveActions().add(actionMeta.clone());
       }
-      log.snap(Metrics.METRIC_ACTION_START, cloneJei.toString());
-      newResult = cloneJei.execute(prevResult, nr);
-      log.snap(Metrics.METRIC_ACTION_STOP, cloneJei.toString());
+      log.snap(Metrics.METRIC_ACTION_START, cloneAction.toString());
+      newResult = cloneAction.execute(prevResult, nr);
+      log.snap(Metrics.METRIC_ACTION_STOP, cloneAction.toString());
 
       // Action execution duration
       newResult.setElapsedTimeMillis(System.currentTimeMillis() - start);
@@ -759,7 +762,7 @@ public abstract class Workflow extends Variables
       }
 
       for (IActionListener actionListener : actionListeners) {
-        actionListener.afterExecution(this, actionMeta, cloneJei, newResult);
+        actionListener.afterExecution(this, actionMeta, cloneAction, newResult);
       }
 
       Thread.currentThread().setContextClassLoader(cl);
@@ -769,7 +772,7 @@ public abstract class Workflow extends Variables
       //
       LoggingBuffer loggingBuffer = HopLogStore.getAppender();
       StringBuffer logTextBuffer =
-          loggingBuffer.getBuffer(cloneJei.getLogChannel().getLogChannelId(), false);
+          loggingBuffer.getBuffer(cloneAction.getLogChannel().getLogChannelId(), false);
       newResult.setLogText(logTextBuffer.toString() + newResult.getLogText());
 
       // Save this result as well...
@@ -777,7 +780,7 @@ public abstract class Workflow extends Variables
       ActionResult jerAfter =
           new ActionResult(
               newResult,
-              cloneJei.getLogChannel().getLogChannelId(),
+              cloneAction.getLogChannel().getLogChannelId(),
               BaseMessages.getString(PKG, CONST_ACTION_FINISHED),
               null,
               actionMeta.getName(),
@@ -889,6 +892,7 @@ public abstract class Workflow extends Variables
               };
           Thread thread = new Thread(runnable);
           threads.add(thread);
+          thread.setName("Workflow " + workflowMeta.getName() + ':' + nextAction.getName());
           thread.start();
           if (log.isBasic()) {
             log.logBasic(
@@ -950,7 +954,7 @@ public abstract class Workflow extends Variables
       res = prevResult;
     }
 
-    // See if there where any errors in the parallel execution
+    // See if there were any errors in the parallel execution
     //
     if (!threadExceptions.isEmpty()) {
       res.setResult(false);
@@ -998,7 +1002,7 @@ public abstract class Workflow extends Variables
   }
 
   /**
-   * Add a number of errors to the total number of erros that occured during execution.
+   * Add a number of errors to the total number of errors that occurred during execution.
    *
    * @param nrToAdd nr of errors to add.
    */
@@ -1215,8 +1219,7 @@ public abstract class Workflow extends Variables
    * @param filename the filename if there is any
    * @param name the name of the workflow
    */
-  public static final void setInternalHopVariables(
-      IVariables variables, String filename, String name) {
+  public static void setInternalHopVariables(IVariables variables, String filename, String name) {
     boolean hasFilename = !Utils.isEmpty(filename);
     if (hasFilename) { // we have a filename that's defined.
       try {
