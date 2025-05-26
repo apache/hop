@@ -50,8 +50,6 @@ In this tab you can specify the files and/or folders to move.
 |Files / Folders |You can specify the list of files or folders with destinations and wildcards in this grid.
 |===
 
-After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.
-
 === Destination File Tab
 
 In this tab you can specify the destination of the files and/or folders and their new filenames.
@@ -104,5 +102,5 @@ The default is yyyyMMdd'_'HHmmss
 * Success when at least x files moved (specify x in the limit field below)
 * Success when number of errors lesser than (specify the max number of errors in the limit field below)
 |Nr errors lesser than|The number of files moved or the number of errors, depending on the success option above
-|Result files name|Add files to result files name|Add the target file names to the list of result files of this workflow action for use in the next workflow actions.
+|Result files name|Add the target file names to the list of result files of this workflow action for use in the next workflow actions.
 |===
