@@ -88,9 +88,6 @@ public class HopGuiWorkflowLogDelegate {
       workflowGraph.addExtraView();
     } else {
       if (workflowLogTab != null && !workflowLogTab.isDisposed()) {
-        // just set this one active and get out...
-        //
-        workflowGraph.extraViewTabFolder.setSelection(workflowLogTab);
         return;
       }
     }
@@ -143,8 +140,6 @@ public class HopGuiWorkflowLogDelegate {
         });
 
     workflowLogTab.setControl(workflowLogComposite);
-
-    workflowGraph.extraViewTabFolder.setSelection(workflowLogTab);
   }
 
   /**

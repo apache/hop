@@ -100,9 +100,6 @@ public class HopGuiPipelineCheckDelegate {
       pipelineGraph.addExtraView();
     } else {
       if (pipelineCheckTab != null && !pipelineCheckTab.isDisposed()) {
-        // just set this one active and get out...
-        //
-        pipelineGraph.extraViewTabFolder.setSelection(pipelineCheckTab);
         return;
       }
     }
@@ -229,10 +226,6 @@ public class HopGuiPipelineCheckDelegate {
                       PKG, "PipelineGraph.Check.ErrorCheckingPipeline.Exception", e));
             }
           });
-
-      // Active tab
-      //
-      this.pipelineGraph.extraViewTabFolder.setSelection(pipelineCheckTab);
 
       // Update checks results
       //
