@@ -175,33 +175,17 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
             // If so, add it to the indexes...
             data.argumentIndexes.add(i);
 
-            Class<?> parameterType;
-            switch (valueMeta.getType()) {
-              case IValueMeta.TYPE_STRING:
-                parameterType = String.class;
-                break;
-              case IValueMeta.TYPE_NUMBER:
-                parameterType = Double.class;
-                break;
-              case IValueMeta.TYPE_INTEGER:
-                parameterType = Long.class;
-                break;
-              case IValueMeta.TYPE_DATE:
-                parameterType = Date.class;
-                break;
-              case IValueMeta.TYPE_BIGNUMBER:
-                parameterType = BigDecimal.class;
-                break;
-              case IValueMeta.TYPE_BOOLEAN:
-                parameterType = Boolean.class;
-                break;
-              case IValueMeta.TYPE_BINARY:
-                parameterType = byte[].class;
-                break;
-              default:
-                parameterType = String.class;
-                break;
-            }
+            Class<?> parameterType =
+                switch (valueMeta.getType()) {
+                  case IValueMeta.TYPE_STRING -> String.class;
+                  case IValueMeta.TYPE_NUMBER -> Double.class;
+                  case IValueMeta.TYPE_INTEGER -> Long.class;
+                  case IValueMeta.TYPE_DATE -> Date.class;
+                  case IValueMeta.TYPE_BIGNUMBER -> BigDecimal.class;
+                  case IValueMeta.TYPE_BOOLEAN -> Boolean.class;
+                  case IValueMeta.TYPE_BINARY -> byte[].class;
+                  default -> String.class;
+                };
             parameterTypes.add(parameterType);
             parameterNames.add(valueMeta.getName());
           }
@@ -211,8 +195,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
         //
         data.expressionEvaluator = new ExpressionEvaluator();
         data.expressionEvaluator.setParameters(
-            parameterNames.toArray(new String[parameterNames.size()]),
-            parameterTypes.toArray(new Class<?>[parameterTypes.size()]));
+            parameterNames.toArray(new String[0]), parameterTypes.toArray(new Class<?>[0]));
         data.expressionEvaluator.setReturnType(Object.class);
         data.expressionEvaluator.setThrownExceptions(new Class<?>[] {Exception.class});
 
@@ -259,17 +242,11 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
       List<IStream> targetStreams = meta.getTransformIOMeta().getTargetStreams();
       data.trueTransformName = targetStreams.get(0).getTransformName();
       data.falseTransformName = targetStreams.get(1).getTransformName();
+      data.chosesTargetTransforms =
+          targetStreams.get(0).getTransformMeta() != null
+              || targetStreams.get(1).getTransformMeta() != null;
 
-      if (targetStreams.get(0).getTransformMeta() != null
-          ^ targetStreams.get(1).getTransformMeta() != null) {
-        logError(BaseMessages.getString(PKG, "JavaFilter.Log.BothTrueAndFalseNeeded"));
-      } else {
-        data.chosesTargetTransforms =
-            targetStreams.get(0).getTransformMeta() != null
-                && targetStreams.get(1).getTransformMeta() != null;
-
-        return true;
-      }
+      return true;
     }
     return false;
   }
