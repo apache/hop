@@ -34,7 +34,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionInfoLocation;
-import org.apache.hop.execution.ExecutionInfoLocationTypeMetadata;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
@@ -42,7 +41,6 @@ import org.apache.hop.execution.IExecutionMatcher;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.engines.remote.HopServerTypeMetadata;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.www.GetExecutionInfoServlet;
 import org.apache.hop.www.RegisterExecutionInfoServlet;
@@ -64,7 +62,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
       order = "010",
       parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.METADATA,
-      typeMetadata = HopServerTypeMetadata.class,
+      metadata = HopServerMeta.class,
       toolTip = "i18n::RemoteExecutionInfoLocation.HopServer.Tooltip",
       label = "i18n::RemoteExecutionInfoLocation.HopServer.Label")
   @HopMetadataProperty(key = "server")
@@ -75,7 +73,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
       order = "020",
       parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.METADATA,
-      typeMetadata = ExecutionInfoLocationTypeMetadata.class,
+      metadata = ExecutionInfoLocation.class,
       toolTip = "i18n::RemoteExecutionInfoLocation.LocationName.Tooltip",
       label = "i18n::RemoteExecutionInfoLocation.LocationName.Label")
   @HopMetadataProperty(key = "location")
