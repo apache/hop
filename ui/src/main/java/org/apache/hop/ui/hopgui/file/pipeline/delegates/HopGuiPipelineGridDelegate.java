@@ -87,6 +87,7 @@ public class HopGuiPipelineGridDelegate {
   private boolean showSelectedTransforms;
 
   private final ReentrantLock refreshViewLock;
+  private Timer timer;
 
   /**
    * @param hopGui
@@ -121,6 +122,10 @@ public class HopGuiPipelineGridDelegate {
       if (pipelineGridTab != null && !pipelineGridTab.isDisposed()) {
         // just set this one active and get out...
         //
+        if (pipelineGraph.getPipeline() != null && !pipelineGraph.getPipeline().isReadyToStart()) {
+          timer = new Timer("HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName());
+          timer.schedule(newTimerTask(), 0L, UPDATE_TIME_VIEW);
+        }
         pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
         return;
       }
@@ -251,26 +256,10 @@ public class HopGuiPipelineGridDelegate {
     numberColumn.setValueMeta(numberColumnValueMeta);
 
     // Timer updates the view every UPDATE_TIME_VIEW interval
-    final Timer tim = new Timer("HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName());
+    timer = new Timer("HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName());
+    timer.schedule(newTimerTask(), 0L, UPDATE_TIME_VIEW);
 
-    TimerTask timtask =
-        new TimerTask() {
-          @Override
-          public void run() {
-            if (!hopGui.getDisplay().isDisposed()) {
-              hopGui.getDisplay().asyncExec(HopGuiPipelineGridDelegate.this::refreshView);
-              if (pipelineGraph.getPipeline() != null
-                  && (pipelineGraph.getPipeline().isFinished()
-                      || pipelineGraph.getPipeline().isStopped())) {
-                ExecutorUtil.cleanup(tim, UPDATE_TIME_VIEW + 10);
-              }
-            }
-          }
-        };
-
-    tim.schedule(timtask, 0L, UPDATE_TIME_VIEW);
-
-    pipelineGridTab.addDisposeListener(disposeEvent -> ExecutorUtil.cleanup(tim));
+    pipelineGridTab.addDisposeListener(disposeEvent -> ExecutorUtil.cleanup(timer));
 
     pipelineGridTab.setControl(pipelineGridComposite);
 
@@ -612,6 +601,22 @@ public class HopGuiPipelineGridDelegate {
         row.setText(f, fields[f]);
       }
     }
+  }
+
+  private TimerTask newTimerTask() {
+    return new TimerTask() {
+      @Override
+      public void run() {
+        if (!hopGui.getDisplay().isDisposed()) {
+          hopGui.getDisplay().asyncExec(HopGuiPipelineGridDelegate.this::refreshView);
+          if (pipelineGraph.getPipeline() != null
+              && (pipelineGraph.getPipeline().isFinished()
+                  || pipelineGraph.getPipeline().isStopped())) {
+            ExecutorUtil.cleanup(timer, UPDATE_TIME_VIEW + 10);
+          }
+        }
+      }
+    };
   }
 
   /**
