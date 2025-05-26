@@ -3534,7 +3534,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowLogDelegate.addWorkflowLog();
     workflowGridDelegate.addWorkflowGrid();
     workflowCheckDelegate.addWorkflowCheck();
-    extraViewTabFolder.setSelection(0);
+    if (extraViewTabFolder.getSelectionIndex() == -1) {
+      extraViewTabFolder.setSelection(0);
+    }
 
     ToolItem toolItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
     toolItem.setToolTipText(

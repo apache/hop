@@ -86,9 +86,6 @@ public class HopGuiPipelineLogDelegate {
       pipelineGraph.addExtraView();
     } else {
       if (pipelineLogTab != null && !pipelineLogTab.isDisposed()) {
-        // just set this one active and get out...
-        //
-        pipelineGraph.extraViewTabFolder.setSelection(pipelineLogTab);
         return;
       }
     }
@@ -142,8 +139,6 @@ public class HopGuiPipelineLogDelegate {
         });
 
     pipelineLogTab.setControl(pipelineLogComposite);
-
-    pipelineGraph.extraViewTabFolder.setSelection(pipelineLogTab);
   }
 
   /**

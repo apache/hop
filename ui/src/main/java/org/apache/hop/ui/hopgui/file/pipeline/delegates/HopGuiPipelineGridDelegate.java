@@ -126,7 +126,6 @@ public class HopGuiPipelineGridDelegate {
           timer = new Timer("HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName());
           timer.schedule(newTimerTask(), 0L, UPDATE_TIME_VIEW);
         }
-        pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
         return;
       }
     }
@@ -262,8 +261,6 @@ public class HopGuiPipelineGridDelegate {
     pipelineGridTab.addDisposeListener(disposeEvent -> ExecutorUtil.cleanup(timer));
 
     pipelineGridTab.setControl(pipelineGridComposite);
-
-    pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
   }
 
   /**

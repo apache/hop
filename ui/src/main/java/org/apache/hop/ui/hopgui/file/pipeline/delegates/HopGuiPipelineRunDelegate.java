@@ -201,7 +201,6 @@ public class HopGuiPipelineRunDelegate {
     if (execConfigAnswer) {
       pipelineGraph.pipelineLogDelegate.addPipelineLog();
       pipelineGraph.pipelineGridDelegate.addPipelineGrid();
-      pipelineGraph.extraViewTabFolder.setSelection(0);
 
       // Set the run options
       pipelineMeta.setClearingLog(executionConfiguration.isClearingLog());

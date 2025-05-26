@@ -4283,7 +4283,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelineLogDelegate.addPipelineLog();
     pipelineGridDelegate.addPipelineGrid();
     pipelineCheckDelegate.addPipelineCheck();
-    extraViewTabFolder.setSelection(0);
+    if (extraViewTabFolder.getSelectionIndex() == -1) {
+      extraViewTabFolder.setSelection(0);
+    }
 
     if (!EnvironmentUtils.getInstance().isWeb()) {
       ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
