@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -221,7 +222,7 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     CheckResult cr;
 
     // Look up fields in the input stream <prev>
-    if (prev != null && !prev.isEmpty()) {
+    if (!Utils.isEmpty(prev)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

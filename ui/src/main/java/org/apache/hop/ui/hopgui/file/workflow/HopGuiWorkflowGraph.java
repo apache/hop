@@ -844,7 +844,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // We moved around some items: store undo info...
           //
           boolean also = false;
-          if (selectedNotes != null && !selectedNotes.isEmpty() && previousNoteLocations != null) {
+          if (!Utils.isEmpty(selectedNotes) && previousNoteLocations != null) {
             int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
 
             addUndoPosition(
@@ -853,7 +853,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 previousNoteLocations,
                 workflowMeta.getSelectedNoteLocations(),
                 also);
-            also = selectedActions != null && !selectedActions.isEmpty();
+            also = !Utils.isEmpty(selectedActions);
           }
           if (selectedActions != null
               && !selectedActions.isEmpty()
@@ -943,7 +943,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   previousNoteLocations,
                   workflowMeta.getSelectedNoteLocations(),
                   also);
-              also = selectedActions != null && !selectedActions.isEmpty();
+              also = !Utils.isEmpty(selectedActions);
             }
             if (selectedActions != null
                 && !selectedActions.isEmpty()

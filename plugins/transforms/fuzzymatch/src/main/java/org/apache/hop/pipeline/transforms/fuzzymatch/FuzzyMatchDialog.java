@@ -788,7 +788,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
       String transformFrom = wTransform.getText();
       if (!Utils.isEmpty(transformFrom)) {
         IRowMeta r = pipelineMeta.getTransformFields(variables, transformFrom);
-        if (r != null && !r.isEmpty()) {
+        if (!Utils.isEmpty(r)) {
           BaseTransformDialog.getFieldsFromPrevious(
               r, wReturn, 1, new int[] {1}, new int[] {4}, -1, -1, null);
         } else {

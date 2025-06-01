@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.util.Uuid4Util;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -237,7 +238,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     }
     List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
 
-    if (previous != null && !previous.isEmpty()) {
+    if (!Utils.isEmpty(previous)) {
       data.readsRows = true;
     }
     boolean random = false;

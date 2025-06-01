@@ -3736,7 +3736,7 @@ public class PipelineMeta extends AbstractMeta
 
   @Override
   public boolean hasMissingPlugins() {
-    return missingPipeline != null && !missingPipeline.isEmpty();
+    return !Utils.isEmpty(missingPipeline);
   }
 
   private static String getTransformMetaCacheKey(TransformMeta transformMeta, boolean info) {

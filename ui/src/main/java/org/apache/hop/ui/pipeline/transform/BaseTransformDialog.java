@@ -1026,7 +1026,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
       selectedField = comboVar.getText();
       comboVar.removeAll();
 
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         r.getFieldNames();
         comboVar.setItems(r.getFieldNames());
         indexField = r.indexOfValue(selectedField);

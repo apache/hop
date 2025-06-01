@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -115,7 +116,7 @@ public class ConstantMeta extends BaseTransformMeta<Constant, ConstantData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if (prev != null && !prev.isEmpty()) {
+    if (!Utils.isEmpty(prev)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

@@ -32,6 +32,7 @@ import java.util.List;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -3759,7 +3760,7 @@ public class ConstTest {
   @Test
   public void testIsKDE() {
     final String kdeVersion = System.getenv("KDE_SESSION_VERSION");
-    assertEquals(kdeVersion != null && !kdeVersion.isEmpty(), Const.isKDE());
+    assertEquals(!Utils.isEmpty(kdeVersion), Const.isKDE());
   }
 
   @Test
@@ -3868,7 +3869,7 @@ public class ConstTest {
     final String[] formats = Const.getDateFormats();
     assertTrue(formats.length > 0);
     for (String format : formats) {
-      assertTrue(format != null && !format.isEmpty());
+      assertTrue(!Utils.isEmpty(format));
     }
   }
 
@@ -3877,7 +3878,7 @@ public class ConstTest {
     final String[] formats = Const.getNumberFormats();
     assertTrue(formats.length > 0);
     for (String format : formats) {
-      assertTrue(format != null && !format.isEmpty());
+      assertTrue(!Utils.isEmpty(format));
     }
   }
 

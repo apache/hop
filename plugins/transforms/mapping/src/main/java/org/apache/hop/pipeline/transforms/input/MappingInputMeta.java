@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -95,7 +96,7 @@ public class MappingInputMeta extends BaseTransformMeta<MappingInput, MappingInp
     // exit points.
     // For that reason we need to re-order etc, based on the input specification...
     //
-    if (inputRowMeta != null && !inputRowMeta.isEmpty()) {
+    if (!Utils.isEmpty(inputRowMeta)) {
       // this gets set only in the parent pipeline...
       // It includes all the renames that needed to be done
       //

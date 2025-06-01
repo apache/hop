@@ -640,7 +640,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       if (actionExecutions != null) {
         for (String actionName : actionExecutions.keySet()) {
           List<ExecutionData> executionDataList = actionExecutions.get(actionName);
-          if (executionDataList != null && !executionDataList.isEmpty()) {
+          if (!Utils.isEmpty(executionDataList)) {
             // Just consider the first
             //
             ExecutionData executionData = executionDataList.get(0);

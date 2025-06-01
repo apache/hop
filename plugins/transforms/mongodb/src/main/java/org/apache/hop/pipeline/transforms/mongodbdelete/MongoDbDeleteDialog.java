@@ -664,7 +664,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
 
     List<MongoDbDeleteField> mongoFields = currentMeta.getMongoFields();
 
-    if (mongoFields != null && !mongoFields.isEmpty()) {
+    if (!Utils.isEmpty(mongoFields)) {
       for (MongoDbDeleteField field : mongoFields) {
         TableItem item = new TableItem(wtvMongoFieldsView.table, SWT.NONE);
 

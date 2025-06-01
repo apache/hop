@@ -293,7 +293,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
 
         try {
           // Checking for StartScript
-          if (strStartScript != null && !strStartScript.isEmpty()) {
+          if (!Utils.isEmpty(strStartScript)) {
             Script startScript = data.cx.compileString(strStartScript, "pipeline_Start", 1, null);
             startScript.exec(data.cx, data.scope);
             if (isDetailed()) {
@@ -459,7 +459,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
       try {
         if (data.cx != null) {
           // Checking for EndScript
-          if (strEndScript != null && !strEndScript.isEmpty()) {
+          if (!Utils.isEmpty(strEndScript)) {
             Script endScript = data.cx.compileString(strEndScript, "pipeline_End", 1, null);
             endScript.exec(data.cx, data.scope);
             if (isDetailed()) {

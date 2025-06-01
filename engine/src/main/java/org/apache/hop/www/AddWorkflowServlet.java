@@ -149,7 +149,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
       // Check if there is a starting point specified.
       String startActionName = workflowExecutionConfiguration.getStartActionName();
-      if (startActionName != null && !startActionName.isEmpty()) {
+      if (!Utils.isEmpty(startActionName)) {
         ActionMeta startActionMeta = workflowMeta.findAction(startActionName);
         workflow.setStartActionMeta(startActionMeta);
       }

@@ -312,7 +312,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
 
     // Draw data grid indicators (output data available)
-    if (outputRowsMap != null && !outputRowsMap.isEmpty()) {
+    if (!Utils.isEmpty(outputRowsMap)) {
       for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
         drawTransformOutputIndicator(transformMeta);
       }
@@ -714,7 +714,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     int y = screen.y;
 
     boolean transformError = false;
-    if (transformLogMap != null && !transformLogMap.isEmpty()) {
+    if (!Utils.isEmpty(transformLogMap)) {
       String log = transformLogMap.get(transformMeta.getName());
       if (!Utils.isEmpty(log)) {
         transformError = true;

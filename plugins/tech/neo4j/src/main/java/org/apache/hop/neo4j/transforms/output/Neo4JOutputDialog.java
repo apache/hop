@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -1058,7 +1059,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
   private void get(int button) {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         switch (button) {
             /* 0: from labels grid
              * 1: from properties grid

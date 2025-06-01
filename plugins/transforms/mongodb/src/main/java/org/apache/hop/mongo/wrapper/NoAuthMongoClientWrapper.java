@@ -379,7 +379,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   protected List<String> setupAllTags(BasicDBList members) {
     HashSet<String> tempTags = new HashSet<>();
 
-    if (members != null && !members.isEmpty()) {
+    if (!Utils.isEmpty(members)) {
       for (Object member : members) {
         if (member != null) {
           DBObject tags = (DBObject) ((DBObject) member).get("tags");
@@ -443,7 +443,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   protected List<DBObject> checkForReplicaSetMembersThatSatisfyTagSets(
       List<DBObject> tagSets, BasicDBList members) {
     List<DBObject> satisfy = new ArrayList<>();
-    if (members != null && !members.isEmpty()) {
+    if (!Utils.isEmpty(members)) {
       for (Object m : members) {
         if (m != null) {
           DBObject tags = (DBObject) ((DBObject) m).get("tags");

@@ -765,7 +765,7 @@ public class CassandraUtils {
   public static String getPartitionKey(String primaryKey) {
     String partitionKey = null;
 
-    if (primaryKey != null && !primaryKey.isEmpty()) {
+    if (!Utils.isEmpty(primaryKey)) {
       if (!primaryKey.contains("(") && !primaryKey.contains(")")) {
         if (primaryKey.contains(",")) {
           partitionKey = primaryKey.substring(0, primaryKey.indexOf(','));

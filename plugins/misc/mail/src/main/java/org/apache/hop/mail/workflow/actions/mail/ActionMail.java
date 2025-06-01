@@ -503,7 +503,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
       if (includingFiles && result != null) {
         List<ResultFile> resultFiles = result.getResultFilesList();
-        if (resultFiles != null && !resultFiles.isEmpty()) {
+        if (!Utils.isEmpty(resultFiles)) {
           if (!zipFiles) {
             // Add all files to the message...
             //
@@ -616,7 +616,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       }
 
       int nrEmbeddedImages = 0;
-      if (embeddedimages != null && !embeddedimages.isEmpty()) {
+      if (!Utils.isEmpty(embeddedimages)) {
         FileObject imageFile = null;
         for (int i = 0; i < embeddedimages.size(); i++) {
           String realImageFile = resolve(embeddedimages.get(i).getEmbeddedimage());

@@ -453,7 +453,7 @@ public class DenormaliserDialog extends BaseTransformDialog {
   private void get() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wGroup, 1, new int[] {1}, new int[] {}, -1, -1, null);
       }
@@ -472,7 +472,7 @@ public class DenormaliserDialog extends BaseTransformDialog {
     final String[] groupingFields = wGroup.getItems(0);
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r,
             wTarget,

@@ -19,6 +19,8 @@ package org.apache.hop.ui.core.widget;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -306,7 +308,7 @@ public class StyledTextVar extends TextComposite {
           int eventType = -1;
 
           if ((event.length != newText.length()) || (fullSelection)) {
-            if (repText != null && !repText.isEmpty()) {
+            if (!Utils.isEmpty(repText)) {
               oldText =
                   newText.substring(0, event.start)
                       + repText
@@ -319,7 +321,7 @@ public class StyledTextVar extends TextComposite {
               eventType = UndoRedoStack.INSERT;
             }
 
-            if ((oldText != null && !oldText.isEmpty()) || (eventStartPostition == event.length)) {
+            if ((!Utils.isEmpty(oldText)) || (eventStartPostition == event.length)) {
               UndoRedoStack urs =
                   new UndoRedoStack(eventStartPostition, newText, oldText, eventLength, eventType);
 

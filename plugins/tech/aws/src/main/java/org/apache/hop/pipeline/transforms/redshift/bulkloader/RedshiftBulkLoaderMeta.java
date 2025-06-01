@@ -525,7 +525,7 @@ public class RedshiftBulkLoaderMeta
                 boolean error_found = false;
                 // OK, we have the table fields.
                 // Now see what we can find as previous transform...
-                if (prev != null && !prev.isEmpty()) {
+                if (!Utils.isEmpty(prev)) {
                   cr =
                       new CheckResult(
                           ICheckResult.TYPE_RESULT_OK,
@@ -799,7 +799,7 @@ public class RedshiftBulkLoaderMeta
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && !prev.isEmpty()) {
+      if (!Utils.isEmpty(prev)) {
         if (!StringUtil.isEmpty(tablename)) {
           Database db = new Database(loggingObject, variables, databaseMeta);
           try {

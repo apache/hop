@@ -664,7 +664,7 @@ public class SynchronizeAfterMergeMeta
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && !prev.isEmpty()) {
+        if (!Utils.isEmpty(prev)) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -905,7 +905,7 @@ public class SynchronizeAfterMergeMeta
 
     if (databaseMeta != null) {
 
-      if (prev != null && !prev.isEmpty()) {
+      if (!Utils.isEmpty(prev)) {
         // Copy the row
         IRowMeta tableFields = new RowMeta();
 

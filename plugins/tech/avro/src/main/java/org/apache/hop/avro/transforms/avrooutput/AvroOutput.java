@@ -96,7 +96,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
         avroName = avroName.substring(2);
       }
       if (Utils.isEmpty(parentName) || avroName.startsWith(parentName + ".")) {
-        if (parentName != null && !parentName.isEmpty()) {
+        if (!Utils.isEmpty(parentName)) {
           avroName = avroName.substring(parentName.length() + 1);
         }
         if (avroName.contains(".")) {

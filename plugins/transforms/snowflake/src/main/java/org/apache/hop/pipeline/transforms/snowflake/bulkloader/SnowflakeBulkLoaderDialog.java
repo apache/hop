@@ -33,6 +33,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -1321,7 +1322,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
   private void get() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wFields, 1, new int[] {1, 2}, new int[] {}, -1, -1, null);
       }

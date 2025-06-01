@@ -462,7 +462,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && !prev.isEmpty()) {
+        if (!Utils.isEmpty(prev)) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -558,7 +558,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && !prev.isEmpty()) {
+      if (!Utils.isEmpty(prev)) {
         // Copy the row
         IRowMeta tableFields = new RowMeta();
 

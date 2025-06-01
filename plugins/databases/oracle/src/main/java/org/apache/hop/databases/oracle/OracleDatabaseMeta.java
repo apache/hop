@@ -139,9 +139,9 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     } else {
       // OCI
       // Let's see if we have an database name
-      if (databaseName != null && !databaseName.isEmpty()) {
+      if (!Utils.isEmpty(databaseName)) {
         // Has the user specified hostname & port number?
-        if (hostname != null && !hostname.isEmpty() && port != null && !port.isEmpty()) {
+        if (!Utils.isEmpty(hostname) && !Utils.isEmpty(port)) {
           // User wants the full url
           return "jdbc:oracle:oci:@(description=(address=(host="
               + hostname

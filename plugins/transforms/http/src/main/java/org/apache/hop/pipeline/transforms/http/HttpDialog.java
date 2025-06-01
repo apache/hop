@@ -1101,7 +1101,7 @@ public class HttpDialog extends BaseTransformDialog {
   private void get() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wFields, 1, new int[] {1, 2}, new int[] {3}, -1, -1, null);
       }
@@ -1117,7 +1117,7 @@ public class HttpDialog extends BaseTransformDialog {
   private void getHeadersFields() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wHeaders, 1, new int[] {1, 2}, new int[] {3}, -1, -1, null);
       }

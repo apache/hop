@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.hop.core.util.Utils;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -54,7 +56,7 @@ public class TreeNode {
   }
 
   public boolean hasChildren() {
-    return children != null && !children.isEmpty();
+    return !Utils.isEmpty(children);
   }
 
   public String getLabel() {

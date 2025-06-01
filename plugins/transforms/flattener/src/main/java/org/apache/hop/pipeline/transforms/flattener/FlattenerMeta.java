@@ -25,6 +25,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -81,7 +82,7 @@ public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
 
     // Remove the key value (there will be different entries for each output row)
     //
-    if (fieldName != null && !fieldName.isEmpty()) {
+    if (!Utils.isEmpty(fieldName)) {
       int idx = row.indexOfValue(fieldName);
       if (idx < 0) {
         throw new HopTransformException(

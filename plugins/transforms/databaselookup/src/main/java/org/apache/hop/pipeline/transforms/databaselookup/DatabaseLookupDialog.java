@@ -730,7 +730,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
   private void get() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         ITableItemInsertListener listener =
             (tableItem, v) -> {
               tableItem.setText(2, "=");
@@ -760,7 +760,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
                   variables, wSchema.getText(), wTable.getText());
           IRowMeta r = database.getTableFields(schemaTable);
 
-          if (r != null && !r.isEmpty()) {
+          if (!Utils.isEmpty(r)) {
             logDebug(
                 BaseMessages.getString(PKG, "DatabaseLookupDialog.Log.FoundTableFields")
                     + schemaTable

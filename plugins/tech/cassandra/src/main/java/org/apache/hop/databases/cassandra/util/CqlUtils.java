@@ -17,6 +17,8 @@
  */
 package org.apache.hop.databases.cassandra.util;
 
+import org.apache.hop.core.util.Utils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -124,7 +126,7 @@ public class CqlUtils {
    */
   public static String getSelectExpression(String cqlExpression) {
     String selectExpression = null;
-    if (cqlExpression != null && !cqlExpression.isEmpty()) {
+    if (!Utils.isEmpty(cqlExpression)) {
       cqlExpression = clean(cqlExpression);
       int end = cqlExpression.toLowerCase().indexOf(FROM);
       int start = cqlExpression.toLowerCase().indexOf(SELECT) + SELECT.length();
@@ -156,7 +158,7 @@ public class CqlUtils {
    * @return the array of selectors
    */
   public static Selector[] getColumnsInSelect(String selectExpression, boolean isCql3) {
-    if (selectExpression != null && !selectExpression.isEmpty()) {
+    if (!Utils.isEmpty(selectExpression)) {
       ArrayList<Selector> selectors = getSelectors(selectExpression.trim(), isCql3);
       return selectors.toArray(new Selector[selectors.size()]);
     }

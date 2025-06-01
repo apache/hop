@@ -338,7 +338,7 @@ public class AnalyticQueryDialog extends BaseTransformDialog {
   private void get() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wGroup, 1, new int[] {1}, new int[] {}, -1, -1, null);
       }
@@ -354,7 +354,7 @@ public class AnalyticQueryDialog extends BaseTransformDialog {
   private void getAgg() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wAgg, 1, new int[] {1, 2}, new int[] {}, -1, -1, null);
       }

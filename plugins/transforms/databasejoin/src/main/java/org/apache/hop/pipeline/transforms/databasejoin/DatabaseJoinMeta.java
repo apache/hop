@@ -419,7 +419,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && !prev.isEmpty()) {
+        if (!Utils.isEmpty(prev)) {
           boolean first = true;
           errorMessage = "";
           boolean errorFound = false;

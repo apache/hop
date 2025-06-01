@@ -34,6 +34,7 @@ import org.apache.hop.core.util.IntegerPluginProperty;
 import org.apache.hop.core.util.PluginMessages;
 import org.apache.hop.core.util.StringListPluginProperty;
 import org.apache.hop.core.util.StringPluginProperty;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -189,7 +190,7 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
                 transformMeta);
         remarks.add(checkResult);
       }
-      if (prev != null && !prev.isEmpty()) {
+      if (!Utils.isEmpty(prev)) {
         // transform mode. transform receiving input
         checkResult =
             new CheckResult(

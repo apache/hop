@@ -1254,7 +1254,7 @@ public class HttpPostDialog extends BaseTransformDialog {
   private void get() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         ITableItemInsertListener listener =
             (tableItem, v) -> {
               tableItem.setText(3, NO); // default is "N"
@@ -1275,7 +1275,7 @@ public class HttpPostDialog extends BaseTransformDialog {
   private void getQueryFields() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wQuery, 1, new int[] {1, 2}, new int[] {3}, -1, -1, null);
       }

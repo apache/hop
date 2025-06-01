@@ -283,7 +283,7 @@ public class CombinationLookupMeta
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && !prev.isEmpty()) {
+        if (!Utils.isEmpty(prev)) {
           boolean first = true;
           errorMessage = "";
           boolean errorFound = false;
@@ -416,7 +416,7 @@ public class CombinationLookupMeta
     int i;
 
     if (databaseMeta != null) {
-      if (prev != null && !prev.isEmpty()) {
+      if (!Utils.isEmpty(prev)) {
         if (!Utils.isEmpty(tableName)) {
           String schemaTable =
               databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
@@ -564,7 +564,7 @@ public class CombinationLookupMeta
             String crUniqIndex = "";
             String[] idxFields = null;
             if (useHash) {
-              if (hashField != null && !hashField.isEmpty()) {
+              if (!Utils.isEmpty(hashField)) {
                 idxFields = new String[] {hashField};
               } else {
                 retval.setError(

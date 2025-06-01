@@ -779,7 +779,7 @@ public class UpdateDialog extends BaseTransformDialog {
   private void get() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         ITableItemInsertListener listener =
             (tableItem, v) -> {
               tableItem.setText(2, "=");
@@ -800,7 +800,7 @@ public class UpdateDialog extends BaseTransformDialog {
   private void getUpdate() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wReturn, 1, new int[] {1, 2}, new int[] {}, -1, -1, null);
       }

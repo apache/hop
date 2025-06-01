@@ -232,7 +232,7 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // Just add the returning key field...
-    if (returningGeneratedKeys && generatedKeyField != null && !generatedKeyField.isEmpty()) {
+    if (returningGeneratedKeys && !Utils.isEmpty(generatedKeyField)) {
       IValueMeta key = new ValueMetaInteger(variables.resolve(generatedKeyField));
       key.setOrigin(origin);
       row.addValueMeta(key);
@@ -303,7 +303,7 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
                 boolean errorFound = false;
                 // OK, we have the table fields.
                 // Now see what we can find as previous transform...
-                if (prev != null && !prev.isEmpty()) {
+                if (!Utils.isEmpty(prev)) {
                   cr =
                       new CheckResult(
                           ICheckResult.TYPE_RESULT_OK,
@@ -600,7 +600,7 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && !prev.isEmpty()) {
+      if (!Utils.isEmpty(prev)) {
         if (!Utils.isEmpty(tableName)) {
           try (Database db = new Database(loggingObject, variables, databaseMeta)) {
             db.connect();

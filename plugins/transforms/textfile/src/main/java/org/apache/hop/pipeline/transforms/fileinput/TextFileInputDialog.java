@@ -2795,7 +2795,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
         int nrLines = end.open();
         if (nrLines >= 0) {
           List<String> linesList = getFirst(nrLines, skipHeaders);
-          if (linesList != null && !linesList.isEmpty()) {
+          if (!Utils.isEmpty(linesList)) {
             String firstlines = "";
             for (String aLinesList : linesList) {
               firstlines += aLinesList + Const.CR;

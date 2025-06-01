@@ -542,7 +542,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
 
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wKey, 1, new int[] {1, 2}, new int[] {}, -1, -1, null);
       } else {
@@ -584,7 +584,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
       String transformFrom = wTransform.getText();
       if (!Utils.isEmpty(transformFrom)) {
         IRowMeta r = pipelineMeta.getTransformFields(variables, transformFrom);
-        if (r != null && !r.isEmpty()) {
+        if (!Utils.isEmpty(r)) {
           BaseTransformDialog.getFieldsFromPrevious(
               r, wReturn, 1, new int[] {1}, new int[] {4}, -1, -1, null);
         } else {

@@ -290,12 +290,12 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   private String getJsonAttributeName(JsonOutputField field) {
     String elementName = variables.resolve(field.getElementName());
-    return (elementName != null && !elementName.isEmpty() ? elementName : field.getFieldName());
+    return (!Utils.isEmpty(elementName) ? elementName : field.getFieldName());
   }
 
   private String getKeyJsonAttributeName(JsonOutputKeyField field) {
     String elementName = variables.resolve(field.getElementName());
-    return (elementName != null && !elementName.isEmpty() ? elementName : field.getFieldName());
+    return (!Utils.isEmpty(elementName) ? elementName : field.getFieldName());
   }
 
   private void outputRow(Object[] rowData) throws HopException {

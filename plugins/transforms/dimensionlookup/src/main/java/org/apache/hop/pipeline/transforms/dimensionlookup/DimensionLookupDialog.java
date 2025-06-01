@@ -1322,7 +1322,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   private void getUpdate() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r,
             wUpIns,
@@ -1419,7 +1419,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
         db.connect();
 
         IRowMeta rowMeta = db.getTableFieldsMeta(schemaName, tableName);
-        if (rowMeta != null && !rowMeta.isEmpty()) {
+        if (!Utils.isEmpty(rowMeta)) {
           BaseTransformDialog.getFieldsFromPrevious(
               rowMeta,
               wUpIns,
@@ -1531,7 +1531,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   private void getKeys() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         BaseTransformDialog.getFieldsFromPrevious(
             r,
             wKey,

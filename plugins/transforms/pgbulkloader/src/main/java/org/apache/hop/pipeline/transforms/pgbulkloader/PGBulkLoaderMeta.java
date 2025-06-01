@@ -248,7 +248,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && !prev.isEmpty()) {
+        if (!Utils.isEmpty(prev)) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -343,7 +343,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && !prev.isEmpty()) {
+      if (!Utils.isEmpty(prev)) {
         // Copy the row
         IRowMeta tableFields = new RowMeta();
 

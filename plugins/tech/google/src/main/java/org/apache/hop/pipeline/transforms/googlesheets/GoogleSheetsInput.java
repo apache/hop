@@ -62,7 +62,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
   public boolean init() {
 
     List<TransformMeta> transform = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-    data.hasInput = transform != null && !transform.isEmpty();
+    data.hasInput = !Utils.isEmpty(transform);
 
     JsonFactory jsonFactory = null;
     NetHttpTransport httpTransport = null;

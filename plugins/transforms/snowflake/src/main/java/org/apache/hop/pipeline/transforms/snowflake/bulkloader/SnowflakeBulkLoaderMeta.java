@@ -806,7 +806,7 @@ public class SnowflakeBulkLoaderMeta
     CheckResult cr;
 
     // Check output fields
-    if (prev != null && !prev.isEmpty()) {
+    if (!Utils.isEmpty(prev)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
@@ -1088,7 +1088,7 @@ public class SnowflakeBulkLoaderMeta
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && !prev.isEmpty()) {
+      if (!Utils.isEmpty(prev)) {
 
         if (!Utils.isEmpty(targetTable)) {
           Database db = new Database(loggingObject, variables, databaseMeta);

@@ -700,7 +700,7 @@ public class TokenReplacementMeta
     CheckResult cr;
 
     // Check output fields
-    if (prev != null && !prev.isEmpty()) {
+    if (!Utils.isEmpty(prev)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

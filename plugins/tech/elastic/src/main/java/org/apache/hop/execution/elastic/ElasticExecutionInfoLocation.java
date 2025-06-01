@@ -34,6 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
@@ -419,7 +420,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         }
         String id = (String) jHitsFieldsIds.get(0);
         JSONArray jHitsFieldsStart = (JSONArray) jHitsFields.get("execution.executionStartDate");
-        if (jHitsFieldsStart != null && !jHitsFieldsStart.isEmpty()) {
+        if (!Utils.isEmpty(jHitsFieldsStart)) {
           String startDate = (String) jHitsFieldsStart.get(0);
           // Add the dated id
           ids.add(new DatedId(id, sdf.parse(startDate)));

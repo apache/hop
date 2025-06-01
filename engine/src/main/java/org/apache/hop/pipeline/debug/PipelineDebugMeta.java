@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -191,7 +192,7 @@ public class PipelineDebugMeta {
               TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get(transformMeta);
               if (transformDebugMeta != null) {
                 List<Object[]> rowBuffer = transformDebugMeta.getRowBuffer();
-                if (rowBuffer != null && !rowBuffer.isEmpty()) {
+                if (!Utils.isEmpty(rowBuffer)) {
                   transformDebugMeta.fireBreakPointListeners(this);
                 }
               }

@@ -238,7 +238,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (ignoreFlagField != null && !ignoreFlagField.isEmpty()) {
+    if (!Utils.isEmpty(ignoreFlagField)) {
       IValueMeta v = new ValueMetaBoolean(ignoreFlagField);
       v.setOrigin(name);
 
@@ -377,7 +377,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && !prev.isEmpty()) {
+        if (!Utils.isEmpty(prev)) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -536,7 +536,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
           new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
       if (databaseMeta != null) {
-        if (prev != null && !prev.isEmpty()) {
+        if (!Utils.isEmpty(prev)) {
 
           String[] keyLookup = null;
           String[] keyStream = null;

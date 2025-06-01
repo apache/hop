@@ -3082,7 +3082,7 @@ public class TableView extends Composite {
         empty = true;
         for (int j = 1; j < table.getColumnCount(); j++) {
           String str = item.getText(j);
-          if (str != null && !str.isEmpty()) {
+          if (!Utils.isEmpty(str)) {
             empty = false;
           }
         }

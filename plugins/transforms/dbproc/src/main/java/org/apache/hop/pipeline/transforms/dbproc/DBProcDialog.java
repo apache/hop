@@ -418,7 +418,7 @@ public class DBProcDialog extends BaseTransformDialog {
   private void get() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         ITableItemInsertListener listener =
             (tableItem, v) -> {
               tableItem.setText(2, "IN");

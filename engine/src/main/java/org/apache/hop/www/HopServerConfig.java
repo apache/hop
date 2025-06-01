@@ -128,7 +128,7 @@ public class HopServerConfig implements IXml {
   protected void setUpJettyOptions(Node node) {
     Map<String, String> jettyOptions = parseJettyOptions(node);
 
-    if (jettyOptions != null && !jettyOptions.isEmpty()) {
+    if (!Utils.isEmpty(jettyOptions)) {
       for (Entry<String, String> jettyOption : jettyOptions.entrySet()) {
         System.setProperty(jettyOption.getKey(), jettyOption.getValue());
       }

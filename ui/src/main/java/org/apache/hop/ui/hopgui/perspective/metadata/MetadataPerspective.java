@@ -35,6 +35,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.util.TranslateUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -1090,7 +1091,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                     ? item.getText()
                     : (String) item.getData(VIRTUAL_PATH)));
     String folder = dialog.open();
-    if (folder != null && !folder.isEmpty()) {
+    if (!Utils.isEmpty(folder)) {
       for (TreeItem treeItem : item.getItems()) {
         if (folder.equals(treeItem.getText()) && treeItem.getData("type").equals(FOLDER)) {
           ShowMessageDialog msgDialog =

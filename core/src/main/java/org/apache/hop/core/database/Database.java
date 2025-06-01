@@ -2202,7 +2202,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         break;
       }
     }
-    if (rowMeta != null && !rowMeta.isEmpty()) {
+    if (!Utils.isEmpty(rowMeta)) {
       return rowMeta;
     } else {
       throw new Exception("Error in Database.getQueryFields()");
@@ -3619,7 +3619,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         }
 
         // Check for any extra properties that might require validation
-        if (props != null && !props.isEmpty()) {
+        if (!Utils.isEmpty(props)) {
           for (Map.Entry<String, String> prop : props.entrySet()) {
             String propName = prop.getKey();
 

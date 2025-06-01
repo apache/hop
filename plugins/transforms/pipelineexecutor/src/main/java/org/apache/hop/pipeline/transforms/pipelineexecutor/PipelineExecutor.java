@@ -237,7 +237,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       // exists
       // If not still pass the null parameter values
       passParametersToPipeline(
-          lastIncomingFieldValues != null && !lastIncomingFieldValues.isEmpty()
+          !Utils.isEmpty(lastIncomingFieldValues)
               ? lastIncomingFieldValues
               : incomingFieldValues);
     }
@@ -333,7 +333,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     for (int i = 0; i < parameters.size(); i++) {
       String currentVariableToUpdate = (String) resolvingValuesMap.keySet().toArray()[i];
       boolean hasIncomingFieldValues =
-          incomingFieldValues != null && !incomingFieldValues.isEmpty();
+          !Utils.isEmpty(incomingFieldValues);
       try {
         if (i < fieldsToUse.size()
             && incomingFields.contains(fieldsToUse.get(i))

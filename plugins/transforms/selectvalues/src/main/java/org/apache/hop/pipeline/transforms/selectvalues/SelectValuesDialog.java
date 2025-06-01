@@ -803,7 +803,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
   private void get() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
+      if (!Utils.isEmpty(r)) {
         switch (wTabFolder.getSelectionIndex()) {
           case 0:
             BaseTransformDialog.getFieldsFromPrevious(

@@ -408,7 +408,7 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
 
     CheckResult cr;
     // Now see what we can find as previous transform...
-    if (prev != null && !prev.isEmpty()) {
+    if (!Utils.isEmpty(prev)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

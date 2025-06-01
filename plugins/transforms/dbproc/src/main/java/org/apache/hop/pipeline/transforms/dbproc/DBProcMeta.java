@@ -176,7 +176,7 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
         db.connect();
 
         // Look up fields in the input stream <prev>
-        if (prev != null && !prev.isEmpty()) {
+        if (!Utils.isEmpty(prev)) {
           boolean first = true;
           errorMessage = "";
           boolean errorFound = false;

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 
 /** Processor of Filters. Kind of inversion principle, and to make unit testing easier. */
@@ -66,7 +67,7 @@ public class TextFileFilterProcessor {
         positiveMode = true;
       }
 
-      if (filterString != null && !filterString.isEmpty()) {
+      if (!Utils.isEmpty(filterString)) {
         int from = filter.getFilterPosition();
         if (from >= 0) {
           int to = from + filterString.length();

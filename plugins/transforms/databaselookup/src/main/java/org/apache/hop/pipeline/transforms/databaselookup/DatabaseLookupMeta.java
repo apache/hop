@@ -287,7 +287,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && !prev.isEmpty()) {
+        if (!Utils.isEmpty(prev)) {
           boolean first = true;
           errorMessage = new StringBuilder();
           boolean errorFound = false;

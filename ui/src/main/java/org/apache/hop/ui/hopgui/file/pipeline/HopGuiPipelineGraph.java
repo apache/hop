@@ -980,10 +980,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // We moved around some items: store undo info...
           //
           boolean also = false;
-          if (selectedNotes != null && !selectedNotes.isEmpty() && previousNoteLocations != null) {
+          if (!Utils.isEmpty(selectedNotes) && previousNoteLocations != null) {
             int[] indexes = pipelineMeta.getNoteIndexes(selectedNotes);
 
-            also = selectedTransforms != null && !selectedTransforms.isEmpty();
+            also = !Utils.isEmpty(selectedTransforms);
             hopGui.undoDelegate.addUndoPosition(
                 pipelineMeta,
                 selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
@@ -1060,7 +1060,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   previousNoteLocations,
                   pipelineMeta.getSelectedNoteLocations(),
                   also);
-              also = selectedTransforms != null && !selectedTransforms.isEmpty();
+              also = !Utils.isEmpty(selectedTransforms);
             }
             if (selectedTransforms != null
                 && !selectedTransforms.isEmpty()
@@ -2487,7 +2487,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       TransformMeta transformMeta = context.getTransformMeta();
       List<IEngineComponent> componentCopies = pipeline.getComponentCopies(transformMeta.getName());
-      return componentCopies != null && !componentCopies.isEmpty();
+      return !Utils.isEmpty(componentCopies);
     }
 
     return true;
@@ -3237,7 +3237,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     IRowMeta fields = op.getFields();
 
-    if (fields != null && !fields.isEmpty()) {
+    if (!Utils.isEmpty(fields)) {
       TransformFieldsDialog sfd =
           new TransformFieldsDialog(
               hopShell(), variables, SWT.NONE, transformMeta.getName(), fields);

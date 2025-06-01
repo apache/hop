@@ -387,7 +387,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
         }
 
         List<ResultFile> resultFiles = result.getResultFilesList();
-        if (resultFiles != null && !resultFiles.isEmpty()) {
+        if (!Utils.isEmpty(resultFiles)) {
           for (Iterator<ResultFile> it = resultFiles.iterator();
               it.hasNext() && !parentWorkflow.isStopped(); ) {
             if (successConditionBroken) {

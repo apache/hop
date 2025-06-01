@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 
 public class Utils {
@@ -154,13 +155,24 @@ public class Utils {
   }
 
   /**
-   * Check if the map supplied is empty. An map is empty when it is null or when the size is 0
+   * Check if the map supplied is empty. A map is empty when it is null or when the size is 0
    *
    * @param map the map to check
    * @return true if the supplied map is empty
    */
   public static boolean isEmpty(Map<?, ?> map) {
     return map == null || map.isEmpty();
+  }
+
+
+  /**
+   * Check if the rowMeta supplied is empty. A rowMeta is empty when it is null or when the size is 0
+   *
+   * @param rowMeta the rowMeta to check
+   * @return true if the supplied rowMeta is empty
+   */
+  public static boolean isEmpty(IRowMeta rowMeta) {
+    return rowMeta == null || rowMeta.isEmpty();
   }
 
   /**
