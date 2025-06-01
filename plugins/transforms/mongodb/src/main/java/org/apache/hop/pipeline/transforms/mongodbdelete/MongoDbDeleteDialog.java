@@ -31,6 +31,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -759,7 +760,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
   private void previewDocStruct() {
     List<MongoDbDeleteField> mongoFields = tableToMongoFieldList();
 
-    if (mongoFields == null || mongoFields.isEmpty()) {
+    if (Utils.isEmpty(mongoFields)) {
       // popup dialog warning that no paths have been defined
       showNoFieldMessageDialog();
       return;
@@ -899,7 +900,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
     String source = toFormat.replaceAll("[ ]*,", ","); // $NON-NLS-1$ //$NON-NLS-2$
     Element next = Element.OPEN_BRACE;
 
-    while (source.length() > 0) {
+    while (!source.isEmpty()) {
       source = source.trim();
       String toIndent = ""; // $NON-NLS-1$
       int minIndex = Integer.MAX_VALUE;

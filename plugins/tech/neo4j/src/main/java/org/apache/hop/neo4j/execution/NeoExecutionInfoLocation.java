@@ -387,7 +387,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   private void addIndex(Neo4jIndex neo4jIndex, String indexName, String label, String... keys) {
     StringBuilder properties = new StringBuilder();
     for (String key : keys) {
-      if (properties.length() > 0) {
+      if (!properties.isEmpty()) {
         properties.append(",");
       }
       properties.append(key);

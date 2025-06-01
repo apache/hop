@@ -30,6 +30,7 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -129,7 +130,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
           newField.fieldPath = XmlHandler.getTagValue(fieldNode, "field_path");
           newField.hopType = XmlHandler.getTagValue(fieldNode, "field_type");
           String indexedVals = XmlHandler.getTagValue(fieldNode, "indexed_vals");
-          if (indexedVals != null && indexedVals.length() > 0) {
+          if (indexedVals != null && !indexedVals.isEmpty()) {
             newField.indexedValues = MongoDbInputData.indexedValsList(indexedVals);
           }
           fields.add(newField);
@@ -163,7 +164,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
       throws HopTransformException {
 
     try {
-      if (outputJson || fields == null || fields.isEmpty()) {
+      if (outputJson || Utils.isEmpty(fields)) {
         IValueMeta jsonValueMeta =
             ValueMetaFactory.createValueMeta(jsonFieldName, IValueMeta.TYPE_STRING);
         jsonValueMeta.setOrigin(origin);

@@ -1908,7 +1908,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
       }
     }
 
-    if (fields.size() > 0) {
+    if (!fields.isEmpty()) {
       if (clearFields == SWT.YES) {
         wFields.clearAll(false);
       }

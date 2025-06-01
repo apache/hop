@@ -182,7 +182,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       }
     } else if (meta.isPartitioningEnabled()
         && (meta.isPartitioningDaily() || meta.isPartitioningMonthly())
-        && (meta.getPartitioningField() != null && meta.getPartitioningField().length() > 0)) {
+        && (meta.getPartitioningField() != null && !meta.getPartitioningField().isEmpty())) {
       // Initialize some stuff!
       if (data.indexOfPartitioningField < 0) {
         data.indexOfPartitioningField = rowMeta.indexOfValue(resolve(meta.getPartitioningField()));
@@ -302,7 +302,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       if (meta.isReturningGeneratedKeys()) {
         RowMetaAndData extraKeys = data.db.getGeneratedKeys(insertStatement);
 
-        if (extraKeys.getRowMeta().size() > 0) {
+        if (!extraKeys.getRowMeta().isEmpty()) {
           // Send out the good word!
           // Only 1 key at the moment. (should be enough for now :-)
           generatedKey = extraKeys.getRowMeta().getInteger(extraKeys.getData(), 0);

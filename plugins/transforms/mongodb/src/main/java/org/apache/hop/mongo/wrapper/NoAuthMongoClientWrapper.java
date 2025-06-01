@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
@@ -278,7 +280,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
 
       List<DBObject> collInfo = coll.getIndexInfo();
       List<String> result = new ArrayList<>();
-      if (collInfo == null || collInfo.isEmpty()) {
+      if (Utils.isEmpty(collInfo)) {
         throw new MongoDbException(
             BaseMessages.getString(
                 PKG, "MongoNoAuthWrapper.ErrorMessage.UnableToGetInfoForCollection", collection));

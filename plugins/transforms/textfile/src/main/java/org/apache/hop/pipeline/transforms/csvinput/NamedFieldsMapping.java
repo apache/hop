@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import org.apache.hop.core.util.Utils;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -58,7 +60,7 @@ public class NamedFieldsMapping implements IFieldsMapping {
     if (actualFieldNames != null) {
       for (int i = 0; i < actualFieldNames.length; i++) {
         List<Integer> columnIndexes = metaNameToIndex.get(actualFieldNames[i]);
-        if (columnIndexes == null || columnIndexes.isEmpty()) {
+        if (Utils.isEmpty(columnIndexes)) {
           unmatchedMetaFields.add(i);
           actualToMetaFieldMapping[i] = FIELD_DOES_NOT_EXIST;
           continue;

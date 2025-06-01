@@ -29,6 +29,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -299,7 +300,7 @@ public class HopGuiWorkflowClipboardDelegate {
 
   public void copySelected(
       WorkflowMeta workflowMeta, List<ActionMeta> actions, List<NotePadMeta> notes) {
-    if (actions == null || actions.size() + notes.size() == 0) {
+    if (Utils.isEmpty(actions) && notes.isEmpty()) {
       return;
     }
 
@@ -345,7 +346,7 @@ public class HopGuiWorkflowClipboardDelegate {
   }
 
   public static final void copyActionsToClipboard(List<ActionMeta> actions) throws HopException {
-    if (actions == null || actions.isEmpty()) {
+    if (Utils.isEmpty(actions)) {
       return;
     }
 

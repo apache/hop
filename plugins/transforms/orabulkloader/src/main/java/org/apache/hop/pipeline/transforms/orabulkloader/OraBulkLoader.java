@@ -253,7 +253,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
         .append('(');
 
     List<OraBulkLoaderMappingMeta> mappings = meta.getMappings();
-    if (mappings == null || mappings.isEmpty()) {
+    if (Utils.isEmpty(mappings)) {
       throw new HopException("No fields defined to load to database");
     }
     boolean firstMapping = true;

@@ -26,6 +26,7 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -289,7 +290,7 @@ public class HopGuiPipelineClipboardDelegate {
 
   public void copySelected(
       PipelineMeta pipelineMeta, List<TransformMeta> transforms, List<NotePadMeta> notes) {
-    if (transforms == null || transforms.size() + notes.size() == 0) {
+    if (Utils.isEmpty(transforms) && notes.isEmpty()) {
       return;
     }
 

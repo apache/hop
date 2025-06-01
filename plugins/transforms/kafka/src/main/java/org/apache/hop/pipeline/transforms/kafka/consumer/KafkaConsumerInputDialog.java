@@ -503,7 +503,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
   private void buildOptionsTable(Composite parentWidget) {
     ColumnInfo[] columns = getOptionsColumns();
 
-    if (meta.getConfig().size() == 0) {
+    if (meta.getConfig().isEmpty()) {
       // inital call
       List<String> list = KafkaDialogHelper.getConsumerAdvancedConfigOptionNames();
       Map<String, String> advancedConfig = new LinkedHashMap<>();

@@ -112,7 +112,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
@@ -154,7 +154,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
         remarks.add(cr);
       }
 
-      if (getSelectOption().getSelectFields().size() > 0) {
+      if (!getSelectOption().getSelectFields().isEmpty()) {
         // Starting from prev...
         for (int i = 0; i < prev.size(); i++) {
           IValueMeta pv = prev.getValueMeta(i);
@@ -357,7 +357,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
           // Do we need to rename ?
           if (!v.getName().equals(selectField.getRename())
               && selectField.getRename() != null
-              && selectField.getRename().length() > 0) {
+              && !selectField.getRename().isEmpty()) {
             v.setName(selectField.getRename());
             v.setOrigin(name);
           }

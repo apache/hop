@@ -492,7 +492,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
       TableItem item = wReturn.getNonEmpty(i);
       input.getValue()[i] = item.getText(1);
       input.getValueName()[i] = item.getText(2);
-      if (input.getValueName()[i] == null || input.getValueName()[i].length() == 0) {
+      if (input.getValueName()[i] == null || input.getValueName()[i].isEmpty()) {
         input.getValueName()[i] = input.getValue()[i];
       }
       input.getValueDefault()[i] = item.getText(3);

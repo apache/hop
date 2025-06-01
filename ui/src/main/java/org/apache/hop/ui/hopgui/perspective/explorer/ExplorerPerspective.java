@@ -50,6 +50,7 @@ import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.svg.SvgImage;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -1018,7 +1019,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
    */
   public ExplorerFile getSelectedFile() {
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (Utils.isEmpty(selection)) {
       return null;
     }
     TreeItem item = selection[0];
@@ -1088,7 +1089,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @GuiOsxKeyboardShortcut(key = SWT.F3)
   public void openFile() {
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (Utils.isEmpty(selection)) {
       return;
     }
     openFile(selection[0]);
@@ -1108,7 +1109,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public void createFolder() {
 
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (Utils.isEmpty(selection)) {
       return;
     }
     TreeItem item = selection[0];
@@ -1158,7 +1159,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public void expandAll() {
     tree.setRedraw(false); // Stop redraw until operation complete
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (Utils.isEmpty(selection)) {
       expandCollapse(tree.getTopItem(), true);
     } else {
       TreeItemFolder treeItemFolder = (TreeItemFolder) selection[0].getData();
@@ -1189,7 +1190,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public void collapsedAll() {
     tree.setRedraw(false); // Stop redraw until operation complete
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (Utils.isEmpty(selection)) {
       expandCollapse(tree.getTopItem(), false);
     } else {
       expandCollapse(selection[0], false);
@@ -1226,7 +1227,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (Utils.isEmpty(selection)) {
       return;
     }
 
@@ -1249,7 +1250,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void renameFile() {
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (Utils.isEmpty(selection)) {
       return;
     }
     renameFile(selection[0]);
@@ -1263,7 +1264,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       separator = true)
   public void copyFileName() {
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (Utils.isEmpty(selection)) {
       return;
     }
     TreeItemFolder folder = (TreeItemFolder) selection[0].getData();
@@ -1277,7 +1278,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       label = "i18n::ExplorerPerspective.Menu.CopyPath")
   public void copyFilePath() {
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (Utils.isEmpty(selection)) {
       return;
     }
 

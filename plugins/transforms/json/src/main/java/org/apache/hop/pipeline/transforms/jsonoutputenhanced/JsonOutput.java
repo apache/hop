@@ -290,12 +290,12 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   private String getJsonAttributeName(JsonOutputField field) {
     String elementName = variables.resolve(field.getElementName());
-    return (elementName != null && elementName.length() > 0 ? elementName : field.getFieldName());
+    return (elementName != null && !elementName.isEmpty() ? elementName : field.getFieldName());
   }
 
   private String getKeyJsonAttributeName(JsonOutputKeyField field) {
     String elementName = variables.resolve(field.getElementName());
-    return (elementName != null && elementName.length() > 0 ? elementName : field.getFieldName());
+    return (elementName != null && !elementName.isEmpty() ? elementName : field.getFieldName());
   }
 
   private void outputRow(Object[] rowData) throws HopException {
@@ -385,7 +385,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       int nextFieldPos = 1;
 
       // Fill accessory fields
-      if (meta.getJsonSizeFieldname() != null && meta.getJsonSizeFieldname().length() > 0) {
+      if (meta.getJsonSizeFieldname() != null && !meta.getJsonSizeFieldname().isEmpty()) {
         additionalRowFields[nextFieldPos] = Long.valueOf(data.jsonLength);
         nextFieldPos++;
       }
@@ -420,7 +420,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     ObjectNode theNode = new ObjectNode(nc);
 
     try {
-      if (meta.getJsonBloc() != null && meta.getJsonBloc().length() > 0) {
+      if (meta.getJsonBloc() != null && !meta.getJsonBloc().isEmpty()) {
         // TBD Try to understand if this can have a performance impact and do it better...
         theNode.set(
             meta.getJsonBloc(),
@@ -494,7 +494,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         meta.getKeyFields().length, new ValueMetaString(meta.getOutputValue()));
 
     int fieldLength = meta.getKeyFields().length + 1;
-    if (meta.getJsonSizeFieldname() != null && meta.getJsonSizeFieldname().length() > 0) {
+    if (meta.getJsonSizeFieldname() != null && !meta.getJsonSizeFieldname().isEmpty()) {
       data.outputRowMeta.addValueMeta(
           fieldLength, new ValueMetaInteger(meta.getJsonSizeFieldname()));
       fieldLength++;

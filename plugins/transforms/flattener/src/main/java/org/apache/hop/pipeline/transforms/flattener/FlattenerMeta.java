@@ -81,7 +81,7 @@ public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
 
     // Remove the key value (there will be different entries for each output row)
     //
-    if (fieldName != null && fieldName.length() > 0) {
+    if (fieldName != null && !fieldName.isEmpty()) {
       int idx = row.indexOfValue(fieldName);
       if (idx < 0) {
         throw new HopTransformException(

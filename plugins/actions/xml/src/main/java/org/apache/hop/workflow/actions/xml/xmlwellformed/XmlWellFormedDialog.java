@@ -374,14 +374,6 @@ public class XmlWellFormedDialog extends ActionDialog {
     fdbeSourceFileFolder.top = new FormAttachment(wbdSourceFileFolder, margin);
     wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
-    int rows =
-        action.getSourceFileFolders() == null
-            ? 1
-            : (action.getSourceFileFolders().size() == 0
-                ? 0
-                : action.getSourceFileFolders().size());
-    final int FieldsRows = rows;
-
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -407,7 +399,7 @@ public class XmlWellFormedDialog extends ActionDialog {
             wGeneralComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            FieldsRows,
+            Utils.isEmpty(action.getSourceFileFolders()) ? 0 : action.getSourceFileFolders().size(),
             lsMod,
             props);
 
@@ -781,7 +773,7 @@ public class XmlWellFormedDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nritems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (!Utils.isEmpty(arg)) {
         nr++;
       }
     }
@@ -793,7 +785,7 @@ public class XmlWellFormedDialog extends ActionDialog {
       XmlWellFormedField field = new XmlWellFormedField();
       String source = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
-      if (source != null && source.length() != 0) {
+      if (!Utils.isEmpty(source)) {
         field.setSourceFilefolder(source);
         field.setWildcard(wild);
         fieldList.add(field);

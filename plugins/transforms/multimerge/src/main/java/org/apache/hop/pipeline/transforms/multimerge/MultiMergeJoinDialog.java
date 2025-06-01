@@ -432,7 +432,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
       }
 
       String joinType = joinMeta.getJoinType();
-      if (joinType != null && joinType.length() > 0) {
+      if (joinType != null && !joinType.isEmpty()) {
         joinTypeCombo.setText(joinType);
       } else {
         joinTypeCombo.setText(MultiMergeJoinMeta.joinTypes[0]);

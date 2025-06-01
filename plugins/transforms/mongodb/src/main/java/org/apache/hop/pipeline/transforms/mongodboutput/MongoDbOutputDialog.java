@@ -30,6 +30,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -723,13 +724,13 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
         newField.incomingFieldName = incoming;
         newField.mongoDocPath = path;
         newField.useIncomingFieldNameAsMongoFieldName =
-            ((useIncoming.length() > 0) ? useIncoming.equals("Y") : true); //
+            ((!useIncoming.isEmpty()) ? useIncoming.equals("Y") : true); //
         newField.insertNull =
             BaseMessages.getString(PKG, CONST_MONGO_DB_OUTPUT_DIALOG_FIELDS_NULL_VALUES_INSERT)
                 .equals(allowNull);
-        newField.inputJson = ((json.length() > 0) ? json.equals("Y") : false); //
+        newField.inputJson = ((!json.isEmpty()) ? json.equals("Y") : false); //
         newField.updateMatchField = (updateMatch.equals("Y")); //
-        if (modifierOp.length() == 0) {
+        if (modifierOp.isEmpty()) {
           newField.modifierUpdateOperation = "N/A"; //
         } else {
           newField.modifierUpdateOperation = modifierOp;
@@ -944,7 +945,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     String source = toFormat.replaceAll("[ ]*,", ","); //
     Element next = Element.OPEN_BRACE;
 
-    while (source.length() > 0) {
+    while (!source.isEmpty()) {
       source = source.trim();
       String toIndent = ""; //
       int minIndex = Integer.MAX_VALUE;
@@ -1011,7 +1012,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
   private void previewDocStruct() {
     List<MongoDbOutputMeta.MongoField> mongoFields = tableToMongoFieldList();
 
-    if (mongoFields == null || mongoFields.isEmpty()) {
+    if (Utils.isEmpty(mongoFields)) {
       return;
     }
 

@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.delegates;
 import java.util.List;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
@@ -42,7 +43,7 @@ public class HopGuiNotePadDelegate {
   }
 
   public void deleteNotes(AbstractMeta meta, List<NotePadMeta> notes) {
-    if (notes == null || notes.isEmpty()) {
+    if (Utils.isEmpty(notes)) {
       return; // Nothing to do
     }
     int[] idxs = new int[notes.size()];

@@ -118,7 +118,7 @@ public class SftpClient {
       String passPhrase)
       throws HopWorkflowException {
 
-    if (serverIP == null || serverPort < 0 || userName == null || userName.equals("")) {
+    if (serverIP == null || serverPort < 0 || Utils.isEmpty(userName)) {
       throw new HopWorkflowException(
           "For a SFTP connection server name and username must be set and server port must be greater than zero.");
     }
@@ -301,7 +301,7 @@ public class SftpClient {
       }
 
       for (String f : folders) {
-        if (f.length() != 0 && !folderExists(f)) {
+        if (!Utils.isEmpty(f) && !folderExists(f)) {
           c.mkdir(f);
         }
       }

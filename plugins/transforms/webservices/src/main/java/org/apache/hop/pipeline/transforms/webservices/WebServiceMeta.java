@@ -189,7 +189,7 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if (prev == null || prev.size() == 0) {
+    if (prev == null || prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_WARNING,

@@ -283,7 +283,7 @@ public class CombinationLookupMeta
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
           boolean first = true;
           errorMessage = "";
           boolean errorFound = false;
@@ -416,7 +416,7 @@ public class CombinationLookupMeta
     int i;
 
     if (databaseMeta != null) {
-      if (prev != null && prev.size() > 0) {
+      if (prev != null && !prev.isEmpty()) {
         if (!Utils.isEmpty(tableName)) {
           String schemaTable =
               databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
@@ -475,7 +475,7 @@ public class CombinationLookupMeta
                       || (doHash && name.equals(vhashfield.getName()))) {
                     errorField += name;
                   }
-                  if (errorField.length() > 0) {
+                  if (!errorField.isEmpty()) {
                     retval.setError(
                         BaseMessages.getString(
                             PKG, "CombinationLookupMeta.ReturnValue.NameCollision", errorField));
@@ -547,8 +547,7 @@ public class CombinationLookupMeta
                     schemaTable,
                     fields,
                     (CREATION_METHOD_SEQUENCE.equals(technicalKeyField)
-                            && sequenceFrom != null
-                            && sequenceFrom.length() != 0)
+                            && !Utils.isEmpty(sequenceFrom))
                         ? null
                         : technicalKeyField,
                     CREATION_METHOD_AUTOINC.equals(technicalKeyField),
@@ -565,7 +564,7 @@ public class CombinationLookupMeta
             String crUniqIndex = "";
             String[] idxFields = null;
             if (useHash) {
-              if (hashField != null && hashField.length() > 0) {
+              if (hashField != null && !hashField.isEmpty()) {
                 idxFields = new String[] {hashField};
               } else {
                 retval.setError(

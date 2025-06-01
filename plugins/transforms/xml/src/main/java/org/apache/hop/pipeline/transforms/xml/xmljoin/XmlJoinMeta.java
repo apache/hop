@@ -214,7 +214,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
 
     CheckResult cr;
     // checks for empty field which are required
-    if (this.targetXmlTransform == null || this.targetXmlTransform.length() == 0) {
+    if (this.targetXmlTransform == null || this.targetXmlTransform.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -229,7 +229,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.targetXmlField == null || this.targetXmlField.length() == 0) {
+    if (this.targetXmlField == null || this.targetXmlField.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -244,7 +244,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.sourceXmlTransform == null || this.sourceXmlTransform.length() == 0) {
+    if (this.sourceXmlTransform == null || this.sourceXmlTransform.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -259,7 +259,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.sourceXmlField == null || this.sourceXmlField.length() == 0) {
+    if (this.sourceXmlField == null || this.sourceXmlField.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -274,7 +274,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.valueXmlField == null || this.valueXmlField.length() == 0) {
+    if (this.valueXmlField == null || this.valueXmlField.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -289,7 +289,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.targetXPath == null || this.targetXPath.length() == 0) {
+    if (this.targetXPath == null || this.targetXPath.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,

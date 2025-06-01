@@ -610,7 +610,7 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
             String crTable = db.getDDL(schemaTable, prev, tk, useAutoIncrement, pk);
 
             // Empty string means: nothing to do: set it to null...
-            if (crTable == null || crTable.isEmpty()) {
+            if (Utils.isEmpty(crTable)) {
               crTable = null;
             }
 

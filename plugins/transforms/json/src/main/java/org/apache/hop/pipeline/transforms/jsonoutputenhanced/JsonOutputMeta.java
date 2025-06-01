@@ -487,7 +487,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       row.addValueMeta(this.getKeyFields().length, vm);
 
       int fieldLength = this.getKeyFields().length + 1;
-      if (this.jsonSizeFieldname != null && this.jsonSizeFieldname.length() > 0) {
+      if (this.jsonSizeFieldname != null && !this.jsonSizeFieldname.isEmpty()) {
         row.addValueMeta(fieldLength, new ValueMetaInteger(this.jsonSizeFieldname));
         fieldLength++;
       }
@@ -541,7 +541,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     for (int i = 0; i < keyFields.length; i++) {
       JsonOutputKeyField keyField = keyFields[i];
 
-      if (keyField.getFieldName() != null && keyField.getFieldName().length() != 0) {
+      if (!Utils.isEmpty(keyField.getFieldName())) {
         retval.append("      <key_field>").append(Const.CR);
         retval
             .append(CONST_SPACES_LONG)
@@ -558,7 +558,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     for (int i = 0; i < outputFields.length; i++) {
       JsonOutputField field = outputFields[i];
 
-      if (field.getFieldName() != null && field.getFieldName().length() != 0) {
+      if (!Utils.isEmpty(field.getFieldName())) {
         retval.append("      <field>").append(Const.CR);
         retval
             .append(CONST_SPACES_LONG)

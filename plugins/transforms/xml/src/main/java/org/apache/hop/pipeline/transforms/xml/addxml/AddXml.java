@@ -104,11 +104,11 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
         String value = formatField(v, valueData, outputField);
 
         String element = outputField.getElementName();
-        if (element == null || element.length() == 0) {
+        if (Utils.isEmpty(element)) {
           element = fieldname;
         }
 
-        if (element == null || element.length() == 0) {
+        if (Utils.isEmpty(element)) {
           throw new HopException("XML does not allow empty strings for element names.");
         }
         if (outputField.isAttribute()) {
@@ -116,7 +116,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
 
           Element node;
 
-          if (attributeParentName == null || attributeParentName.length() == 0) {
+          if (Utils.isEmpty(attributeParentName)) {
             node = root;
           } else {
             NodeList nodelist = root.getElementsByTagName(attributeParentName);

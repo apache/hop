@@ -313,7 +313,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     StringBuffer urls = new StringBuffer();
     try {
       for (URI uri : getURIs(variables)) {
-        if (urls.length() > 0) {
+        if (!urls.isEmpty()) {
           urls.append(",");
         }
         urls.append(uri.toString());

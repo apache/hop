@@ -1674,7 +1674,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (!Utils.isEmpty(arg)) {
         nr++;
       }
     }
@@ -1686,7 +1686,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
       String source = wFields.getNonEmpty(i).getText(1);
       String dest = wFields.getNonEmpty(i).getText(2);
       String wild = wFields.getNonEmpty(i).getText(3);
-      if (source != null && source.length() != 0) {
+      if (!Utils.isEmpty(source)) {
         action.sourceFileFolder[nr] = source;
         action.destinationFileFolder[nr] = dest;
         action.wildcard[nr] = wild;

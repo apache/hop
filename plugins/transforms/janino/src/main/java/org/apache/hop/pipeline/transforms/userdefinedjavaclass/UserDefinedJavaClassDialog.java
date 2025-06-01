@@ -864,7 +864,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   private void setActiveCtab(String strName) {
-    if (strName.length() == 0) {
+    if (strName.isEmpty()) {
       folder.setSelection(0);
     } else {
       folder.setSelection(getCTabPosition(strName));

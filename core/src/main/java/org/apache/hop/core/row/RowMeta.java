@@ -723,7 +723,7 @@ public class RowMeta implements IRowMeta {
       // other end (sockets
       // etc)
       //
-      if (size() == 0) {
+      if (isEmpty()) {
         try {
           outputStream.writeBoolean(true);
         } catch (IOException e) {
@@ -798,7 +798,7 @@ public class RowMeta implements IRowMeta {
       for (int i = 0; i < size(); i++) {
         data[i] = getValueMeta(i).readData(inputStream);
       }
-      if (size() == 0) {
+      if (isEmpty()) {
         try {
           inputStream.readBoolean();
         } catch (EOFException e) {

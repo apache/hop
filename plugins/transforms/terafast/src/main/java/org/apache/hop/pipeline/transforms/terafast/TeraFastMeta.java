@@ -189,7 +189,7 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
                 transformMeta);
         remarks.add(checkResult);
       }
-      if (prev != null && prev.size() > 0) {
+      if (prev != null && !prev.isEmpty()) {
         // transform mode. transform receiving input
         checkResult =
             new CheckResult(

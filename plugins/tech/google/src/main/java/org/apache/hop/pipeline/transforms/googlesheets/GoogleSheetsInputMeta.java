@@ -216,7 +216,7 @@ public class GoogleSheetsInputMeta
       IRowMeta info,
       IVariables space,
       IHopMetadataProvider metadataProvider) {
-    if (prev == null || prev.size() == 0) {
+    if (prev == null || prev.isEmpty()) {
       remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

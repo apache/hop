@@ -664,7 +664,7 @@ public class SynchronizeAfterMergeMeta
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -695,7 +695,7 @@ public class SynchronizeAfterMergeMeta
             }
           }
           for (int i = 0; i < keyStream2.length; i++) {
-            if (keyStream2[i] != null && keyStream2[i].length() > 0) {
+            if (keyStream2[i] != null && !keyStream2[i].isEmpty()) {
               IValueMeta v = prev.searchValueMeta(keyStream2[i]);
               if (v == null) {
                 if (first) {
@@ -905,7 +905,7 @@ public class SynchronizeAfterMergeMeta
 
     if (databaseMeta != null) {
 
-      if (prev != null && prev.size() > 0) {
+      if (prev != null && !prev.isEmpty()) {
         // Copy the row
         IRowMeta tableFields = new RowMeta();
 
@@ -974,7 +974,7 @@ public class SynchronizeAfterMergeMeta
             }
 
             String sql = crTable + crIndex;
-            if (sql.length() == 0) {
+            if (sql.isEmpty()) {
               retval.setSql(null);
             } else {
               retval.setSql(sql);

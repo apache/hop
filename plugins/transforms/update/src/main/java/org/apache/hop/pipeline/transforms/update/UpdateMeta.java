@@ -238,7 +238,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (ignoreFlagField != null && ignoreFlagField.length() > 0) {
+    if (ignoreFlagField != null && !ignoreFlagField.isEmpty()) {
       IValueMeta v = new ValueMetaBoolean(ignoreFlagField);
       v.setOrigin(name);
 
@@ -377,7 +377,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -536,7 +536,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
           new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
       if (databaseMeta != null) {
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
 
           String[] keyLookup = null;
           String[] keyStream = null;
@@ -583,7 +583,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
             try {
               db.connect();
 
-              if (getIgnoreFlagField() != null && getIgnoreFlagField().length() > 0) {
+              if (getIgnoreFlagField() != null && !getIgnoreFlagField().isEmpty()) {
                 prev.addValueMeta(new ValueMetaBoolean(getIgnoreFlagField()));
               }
 
@@ -613,7 +613,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
               }
 
               String sql = crTable + crIndex;
-              if (sql.length() == 0) {
+              if (sql.isEmpty()) {
                 retval.setSql(null);
               } else {
                 retval.setSql(sql);

@@ -344,7 +344,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     int nrItems = wFields.nrNonEmpty();
     for (int i = 0; i < nrItems; i++) {
       String name = wFields.getNonEmpty(i).getText(1);
-      if (name != null && name.length() != 0) {
+      if (!Utils.isEmpty(name)) {
         columns.add(new ColumnExist(name));
       }
     }

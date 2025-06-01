@@ -635,7 +635,7 @@ public class UIGit extends VCS {
                               + update.getStatus().toString()
                               + (update.getMessage() == null ? "" : "\n" + update.getMessage())
                               + "\n\n"));
-          if (sb.length() == 0) {
+          if (sb.isEmpty()) {
             showMessageBox(
                 BaseMessages.getString(PKG, "Dialog.Success"),
                 BaseMessages.getString(PKG, "Dialog.Success"));

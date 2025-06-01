@@ -119,7 +119,7 @@ public class Utils {
    * @return true if the string supplied is empty
    */
   public static boolean isEmpty(CharSequence val) {
-    return val == null || val.length() == 0;
+    return val == null || val.isEmpty();
   }
 
   /**
@@ -151,6 +151,16 @@ public class Utils {
    */
   public static boolean isEmpty(List<?> list) {
     return list == null || list.isEmpty();
+  }
+
+  /**
+   * Check if the map supplied is empty. An map is empty when it is null or when the size is 0
+   *
+   * @param map the map to check
+   * @return true if the supplied map is empty
+   */
+  public static boolean isEmpty(Map<?, ?> map) {
+    return map == null || map.isEmpty();
   }
 
   /**
