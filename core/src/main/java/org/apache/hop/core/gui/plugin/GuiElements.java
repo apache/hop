@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.metadata.api.IHopMetadata;
 
 /** This represents a list of GUI elements under a certain heading or ID */
 public class GuiElements extends BaseGuiElements implements Comparable<GuiElements> {
@@ -72,7 +73,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
   private String listenerMethod;
 
   private Class<? extends ITypeFilename> typeFilename;
-  private Class<? extends ITypeMetadata> typeMetadata;
+  private Class<? extends IHopMetadata> metadata;
   private Method buttonMethod;
 
   public GuiElements() {
@@ -109,7 +110,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.toolTip =
         getTranslation(guiElement.toolTip(), fieldPackageName, field.getDeclaringClass());
     this.typeFilename = guiElement.typeFilename();
-    this.typeMetadata = guiElement.typeMetadata();
+    this.metadata = guiElement.metadata();
     this.buttonMethod = null;
   }
 
@@ -148,8 +149,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.toolTip =
         getTranslation(guiElement.toolTip(), methodPackageName, method.getDeclaringClass());
     this.typeFilename = guiElement.typeFilename();
-    this.typeMetadata = guiElement.typeMetadata();
-
+    this.metadata = guiElement.metadata();
     this.classLoader = classLoader;
     this.buttonMethod = method;
   }
@@ -563,19 +563,19 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
   }
 
   /**
-   * Gets typeMetadata
+   * Gets metadata class
    *
    * @return value of typeMetadata
    */
-  public Class<? extends ITypeMetadata> getTypeMetadata() {
-    return typeMetadata;
+  public Class<? extends IHopMetadata> getMetadataClass() {
+    return metadata;
   }
 
   /**
-   * @param typeMetadata The typeMetadata to set
+   * @param metadata The metadata class to set
    */
-  public void setTypeMetadata(Class<? extends ITypeMetadata> typeMetadata) {
-    this.typeMetadata = typeMetadata;
+  public void setMetadataClass(Class<? extends IHopMetadata> metadata) {
+    this.metadata = metadata;
   }
 
   /**

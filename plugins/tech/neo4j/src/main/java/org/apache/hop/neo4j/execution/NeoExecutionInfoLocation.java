@@ -71,7 +71,6 @@ import org.apache.hop.neo4j.execution.builder.CypherQueryBuilder;
 import org.apache.hop.neo4j.execution.builder.CypherRelationshipBuilder;
 import org.apache.hop.neo4j.execution.builder.ICypherBuilder;
 import org.apache.hop.neo4j.shared.NeoConnection;
-import org.apache.hop.neo4j.shared.NeoConnectionTypeMetadata;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -169,7 +168,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       order = "010",
       parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.METADATA,
-      typeMetadata = NeoConnectionTypeMetadata.class,
+      metadata = NeoConnection.class,
       toolTip = "i18n::NeoExecutionInfoLocation.Connection.Tooltip",
       label = "i18n::NeoExecutionInfoLocation.Connection.Label")
   @HopMetadataProperty(key = "connection")
