@@ -53,6 +53,8 @@ Typically this is ; or a tab.
 |Enclosure|A pair of strings can enclose some fields.
 This allows separator characters in fields.
 The enclosure string is optional.
+|Force enclosure?|Force adding the enclosing character before and after each field that is added to the concatenated string.
+|Remove concatenated fields from output?|If checked, the fields that were used to create the concatenated field (specified in `Target Field Name`) will be removed from the output and wil not be available in later transforms.
 |===
 
 === Fields Tab

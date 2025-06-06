@@ -1,0 +1,28 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "four",
+          "data_set_field": "four"
+        }
+      ],
+      "field_order": [
+        "four"
+      ],
+      "data_set_name": "golden-concat-fields-with-enclosure",
+      "transform_name": "preview"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0076-concat-fields-with-enclosure UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0076-concat-fields-with-enclosure.hpl"
+}

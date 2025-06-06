@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.tableinput;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -361,7 +362,11 @@ public class TableInputDialog extends BaseTransformDialog {
     }
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    return Arrays.stream(databaseMeta.getReservedWords()).toList();
+    if (databaseMeta != null) {
+      return Arrays.stream(databaseMeta.getReservedWords()).toList();
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   public void setPosition() {
