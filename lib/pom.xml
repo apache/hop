@@ -100,7 +100,7 @@
         <json-smart.version>2.5.2</json-smart.version>
         <json4s.version>3.7.0-M11</json4s.version>
         <juniversalchardet.version>2.4.0</juniversalchardet.version>
-        <kafka-clients.version>3.7.1</kafka-clients.version>
+        <kafka-clients.version>3.9.1</kafka-clients.version>
         <kotlin.version>1.9.25</kotlin.version>
         <kryo.version>5.3.0</kryo.version>
         <log4j.version>2.23.1</log4j.version>
