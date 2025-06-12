@@ -63,6 +63,9 @@ public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFiel
   @HopMetadataProperty(key = "enclosure", injectionKey = "ENCLOSURE")
   private String enclosure;
 
+  @HopMetadataProperty(key = "force_enclosure", injectionKey = "FORCE_ENCLOSURE")
+  private boolean forceEnclosure;
+
   /** The output fields */
   @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "OUTPUT_FIELDS")
   private List<ConcatField> outputFields;
@@ -91,6 +94,7 @@ public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFiel
   public void setDefault() {
     separator = ";";
     enclosure = "\"";
+    forceEnclosure = false;
 
     // set default for new properties specific to the concat fields
     extraFields.setTargetFieldName("");
