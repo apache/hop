@@ -29,7 +29,7 @@
     <name>Hop Plugins Miscellaneous Git</name>
 
     <properties>
-        <dependency.jgit.revision>6.10.0.202406032230-r</dependency.jgit.revision>
+        <dependency.jgit.revision>7.3.0.202506031305-r</dependency.jgit.revision>
     </properties>
 
     <dependencyManagement>
@@ -53,6 +53,11 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.http.apache</artifactId>
+            <version>${dependency.jgit.revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.ssh.apache</artifactId>
             <version>${dependency.jgit.revision}</version>
         </dependency>
         <dependency>
