@@ -39,7 +39,11 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.server.HttpUtil;
+import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.action.ActionStatus;
+import org.apache.hop.workflow.action.Status;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.owasp.encoder.Encode;
 
@@ -130,10 +134,8 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
     }
 
     if (workflow != null) {
-
       if (useXml || useJson) {
         try {
-
           int lastLineNr = HopLogStore.getLastBufferLineNr();
           String logText = getLogText(workflow, startLineNr, lastLineNr);
 
@@ -142,6 +144,27 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           workflowStatus.setFirstLoggingLineNr(startLineNr);
           workflowStatus.setLastLoggingLineNr(lastLineNr);
           workflowStatus.setLogDate(workflow.getExecutionStartDate());
+
+          // Add status of executed actions
+          for (ActionResult actionResult : workflow.getActionResults()) {
+            ActionStatus actionState = new ActionStatus();
+            actionState.setName(actionResult.getActionName());
+            if (actionResult.getResult().getResult()) {
+              actionState.setStatus(Status.FINISHED);
+            } else {
+              actionState.setStatus(Status.STOPPED);
+            }
+            actionState.setResult(actionResult.getResult());
+            workflowStatus.getActionStatusList().add(actionState);
+          }
+
+          // Add status of active actions
+          for (ActionMeta actionMeta : workflow.getActiveActions()) {
+            ActionStatus actionState = new ActionStatus();
+            actionState.setName(actionMeta.getName());
+            actionState.setStatus(Status.RUNNING);
+            workflowStatus.getActionStatusList().add(actionState);
+          }
 
           // The log can be quite large at times, we are going to putIfAbsent a base64 encoding
           // around a compressed
