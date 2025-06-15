@@ -20,7 +20,11 @@ package org.apache.hop.www;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -29,52 +33,62 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.server.HttpUtil;
+import org.apache.hop.workflow.action.ActionStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class HopServerWorkflowStatus {
   public static final String XML_TAG = "workflow-status";
+  private static final String CONST_ACTION_STATUS = "action_status_list";
   private static final String CONST_LOG_DATE = "log_date";
 
-  private String workflowName;
-  private String id;
-  private String statusDescription;
-  private String errorDescription;
-  private String loggingString;
-  private int firstLoggingLineNr;
-  private int lastLoggingLineNr;
+  @Getter @Setter private String workflowName;
+  @Getter @Setter private String id;
+  @Getter @Setter private String statusDescription;
+  @Getter @Setter private String errorDescription;
+  @Getter @Setter private String loggingString;
+  @Getter @Setter private int firstLoggingLineNr;
+  @Getter @Setter private int lastLoggingLineNr;
+  @Getter @Setter private List<ActionStatus> actionStatusList;
+  @Getter @Setter private Result result;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+  @Getter
+  @Setter
   private Date logDate;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+  @Getter
+  @Setter
   private Date executionStartDate;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+  @Getter
+  @Setter
   private Date executionEndDate;
-
-  private Result result;
 
   public HopServerWorkflowStatus() {
     logDate = new Date();
+    actionStatusList = new ArrayList<>();
   }
 
   /**
-   * @param pipelineName
+   * @param workflowName
    * @param statusDescription
    */
-  public HopServerWorkflowStatus(String pipelineName, String id, String statusDescription) {
+  public HopServerWorkflowStatus(String workflowName, String id, String statusDescription) {
     this();
-    this.workflowName = pipelineName;
+    this.workflowName = workflowName;
     this.id = id;
     this.statusDescription = statusDescription;
   }
 
   @JsonIgnore
-  public String getXml() {
+  public String getXml() throws HopException {
     boolean sendResultXmlWithStatus =
         EnvUtil.getSystemProperty("HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS", "N")
             .equalsIgnoreCase("Y");
+
     StringBuilder xml = new StringBuilder();
 
     xml.append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
@@ -95,6 +109,12 @@ public class HopServerWorkflowStatus {
         .append(XmlHandler.addTagValue("logging_string", XmlHandler.buildCDATA(loggingString)));
     xml.append("  ").append(XmlHandler.addTagValue("first_log_line_nr", firstLoggingLineNr));
     xml.append("  ").append(XmlHandler.addTagValue("last_log_line_nr", lastLoggingLineNr));
+
+    xml.append("  ").append(XmlHandler.openTag(CONST_ACTION_STATUS)).append(Const.CR);
+    for (ActionStatus actionStatus : actionStatusList) {
+      xml.append(actionStatus.getXml()).append(Const.CR);
+    }
+    xml.append("  ").append(XmlHandler.closeTag(CONST_ACTION_STATUS)).append(Const.CR);
 
     if (result != null) {
       String resultXML = sendResultXmlWithStatus ? result.getXml() : result.getBasicXml();
@@ -122,6 +142,14 @@ public class HopServerWorkflowStatus {
         Const.toInt(XmlHandler.getTagValue(workflowStatusNode, "first_log_line_nr"), 0);
     lastLoggingLineNr =
         Const.toInt(XmlHandler.getTagValue(workflowStatusNode, "last_log_line_nr"), 0);
+
+    Node statusListNode = XmlHandler.getSubNode(workflowStatusNode, CONST_ACTION_STATUS);
+    int nr = XmlHandler.countNodes(statusListNode, ActionStatus.XML_TAG);
+    for (int i = 0; i < nr; i++) {
+      Node actionStatusNode = XmlHandler.getSubNodeByNr(statusListNode, ActionStatus.XML_TAG, i);
+      ActionStatus actionStatus = new ActionStatus(actionStatusNode);
+      actionStatusList.add(actionStatus);
+    }
 
     String loggingString64 = XmlHandler.getTagValue(workflowStatusNode, "logging_string");
 
@@ -170,62 +198,6 @@ public class HopServerWorkflowStatus {
     return new HopServerWorkflowStatus(XmlHandler.getSubNode(document, XML_TAG));
   }
 
-  /**
-   * @return the statusDescription
-   */
-  public String getStatusDescription() {
-    return statusDescription;
-  }
-
-  /**
-   * @param statusDescription the statusDescription to set
-   */
-  public void setStatusDescription(String statusDescription) {
-    this.statusDescription = statusDescription;
-  }
-
-  /**
-   * @return the workflow name
-   */
-  public String getWorkflowName() {
-    return workflowName;
-  }
-
-  /**
-   * @param workflowName the workflow name to set
-   */
-  public void setWorkflowName(String workflowName) {
-    this.workflowName = workflowName;
-  }
-
-  /**
-   * @return the errorDescription
-   */
-  public String getErrorDescription() {
-    return errorDescription;
-  }
-
-  /**
-   * @param errorDescription the errorDescription to set
-   */
-  public void setErrorDescription(String errorDescription) {
-    this.errorDescription = errorDescription;
-  }
-
-  /**
-   * @return the loggingString
-   */
-  public String getLoggingString() {
-    return loggingString;
-  }
-
-  /**
-   * @param loggingString the loggingString to set
-   */
-  public void setLoggingString(String loggingString) {
-    this.loggingString = loggingString;
-  }
-
   public boolean isRunning() {
     if (getStatusDescription() == null) {
       return false;
@@ -257,107 +229,5 @@ public class HopServerWorkflowStatus {
 
     return getStatusDescription().equalsIgnoreCase(Pipeline.STRING_STOPPED)
         || getStatusDescription().equalsIgnoreCase(Pipeline.STRING_STOPPED_WITH_ERRORS);
-  }
-
-  /**
-   * @return the result
-   */
-  public Result getResult() {
-    return result;
-  }
-
-  /**
-   * @param result the result to set
-   */
-  public void setResult(Result result) {
-    this.result = result;
-  }
-
-  /**
-   * @return the firstLoggingLineNr
-   */
-  public int getFirstLoggingLineNr() {
-    return firstLoggingLineNr;
-  }
-
-  /**
-   * @param firstLoggingLineNr the firstLoggingLineNr to set
-   */
-  public void setFirstLoggingLineNr(int firstLoggingLineNr) {
-    this.firstLoggingLineNr = firstLoggingLineNr;
-  }
-
-  /**
-   * @return the lastLoggingLineNr
-   */
-  public int getLastLoggingLineNr() {
-    return lastLoggingLineNr;
-  }
-
-  /**
-   * @param lastLoggingLineNr the lastLoggingLineNr to set
-   */
-  public void setLastLoggingLineNr(int lastLoggingLineNr) {
-    this.lastLoggingLineNr = lastLoggingLineNr;
-  }
-
-  /**
-   * @return the logDate
-   */
-  public Date getLogDate() {
-    return logDate;
-  }
-
-  /**
-   * @param logDate
-   */
-  public void setLogDate(Date logDate) {
-    this.logDate = logDate;
-  }
-
-  /**
-   * @return the id
-   */
-  public String getId() {
-    return id;
-  }
-
-  /**
-   * @param id the id to set
-   */
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  /**
-   * Gets executionStartDate
-   *
-   * @return value of executionStartDate
-   */
-  public Date getExecutionStartDate() {
-    return executionStartDate;
-  }
-
-  /**
-   * @param executionStartDate The executionStartDate to set
-   */
-  public void setExecutionStartDate(Date executionStartDate) {
-    this.executionStartDate = executionStartDate;
-  }
-
-  /**
-   * Gets executionEndDate
-   *
-   * @return value of executionEndDate
-   */
-  public Date getExecutionEndDate() {
-    return executionEndDate;
-  }
-
-  /**
-   * @param executionEndDate The executionEndDate to set
-   */
-  public void setExecutionEndDate(Date executionEndDate) {
-    this.executionEndDate = executionEndDate;
   }
 }

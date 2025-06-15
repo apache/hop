@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -112,9 +111,12 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   public static final String TOOLBAR_ITEM_EDIT = "MetadataPerspective-Toolbar-10010-Edit";
   public static final String TOOLBAR_ITEM_DUPLICATE = "MetadataPerspective-Toolbar-10030-Duplicate";
   public static final String TOOLBAR_ITEM_DELETE = "MetadataPerspective-Toolbar-10040-Delete";
+  public static final String TOOLBAR_ITEM_RENAME = "MetadataPerspective-Toolbar-10020-Rename";
   public static final String TOOLBAR_ITEM_REFRESH = "MetadataPerspective-Toolbar-10100-Refresh";
 
-  public static final String KEY_HELP = "Help";
+  private static final String KEY_HELP = "Help";
+  private static final String KEY_TYPE = "type";
+  public static final String FILE = "File";
   public static final String FOLDER = "Folder";
   public static final String VIRTUAL_PATH = "virtualPath";
   public static final String ERROR = "Error";
@@ -238,17 +240,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> this.updateSelection());
     tree.addListener(
-        SWT.KeyUp,
-        event -> {
-          if (event.keyCode == SWT.DEL) {
-            onDeleteMetadata();
-          }
-        });
-    tree.addListener(
         SWT.DefaultSelection,
         event -> {
           TreeItem treeItem = tree.getSelection()[0];
-          if (treeItem != null && treeItem.getData("type").equals("File")) {
+          if (treeItem != null && treeItem.getData(KEY_TYPE).equals(FILE)) {
             if (treeItem.getParentItem() == null) {
               onNewMetadata();
             } else {
@@ -270,7 +265,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
             Menu menu = new Menu(tree);
             MenuItem menuItem;
 
-            switch ((String) treeItem.getData("type")) {
+            switch ((String) treeItem.getData(KEY_TYPE)) {
               case "MetadataItem", FOLDER:
                 menuItem = new MenuItem(menu, SWT.POP_UP);
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.New"));
@@ -280,23 +275,27 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                 menuItem.addListener(SWT.Selection, e -> createNewFolder());
                 new MenuItem(menu, SWT.SEPARATOR);
                 break;
-              case "File":
+              case FILE:
                 menuItem = new MenuItem(menu, SWT.POP_UP);
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Edit"));
+                menuItem.setImage(GuiResource.getInstance().getImageEdit());
                 menuItem.addListener(SWT.Selection, e -> onEditMetadata());
 
                 menuItem = new MenuItem(menu, SWT.POP_UP);
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Rename"));
+                menuItem.setImage(GuiResource.getInstance().getImageRename());
                 menuItem.addListener(SWT.Selection, e -> onRenameMetadata());
 
                 menuItem = new MenuItem(menu, SWT.POP_UP);
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Duplicate"));
+                menuItem.setImage(GuiResource.getInstance().getImageDuplicate());
                 menuItem.addListener(SWT.Selection, e -> duplicateMetadata());
 
                 new MenuItem(menu, SWT.SEPARATOR);
 
                 menuItem = new MenuItem(menu, SWT.POP_UP);
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Delete"));
+                menuItem.setImage(GuiResource.getInstance().getImageDelete());
                 menuItem.addListener(SWT.Selection, e -> onDeleteMetadata());
 
                 new MenuItem(menu, SWT.SEPARATOR);
@@ -307,6 +306,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
             menuItem = new MenuItem(menu, SWT.POP_UP);
             menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Help"));
+            menuItem.setImage(GuiResource.getInstance().getImageHelp());
             menuItem.addListener(SWT.Selection, e -> onHelpMetadata());
 
             tree.setMenu(menu);
@@ -490,7 +490,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
       return editor;
     }
 
-    // If all editor are closed
+    // If all editors are closed
     //
     return new EmptyHopFileTypeHandler();
   }
@@ -550,13 +550,20 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     refresh();
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EDIT,
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.Edit.Tooltip",
+      image = "ui/images/edit.svg")
+  @GuiKeyboardShortcut(key = SWT.F3)
+  @GuiOsxKeyboardShortcut(key = SWT.F3)
   public void onEditMetadata() {
     if (tree.getSelectionCount() != 1) {
       return;
     }
 
     TreeItem treeItem = tree.getSelection()[0];
-    if (treeItem != null && treeItem.getParentItem() != null) {
+    if (treeItem.getData(KEY_TYPE).equals(FILE)) {
       String objectKey = (String) treeItem.getParentItem().getData();
       String objectName = treeItem.getText(0);
 
@@ -580,9 +587,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_EDIT,
-      toolTip = "i18n::MetadataPerspective.ToolbarElement.Edit.Tooltip",
-      image = "ui/images/edit.svg")
+      id = TOOLBAR_ITEM_RENAME,
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.Rename.Tooltip",
+      image = "ui/images/rename.svg")
+  @GuiKeyboardShortcut(key = SWT.F2)
+  @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void onRenameMetadata() {
 
     if (tree.getSelectionCount() < 1) {
@@ -633,6 +642,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
           });
       text.selectAll();
       text.setFocus();
+      PropsUi.setLook(text);
       treeEditor.setEditor(text, item);
     }
   }
@@ -642,6 +652,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
       id = TOOLBAR_ITEM_DELETE,
       toolTip = "i18n::MetadataPerspective.ToolbarElement.Delete.Tooltip",
       image = "ui/images/delete.svg")
+  @GuiKeyboardShortcut(key = SWT.DEL)
+  @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void onDeleteMetadata() {
 
     if (tree.getSelectionCount() != 1) {
@@ -649,13 +661,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     }
 
     TreeItem treeItem = tree.getSelection()[0];
+
     // No delete on folder
-
-    if (!treeItem.getData("type").equals("File")) {
-      return;
-    }
-
-    if (treeItem != null && treeItem.getParentItem() != null) {
+    if (treeItem.getData(KEY_TYPE).equals(FILE)) {
       String objectKey = (String) treeItem.getParentItem().getData();
       String objectName = treeItem.getText(0);
 
@@ -685,7 +693,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     }
 
     TreeItem treeItem = tree.getSelection()[0];
-    if (treeItem != null && treeItem.getParentItem() != null) {
+    if (treeItem.getData(KEY_TYPE).equals(FILE)) {
       String objectKey = (String) treeItem.getParentItem().getData();
       String objectName = treeItem.getText(0);
 
@@ -817,7 +825,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         classItem.setData(annotation.key());
         classItem.setData(KEY_HELP, annotation.description());
         classItem.setData(VIRTUAL_PATH, "");
-        classItem.setData("type", "MetadataItem");
+        classItem.setData(KEY_TYPE, "MetadataItem");
 
         // level 1: object names
         //
@@ -849,7 +857,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                 // check if folder already exists on this level
                 alreadyExists = null;
                 for (TreeItem childItem : parentItem.getItems()) {
-                  if (childItem.getData("type").equals(FOLDER)
+                  if (childItem.getData(KEY_TYPE).equals(FOLDER)
                       && childItem.getText().equals(folder)) {
                     alreadyExists = childItem;
                   }
@@ -865,7 +873,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                   folderItem.setData(
                       VIRTUAL_PATH,
                       folderItem.getParentItem().getData(VIRTUAL_PATH) + "/" + folder);
-                  folderItem.setData("type", FOLDER);
+                  folderItem.setData(KEY_TYPE, FOLDER);
                   parentItem = folderItem;
                 }
               }
@@ -875,7 +883,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
           TreeItem item = new TreeItem(parentItem, SWT.NONE);
           item.setText(0, Const.NVL(name, ""));
           item.setData(VIRTUAL_PATH, parentItem.getData(VIRTUAL_PATH));
-          item.setData("type", "File");
+          item.setData(KEY_TYPE, FILE);
           MetadataEditor<?> editor = this.findEditor(annotation.key(), name);
           if (editor != null && editor.hasChanged()) {
             item.setFont(GuiResource.getInstance().getFontBold());
@@ -900,25 +908,23 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   protected void updateSelection() {
 
-    String objectName = null;
-
+    boolean isMetadataSelected = false;
     if (tree.getSelectionCount() > 0) {
-      TreeItem selectedItem = tree.getSelection()[0];
-      if (selectedItem.getParentItem() == null) {
-        objectName = null;
-      } else {
-        objectName = selectedItem.getText(0);
+      TreeItem treeItem = tree.getSelection()[0];
+      if (treeItem.getData(KEY_TYPE).equals(FILE)) {
+        isMetadataSelected = true;
       }
     }
 
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, StringUtils.isNotEmpty(objectName));
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, StringUtils.isNotEmpty(objectName));
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, StringUtils.isNotEmpty(objectName));
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, isMetadataSelected);
   }
 
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
-    if (typeHandler instanceof MetadataEditor editor && editor.isCloseable()) {
+    if (typeHandler instanceof MetadataEditor<?> editor && editor.isCloseable()) {
 
       editors.remove(editor);
 
@@ -1019,7 +1025,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
       return;
     }
 
-    // If all editor are closed
+    // If all editors are closed
     //
     if (tabFolder.getItemCount() == 0) {
       HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
@@ -1110,11 +1116,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
       newFolder.setData(item.getData());
       newFolder.setImage(GuiResource.getInstance().getImageFolder());
       newFolder.setData(VIRTUAL_PATH, item.getData(VIRTUAL_PATH) + "/" + folder);
-      newFolder.setData("type", FOLDER);
+      newFolder.setData(KEY_TYPE, FOLDER);
       TreeItem emptyString = new TreeItem(newFolder, SWT.NONE);
       emptyString.setText(
           BaseMessages.getString(PKG, "MetadataPerspective.CreateFolder.EmptyFolder"));
-      emptyString.setData("type", "Label");
+      emptyString.setData(KEY_TYPE, "Label");
       emptyString.setForeground(tree.getDisplay().getSystemColor(SWT.COLOR_GRAY));
       newFolder.setExpanded(true);
     }

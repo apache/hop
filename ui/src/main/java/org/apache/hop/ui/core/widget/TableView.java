@@ -109,6 +109,16 @@ public class TableView extends Composite {
 
   private static final Class<?> PKG = TableView.class;
 
+  @Override
+  public void setEnabled(boolean enabled) {
+    super.setEnabled(enabled);
+
+    if (toolbar != null) {
+      toolbar.setEnabled(enabled);
+    }
+    this.table.setEnabled(enabled);
+  }
+
   public static final String ID_TOOLBAR = "TableView-Toolbar";
   public static final String ID_TOOLBAR_INSERT_ROW_BEFORE =
       "tableview-toolbar-10000-insert-row-before";

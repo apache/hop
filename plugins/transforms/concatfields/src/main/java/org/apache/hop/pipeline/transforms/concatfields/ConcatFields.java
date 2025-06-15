@@ -181,6 +181,9 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
       String trimType)
       throws HopValueException {
 
+    if (meta.isForceEnclosure()) {
+      targetField.append(meta.getEnclosure());
+    }
     if (valueMeta.isNull(valueData)) {
       targetField.append(nullString);
     } else {
@@ -189,6 +192,9 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
             Const.trimToType(
                 valueMeta.getString(valueData), ValueMetaBase.getTrimTypeByCode(trimType)));
       }
+    }
+    if (meta.isForceEnclosure()) {
+      targetField.append(meta.getEnclosure());
     }
   }
 

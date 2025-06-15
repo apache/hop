@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-concat-fields-with-enclosure.csv",
+  "name": "golden-concat-fields-with-enclosure",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 0,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "four",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

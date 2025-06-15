@@ -71,8 +71,8 @@ public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServe
     String errorMessage;
     String statusDescription = null;
     Double serverLoad = null;
-    Double memoryFree = null;
-    Double memoryTotal = null;
+    Long memoryFree = null;
+    Long memoryTotal = null;
     Long cpuCores = null;
     Long cpuProcessTime = null;
     String osName = null;

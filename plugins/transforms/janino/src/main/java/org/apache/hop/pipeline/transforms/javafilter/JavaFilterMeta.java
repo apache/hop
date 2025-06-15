@@ -216,7 +216,7 @@ public class JavaFilterMeta extends BaseTransformMeta<JavaFilter, JavaFilterData
     remarks.add(cr);
 
     // Look up fields in the input stream <prev>
-    if (!Utils.isEmpty(prev)) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

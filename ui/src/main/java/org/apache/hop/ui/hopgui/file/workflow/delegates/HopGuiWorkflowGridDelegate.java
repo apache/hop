@@ -214,7 +214,7 @@ public class HopGuiWorkflowGridDelegate {
         if (selectedIndex != null) {
           wTree.setSelection(wTree.getItem(0).getItem(selectedIndex));
           wTree.setTopItem(wTree.getItem(0).getItem(selectedIndex));
-        } else {
+        } else if (treeItem.getItemCount() >= 1) {
           wTree.setTopItem(treeItem.getItem(treeItem.getItemCount() - 1));
         }
       }
