@@ -3708,7 +3708,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   hopGuiLoggingObject);
 
           workflow.setLogLevel(executionConfiguration.getLogLevel());
-          workflow.setInteractive(true);
           workflow.setGatheringMetrics(executionConfiguration.isGatheringMetrics());
 
           // Set the variables that where specified...
