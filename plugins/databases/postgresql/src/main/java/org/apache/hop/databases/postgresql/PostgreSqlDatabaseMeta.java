@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "POSTGRESQL",
     typeDescription = "PostgreSQL",
+    image = "postgresql.svg",
     documentationUrl = "/database/databases/postgresql.html",
     classLoaderGroup = "postgres-db")
 @GuiPlugin(id = "GUI-PostgreSQLDatabaseMeta")

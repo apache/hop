@@ -41,6 +41,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @DatabaseMetaPlugin(
     type = "SNOWFLAKE",
     typeDescription = "Snowflake",
+    image = "snowflake.svg",
     documentationUrl = "/database/databases/snowflake.html",
     classLoaderGroup = "snowflake")
 @GuiPlugin(id = "GUI-SnowflakeDatabaseMeta")

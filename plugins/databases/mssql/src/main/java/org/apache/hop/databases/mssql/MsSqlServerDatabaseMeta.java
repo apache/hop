@@ -36,6 +36,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @DatabaseMetaPlugin(
     type = "MSSQL",
     typeDescription = "MS SQL Server",
+    image = "microsoft-sql.svg",
     documentationUrl = "/database/databases/mssql.html")
 @GuiPlugin(id = "GUI-MSSQLServerDatabaseMeta")
 public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

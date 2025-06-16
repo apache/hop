@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "AS/400",
     typeDescription = "AS/400",
+    image = "db2.svg",
     documentationUrl = "/database/databases/as400.html")
 @GuiPlugin(id = "GUI-AS400DatabaseMeta")
 public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
