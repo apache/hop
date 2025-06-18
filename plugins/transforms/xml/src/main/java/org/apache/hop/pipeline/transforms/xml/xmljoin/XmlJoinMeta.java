@@ -113,7 +113,6 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     return retval;
   }
 
-
   @Override
   public void setDefault() {
     encoding = Const.XML_ENCODING;
