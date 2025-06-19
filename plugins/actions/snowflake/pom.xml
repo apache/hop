@@ -27,6 +27,6 @@
 
     <artifactId>hop-action-snowflake</artifactId>
     <packaging>jar</packaging>
-    <name>Hop Plugins Actions SQL</name>
+    <name>Hop Plugins Actions Snowflake Warehouse Manager</name>
 
 </project>
