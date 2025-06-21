@@ -126,9 +126,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty(key = "include_files")
   private boolean includingFiles;
 
-  @HopMetadataProperty(key = "fileTypes")
-  //  private int[] fileType;
-  private List<ActionMailFileTypeField> fileTypes;
+  @HopMetadataProperty(groupKey = "fileTypes", key = "fileType")
+  private List<String> fileTypes;
 
   @HopMetadataProperty(key = "zip_files")
   private boolean zipFiles;
@@ -511,8 +510,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
               FileObject file = resultFile.getFile();
               if (file != null && file.exists()) {
                 boolean found = false;
-                for (ActionMailFileTypeField fileTypeField : fileTypes) {
-                  if (fileTypeField.getFileType().equals(resultFile.getTypeDesc())) {
+                for (String fileTypeField : fileTypes) {
+                  if (fileTypeField.equals(resultFile.getTypeDesc())) {
                     found = true;
                   }
                 }
@@ -550,7 +549,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
               for (ResultFile resultFile : resultFiles) {
                 boolean found = false;
                 for (int i = 0; i < fileTypes.size(); i++) {
-                  if (fileTypes.get(i).getFileType().equals(resultFile.getTypeDesc())) {
+                  if (fileTypes.get(i).equals(resultFile.getTypeDesc())) {
                     found = true;
                   }
                 }
