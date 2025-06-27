@@ -87,7 +87,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
           !getPipelineMeta().findPreviousTransforms(getTransformMeta()).isEmpty();
 
       // processing existing rows?
-      if (data.isReceivingInput) {
+      if (data.isReceivingInput && getInputRowMeta() != null) {
         // clone the input row structure and place it in our data object
         data.outputRowMeta = getInputRowMeta().clone();
       }
