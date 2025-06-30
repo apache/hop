@@ -78,6 +78,29 @@ image:how-to-guides/parallel-workflows/parallel-workflow-parent.png[parallel exe
 
 image:how-to-guides/parallel-workflows/parallel-actions.png[parallel actions - child workflow, width="65%"]
 
+=== Using the Join Action Instead of a Child Workflow
+
+As of recent versions of Apache Hop, you can achieve the same effect *without a child workflow* by using the new `Join` action.
+
+The `Join` action allows you to *synchronize multiple parallel branches directly within the same workflow*. It waits until all incoming branches have completed before allowing the workflow to continue. This makes it ideal when you want to combine parallel and sequential execution in a single workflow, without the added complexity of nesting child workflows.
+
+To use the Join action:
+
+. From your starting action, create multiple outgoing hops.
+. Enable *parallel execution* on the hops you want to run simultaneously.
+. Add a `Join` action where those branches should merge.
+. Connect the `Join` action to the next sequential action(s).
+
+image:how-to-guides/parallel-workflows/continue-in-parallel-join.png[Using the join action instead of a child workflow, width="65%"]
+
+This approach simplifies workflow design, improves readability, and reduces the number of components to manage.
+
+*Use the `Join` action when:*
+
+* You want to synchronize parallel execution within a single workflow.
+* You want to avoid external child workflows for basic parallel branching.
+* You need to continue processing *only after all parallel branches are finished*.
+
 == Summary
 
 In this post, we walked through the various options to run workflow actions in parallel in Apache Hop. You also learned how to combine parallel and sequential execution through child workflows.
