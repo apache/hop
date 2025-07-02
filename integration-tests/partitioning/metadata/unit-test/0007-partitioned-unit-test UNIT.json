@@ -1,0 +1,52 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "id",
+        "name"
+      ],
+      "data_set_name": "golden-partitioned",
+      "transform_name": "process"
+    }
+  ],
+  "input_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "id",
+        "name"
+      ],
+      "data_set_name": "input-partitioned",
+      "transform_name": "input-data"
+    }
+  ],
+  "name": "0007-partitioned-unit-test UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0007-partitioned-unit-test.hpl"
+}
