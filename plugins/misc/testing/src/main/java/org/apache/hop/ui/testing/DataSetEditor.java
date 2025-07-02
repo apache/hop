@@ -234,7 +234,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     wFieldMapping.addModifyListener(lsMod);
   }
 
-  protected void editData() {
+  protected void editData(Composite parent) {
 
     // If the row count is too high, we don't want to load it into memory...
     // Too high simply means: above the preview size...
@@ -258,7 +258,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
         try {
           EditRowsDialog editRowsDialog =
               new EditRowsDialog(
-                  getShell(),
+                  parent.getShell(),
                   SWT.NONE,
                   BaseMessages.getString(PKG, "DataSetDialog.EditRows.Title"),
                   BaseMessages.getString(PKG, "DataSetDialog.EditRows.Message", set.getName()),
@@ -383,7 +383,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     }
   }
 
-  protected void viewData() {
+  protected void viewData(Composite parent) {
     try {
       DataSet set = new DataSet();
       getWidgetsContent(set);
@@ -394,7 +394,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
 
       PreviewRowsDialog previewRowsDialog =
           new PreviewRowsDialog(
-              getShell(), new Variables(), SWT.NONE, set.getName(), setRowMeta, setRows);
+              parent.getShell(), new Variables(), SWT.NONE, set.getName(), setRowMeta, setRows);
       previewRowsDialog.open();
 
     } catch (Exception e) {
@@ -414,11 +414,11 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
   public Button[] createButtonsForButtonBar(Composite parent) {
     Button wEditData = new Button(parent, SWT.PUSH);
     wEditData.setText(BaseMessages.getString(PKG, "DataSetDialog.EditData.Button"));
-    wEditData.addListener(SWT.Selection, e -> editData());
+    wEditData.addListener(SWT.Selection, e -> editData(parent));
 
     Button wViewData = new Button(parent, SWT.PUSH);
     wViewData.setText(BaseMessages.getString(PKG, "DataSetDialog.ViewData.Button"));
-    wViewData.addListener(SWT.Selection, e -> viewData());
+    wViewData.addListener(SWT.Selection, e -> viewData(parent));
 
     return new Button[] {wEditData, wViewData};
   }
