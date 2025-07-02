@@ -239,7 +239,8 @@ public class PipelineMetaModifier {
     transformMeta.setTransformPluginId(
         PluginRegistry.getInstance().getPluginId(TransformPluginType.class, dummyTransformMeta));
 
-    // Also remove partitioning or number of copies.  This makes sure that you can test on all the rows, not a portion.
+    // Also remove partitioning or number of copies.  This makes sure that you can test on all the
+    // rows, not a portion.
     //
     transformMeta.setCopies(1);
     transformMeta.setTransformPartitioningMeta(null);
