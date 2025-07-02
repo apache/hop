@@ -24,6 +24,24 @@
       ],
       "data_set_name": "golden-partitioned",
       "transform_name": "process"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "id",
+        "name"
+      ],
+      "data_set_name": "golden-partitioned",
+      "transform_name": "process 2"
     }
   ],
   "input_data_sets": [
@@ -44,6 +62,24 @@
       ],
       "data_set_name": "input-partitioned",
       "transform_name": "input-data"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "id",
+        "name"
+      ],
+      "data_set_name": "input-partitioned",
+      "transform_name": "input-data 2"
     }
   ],
   "name": "0007-partitioned-unit-test UNIT",

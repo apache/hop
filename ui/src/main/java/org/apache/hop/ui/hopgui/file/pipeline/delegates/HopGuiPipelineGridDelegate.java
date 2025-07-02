@@ -252,10 +252,23 @@ public class HopGuiPipelineGridDelegate {
         new ValueMetaString("#", HopGuiPipelineGridDelegate::subTransformCompare);
     numberColumn.setValueMeta(numberColumnValueMeta);
 
-    // Timer updates the view every UPDATE_TIME_VIEW interval
-    final Timer tim = new Timer("HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName());
+    startRefreshMetricsTimer();
+    pipelineGridTab.addDisposeListener(disposeEvent -> stopRefreshMetricsTimer());
 
-    TimerTask timtask =
+    pipelineGridTab.setControl(pipelineGridComposite);
+
+    pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
+  }
+
+  public void startRefreshMetricsTimer() {
+    if (refreshMetricsTimer != null) {
+      return;
+    }
+
+    // Timer updates the view every UPDATE_TIME_VIEW interval
+    refreshMetricsTimer = new Timer("HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName());
+
+    TimerTask refreshMetricsTimerTask =
         new TimerTask() {
           @Override
           public void run() {
@@ -264,7 +277,7 @@ public class HopGuiPipelineGridDelegate {
               if (pipelineGraph.getPipeline() != null
                   && (pipelineGraph.getPipeline().isFinished()
                       || pipelineGraph.getPipeline().isStopped())) {
-                ExecutorUtil.cleanup(tim, UPDATE_TIME_VIEW + 10);
+                ExecutorUtil.cleanup(refreshMetricsTimer, UPDATE_TIME_VIEW + 10);
               }
             }
           }
