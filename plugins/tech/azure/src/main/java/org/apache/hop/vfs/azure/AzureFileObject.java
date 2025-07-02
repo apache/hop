@@ -171,12 +171,13 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
               });
           size = children.size();
           type = FileType.FOLDER;
-          lastModified = directoryClient.getProperties().getLastModified().toEpochSecond();
+          lastModified = directoryClient.getProperties().getLastModified().toEpochSecond() * 1000L;
         } else if (exists && isFile) {
           dataLakeFileClient = fileSystemClient.getFileClient(currentFilePath);
           size = dataLakeFileClient.getProperties().getFileSize();
           type = FileType.FILE;
-          lastModified = dataLakeFileClient.getProperties().getLastModified().toEpochSecond();
+          lastModified =
+              dataLakeFileClient.getProperties().getLastModified().toEpochSecond() * 1000L;
         } else {
           lastModified = 0;
           type = FileType.IMAGINARY;
