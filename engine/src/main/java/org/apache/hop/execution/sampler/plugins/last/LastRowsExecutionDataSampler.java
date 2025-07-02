@@ -19,6 +19,8 @@
 package org.apache.hop.execution.sampler.plugins.last;
 
 import java.util.List;
+
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
@@ -64,7 +66,7 @@ public class LastRowsExecutionDataSampler
       LastRowsExecutionDataSamplerStore samplerStore,
       IStream.StreamType streamType,
       IRowMeta rowMeta,
-      Object[] row) {
+      Object[] row) throws HopValueException {
 
     synchronized (samplerStore.getRows()) {
       List<Object[]> rows = samplerStore.getRows();
@@ -80,7 +82,7 @@ public class LastRowsExecutionDataSampler
       // Add to the front, remove the last on overflow
       // This is why we use a linked list
       //
-      rows.add(0, row);
+      rows.add(0, rowMeta.cloneRow(row));
       if (rows.size() > samplerStore.getMaxRows()) {
         rows.remove(rows.size() - 1);
       }

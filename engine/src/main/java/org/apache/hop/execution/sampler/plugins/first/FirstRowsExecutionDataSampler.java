@@ -19,6 +19,8 @@
 package org.apache.hop.execution.sampler.plugins.first;
 
 import java.util.List;
+
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
@@ -61,23 +63,24 @@ public class FirstRowsExecutionDataSampler
 
   @Override
   public void sampleRow(
-      FirstRowsExecutionDataSamplerStore samplerStore,
-      IStream.StreamType streamType,
-      IRowMeta rowMeta,
-      Object[] row) {
+          FirstRowsExecutionDataSamplerStore samplerStore,
+          IStream.StreamType streamType,
+          IRowMeta rowMeta,
+          Object[] row)
+          throws HopValueException {
     synchronized (samplerStore.getRows()) {
       List<Object[]> rows = samplerStore.getRows();
 
       if (streamType != IStream.StreamType.OUTPUT
-          || samplerStore.getMaxRows() <= 0
-          || rows.size() >= samplerStore.getMaxRows()) {
+              || samplerStore.getMaxRows() <= 0
+              || rows.size() >= samplerStore.getMaxRows()) {
         return;
       }
 
       if (rows.isEmpty()) {
         samplerStore.setRowMeta(rowMeta);
       }
-      rows.add(row);
+      rows.add(rowMeta.cloneRow(row));
     }
   }
 }
