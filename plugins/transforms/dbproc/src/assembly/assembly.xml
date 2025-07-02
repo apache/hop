@@ -23,7 +23,7 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>plugins/transforms/dbproc</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
