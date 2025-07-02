@@ -20,7 +20,6 @@ package org.apache.hop.execution.sampler.plugins.random;
 
 import java.util.List;
 import java.util.Random;
-
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
@@ -68,7 +67,8 @@ public class RandomRowsExecutionDataSampler
       RandomRowsExecutionDataSamplerStore samplerStore,
       IStream.StreamType streamType,
       IRowMeta rowMeta,
-      Object[] row) throws HopValueException {
+      Object[] row)
+      throws HopValueException {
 
     synchronized (samplerStore.getRows()) {
       List<Object[]> rows = samplerStore.getRows();

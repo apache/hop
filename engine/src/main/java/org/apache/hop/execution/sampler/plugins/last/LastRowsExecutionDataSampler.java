@@ -19,7 +19,6 @@
 package org.apache.hop.execution.sampler.plugins.last;
 
 import java.util.List;
-
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
@@ -66,7 +65,8 @@ public class LastRowsExecutionDataSampler
       LastRowsExecutionDataSamplerStore samplerStore,
       IStream.StreamType streamType,
       IRowMeta rowMeta,
-      Object[] row) throws HopValueException {
+      Object[] row)
+      throws HopValueException {
 
     synchronized (samplerStore.getRows()) {
       List<Object[]> rows = samplerStore.getRows();
