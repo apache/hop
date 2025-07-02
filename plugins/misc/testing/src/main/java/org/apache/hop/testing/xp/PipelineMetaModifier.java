@@ -33,6 +33,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
@@ -243,7 +244,9 @@ public class PipelineMetaModifier {
     // rows, not a portion.
     //
     transformMeta.setCopies(1);
-    transformMeta.setTransformPartitioningMeta(null);
+
+    // The default partitioning is: PARTITIONING_METHOD_NONE
+    transformMeta.setTransformPartitioningMeta(new TransformPartitioningMeta());
   }
 
   private void handleTweakBypassTransform(ILogChannel log, TransformMeta transformMeta) {
