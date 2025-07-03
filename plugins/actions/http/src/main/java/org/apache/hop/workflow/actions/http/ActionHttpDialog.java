@@ -887,26 +887,28 @@ public class ActionHttpDialog extends ActionDialog {
     wProxyServer.setText(Const.NVL(action.getProxyHostname(), ""));
     wProxyPort.setText(Const.NVL(action.getProxyPort(), ""));
     wNonProxyHosts.setText(Const.NVL(action.getNonProxyHosts(), ""));
-    String[] headerNames = new String[action.getHeaders().size()];
-    String[] headerValues = new String[action.getHeaders().size()];
+    if (action.getHeaders() != null) {
+      String[] headerNames = new String[action.getHeaders().size()];
+      String[] headerValues = new String[action.getHeaders().size()];
 
-    for (int i = 0; i < action.getHeaders().size(); i++) {
-      headerNames[i] = action.getHeaders().get(i).getHeaderName();
-      headerValues[i] = action.getHeaders().get(i).getHeaderValue();
-    }
-
-    if (headerNames != null) {
-      for (int i = 0; i < headerNames.length; i++) {
-        TableItem ti = wHeaders.table.getItem(i);
-        if (headerNames[i] != null) {
-          ti.setText(1, headerNames[i]);
-        }
-        if (headerValues[i] != null) {
-          ti.setText(2, headerValues[i]);
-        }
+      for (int i = 0; i < action.getHeaders().size(); i++) {
+        headerNames[i] = action.getHeaders().get(i).getHeaderName();
+        headerValues[i] = action.getHeaders().get(i).getHeaderValue();
       }
-      wHeaders.setRowNums();
-      wHeaders.optWidth(true);
+
+      if (headerNames != null) {
+        for (int i = 0; i < headerNames.length; i++) {
+          TableItem ti = wHeaders.table.getItem(i);
+          if (headerNames[i] != null) {
+            ti.setText(1, headerNames[i]);
+          }
+          if (headerValues[i] != null) {
+            ti.setText(2, headerValues[i]);
+          }
+        }
+        wHeaders.setRowNums();
+        wHeaders.optWidth(true);
+      }
     }
 
     wAddFilenameToResult.setSelection(action.isAddFilenameToResult());
