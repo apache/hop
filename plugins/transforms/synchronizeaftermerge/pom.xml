@@ -27,6 +27,6 @@
 
     <artifactId>hop-transform-synchronizeaftermerge</artifactId>
     <packaging>jar</packaging>
-    <name>Hop Plugins Transforms Switch Case</name>
+    <name>Hop Plugins Transforms Synchronize After Merge</name>
 
 </project>

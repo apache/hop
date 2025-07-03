@@ -27,6 +27,6 @@
 
     <artifactId>hop-transform-delete</artifactId>
     <packaging>jar</packaging>
-    <name>Hop Plugins Transforms Calculator</name>
+    <name>Hop Plugins Transforms Delete</name>
 
 </project>
