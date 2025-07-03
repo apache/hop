@@ -37,6 +37,7 @@ import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
 import com.google.api.services.sheets.v4.model.ClearValuesRequest;
 import com.google.api.services.sheets.v4.model.ClearValuesResponse;
+import com.google.api.services.sheets.v4.model.DeleteSheetRequest;
 import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.SheetProperties;
@@ -47,6 +48,7 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -139,6 +141,23 @@ public class GoogleSheetsOutput
           for (Sheet sheet : sheets) {
             if (sheet.getProperties().getTitle().equals(resolve(meta.getWorksheetId()))) {
               worksheetExists = true;
+              // the sheet exists, but we need to recreate it, so we'll delete it here first
+              if (meta.isReplaceSheet()) {
+                DeleteSheetRequest deleteSheetRequest =
+                    new DeleteSheetRequest().setSheetId(sheet.getProperties().getSheetId());
+                Request request = new Request().setDeleteSheet(deleteSheetRequest);
+                List<Request> requests = Collections.singletonList(request);
+                BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest =
+                    new BatchUpdateSpreadsheetRequest().setRequests(requests);
+                data.service
+                    .spreadsheets()
+                    .batchUpdate(spreadsheetID, batchUpdateSpreadsheetRequest)
+                    .execute();
+                worksheetExists = false;
+                if (isDetailed()) {
+                  logDetailed("deleted sheet " + sheet.getProperties().getTitle());
+                }
+              }
             }
           }
 
@@ -161,7 +180,7 @@ public class GoogleSheetsOutput
 
         // If it does not exist & create checkbox is checker create it.
         if (!exists && meta.isCreate()) {
-          if (Boolean.FALSE.equals(meta.isAppend())) { // si append + create alors erreur
+          if (meta.isAppend()) { // si append + create alors erreur
             // Init Service
             scope = "https://www.googleapis.com/auth/spreadsheets";
 

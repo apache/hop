@@ -68,6 +68,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
   private TextVar wShareDomainWise;
   private Button wbCreate;
   private Button wbAppend;
+  private Button wbReplace;
   private TextVar wTimeout;
   private TextVar wImpersonation;
   private TextVar wAppName;
@@ -397,12 +398,31 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
     fdbCreate.right = new FormAttachment(100, 0);
     wbCreate.setLayoutData(fdbCreate);
 
+    // Replace sheet
+    Label wlReplace = new Label(spreadsheetComposite, SWT.RIGHT);
+    wlReplace.setText(BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.Replace.Label"));
+    PropsUi.setLook(wlReplace);
+    FormData fdlReplace = new FormData();
+    fdlReplace.top = new FormAttachment(wlCreate, margin);
+    fdlReplace.left = new FormAttachment(0, 0);
+    fdlReplace.right = new FormAttachment(middle, -margin);
+    wlReplace.setLayoutData(fdlReplace);
+    wbReplace = new Button(spreadsheetComposite, SWT.CHECK);
+    wbReplace.setToolTipText(
+        BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.Replace.Tooltip"));
+    PropsUi.setLook(wbReplace);
+    FormData fdbReplace = new FormData();
+    fdbReplace.top = new FormAttachment(wlReplace, 0, SWT.CENTER);
+    fdbReplace.left = new FormAttachment(middle, 0);
+    fdbReplace.right = new FormAttachment(100, 0);
+    wbReplace.setLayoutData(fdbReplace);
+
     // Share spreadsheet with label
     Label wlShare = new Label(spreadsheetComposite, SWT.RIGHT);
     wlShare.setText(BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.Share.Label"));
     PropsUi.setLook(wlShare);
     FormData fdlShare = new FormData();
-    fdlShare.top = new FormAttachment(wlCreate, 2 * margin);
+    fdlShare.top = new FormAttachment(wlReplace, 2 * margin);
     fdlShare.left = new FormAttachment(0, 0);
     fdlShare.right = new FormAttachment(middle, -margin);
     wlShare.setLayoutData(fdlShare);
@@ -595,8 +615,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
       HttpRequestInitializer credential =
           GoogleSheetsCredentials.getCredentialsJson(
               scope,
-              variables.resolve(meta.getJsonCredentialPath()),
-              variables.resolve(meta.getImpersonation()),
+              variables.resolve(wPrivateKeyStore.getText()),
+              variables.resolve(wImpersonation.getText()),
               variables);
       // Build a Drive connection to test it
       //
@@ -609,7 +629,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
           .build();
       wlTestServiceAccountInfo.setText("Google Drive API : Success!");
     } catch (Exception error) {
-      wlTestServiceAccountInfo.setText("Connection Failed");
+      wlTestServiceAccountInfo.setText("Connection Failed: " + error.getMessage());
     }
   }
 
@@ -655,6 +675,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
     }
 
     this.wbCreate.setSelection(meta.isCreate());
+    this.wbReplace.setSelection(meta.isReplaceSheet());
     this.wbAppend.setSelection(meta.isAppend());
   }
 
@@ -666,6 +687,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
     meta.setShareEmail(this.wShareEmail.getText());
     meta.setCreate(this.wbCreate.getSelection());
     meta.setAppend(this.wbAppend.getSelection());
+    meta.setReplaceSheet(this.wbReplace.getSelection());
     meta.setShareDomain(this.wShareDomainWise.getText());
 
     meta.setTimeout(this.wTimeout.getText());

@@ -66,6 +66,7 @@ Click the `Test Connection` button to verify your specified JSON credential key 
 |Worksheet Id|Should be browsed form the selected spreadsheet key. If you want to create a new file, type in any key that will become the name of the worksheet in the created spreadsheet
 |Append to sheet|Appends the lines **without the header** to an existing spreadsheet. This is incompatible with the create option below.
 |Create new sheet if it does not exist|If the checkbox is checked then if the Spreadsheet Key specified in the field Spreadsheet key does not exist it will create a new spreadsheet within the service account drive (note that this account has no UI)
+|Replace sheet if exists|Deletes and recreates the sheet if it exists. This option can be useful to avoid excessive versioning information that sometimes causes problems in pipelines that write to a Google Sheet frequently.
 |Share Full Rights (RW) with|the Share with user email field lets you specify the email of a user who will get full rights on the freshly created file.
 |Domain Wide Permission|Enables to share with your whole domain (if configured in Google Drive).
 |===
