@@ -1541,7 +1541,11 @@ public class JsonInputDialog extends BaseTransformDialog {
     while (iterator.hasNext()) {
       String string = iterator.next();
       if (string != null) {
-        path.append(".").append(string);
+        if (string.contains(".")) {
+          path.append("['").append(string).append("']");
+        } else {
+          path.append(".").append(string);
+        }
       }
     }
     paths.add(path.toString());

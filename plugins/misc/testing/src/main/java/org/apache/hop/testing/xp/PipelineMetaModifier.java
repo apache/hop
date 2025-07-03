@@ -33,6 +33,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
@@ -238,6 +239,14 @@ public class PipelineMetaModifier {
     transformMeta.setTransform(dummyTransformMeta);
     transformMeta.setTransformPluginId(
         PluginRegistry.getInstance().getPluginId(TransformPluginType.class, dummyTransformMeta));
+
+    // Also remove partitioning or number of copies.  This makes sure that you can test on all the
+    // rows, not a portion.
+    //
+    transformMeta.setCopies(1);
+
+    // The default partitioning is: PARTITIONING_METHOD_NONE
+    transformMeta.setTransformPartitioningMeta(new TransformPartitioningMeta());
   }
 
   private void handleTweakBypassTransform(ILogChannel log, TransformMeta transformMeta) {

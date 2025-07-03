@@ -832,11 +832,6 @@ public class TestingGuiPlugin {
         return;
       }
 
-      PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
-      if (unitTest != null) {
-        unitTest.setPipelineFilename("");
-      }
-
       // Remove
       //
       Map<String, Object> stateMap = getStateMap(pipelineMeta);
@@ -856,23 +851,10 @@ public class TestingGuiPlugin {
       pipelineGraph.getVariables().setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "N");
       pipelineGraph.getVariables().setVariable(DataSetConst.VAR_UNIT_TEST_NAME, null);
 
-      MetadataManager<PipelineUnitTest> manager =
-          new MetadataManager<>(
-              hopGui.getVariables(),
-              hopGui.getMetadataProvider(),
-              PipelineUnitTest.class,
-              hopGui.getShell());
-      if (manager.editMetadata(unitTest.getName())) {
-        // Activate the test
-        refreshUnitTestsList();
-      }
-      testSerializer.save(unitTest);
-
       // Update the GUI
       //
       pipelineGraph.setChanged();
       pipelineGraph.updateGui();
-
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),
