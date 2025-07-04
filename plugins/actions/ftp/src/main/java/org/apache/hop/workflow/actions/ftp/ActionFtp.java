@@ -357,7 +357,11 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
       if (!Utils.isEmpty(remoteDirectory)) {
         String realFtpDirectory = resolve(remoteDirectory);
         realFtpDirectory = normalizePath(realFtpDirectory);
-        ftpClient.changeWorkingDirectory(realFtpDirectory);
+        boolean exists = ftpClient.changeWorkingDirectory(realFtpDirectory);
+        if (!exists) {
+          logError(BaseMessages.getString(PKG, "ActionFTP.NonExistentFolder"));
+          return result;
+        }
         if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionFTP.ChangedDir", realFtpDirectory));
         }
