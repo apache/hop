@@ -43,8 +43,11 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -68,7 +71,7 @@ public class SqlEditor {
 
   private final PropsUi props;
 
-  private StyledTextComp wScript;
+  private TextComposite wScript;
 
   private Label wlPosition;
 
@@ -139,9 +142,16 @@ public class SqlEditor {
     fdlScript.left = new FormAttachment(0, 0);
     fdlScript.top = new FormAttachment(0, 0);
     wlScript.setLayoutData(fdlScript);
-    wScript =
-        new StyledTextComp(
-            this.variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      wScript =
+          new StyledTextComp(
+              variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    } else {
+      wScript =
+          new SQLStyledTextComp(
+              variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      wScript.addLineStyleListener(getSqlReservedWords());
+    }
     wScript.setText("");
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
     FormData fdScript = new FormData();
@@ -150,9 +160,7 @@ public class SqlEditor {
     fdScript.right = new FormAttachment(100, -10);
     fdScript.bottom = new FormAttachment(wExec, -2 * margin);
     wScript.setLayoutData(fdScript);
-
-    wScript.addModifyListener(arg0 -> setPosition());
-
+    wScript.addModifyListener(event -> setPosition());
     wScript.addKeyListener(
         new KeyAdapter() {
           @Override
@@ -217,6 +225,13 @@ public class SqlEditor {
             PKG, "SQLEditor.Position.Label", "" + lineNumber, "" + columnNumber));
   }
 
+  private List<String> getSqlReservedWords() {
+    if (connection == null) {
+      return List.of();
+    }
+    return List.of(connection.getReservedWords());
+  }
+
   private void clearCache() {
     MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES | SWT.CANCEL);
     mb.setMessage(
@@ -276,9 +291,7 @@ public class SqlEditor {
 
     StringBuilder message = new StringBuilder();
 
-    Database db = new Database(loggingObject, variables, databaseMeta);
-
-    try {
+    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
       db.connect();
       String sqlScript =
           Utils.isEmpty(wScript.getSelectionText())
@@ -389,7 +402,6 @@ public class SqlEditor {
       mb.setText(BaseMessages.getString(PKG, "SQLEditor.Error.CouldNotConnect.Title"));
       mb.open();
     } finally {
-      db.disconnect();
       refreshExecutionResults();
     }
 
