@@ -17,6 +17,7 @@
 
 package org.apache.hop.neo4j.transforms.output.fields;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,4 +39,9 @@ public class NodeField {
       injectionKey = "",
       inlineListTags = {"label", "value"})
   private List<LabelField> labels;
+
+  public NodeField() {
+    properties = new ArrayList<>();
+    labels = new ArrayList<>();
+  }
 }
