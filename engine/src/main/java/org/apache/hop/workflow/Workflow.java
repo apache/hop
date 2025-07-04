@@ -149,8 +149,6 @@ public abstract class Workflow extends Variables
   /** The result of the workflow, after execution. */
   protected Result result;
 
-  protected boolean interactive;
-
   protected List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>>
       executionFinishedListeners;
   protected List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>>
@@ -746,10 +744,8 @@ public abstract class Workflow extends Variables
         actionListener.beforeExecution(this, actionMeta, cloneAction);
       }
 
-      // TODO: Remove interactive mode, the JOIN action use active actions to work.
-      if (interactive) {
-        getActiveActions().add(actionMeta.clone());
-      }
+      activeActions.add(actionMeta.clone());
+
       log.snap(Metrics.METRIC_ACTION_START, cloneAction.toString());
       newResult = cloneAction.execute(prevResult, nr);
       log.snap(Metrics.METRIC_ACTION_STOP, cloneAction.toString());
@@ -757,9 +753,7 @@ public abstract class Workflow extends Variables
       // Action execution duration
       newResult.setElapsedTimeMillis(System.currentTimeMillis() - start);
 
-      if (interactive) {
-        getActiveActions().remove(actionMeta);
-      }
+      activeActions.remove(actionMeta);
 
       for (IActionListener actionListener : actionListeners) {
         actionListener.afterExecution(this, actionMeta, cloneAction, newResult);
@@ -1487,7 +1481,7 @@ public abstract class Workflow extends Variables
    */
   @Override
   public boolean isInteractive() {
-    return interactive;
+    return true;
   }
 
   /**
@@ -1496,9 +1490,7 @@ public abstract class Workflow extends Variables
    * @param interactive the interactive to set
    */
   @Override
-  public void setInteractive(boolean interactive) {
-    this.interactive = interactive;
-  }
+  public void setInteractive(boolean interactive) {}
 
   /**
    * Gets the active actions.
