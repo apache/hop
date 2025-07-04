@@ -49,6 +49,7 @@ under the License.
 **** xref:pipeline/beam/beam-samples-spark.adoc[Apache Spark]
 **** xref:pipeline/beam/beam-samples-dataflow.adoc[Google Cloud Dataflow]
 *** xref:pipeline/beam/flink-k8s-operator-running-hop-pipeline.adoc[Running a Hop pipeline using the Flink Kubernetes Operator]
+** xref:pipeline/pipeline-metrics.adoc[Pipeline Metrics]
 ** xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations]
 *** xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Google DataFlow]
 *** xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct]

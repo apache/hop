@@ -1,0 +1,39 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+TIP: the metrics in this table can be captured and processed in a standard pipeline (e.g to write to a database table or Apache Kafka topic) with a xref:metadata-types/pipeline-log.adoc[Pipeline Log]
+
+WARNING: the metrics available in this table depend on your Pipeline run configuration. +
+The xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Local pipeline engine] always shows these metrics in real-time.
+
+[width="85%",cols="30%, 70%",options="header"]
+|===
+|Metric|Description
+|Copy|The transform copy these metrics apply to. See xref:pipeline/specify-copies.adoc[Specify Copies] for more details
+|Input| Number of rows read from an input source like files, relational or NoSql databases etc
+|Read| Number of rows coming from previous transform
+|Written| Number of rows leaving this transform toward next transform
+|Output| Number of rows written to an output target like files, relational or NoSql databases etc
+|Updated|Number of rows updated by the transform in an output target like files, relational or NoSql databases etc
+|Rejected|Number of rows that were rejected by the transform and diverted to an error handling transform
+|Errors| Number of errors in the execution of this transform that were not diverted to an error handling transform (marked by a red error triangle on the transform)
+|Buffers Input|Number of rows in the input buffer for this transform (can only higher than 0 during execution)
+|Buffers Output|Number of rows in the output buffer for this transform (can only higher than 0 during execution)
+|Duration|The execution duration for this transform
+|Speed|The execution speed in rows per second for this transform. This is close to the number of rows processed (written or output) by this transform divided by the duration (not exact because of rounding in the duration)
+|Status|The transform status; Running, Stopped, Finished,
+|===

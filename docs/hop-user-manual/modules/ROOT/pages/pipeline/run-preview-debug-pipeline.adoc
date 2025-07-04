@@ -79,26 +79,9 @@ image::hop-gui/pipeline/transform-metrics-pipeline.png[Transform Metrics pipelin
 
 Following metrics are displayed:
 
-[width="85%",cols="30%, 70%",options="header"]
-|===
-|Metric|Description
-|Copy|
-|Input| Number of rows read from
-|Read| Number of rows coming from previous transform
-|Written| Number of rows leaving this transform toward next transform
-|Output| Number of rows written to a file or table
-|Updated|Number of rows updated by the transform
-|Rejected|
-|Errors| Number of errors in the execution.
-The whole row is marked red if an error occurs
-|Buffers Input|
-|Buffers Output|
-|Duration|The duration of the execution of the transform
-|Speed|
-|Status|The transform status; Running, Stopped, Finished,
-|===
+include::../snippets/pipeline-metrics-table.adoc[]
 
-The loggign tab displays the log of the pipeline according to the log level choosen on execution.
+The logging tab displays the log of the pipeline according to the log level choosen on execution.
 
 image::hop-gui/pipeline/logging-pipeline.png[Logging pipeline,75%,align="left"]
 
