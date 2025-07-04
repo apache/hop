@@ -2046,18 +2046,22 @@ public class PipelineMeta extends AbstractMeta
    *
    * @return true if the transforms have been changed, false otherwise
    */
+  @Override
+  public boolean hasChanged() {
+    return super.hasChanged() || haveTransformsChanged() || haveHopsChanged();
+  }
+
   public boolean haveTransformsChanged() {
     if (changedTransforms) {
       return true;
     }
 
     for (int i = 0; i < nrTransforms(); i++) {
-      TransformMeta transformMeta = getTransform(i);
-      if (transformMeta.hasChanged()) {
+      if (getTransform(i).hasChanged()) {
         return true;
       }
-      if (transformMeta.getTransformPartitioningMeta() != null
-          && transformMeta.getTransformPartitioningMeta().hasChanged()) {
+      if (getTransform(i).getTransformPartitioningMeta() != null
+          && getTransform(i).getTransformPartitioningMeta().hasChanged()) {
         return true;
       }
     }
@@ -2081,16 +2085,6 @@ public class PipelineMeta extends AbstractMeta
       }
     }
     return false;
-  }
-
-  /**
-   * Checks whether or not the pipeline has changed.
-   *
-   * @return true if the pipeline has changed, false otherwise
-   */
-  @Override
-  public boolean hasChanged() {
-    return super.hasChanged() || haveTransformsChanged() || haveHopsChanged();
   }
 
   private boolean isErrorNode(Node errorHandingNode, Node checkNode) {
