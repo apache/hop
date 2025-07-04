@@ -43,6 +43,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 @DatabaseMetaPlugin(
     type = "MYSQL",
     typeDescription = "MySQL",
+    image = "mysql.svg",
     documentationUrl = "/database/databases/mysql.html",
     classLoaderGroup = "mysql-db")
 @GuiPlugin(id = "GUI-MySQLDatabaseMeta")

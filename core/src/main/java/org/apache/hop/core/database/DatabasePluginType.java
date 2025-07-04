@@ -71,7 +71,7 @@ public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> {
 
   @Override
   protected String extractImageFile(DatabaseMetaPlugin annotation) {
-    return null;
+    return annotation.image();
   }
 
   @Override

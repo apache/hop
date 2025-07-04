@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "INTERBASE",
     typeDescription = "Borland Interbase",
+    image = "interbase.svg",
     documentationUrl = "/database/databases/interbase.html")
 @GuiPlugin(id = "GUI-InterbaseDatabaseMeta")
 public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

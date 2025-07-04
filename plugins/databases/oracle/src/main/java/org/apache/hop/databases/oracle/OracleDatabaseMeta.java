@@ -35,6 +35,7 @@ import org.apache.hop.core.variables.IVariables;
 @DatabaseMetaPlugin(
     type = "ORACLE",
     typeDescription = "Oracle",
+    image = "oracle.svg",
     documentationUrl = "/database/databases/oracle.html")
 @GuiPlugin(id = "GUI-OracleDatabaseMeta")
 public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

@@ -33,6 +33,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @DatabaseMetaPlugin(
     type = "CLOUDERA-IMPALA",
     typeDescription = "Cloudera Impala",
+    image = "impala.svg",
     documentationUrl = "/database/databases/cloudera-impala")
 @GuiPlugin(id = "GUI-ClouderaImpalaDatabaseMeta")
 public class ImpalaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
@@ -33,6 +35,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.OsHelper;
@@ -122,6 +125,7 @@ public class GuiResource {
   private Map<String, SwtUniversalImage> imagesTransforms;
   private Map<String, SwtUniversalImage> imagesActions;
   private Map<String, Image> imagesValueMeta;
+  private Map<String, Image> imagesDatabase;
 
   private SwtUniversalImage imageLogo;
   private SwtUniversalImage imageDisabledHop;
@@ -184,6 +188,7 @@ public class GuiResource {
   @Getter private Image imageAddSingle;
   @Getter private Image imageCalendar;
   @Getter private Image imageCancel;
+  @Getter private Image imageCatalog;
   @Getter private Image imageCheck;
   @Getter private Image imageClear;
   @Getter private Image imageClose;
@@ -393,6 +398,7 @@ public class GuiResource {
     loadTransformImages();
     loadActionImages();
     loadValueMetaImages();
+    loadDatabaseImages();
   }
 
   private void dispose() {
@@ -477,6 +483,7 @@ public class GuiResource {
     disposeImage(imageAddSingle);
     disposeImage(imageCalendar);
     disposeImage(imageCancel);
+    disposeImage(imageCatalog);
     disposeImage(imageCheck);
     disposeImage(imageClear);
     disposeImage(imageClose);
@@ -545,6 +552,7 @@ public class GuiResource {
     //
     disposeImages(imageMap.values());
     disposeImages(imagesValueMeta.values());
+    disposeImages(imagesDatabase.values());
   }
 
   private void disposeImages(Collection<Image> c) {
@@ -706,6 +714,7 @@ public class GuiResource {
         loadAsResource(display, "ui/images/add-item-below.svg", ConstUi.SMALL_ICON_SIZE);
     imageAddSingle = loadAsResource(display, "ui/images/add_single.svg", ConstUi.SMALL_ICON_SIZE);
     imageCalendar = loadAsResource(display, "ui/images/calendar.svg", ConstUi.SMALL_ICON_SIZE);
+    imageCatalog = loadAsResource(display, "ui/images/catalog.svg", ConstUi.SMALL_ICON_SIZE);
     imageCheck = loadAsResource(display, "ui/images/check.svg", ConstUi.SMALL_ICON_SIZE);
     imageClosePanel = loadAsResource(display, "ui/images/close-panel.svg", ConstUi.SMALL_ICON_SIZE);
     imageCollapseAll =
@@ -749,7 +758,7 @@ public class GuiResource {
     imageRotateLeft = loadAsResource(display, "ui/images/rotate-left.svg", ConstUi.SMALL_ICON_SIZE);
     imageRotateRight =
         loadAsResource(display, "ui/images/rotate-right.svg", ConstUi.SMALL_ICON_SIZE);
-    imageSchema = loadAsResource(display, "ui/images/user.svg", ConstUi.SMALL_ICON_SIZE);
+    imageSchema = loadAsResource(display, "ui/images/schema.svg", ConstUi.SMALL_ICON_SIZE);
     imageSearch = loadAsResource(display, "ui/images/search.svg", ConstUi.SMALL_ICON_SIZE);
     imageShowAll = loadAsResource(display, "ui/images/show-all.svg", ConstUi.SMALL_ICON_SIZE);
     imageShowErrorLines =
@@ -857,6 +866,41 @@ public class GuiResource {
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/hop-arrow-candidate.svg");
   }
 
+  /** Load the plugin image from a file. */
+  private Image loadPluginImage(IPlugin plugin, Image defaultImage) {
+    // If no image defined, use default image
+    if (Utils.isEmpty(plugin.getImageFile())) {
+      return defaultImage;
+    }
+
+    Image image = null;
+    try {
+      PluginRegistry registry = PluginRegistry.getInstance();
+      ClassLoader classLoader = registry.getClassLoader(plugin);
+      image =
+          getImage(
+              plugin.getImageFile(), classLoader, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+    } catch (Throwable t) {
+      log.logError(
+          CONST_ERROR_OCCURRED_LOADING_IMAGE
+              + plugin.getImageFile()
+              + CONST_FOR_PLUGIN
+              + plugin.getIds()[0],
+          t);
+    } finally {
+      if (image == null) {
+        log.logError(
+            "Unable to load image ["
+                + plugin.getImageFile()
+                + CONST_FOR_PLUGIN
+                + plugin.getIds()[0]);
+        image = defaultImage;
+      }
+    }
+
+    return image;
+  }
+
   /** Load all action images from files. */
   private void loadActionImages() {
     imagesActions = new Hashtable<>();
@@ -886,40 +930,22 @@ public class GuiResource {
     }
   }
 
+  /** Load all IDatabase images from files. */
+  private void loadDatabaseImages() {
+    imagesDatabase = new HashMap<>();
+    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins(DatabasePluginType.class);
+    for (IPlugin plugin : plugins) {
+      Image image = this.loadPluginImage(plugin, getImageDatabase());
+      imagesDatabase.put(plugin.getIds()[0], image);
+    }
+  }
+
   /** Load all IValueMeta images from files. */
   private void loadValueMetaImages() {
-
     imagesValueMeta = new HashMap<>();
-    PluginRegistry registry = PluginRegistry.getInstance();
-    List<IPlugin> plugins = registry.getPlugins(ValueMetaPluginType.class);
+    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins(ValueMetaPluginType.class);
     for (IPlugin plugin : plugins) {
-      Image image = null;
-      try {
-        ClassLoader classLoader = registry.getClassLoader(plugin);
-        image =
-            getImage(
-                plugin.getImageFile(),
-                classLoader,
-                ConstUi.SMALL_ICON_SIZE,
-                ConstUi.SMALL_ICON_SIZE);
-      } catch (Throwable t) {
-        log.logError(
-            CONST_ERROR_OCCURRED_LOADING_IMAGE
-                + plugin.getImageFile()
-                + CONST_FOR_PLUGIN
-                + plugin.getIds()[0],
-            t);
-      } finally {
-        if (image == null) {
-          log.logError(
-              "Unable to load image ["
-                  + plugin.getImageFile()
-                  + CONST_FOR_PLUGIN
-                  + plugin.getIds()[0]);
-          image = this.imageLabel;
-        }
-      }
-
+      Image image = this.loadPluginImage(plugin, imageLabel);
       imagesValueMeta.put(plugin.getIds()[0], image);
     }
   }
@@ -1074,6 +1100,16 @@ public class GuiResource {
   public Image getImage(IValueMeta valueMeta) {
     if (valueMeta == null) return this.imageLabel;
     return imagesValueMeta.get(String.valueOf(valueMeta.getType()));
+  }
+
+  /**
+   * Return the image of the IDatabase from plugin
+   *
+   * @return image
+   */
+  public Image getImage(IDatabase database) {
+    if (database == null) return this.getImageDatabase();
+    return imagesDatabase.get(database.getPluginId());
   }
 
   /**
