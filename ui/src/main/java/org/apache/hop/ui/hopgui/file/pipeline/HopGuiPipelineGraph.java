@@ -4598,6 +4598,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   protected void stopRedrawTimer() {
     ExecutorUtil.cleanup(redrawTimer);
+    pipelineGridDelegate.stopRefreshMetricsTimer();
     redrawTimer = null;
   }
 

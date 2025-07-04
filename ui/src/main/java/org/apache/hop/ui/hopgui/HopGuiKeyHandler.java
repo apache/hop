@@ -25,12 +25,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 
@@ -66,6 +66,21 @@ public class HopGuiKeyHandler extends KeyAdapter {
   public void keyPressed(KeyEvent event) {
     // TODO: allow for keyboard shortcut priorities for certain objects.
     //
+
+    // Ignore shortcuts inside Text or Combo widgets
+    if (event.widget instanceof Text || event.widget instanceof Combo) {
+      // Ignore Copy/Cut/Paste/Select all
+      String keys = new String(new char[] {'a', 'c', 'v', 'x'});
+      if ((event.stateMask & (SWT.CONTROL + SWT.COMMAND)) != 0
+          && keys.indexOf(event.keyCode) >= 0) {
+        return;
+      }
+      // Ignore DEL and Backspace
+      if (event.keyCode == SWT.DEL || event.character == SWT.BS) {
+        return;
+      }
+    }
+
     for (Object parentObject : parentObjects) {
       List<KeyboardShortcut> shortcuts =
           GuiRegistry.getInstance().getKeyboardShortcuts(parentObject.getClass().getName());
@@ -81,24 +96,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
   }
 
   private boolean handleKey(Object parentObject, KeyEvent event, KeyboardShortcut shortcut) {
-
-    // Ignore Copy paste shortcuts on Text widgets
-    if (event.widget instanceof Text) {
-      if (shortcut.toString().equals("Cmd+V")
-          || shortcut.toString().equals("Ctrl+V")
-          || shortcut.toString().equals("Cmd+C")
-          || shortcut.toString().equals("Ctrl+C")
-          || shortcut.toString().equals("Cmd+A")
-          || shortcut.toString().equals("Ctrl+A")
-          || shortcut.toString().equals("Cmd+X")
-          || shortcut.toString().equals("Ctrl+X")
-          || shortcut.toString().equals("Delete")) {
-        return false;
-      }
-    }
-    // If this is a control, only handle the shortcut if the control is visible
+    // If this is a control, only handle the shortcut if the control is visible.
     // This prevents keyboard shortcuts being applied to a workflow or pipeline which
-    // isn't visible (in another tab for example).
+    // isn't visible (in another tab, for example).
     //
     if (parentObject instanceof Control control) {
       try {
@@ -120,18 +120,6 @@ public class HopGuiKeyHandler extends KeyAdapter {
           return false;
         }
       } catch (Exception ex) {
-        return false;
-      }
-    }
-
-    if (parentObject instanceof HopGuiPipelineGraph graph) {
-      try {
-        if (!graph.isVisible()) {
-          return false;
-        }
-      } catch (SWTException e) {
-        // Invalid thread: none of our business, bail out
-        //
         return false;
       }
     }
