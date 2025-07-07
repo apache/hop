@@ -171,6 +171,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
               false),
         };
 
+    columns[0].setUsingVariables(true);
     columns[0].setToolTip(BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.Column"));
     columns[1].setUsingVariables(true);
     columns[1].setToolTip(BaseMessages.getString(PKG, "ActionCheckDbConnections.WaitFor.ToolTip"));
