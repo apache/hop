@@ -233,11 +233,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
     for (int i = 0; i < action.getConnections().size(); i++) {
       ActionCheckDbConnections.CDConnection connection = action.getConnections().get(i);
       TableItem ti = wFields.table.getItem(i);
-      if (connection.getDatabaseMeta() != null) {
-        ti.setText(1, Const.NVL(connection.getDatabaseMeta().getName(), ""));
-        ti.setText(2, Const.NVL(connection.getWaitTime(), ""));
-        ti.setText(3, connection.getWaitTimeUnit().getDescription());
-      }
+      ti.setText(1, Const.NVL(connection.getName(), ""));
+      ti.setText(2, Const.NVL(connection.getWaitTime(), ""));
+      ti.setText(3, connection.getWaitTimeUnit().getDescription());
     }
     wFields.optimizeTableView();
 
@@ -268,14 +266,14 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
 
       action.getConnections().clear();
       for (TableItem item : wFields.getNonEmptyItems()) {
-        DatabaseMeta databaseMeta = serializer.load(item.getText(1));
+        String databaseName = item.getText(1);
         String waitTime = item.getText(2);
         ActionCheckDbConnections.WaitTimeUnit unit =
             ActionCheckDbConnections.WaitTimeUnit.lookupDescription(item.getText(3));
 
         ActionCheckDbConnections.CDConnection connection =
             new ActionCheckDbConnections.CDConnection();
-        connection.setDatabaseMeta(databaseMeta);
+        connection.setName(databaseName);
         connection.setWaitTime(waitTime);
         connection.setWaitTimeUnit(unit);
         action.getConnections().add(connection);
