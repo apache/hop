@@ -56,6 +56,15 @@ This transform requires a Google service account (JSON file) and a Google Cloud 
 
 Click the `Test Connection` button to verify your specified JSON credential key file for your service account can use the Google Drive and Spreadsheets APIs and has access to your Google Spreadsheets. On success, you will see a `Google Drive API: Success!` message.
 
+=== Proxy tab
+
+[%header, width="90%", cols="1,4"]
+|===
+|option|description
+|Proxy host|Proxy server hostname
+|Proxy port|Proxy server port
+|===
+
 
 === Spreadsheet tab
 
