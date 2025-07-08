@@ -41,9 +41,8 @@ class ActionCheckDbConnectionsTest {
             "/check-db-connections-action.xml", ActionCheckDbConnections.class, provider);
 
     Assertions.assertEquals(1, action.getConnections().size());
-    Assertions.assertNotNull(action.getConnections().get(0).getDatabaseMeta());
-    Assertions.assertEquals(
-        "unit-test-db", action.getConnections().get(0).getDatabaseMeta().getName());
+    Assertions.assertNotNull(action.getConnections().get(0).getName());
+    Assertions.assertEquals("unit-test-db", action.getConnections().get(0).getName());
     Assertions.assertEquals("500", action.getConnections().get(0).getWaitTime());
     Assertions.assertEquals(
         ActionCheckDbConnections.WaitTimeUnit.MILLISECOND,
