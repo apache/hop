@@ -35,10 +35,9 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @Getter
 @Setter
 @DatabaseMetaPlugin(
-        type = "DATABRICKS",
-        typeDescription = "Databricks",
-        documentationUrl = "/database/databases/databricks.html"
-)
+    type = "DATABRICKS",
+    typeDescription = "Databricks",
+    documentationUrl = "/database/databases/databricks.html")
 @GuiPlugin(id = "GUI-DatabricksDatabaseMeta")
 public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
