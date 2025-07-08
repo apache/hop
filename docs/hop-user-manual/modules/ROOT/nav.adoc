@@ -380,6 +380,7 @@ under the License.
 ** xref:database/databases/as400.adoc[AS400]
 ** xref:database/databases/clickhouse.adoc[ClickHouse]
 ** xref:database/databases/cratedb.adoc[CrateDB]
+** xref:database/databases/databricks.adoc[Databricks]
 ** xref:database/databases/db2.adoc[DB2]
 ** xref:database/databases/doris.adoc[Apache Doris]
 ** xref:database/databases/exasol.adoc[Exasol]
