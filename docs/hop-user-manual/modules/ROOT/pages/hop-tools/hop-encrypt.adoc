@@ -156,3 +156,23 @@ OBF:1s3g1s3i1s3k1s3m
 --
 ====
 
+== Notes about using hop-encrypt on Windows
+
+When using the `hop-encrypt` tool on Windows, you may need to be aware about some characters that for Windows command line are considered as reserved characters and must be managed appropriately becuase otherwise the tool fails in encrypting your password.
+
+As documented at https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmd[this  page], on Windows, _the ampersand &, pipe |, and parentheses ( ) are special characters that must be preceded by the escape character ^ or quotation marks when you pass them as arguments_. Fort this reason when you run your hop-encrypt.bat command you should use the escape character ^ before the any of the special characters and the password's string must be passed between double quotes as shown in the following examples:
+
+
+--
+[source,shell]
+----
+./hop-encrypt.bat -hop "hello^&world"
+----
+
+--
+[source,shell]
+----
+./hop-encrypt.bat -server "hello^&world"
+----
+
+If you don't use the escape character ^ before the special characters and you don't put the clear text string between double quotes, the command is candidate to fail always.
