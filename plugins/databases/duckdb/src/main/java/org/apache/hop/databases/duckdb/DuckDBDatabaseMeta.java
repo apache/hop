@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "DuckDB",
     typeDescription = "DuckDB",
+    image = "duckdb.svg",
     documentationUrl = "/database/databases/duckdb.html")
 @GuiPlugin(id = "GUI-DuckDBDatabaseMeta")
 public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
@@ -202,11 +203,6 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public boolean isSupportsOptionsInURL() {
     return false;
-  }
-
-  @Override
-  public String getSqlListOfSchemas() {
-    return "SELECT CONCAT(catalog_name, '.', schema_name) AS name FROM information_schema.schemata ORDER BY catalog_name, schema_name";
   }
 
   @Override

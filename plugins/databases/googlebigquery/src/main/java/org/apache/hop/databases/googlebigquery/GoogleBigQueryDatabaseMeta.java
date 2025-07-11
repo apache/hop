@@ -30,6 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 @DatabaseMetaPlugin(
     type = "GOOGLEBIGQUERY",
     typeDescription = "Google BigQuery",
+    image = "bigquery.svg",
     documentationUrl = "/database/databases/googlebigquery.html")
 @GuiPlugin(id = "GUI-GoogleBigQueryDatabaseMeta")
 public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

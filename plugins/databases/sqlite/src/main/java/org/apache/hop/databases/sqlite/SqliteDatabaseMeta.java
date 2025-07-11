@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "SQLITE",
     typeDescription = "SQLite",
+    image = "sqlite.svg",
     documentationUrl = "/database/databases/sqlite.html")
 @GuiPlugin(id = "GUI-SQLiteDatabaseMeta")
 public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

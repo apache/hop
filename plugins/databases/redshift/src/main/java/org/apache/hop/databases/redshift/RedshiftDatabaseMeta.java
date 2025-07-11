@@ -24,6 +24,7 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 @DatabaseMetaPlugin(
     type = "REDSHIFT",
     typeDescription = "Redshift",
+    image = "redshift.svg",
     documentationUrl = "/database/databases/redshift.html")
 @GuiPlugin(id = "GUI-RedshiftDatabaseMeta")
 public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {

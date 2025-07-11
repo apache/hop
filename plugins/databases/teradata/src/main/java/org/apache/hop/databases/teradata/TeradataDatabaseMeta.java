@@ -32,6 +32,7 @@ import org.apache.hop.core.util.Utils;
 @DatabaseMetaPlugin(
     type = "TERADATA",
     typeDescription = "Teradata",
+    image = "teradata.svg",
     documentationUrl = "/database/databases/teradata.html")
 @GuiPlugin(id = "GUI-TeradataDatabaseMeta")
 public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

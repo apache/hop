@@ -25,6 +25,7 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 @DatabaseMetaPlugin(
     type = "CRATEDB",
     typeDescription = "CrateDB",
+    image = "cratedb.svg",
     documentationUrl = "/database/databases/cratedb.html",
     classLoaderGroup = "crate-db")
 @GuiPlugin(id = "GUI-CrateDBDatabaseMeta")

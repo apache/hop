@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "CACHE",
     typeDescription = "InterSystems Cache",
+    image = "intersystems.svg",
     documentationUrl = "/database/databases/cache.html")
 @GuiPlugin(id = "GUI-CacheDatabaseMeta")
 public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
