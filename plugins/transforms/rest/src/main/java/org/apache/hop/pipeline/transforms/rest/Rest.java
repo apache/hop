@@ -479,7 +479,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
       if (RestMeta.isActiveParameters(meta.getMethod())) {
         // Parameters
-        int nrparams = meta.getParameterFields() != null ? 0 : meta.getParameterFields().size();
+        int nrparams = meta.getParameterFields() == null ? 0 : meta.getParameterFields().size();
         if (nrparams > 0) {
           data.nrParams = nrparams;
           data.paramNames = new String[nrparams];
