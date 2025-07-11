@@ -143,8 +143,10 @@ public interface IWorkflowEngine<T extends WorkflowMeta>
    */
   void removeExecutionFinishedListener(IExecutionFinishedListener<IWorkflowEngine<T>> listener);
 
+  @Deprecated(since = "2.15", forRemoval = true)
   boolean isInteractive();
 
+  @Deprecated(since = "2.15", forRemoval = true)
   void setInteractive(boolean interactive);
 
   Set<ActionMeta> getActiveActions();
