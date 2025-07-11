@@ -190,7 +190,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     String realwildcard = resolve(wildcard);
 
     try {
-      filefolder = HopVfs.getFileObject(realFilefoldername);
+      filefolder = HopVfs.getFileObject(realFilefoldername, getVariables());
       if (filefolder.exists()) {
         // the file or folder exists
 
@@ -204,7 +204,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
           ResultFile resultFile =
               new ResultFile(
                   ResultFile.FILE_TYPE_GENERAL,
-                  HopVfs.getFileObject(filefolder.toString()),
+                  HopVfs.getFileObject(filefolder.toString(), getVariables()),
                   parentWorkflow.getWorkflowName(),
                   toString());
           result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
@@ -222,7 +222,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
             ResultFile resultFile =
                 new ResultFile(
                     ResultFile.FILE_TYPE_GENERAL,
-                    HopVfs.getFileObject(list[i].toString()),
+                    HopVfs.getFileObject(list[i].toString(), getVariables()),
                     parentWorkflow.getWorkflowName(),
                     toString());
             result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
