@@ -28,7 +28,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 
@@ -41,7 +40,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     keywords = "i18n::ActionDelay.keyword",
     documentationUrl = "/workflow/actions/waitfor.html")
-public class ActionDelay extends ActionBase implements Cloneable, IAction {
+public class ActionDelay extends ActionBase implements Cloneable {
   private static final Class<?> PKG = ActionDelay.class;
 
   private static final String DEFAULT_MAXIMUM_TIMEOUT = "0";

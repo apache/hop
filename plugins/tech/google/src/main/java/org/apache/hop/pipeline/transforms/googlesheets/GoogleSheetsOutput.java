@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.googlesheets;
 
 import com.google.api.client.googleapis.batch.BatchRequest;
 import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -61,6 +60,7 @@ public class GoogleSheetsOutput
     extends BaseTransform<GoogleSheetsOutputMeta, GoogleSheetsOutputData> {
 
   private String spreadsheetID;
+  private NetHttpTransport httpTransport;
 
   public GoogleSheetsOutput(
       TransformMeta transformMeta,
@@ -84,7 +84,8 @@ public class GoogleSheetsOutput
 
       // Check if file exists
       try {
-        httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        httpTransport =
+            GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
         jsonFactory = JacksonFactory.getDefaultInstance();
         scope = "https://www.googleapis.com/auth/drive";
 
@@ -336,7 +337,8 @@ public class GoogleSheetsOutput
           logBasic(
               "Clearing range" + range + " in Spreadsheet :" + resolve(meta.getSpreadsheetKey()));
           // Creating service
-          NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+          httpTransport =
+              GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
           JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
           String scope = SheetsScopes.SPREADSHEETS;
           HttpRequestInitializer credential =

@@ -30,15 +30,13 @@ This action is similar to the xref:pipeline/transforms/writetolog.adoc[Write To 
 
 Typical use cases are logging variable values and additional, custom logging information to the Hop logging system.
 
-TIP: be careful when writing variables for (unencrypted) passwords or other sensitive information to the Hop logging system!
+TIP: Be careful when writing variables for (unencrypted) passwords or other sensitive information to the Hop logging system!
 
-If no fields are specified it will write out all fields to the log. If at least one field is specified it will only print out that field. Parameters and variables must be specified in the Log message section.  
+Parameters and variables must be specified in the Log message section.  
 
 A Logging level must be set. Set the Log detail level to Basic if you want parameters and variables to be printed out.
 
 Example to print parameter or variable in Log message section: ``COUNTER: {openvar}COUNTER{closevar}``
-
-If no fields exist, you will have to use a “Generate rows” transform to create a dummy row in order to print variables or parameters.
 
 TIP: If an error stops anything from being written to the log, then disable the Hops that fail, add logging, and re-run.
 

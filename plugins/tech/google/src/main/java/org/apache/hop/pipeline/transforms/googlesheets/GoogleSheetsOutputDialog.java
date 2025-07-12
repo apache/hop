@@ -16,7 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.googlesheets;
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -72,6 +71,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
   private TextVar wTimeout;
   private TextVar wImpersonation;
   private TextVar wAppName;
+  private TextVar wProxyHost;
+  private TextVar wProxyPort;
   private static final String C_BROWSE_BUTTON = "System.Button.Browse";
 
   public GoogleSheetsOutputDialog(
@@ -288,6 +289,61 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
      */
 
     /*
+     * BEGIN Proxy tab
+     */
+
+    CTabItem proxyTab = new CTabItem(tabFolder, SWT.NONE);
+    proxyTab.setText(BaseMessages.getString(PKG, "GoogleSheetsInputDialog.Proxy"));
+
+    Composite proxyComposite = new Composite(tabFolder, SWT.NONE);
+    PropsUi.setLook(proxyComposite);
+
+    FormLayout proxyLayout = new FormLayout();
+    proxyLayout.marginWidth = 3;
+    proxyLayout.marginHeight = 3;
+    proxyComposite.setLayout(proxyLayout);
+
+    Label wlProxyHost = new Label(proxyComposite, SWT.RIGHT);
+    wlProxyHost.setText(BaseMessages.getString(PKG, "GoogleSheetsInputDialog.ProxyHost"));
+    PropsUi.setLook(wlProxyHost);
+    FormData fdlProxyHost = new FormData();
+    fdlProxyHost.left = new FormAttachment(0, 0);
+    fdlProxyHost.right = new FormAttachment(middle, -margin);
+    fdlProxyHost.top = new FormAttachment(0, 0);
+    wlProxyHost.setLayoutData(fdlProxyHost);
+
+    wProxyHost = new TextVar(variables, proxyComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wProxyHost);
+    FormData fdProxyHost = new FormData();
+    fdProxyHost.left = new FormAttachment(middle, 0);
+    fdProxyHost.right = new FormAttachment(100, 0);
+    fdProxyHost.top = new FormAttachment(0, 0);
+    wProxyHost.setLayoutData(fdProxyHost);
+
+    Label wlProxyPort = new Label(proxyComposite, SWT.RIGHT);
+    wlProxyPort.setText(BaseMessages.getString(PKG, "GoogleSheetsInputDialog.ProxyPort"));
+    FormData fdlProxyPort = new FormData();
+    fdlProxyPort.left = new FormAttachment(0, 0);
+    fdlProxyPort.right = new FormAttachment(middle, -margin);
+    fdlProxyPort.top = new FormAttachment(wlProxyHost, margin);
+    wlProxyPort.setLayoutData(fdlProxyPort);
+
+    wProxyPort = new TextVar(variables, proxyComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wProxyPort);
+    FormData fdProxyPort = new FormData();
+    fdProxyPort.left = new FormAttachment(middle, 0);
+    fdProxyPort.right = new FormAttachment(100, 0);
+    fdProxyPort.top = new FormAttachment(wlProxyHost, margin);
+    wProxyPort.setLayoutData(fdProxyPort);
+
+    proxyTab.setControl(proxyComposite);
+    proxyComposite.layout();
+
+    /*
+     * END Proxy tab
+     */
+
+    /*
      * BEGIN Spreadsheet Tab
      */
     CTabItem spreadsheetTab = new CTabItem(tabFolder, SWT.NONE);
@@ -487,8 +543,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
 
   private void selectWorksheet() {
     try {
-
-      NetHttpTransport netHttpTransport = GoogleNetHttpTransport.newTrustedTransport();
+      NetHttpTransport netHttpTransport =
+          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
       JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
 
@@ -545,7 +601,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
 
   private void selectSpreadSheetKey() {
     try {
-      NetHttpTransport netHttpTransport = GoogleNetHttpTransport.newTrustedTransport();
+      NetHttpTransport netHttpTransport =
+          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
       JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
       String scope = "https://www.googleapis.com/auth/drive";
       HttpRequestInitializer credential =
@@ -608,7 +665,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
 
   private void testServiceAccount() {
     try {
-      NetHttpTransport netHttpTransport = GoogleNetHttpTransport.newTrustedTransport();
+      NetHttpTransport netHttpTransport =
+          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
       JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
 
@@ -673,6 +731,12 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
     if (!StringUtils.isEmpty(meta.getJsonCredentialPath())) {
       this.wPrivateKeyStore.setText(meta.getJsonCredentialPath());
     }
+    if (!StringUtils.isEmpty(meta.getProxyHost())) {
+      this.wProxyHost.setText(meta.getProxyHost());
+    }
+    if (!StringUtils.isEmpty(meta.getProxyPort())) {
+      this.wProxyPort.setText(meta.getProxyPort());
+    }
 
     this.wbCreate.setSelection(meta.isCreate());
     this.wbReplace.setSelection(meta.isReplaceSheet());
@@ -693,6 +757,9 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
     meta.setTimeout(this.wTimeout.getText());
     meta.setAppName(this.wAppName.getText());
     meta.setImpersonation(this.wImpersonation.getText());
+
+    meta.setProxyHost(this.wProxyHost.getText());
+    meta.setProxyPort(this.wProxyPort.getText());
   }
 
   private void cancel() {

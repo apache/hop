@@ -81,6 +81,10 @@ public class GoogleSheetsOutputMeta
   @HopMetadataProperty(key = "replace_sheet", injectionGroupKey = "SHEET")
   private boolean replaceSheet;
 
+  @HopMetadataProperty private String proxyHost;
+
+  @HopMetadataProperty private String proxyPort;
+
   @Override
   public void setDefault() {
     this.jsonCredentialPath = "" + "client_secret.json";

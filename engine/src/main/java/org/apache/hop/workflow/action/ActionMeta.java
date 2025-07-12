@@ -33,7 +33,9 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.transform.copy.CopyContext;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.copy.DefaultActionCopyFactory;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.w3c.dom.Node;
 
@@ -162,7 +164,10 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
   }
 
   public void replaceMeta(ActionMeta actionCopy) {
-    action = (IAction) actionCopy.action.clone();
+    // Use the copy factory with SAME_PIPELINE context to preserve parent references and proper
+    // state
+    action =
+        DefaultActionCopyFactory.getInstance().copy(actionCopy.action, CopyContext.SAME_PIPELINE);
     selected = actionCopy.selected;
     if (actionCopy.location != null) {
       location = new Point(actionCopy.location.x, actionCopy.location.y);

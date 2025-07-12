@@ -548,6 +548,10 @@ public abstract class Pipeline
     this.log = new LogChannel(this, parent, isGatheringMetrics(), true);
     this.log.setLogLevel(logLevel);
 
+    // We changed the log channel which changes a few internal variables:
+    //
+    setInternalLoggingVariables();
+
     if (this.containerObjectId == null) {
       this.containerObjectId = log.getContainerObjectId();
     }
@@ -2219,35 +2223,24 @@ public abstract class Pipeline
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline
-        variables.setVariable(
-            Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, fileName.getBaseName());
+        setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, fileName.getBaseName());
 
         // The directory of the pipeline
         FileName fileDir = fileName.getParent();
-        variables.setVariable(
-            Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, fileDir.getURI());
+        setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, fileDir.getURI());
       } catch (HopFileException e) {
-        variables.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "");
-        variables.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, "");
+        setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "");
+        setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, "");
       }
     } else {
-      variables.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "");
-      variables.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, "");
+      setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "");
+      setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, "");
     }
 
     // The name of the pipeline
-    variables.setVariable(
-        Const.INTERNAL_VARIABLE_PIPELINE_NAME, Const.NVL(pipelineMeta.getName(), ""));
+    setVariable(Const.INTERNAL_VARIABLE_PIPELINE_NAME, Const.NVL(pipelineMeta.getName(), ""));
 
-    // The ID of the pipeline (log channel ID)
-    variables.setVariable(
-        Const.INTERNAL_VARIABLE_PIPELINE_ID, log != null ? log.getLogChannelId() : "");
-
-    if (parent != null) {
-      this.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_PARENT_ID, parent.getLogChannelId());
-    } else {
-      this.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_PARENT_ID, null);
-    }
+    setInternalLoggingVariables();
 
     // Here we don't clear the definition of the workflow specific parameters, as they may come in
     // handy.
@@ -2257,10 +2250,21 @@ public abstract class Pipeline
     setInternalEntryCurrentDirectory(hasFilename);
   }
 
+  private void setInternalLoggingVariables() {
+    // The ID of the pipeline (log channel ID)
+    setVariable(Const.INTERNAL_VARIABLE_PIPELINE_ID, log != null ? log.getLogChannelId() : "");
+
+    if (parent != null) {
+      setVariable(Const.INTERNAL_VARIABLE_PIPELINE_PARENT_ID, parent.getLogChannelId());
+    } else {
+      setVariable(Const.INTERNAL_VARIABLE_PIPELINE_PARENT_ID, null);
+    }
+  }
+
   protected void setInternalEntryCurrentDirectory(boolean hasFilename) {
-    variables.setVariable(
+    setVariable(
         Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER,
-        variables.getVariable(
+        getVariable(
             hasFilename
                 ? Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY
                 : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));

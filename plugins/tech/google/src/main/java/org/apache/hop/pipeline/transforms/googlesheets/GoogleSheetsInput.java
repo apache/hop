@@ -17,7 +17,6 @@
  */
 package org.apache.hop.pipeline.transforms.googlesheets;
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -46,6 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, GoogleSheetsInputData> {
 
   public static final String CONST_IN_SPREADSHEET = " in spreadsheet :";
+  private NetHttpTransport httpTransport;
 
   public GoogleSheetsInput(
       TransformMeta transformMeta,
@@ -70,7 +70,8 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
 
     try {
       jsonFactory = JacksonFactory.getDefaultInstance();
-      httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+      httpTransport =
+          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
     } catch (Exception e) {
       logError("cannot initiate HTTP transport" + e.getMessage());
       return false;

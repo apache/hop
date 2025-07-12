@@ -33,6 +33,7 @@
         <module>aws</module>
         <module>azure</module>
         <module>cassandra</module>
+        <module>databricks</module>
         <module>dropbox</module>
         <module>elastic</module>
         <module>google</module>
