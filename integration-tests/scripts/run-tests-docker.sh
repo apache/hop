@@ -114,7 +114,7 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   fi
 
   # Create final report
-  if [ "${SUREFIRE_REPORT}" == "true" ]; then
+  if [ "${SUREFIRE_REPORT}" = "true" ]; then
     if [ ! -f "${CURRENT_DIR}/../surefire-reports/surefile_${PROJECT_NAME}.xml" ]; then
       echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
       echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"0\" tests=\"1\" errors=\"1\" skipped=\"0\" failures=\"0\">" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
@@ -126,7 +126,7 @@ done
 
 echo "Keep images value: ${KEEP_IMAGES}"
 # Cleanup all images
-if [ ! "${KEEP_IMAGES}" == "true" ]; then
+if [ ! "${KEEP_IMAGES}" = "true" ]; then
   for d in "${EXECUTED_COMPOSE_FILES[@]}"; do
     echo "Removing: " $d
     PROJECT_NAME="" docker compose -f $d down --rmi all --remove-orphans

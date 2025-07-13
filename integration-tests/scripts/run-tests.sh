@@ -202,7 +202,7 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       total_duration=$((SECONDS - start_time))
 
       #create final report
-      if [ "${SUREFIRE_REPORT}" == "true" ]; then
+      if [ "${SUREFIRE_REPORT}" = "true" ]; then
 
         echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
         echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"$test_counter\" errors=\"$errors_counter\" skipped=\"$skipped_counter\" failures=\"$failures_counter\">" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
