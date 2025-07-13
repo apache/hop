@@ -58,6 +58,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
     if (r == null) { // no more input to be expected...
       closeFile();
+      setOutputDone();
       return false;
     }
     if (first) {
@@ -88,6 +89,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       if (r != null && !openNewFile()) {
         logError("Unable to open new file (split #" + data.splitnr + "...");
         setErrors(1);
+        setOutputDone();
         return false;
       }
     }
