@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "FIREBIRD",
     typeDescription = "Firebird SQL",
+    image = "firebird.svg",
     documentationUrl = "/database/databases/firebird.html")
 @GuiPlugin(id = "GUI-FirebirdDatabaseMeta")
 public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

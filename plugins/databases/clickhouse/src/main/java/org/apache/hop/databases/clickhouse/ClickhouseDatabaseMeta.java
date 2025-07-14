@@ -36,6 +36,7 @@ import org.apache.hop.core.util.Utils;
 @DatabaseMetaPlugin(
     type = "CLICKHOUSE",
     typeDescription = "ClickHouse",
+    image = "clikhouse.svg",
     documentationUrl = "/database/databases/clickhouse.html")
 @GuiPlugin(id = "GUI-ClickhouseDatabaseMeta")
 public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

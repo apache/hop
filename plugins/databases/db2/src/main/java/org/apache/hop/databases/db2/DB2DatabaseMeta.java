@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "DB2",
     typeDescription = "DB2",
+    image = "db2.svg",
     documentationUrl = "/database/databases/db2.html")
 @GuiPlugin(id = "GUI-DB2DatabaseMeta")
 public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {

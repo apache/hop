@@ -26,6 +26,7 @@ import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
 @DatabaseMetaPlugin(
     type = "DORIS",
     typeDescription = "Apache Doris",
+    image = "doris.svg",
     documentationUrl = "/database/databases/doris.html")
 @GuiPlugin(id = "GUI-DorisDatabaseMeta")
 public class DorisDatabaseMeta extends MySqlDatabaseMeta {

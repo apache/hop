@@ -36,6 +36,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @DatabaseMetaPlugin(
     type = "HIVE",
     typeDescription = "Apache Hive",
+    image = "hive.svg",
     documentationUrl = "/database/databases/apache-hive.html")
 @GuiPlugin(id = "GUI-HiveDatabaseMeta")
 public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {

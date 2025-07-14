@@ -1224,7 +1224,6 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
         String[] schemas = database.getSchemas();
 
         if (null != schemas && schemas.length > 0) {
-          schemas = Const.sortStrings(schemas);
           EnterSelectionDialog dialog =
               new EnterSelectionDialog(
                   shell,

@@ -30,6 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 @DatabaseMetaPlugin(
     type = "MARIADB",
     typeDescription = "MariaDB",
+    image = "mariadb.svg",
     documentationUrl = "/database/databases/mariadb.html")
 @GuiPlugin(id = "GUI-MariaDBDatabaseMeta")
 public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
