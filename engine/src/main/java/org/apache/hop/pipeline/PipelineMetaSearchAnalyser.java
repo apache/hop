@@ -61,7 +61,7 @@ public class PipelineMetaSearchAnalyser extends BaseSearchableAnalyser<PipelineM
     // The parameters
     //
     for (String parameterName : pipelineMeta.listParameters()) {
-      String componentName = "workflow parameter " + parameterName;
+      String componentName = "pipeline parameter " + parameterName;
       matchProperty(
           searchable, results, searchQuery, "parameter name", parameterName, componentName);
 
