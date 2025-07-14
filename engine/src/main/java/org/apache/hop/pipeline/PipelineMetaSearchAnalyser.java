@@ -20,6 +20,7 @@ package org.apache.hop.pipeline;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -56,6 +57,22 @@ public class PipelineMetaSearchAnalyser extends BaseSearchableAnalyser<PipelineM
         "pipeline description",
         pipelineMeta.getDescription(),
         null);
+
+    // The parameters
+    //
+    for (String parameterName : pipelineMeta.listParameters()) {
+      matchProperty(searchable, results, searchQuery, "parameter name", parameterName, null);
+
+      try {
+        String defaultValue = pipelineMeta.getParameterDefault(parameterName);
+        String description = pipelineMeta.getParameterDescription(parameterName);
+
+        matchProperty(searchable, results, searchQuery, "parameter default", defaultValue, null);
+        matchProperty(searchable, results, searchQuery, "parameter description", description, null);
+      } catch (Exception e) {
+        LogChannel.GENERAL.logError("Error searching parameter " + parameterName, e);
+      }
+    }
 
     // The transforms...
     //
