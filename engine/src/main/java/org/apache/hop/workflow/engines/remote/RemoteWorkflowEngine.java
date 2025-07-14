@@ -367,7 +367,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       fireExecutionStoppedListeners();
     } catch (Exception e) {
       throw new RuntimeException(
-          "Stopping of pipeline '"
+          "Stopping of workflow '"
               + workflowMeta.getName()
               + "' with ID "
               + containerId

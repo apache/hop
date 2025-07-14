@@ -387,11 +387,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     updateParameters(workflow, previousVars, getParentWorkflow(), previousParams);
 
     workflow.setLogLevel(getLogLevel());
-
-    if (parentWorkflow.isInteractive()) {
-      workflow.setInteractive(true);
-      workflow.getActionListeners().addAll(parentWorkflow.getActionListeners());
-    }
+    workflow.getActionListeners().addAll(parentWorkflow.getActionListeners());
 
     // Link the workflow with the sub-workflow
     parentWorkflow.getWorkflowTracker().addWorkflowTracker(workflow.getWorkflowTracker());
