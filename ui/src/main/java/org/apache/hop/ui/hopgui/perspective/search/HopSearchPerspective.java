@@ -473,7 +473,9 @@ public class HopSearchPerspective implements IHopPerspective {
       item.setText(c++, Const.NVL(searchable.getLocation(), ""));
       item.setText(c++, Const.NVL(searchResult.getMatchingString(), ""));
       item.setText(c++, Const.NVL(searchResult.getValue(), ""));
-      item.setText(c++, Const.NVL(searchResult.getDescription(), ""));
+      item.setText(
+          c++,
+          Const.NVL(Const.NVL(searchResult.getComponent(), searchResult.getDescription()), ""));
 
       allSearchResults.add(searchResult);
     }
