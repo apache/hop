@@ -61,14 +61,18 @@ public class PipelineMetaSearchAnalyser extends BaseSearchableAnalyser<PipelineM
     // The parameters
     //
     for (String parameterName : pipelineMeta.listParameters()) {
-      matchProperty(searchable, results, searchQuery, "parameter name", parameterName, null);
+      String componentName = "workflow parameter " + parameterName;
+      matchProperty(
+          searchable, results, searchQuery, "parameter name", parameterName, componentName);
 
       try {
         String defaultValue = pipelineMeta.getParameterDefault(parameterName);
         String description = pipelineMeta.getParameterDescription(parameterName);
 
-        matchProperty(searchable, results, searchQuery, "parameter default", defaultValue, null);
-        matchProperty(searchable, results, searchQuery, "parameter description", description, null);
+        matchProperty(
+            searchable, results, searchQuery, "parameter default", defaultValue, componentName);
+        matchProperty(
+            searchable, results, searchQuery, "parameter description", description, componentName);
       } catch (Exception e) {
         LogChannel.GENERAL.logError("Error searching parameter " + parameterName, e);
       }
