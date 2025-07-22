@@ -94,7 +94,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
     // get dynamic url ?
     if (meta.isUrlInField()) {
-      if (!Utils.isEmpty(meta.getConnectionName())) {
+      if (!Utils.isEmpty(data.connectionName)) {
         data.realUrl = baseUrl + data.inputRowMeta.getString(rowData, data.indexOfUrlField);
       } else {
         data.realUrl = data.inputRowMeta.getString(rowData, data.indexOfUrlField);
@@ -438,7 +438,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       } else {
         // Static URL
-        if (!Utils.isEmpty(meta.getConnectionName())) {
+        if (!Utils.isEmpty(data.connectionName)) {
           data.realUrl = baseUrl + resolve(meta.getUrl());
         } else {
           data.realUrl = resolve(meta.getUrl());
@@ -568,10 +568,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     if (super.init()) {
 
       // use the information from the selection line if we have one.
-      if (!Utils.isEmpty(meta.getConnectionName())) {
+      data.connectionName = resolve(meta.getConnectionName());
+      if (!Utils.isEmpty(data.connectionName)) {
         try {
           this.connection =
-              metadataProvider.getSerializer(RestConnection.class).load(meta.getConnectionName());
+              metadataProvider.getSerializer(RestConnection.class).load(data.connectionName);
           baseUrl = resolve(connection.getBaseUrl());
 
         } catch (Exception e) {
