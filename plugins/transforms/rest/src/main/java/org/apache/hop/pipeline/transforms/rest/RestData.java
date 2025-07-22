@@ -33,6 +33,7 @@ public class RestData extends BaseTransformData implements ITransformData {
   /** URL */
   public int indexOfUrlField;
 
+  public String connectionName;
   public String realUrl;
 
   /** Method */
