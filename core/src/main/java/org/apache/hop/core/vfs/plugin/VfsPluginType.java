@@ -101,6 +101,6 @@ public class VfsPluginType extends BasePluginType<VfsPlugin> {
 
   @Override
   protected String extractClassLoaderGroup(VfsPlugin annotation) {
-    return null;
+    return annotation.classLoaderGroup();
   }
 }

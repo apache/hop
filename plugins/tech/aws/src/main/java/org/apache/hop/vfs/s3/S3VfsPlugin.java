@@ -24,7 +24,7 @@ import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileProvider;
 
-@VfsPlugin(type = "s3", typeDescription = "S3 VFS plugin")
+@VfsPlugin(type = "s3", typeDescription = "S3 VFS plugin", classLoaderGroup = "vfs-s3")
 public class S3VfsPlugin implements IVfs {
   @Override
   public String[] getUrlSchemes() {

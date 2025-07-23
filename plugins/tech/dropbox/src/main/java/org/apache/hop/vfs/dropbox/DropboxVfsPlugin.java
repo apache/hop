@@ -24,7 +24,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
 
-@VfsPlugin(type = "dropbox", typeDescription = "Dropbox VFS")
+@VfsPlugin(type = "dropbox", typeDescription = "Dropbox VFS", classLoaderGroup = "vfs-dropbox")
 public class DropboxVfsPlugin implements IVfs {
   @Override
   public String[] getUrlSchemes() {

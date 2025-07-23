@@ -29,7 +29,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.vfs.azure.metadatatype.AzureMetadataType;
 
-@VfsPlugin(type = "azure", typeDescription = "Azure VFS plugin")
+@VfsPlugin(type = "azure", typeDescription = "Azure VFS plugin", classLoaderGroup = "vfs-azure")
 public class AzureVfsPlugin implements IVfs {
   @Override
   public String[] getUrlSchemes() {
