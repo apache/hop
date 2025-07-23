@@ -1,0 +1,4 @@
+children,limit,name,executionType,runConfigurationName,logLevel,failed,statusDescription
+Y,5000,0001-opensearch-create-execution-information-sub,Pipeline,local-opensearch,Basic,N,Finished
+Y,5000,0001-opensearch-create-execution-information-sub,Workflow,local-opensearch,Basic,N,Finished
+Y,5000,0001-opensearch-create-execution-information,Workflow,local-opensearch,Basic,N,Finished

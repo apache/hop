@@ -34,6 +34,7 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -107,6 +108,9 @@ import org.eclipse.swt.widgets.ToolBar;
 public class TableView extends Composite {
 
   private static final Class<?> PKG = TableView.class;
+
+  private static final int EXTRA_COLUMN_WIDTH_MARGIN =
+      Const.toInt(HopConfig.readStringVariable(Const.HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN, ""), 0);
 
   @Override
   public void setEnabled(boolean enabled) {
@@ -2952,6 +2956,7 @@ public class TableView extends Composite {
     } else {
       extraForMargin = (int) (PropsUi.getNativeZoomFactor() * 5);
     }
+    extraForMargin += EXTRA_COLUMN_WIDTH_MARGIN;
 
     for (int c = 0; c < table.getColumnCount(); c++) {
       TableColumn tc = table.getColumn(c);

@@ -20,6 +20,7 @@ package org.apache.hop.workflow;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -56,6 +57,24 @@ public class WorkflowMetaSearchAnalyser extends BaseSearchableAnalyser<WorkflowM
         "workflow description",
         workflowMeta.getDescription(),
         null);
+
+    // The parameters
+    //
+    for (String parameterName : workflowMeta.listParameters()) {
+      String componentName = "workflow parameter " + parameterName;
+      matchProperty(searchable, results, searchQuery, "parameter", parameterName, componentName);
+      try {
+        String defaultValue = workflowMeta.getParameterDefault(parameterName);
+        String description = workflowMeta.getParameterDescription(parameterName);
+
+        matchProperty(
+            searchable, results, searchQuery, "parameter default", defaultValue, componentName);
+        matchProperty(
+            searchable, results, searchQuery, "parameter description", description, componentName);
+      } catch (Exception e) {
+        LogChannel.GENERAL.logError("Error searching parameter " + parameterName, e);
+      }
+    }
 
     // The actions...
     //

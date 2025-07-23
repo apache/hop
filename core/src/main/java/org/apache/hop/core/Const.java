@@ -953,6 +953,31 @@ public class Const {
       "HOP_DEFAULT_BUFFER_POLLING_WAITTIME";
 
   /**
+   * If you don't want to see the hexadecimal representation of binary fields in preview windows,
+   * for example if you're dealing with CLOB database fields, set this variable to true.
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "false",
+      description =
+          "Display the original content of binary fields during preview, not its hexadecimal value.")
+  public static final String HOP_BINARY_FIELDS_AVOID_HEX_PREVIEW =
+      "HOP_BINARY_FIELDS_AVOID_HEX_PREVIEW";
+
+  /**
+   * If for some reason the table columns are a bit too narrow, you can give it a bit of extra with
+   * manually.
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "0",
+      description =
+          "If for some reason the table columns are a bit too narrow, "
+              + "you can give it a bit of extra with manually. (in pixels)")
+  public static final String HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN =
+      "HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN";
+
+  /**
    * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal
    * class to avoid integer overflow while rounding
    *

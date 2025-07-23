@@ -34,7 +34,9 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -114,8 +116,19 @@ public class KafkaConsumerInput
       subTransMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       logDetailed("Loaded sub-pipeline '" + realFilename + "'");
 
-      LocalPipelineEngine kafkaPipeline =
-          new LocalPipelineEngine(subTransMeta, this, getPipeline());
+      PipelineRunConfiguration runConfiguration =
+          new PipelineRunConfiguration(
+              "Kafka",
+              "",
+              meta.getExecutionInformationLocation(),
+              new ArrayList<>(),
+              new LocalPipelineRunConfiguration(),
+              meta.getExecutionDataProfile(),
+              false);
+
+      LocalPipelineEngine kafkaPipeline = new LocalPipelineEngine(subTransMeta, this, this);
+      kafkaPipeline.setParentPipeline(getPipeline());
+      kafkaPipeline.setPipelineRunConfiguration(runConfiguration);
       kafkaPipeline.prepareExecution();
       kafkaPipeline.setLogLevel(getPipeline().getLogLevel());
       kafkaPipeline.setPreviousResult(new Result());
@@ -176,6 +189,8 @@ public class KafkaConsumerInput
         // If the conditions for error handling are not met init SingleThreadedExecutor normally
         data.executor = new SingleThreadedPipelineExecutor(kafkaPipeline);
       }
+      data.executor.setClearingMetricsPerIteration(
+          StringUtils.isEmpty(meta.getExecutionInformationLocation()));
 
       // Initialize the sub-pipeline
       //

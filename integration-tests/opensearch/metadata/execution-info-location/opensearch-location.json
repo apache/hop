@@ -1,0 +1,18 @@
+{
+  "virtualPath": "",
+  "executionInfoLocation": {
+    "opensearch-location": {
+      "password": "${OPENSEARCH_PASSWORD}",
+      "indexName": "hop",
+      "persistenceDelay": "5000",
+      "maxCacheAge": "86400000",
+      "ignoreSsl": true,
+      "url": "${OPENSEARCH_URL}",
+      "username": "${OPENSEARCH_USERNAME}"
+    }
+  },
+  "dataLoggingDelay": "2000",
+  "name": "opensearch-location",
+  "description": "",
+  "dataLoggingInterval": "5000"
+}

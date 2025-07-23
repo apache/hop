@@ -20,26 +20,26 @@
 
     <parent>
         <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins</artifactId>
+        <artifactId>hop-plugins-tech</artifactId>
         <version>2.15.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hop-plugins-tech</artifactId>
-    <packaging>pom</packaging>
-    <name>Hop Plugins Technology</name>
+    <artifactId>hop-tech-opensearch</artifactId>
+    <packaging>jar</packaging>
+    <name>Hop Plugins Technology OpenSearch</name>
 
-    <modules>
-        <module>avro</module>
-        <module>aws</module>
-        <module>azure</module>
-        <module>cassandra</module>
-        <module>databricks</module>
-        <module>dropbox</module>
-        <module>elastic</module>
-        <module>google</module>
-        <module>neo4j</module>
-        <module>opensearch</module>
-        <module>parquet</module>
-        <module>vault</module>
-    </modules>
+    <properties></properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-datagrid</artifactId>
+            <version>2.15.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-rest</artifactId>
+            <version>2.15.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>
