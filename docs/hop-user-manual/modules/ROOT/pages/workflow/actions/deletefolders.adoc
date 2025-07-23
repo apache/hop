@@ -39,5 +39,3 @@ The `Delete Folders` action deletes a set of folders and their content.
 |Limit|the number of folders to delete or number of errors, depending on the option chosen in the `Success condition` above.
 |Folders a|This is the list of all the folders to delete.
 |===
-
-After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.

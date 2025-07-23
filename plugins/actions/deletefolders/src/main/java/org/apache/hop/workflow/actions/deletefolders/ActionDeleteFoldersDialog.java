@@ -25,6 +25,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -36,6 +37,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -43,7 +46,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -54,17 +56,9 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
 
   private Text wName;
 
-  private Label wlFilename;
-  private Button wbDirectory;
-  private TextVar wFilename;
-
   private ActionDeleteFolders action;
 
   private boolean changed;
-
-  private Button wbaFilename;
-  private Button wbeFilename;
-  private Button wbdFilename;
 
   private Button wPrevious;
 
@@ -252,81 +246,14 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     // / END OF Success ON GROUP
     // ///////////////////////////////////////////////////////////
 
-    // Filename line
-    wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "ActionDeleteFolders.Filename.Label"));
-    PropsUi.setLook(wlFilename);
-    FormData fdlFilename = new FormData();
-    fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wSuccessOn, 2 * margin);
-    fdlFilename.right = new FormAttachment(middle, -margin);
-    wlFilename.setLayoutData(fdlFilename);
-
-    // Browse Source folders button ...
-    wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbDirectory);
-    wbDirectory.setText(BaseMessages.getString(PKG, "ActionDeleteFolders.BrowseFolders.Label"));
-    FormData fdbDirectory = new FormData();
-    fdbDirectory.right = new FormAttachment(100, -margin);
-    fdbDirectory.top = new FormAttachment(wSuccessOn, margin);
-    wbDirectory.setLayoutData(fdbDirectory);
-
-    wbDirectory.addListener(
-        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wFilename, variables));
-
-    // Button Add or change
-    wbaFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbaFilename);
-    wbaFilename.setText(BaseMessages.getString(PKG, "ActionDeleteFolders.FilenameAdd.Button"));
-    FormData fdbaFilename = new FormData();
-    fdbaFilename.right = new FormAttachment(wbDirectory, -margin);
-    fdbaFilename.top = new FormAttachment(wSuccessOn, margin);
-    wbaFilename.setLayoutData(fdbaFilename);
-
-    wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wFilename);
-    wFilename.addModifyListener(lsMod);
-    FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.top = new FormAttachment(wSuccessOn, 2 * margin);
-    fdFilename.right = new FormAttachment(wbaFilename, -margin);
-    wFilename.setLayoutData(fdFilename);
-
-    // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addListener(
-        SWT.Modify, e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
-
     wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionDeleteFolders.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wFilename, margin);
+    fdlFields.top = new FormAttachment(wSuccessOn, margin);
     wlFields.setLayoutData(fdlFields);
-
-    // Button Delete
-    wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbdFilename);
-    wbdFilename.setText(BaseMessages.getString(PKG, "ActionDeleteFolders.FilenameDelete.Button"));
-    wbdFilename.setToolTipText(
-        BaseMessages.getString(PKG, "ActionDeleteFolders.FilenameDelete.Tooltip"));
-    FormData fdbdFilename = new FormData();
-    fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wlFields, margin);
-    wbdFilename.setLayoutData(fdbdFilename);
-
-    // Button Edit
-    wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbeFilename);
-    wbeFilename.setText(BaseMessages.getString(PKG, "ActionDeleteFolders.FilenameEdit.Button"));
-    wbeFilename.setToolTipText(
-        BaseMessages.getString(PKG, "ActionDeleteFolders.FilenameEdit.Tooltip"));
-    FormData fdbeFilename = new FormData();
-    fdbeFilename.right = new FormAttachment(100, 0);
-    fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
-    fdbeFilename.top = new FormAttachment(wbdFilename, margin);
-    wbeFilename.setLayoutData(fdbeFilename);
 
     final int nrRows = action.getFileItems().size();
 
@@ -334,12 +261,23 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "ActionDeleteFolders.Fields.Argument.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
+              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
               false),
         };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionDeleteFolders.Fields.Column"));
+    colinf[0].setTextVarButtonSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            String fileName = wFields.getActiveTableItem().getText(wFields.getActiveTableColumn());
+            fileName = BaseDialog.presentDirectoryDialog(shell, fileName, "Message", variables);
+            if (fileName != null) {
+              wFields.getActiveTableItem().setText(wFields.getActiveTableColumn(), fileName);
+            }
+          }
+        });
 
     wFields =
         new TableView(
@@ -354,48 +292,13 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(wbdFilename, -margin);
+    fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
+    wFields.getTable().addListener(SWT.Resize, new ColumnsResizer(8, 92));
 
     wlFields.setEnabled(!action.isArgFromPrevious());
     wFields.setEnabled(!action.isArgFromPrevious());
-
-    // Add the file to the list of files...
-    Listener selectionListener =
-        e -> {
-          wFields.add(wFilename.getText());
-          wFilename.setText("");
-          wFields.removeEmptyRows();
-          wFields.setRowNums();
-          wFields.optWidth(true);
-        };
-    wbaFilename.addListener(SWT.Selection, selectionListener);
-    wFilename.addListener(SWT.Selection, selectionListener);
-
-    // Delete files from the list of files...
-    wbdFilename.addListener(
-        SWT.Selection,
-        e -> {
-          int[] idx = wFields.getSelectionIndices();
-          wFields.remove(idx);
-          wFields.removeEmptyRows();
-          wFields.setRowNums();
-        });
-
-    // Edit the selected file & remove from the list...
-    wbeFilename.addListener(
-        SWT.Selection,
-        e -> {
-          int idx = wFields.getSelectionIndex();
-          if (idx >= 0) {
-            String[] string = wFields.getItem(idx);
-            wFilename.setText(string[0]);
-            wFields.remove(idx);
-          }
-          wFields.removeEmptyRows();
-          wFields.setRowNums();
-        });
 
     getData();
     setPrevious();
@@ -414,14 +317,6 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
   private void setPrevious() {
     wlFields.setEnabled(!wPrevious.getSelection());
     wFields.setEnabled(!wPrevious.getSelection());
-
-    wFilename.setEnabled(!wPrevious.getSelection());
-    wlFilename.setEnabled(!wPrevious.getSelection());
-
-    wbdFilename.setEnabled(!wPrevious.getSelection());
-    wbeFilename.setEnabled(!wPrevious.getSelection());
-    wbaFilename.setEnabled(!wPrevious.getSelection());
-    wbDirectory.setEnabled(!wPrevious.getSelection());
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
