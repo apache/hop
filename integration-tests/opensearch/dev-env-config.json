@@ -1,0 +1,15 @@
+{
+  "variables" : [ {
+    "name" : "OPENSEARCH_URL",
+    "value" : "https://opensearch:9200",
+    "description" : "The base URL"
+  }, {
+    "name" : "OPENSEARCH_USERNAME",
+    "value" : "admin",
+    "description" : "The username"
+  }, {
+    "name" : "OPENSEARCH_PASSWORD",
+    "value" : "Jackal-97-Nether-Blue^",
+    "description" : "Password: see the docker compose yml file"
+  } ]
+}
