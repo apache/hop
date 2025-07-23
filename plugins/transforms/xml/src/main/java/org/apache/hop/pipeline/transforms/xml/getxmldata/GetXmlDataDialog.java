@@ -1979,9 +1979,6 @@ public class GetXmlDataDialog extends BaseTransformDialog {
       if (!checkLoopXPath(oneMeta)) {
         return;
       }
-      PipelineMeta previewMeta =
-          PipelinePreviewFactory.generatePreviewPipeline(
-              metadataProvider, oneMeta, wTransformName.getText());
 
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(
@@ -1992,6 +1989,11 @@ public class GetXmlDataDialog extends BaseTransformDialog {
 
       int previewSize = numberDialog.open();
       if (previewSize > 0) {
+        oneMeta.setRowLimit(previewSize);
+        PipelineMeta previewMeta =
+            PipelinePreviewFactory.generatePreviewPipeline(
+                metadataProvider, oneMeta, wTransformName.getText());
+
         PipelinePreviewProgressDialog progressDialog =
             new PipelinePreviewProgressDialog(
                 shell,

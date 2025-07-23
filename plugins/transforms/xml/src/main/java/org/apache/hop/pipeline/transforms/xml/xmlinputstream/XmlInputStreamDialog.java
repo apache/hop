@@ -1139,10 +1139,6 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     XmlInputStreamMeta oneMeta = new XmlInputStreamMeta();
     getInfo(oneMeta);
 
-    PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline(
-            metadataProvider, oneMeta, wTransformName.getText());
-
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
             shell,
@@ -1151,6 +1147,11 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "XMLInputStreamDialog.Dialog.EnterPreviewSize.Message"));
     int previewSize = numberDialog.open();
     if (previewSize > 0) {
+      oneMeta.setRowLimit(Integer.toString(previewSize));
+      PipelineMeta previewMeta =
+          PipelinePreviewFactory.generatePreviewPipeline(
+              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
               shell,

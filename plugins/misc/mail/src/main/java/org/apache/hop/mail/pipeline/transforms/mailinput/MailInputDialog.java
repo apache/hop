@@ -1814,10 +1814,6 @@ public class MailInputDialog extends BaseTransformDialog {
       MailInputMeta oneMeta = new MailInputMeta();
       getInfo(oneMeta);
 
-      PipelineMeta previewMeta =
-          PipelinePreviewFactory.generatePreviewPipeline(
-              metadataProvider, oneMeta, wTransformName.getText());
-
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(
               shell,
@@ -1827,6 +1823,11 @@ public class MailInputDialog extends BaseTransformDialog {
 
       int previewSize = numberDialog.open();
       if (previewSize > 0) {
+        oneMeta.setRowLimit(Integer.toString(previewSize));
+        PipelineMeta previewMeta =
+            PipelinePreviewFactory.generatePreviewPipeline(
+                metadataProvider, oneMeta, wTransformName.getText());
+
         PipelinePreviewProgressDialog progressDialog =
             new PipelinePreviewProgressDialog(
                 shell,
