@@ -2731,10 +2731,6 @@ public class TextFileInputDialog extends BaseTransformDialog {
       return;
     }
 
-    PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline(
-            pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
-
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
             shell,
@@ -2743,6 +2739,11 @@ public class TextFileInputDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "TextFileInputDialog.PreviewSize.DialogMessage"));
     int previewSize = numberDialog.open();
     if (previewSize > 0) {
+      oneMeta.setRowLimit(previewSize);
+      PipelineMeta previewMeta =
+          PipelinePreviewFactory.generatePreviewPipeline(
+              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
               shell,

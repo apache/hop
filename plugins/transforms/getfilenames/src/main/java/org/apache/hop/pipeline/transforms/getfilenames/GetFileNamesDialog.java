@@ -1092,10 +1092,6 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     GetFileNamesMeta oneMeta = new GetFileNamesMeta();
     getInfo(oneMeta);
 
-    PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline(
-            pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
-
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
             shell,
@@ -1104,6 +1100,11 @@ public class GetFileNamesDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "GetFileNamesDialog.PreviewSize.DialogMessage"));
     int previewSize = numberDialog.open();
     if (previewSize > 0) {
+      oneMeta.setRowLimit(previewSize);
+      PipelineMeta previewMeta =
+          PipelinePreviewFactory.generatePreviewPipeline(
+              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
               shell,

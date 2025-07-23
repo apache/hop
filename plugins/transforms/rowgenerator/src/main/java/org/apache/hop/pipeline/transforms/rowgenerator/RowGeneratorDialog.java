@@ -448,10 +448,6 @@ public class RowGeneratorDialog extends BaseTransformDialog {
       return;
     }
 
-    PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline(
-            pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
-
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
             shell,
@@ -460,6 +456,11 @@ public class RowGeneratorDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "System.Dialog.EnterPreviewSize.Message"));
     int previewSize = numberDialog.open();
     if (previewSize > 0) {
+      oneMeta.setRowLimit(Integer.toString(previewSize));
+      PipelineMeta previewMeta =
+          PipelinePreviewFactory.generatePreviewPipeline(
+              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
               shell,

@@ -1844,10 +1844,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
       // check if the path is given
 
-      PipelineMeta previewMeta =
-          PipelinePreviewFactory.generatePreviewPipeline(
-              metadataProvider, oneMeta, wTransformName.getText());
-
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(
               shell,
@@ -1856,6 +1852,11 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
               BaseMessages.getString(PKG, "SalesforceInputDialog.NumberRows.DialogMessage"));
       int previewSize = numberDialog.open();
       if (previewSize > 0) {
+        oneMeta.setRowLimit(Integer.toString(previewSize));
+        PipelineMeta previewMeta =
+            PipelinePreviewFactory.generatePreviewPipeline(
+                pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
         PipelinePreviewProgressDialog progressDialog =
             new PipelinePreviewProgressDialog(
                 shell,
