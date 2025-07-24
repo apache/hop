@@ -47,6 +47,8 @@ ENV HOP_RUN_CONFIG=
 # parameters that should be passed on to the hop-run command
 # specify as comma separated list, e.g. PARAM_1=aaa,PARAM_2=bbb
 ENV HOP_RUN_PARAMETERS=
+# An optional startaction parameter
+ENV HOP_START_ACTION=
 # An optional export of metadata in JSON format
 ENV HOP_RUN_METADATA_EXPORT=
 # System properties that should be set

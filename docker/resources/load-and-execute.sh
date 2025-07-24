@@ -221,6 +221,12 @@ else
     HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --metadata-export=${HOP_RUN_METADATA_EXPORT}"
   fi
 
+  # Support for start action parameter
+  if [ -n "${HOP_START_ACTION}" ]; then
+    log "Using start action: ${HOP_START_ACTION}"
+    HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --startaction=${HOP_START_ACTION}"
+  fi
+
   log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
   "${DEPLOYMENT_PATH}"/hop-run.sh \
     --file="${HOP_FILE_PATH}" \
