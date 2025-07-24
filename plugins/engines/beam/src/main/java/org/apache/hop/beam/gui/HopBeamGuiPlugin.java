@@ -32,6 +32,7 @@ import org.apache.hop.beam.engines.dataflow.BeamDataFlowPipelineEngine;
 import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -51,6 +52,7 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
@@ -313,7 +315,18 @@ public class HopBeamGuiPlugin {
             + ";graphView=0?project="
             + projectId;
 
-    org.eclipse.swt.program.Program.launch(url);
+    try {
+      EnvironmentUtils.getInstance().openUrl(url);
+    } catch (HopException e) {
+      HopGui hopGui = HopGui.getInstance();
+      final Shell shell = hopGui.getShell();
+      MessageBox box = new MessageBox(shell, SWT.CLOSE | SWT.ICON_ERROR);
+      box.setText(BaseMessages.getString(PKG, "BeamGuiPlugin.OpenDataflowJob.Dialog.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "BeamGuiPlugin.OpenDataflowJob.Dialog.Message", url, e.getMessage()));
+      box.open();
+    }
   }
 
   public static DataflowPipelineJob findDataflowPipelineJob() {
