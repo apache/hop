@@ -42,22 +42,22 @@
         <checker-qual.version>3.47.0</checker-qual.version>
         <com.wcohen.secondstring.version>0.1</com.wcohen.secondstring.version>
         <common-utils.version>7.6.1</common-utils.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <commons-cli.version>1.5.0</commons-cli.version>
-        <commons-codec.version>1.17.1</commons-codec.version>
-        <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-codec.version>1.19.0</commons-codec.version>
+        <commons-collections4.version>4.5.0</commons-collections4.version>
         <commons-compress.version>1.27.1</commons-compress.version>
         <commons-configuration.version>1.10</commons-configuration.version>
-        <commons-csv.version>1.11.0</commons-csv.version>
+        <commons-csv.version>1.14.0</commons-csv.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
-        <commons-fileupload.version>1.5</commons-fileupload.version>
-        <commons-io.version>2.16.1</commons-io.version>
+        <commons-fileupload.version>1.6</commons-fileupload.version>
+        <commons-io.version>2.20.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.17.0</commons-lang3.version>
-        <commons-logging.version>1.1.3</commons-logging.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <commons-logging.version>1.3.5</commons-logging.version>
         <commons-math3.version>3.6.1</commons-math3.version>
-        <commons-net.version>3.9.0</commons-net.version>
-        <commons-pool.version>1.5.7</commons-pool.version>
+        <commons-net.version>3.11.1</commons-net.version>
+        <commons-pool.version>1.6</commons-pool.version>
         <commons-vfs2.version>2.10.0</commons-vfs2.version>
         <curator.version>5.4.0</curator.version>
         <databricks.version>4.0.0</databricks.version>
@@ -107,7 +107,7 @@
         <lz4.version>1.8.0</lz4.version>
         <metrics.version>4.2.12</metrics.version>
         <minlog.version>1.3.1</minlog.version>
-        <netty.version>4.1.119.Final</netty.version>
+        <netty.version>4.1.122.Final</netty.version>
         <ognl.version>3.3.4</ognl.version>
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.9.0</okio.version>
@@ -119,7 +119,7 @@
         <protobuf-java.version>3.25.5</protobuf-java.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
         <reactor-core.version>3.4.38</reactor-core.version>
-        <reactor-netty.version>1.2.4</reactor-netty.version>
+        <reactor-netty.version>1.2.8</reactor-netty.version>
         <rhino.version>1.7.14</rhino.version>
         <saxon.version>8.7</saxon.version>
         <scala.version>2.12.17</scala.version>
