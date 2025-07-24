@@ -16,20 +16,19 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Checks If Files Exist action verifies that the specified files exist. The action returns true if the files exist, false if they don't.
+:description: The Checks If Files Exist action verifies that the specified files exist. The action returns true (success) if all the listed files exist, false (fail) if any of those don't.
 
 = Checks if files exist
 
 == Description
 
-The `Checks if files exist` action verifies that the specified files exist. The action returns true if the files exist, false if they don't.
+The `Checks if files exist` action verifies that the specified files exist. The action returns `true` (success) if _all_ the listed files exist, `false` (fail) if _any_ of those don't.
 
 == Options
 
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Action name|The name of the workflow action.
+|Action name|The name of the workflow action. This name must be unique in a single workflow.
+|Files/Folders|Specify the files and folders full paths to verify, one per line. You can use variables like `${PROJECT_HOME}` in the path, and they will be resolved.
 |===
-
-After specifying a file/folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.
