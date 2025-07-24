@@ -36,7 +36,7 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
     name = "i18n::ActionAbort.Name",
     description = "i18n::ActionAbort.Description",
     image = "Abort.svg",
-    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     keywords = "i18n::ActionAbort.keyword",
     documentationUrl = "/workflow/actions/abort.html")
 public class ActionAbort extends ActionBase implements Cloneable, IAction {
@@ -122,7 +122,7 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   /**
    * Set the message to display in the log
    *
-   * @param message
+   * @param message the message to display
    */
   public void setMessageAbort(String message) {
     this.messageAbort = message;
