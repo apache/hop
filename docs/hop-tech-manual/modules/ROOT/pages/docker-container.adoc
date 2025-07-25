@@ -113,6 +113,10 @@ You can use this for example to fetch Hop project files from S3 or gitlab.
 | The system properties that should be set during execution.
 You can specify the properties as a comma separated list, e.g. `PROP1=xxx,PROP2=yyy`
 
+|```HOP_START_ACTION```
+|
+| The name of the Workflow Action you want the Workflow to start from
+
 |===
 
 Here are the variables for **short-lived** containers, to execute a workflow or pipeline:
