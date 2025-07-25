@@ -379,15 +379,13 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         data.jsonItems.add(globalItemNode);
       }
 
-      Object[] additionalRowFields = new Object[1];
+      Object[] additionalRowFields = new Object[2];
 
       additionalRowFields[0] = data.jsonSerialized;
-      int nextFieldPos = 1;
 
       // Fill accessory fields
-      if (meta.getJsonSizeFieldname() != null && meta.getJsonSizeFieldname().length() > 0) {
-        additionalRowFields[nextFieldPos] = Long.valueOf(data.jsonLength);
-        nextFieldPos++;
+      if (!Utils.isEmpty(meta.getJsonSizeFieldname())) {
+        additionalRowFields[1] = data.jsonLength;
       }
 
       Object[] outputRowData = RowDataUtil.addRowData(keyRow, keyRow.length, additionalRowFields);
