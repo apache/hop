@@ -1355,7 +1355,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     // Add a SET clause if there are any non-primary key fields to update
     //
-    if (matchCypher.length() > 0) {
+    if (!matchCypher.isEmpty()) {
       cypher.append(matchCypher).append(Const.CR);
     }
   }
@@ -1639,7 +1639,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         if (napd.property.isPrimary()) {
 
           String propertyString = napd.sourceValueMeta.getString(napd.sourceValueData);
-          if (id.length() > 0) {
+          if (!id.isEmpty()) {
             id.append("-");
           }
           id.append(propertyString);

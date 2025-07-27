@@ -2774,7 +2774,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (hi != null && tip.length() == 0) {
+    if (hi != null && tip.isEmpty()) {
       // Set the tooltip for the hop:
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo")).append(Const.CR);
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.SourceEntry"))
@@ -2801,7 +2801,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (tip == null || tip.length() == 0) {
+    if (tip == null || tip.isEmpty()) {
       toolTip.setVisible(false);
     } else {
       if (!tip.toString().equalsIgnoreCase(getToolTipText())) {

@@ -348,7 +348,7 @@ public class TikaOutput {
           writer.print(", ");
         }
 
-        if (value == null || value.length() == 0) {
+        if (value == null || value.isEmpty()) {
           writer.print("null");
         } else {
           // Is it a number?

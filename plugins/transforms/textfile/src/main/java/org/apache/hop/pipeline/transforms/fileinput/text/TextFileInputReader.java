@@ -84,7 +84,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
     if (bom.bomExist()) {
       // if BOM exist, use it instead defined charset
       isr = new InputStreamReader(inStream, bom.getCharset());
-    } else if (meta.getEncoding() != null && meta.getEncoding().length() > 0) {
+    } else if (meta.getEncoding() != null && !meta.getEncoding().isEmpty()) {
       isr = new InputStreamReader(inStream, meta.getEncoding());
     } else {
       isr = new InputStreamReader(inStream);
@@ -479,7 +479,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
         }
       } else { // don't checkFilterRow
 
-        if (!meta.content.noEmptyLines || line.length() != 0) {
+        if (!meta.content.noEmptyLines || !line.isEmpty()) {
           data.lineBuffer.add(
               new TextFileLine(line, lineNumberInFile++, data.file)); // Store it in the line
           // buffer...
@@ -502,7 +502,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
     boolean filterOK = true;
 
     // check for noEmptyLines
-    if (meta.content.noEmptyLines && line.length() == 0) {
+    if (meta.content.noEmptyLines && line.isEmpty()) {
       filterOK = false;
     } else {
       // check the filters

@@ -480,7 +480,7 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
     if (beamContext) {
       filename += "_" + transformId + "_" + bundleNr;
     }
-    if (extension.length() != 0) {
+    if (!extension.isEmpty()) {
       filename += "." + extension;
     }
     return filename;
@@ -500,7 +500,7 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
     CheckResult cr;
 
     // Check output fields
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

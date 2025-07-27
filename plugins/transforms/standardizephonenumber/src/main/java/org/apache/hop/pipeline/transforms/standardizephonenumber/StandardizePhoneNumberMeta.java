@@ -155,7 +155,7 @@ public class StandardizePhoneNumberMeta
       IHopMetadataProvider metadataProvider) {
 
     // See if we have fields from previous steps
-    if (prev == null || prev.size() == 0) {
+    if (prev == null || prev.isEmpty()) {
       remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_WARNING,

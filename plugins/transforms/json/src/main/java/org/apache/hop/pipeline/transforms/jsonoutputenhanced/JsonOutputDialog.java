@@ -1093,7 +1093,7 @@ public class JsonOutputDialog extends BaseTransformDialog {
     jsometa.setJsonPrittified(wJSONPrittified.getSelection());
     jsometa.setSplitOutputAfter(
         Integer.parseInt(
-            wSplitOutputAfter.getText().length() == 0 ? "0" : wSplitOutputAfter.getText()));
+            wSplitOutputAfter.getText().isEmpty() ? "0" : wSplitOutputAfter.getText()));
     jsometa.setCreateParentFolder(wCreateParentFolder.getSelection());
     jsometa.setFileName(wFilename.getText());
     jsometa.setExtension(wExtension.getText());

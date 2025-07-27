@@ -152,7 +152,7 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,

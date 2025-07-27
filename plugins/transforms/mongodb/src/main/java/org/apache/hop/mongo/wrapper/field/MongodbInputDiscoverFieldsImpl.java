@@ -261,7 +261,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       }
     }
 
-    if (temp.length() > 0) {
+    if (!temp.isEmpty()) {
       // append remaining part
       updated.append(temp);
     }
@@ -430,7 +430,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       }
     }
 
-    if (temp.length() > 0) {
+    if (!temp.isEmpty()) {
       // append remaining part
       updated.append(temp);
     }

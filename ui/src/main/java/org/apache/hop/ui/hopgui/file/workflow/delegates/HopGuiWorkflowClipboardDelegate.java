@@ -299,7 +299,7 @@ public class HopGuiWorkflowClipboardDelegate {
 
   public void copySelected(
       WorkflowMeta workflowMeta, List<ActionMeta> actions, List<NotePadMeta> notes) {
-    if (actions == null || actions.size() + notes.size() == 0) {
+    if (actions == null || actions.isEmpty() && notes.isEmpty()) {
       return;
     }
 

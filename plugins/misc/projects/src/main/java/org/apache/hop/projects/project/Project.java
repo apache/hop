@@ -493,7 +493,7 @@ public class Project extends ConfigFile implements IConfigFile {
     }
 
     // build the map of transforms per pipeline if we don't have it available
-    if (pipelineTransformsMap == null || pipelineTransformsMap.size() == 0) {
+    if (pipelineTransformsMap == null || pipelineTransformsMap.isEmpty()) {
       getTransformTypes(variables);
     }
 
@@ -564,7 +564,7 @@ public class Project extends ConfigFile implements IConfigFile {
     }
 
     // build the map of actions per workflow if we don't have it available
-    if (workflowActionsMap == null || workflowActionsMap.size() == 0) {
+    if (workflowActionsMap == null || workflowActionsMap.isEmpty()) {
       getActionTypes(variables);
     }
 

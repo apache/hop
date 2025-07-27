@@ -544,7 +544,7 @@ public class CrateDBBulkLoaderMeta
                 boolean error_found = false;
                 // OK, we have the table fields.
                 // Now see what we can find as previous transform...
-                if (prev != null && prev.size() > 0) {
+                if (prev != null && !prev.isEmpty()) {
                   cr =
                       new CheckResult(
                           ICheckResult.TYPE_RESULT_OK,
@@ -817,7 +817,7 @@ public class CrateDBBulkLoaderMeta
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && prev.size() > 0) {
+      if (prev != null && !prev.isEmpty()) {
         if (!StringUtil.isEmpty(tablename)) {
           Database db = new Database(loggingObject, variables, databaseMeta);
           try {
@@ -828,7 +828,7 @@ public class CrateDBBulkLoaderMeta
             String cr_table = db.getDDL(schemaTable, prev);
 
             // Empty string means: nothing to do: set it to null...
-            if (cr_table == null || cr_table.length() == 0) {
+            if (cr_table == null || cr_table.isEmpty()) {
               cr_table = null;
             }
 

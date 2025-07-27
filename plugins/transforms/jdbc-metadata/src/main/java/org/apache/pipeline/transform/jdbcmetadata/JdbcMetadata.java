@@ -130,7 +130,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
         } else {
           stringArgument = variables.resolve(stringArgument);
           if (argumentType.isArray()) {
-            if (stringArgument.length() == 0) {
+            if (stringArgument.isEmpty()) {
               argument = null;
             } else {
               argument = stringListToObjectArray(stringArgument, argumentType.getComponentType());
@@ -303,7 +303,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
             logDebug("Argument indices at " + j + ": " + data.argumentFieldIndices[j]);
             if (data.argumentFieldIndices[j] == -1) {
               // this argument does not point to any existing field.
-              if (arguments.get(j) == null || arguments.get(j).length() == 0) {
+              if (arguments.get(j) == null || arguments.get(j).isEmpty()) {
                 // the argument is blank, this is ok: we will pass null instead
                 data.argumentFieldIndices[j] = -2;
               } else {

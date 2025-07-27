@@ -248,7 +248,7 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     for (int i = 0; i < outputFields.length; i++) {
       XmlField field = outputFields[i];
 
-      if (field.getFieldName() != null && field.getFieldName().length() != 0) {
+      if (field.getFieldName() != null && !field.getFieldName().isEmpty()) {
         xml.append("      <field>").append(Const.CR);
         xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", field.getFieldName()));
         xml.append(CONST_SPACES).append(XmlHandler.addTagValue("element", field.getElementName()));
@@ -288,7 +288,7 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     CheckResult cr;
 
     // Check output fields
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

@@ -90,7 +90,7 @@ public class Abort extends BaseTransform<AbortMeta, AbortData> {
                 getInputRowMeta().getString(r)));
 
         String message = resolve(meta.getMessage());
-        if (message == null || message.length() == 0) {
+        if (message == null || message.isEmpty()) {
           logError(BaseMessages.getString(PKG, "Abort.Log.DefaultAbortMessage", "" + nrInputRows));
         } else {
           logError(message);

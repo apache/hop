@@ -70,7 +70,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
         rowData = getRowFrom(rowSet); // take all input rows if needed!
       }
 
-      if (parametersMeta.size() == 0) {
+      if (parametersMeta.isEmpty()) {
         throw new HopException(
             "Expected to read parameters from transform ["
                 + data.infoStream.getTransformName()
@@ -129,7 +129,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
         parametersMeta = new RowMeta();
       }
 
-      if (meta.isExecuteEachInputRow() && (parameters == null || parametersMeta.size() == 0)) {
+      if (meta.isExecuteEachInputRow() && (parameters == null || parametersMeta.isEmpty())) {
         setOutputDone(); // signal end to receiver(s)
         return false; // stop immediately, nothing to do here.
       }

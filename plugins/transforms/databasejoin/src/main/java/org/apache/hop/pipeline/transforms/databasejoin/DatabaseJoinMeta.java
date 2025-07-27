@@ -366,7 +366,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
 
       try {
         db.connect();
-        if (sql != null && sql.length() != 0) {
+        if (sql != null && !sql.isEmpty()) {
           IRowMeta param = getParameterRow(prev);
 
           errorMessage = "";
@@ -418,7 +418,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
           boolean first = true;
           errorMessage = "";
           boolean errorFound = false;

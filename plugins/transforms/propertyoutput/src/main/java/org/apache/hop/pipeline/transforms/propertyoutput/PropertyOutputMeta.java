@@ -309,7 +309,7 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
       retval += "_" + transformnr;
     }
 
-    if (extension != null && extension.length() != 0) {
+    if (extension != null && !extension.isEmpty()) {
       retval += "." + extension;
     }
 
@@ -408,7 +408,7 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
 
     CheckResult cr;
     // Now see what we can find as previous transform...
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

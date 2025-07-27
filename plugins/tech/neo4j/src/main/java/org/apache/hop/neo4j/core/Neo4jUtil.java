@@ -32,7 +32,7 @@ public class Neo4jUtil {
     for (String delimiterRegex : delimitersRegex) {
       propertyName = propertyName.replaceAll(delimiterRegex, "");
     }
-    if (propertyName.length() > 0) {
+    if (!propertyName.isEmpty()) {
       propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
     }
     return propertyName;

@@ -99,7 +99,7 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
     CheckResult cr;
 
     // Check output fields
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

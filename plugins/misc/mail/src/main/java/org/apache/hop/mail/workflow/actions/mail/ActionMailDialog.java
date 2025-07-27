@@ -1303,7 +1303,7 @@ public class ActionMailDialog extends ActionDialog {
     int rows =
         action.embeddedimages == null
             ? 1
-            : (action.embeddedimages.size() == 0 ? 0 : action.embeddedimages.size());
+            : (action.embeddedimages.isEmpty() ? 0 : action.embeddedimages.size());
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -1705,7 +1705,7 @@ public class ActionMailDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (arg != null && !arg.isEmpty()) {
         nr++;
       }
     }
@@ -1714,7 +1714,7 @@ public class ActionMailDialog extends ActionDialog {
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
-      if (arg != null && arg.length() != 0) {
+      if (arg != null && !arg.isEmpty()) {
         MailEmbeddedImageField image = new MailEmbeddedImageField();
         image.setEmbeddedimage(arg);
         image.setContentId(wild);

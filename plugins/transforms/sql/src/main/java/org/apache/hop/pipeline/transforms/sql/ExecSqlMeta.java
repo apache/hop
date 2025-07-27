@@ -323,7 +323,7 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
                 transformMeta);
         remarks.add(cr);
 
-        if (sql != null && sql.length() != 0) {
+        if (sql != null && !sql.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,

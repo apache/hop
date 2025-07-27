@@ -761,44 +761,44 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     }
     // Add additional fields
 
-    if (getShortFileNameField() != null && getShortFileNameField().length() > 0) {
+    if (getShortFileNameField() != null && !getShortFileNameField().isEmpty()) {
       IValueMeta v = new ValueMetaString(variables.resolve(getShortFileNameField()));
       v.setLength(100, -1);
       v.setOrigin(name);
       r.addValueMeta(v);
     }
-    if (getExtensionField() != null && getExtensionField().length() > 0) {
+    if (getExtensionField() != null && !getExtensionField().isEmpty()) {
       IValueMeta v = new ValueMetaString(variables.resolve(getExtensionField()));
       v.setLength(100, -1);
       v.setOrigin(name);
       r.addValueMeta(v);
     }
-    if (getPathField() != null && getPathField().length() > 0) {
+    if (getPathField() != null && !getPathField().isEmpty()) {
       IValueMeta v = new ValueMetaString(variables.resolve(getPathField()));
       v.setLength(100, -1);
       v.setOrigin(name);
       r.addValueMeta(v);
     }
 
-    if (isHiddenField() != null && isHiddenField().length() > 0) {
+    if (isHiddenField() != null && !isHiddenField().isEmpty()) {
       IValueMeta v = new ValueMetaBoolean(variables.resolve(isHiddenField()));
       v.setOrigin(name);
       r.addValueMeta(v);
     }
 
-    if (getLastModificationDateField() != null && getLastModificationDateField().length() > 0) {
+    if (getLastModificationDateField() != null && !getLastModificationDateField().isEmpty()) {
       IValueMeta v = new ValueMetaDate(variables.resolve(getLastModificationDateField()));
       v.setOrigin(name);
       r.addValueMeta(v);
     }
-    if (getUriField() != null && getUriField().length() > 0) {
+    if (getUriField() != null && !getUriField().isEmpty()) {
       IValueMeta v = new ValueMetaString(variables.resolve(getUriField()));
       v.setLength(100, -1);
       v.setOrigin(name);
       r.addValueMeta(v);
     }
 
-    if (getRootUriField() != null && getRootUriField().length() > 0) {
+    if (getRootUriField() != null && !getRootUriField().isEmpty()) {
       IValueMeta v = new ValueMetaString(variables.resolve(getRootUriField()));
       v.setLength(100, -1);
       v.setOrigin(name);

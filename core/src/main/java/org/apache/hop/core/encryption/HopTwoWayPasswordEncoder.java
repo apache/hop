@@ -106,7 +106,7 @@ public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
     if (password == null) {
       return "";
     }
-    if (password.length() == 0) {
+    if (password.isEmpty()) {
       return "";
     }
 
@@ -123,7 +123,7 @@ public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
     if (encrypted == null) {
       return "";
     }
-    if (encrypted.length() == 0) {
+    if (encrypted.isEmpty()) {
       return "";
     }
 

@@ -804,7 +804,7 @@ public class MailConnection {
 
       // The RFC2183 doesn't REQUIRE Content-Disposition header field so we'll create one to
       // fake out the code below.
-      if (disposition == null || disposition.length() < 1) {
+      if (disposition == null || disposition.isEmpty()) {
         disposition = Part.ATTACHMENT;
       }
 

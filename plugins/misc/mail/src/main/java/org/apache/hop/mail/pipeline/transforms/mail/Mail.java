@@ -427,7 +427,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
 
       // check embedded images
-      if (meta.getEmbeddedImages() != null && meta.getEmbeddedImages().size() > 0) {
+      if (meta.getEmbeddedImages() != null && !meta.getEmbeddedImages().isEmpty()) {
         FileObject image = null;
         data.embeddedMimePart = new HashSet<>();
         try {

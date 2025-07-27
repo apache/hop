@@ -4320,7 +4320,7 @@ public class ValueMetaBase implements IValueMeta {
 
       // If it's a string and the string is empty, it's a null value as well
       //
-      return isString() && value.toString().length() == 0;
+      return isString() && value.toString().isEmpty();
 
       // We tried everything else so we assume this value is not null.
       //
@@ -4752,7 +4752,7 @@ public class ValueMetaBase implements IValueMeta {
     switch (trimType) {
       case IValueMeta.TRIM_TYPE_LEFT:
         strpol = new StringBuilder(pol);
-        while (strpol.length() > 0 && strpol.charAt(0) == ' ') {
+        while (!strpol.isEmpty() && strpol.charAt(0) == ' ') {
           strpol.deleteCharAt(0);
         }
         pol = strpol.toString();
@@ -4760,7 +4760,7 @@ public class ValueMetaBase implements IValueMeta {
         break;
       case IValueMeta.TRIM_TYPE_RIGHT:
         strpol = new StringBuilder(pol);
-        while (strpol.length() > 0 && strpol.charAt(strpol.length() - 1) == ' ') {
+        while (!strpol.isEmpty() && strpol.charAt(strpol.length() - 1) == ' ') {
           strpol.deleteCharAt(strpol.length() - 1);
         }
         pol = strpol.toString();
@@ -4768,10 +4768,10 @@ public class ValueMetaBase implements IValueMeta {
         break;
       case IValueMeta.TRIM_TYPE_BOTH:
         strpol = new StringBuilder(pol);
-        while (strpol.length() > 0 && strpol.charAt(0) == ' ') {
+        while (!strpol.isEmpty() && strpol.charAt(0) == ' ') {
           strpol.deleteCharAt(0);
         }
-        while (strpol.length() > 0 && strpol.charAt(strpol.length() - 1) == ' ') {
+        while (!strpol.isEmpty() && strpol.charAt(strpol.length() - 1) == ' ') {
           strpol.deleteCharAt(strpol.length() - 1);
         }
         pol = strpol.toString();

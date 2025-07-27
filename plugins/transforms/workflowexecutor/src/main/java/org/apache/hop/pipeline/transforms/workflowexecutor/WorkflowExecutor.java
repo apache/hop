@@ -295,7 +295,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
             if (idx == -1) {
               missingFields +=
-                  (missingFields.length() > 0 ? "," : "")
+                  (!missingFields.isEmpty() ? "," : "")
                       + meta.getResultRowsField().get(i).getName();
             }
 
@@ -306,18 +306,18 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
                     != ValueMetaFactory.getIdForValueMeta(
                         meta.getResultRowsField().get(i).getType())) {
               expectedTypes +=
-                  (expectedTypes.length() > 0 ? "," : "")
+                  (!expectedTypes.isEmpty() ? "," : "")
                       + meta.getResultRowsField().get(i).getType();
-              currentTypes += (currentTypes.length() > 0 ? "," : "") + valueMeta.getTypeDesc();
+              currentTypes += (!currentTypes.isEmpty() ? "," : "") + valueMeta.getTypeDesc();
             }
           }
           rowConsistencyChecked = true;
 
-          if (missingFields.length() > 0) {
+          if (!missingFields.isEmpty()) {
             logError("Unable to find required fields [" + missingFields + "] in result row!");
           }
 
-          if (currentTypes.length() > 0) {
+          if (!currentTypes.isEmpty()) {
             logError(
                 BaseMessages.getString(
                     PKG, "WorkflowExecutor.IncorrectDataTypePassed", currentTypes, expectedTypes));

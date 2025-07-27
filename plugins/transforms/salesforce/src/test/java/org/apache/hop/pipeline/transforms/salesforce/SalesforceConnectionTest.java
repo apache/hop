@@ -18,10 +18,10 @@
 package org.apache.hop.pipeline.transforms.salesforce;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -161,9 +161,9 @@ public class SalesforceConnectionTest {
     try {
       conn = null;
       conn = new SalesforceConnection(null, "http://localhost:1234", "anonymous", "mypwd");
-      assertTrue(conn.getURL().length() > 0);
-      assertTrue(conn.getUsername().length() > 0);
-      assertTrue(conn.getPassword().length() > 0);
+      assertFalse(conn.getURL().isEmpty());
+      assertFalse(conn.getUsername().isEmpty());
+      assertFalse(conn.getPassword().isEmpty());
     } catch (HopException e) {
       fail();
     }
@@ -174,9 +174,9 @@ public class SalesforceConnectionTest {
       conn =
           new SalesforceConnection(
               new LogChannel(this), "http://localhost:1234", "anonymous", "mypwd");
-      assertTrue(conn.getURL().length() > 0);
-      assertTrue(conn.getUsername().length() > 0);
-      assertTrue(conn.getPassword().length() > 0);
+      assertFalse(conn.getURL().isEmpty());
+      assertFalse(conn.getUsername().isEmpty());
+      assertFalse(conn.getPassword().isEmpty());
     } catch (HopException e) {
       fail();
     }
@@ -203,7 +203,7 @@ public class SalesforceConnectionTest {
     try {
       conn = null;
       conn = new SalesforceConnection(null, "http://localhost:1234", "anonymous", null);
-      assertTrue(conn.getURL().length() > 0);
+      assertFalse(conn.getURL().isEmpty());
       assertEquals("anonymous", conn.getUsername());
     } catch (HopException e) {
       fail();

@@ -806,7 +806,7 @@ public class SnowflakeBulkLoaderMeta
     CheckResult cr;
 
     // Check output fields
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
@@ -1088,7 +1088,7 @@ public class SnowflakeBulkLoaderMeta
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && prev.size() > 0) {
+      if (prev != null && !prev.isEmpty()) {
 
         if (!Utils.isEmpty(targetTable)) {
           Database db = new Database(loggingObject, variables, databaseMeta);
@@ -1100,7 +1100,7 @@ public class SnowflakeBulkLoaderMeta
             String crTable = db.getDDL(schemaTable, prev, null, false, null);
 
             // Empty string means: nothing to do: set it to null...
-            if (crTable == null || crTable.length() == 0) {
+            if (crTable == null || crTable.isEmpty()) {
               crTable = null;
             }
 

@@ -899,7 +899,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
     String source = toFormat.replaceAll("[ ]*,", ","); // $NON-NLS-1$ //$NON-NLS-2$
     Element next = Element.OPEN_BRACE;
 
-    while (source.length() > 0) {
+    while (!source.isEmpty()) {
       source = source.trim();
       String toIndent = ""; // $NON-NLS-1$
       int minIndex = Integer.MAX_VALUE;

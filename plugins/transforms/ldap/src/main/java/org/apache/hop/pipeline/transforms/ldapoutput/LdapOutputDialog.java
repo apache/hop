@@ -1485,10 +1485,10 @@ public class LdapOutputDialog extends BaseTransformDialog {
 
     // show a confirm dialog if some missing field was found
     //
-    if (missingSourceFields.length() > 0 || missingTargetFields.length() > 0) {
+    if (!missingSourceFields.isEmpty() || !missingTargetFields.isEmpty()) {
 
       String message = "";
-      if (missingSourceFields.length() > 0) {
+      if (!missingSourceFields.isEmpty()) {
         message +=
             BaseMessages.getString(
                     PKG,
@@ -1496,7 +1496,7 @@ public class LdapOutputDialog extends BaseTransformDialog {
                     missingSourceFields.toString())
                 + Const.CR;
       }
-      if (missingTargetFields.length() > 0) {
+      if (!missingTargetFields.isEmpty()) {
         message +=
             BaseMessages.getString(
                     PKG,

@@ -53,25 +53,25 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
       Result result, String upd, String ins, String del, String read) {
     RowMetaAndData resultRow = new RowMetaAndData();
 
-    if (upd != null && upd.length() > 0) {
+    if (upd != null && !upd.isEmpty()) {
       IValueMeta meta = new ValueMetaInteger(upd);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       resultRow.addValue(meta, Long.valueOf(result.getNrLinesUpdated()));
     }
 
-    if (ins != null && ins.length() > 0) {
+    if (ins != null && !ins.isEmpty()) {
       IValueMeta meta = new ValueMetaInteger(ins);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       resultRow.addValue(meta, Long.valueOf(result.getNrLinesOutput()));
     }
 
-    if (del != null && del.length() > 0) {
+    if (del != null && !del.isEmpty()) {
       IValueMeta meta = new ValueMetaInteger(del);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       resultRow.addValue(meta, Long.valueOf(result.getNrLinesDeleted()));
     }
 
-    if (read != null && read.length() > 0) {
+    if (read != null && !read.isEmpty()) {
       IValueMeta meta = new ValueMetaInteger(read);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       resultRow.addValue(meta, Long.valueOf(result.getNrLinesRead()));

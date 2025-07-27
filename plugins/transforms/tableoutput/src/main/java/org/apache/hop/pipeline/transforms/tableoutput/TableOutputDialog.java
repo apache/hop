@@ -966,10 +966,10 @@ public class TableOutputDialog extends BaseTransformDialog {
 
     // show a confirm dialog if some missing field was found
     //
-    if (missingSourceFields.length() > 0 || missingTargetFields.length() > 0) {
+    if (!missingSourceFields.isEmpty() || !missingTargetFields.isEmpty()) {
 
       String message = "";
-      if (missingSourceFields.length() > 0) {
+      if (!missingSourceFields.isEmpty()) {
         message +=
             BaseMessages.getString(
                     PKG,
@@ -977,7 +977,7 @@ public class TableOutputDialog extends BaseTransformDialog {
                     missingSourceFields.toString())
                 + Const.CR;
       }
-      if (missingTargetFields.length() > 0) {
+      if (!missingTargetFields.isEmpty()) {
         message +=
             BaseMessages.getString(
                     PKG,
@@ -1449,7 +1449,7 @@ public class TableOutputDialog extends BaseTransformDialog {
       IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (info.isTableNameInField()
           && !info.isTableNameInTable()
-          && info.getTableNameField().length() > 0) {
+          && !info.getTableNameField().isEmpty()) {
         int idx = prev.indexOfValue(info.getTableNameField());
         if (idx >= 0) {
           prev.removeValueMeta(idx);
