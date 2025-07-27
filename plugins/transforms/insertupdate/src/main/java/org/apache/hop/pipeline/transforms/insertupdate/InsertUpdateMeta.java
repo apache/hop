@@ -299,7 +299,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -485,7 +485,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
       return sqlStatement;
     }
 
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       String[] keyLookup = null;
       String[] keyStream = null;
       String[] updateLookup = null;

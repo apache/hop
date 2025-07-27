@@ -89,7 +89,7 @@ public class HopFileTypeRegistry {
     if (filterExtensions.size() > 1) {
       String all = "";
       for (String filterExtension : filterExtensions) {
-        if (all.length() > 0) {
+        if (!all.isEmpty()) {
           all += ";";
         }
         all += filterExtension;

@@ -112,7 +112,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
           break;
         default:
           // if a default value is given and no conversion is implemented throw an error
-          if (meta.getValueDefault()[i] != null && meta.getValueDefault()[i].trim().length() > 0) {
+          if (meta.getValueDefault()[i] != null && !meta.getValueDefault()[i].trim().isEmpty()) {
             throw new RuntimeException(
                 BaseMessages.getString(PKG, "StreamLookup.Exception.ConversionNotImplemented")
                     + " "

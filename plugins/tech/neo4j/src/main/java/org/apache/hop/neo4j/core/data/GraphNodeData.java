@@ -57,7 +57,7 @@ public class GraphNodeData {
     StringBuilder propertySet = new StringBuilder();
     for (String label : node.labels()) {
       labels.add(label);
-      if (propertySet.length() > 0) {
+      if (!propertySet.isEmpty()) {
         propertySet.append(",");
       }
       propertySet.append(label);

@@ -1688,7 +1688,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (arg != null && !arg.isEmpty()) {
         nr++;
       }
     }
@@ -1703,7 +1703,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog {
       String passphrase = wFields.getNonEmpty(i).getText(3);
       String dest = wFields.getNonEmpty(i).getText(4);
 
-      if (source != null && source.length() != 0) {
+      if (source != null && !source.isEmpty()) {
         action.sourceFileFolder[nr] = source;
         action.wildcard[nr] = wild;
         action.passphrase[nr] = passphrase;

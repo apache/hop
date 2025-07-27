@@ -50,8 +50,8 @@ public class TokenReplacingReader extends Reader {
       throw new IllegalArgumentException("Token resolver may not be null");
     }
 
-    if ((tokenStartMarker == null || tokenStartMarker.length() < 1)
-        || (tokenEndMarker == null || tokenEndMarker.length() < 1)) {
+    if ((tokenStartMarker == null || tokenStartMarker.isEmpty())
+        || (tokenEndMarker == null || tokenEndMarker.isEmpty())) {
       throw new IllegalArgumentException("Token start / end marker may not be null or empty");
     }
 

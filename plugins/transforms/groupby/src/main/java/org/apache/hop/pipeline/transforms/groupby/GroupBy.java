@@ -538,7 +538,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         case Aggregation.TYPE_GROUP_CONCAT_COMMA:
           if (subj != null) {
             StringBuilder sb = (StringBuilder) value;
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
               sb.append(", ");
             }
             sb.append(subjMeta.getString(subj));
@@ -547,7 +547,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
           if (subj != null) {
             StringBuilder sb = (StringBuilder) value;
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
               sb.append(Const.CR);
             }
             sb.append(subjMeta.getString(subj));
@@ -561,7 +561,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
             }
 
             StringBuilder sb = (StringBuilder) value;
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
               sb.append(separator);
             }
             sb.append(subjMeta.getString(subj));

@@ -309,7 +309,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
                 transformMeta);
         remarks.add(cr);
 
-        if (sqlField != null && sqlField.length() != 0) {
+        if (sqlField != null && !sqlField.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,

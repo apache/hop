@@ -289,7 +289,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
       } else {
         outputStream = HopVfs.getOutputStream(file, false);
       }
-      if (meta.getEncoding() != null && meta.getEncoding().length() > 0) {
+      if (meta.getEncoding() != null && !meta.getEncoding().isEmpty()) {
         logBasic("Opening output stream in encoding: " + meta.getEncoding());
         data.writer = XML_OUT_FACTORY.createXMLStreamWriter(outputStream, meta.getEncoding());
         data.writer.writeStartDocument(meta.getEncoding(), "1.0");

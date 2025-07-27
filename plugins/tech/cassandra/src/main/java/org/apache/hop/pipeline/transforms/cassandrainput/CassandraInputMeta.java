@@ -193,7 +193,7 @@ public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, Cassan
         tableName = tableName.replace(";", "");
       }
 
-      if (tableName.length() == 0) {
+      if (tableName.isEmpty()) {
         throw new HopTransformException(
             BaseMessages.getString(PKG, "CassandraInput.Error.MustSpecifyATable"));
       }

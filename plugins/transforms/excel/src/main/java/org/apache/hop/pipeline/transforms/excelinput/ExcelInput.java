@@ -832,7 +832,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         return false;
       }
 
-      if (meta.getEmptyFields().size() > 0) {
+      if (!meta.getEmptyFields().isEmpty()) {
         // Determine the maximum filename length...
         data.maxfilelength = -1;
 

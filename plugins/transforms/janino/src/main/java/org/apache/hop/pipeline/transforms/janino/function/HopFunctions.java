@@ -52,7 +52,7 @@ public class HopFunctions {
     ]
     """)
   public static String nvl(String source, String def) {
-    if (source == null || source.length() == 0) {
+    if (source == null || source.isEmpty()) {
       return def;
     }
     return source;

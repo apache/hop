@@ -773,7 +773,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    */
   public void prepareInsert(IRowMeta rowMeta, String schemaName, String tableName)
       throws HopDatabaseException {
-    if (rowMeta.size() == 0) {
+    if (rowMeta.isEmpty()) {
       throw new HopDatabaseException("No fields in row, can't insert!");
     }
 
@@ -2583,7 +2583,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         }
       }
 
-      if (orderby != null && orderby.length() != 0) {
+      if (orderby != null && !orderby.isEmpty()) {
         sql.append(" ORDER BY ").append(orderby);
       }
 
@@ -2734,7 +2734,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       int pos = 0;
 
       sql.append("{ ");
-      if (returnvalue != null && returnvalue.length() != 0) {
+      if (returnvalue != null && !returnvalue.isEmpty()) {
         sql.append("? = ");
       }
       sql.append("call " + proc + " ");
@@ -3024,7 +3024,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     }
 
-    if (missing.size() != 0) {
+    if (!missing.isEmpty()) {
       for (int i = 0; i < missing.size(); i++) {
         IValueMeta v = missing.getValueMeta(i);
         retval.append(
@@ -3042,7 +3042,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     }
 
-    if (surplus.size() != 0) {
+    if (!surplus.isEmpty()) {
       for (int i = 0; i < surplus.size(); i++) {
         IValueMeta v = surplus.getValueMeta(i);
         retval.append(
@@ -3069,7 +3069,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     }
 
-    if (modify.size() > 0) {
+    if (!modify.isEmpty()) {
       for (int i = 0; i < modify.size(); i++) {
         IValueMeta v = modify.getValueMeta(i);
         retval.append(
@@ -4177,7 +4177,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       boolean moreResults = cstmt.execute();
       ret = new RowMetaAndData();
       int pos = 1;
-      if (resultname != null && resultname.length() != 0) {
+      if (resultname != null && !resultname.isEmpty()) {
         IValueMeta vMeta = ValueMetaFactory.createValueMeta(resultname, resulttype);
         Object v = null;
         switch (resulttype) {

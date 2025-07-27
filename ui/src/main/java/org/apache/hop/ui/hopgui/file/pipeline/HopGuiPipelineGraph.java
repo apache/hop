@@ -3073,7 +3073,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (hi != null && tip.length() == 0) { // We clicked on a HOP!
+    if (hi != null && tip.isEmpty()) { // We clicked on a HOP!
       // Set the tooltip for the hop:
       tip.append(Const.CR)
           .append(BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopInfo"))
@@ -3081,7 +3081,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           .append(Const.CR);
     }
 
-    if (tip.length() == 0) {
+    if (tip.isEmpty()) {
       newTip = null;
     } else {
       newTip = tip.toString();
@@ -3237,7 +3237,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     IRowMeta fields = op.getFields();
 
-    if (fields != null && fields.size() > 0) {
+    if (fields != null && !fields.isEmpty()) {
       TransformFieldsDialog sfd =
           new TransformFieldsDialog(
               hopShell(), variables, SWT.NONE, transformMeta.getName(), fields);

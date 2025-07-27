@@ -50,13 +50,13 @@ public class GenerateCsvData extends BaseTransformData implements ITransformData
       key.append(sourcePipeline);
     }
     if (StringUtils.isNotEmpty(sourceTransform)) {
-      if (key.length() > 0) {
+      if (!key.isEmpty()) {
         key.append("-");
       }
       key.append(sourceTransform);
     }
     if (StringUtils.isNotEmpty(propertySetId)) {
-      if (key.length() > 0) {
+      if (!key.isEmpty()) {
         key.append("-");
       }
       key.append(propertySetId);

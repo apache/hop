@@ -481,7 +481,7 @@ public class MonetDbBulkLoaderMeta
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -640,7 +640,7 @@ public class MonetDbBulkLoaderMeta
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && prev.size() > 0) {
+      if (prev != null && !prev.isEmpty()) {
         // Copy the row
         IRowMeta tableFields;
 

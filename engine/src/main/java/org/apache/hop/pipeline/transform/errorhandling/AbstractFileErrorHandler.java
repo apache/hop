@@ -89,7 +89,7 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
     if (!NO_PARTS.equals(source)) {
       sourceAdding = "_" + source.toString();
     }
-    if (extension == null || extension.length() == 0) {
+    if (extension == null || extension.isEmpty()) {
       name = processingFilename + sourceAdding + "." + dateString;
     } else {
       name = processingFilename + sourceAdding + "." + dateString + "." + extension;

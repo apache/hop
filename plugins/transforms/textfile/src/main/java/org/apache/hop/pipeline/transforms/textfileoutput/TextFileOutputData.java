@@ -308,7 +308,7 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
     @Override
     public String getLastFileName() {
       String filename = null;
-      if (indexMap.size() > 0) {
+      if (!indexMap.isEmpty()) {
         filename = indexMap.lastEntry().getValue().getFileName();
       }
       return filename;
@@ -317,7 +317,7 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
     @Override
     public FileStream getLastStream() {
       FileStream lastStream = null;
-      if (indexMap.size() > 0) {
+      if (!indexMap.isEmpty()) {
         lastStream = indexMap.lastEntry().getValue().getFileStream();
       }
       return lastStream;

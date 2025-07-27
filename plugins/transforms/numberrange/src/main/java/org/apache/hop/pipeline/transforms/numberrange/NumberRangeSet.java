@@ -47,7 +47,7 @@ public class NumberRangeSet {
       // If rule matched -> add value to the result
       if (ruleResult != null) {
         // Add value separator if multiple values are available
-        if (result.length() > 0) {
+        if (!result.isEmpty()) {
           result.append(getMultiValueSeparator());
         }
 

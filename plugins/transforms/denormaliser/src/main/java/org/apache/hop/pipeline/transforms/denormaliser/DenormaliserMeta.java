@@ -134,7 +134,7 @@ public class DenormaliserMeta extends BaseTransformMeta<Denormaliser, Denormalis
 
     // Remove the key value (there will be different entries for each output row)
     //
-    if (keyField != null && keyField.length() > 0) {
+    if (keyField != null && !keyField.isEmpty()) {
       int idx = row.indexOfValue(keyField);
       if (idx < 0) {
         throw new HopTransformException(
@@ -151,7 +151,7 @@ public class DenormaliserMeta extends BaseTransformMeta<Denormaliser, Denormalis
     //
     for (int i = 0; i < denormaliserTargetFields.size(); i++) {
       String fieldname = denormaliserTargetFields.get(i).getFieldName();
-      if (fieldname != null && fieldname.length() > 0) {
+      if (fieldname != null && !fieldname.isEmpty()) {
         int idx = row.indexOfValue(fieldname);
         if (idx >= 0) {
           row.removeValueMeta(idx);

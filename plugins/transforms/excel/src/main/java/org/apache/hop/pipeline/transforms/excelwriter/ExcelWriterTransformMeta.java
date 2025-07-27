@@ -398,7 +398,7 @@ public class ExcelWriterTransformMeta
       retval += "_" + transformId + "_" + bundleNr;
     }
 
-    if (realextension != null && realextension.length() != 0) {
+    if (realextension != null && !realextension.isEmpty()) {
       retval += "." + realextension;
     }
 
@@ -410,7 +410,7 @@ public class ExcelWriterTransformMeta
     String retval = variables.resolve((String) row[filenameFieldIdx]);
     String realextension = variables.resolve(file.getExtension());
 
-    if (realextension != null && realextension.length() != 0) {
+    if (realextension != null && !realextension.isEmpty()) {
       retval += "." + realextension;
     }
 
@@ -443,7 +443,7 @@ public class ExcelWriterTransformMeta
     CheckResult cr;
 
     // Check output fields
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

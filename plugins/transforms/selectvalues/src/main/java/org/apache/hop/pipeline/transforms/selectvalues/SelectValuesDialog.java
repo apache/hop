@@ -612,7 +612,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
      * Remove certain fields...
      */
     if (input.getSelectOption().getDeleteName() != null
-        && input.getSelectOption().getDeleteName().size() > 0) {
+        && !input.getSelectOption().getDeleteName().isEmpty()) {
       for (int i = 0; i < input.getSelectOption().getDeleteName().size(); i++) {
         DeleteField deleteName = input.getSelectOption().getDeleteName().get(i);
         TableItem item = wRemove.table.getItem(i);
@@ -720,7 +720,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       currentSelectFieldItem.setName(item.getText(1));
       currentSelectFieldItem.setRename(item.getText(2));
       if (currentSelectFieldItem.getRename() == null
-          || currentSelectFieldItem.getName().length() == 0) {
+          || currentSelectFieldItem.getName().isEmpty()) {
         currentSelectFieldItem.setRename(currentSelectFieldItem.getName());
       }
       currentSelectFieldItem.setLength(Const.toInt(item.getText(3), -2));
@@ -848,7 +848,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       for (int i = 0; i < wRemove.getItemCount(); i++) {
         String[] columns = wRemove.getItem(i);
         for (String column : columns) {
-          if (column.length() > 0) {
+          if (!column.isEmpty()) {
             BaseDialog.openMessageBox(
                 shell,
                 BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"),
@@ -861,7 +861,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       for (int i = 0; i < wMeta.getItemCount(); i++) {
         String[] columns = wMeta.getItem(i);
         for (String col : columns) {
-          if (col.length() > 0) {
+          if (!col.isEmpty()) {
             BaseDialog.openMessageBox(
                 shell,
                 BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"),
@@ -934,7 +934,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       mappings.add(mapping);
     }
     // show a confirm dialog if some misconfiguration was found
-    if (missingFields.length() > 0) {
+    if (!missingFields.isEmpty()) {
       int answer =
           BaseDialog.openMessageBox(
               shell,

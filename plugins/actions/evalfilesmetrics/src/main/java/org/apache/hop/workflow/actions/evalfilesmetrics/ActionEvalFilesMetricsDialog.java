@@ -925,7 +925,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (arg != null && !arg.isEmpty()) {
         nr++;
       }
     }
@@ -937,7 +937,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
       String source = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
       String includeSubFolders = wFields.getNonEmpty(i).getText(3);
-      if (source != null && source.length() != 0) {
+      if (source != null && !source.isEmpty()) {
         sourceFileFolder[nr] = source;
         sourceWildcard[nr] = wild;
         sourceIncludeSubfolders[nr] =

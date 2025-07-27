@@ -417,7 +417,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
         // split into smaller batches and try separately
         List<Object[]> subBatch = new ArrayList<>();
         while (batch.size() > batchSplitFactor) {
-          while (subBatch.size() < batchSplitFactor && batch.size() > 0) {
+          while (subBatch.size() < batchSplitFactor && !batch.isEmpty()) {
             // remove from the right - avoid internal shifting
             subBatch.add(batch.remove(batch.size() - 1));
           }
@@ -428,7 +428,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
       } else {
         // try each row individually
         List<Object[]> subBatch = new ArrayList<>();
-        while (batch.size() > 0) {
+        while (!batch.isEmpty()) {
           subBatch.clear();
           // remove from the right - avoid internal shifting
           subBatch.add(batch.remove(batch.size() - 1));
@@ -483,7 +483,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     // Set TTL if specified
     setTTLIfSpecified();
 
-    if (options.size() > 0) {
+    if (!options.isEmpty()) {
       logBasic(
           BaseMessages.getString(
               CassandraOutputMeta.PKG,

@@ -53,7 +53,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
   private Object[] getSystemData(IRowMeta inputRowMeta, Object[] inputRowData) throws HopException {
     Object[] row = new Object[data.outputRowMeta.size()];
     // no data is changed, clone is not needed here.
-    if (inputRowMeta.size() >= 0) System.arraycopy(inputRowData, 0, row, 0, inputRowMeta.size());
+    if (!inputRowMeta.isEmpty()) System.arraycopy(inputRowData, 0, row, 0, inputRowMeta.size());
     for (int i = 0, index = inputRowMeta.size(); i < meta.getFieldName().length; i++, index++) {
       Calendar cal;
 

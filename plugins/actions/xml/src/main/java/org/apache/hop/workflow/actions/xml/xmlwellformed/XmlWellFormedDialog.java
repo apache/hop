@@ -377,9 +377,7 @@ public class XmlWellFormedDialog extends ActionDialog {
     int rows =
         action.getSourceFileFolders() == null
             ? 1
-            : (action.getSourceFileFolders().size() == 0
-                ? 0
-                : action.getSourceFileFolders().size());
+            : (action.getSourceFileFolders().isEmpty() ? 0 : action.getSourceFileFolders().size());
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -781,7 +779,7 @@ public class XmlWellFormedDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nritems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (arg != null && !arg.isEmpty()) {
         nr++;
       }
     }
@@ -793,7 +791,7 @@ public class XmlWellFormedDialog extends ActionDialog {
       XmlWellFormedField field = new XmlWellFormedField();
       String source = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
-      if (source != null && source.length() != 0) {
+      if (source != null && !source.isEmpty()) {
         field.setSourceFilefolder(source);
         field.setWildcard(wild);
         fieldList.add(field);

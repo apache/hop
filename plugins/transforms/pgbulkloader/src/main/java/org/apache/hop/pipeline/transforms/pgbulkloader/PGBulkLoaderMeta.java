@@ -248,7 +248,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -343,7 +343,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && prev.size() > 0) {
+      if (prev != null && !prev.isEmpty()) {
         // Copy the row
         IRowMeta tableFields = new RowMeta();
 
@@ -371,7 +371,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
                 databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
             String sql = db.getDDL(schemaTable, tableFields, null, false, null, true);
 
-            if (sql.length() == 0) {
+            if (sql.isEmpty()) {
               retval.setSql(null);
             } else {
               retval.setSql(sql);

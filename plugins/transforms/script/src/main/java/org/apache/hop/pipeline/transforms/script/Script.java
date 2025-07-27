@@ -617,7 +617,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
           // Run the start and transformation scripts once if there are no incoming rows
 
           // Checking for EndScript
-          if (strEndScript != null && strEndScript.length() > 0) {
+          if (strEndScript != null && !strEndScript.isEmpty()) {
             data.engine.eval(strEndScript, bindings);
             if (isDetailed()) {
               logDetailed(("End Script found!"));

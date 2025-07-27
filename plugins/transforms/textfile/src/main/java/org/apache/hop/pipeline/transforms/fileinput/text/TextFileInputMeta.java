@@ -660,18 +660,18 @@ public class TextFileInputMeta
       }
     }
     if (errorHandling.errorIgnored) {
-      if (errorCountField != null && errorCountField.length() > 0) {
+      if (errorCountField != null && !errorCountField.isEmpty()) {
         IValueMeta v = new ValueMetaInteger(errorCountField);
         v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
         v.setOrigin(name);
         row.addValueMeta(v);
       }
-      if (errorFieldsField != null && errorFieldsField.length() > 0) {
+      if (errorFieldsField != null && !errorFieldsField.isEmpty()) {
         IValueMeta v = new ValueMetaString(errorFieldsField);
         v.setOrigin(name);
         row.addValueMeta(v);
       }
-      if (errorTextField != null && errorTextField.length() > 0) {
+      if (errorTextField != null && !errorTextField.isEmpty()) {
         IValueMeta v = new ValueMetaString(errorTextField);
         v.setOrigin(name);
         row.addValueMeta(v);

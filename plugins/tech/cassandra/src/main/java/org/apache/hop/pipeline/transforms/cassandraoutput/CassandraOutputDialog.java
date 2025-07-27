@@ -682,7 +682,7 @@ public class CassandraOutputDialog extends BaseTransformDialog {
       try {
         IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-        if (row.size() == 0) {
+        if (row.isEmpty()) {
           BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(
@@ -758,7 +758,7 @@ public class CassandraOutputDialog extends BaseTransformDialog {
       try {
         IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-        if (row.size() == 0) {
+        if (row.isEmpty()) {
           BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(

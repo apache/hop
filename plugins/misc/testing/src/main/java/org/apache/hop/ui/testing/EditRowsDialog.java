@@ -177,7 +177,7 @@ public class EditRowsDialog {
     }
 
     // Mmm, if we don't get any row metadata: show a dialog box.
-    if (rowMeta == null || rowMeta.size() == 0) {
+    if (rowMeta == null || rowMeta.isEmpty()) {
       ShowMessageDialog dialog =
           new ShowMessageDialog(
               shell,

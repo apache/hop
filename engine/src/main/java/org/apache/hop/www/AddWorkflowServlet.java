@@ -195,7 +195,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
   }
 
   protected String[] getAllArgumentStrings(Map<String, String> arguments) {
-    if (arguments == null || arguments.size() == 0) {
+    if (arguments == null || arguments.isEmpty()) {
       return null;
     }
 

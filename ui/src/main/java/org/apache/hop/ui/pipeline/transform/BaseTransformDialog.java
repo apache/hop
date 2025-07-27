@@ -911,7 +911,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
       boolean optimizeWidth,
       ITableItemInsertListener listener,
       IFieldsChoiceDialogProvider getFieldsChoiceDialogProvider) {
-    if (row == null || row.size() == 0) {
+    if (row == null || row.isEmpty()) {
       return; // nothing to do
     }
 

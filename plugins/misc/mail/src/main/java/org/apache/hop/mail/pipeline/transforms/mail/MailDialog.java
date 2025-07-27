@@ -2081,7 +2081,7 @@ public class MailDialog extends BaseTransformDialog {
     int rows =
         input.getEmbeddedImages() == null
             ? 1
-            : (input.getEmbeddedImages().size() == 0 ? 0 : input.getEmbeddedImages().size());
+            : (input.getEmbeddedImages().isEmpty() ? 0 : input.getEmbeddedImages().size());
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -2780,7 +2780,7 @@ public class MailDialog extends BaseTransformDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (arg != null && !arg.isEmpty()) {
         nr++;
       }
     }
@@ -2790,7 +2790,7 @@ public class MailDialog extends BaseTransformDialog {
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
       String id = wFields.getNonEmpty(i).getText(2);
-      if (arg != null && arg.length() != 0) {
+      if (arg != null && !arg.isEmpty()) {
         MailEmbeddedImageField image = new MailEmbeddedImageField();
         image.setEmbeddedimage(arg);
         image.setContentId(id);

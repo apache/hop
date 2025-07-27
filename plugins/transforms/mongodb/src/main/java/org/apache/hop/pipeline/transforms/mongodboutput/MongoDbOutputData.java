@@ -940,7 +940,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
     if (part.startsWith("[")) { //
       String index = part.substring(1, part.indexOf(']')).trim();
       part = part.substring(part.indexOf(']') + 1).trim();
-      if (part.length() > 0) {
+      if (!part.isEmpty()) {
         // any remaining characters must indicate a multi-dimensional array
         pathParts.set(0, part);
 

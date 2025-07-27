@@ -750,7 +750,7 @@ public class ActionShellDialog extends ActionDialog {
 
     for (int i = 0; i < wFields.nrNonEmpty(); i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (arg != null && !arg.isEmpty()) {
         action.arguments.add(arg);
       }
     }

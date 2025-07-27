@@ -438,7 +438,7 @@ public class WebServer {
    */
   private boolean validProperty(String property) {
     boolean isValid = false;
-    if (System.getProperty(property) != null && System.getProperty(property).length() > 0) {
+    if (System.getProperty(property) != null && !System.getProperty(property).isEmpty()) {
       try {
         Integer.parseInt(System.getProperty(property));
         isValid = true;

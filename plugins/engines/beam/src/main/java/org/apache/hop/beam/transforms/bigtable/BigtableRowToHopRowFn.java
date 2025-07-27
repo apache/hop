@@ -144,7 +144,7 @@ public class BigtableRowToHopRowFn extends DoFn<Row, HopRow> {
             for (Cell cell : column.getCellsList()) {
               // long timestamp = cell.getTimestampMicros();
               String value = cell.getValue().toStringUtf8();
-              if (values.length() > 0) {
+              if (!values.isEmpty()) {
                 values.append(',');
               }
               values.append(value);

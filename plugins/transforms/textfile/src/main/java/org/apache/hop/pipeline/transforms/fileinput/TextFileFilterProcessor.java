@@ -62,7 +62,7 @@ public class TextFileFilterProcessor {
         positiveMode = true;
       }
 
-      if (filter.getFilterString() != null && filter.getFilterString().length() > 0) {
+      if (filter.getFilterString() != null && !filter.getFilterString().isEmpty()) {
         int from = filter.getFilterPosition();
         if (from >= 0) {
           int to = from + filter.getFilterString().length();

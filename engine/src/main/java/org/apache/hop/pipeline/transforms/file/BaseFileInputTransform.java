@@ -82,7 +82,7 @@ public abstract class BaseFileInputTransform<
     Map<String, ResultFile> resultFiles =
         (previousResult != null) ? previousResult.getResultFiles() : null;
 
-    if ((previousResult == null || resultFiles == null || resultFiles.size() == 0)
+    if ((previousResult == null || resultFiles == null || resultFiles.isEmpty())
         && data.files.nrOfMissingFiles() > 0
         && !meta.inputFiles.acceptingFilenames
         && !meta.errorHandling.errorIgnored) {

@@ -326,7 +326,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (arg != null && !arg.isEmpty()) {
         nr++;
       }
     }

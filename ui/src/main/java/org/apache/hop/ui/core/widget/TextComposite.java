@@ -229,7 +229,7 @@ public abstract class TextComposite extends Composite {
     try {
       Clipboard clipboard = new Clipboard(getParent().getDisplay());
       String text = (String) clipboard.getContents(TextTransfer.getInstance());
-      if (text != null && text.length() > 0) {
+      if (text != null && !text.isEmpty()) {
         return true;
       } else {
         return false;

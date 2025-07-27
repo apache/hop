@@ -129,7 +129,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
           newField.fieldPath = XmlHandler.getTagValue(fieldNode, "field_path");
           newField.hopType = XmlHandler.getTagValue(fieldNode, "field_type");
           String indexedVals = XmlHandler.getTagValue(fieldNode, "indexed_vals");
-          if (indexedVals != null && indexedVals.length() > 0) {
+          if (indexedVals != null && !indexedVals.isEmpty()) {
             newField.indexedValues = MongoDbInputData.indexedValsList(indexedVals);
           }
           fields.add(newField);
