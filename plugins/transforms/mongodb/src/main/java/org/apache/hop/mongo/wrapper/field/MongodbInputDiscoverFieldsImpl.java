@@ -249,8 +249,8 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
         String innerComp = tempComp.substring(tempComp.indexOf('[') + 1, tempComp.indexOf(']'));
 
         if (temp.indexOf(']') < temp.length() - 1) {
-          temp = temp.substring(temp.indexOf(']') + 1, temp.length());
-          tempComp = tempComp.substring(tempComp.indexOf(']') + 1, tempComp.length());
+          temp = temp.substring(temp.indexOf(']') + 1);
+          tempComp = tempComp.substring(tempComp.indexOf(']') + 1);
         } else {
           temp = "";
         }
@@ -407,8 +407,8 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
         String innerComp = tempComp.substring(tempComp.indexOf('[') + 1, tempComp.indexOf(']'));
 
         if (temp.indexOf(']') < temp.length() - 1) {
-          temp = temp.substring(temp.indexOf(']') + 1, temp.length());
-          tempComp = tempComp.substring(tempComp.indexOf(']') + 1, tempComp.length());
+          temp = temp.substring(temp.indexOf(']') + 1);
+          tempComp = tempComp.substring(tempComp.indexOf(']') + 1);
         } else {
           temp = "";
         }

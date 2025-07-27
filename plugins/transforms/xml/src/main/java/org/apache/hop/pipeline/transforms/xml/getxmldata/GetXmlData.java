@@ -996,7 +996,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
           int last = xPathValue.lastIndexOf(GetXmlDataMeta.N0DE_SEPARATOR);
           if (last > -1) {
             last++;
-            String attribut = xPathValue.substring(last, xPathValue.length());
+            String attribut = xPathValue.substring(last);
             if (!attribut.startsWith(GetXmlDataMeta.AT)) {
               xPathValue = xPathValue.substring(0, last) + GetXmlDataMeta.AT + attribut;
             }

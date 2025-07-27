@@ -278,7 +278,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         // strip off brackets to get actual object name if terminal object
         // is an array
         if (name.contains("[")) {
-          name = name.substring(name.indexOf('[') + 1, name.length());
+          name = name.substring(name.indexOf('[') + 1);
         }
 
         mongoIndex.put(name, direction);
@@ -438,7 +438,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
               && path.contains("[")
               && !path.contains(mongoOperatorUpdateAllArray)) {
             String arrayPath = path.substring(0, path.indexOf('['));
-            String arraySpec = path.substring(path.indexOf('['), path.length());
+            String arraySpec = path.substring(path.indexOf('['));
             MongoDbOutputMeta.MongoField a = new MongoDbOutputMeta.MongoField();
             a.incomingFieldName = field.incomingFieldName;
             a.environUpdatedFieldName = field.environUpdatedFieldName;
@@ -460,13 +460,13 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             // we ignore any index that might have been specified as $push
             // always appends to the end of the array.
             String arrayPath = path.substring(0, path.indexOf('['));
-            String structureToPush = path.substring(path.indexOf(']') + 1, path.length());
+            String structureToPush = path.substring(path.indexOf(']') + 1);
 
             // check to see if we're pushing a record at this point in the path
             // or another array...
             if (structureToPush.charAt(0) == '.') {
               // skip the dot
-              structureToPush = structureToPush.substring(1, structureToPush.length());
+              structureToPush = structureToPush.substring(1);
             }
 
             MongoDbOutputMeta.MongoField a = new MongoDbOutputMeta.MongoField();

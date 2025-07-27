@@ -87,9 +87,7 @@ public class CqlUtils {
       String possibleSelectorElement =
           (possibleEnd != -1) ? selectExpression.substring(0, possibleEnd) : selectExpression;
       selectExpression =
-          (possibleEnd != -1)
-              ? selectExpression.substring(possibleEnd + 1, selectExpression.length()).trim()
-              : "";
+          (possibleEnd != -1) ? selectExpression.substring(possibleEnd + 1).trim() : "";
 
       Selector realSelectorElement = buildSelector(possibleSelectorElement, isCql3);
 
@@ -106,9 +104,7 @@ public class CqlUtils {
         sb.append(possibleSelectorElement);
         possibleSelectorElement = sb.toString();
         selectExpression =
-            (possibleEnd != -1)
-                ? selectExpression.substring(possibleEnd + 1, selectExpression.length()).trim()
-                : "";
+            (possibleEnd != -1) ? selectExpression.substring(possibleEnd + 1).trim() : "";
         realSelectorElement = buildSelector(possibleSelectorElement, isCql3);
       }
       sList.add(realSelectorElement);

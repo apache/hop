@@ -988,15 +988,15 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
           offset = 2;
         }
         result.append(targetChar).append(comma).append("\n"); //
-        source = source.substring(offset, source.length());
+        source = source.substring(offset);
       } else {
         pad(result, indent);
         if (next == Element.CLOSE_BRACE || next == Element.CLOSE_BRACKET) {
           toIndent = source.substring(0, minIndex);
-          source = source.substring(minIndex, source.length());
+          source = source.substring(minIndex);
         } else {
           toIndent = source.substring(0, minIndex + 1);
-          source = source.substring(minIndex + 1, source.length());
+          source = source.substring(minIndex + 1);
         }
         result.append(toIndent.trim()).append("\n"); //
       }
