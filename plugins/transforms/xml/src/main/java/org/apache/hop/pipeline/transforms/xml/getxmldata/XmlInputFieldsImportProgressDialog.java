@@ -345,7 +345,7 @@ public class XmlInputFieldsImportProgressDialog {
     String retval = inputstring;
     retval = retval.replace(this.loopXPath, "");
     while (retval.startsWith(GetXmlDataMeta.N0DE_SEPARATOR)) {
-      retval = retval.substring(1, retval.length());
+      retval = retval.substring(1);
     }
 
     return retval;

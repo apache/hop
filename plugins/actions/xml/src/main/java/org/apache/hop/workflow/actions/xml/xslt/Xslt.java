@@ -340,8 +340,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             // Format Date
 
             // Try to clean filename (without wildcard)
-            String wildcard =
-                outputfilename.substring(outputfilename.length() - 4, outputfilename.length());
+            String wildcard = outputfilename.substring(outputfilename.length() - 4);
             if (wildcard.substring(0, 1).equals(".")) {
               // Find wildcard
               outputfilename =
