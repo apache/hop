@@ -710,7 +710,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     }
     registry.registerPlugin(this.getClass(), plugin);
 
-    if (libraries != null && !libraries.isEmpty()) {
+    if (!Utils.isEmpty(libraries)) {
       LogChannel.GENERAL.logDetailed(
           "Plugin with id ["
               + ids[0]

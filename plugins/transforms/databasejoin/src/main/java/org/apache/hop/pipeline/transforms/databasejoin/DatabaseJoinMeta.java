@@ -35,6 +35,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -366,7 +367,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
 
       try {
         db.connect();
-        if (sql != null && !sql.isEmpty()) {
+        if (!Utils.isEmpty(sql)) {
           IRowMeta param = getParameterRow(prev);
 
           errorMessage = "";

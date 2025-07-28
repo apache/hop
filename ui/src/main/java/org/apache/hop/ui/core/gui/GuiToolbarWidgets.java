@@ -34,6 +34,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItemFilter;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.svg.SvgLabelFacade;
@@ -116,7 +117,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           findGuiPluginInstance(toolbarItem.getClassLoader(), guiPluginClassName, instanceId);
       List<GuiToolbarItemFilter> itemFilters =
           GuiRegistry.getInstance().getToolbarItemFiltersMap().get(root);
-      if (itemFilters != null && !itemFilters.isEmpty()) {
+      if (!Utils.isEmpty(itemFilters)) {
         for (GuiToolbarItemFilter itemFilter : itemFilters) {
           Class<?> guiPluginClass =
               itemFilter.getClassLoader().loadClass(itemFilter.getGuiPluginClassName());

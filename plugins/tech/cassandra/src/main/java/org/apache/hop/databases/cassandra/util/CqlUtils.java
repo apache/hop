@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.apache.hop.core.util.Utils;
 
 /** Utilities for CQL processing. */
 public class CqlUtils {
@@ -124,7 +125,7 @@ public class CqlUtils {
    */
   public static String getSelectExpression(String cqlExpression) {
     String selectExpression = null;
-    if (cqlExpression != null && !cqlExpression.isEmpty()) {
+    if (!Utils.isEmpty(cqlExpression)) {
       cqlExpression = clean(cqlExpression);
       int end = cqlExpression.toLowerCase().indexOf(FROM);
       int start = cqlExpression.toLowerCase().indexOf(SELECT) + SELECT.length();
@@ -156,7 +157,7 @@ public class CqlUtils {
    * @return the array of selectors
    */
   public static Selector[] getColumnsInSelect(String selectExpression, boolean isCql3) {
-    if (selectExpression != null && !selectExpression.isEmpty()) {
+    if (!Utils.isEmpty(selectExpression)) {
       ArrayList<Selector> selectors = getSelectors(selectExpression.trim(), isCql3);
       return selectors.toArray(new Selector[selectors.size()]);
     }

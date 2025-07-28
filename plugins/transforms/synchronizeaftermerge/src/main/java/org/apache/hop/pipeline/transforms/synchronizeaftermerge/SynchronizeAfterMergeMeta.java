@@ -695,7 +695,7 @@ public class SynchronizeAfterMergeMeta
             }
           }
           for (int i = 0; i < keyStream2.length; i++) {
-            if (keyStream2[i] != null && !keyStream2[i].isEmpty()) {
+            if (!Utils.isEmpty(keyStream2[i])) {
               IValueMeta v = prev.searchValueMeta(keyStream2[i]);
               if (v == null) {
                 if (first) {

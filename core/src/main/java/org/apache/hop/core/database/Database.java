@@ -2583,7 +2583,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         }
       }
 
-      if (orderby != null && !orderby.isEmpty()) {
+      if (!Utils.isEmpty(orderby)) {
         sql.append(" ORDER BY ").append(orderby);
       }
 
@@ -2734,7 +2734,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       int pos = 0;
 
       sql.append("{ ");
-      if (returnvalue != null && !returnvalue.isEmpty()) {
+      if (!Utils.isEmpty(returnvalue)) {
         sql.append("? = ");
       }
       sql.append("call " + proc + " ");
@@ -3619,7 +3619,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         }
 
         // Check for any extra properties that might require validation
-        if (props != null && !props.isEmpty()) {
+        if (!Utils.isEmpty(props)) {
           for (Map.Entry<String, String> prop : props.entrySet()) {
             String propName = prop.getKey();
 
@@ -4177,7 +4177,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       boolean moreResults = cstmt.execute();
       ret = new RowMetaAndData();
       int pos = 1;
-      if (resultname != null && !resultname.isEmpty()) {
+      if (!Utils.isEmpty(resultname)) {
         IValueMeta vMeta = ValueMetaFactory.createValueMeta(resultname, resulttype);
         Object v = null;
         switch (resulttype) {

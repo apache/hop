@@ -748,7 +748,7 @@ public class JsonInputMeta
   private static boolean getDefaultPathLeafToNull(Node transformnode) {
     boolean result = true;
     List<Node> nodes = XmlHandler.getNodes(transformnode, CONST_DEFAULT_PATH_LEAF_TO_NULL);
-    if (nodes != null && !nodes.isEmpty()) {
+    if (!Utils.isEmpty(nodes)) {
       result =
           "Y"
               .equalsIgnoreCase(

@@ -39,6 +39,7 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
@@ -348,7 +349,7 @@ public class TikaOutput {
           writer.print(", ");
         }
 
-        if (value == null || value.isEmpty()) {
+        if (Utils.isEmpty(value)) {
           writer.print("null");
         } else {
           // Is it a number?

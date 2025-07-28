@@ -906,7 +906,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
           // do nothing
         } else if (type.getType() == Schema.Type.RECORD) {
           String child = "$." + f.name();
-          if (parent != null && !parent.isEmpty() && !parent.equals("$.")) {
+          if (!Utils.isEmpty(parent) && !parent.equals("$.")) {
             child = parent + "." + f.name();
           }
           ArrayList<String> children = getFieldsList(type, child);
@@ -914,7 +914,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
         } else if (!added) {
           added = true;
           String name = "$." + f.name();
-          if (parent != null && !parent.isEmpty() && !parent.equals("$.")) {
+          if (!Utils.isEmpty(parent) && !parent.equals("$.")) {
             name = parent + "." + f.name();
           }
           result.add(name);
@@ -1358,7 +1358,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
                 matchName = fieldName.substring(2);
               }
               if (matchName.equalsIgnoreCase(Const.NVL(v.getName(), ""))) {
-                if (fieldName != null && !fieldName.isEmpty()) {
+                if (!Utils.isEmpty(fieldName)) {
                   fieldName = "$." + matchName;
                 }
                 tableItem.setText(anAvroNameColumn, Const.NVL(fieldName, ""));
@@ -1385,7 +1385,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
           }
 
           String avroName = v.getName();
-          if (avroName != null && !avroName.isEmpty()) {
+          if (!Utils.isEmpty(avroName)) {
             avroName = "$." + avroName;
           }
           for (int anAvroNameColumn : avroNameColumn) {

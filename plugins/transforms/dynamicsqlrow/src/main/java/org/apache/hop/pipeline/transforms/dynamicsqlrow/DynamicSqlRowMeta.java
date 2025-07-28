@@ -362,7 +362,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
 
       try {
         db.connect();
-        if (sql != null && !sql.isEmpty()) {
+        if (!Utils.isEmpty(sql)) {
 
           errorMessage = "";
 

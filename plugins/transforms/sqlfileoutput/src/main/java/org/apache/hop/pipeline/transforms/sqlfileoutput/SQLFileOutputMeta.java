@@ -186,7 +186,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
       retval += "_" + splitnr;
     }
 
-    if (file.extension != null && !file.extension.isEmpty()) {
+    if (!Utils.isEmpty(file.extension)) {
       retval += "." + variables.resolve(file.extension);
     }
 
@@ -500,7 +500,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
               String crTable = db.getDDL(schemaTable, prev);
 
               // Empty string means: nothing to do: set it to null...
-              if (crTable == null || crTable.isEmpty()) {
+              if (Utils.isEmpty(crTable)) {
                 crTable = null;
               }
 

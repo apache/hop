@@ -64,7 +64,7 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
     if (first) {
       first = false;
 
-      if (meta.getLogFields() != null && !meta.getLogFields().isEmpty()) {
+      if (!Utils.isEmpty(meta.getLogFields())) {
         data.fieldnrs = new int[meta.getLogFields().size()];
         for (int i = 0; i < data.fieldnrs.length; i++) {
           LogField field = meta.getLogFields().get(i);

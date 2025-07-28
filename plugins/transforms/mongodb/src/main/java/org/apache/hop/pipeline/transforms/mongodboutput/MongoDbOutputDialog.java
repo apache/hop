@@ -30,6 +30,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -779,7 +780,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
 
     List<MongoDbOutputMeta.MongoField> mongoFields = currentMeta.getMongoFields();
 
-    if (mongoFields != null && !mongoFields.isEmpty()) {
+    if (!Utils.isEmpty(mongoFields)) {
       for (MongoDbOutputMeta.MongoField field : mongoFields) {
         TableItem item = new TableItem(wMongoFields.table, SWT.NONE);
 
@@ -808,7 +809,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
 
     List<MongoDbOutputMeta.MongoIndex> mongoIndexes = currentMeta.getMongoIndexes();
 
-    if (mongoIndexes != null && !mongoIndexes.isEmpty()) {
+    if (!Utils.isEmpty(mongoIndexes)) {
       for (MongoDbOutputMeta.MongoIndex index : mongoIndexes) {
         TableItem item = new TableItem(wMongoIndexes.table, SWT.None);
 
@@ -1011,7 +1012,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
   private void previewDocStruct() {
     List<MongoDbOutputMeta.MongoField> mongoFields = tableToMongoFieldList();
 
-    if (mongoFields == null || mongoFields.isEmpty()) {
+    if (Utils.isEmpty(mongoFields)) {
       return;
     }
 

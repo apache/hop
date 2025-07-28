@@ -1500,7 +1500,7 @@ public class ActionMailDialog extends ActionDialog {
     wAddDate.setSelection(action.isIncludeDate());
     wIncludeFiles.setSelection(action.isIncludingFiles());
 
-    if (action.getFileTypes() != null && !action.getFileTypes().isEmpty()) {
+    if (!Utils.isEmpty(action.getFileTypes())) {
       java.util.List<String> types = action.getFileTypes();
       String[] typenames = new String[types.size()];
       for (int i = 0; i < types.size(); i++) {
@@ -1705,7 +1705,7 @@ public class ActionMailDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && !arg.isEmpty()) {
+      if (!Utils.isEmpty(arg)) {
         nr++;
       }
     }
@@ -1714,7 +1714,7 @@ public class ActionMailDialog extends ActionDialog {
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
-      if (arg != null && !arg.isEmpty()) {
+      if (!Utils.isEmpty(arg)) {
         MailEmbeddedImageField image = new MailEmbeddedImageField();
         image.setEmbeddedimage(arg);
         image.setContentId(wild);

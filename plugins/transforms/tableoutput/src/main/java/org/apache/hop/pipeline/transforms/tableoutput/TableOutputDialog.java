@@ -1532,7 +1532,7 @@ public class TableOutputDialog extends BaseTransformDialog {
   private static boolean isValidRowMeta(IRowMeta rowMeta) {
     for (IValueMeta value : rowMeta.getValueMetaList()) {
       String name = value.getName();
-      if (name == null || name.isEmpty()) {
+      if (Utils.isEmpty(name)) {
         return false;
       }
     }

@@ -148,7 +148,7 @@ public class Variables implements IVariables {
 
   @Override
   public synchronized String resolve(String aString) {
-    if (aString == null || aString.isEmpty()) {
+    if (Utils.isEmpty(aString)) {
       return aString;
     }
 
@@ -298,7 +298,7 @@ public class Variables implements IVariables {
   @Override
   public String resolve(String aString, IRowMeta rowMeta, Object[] rowData)
       throws HopValueException {
-    if (aString == null || aString.isEmpty()) {
+    if (Utils.isEmpty(aString)) {
       return aString;
     }
 

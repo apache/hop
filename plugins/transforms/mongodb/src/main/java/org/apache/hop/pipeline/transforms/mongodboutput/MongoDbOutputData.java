@@ -34,6 +34,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
@@ -783,7 +784,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             // no more path parts so we must be setting a field in an array
             // element
             // that is a record
-            if ((pathParts == null || pathParts.isEmpty()) && current instanceof BasicDBObject) {
+            if ((Utils.isEmpty(pathParts)) && current instanceof BasicDBObject) {
               if (field.useIncomingFieldNameAsMongoFieldName) {
                 boolean res =
                     setMongoValueFromHopValue(
@@ -932,7 +933,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
   private static Object getPathElementName(
       List<String> pathParts, DBObject current, boolean incomingAsFieldName) throws HopException {
 
-    if (pathParts == null || pathParts.isEmpty()) {
+    if (Utils.isEmpty(pathParts)) {
       return null;
     }
 
@@ -1010,7 +1011,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
   protected static MongoTopLevel checkTopLevelConsistency(
       List<MongoDbOutputMeta.MongoField> fieldDefs, IVariables vars) throws HopException {
 
-    if (fieldDefs == null || fieldDefs.isEmpty()) {
+    if (Utils.isEmpty(fieldDefs)) {
       throw new HopException(
           BaseMessages.getString(PKG, "MongoDbOutput.Messages.Error.NoMongoPathsDefined"));
     }

@@ -35,6 +35,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -617,7 +618,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
           // Run the start and transformation scripts once if there are no incoming rows
 
           // Checking for EndScript
-          if (strEndScript != null && !strEndScript.isEmpty()) {
+          if (!Utils.isEmpty(strEndScript)) {
             data.engine.eval(strEndScript, bindings);
             if (isDetailed()) {
               logDetailed(("End Script found!"));

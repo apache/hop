@@ -1718,7 +1718,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && !arg.isEmpty()) {
+      if (!Utils.isEmpty(arg)) {
         nr++;
       }
     }
@@ -1735,7 +1735,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
       String userid = wFields.getNonEmpty(i).getText(4);
       String dest = wFields.getNonEmpty(i).getText(5);
 
-      if (source != null && !source.isEmpty()) {
+      if (!Utils.isEmpty(source)) {
         action.actionType[nr] = ActionPGPEncryptFiles.getActionTypeByDesc(actionName);
         action.sourceFileFolder[nr] = source;
         action.wildcard[nr] = wild;

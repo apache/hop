@@ -30,6 +30,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -89,7 +90,7 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
     if (!NO_PARTS.equals(source)) {
       sourceAdding = "_" + source.toString();
     }
-    if (extension == null || extension.isEmpty()) {
+    if (Utils.isEmpty(extension)) {
       name = processingFilename + sourceAdding + "." + dateString;
     } else {
       name = processingFilename + sourceAdding + "." + dateString + "." + extension;

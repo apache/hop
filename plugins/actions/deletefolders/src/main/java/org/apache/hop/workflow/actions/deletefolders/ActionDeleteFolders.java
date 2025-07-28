@@ -316,7 +316,7 @@ public class ActionDeleteFolders extends ActionBase {
     //      return;
     //    }
 
-    if (fileItems == null || fileItems.isEmpty()) {
+    if (Utils.isEmpty(fileItems)) {
       String message = BaseMessages.getString(PKG, "CloneRowMeta.CheckResult.NrClonesdMissing");
       remarks.add(
           new CheckResult(ICheckResult.TYPE_RESULT_WARNING, "Any folders to deletes", this));

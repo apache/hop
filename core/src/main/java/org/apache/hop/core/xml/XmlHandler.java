@@ -791,7 +791,7 @@ public class XmlHandler {
           .append("\" ");
     }
 
-    if (val != null && !val.isEmpty()) {
+    if (!Utils.isEmpty(val)) {
       value.append('>');
       value.append(Encode.forXml(val));
 

@@ -359,7 +359,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
       return;
     }
     // ignore empty batch
-    if (batch == null || batch.isEmpty()) {
+    if (Utils.isEmpty(batch)) {
       logDebug(
           BaseMessages.getString(
               CassandraOutputMeta.PKG, "CassandraOutput.Message.SkippingEmptyBatch"));

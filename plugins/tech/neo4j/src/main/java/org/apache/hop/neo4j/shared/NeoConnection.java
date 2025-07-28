@@ -224,7 +224,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
     List<URI> uris = new ArrayList<>();
 
-    if (manualUrls != null && !manualUrls.isEmpty()) {
+    if (!Utils.isEmpty(manualUrls)) {
       // A manual URL is specified
       //
       for (String manualUrl : manualUrls) {

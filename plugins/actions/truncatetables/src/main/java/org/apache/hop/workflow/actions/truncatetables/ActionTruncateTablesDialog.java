@@ -280,7 +280,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
       wConnection.setText(action.getConnection());
     }
 
-    if (action.getItems() != null && !action.getItems().isEmpty()) {
+    if (!Utils.isEmpty(action.getItems())) {
 
       for (int i = 0; i < action.getItems().size(); i++) {
         TruncateTableItem tti = action.getItems().get(i);
@@ -326,7 +326,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && !arg.isEmpty()) {
+      if (!Utils.isEmpty(arg)) {
         nr++;
       }
     }

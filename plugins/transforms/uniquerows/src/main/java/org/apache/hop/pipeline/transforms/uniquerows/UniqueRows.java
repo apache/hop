@@ -110,7 +110,7 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> {
 
     boolean isEqual = false;
 
-    if (meta.getCompareFields() == null || meta.getCompareFields().isEmpty()) {
+    if (Utils.isEmpty(meta.getCompareFields())) {
       // Compare the complete row...
       isEqual = data.outputRowMeta.compare(r, data.previous) == 0;
     } else {

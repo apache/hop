@@ -312,7 +312,7 @@ public class ActionHttp extends ActionBase {
         }
 
         // if we have HTTP headers, add them
-        if (headers != null && !headers.isEmpty()) {
+        if (!Utils.isEmpty(headers)) {
           if (isDebug()) {
             logDebug(BaseMessages.getString(PKG, "ActionHTTP.Log.HeadersProvided"));
           }

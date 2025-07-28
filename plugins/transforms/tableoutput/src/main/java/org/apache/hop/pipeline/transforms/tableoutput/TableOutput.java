@@ -182,7 +182,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       }
     } else if (meta.isPartitioningEnabled()
         && (meta.isPartitioningDaily() || meta.isPartitioningMonthly())
-        && (meta.getPartitioningField() != null && !meta.getPartitioningField().isEmpty())) {
+        && (!Utils.isEmpty(meta.getPartitioningField()))) {
       // Initialize some stuff!
       if (data.indexOfPartitioningField < 0) {
         data.indexOfPartitioningField = rowMeta.indexOfValue(resolve(meta.getPartitioningField()));

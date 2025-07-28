@@ -1059,13 +1059,13 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadInterface"));
     }
 
-    if (getName() == null || getName().isEmpty()) {
+    if (Utils.isEmpty(getName())) {
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadConnectionName"));
     }
 
     if (getIDatabase().isRequiresName()
         && getIDatabase().getManualUrl().isEmpty()
-        && (getDatabaseName() == null || getDatabaseName().isEmpty())) {
+        && (Utils.isEmpty(getDatabaseName()))) {
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadDatabaseName"));
     }
 

@@ -2780,7 +2780,7 @@ public class MailDialog extends BaseTransformDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && !arg.isEmpty()) {
+      if (!Utils.isEmpty(arg)) {
         nr++;
       }
     }
@@ -2790,7 +2790,7 @@ public class MailDialog extends BaseTransformDialog {
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
       String id = wFields.getNonEmpty(i).getText(2);
-      if (arg != null && !arg.isEmpty()) {
+      if (!Utils.isEmpty(arg)) {
         MailEmbeddedImageField image = new MailEmbeddedImageField();
         image.setEmbeddedimage(arg);
         image.setContentId(id);

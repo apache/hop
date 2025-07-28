@@ -565,7 +565,7 @@ public class CombinationLookupMeta
             String crUniqIndex = "";
             String[] idxFields = null;
             if (useHash) {
-              if (hashField != null && !hashField.isEmpty()) {
+              if (!Utils.isEmpty(hashField)) {
                 idxFields = new String[] {hashField};
               } else {
                 retval.setError(

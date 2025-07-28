@@ -410,7 +410,7 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
   }
 
   public boolean hasFieldsIn() {
-    return fieldsIn != null && !fieldsIn.isEmpty();
+    return !Utils.isEmpty(fieldsIn);
   }
 
   public void addFieldIn(WebServiceField field) {

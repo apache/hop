@@ -31,6 +31,7 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -248,7 +249,7 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     for (int i = 0; i < outputFields.length; i++) {
       XmlField field = outputFields[i];
 
-      if (field.getFieldName() != null && !field.getFieldName().isEmpty()) {
+      if (!Utils.isEmpty(field.getFieldName())) {
         xml.append("      <field>").append(Const.CR);
         xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", field.getFieldName()));
         xml.append(CONST_SPACES).append(XmlHandler.addTagValue("element", field.getElementName()));
