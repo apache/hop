@@ -68,36 +68,36 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
       data.nullIf[i] = null;
       switch (meta.getValueDefaultType()[i]) {
         case IValueMeta.TYPE_STRING:
-          if (Utils.isEmpty(meta.getValueDefault()[i])) {
+          if (Utils.isEmpty(data.valueDefault[i])) {
             data.nullIf[i] = null;
           } else {
-            data.nullIf[i] = meta.getValueDefault()[i];
+            data.nullIf[i] = data.valueDefault[i];
           }
           break;
         case IValueMeta.TYPE_DATE:
           try {
-            data.nullIf[i] = DateFormat.getInstance().parse(meta.getValueDefault()[i]);
+            data.nullIf[i] = DateFormat.getInstance().parse(data.valueDefault[i]);
           } catch (Exception e) {
             // Ignore errors
           }
           break;
         case IValueMeta.TYPE_NUMBER:
           try {
-            data.nullIf[i] = Double.parseDouble(meta.getValueDefault()[i]);
+            data.nullIf[i] = Double.parseDouble(data.valueDefault[i]);
           } catch (Exception e) {
             // Ignore errors
           }
           break;
         case IValueMeta.TYPE_INTEGER:
           try {
-            data.nullIf[i] = Long.parseLong(meta.getValueDefault()[i]);
+            data.nullIf[i] = Long.parseLong(data.valueDefault[i]);
           } catch (Exception e) {
             // Ignore errors
           }
           break;
         case IValueMeta.TYPE_BOOLEAN:
-          if ("TRUE".equalsIgnoreCase(meta.getValueDefault()[i])
-              || "Y".equalsIgnoreCase(meta.getValueDefault()[i])) {
+          if ("TRUE".equalsIgnoreCase(data.valueDefault[i])
+              || "Y".equalsIgnoreCase(data.valueDefault[i])) {
             data.nullIf[i] = Boolean.TRUE;
           } else {
             data.nullIf[i] = Boolean.FALSE;
@@ -105,14 +105,14 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
           break;
         case IValueMeta.TYPE_BIGNUMBER:
           try {
-            data.nullIf[i] = new BigDecimal(meta.getValueDefault()[i]);
+            data.nullIf[i] = new BigDecimal(data.valueDefault[i]);
           } catch (Exception e) {
             // Ignore errors
           }
           break;
         default:
           // if a default value is given and no conversion is implemented throw an error
-          if (meta.getValueDefault()[i] != null && meta.getValueDefault()[i].trim().length() > 0) {
+          if (data.valueDefault[i] != null && data.valueDefault[i].trim().length() > 0) {
             throw new RuntimeException(
                 BaseMessages.getString(PKG, "StreamLookup.Exception.ConversionNotImplemented")
                     + " "
@@ -389,6 +389,15 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
         setErrors(1);
         stopAll();
         return false;
+      }
+
+      // Calculate the default values by doing variable replacement.
+      //
+      data.valueDefault = new String[meta.getValueDefault().length];
+      for (int i = 0; i < data.valueDefault.length; i++) {
+        // We want to do this variable replacement only once since it's a relatively slow operation.
+        //
+        data.valueDefault[i] = resolve(meta.getValueDefault()[i]);
       }
 
       return true;

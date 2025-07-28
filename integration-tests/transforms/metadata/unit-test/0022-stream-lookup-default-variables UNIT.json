@@ -1,0 +1,38 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "countryCode",
+          "data_set_field": "countryCode"
+        },
+        {
+          "transform_field": "countryName",
+          "data_set_field": "countryName"
+        }
+      ],
+      "field_order": [
+        "id",
+        "countryCode",
+        "countryName"
+      ],
+      "data_set_name": "golden-stream-lookup-default-variable",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0022-stream-lookup-default-variables UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0022-stream-lookup-default-variables.hpl"
+}

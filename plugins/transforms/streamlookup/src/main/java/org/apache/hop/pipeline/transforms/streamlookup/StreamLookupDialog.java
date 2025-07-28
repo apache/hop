@@ -303,6 +303,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "StreamLookupDialog.ColumnInfo.Default"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    ciReturn[2].setUsingVariables(true);
     ciReturn[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "StreamLookupDialog.ColumnInfo.Type"),
