@@ -90,7 +90,7 @@ public class SortedFileOutputStream extends FileOutputStream {
    */
   @Override
   public void close() throws IOException {
-    if (sb == null || sb.isEmpty()) {
+    if (Utils.isEmpty(sb)) {
       super.flush();
       super.close();
     }

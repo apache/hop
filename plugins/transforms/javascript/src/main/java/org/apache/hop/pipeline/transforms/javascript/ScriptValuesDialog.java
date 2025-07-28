@@ -796,7 +796,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     }
 
     for (int i = 0; i < input.getFieldname().length; i++) {
-      if (input.getFieldname()[i] != null && !input.getFieldname()[i].isEmpty()) {
+      if (!Utils.isEmpty(input.getFieldname()[i])) {
         TableItem item = wFields.table.getItem(i);
         item.setText(1, input.getFieldname()[i]);
         if (input.getRename()[i] != null && !input.getFieldname()[i].equals(input.getRename()[i])) {
@@ -1127,7 +1127,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         IRowMeta previewRowsMeta = progressDialog.getPreviewRowsMeta(wTransformName.getText());
         List<Object[]> previewRows = progressDialog.getPreviewRows(wTransformName.getText());
 
-        if (previewRowsMeta != null && previewRows != null && !previewRows.isEmpty()) {
+        if (previewRowsMeta != null && !Utils.isEmpty(previewRows)) {
           PreviewRowsDialog prd =
               new PreviewRowsDialog(
                   shell,

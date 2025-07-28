@@ -26,6 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -129,7 +130,7 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
 
-    if (fileItems == null || fileItems.isEmpty()) {
+    if (Utils.isEmpty(fileItems)) {
       String message = BaseMessages.getString(PKG, "ActionFilesExist.CheckResult.NothingToCheck");
       remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, message, this));
     }

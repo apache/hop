@@ -31,6 +31,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -525,8 +526,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
 
     getInfo(currentMeta);
 
-    if ((!currentMeta.isUseJsonQuery())
-        && (currentMeta.getMongoFields() == null || currentMeta.getMongoFields().isEmpty())) {
+    if ((!currentMeta.isUseJsonQuery()) && (Utils.isEmpty(currentMeta.getMongoFields()))) {
       // popup dialog warning that no paths have been defined
       showNoFieldMessageDialog();
     } else if (currentMeta.isUseJsonQuery() && StringUtil.isEmpty(currentMeta.getJsonQuery())) {
@@ -663,7 +663,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
 
     List<MongoDbDeleteField> mongoFields = currentMeta.getMongoFields();
 
-    if (mongoFields != null && !mongoFields.isEmpty()) {
+    if (!Utils.isEmpty(mongoFields)) {
       for (MongoDbDeleteField field : mongoFields) {
         TableItem item = new TableItem(wtvMongoFieldsView.table, SWT.NONE);
 
@@ -759,7 +759,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
   private void previewDocStruct() {
     List<MongoDbDeleteField> mongoFields = tableToMongoFieldList();
 
-    if (mongoFields == null || mongoFields.isEmpty()) {
+    if (Utils.isEmpty(mongoFields)) {
       // popup dialog warning that no paths have been defined
       showNoFieldMessageDialog();
       return;

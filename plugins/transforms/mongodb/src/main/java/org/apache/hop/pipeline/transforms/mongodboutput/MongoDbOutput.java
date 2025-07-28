@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.metadata.MongoDbConnection;
@@ -80,7 +81,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       // no more output
 
       // check any remaining buffered objects
-      if (batch != null && !batch.isEmpty()) {
+      if (!Utils.isEmpty(batch)) {
         try {
           doBatch();
         } catch (MongoDbException e) {
@@ -98,7 +99,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       // indexes can only have a single field
 
       List<MongoDbOutputMeta.MongoIndex> indexes = meta.getMongoIndexes();
-      if (indexes != null && !indexes.isEmpty()) {
+      if (!Utils.isEmpty(indexes)) {
         logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.ApplyingIndexOpps"));
         try {
           data.applyIndexes(indexes, getLogChannel(), meta.getTruncate());

@@ -27,6 +27,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionType;
@@ -759,7 +760,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
 
     if (super.init()) {
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      if (previous != null && !previous.isEmpty()) {
+      if (!Utils.isEmpty(previous)) {
         data.readsRows = true;
       }
 

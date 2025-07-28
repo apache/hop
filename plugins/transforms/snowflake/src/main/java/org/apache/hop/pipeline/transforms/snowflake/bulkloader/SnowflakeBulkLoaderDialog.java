@@ -33,6 +33,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -1734,7 +1735,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
   private static boolean isValidRowMeta(IRowMeta rowMeta) {
     for (IValueMeta value : rowMeta.getValueMetaList()) {
       String name = value.getName();
-      if (name == null || name.isEmpty()) {
+      if (Utils.isEmpty(name)) {
         return false;
       }
     }

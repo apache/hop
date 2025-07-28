@@ -49,6 +49,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -1379,7 +1380,7 @@ public class ProjectsGuiPlugin {
       ZipOutputStream zipOutputStream,
       String projectHomeParent)
       throws IOException {
-    if (stringToZip == null || stringToZip.isEmpty()) {
+    if (Utils.isEmpty(stringToZip)) {
       return;
     }
     ByteArrayInputStream bais = new ByteArrayInputStream(stringToZip.getBytes());

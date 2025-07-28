@@ -178,7 +178,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
 
   protected void checkNonExistingFields() throws HopException {
     List<String> orphanFields = meta.getOrphanFields(meta.getCondition(), getInputRowMeta());
-    if (orphanFields != null && !orphanFields.isEmpty()) {
+    if (!Utils.isEmpty(orphanFields)) {
       String fields = "";
       boolean first = true;
       for (String field : orphanFields) {

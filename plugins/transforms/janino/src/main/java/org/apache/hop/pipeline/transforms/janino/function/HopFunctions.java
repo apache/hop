@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.janino.function;
 
+import org.apache.hop.core.util.Utils;
+
 public class HopFunctions {
 
   private HopFunctions() {}
@@ -52,7 +54,7 @@ public class HopFunctions {
     ]
     """)
   public static String nvl(String source, String def) {
-    if (source == null || source.isEmpty()) {
+    if (Utils.isEmpty(source)) {
       return def;
     }
     return source;

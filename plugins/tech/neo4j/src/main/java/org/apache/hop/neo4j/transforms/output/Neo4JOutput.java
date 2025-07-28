@@ -940,7 +940,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
   private void wrapUpTransaction() throws HopException {
 
-    if (!isStopped() && data.unwindList != null && !data.unwindList.isEmpty()) {
+    if (!isStopped() && !Utils.isEmpty(data.unwindList)) {
       emptyUnwindList(); // force write!
     }
 

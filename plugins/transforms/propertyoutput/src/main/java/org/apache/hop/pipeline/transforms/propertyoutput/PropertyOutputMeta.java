@@ -309,7 +309,7 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
       retval += "_" + transformnr;
     }
 
-    if (extension != null && !extension.isEmpty()) {
+    if (!Utils.isEmpty(extension)) {
       retval += "." + extension;
     }
 

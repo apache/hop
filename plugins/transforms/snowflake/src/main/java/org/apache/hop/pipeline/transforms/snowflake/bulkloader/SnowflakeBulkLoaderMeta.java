@@ -1100,7 +1100,7 @@ public class SnowflakeBulkLoaderMeta
             String crTable = db.getDDL(schemaTable, prev, null, false, null);
 
             // Empty string means: nothing to do: set it to null...
-            if (crTable == null || crTable.isEmpty()) {
+            if (Utils.isEmpty(crTable)) {
               crTable = null;
             }
 

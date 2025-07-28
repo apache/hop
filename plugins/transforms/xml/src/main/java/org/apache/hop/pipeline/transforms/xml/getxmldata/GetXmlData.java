@@ -293,7 +293,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         String path = "";
         Element element = l;
         while (element != null) {
-          if (element.getNamespacePrefix() != null && !element.getNamespacePrefix().isEmpty()) {
+          if (!Utils.isEmpty(element.getNamespacePrefix())) {
             path =
                 GetXmlDataMeta.N0DE_SEPARATOR
                     + element.getNamespacePrefix()
@@ -595,26 +595,26 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       data.file = data.files.getFile(data.filenr);
       data.filename = HopVfs.getFilename(data.file);
       // Add additional fields?
-      if (meta.getShortFileNameField() != null && !meta.getShortFileNameField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getShortFileNameField())) {
         data.shortFilename = data.file.getName().getBaseName();
       }
-      if (meta.getPathField() != null && !meta.getPathField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getPathField())) {
         data.path = HopVfs.getFilename(data.file.getParent());
       }
-      if (meta.isHiddenField() != null && !meta.isHiddenField().isEmpty()) {
+      if (!Utils.isEmpty(meta.isHiddenField())) {
         data.hidden = data.file.isHidden();
       }
-      if (meta.getExtensionField() != null && !meta.getExtensionField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getExtensionField())) {
         data.extension = data.file.getName().getExtension();
       }
       if (meta.getLastModificationDateField() != null
           && !meta.getLastModificationDateField().isEmpty()) {
         data.lastModificationDateTime = new Date(data.file.getContent().getLastModifiedTime());
       }
-      if (meta.getUriField() != null && !meta.getUriField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getUriField())) {
         data.uriName = data.file.getName().getURI();
       }
-      if (meta.getRootUriField() != null && !meta.getRootUriField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getRootUriField())) {
         data.rootUriName = data.file.getName().getRootURI();
       }
       // Check if file is empty
@@ -625,7 +625,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         fileSize = -1;
       }
 
-      if (meta.getSizeField() != null && !meta.getSizeField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getSizeField())) {
         data.size = fileSize;
       }
       // Move file pointer ahead!
@@ -879,23 +879,23 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         outputRowData[rowIndex++] = data.rownr;
       }
       // Possibly add short filename...
-      if (meta.getShortFileNameField() != null && !meta.getShortFileNameField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getShortFileNameField())) {
         outputRowData[rowIndex++] = data.shortFilename;
       }
       // Add Extension
-      if (meta.getExtensionField() != null && !meta.getExtensionField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getExtensionField())) {
         outputRowData[rowIndex++] = data.extension;
       }
       // add path
-      if (meta.getPathField() != null && !meta.getPathField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getPathField())) {
         outputRowData[rowIndex++] = data.path;
       }
       // Add Size
-      if (meta.getSizeField() != null && !meta.getSizeField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getSizeField())) {
         outputRowData[rowIndex++] = data.size;
       }
       // add Hidden
-      if (meta.isHiddenField() != null && !meta.isHiddenField().isEmpty()) {
+      if (!Utils.isEmpty(meta.isHiddenField())) {
         outputRowData[rowIndex++] = Boolean.valueOf(data.path);
       }
       // Add modification date
@@ -904,11 +904,11 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         outputRowData[rowIndex++] = data.lastModificationDateTime;
       }
       // Add Uri
-      if (meta.getUriField() != null && !meta.getUriField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getUriField())) {
         outputRowData[rowIndex++] = data.uriName;
       }
       // Add RootUri
-      if (meta.getRootUriField() != null && !meta.getRootUriField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getRootUriField())) {
         outputRowData[rowIndex] = data.rootUriName;
       }
 

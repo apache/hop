@@ -125,7 +125,7 @@ public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValue
     }
     remarks.add(cr);
 
-    if (fields == null || fields.isEmpty()) {
+    if (Utils.isEmpty(fields)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,

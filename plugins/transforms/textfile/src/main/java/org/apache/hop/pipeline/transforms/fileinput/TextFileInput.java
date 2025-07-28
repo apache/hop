@@ -1659,7 +1659,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             "This is a compressed file being handled by the " + provider.getName() + " provider");
       }
 
-      if (meta.getEncoding() != null && !meta.getEncoding().isEmpty()) {
+      if (!Utils.isEmpty(meta.getEncoding())) {
         data.isr =
             new InputStreamReader(
                 new BufferedInputStream(data.in, BUFFER_SIZE_INPUT_STREAM), meta.getEncoding());
@@ -1793,7 +1793,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       Map<String, ResultFile> resultFiles =
           (previousResult != null) ? previousResult.getResultFiles() : null;
 
-      if ((previousResult == null || resultFiles == null || resultFiles.isEmpty())
+      if ((previousResult == null || Utils.isEmpty(resultFiles))
           && data.getFiles().nrOfMissingFiles() > 0
           && !meta.isAcceptingFilenames()
           && !meta.isErrorIgnored()) {

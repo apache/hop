@@ -230,7 +230,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
         retval += "_" + sdf.format(cal.getTime());
       }
-      if (logext != null && !logext.isEmpty()) {
+      if (!Utils.isEmpty(logext)) {
         retval += "." + logext;
       }
     }

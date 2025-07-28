@@ -899,7 +899,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     for (int i = 0; i < outputFields.length; i++) {
       TextFileField field = outputFields[i];
 
-      if (field.getName() != null && !field.getName().isEmpty()) {
+      if (!Utils.isEmpty(field.getName())) {
         retval.append("      <field>").append(Const.CR);
         retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", field.getName()));
         retval
@@ -1374,12 +1374,12 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       if (ziparchive) {
         retval += ".zip";
       } else {
-        if (realExtension != null && !realExtension.isEmpty()) {
+        if (!Utils.isEmpty(realExtension)) {
           retval += "." + realExtension;
         }
       }
     } else {
-      if (realExtension != null && !realExtension.isEmpty()) {
+      if (!Utils.isEmpty(realExtension)) {
         retval += "." + realExtension;
       }
       if ("GZip".equals(meta.getFileCompression())) {

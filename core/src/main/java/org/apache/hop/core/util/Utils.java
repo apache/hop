@@ -144,7 +144,8 @@ public class Utils {
   }
 
   /**
-   * Check if the collection supplied is empty. An array is empty when it is null or when the length is 0
+   * Check if the collection supplied is empty. An array is empty when it is null or when the length
+   * is 0
    *
    * @param collection the collection to check
    * @return true if the supplied collection is empty

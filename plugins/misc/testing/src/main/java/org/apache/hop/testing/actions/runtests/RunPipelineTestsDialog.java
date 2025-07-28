@@ -197,7 +197,7 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
           metadataProvider.getSerializer(PipelineUnitTest.class);
       List<String> testNames = testSerializer.listObjectNames();
 
-      if (testNames != null && !testNames.isEmpty()) {
+      if (!Utils.isEmpty(testNames)) {
         String[] sortedTestNames =
             Const.sortStrings(testNames.toArray(new String[testNames.size()]));
         EnterSelectionDialog dialog =

@@ -1482,7 +1482,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         IRowMeta previewRowsMeta = progressDialog.getPreviewRowsMeta(wTransformName.getText());
         List<Object[]> previewRows = progressDialog.getPreviewRows(wTransformName.getText());
 
-        if (previewRowsMeta != null && previewRows != null && !previewRows.isEmpty()) {
+        if (previewRowsMeta != null && !Utils.isEmpty(previewRows)) {
           PreviewRowsDialog prd =
               new PreviewRowsDialog(
                   shell,

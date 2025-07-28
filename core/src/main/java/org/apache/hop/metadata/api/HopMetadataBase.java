@@ -19,6 +19,7 @@ package org.apache.hop.metadata.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
+import org.apache.hop.core.util.Utils;
 
 public class HopMetadataBase implements IHopMetadata {
 
@@ -134,7 +135,7 @@ public class HopMetadataBase implements IHopMetadata {
    */
   @Override
   public String getFullName() {
-    if (virtualPath == null || virtualPath.isEmpty()) {
+    if (Utils.isEmpty(virtualPath)) {
       return name;
     }
     if (virtualPath.endsWith("/")) {

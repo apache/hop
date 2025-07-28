@@ -959,7 +959,7 @@ public class ActionHttpDialog extends ActionDialog {
       String varvalue = wHeaders.getNonEmpty(i).getText(2);
       ActionHttp.Header header = new ActionHttp.Header();
 
-      if (varname != null && !varname.isEmpty()) {
+      if (!Utils.isEmpty(varname)) {
         header.setHeaderName(varname);
         header.setHeaderValue(varvalue);
       }

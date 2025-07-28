@@ -795,7 +795,7 @@ public class ActionDosToUnixDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && !arg.isEmpty()) {
+      if (!Utils.isEmpty(arg)) {
         nr++;
       }
     }
@@ -804,7 +804,7 @@ public class ActionDosToUnixDialog extends ActionDialog {
     for (int i = 0; i < nrItems; i++) {
       String source = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
-      if (source != null && !source.isEmpty()) {
+      if (!Utils.isEmpty(source)) {
         ActionDosToUnix.Fields field = new ActionDosToUnix.Fields();
         field.setSourceFileFolder(source);
         field.setWildcard(wild);

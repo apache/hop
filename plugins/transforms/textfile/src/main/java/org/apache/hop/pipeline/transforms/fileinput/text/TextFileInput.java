@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.playlist.FilePlayListAll;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -70,8 +71,7 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
     data.enclosure = resolve(meta.content.enclosure);
     data.escapeCharacter = resolve(meta.content.escapeCharacter);
     // CSV without separator defined
-    if (meta.content.fileType.equalsIgnoreCase("CSV")
-        && (meta.content.separator == null || meta.content.separator.isEmpty())) {
+    if (meta.content.fileType.equalsIgnoreCase("CSV") && (Utils.isEmpty(meta.content.separator))) {
       logError(BaseMessages.getString(PKG, "TextFileInput.Exception.NoSeparator"));
       return false;
     }

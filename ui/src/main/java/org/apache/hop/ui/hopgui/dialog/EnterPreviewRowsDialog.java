@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -194,7 +195,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     IRowMeta rowMeta = rowMetas.get(nr);
     String name = transformNames.get(nr);
 
-    if (rowMeta != null && buffer != null && !buffer.isEmpty()) {
+    if (rowMeta != null && !Utils.isEmpty(buffer)) {
       PreviewRowsDialog prd =
           new PreviewRowsDialog(
               shell, Variables.getADefaultVariableSpace(), SWT.NONE, name, rowMeta, buffer);

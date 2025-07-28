@@ -607,7 +607,7 @@ public class ProjectDialog extends Dialog {
       }
 
       HopGui hopGui = HopGui.getInstance();
-      if (wParentProject.getText() != null && !wParentProject.getText().isEmpty()) {
+      if (!Utils.isEmpty(wParentProject.getText())) {
 
         boolean parentPrjExists = ProjectsUtil.projectExists(wParentProject.getText());
         if (!parentPrjExists)

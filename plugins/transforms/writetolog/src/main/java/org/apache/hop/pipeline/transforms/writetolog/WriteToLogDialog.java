@@ -373,7 +373,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
       input.setLogLevel(LogLevel.lookupCode(wLoglevel.getText()));
     }
 
-    if (wLogMessage.getText() != null && !wLogMessage.getText().isEmpty()) {
+    if (!Utils.isEmpty(wLogMessage.getText())) {
       input.setLogMessage(wLogMessage.getText());
     } else {
       input.setLogMessage("");

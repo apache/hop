@@ -1134,7 +1134,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
       // The RFC2183 doesn't REQUIRE Content-Disposition header field so we'll create one to
       // fake out the code below.
-      if (disposition == null || disposition.isEmpty()) {
+      if (Utils.isEmpty(disposition)) {
         disposition = Part.ATTACHMENT;
       }
 

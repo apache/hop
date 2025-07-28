@@ -331,7 +331,7 @@ public class ActionDeleteFilesDialog extends ActionDialog {
     for (int i = 0; i < numberOfItems; i++) {
       String path = wFields.getNonEmpty(i).getText(1);
       String wildcard = wFields.getNonEmpty(i).getText(2);
-      if (path != null && !path.isEmpty()) {
+      if (!Utils.isEmpty(path)) {
         items.add(new FileItem(path, wildcard));
       }
     }

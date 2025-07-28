@@ -411,23 +411,23 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       outputRowData[rowIndex++] = Long.valueOf(data.rownr);
     }
     // Possibly add short filename...
-    if (meta.getShortFileNameField() != null && !meta.getShortFileNameField().isEmpty()) {
+    if (!Utils.isEmpty(meta.getShortFileNameField())) {
       outputRowData[rowIndex++] = data.shortFilename;
     }
     // Add Extension
-    if (meta.getExtensionField() != null && !meta.getExtensionField().isEmpty()) {
+    if (!Utils.isEmpty(meta.getExtensionField())) {
       outputRowData[rowIndex++] = data.extension;
     }
     // add path
-    if (meta.getPathField() != null && !meta.getPathField().isEmpty()) {
+    if (!Utils.isEmpty(meta.getPathField())) {
       outputRowData[rowIndex++] = data.path;
     }
     // Add Size
-    if (meta.getSizeField() != null && !meta.getSizeField().isEmpty()) {
+    if (!Utils.isEmpty(meta.getSizeField())) {
       outputRowData[rowIndex++] = data.size;
     }
     // add Hidden
-    if (meta.isHiddenField() != null && !meta.isHiddenField().isEmpty()) {
+    if (!Utils.isEmpty(meta.isHiddenField())) {
       outputRowData[rowIndex++] = Boolean.valueOf(data.path);
     }
     // Add modification date
@@ -436,11 +436,11 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       outputRowData[rowIndex++] = data.lastModificationDateTime;
     }
     // Add Uri
-    if (meta.getUriField() != null && !meta.getUriField().isEmpty()) {
+    if (!Utils.isEmpty(meta.getUriField())) {
       outputRowData[rowIndex++] = data.uriName;
     }
     // Add RootUri
-    if (meta.getRootUriField() != null && !meta.getRootUriField().isEmpty()) {
+    if (!Utils.isEmpty(meta.getRootUriField())) {
       outputRowData[rowIndex++] = data.rootUriName;
     }
   }

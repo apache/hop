@@ -320,7 +320,7 @@ public class ActionSetVariablesDialog extends ActionDialog {
     List<VariableDefinition> list = new ArrayList<>();
     for (int i = 0; i < nrItems; i++) {
       String name = wFields.getNonEmpty(i).getText(1);
-      if (name != null && !name.isEmpty()) {
+      if (!Utils.isEmpty(name)) {
         String value = wFields.getNonEmpty(i).getText(2);
         VariableType scope = VariableType.lookupDescription(wFields.getNonEmpty(i).getText(3));
         list.add(new VariableDefinition(name, value, scope));

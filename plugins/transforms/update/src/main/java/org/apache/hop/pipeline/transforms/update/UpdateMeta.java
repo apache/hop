@@ -238,7 +238,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (ignoreFlagField != null && !ignoreFlagField.isEmpty()) {
+    if (!Utils.isEmpty(ignoreFlagField)) {
       IValueMeta v = new ValueMetaBoolean(ignoreFlagField);
       v.setOrigin(name);
 
@@ -583,7 +583,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
             try {
               db.connect();
 
-              if (getIgnoreFlagField() != null && !getIgnoreFlagField().isEmpty()) {
+              if (!Utils.isEmpty(getIgnoreFlagField())) {
                 prev.addValueMeta(new ValueMetaBoolean(getIgnoreFlagField()));
               }
 

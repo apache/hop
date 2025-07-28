@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.neo4j.core.data.GraphData;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.model.GraphPropertyType;
@@ -65,7 +66,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     // Is the transform getting input?
     //
     List<TransformMeta> transform = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-    data.hasInput = transform != null && !transform.isEmpty();
+    data.hasInput = !Utils.isEmpty(transform);
 
     // Connect to Neo4j
     //
@@ -309,7 +310,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
 
   private void runCypherStatementsBatch() throws HopException {
 
-    if (data.cypherStatements == null || data.cypherStatements.isEmpty()) {
+    if (Utils.isEmpty(data.cypherStatements)) {
       // Nothing to see here, move along
       return;
     }
@@ -640,7 +641,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
         } else {
           // See if there are statements left to execute...
           //
-          if (data.cypherStatements != null && !data.cypherStatements.isEmpty()) {
+          if (!Utils.isEmpty(data.cypherStatements)) {
             runCypherStatementsBatch();
           }
         }

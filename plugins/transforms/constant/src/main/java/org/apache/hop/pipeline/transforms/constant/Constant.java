@@ -33,6 +33,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -81,7 +82,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
           String stringValue = field.getValue();
 
           // If the value is empty: consider it to be NULL.
-          if (stringValue == null || stringValue.isEmpty()) {
+          if (Utils.isEmpty(stringValue)) {
             rowData[i] = null;
 
             if (value.getType() == IValueMeta.TYPE_NONE) {

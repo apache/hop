@@ -33,6 +33,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -809,7 +810,7 @@ public class RedshiftBulkLoaderMeta
             String cr_table = db.getDDL(schemaTable, prev);
 
             // Empty string means: nothing to do: set it to null...
-            if (cr_table == null || cr_table.isEmpty()) {
+            if (Utils.isEmpty(cr_table)) {
               cr_table = null;
             }
 

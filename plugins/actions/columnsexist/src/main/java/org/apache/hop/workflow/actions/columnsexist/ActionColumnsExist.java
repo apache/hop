@@ -227,7 +227,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
       remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, this));
     }
 
-    if (columns == null || columns.isEmpty()) {
+    if (Utils.isEmpty(columns)) {
       String message = BaseMessages.getString(PKG, "ActionColumnsExist.CheckResult.NothingToCheck");
       remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, message, this));
     }

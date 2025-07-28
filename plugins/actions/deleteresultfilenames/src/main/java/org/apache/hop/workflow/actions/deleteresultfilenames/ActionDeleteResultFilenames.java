@@ -171,7 +171,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
         } else {
 
           List<ResultFile> resultFiles = result.getResultFilesList();
-          if (resultFiles != null && !resultFiles.isEmpty()) {
+          if (!Utils.isEmpty(resultFiles)) {
             for (Iterator<ResultFile> it = resultFiles.iterator();
                 it.hasNext() && !parentWorkflow.isStopped(); ) {
               ResultFile resultFile = it.next();

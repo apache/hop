@@ -490,12 +490,12 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
       if (ziparchive) {
         retval += ".zip";
       } else {
-        if (realextension != null && !realextension.isEmpty()) {
+        if (!Utils.isEmpty(realextension)) {
           retval += "." + realextension;
         }
       }
     } else {
-      if (realextension != null && !realextension.isEmpty()) {
+      if (!Utils.isEmpty(realextension)) {
         retval += "." + realextension;
       }
     }
@@ -568,7 +568,7 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     for (int i = 0; i < outputFields.length; i++) {
       XmlField field = outputFields[i];
 
-      if (field.getFieldName() != null && !field.getFieldName().isEmpty()) {
+      if (!Utils.isEmpty(field.getFieldName())) {
         retval.append("      <field>").append(Const.CR);
         retval
             .append(CONST_SPACES_LONG)

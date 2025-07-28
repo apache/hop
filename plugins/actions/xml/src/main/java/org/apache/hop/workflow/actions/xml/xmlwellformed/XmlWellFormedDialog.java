@@ -779,7 +779,7 @@ public class XmlWellFormedDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nritems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && !arg.isEmpty()) {
+      if (!Utils.isEmpty(arg)) {
         nr++;
       }
     }
@@ -791,7 +791,7 @@ public class XmlWellFormedDialog extends ActionDialog {
       XmlWellFormedField field = new XmlWellFormedField();
       String source = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
-      if (source != null && !source.isEmpty()) {
+      if (!Utils.isEmpty(source)) {
         field.setSourceFilefolder(source);
         field.setWildcard(wild);
         fieldList.add(field);

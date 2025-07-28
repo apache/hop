@@ -511,7 +511,7 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
 
     retval.append("    <fields>").append(Const.CR);
     for (int i = 0; i < fieldName.length; i++) {
-      if (fieldName[i] != null && !fieldName[i].isEmpty()) {
+      if (!Utils.isEmpty(fieldName[i])) {
         retval.append("      <field>").append(Const.CR);
         retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fieldName[i]));
         retval

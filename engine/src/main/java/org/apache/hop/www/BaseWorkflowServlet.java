@@ -28,6 +28,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
@@ -84,7 +85,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
     // Check if there is a starting point specified.
     String startActionName = workflowExecutionConfiguration.getStartActionName();
-    if (startActionName != null && !startActionName.isEmpty()) {
+    if (!Utils.isEmpty(startActionName)) {
       ActionMeta startActionMeta = workflowMeta.findAction(startActionName);
       workflow.setStartActionMeta(startActionMeta);
     }

@@ -27,6 +27,7 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -151,7 +152,7 @@ public class LocationMouseDoubleClickExtensionPoint
               List<UnitTestResult> results =
                   (List<UnitTestResult>)
                       pipeline.getExtensionDataMap().get(DataSetConst.UNIT_TEST_RESULTS);
-              if (results == null || results.isEmpty()) {
+              if (Utils.isEmpty(results)) {
                 return;
               }
 

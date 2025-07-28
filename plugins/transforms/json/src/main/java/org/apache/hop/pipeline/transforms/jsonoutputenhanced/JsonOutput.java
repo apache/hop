@@ -290,21 +290,21 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   private String getJsonAttributeName(JsonOutputField field) {
     String elementName = variables.resolve(field.getElementName());
-    return (elementName != null && !elementName.isEmpty() ? elementName : field.getFieldName());
+    return Const.NVL(elementName, field.getFieldName());
   }
 
   private String getKeyJsonAttributeName(JsonOutputKeyField field) {
     String elementName = variables.resolve(field.getElementName());
-    return (elementName != null && !elementName.isEmpty() ? elementName : field.getFieldName());
+    return Const.NVL(elementName, field.getFieldName());
   }
 
   private void outputRow(Object[] rowData) throws HopException {
     // We can now output an object
     ObjectNode globalItemNode = null;
 
-    if (data.jsonKeyGroupItems == null || data.jsonKeyGroupItems.isEmpty()) return;
+    if (Utils.isEmpty(data.jsonKeyGroupItems)) return;
 
-    if (data.jsonKeyGroupItems != null && !data.jsonKeyGroupItems.isEmpty()) {
+    if (!data.jsonKeyGroupItems.isEmpty()) {
       serializeJson(data.jsonKeyGroupItems);
     }
 
@@ -418,7 +418,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     ObjectNode theNode = new ObjectNode(nc);
 
     try {
-      if (meta.getJsonBloc() != null && !meta.getJsonBloc().isEmpty()) {
+      if (!Utils.isEmpty(meta.getJsonBloc())) {
         // TBD Try to understand if this can have a performance impact and do it better...
         theNode.set(
             meta.getJsonBloc(),
@@ -492,7 +492,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         meta.getKeyFields().length, new ValueMetaString(meta.getOutputValue()));
 
     int fieldLength = meta.getKeyFields().length + 1;
-    if (meta.getJsonSizeFieldname() != null && !meta.getJsonSizeFieldname().isEmpty()) {
+    if (!Utils.isEmpty(meta.getJsonSizeFieldname())) {
       data.outputRowMeta.addValueMeta(
           fieldLength, new ValueMetaInteger(meta.getJsonSizeFieldname()));
       fieldLength++;

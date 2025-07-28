@@ -50,6 +50,7 @@ import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.svg.SvgImage;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -1123,7 +1124,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             BaseMessages.getString(PKG, "ExplorerPerspective.CreateFolder.Header"),
             BaseMessages.getString(PKG, "ExplorerPerspective.CreateFolder.Message", tif.path));
     String folder = dialog.open();
-    if (folder != null && !folder.isEmpty()) {
+    if (!Utils.isEmpty(folder)) {
       String newPath = tif.path;
       if (!newPath.endsWith("/") && !newPath.endsWith("\\")) {
         newPath += "/";

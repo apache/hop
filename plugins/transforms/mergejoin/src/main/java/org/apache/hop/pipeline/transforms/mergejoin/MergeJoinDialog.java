@@ -302,7 +302,7 @@ public class MergeJoinDialog extends BaseTransformDialog {
     wTransform1.setText(Const.NVL(infoStreams.get(0).getTransformName(), ""));
     wTransform2.setText(Const.NVL(infoStreams.get(1).getTransformName(), ""));
     String joinType = input.getJoinType();
-    if (joinType != null && !joinType.isEmpty()) {
+    if (!Utils.isEmpty(joinType)) {
       wType.setText(joinType);
     } else {
       wType.setText(MergeJoinMeta.joinTypes[0]);

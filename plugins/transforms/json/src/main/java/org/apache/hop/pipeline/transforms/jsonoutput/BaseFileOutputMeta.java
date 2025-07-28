@@ -409,12 +409,12 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
       if (ziparchive) {
         retval += ".zip";
       } else {
-        if (realExtension != null && !realExtension.isEmpty()) {
+        if (!Utils.isEmpty(realExtension)) {
           retval += "." + realExtension;
         }
       }
     } else {
-      if (realExtension != null && !realExtension.isEmpty()) {
+      if (!Utils.isEmpty(realExtension)) {
         retval += "." + realExtension;
       }
       if ("GZip".equals(meta.getFileCompression())) {

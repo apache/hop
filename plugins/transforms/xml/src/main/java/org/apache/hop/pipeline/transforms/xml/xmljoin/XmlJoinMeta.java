@@ -30,6 +30,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -171,7 +172,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
 
     CheckResult cr;
     // checks for empty field which are required
-    if (this.targetXmlTransform == null || this.targetXmlTransform.isEmpty()) {
+    if (Utils.isEmpty(this.targetXmlTransform)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -186,7 +187,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.targetXmlField == null || this.targetXmlField.isEmpty()) {
+    if (Utils.isEmpty(this.targetXmlField)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -201,7 +202,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.sourceXmlTransform == null || this.sourceXmlTransform.isEmpty()) {
+    if (Utils.isEmpty(this.sourceXmlTransform)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -216,7 +217,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.sourceXmlField == null || this.sourceXmlField.isEmpty()) {
+    if (Utils.isEmpty(this.sourceXmlField)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -231,7 +232,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.valueXmlField == null || this.valueXmlField.isEmpty()) {
+    if (Utils.isEmpty(this.valueXmlField)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -246,7 +247,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
               transformMeta);
       remarks.add(cr);
     }
-    if (this.targetXPath == null || this.targetXPath.isEmpty()) {
+    if (Utils.isEmpty(this.targetXPath)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,

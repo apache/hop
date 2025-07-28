@@ -181,26 +181,26 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         }
         data.filename = HopVfs.getFilename(data.file);
         // Add additional fields?
-        if (meta.getShortFileNameField() != null && !meta.getShortFileNameField().isEmpty()) {
+        if (!Utils.isEmpty(meta.getShortFileNameField())) {
           data.shortFilename = data.file.getName().getBaseName();
         }
-        if (meta.getPathField() != null && !meta.getPathField().isEmpty()) {
+        if (!Utils.isEmpty(meta.getPathField())) {
           data.path = HopVfs.getFilename(data.file.getParent());
         }
-        if (meta.isHiddenField() != null && !meta.isHiddenField().isEmpty()) {
+        if (!Utils.isEmpty(meta.isHiddenField())) {
           data.hidden = data.file.isHidden();
         }
-        if (meta.getExtensionField() != null && !meta.getExtensionField().isEmpty()) {
+        if (!Utils.isEmpty(meta.getExtensionField())) {
           data.extension = data.file.getName().getExtension();
         }
         if (meta.getLastModificationDateField() != null
             && !meta.getLastModificationDateField().isEmpty()) {
           data.lastModificationDateTime = new Date(data.file.getContent().getLastModifiedTime());
         }
-        if (meta.getUriField() != null && !meta.getUriField().isEmpty()) {
+        if (!Utils.isEmpty(meta.getUriField())) {
           data.uriName = data.file.getName().getURI();
         }
-        if (meta.getRootUriField() != null && !meta.getRootUriField().isEmpty()) {
+        if (!Utils.isEmpty(meta.getRootUriField())) {
           data.rootUriName = data.file.getName().getRootURI();
         }
         // get File content
@@ -417,20 +417,20 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         outputRowData[rowIndex++] = data.rownr;
       }
       // Possibly add short filename...
-      if (meta.getShortFileNameField() != null && !meta.getShortFileNameField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getShortFileNameField())) {
         outputRowData[rowIndex++] = data.shortFilename;
       }
       // Add Extension
-      if (meta.getExtensionField() != null && !meta.getExtensionField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getExtensionField())) {
         outputRowData[rowIndex++] = data.extension;
       }
       // add path
-      if (meta.getPathField() != null && !meta.getPathField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getPathField())) {
         outputRowData[rowIndex++] = data.path;
       }
 
       // add Hidden
-      if (meta.isHiddenField() != null && !meta.isHiddenField().isEmpty()) {
+      if (!Utils.isEmpty(meta.isHiddenField())) {
         outputRowData[rowIndex++] = data.hidden;
       }
       // Add modification date
@@ -439,11 +439,11 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         outputRowData[rowIndex++] = data.lastModificationDateTime;
       }
       // Add Uri
-      if (meta.getUriField() != null && !meta.getUriField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getUriField())) {
         outputRowData[rowIndex++] = data.uriName;
       }
       // Add RootUri
-      if (meta.getRootUriField() != null && !meta.getRootUriField().isEmpty()) {
+      if (!Utils.isEmpty(meta.getRootUriField())) {
         outputRowData[rowIndex++] = data.rootUriName;
       }
       IRowMeta irow = getInputRowMeta();

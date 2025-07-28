@@ -847,7 +847,7 @@ public abstract class Pipeline
                     .getTransformPartitioningMeta()
                     .getPartitionSchema()
                     .calculatePartitionIds(this);
-            if (partitionIDs != null && !partitionIDs.isEmpty()) {
+            if (!Utils.isEmpty(partitionIDs)) {
               transform.setPartitionId(partitionIDs.get(c)); // Pass the partition ID
               // to the transform
             }
