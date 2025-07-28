@@ -372,10 +372,7 @@ public class ActionDosToUnixDialog extends ActionDialog {
     fdbeSourceFileFolder.top = new FormAttachment(wbdSourceFileFolder, margin);
     wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
-    int rows =
-        action.getFields() == null
-            ? 1
-            : (action.getFields().isEmpty() ? 0 : action.getFields().size());
+    int rows = action.getFields() == null ? 1 : action.getFields().size();
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
