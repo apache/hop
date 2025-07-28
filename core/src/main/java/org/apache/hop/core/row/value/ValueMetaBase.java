@@ -4433,7 +4433,7 @@ public class ValueMetaBase implements IValueMeta {
         byte[] b1 = (byte[]) data1;
         byte[] b2 = (byte[]) data2;
 
-        int byteLength = b1.length < b2.length ? b1.length : b2.length;
+        int byteLength = Math.min(b1.length, b2.length);
 
         cmp = b1.length - b2.length;
         if (cmp == 0) {
