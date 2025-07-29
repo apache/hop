@@ -45,6 +45,7 @@
         <module>deletefiles</module>
         <module>deletefolders</module>
         <module>deleteresultfilenames</module>
+        <module>documentation</module>
         <module>dostounix</module>
         <module>eval</module>
         <module>evalfilesmetrics</module>
