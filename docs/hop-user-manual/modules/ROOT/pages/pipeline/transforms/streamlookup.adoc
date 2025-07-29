@@ -52,6 +52,9 @@ TIP: Since this transform loads the lookup data into memory, it can be an extrem
 |The keys to lookup...|Allows you to specify the names of the fields that are used to look up values.
 Values are always searched using the "equal" comparison
 |Fields to retrieve|You can specify the names of the fields to retrieve here, as well as the default value in case the value was not found or a new field name in case you didn't like the old one.
+
+*Please note* that since version 2.15.0 this transform is capable of resolving variable expressions for the default value.
+This means that in the unlikely case you used variable expressions in a previous version, this transform will now try to resolve them.
 |Preserve memory|Encodes rows of data to preserve memory while sorting.
 (Technical background: Hop will store the lookup data as raw bytes in a custom storage object that uses a hashcode of the bytes as the key.
 More CPU cost related to calculating the hashcode, less memory needed.)
