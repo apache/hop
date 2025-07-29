@@ -181,7 +181,6 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
           .append("]")
           .append("(")
           .append(entry.targetDocFile())
-          .append(".html")
           .append(")")
           .append(Const.CR);
     }
