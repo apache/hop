@@ -19,13 +19,19 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0022-stream-lookup</name>
+    <name>0022-stream-lookup-default-variables</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
     <parameters>
+      <parameter>
+        <name>UNKNOWN_COUNTRY_NAME</name>
+        <default_value>Unknown</default_value>
+        <description>The default value for the lookup of the country name.</description>
+      </parameter>
     </parameters>
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
@@ -1184,7 +1190,7 @@ limitations under the License.
       <value>
         <name>name</name>
         <rename>countryName</rename>
-        <default/>
+        <default>${UNKNOWN_COUNTRY_NAME}</default>
         <type>String</type>
       </value>
     </lookup>

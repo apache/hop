@@ -81,6 +81,8 @@ public class StreamLookupData extends BaseTransformData implements ITransformDat
 
   public IStream infoStream;
 
+  public String[] valueDefault;
+
   public StreamLookupData() {
     super();
     look = new HashMap<>();
