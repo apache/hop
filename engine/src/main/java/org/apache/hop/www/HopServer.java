@@ -28,15 +28,17 @@ import java.util.stream.Stream;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -45,14 +47,15 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.JarCache;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.hop.Hop;
+import org.apache.hop.hop.plugin.HopCommand;
+import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -67,10 +70,18 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 @SuppressWarnings("java:S106")
-public class HopServer implements Runnable, IHasHopMetadataProvider {
+@Getter
+@Setter
+@Command(
+    versionProvider = HopVersionProvider.class,
+    mixinStandardHelpOptions = true,
+    description = "Run a Hop server")
+@HopCommand(id = "server", description = "Run a Hop server")
+public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand {
   private static final Class<?> PKG = HopServer.class;
   private static final String CONST_FOUND = " found.";
   private static final String CONST_SPACE = "        ";
@@ -147,6 +158,22 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
         new HopServerMeta("local8080", "localhost", "8080", "8079", "cluster", "cluster");
     this.config.setHopServer(defaultServer);
     this.config.setJoining(true);
+  }
+
+  @Override
+  public void initialize(
+      CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
+      throws HopException {
+    this.cmd = cmd;
+    this.variables = variables;
+    this.metadataProvider = metadataProvider;
+
+    HopClientEnvironment.getInstance().setClient(HopClientEnvironment.ClientType.SERVER);
+    Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_SERVER);
+
+    // Add optional metadata folder (legacy)
+    //
+    addMetadataFolderProvider();
   }
 
   public void runHopServer() throws Exception {
@@ -530,15 +557,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
 
       // Now add server configuration plugins...
       //
-      List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
-      for (IPlugin configPlugin : configPlugins) {
-        // Load only the plugins of the "run" category
-        if (ConfigPlugin.CATEGORY_SERVER.equals(configPlugin.getCategory())) {
-          IConfigOptions configOptions =
-              PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
-          cmd.addMixin(configPlugin.getIds()[0], configOptions);
-        }
-      }
+      Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_SERVER);
       hopServer.setCmd(cmd);
 
       // Add optional metadata folder (legacy)
@@ -601,34 +620,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     System.err.println(
         BaseMessages.getString(PKG, CONST_USAGE_EXAMPLE)
             + ": hop-server.sh 127.0.0.1 8080 --kill --userName cluster --password cluster");
-  }
-
-  /**
-   * @return the webServer
-   */
-  public WebServer getWebServer() {
-    return webServer;
-  }
-
-  /**
-   * @param webServer the webServer to set
-   */
-  public void setWebServer(WebServer webServer) {
-    this.webServer = webServer;
-  }
-
-  /**
-   * @return the hop server (HopServer) configuration
-   */
-  public HopServerConfig getConfig() {
-    return config;
-  }
-
-  /**
-   * @param config the hop server (HopServer) configuration
-   */
-  public void setConfig(HopServerConfig config) {
-    this.config = config;
   }
 
   private static void shutdown(
@@ -700,198 +691,5 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     public HopServerCommandException(final String message, final Throwable cause) {
       super(message, cause);
     }
-  }
-
-  /**
-   * Gets parameters
-   *
-   * @return value of parameters
-   */
-  public List<String> getParameters() {
-    return parameters;
-  }
-
-  /**
-   * @param parameters The parameters to set
-   */
-  public void setParameters(List<String> parameters) {
-    this.parameters = parameters;
-  }
-
-  /**
-   * Gets systemProperties
-   *
-   * @return value of systemProperties
-   */
-  public String[] getSystemProperties() {
-    return systemProperties;
-  }
-
-  /**
-   * @param systemProperties The systemProperties to set
-   */
-  public void setSystemProperties(String[] systemProperties) {
-    this.systemProperties = systemProperties;
-  }
-
-  /**
-   * Gets stopPassword
-   *
-   * @return value of stopPassword
-   */
-  public String getPassword() {
-    return password;
-  }
-
-  /**
-   * @param password The stopPassword to set
-   */
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  /**
-   * Gets stopUsername
-   *
-   * @return value of stopUsername
-   */
-  public String getUsername() {
-    return username;
-  }
-
-  /**
-   * @param username The stopUsername to set
-   */
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  /**
-   * Gets level
-   *
-   * @return value of level
-   */
-  public String getLevel() {
-    return level;
-  }
-
-  /**
-   * @param level The level to set
-   */
-  public void setLevel(String level) {
-    this.level = level;
-  }
-
-  /**
-   * Gets allOK
-   *
-   * @return value of allOK
-   */
-  public boolean isAllOK() {
-    return allOK;
-  }
-
-  /**
-   * @param allOK The allOK to set
-   */
-  public void setAllOK(boolean allOK) {
-    this.allOK = allOK;
-  }
-
-  /**
-   * Gets variables
-   *
-   * @return value of variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables(IVariables variables) {
-    this.variables = variables;
-  }
-
-  /**
-   * Gets cmd
-   *
-   * @return value of cmd
-   */
-  public CommandLine getCmd() {
-    return cmd;
-  }
-
-  /**
-   * @param cmd The cmd to set
-   */
-  public void setCmd(CommandLine cmd) {
-    this.cmd = cmd;
-  }
-
-  /**
-   * Gets log
-   *
-   * @return value of log
-   */
-  public ILogChannel getLog() {
-    return log;
-  }
-
-  /**
-   * @param log The log to set
-   */
-  public void setLog(ILogChannel log) {
-    this.log = log;
-  }
-
-  /**
-   * Gets metadataProvider
-   *
-   * @return value of metadataProvider
-   */
-  @Override
-  public MultiMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
-  }
-
-  /**
-   * Gets joinOverride
-   *
-   * @return value of joinOverride
-   */
-  public Boolean getJoinOverride() {
-    return joinOverride;
-  }
-
-  /**
-   * @param joinOverride The joinOverride to set
-   */
-  public void setJoinOverride(Boolean joinOverride) {
-    this.joinOverride = joinOverride;
-  }
-
-  /**
-   * Gets realFilename
-   *
-   * @return value of realFilename
-   */
-  public String getRealFilename() {
-    return realFilename;
-  }
-
-  /**
-   * @param realFilename The realFilename to set
-   */
-  public void setRealFilename(String realFilename) {
-    this.realFilename = realFilename;
   }
 }

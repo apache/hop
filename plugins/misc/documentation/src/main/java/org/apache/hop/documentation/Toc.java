@@ -13,31 +13,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.core.config.plugin;
+package org.apache.hop.documentation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-/** This annotation signals to the plugin system that the class is a configuration plugin. */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface ConfigPlugin {
-  String CATEGORY_CONFIG = "config";
-  String CATEGORY_RUN = "run";
-  String CATEGORY_SEARCH = "search";
-  String CATEGORY_IMPORT = "import";
-  String CATEGORY_SERVER = "server";
-  String CATEGORY_DOC = "doc";
+/** Table of content for the documentation: keep track of artifacts so we can generate a TOC. */
+@Getter
+@Setter
+public class Toc {
+  private List<TocEntry> entries;
 
-  String id();
+  public Toc() {
+    this.entries = new ArrayList<>();
+  }
 
-  String description() default "";
-
-  String category() default CATEGORY_CONFIG;
+  public void sortEntries() {
+    entries.sort(
+        (e1, e2) -> {
+          int folderCmp = e1.relativeFolder().compareTo(e2.relativeFolder());
+          if (folderCmp != 0) {
+            return folderCmp;
+          }
+          int typeCmp = e1.type().compareTo(e2.type());
+          if (typeCmp != 0) {
+            return typeCmp;
+          }
+          return e1.description().compareTo(e2.description());
+        });
+  }
 }

@@ -43,6 +43,7 @@ import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerPluginType;
+import org.apache.hop.hop.plugin.HopCommandPluginType;
 import org.apache.hop.imp.ImportPluginType;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
@@ -92,7 +93,8 @@ public class HopEnvironment {
         MetadataPluginType.getInstance(),
         ImportPluginType.getInstance(),
         ExecutionDataSamplerPluginType.getInstance(),
-        ExecutionInfoLocationPluginType.getInstance());
+        ExecutionInfoLocationPluginType.getInstance(),
+        HopCommandPluginType.getInstance());
   }
 
   public static void init(List<IPluginType> pluginTypes) throws HopException {
