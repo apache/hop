@@ -672,6 +672,42 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             }
             resultType = targetMeta.getType();
             break;
+          case FIRST_DAY_OF_MONTH: // First day of month from date A
+            // Create a custom implementation similar to other date functions
+            if (metaA.isNull(dataA)) {
+              calcData[index] = null;
+            } else {
+              java.util.Date dateValue = metaA.getDate(dataA);
+              if (dateValue != null) {
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.setTime(dateValue);
+                cal.set(java.util.Calendar.DAY_OF_MONTH, 1);
+                calcData[index] = cal.getTime();
+              } else {
+                calcData[index] = null;
+              }
+            }
+            resultType = calcType.getDefaultResultType();
+            break;
+          case LAST_DAY_OF_MONTH: // Last day of month from date A
+            if (metaA.isNull(dataA)) {
+              calcData[index] = null;
+            } else {
+              java.util.Date dateValue = metaA.getDate(dataA);
+              if (dateValue != null) {
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.setTime(dateValue);
+                // Get last day of month
+                cal.set(
+                    java.util.Calendar.DAY_OF_MONTH,
+                    cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH));
+                calcData[index] = cal.getTime();
+              } else {
+                calcData[index] = null;
+              }
+            }
+            resultType = calcType.getDefaultResultType();
+            break;
           default:
             throw new HopValueException(
                 BaseMessages.getString(PKG, "Calculator.Log.UnknownCalculationType")
