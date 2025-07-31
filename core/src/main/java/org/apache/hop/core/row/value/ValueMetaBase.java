@@ -1934,17 +1934,17 @@ public class ValueMetaBase implements IValueMeta {
     if (storageType == STORAGE_TYPE_NORMAL) {
       switch (getType()) {
         case IValueMeta.TYPE_STRING,
-        IValueMeta.TYPE_NUMBER,
-        IValueMeta.TYPE_INTEGER,
-        IValueMeta.TYPE_BOOLEAN,
-        IValueMeta.TYPE_BIGNUMBER:
+            IValueMeta.TYPE_NUMBER,
+            IValueMeta.TYPE_INTEGER,
+            IValueMeta.TYPE_BOOLEAN,
+            IValueMeta.TYPE_BIGNUMBER:
           // primitive data types: we can only
           // overwrite these, not change them
           return object;
 
         case IValueMeta.TYPE_DATE:
           return new Date(((Date) object).getTime()); // just to make sure: very
-        // inexpensive too.
+          // inexpensive too.
 
         case IValueMeta.TYPE_BINARY:
           byte[] originByte = (byte[]) object;
@@ -3502,7 +3502,7 @@ public class ValueMetaBase implements IValueMeta {
 
         case STORAGE_TYPE_INDEXED:
           return readSmallInteger(inputStream); // just an index: 4-bytes should
-        // be enough.
+          // be enough.
 
         default:
           throw new HopFileException(this + MSG_UNKNOWN_STORAGE_TYPE + getStorageType());
