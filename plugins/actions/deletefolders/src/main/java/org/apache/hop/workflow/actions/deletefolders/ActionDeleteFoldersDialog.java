@@ -381,7 +381,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
     ArrayList<FileItem> items = new ArrayList<>();
     for (int i = 0; i < nrItems; i++) {
       String path = wFields.getNonEmpty(i).getText(1);
-      if (path != null && !path.isEmpty()) {
+      if (!Utils.isEmpty(path)) {
         items.add(new FileItem(path));
       }
     }

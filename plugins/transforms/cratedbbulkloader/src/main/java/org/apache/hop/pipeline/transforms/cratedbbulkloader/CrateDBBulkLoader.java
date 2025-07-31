@@ -580,7 +580,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
       rowMeta = data.db.getTableFields(meta.getTableName());
     }
     try {
-      if (rowMeta.size() == 0) {
+      if (rowMeta.isEmpty()) {
         throw new HopException("No fields found in table");
       }
 

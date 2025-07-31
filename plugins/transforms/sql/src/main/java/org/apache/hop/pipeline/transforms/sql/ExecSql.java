@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -54,25 +55,25 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
       Result result, String upd, String ins, String del, String read) {
     RowMetaAndData resultRow = new RowMetaAndData();
 
-    if (upd != null && upd.length() > 0) {
+    if (!Utils.isEmpty(upd)) {
       IValueMeta meta = new ValueMetaInteger(upd);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       resultRow.addValue(meta, result.getNrLinesUpdated());
     }
 
-    if (ins != null && ins.length() > 0) {
+    if (!Utils.isEmpty(ins)) {
       IValueMeta meta = new ValueMetaInteger(ins);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       resultRow.addValue(meta, result.getNrLinesOutput());
     }
 
-    if (del != null && del.length() > 0) {
+    if (!Utils.isEmpty(del)) {
       IValueMeta meta = new ValueMetaInteger(del);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       resultRow.addValue(meta, result.getNrLinesDeleted());
     }
 
-    if (read != null && read.length() > 0) {
+    if (!Utils.isEmpty(read)) {
       IValueMeta meta = new ValueMetaInteger(read);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       resultRow.addValue(meta, result.getNrLinesRead());

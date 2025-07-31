@@ -238,7 +238,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
@@ -277,7 +277,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
       remarks.add(cr);
     }
 
-    if (info != null && info.size() > 0) {
+    if (info != null && !info.isEmpty()) {
       remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

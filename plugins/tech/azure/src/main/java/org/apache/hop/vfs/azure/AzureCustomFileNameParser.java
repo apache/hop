@@ -66,8 +66,7 @@ public class AzureCustomFileNameParser extends HostFileNameParser {
 
       } else if (scheme.equals(prefix)) {
         fileType = getFileType(uri);
-        String path =
-            normalizedUri.substring(normalizedUri.indexOf('/', 1), normalizedUri.length());
+        String path = normalizedUri.substring(normalizedUri.indexOf('/', 1));
         AzureConfig azureConfig = AzureConfigSingleton.getConfig();
         absPath =
             StringUtils.isNotBlank(azureConfig.getAccount())

@@ -571,7 +571,7 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
   }
 
   public void actualizeMetaInjectMapping() {
-    if (metaInjectMapping == null || metaInjectMapping.isEmpty()) {
+    if (Utils.isEmpty(metaInjectMapping)) {
       return;
     }
     Map<TargetTransformAttribute, SourceTransformField> targetToSourceMap =

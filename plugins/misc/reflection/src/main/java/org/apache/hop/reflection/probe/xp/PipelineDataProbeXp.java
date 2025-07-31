@@ -28,6 +28,7 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -155,7 +156,7 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
 
     List<IEngineComponent> componentCopies =
         pipeline.getComponentCopies(dataProbeLocation.getSourceTransformName());
-    if (componentCopies == null || componentCopies.isEmpty()) {
+    if (Utils.isEmpty(componentCopies)) {
       return false;
     }
 

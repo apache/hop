@@ -317,7 +317,7 @@ public class ExcelWriterTransform
           sxssfSheet.trackAllColumnsForAutoSizing();
         }
 
-        if (meta.getOutputFields() == null || meta.getOutputFields().isEmpty()) {
+        if (Utils.isEmpty(meta.getOutputFields())) {
           for (int i = 0; i < data.inputRowMeta.size(); i++) {
             file.getSheet().autoSizeColumn(i + data.startingCol);
           }
@@ -400,7 +400,7 @@ public class ExcelWriterTransform
       }
 
       Object v = null;
-      if (meta.getOutputFields() == null || meta.getOutputFields().isEmpty()) {
+      if (Utils.isEmpty(meta.getOutputFields())) {
         //  Write all values in stream to text file.
         int nr = data.inputRowMeta.size();
         workbookDefinition.clearStyleCache(nr);
@@ -771,10 +771,7 @@ public class ExcelWriterTransform
       }
 
       // clear style cache
-      int numOfFields =
-          meta.getOutputFields() != null && !meta.getOutputFields().isEmpty()
-              ? meta.getOutputFields().size()
-              : 0;
+      int numOfFields = !Utils.isEmpty(meta.getOutputFields()) ? meta.getOutputFields().size() : 0;
       if (numOfFields == 0) {
         numOfFields = data.inputRowMeta != null ? data.inputRowMeta.size() : 0;
       }
@@ -1075,7 +1072,7 @@ public class ExcelWriterTransform
         xlsRow = sheet.createRow(posY);
       }
       // If we have fields specified: list them in this order!
-      if (meta.getOutputFields() != null && !meta.getOutputFields().isEmpty()) {
+      if (!Utils.isEmpty(meta.getOutputFields())) {
         for (int i = 0; i < meta.getOutputFields().size(); i++) {
           ExcelWriterOutputField field = meta.getOutputFields().get(i);
           String fieldName = !Utils.isEmpty(field.getTitle()) ? field.getTitle() : field.getName();

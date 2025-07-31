@@ -548,7 +548,7 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
       }
     }
 
-    if (prev != null && strActiveScript.length() > 0) {
+    if (prev != null && !strActiveScript.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
@@ -662,7 +662,7 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
 
       try {
         // Checking for StartScript
-        if (strActiveStartScript != null && strActiveStartScript.length() > 0) {
+        if (!Utils.isEmpty(strActiveStartScript)) {
           /* Object startScript = */ jscx.evaluateString(
               jsscope, strActiveStartScript, "pipeline_Start", 1, null);
           errorMessage = "Found Start Script. " + strActiveStartScriptName + " Processing OK";
@@ -735,7 +735,7 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
 
         // Checking End Script
         try {
-          if (strActiveEndScript != null && strActiveEndScript.length() > 0) {
+          if (!Utils.isEmpty(strActiveEndScript)) {
             /* Object endScript = */ jscx.evaluateString(
                 jsscope, strActiveEndScript, "pipeline_End", 1, null);
             errorMessage = "Found End Script. " + strActiveEndScriptName + " Processing OK";

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
@@ -71,7 +72,7 @@ public class AttributesUtil {
 
     xml.append(XmlHandler.openTag(xmlTag));
 
-    if (attributesMap != null && !attributesMap.isEmpty()) {
+    if (!Utils.isEmpty(attributesMap)) {
       List<String> groupNames = new ArrayList<>(attributesMap.keySet());
       Collections.sort(groupNames);
 

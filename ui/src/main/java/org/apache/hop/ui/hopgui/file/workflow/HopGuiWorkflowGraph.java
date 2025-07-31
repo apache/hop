@@ -849,7 +849,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // We moved around some items: store undo info...
           //
           boolean also = false;
-          if (selectedNotes != null && !selectedNotes.isEmpty() && previousNoteLocations != null) {
+          if (!Utils.isEmpty(selectedNotes) && previousNoteLocations != null) {
             int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
 
             addUndoPosition(
@@ -858,7 +858,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 previousNoteLocations,
                 workflowMeta.getSelectedNoteLocations(),
                 also);
-            also = selectedActions != null && !selectedActions.isEmpty();
+            also = !Utils.isEmpty(selectedActions);
           }
           if (selectedActions != null
               && !selectedActions.isEmpty()
@@ -948,7 +948,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   previousNoteLocations,
                   workflowMeta.getSelectedNoteLocations(),
                   also);
-              also = selectedActions != null && !selectedActions.isEmpty();
+              also = !Utils.isEmpty(selectedActions);
             }
             if (selectedActions != null
                 && !selectedActions.isEmpty()
@@ -2686,7 +2686,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           if (result.getNrLinesRejected() > 0) {
             tip.append("Lines rejected : ").append(result.getNrLinesRejected()).append(Const.CR);
           }
-          if (result.getResultFiles() != null && !result.getResultFiles().isEmpty()) {
+          if (!Utils.isEmpty(result.getResultFiles())) {
             tip.append(Const.CR).append("Result files:").append(Const.CR);
             if (result.getResultFiles().size() > 10) {
               tip.append(" (10 files of ").append(result.getResultFiles().size()).append(" shown");
@@ -2697,7 +2697,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               tip.append("  - ").append(file.toString()).append(Const.CR);
             }
           }
-          if (result.getRows() != null && !result.getRows().isEmpty()) {
+          if (!Utils.isEmpty(result.getRows())) {
             tip.append(Const.CR).append("Result rows: ");
             if (result.getRows().size() > 10) {
               tip.append(" (10 rows of ").append(result.getRows().size()).append(" shown");
@@ -2774,7 +2774,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (hi != null && tip.length() == 0) {
+    if (hi != null && tip.isEmpty()) {
       // Set the tooltip for the hop:
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo")).append(Const.CR);
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.SourceEntry"))
@@ -2801,7 +2801,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (tip == null || tip.length() == 0) {
+    if (Utils.isEmpty(tip)) {
       toolTip.setVisible(false);
     } else {
       if (!tip.toString().equalsIgnoreCase(getToolTipText())) {

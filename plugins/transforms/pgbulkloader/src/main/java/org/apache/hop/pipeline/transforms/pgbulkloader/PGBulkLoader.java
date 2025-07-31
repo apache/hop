@@ -92,7 +92,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
     List<PGBulkLoaderMappingMeta> mapping = meta.getMappings();
 
-    if (mapping == null || mapping.isEmpty()) {
+    if (Utils.isEmpty(mapping)) {
       throw new HopException("No fields defined to load to database");
     }
 

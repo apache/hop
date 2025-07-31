@@ -224,7 +224,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
     List<URI> uris = new ArrayList<>();
 
-    if (manualUrls != null && !manualUrls.isEmpty()) {
+    if (!Utils.isEmpty(manualUrls)) {
       // A manual URL is specified
       //
       for (String manualUrl : manualUrls) {
@@ -313,7 +313,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     StringBuffer urls = new StringBuffer();
     try {
       for (URI uri : getURIs(variables)) {
-        if (urls.length() > 0) {
+        if (!urls.isEmpty()) {
           urls.append(",");
         }
         urls.append(uri.toString());

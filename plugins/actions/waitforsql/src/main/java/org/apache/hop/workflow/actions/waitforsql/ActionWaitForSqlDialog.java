@@ -602,7 +602,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
 
   private List<String> getSqlReservedWords() {
     // Do not search keywords when connection is empty
-    if (wConnection.getText() == null || wConnection.getText().isEmpty()) {
+    if (Utils.isEmpty(wConnection.getText())) {
       return List.of();
     }
 

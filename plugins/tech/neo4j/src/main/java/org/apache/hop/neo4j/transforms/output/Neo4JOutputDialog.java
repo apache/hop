@@ -1036,7 +1036,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
               PKG, "Neo4JOutputDialog.Warning.CreateIndexesIsLimited", Const.CR));
     }
 
-    if (message.length() > 0
+    if (!message.isEmpty()
         && "Y".equalsIgnoreCase(props.getCustomParameter(STRING_DYNAMIC_LABELS_WARNING, "Y"))) {
 
       MessageDialogWithToggle md =

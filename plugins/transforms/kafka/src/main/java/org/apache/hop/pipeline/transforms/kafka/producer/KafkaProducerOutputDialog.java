@@ -348,7 +348,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
   private void buildOptionsTable(Composite parentWidget) {
     ColumnInfo[] columns = getOptionsColumns();
 
-    if (meta.getConfig().size() == 0) {
+    if (meta.getConfig().isEmpty()) {
       // initial call
       List<String> list = KafkaDialogHelper.getProducerAdvancedConfigOptionNames();
       Map<String, String> advancedConfig = new LinkedHashMap<>();

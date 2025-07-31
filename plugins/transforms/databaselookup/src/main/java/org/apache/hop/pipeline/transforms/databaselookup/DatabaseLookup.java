@@ -518,7 +518,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       // Now that we have the SQL constructed, let's store the rows...
       //
       List<Object[]> rows = db.getRows(sql, 0);
-      if (rows != null && !rows.isEmpty()) {
+      if (!Utils.isEmpty(rows)) {
         if (data.allEquals) {
           putToDefaultCache(db, rows);
         } else {

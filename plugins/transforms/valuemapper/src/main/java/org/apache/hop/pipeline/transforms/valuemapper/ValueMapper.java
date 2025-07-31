@@ -133,7 +133,7 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
     } else {
       // Don't set the original value to null if we don't have a target.
       if (target != null) {
-        if (target.length() > 0) {
+        if (!target.isEmpty()) {
           // See if the expected type is a String...
           //
           if (data.sourceValueMeta.isString()) {

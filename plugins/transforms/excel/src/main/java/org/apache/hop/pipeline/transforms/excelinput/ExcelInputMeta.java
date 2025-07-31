@@ -395,27 +395,27 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
         throw new HopTransformException(e);
       }
     }
-    if (fileField != null && fileField.length() > 0) {
+    if (!Utils.isEmpty(fileField)) {
       IValueMeta v = new ValueMetaString(fileField);
       v.setLength(250);
       v.setPrecision(-1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (sheetField != null && sheetField.length() > 0) {
+    if (!Utils.isEmpty(sheetField)) {
       IValueMeta v = new ValueMetaString(sheetField);
       v.setLength(250);
       v.setPrecision(-1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (sheetRowNumberField != null && sheetRowNumberField.length() > 0) {
+    if (!Utils.isEmpty(sheetRowNumberField)) {
       IValueMeta v = new ValueMetaInteger(sheetRowNumberField);
       v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (rowNumberField != null && rowNumberField.length() > 0) {
+    if (!Utils.isEmpty(rowNumberField)) {
       IValueMeta v = new ValueMetaInteger(rowNumberField);
       v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       v.setOrigin(name);

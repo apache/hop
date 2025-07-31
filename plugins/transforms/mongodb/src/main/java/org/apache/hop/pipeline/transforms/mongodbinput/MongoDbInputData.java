@@ -119,7 +119,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
           path = "dummy"; // pulling a primitive out of the array (path
           // doesn't matter)
         } else {
-          path = path.substring(path.lastIndexOf("[*]") + 3, path.length());
+          path = path.substring(path.lastIndexOf("[*]") + 3);
           path = "$" + path;
         }
 
@@ -251,7 +251,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
       }
 
       if (endIndex + 1 < path.length()) {
-        tempStr = path.substring(endIndex + 1, path.length());
+        tempStr = path.substring(endIndex + 1);
       } else {
         break;
       }

@@ -90,7 +90,7 @@ public class SortedFileOutputStream extends FileOutputStream {
    */
   @Override
   public void close() throws IOException {
-    if (sb == null || sb.length() == 0) {
+    if (Utils.isEmpty(sb)) {
       super.flush();
       super.close();
     }
@@ -102,7 +102,7 @@ public class SortedFileOutputStream extends FileOutputStream {
     Vector<String> lines = new Vector<>();
     while (sLine != null) {
       // Length 0 -> do nothing
-      if (sLine.length() == 0) {
+      if (sLine.isEmpty()) {
         sLine = nextLine(iPos);
         continue;
       }

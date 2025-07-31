@@ -27,6 +27,7 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionFilter;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 
 public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
 
@@ -50,7 +51,7 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
     //
     List<GuiAction> actions = GuiRegistry.getInstance().getGuiContextActions(getContextId());
 
-    if (actions == null || actions.isEmpty()) {
+    if (Utils.isEmpty(actions)) {
       return Collections.emptyList();
     }
 

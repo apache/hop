@@ -910,7 +910,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         sql += db.getCreateSequenceStatement(schemaName, sequenceName, 1L, 1L, -1L, true);
       }
 
-      if (sql.length() == 0) {
+      if (sql.isEmpty()) {
         statement.setSql(null);
       } else {
         statement.setSql(variables.resolve(sql));

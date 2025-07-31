@@ -66,7 +66,7 @@ public class XmlFormatter {
       boolean wasSomething = false;
       while (rd.hasNext()) {
         int event = rd.next();
-        if (event != XMLStreamConstants.CDATA && cdata.length() > 0) {
+        if (event != XMLStreamConstants.CDATA && !cdata.isEmpty()) {
           // was CDATA
           wr.writeCData(cdata.toString());
           cdata.setLength(0);

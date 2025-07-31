@@ -694,7 +694,7 @@ public class CalculatorUnitTest {
     IRowSet inputRowSet = smh.getMockInputRowSet(inputValues.toArray());
     inputRowSet.setRowMeta(inputRowMeta);
     final String fieldA =
-        inputRowMeta.size() > 0 ? inputRowMeta.getValueMetaList().get(0).getName() : null;
+        !inputRowMeta.isEmpty() ? inputRowMeta.getValueMetaList().get(0).getName() : null;
     final String fieldB =
         inputRowMeta.size() > 1 ? inputRowMeta.getValueMetaList().get(1).getName() : null;
     final String fieldC =

@@ -32,6 +32,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -130,7 +131,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
         } else {
           stringArgument = variables.resolve(stringArgument);
           if (argumentType.isArray()) {
-            if (stringArgument.length() == 0) {
+            if (stringArgument.isEmpty()) {
               argument = null;
             } else {
               argument = stringListToObjectArray(stringArgument, argumentType.getComponentType());
@@ -303,7 +304,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
             logDebug("Argument indices at " + j + ": " + data.argumentFieldIndices[j]);
             if (data.argumentFieldIndices[j] == -1) {
               // this argument does not point to any existing field.
-              if (arguments.get(j) == null || arguments.get(j).length() == 0) {
+              if (Utils.isEmpty(arguments.get(j))) {
                 // the argument is blank, this is ok: we will pass null instead
                 data.argumentFieldIndices[j] = -2;
               } else {

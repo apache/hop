@@ -47,6 +47,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -493,7 +494,7 @@ public class Project extends ConfigFile implements IConfigFile {
     }
 
     // build the map of transforms per pipeline if we don't have it available
-    if (pipelineTransformsMap == null || pipelineTransformsMap.size() == 0) {
+    if (Utils.isEmpty(pipelineTransformsMap)) {
       getTransformTypes(variables);
     }
 
@@ -564,7 +565,7 @@ public class Project extends ConfigFile implements IConfigFile {
     }
 
     // build the map of actions per workflow if we don't have it available
-    if (workflowActionsMap == null || workflowActionsMap.size() == 0) {
+    if (Utils.isEmpty(workflowActionsMap)) {
       getActionTypes(variables);
     }
 

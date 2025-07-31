@@ -396,7 +396,7 @@ public class StringUtil {
   }
 
   public static String initCap(String st) {
-    if (st == null || st.trim().length() == 0) {
+    if (st == null || st.trim().isEmpty()) {
       return "";
     }
 
@@ -417,7 +417,7 @@ public class StringUtil {
    * @return true if the string supplied is empty
    */
   public static final boolean isEmpty(String string) {
-    return string == null || string.length() == 0;
+    return string == null || string.isEmpty();
   }
 
   /**
@@ -428,7 +428,7 @@ public class StringUtil {
    * @return true if the StringBuilder supplied is empty
    */
   public static final boolean isEmpty(StringBuilder string) {
-    return string == null || string.length() == 0;
+    return string == null || string.isEmpty();
   }
 
   public static String getIndent(int indentLevel) {

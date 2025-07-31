@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.ui.core.widget.TableView;
@@ -110,7 +111,7 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
     final String[] incomingFieldNames = getFieldNames(meta);
     final List<String> newFieldNames = getNewFieldNames(incomingFieldNames);
 
-    if (newFieldNames != null && !newFieldNames.isEmpty()) {
+    if (!Utils.isEmpty(newFieldNames)) {
       // we have new incoming fields
       final int nrNonEmptyFields = getFieldsTable().nrNonEmpty();
       // are any fields already populated in the fields table?

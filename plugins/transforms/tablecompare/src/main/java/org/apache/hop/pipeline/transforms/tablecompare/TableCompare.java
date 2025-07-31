@@ -678,7 +678,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       IValueMeta keyValueMeta = keyRowMeta.getValueMeta(x);
       Object keyValueData = one[keyNrs[x]];
 
-      if (keyDesc.length() > 0) {
+      if (!keyDesc.isEmpty()) {
         keyDesc.append(" and ");
       }
       keyDesc.append(keyValueMeta.getName()).append(" = '");

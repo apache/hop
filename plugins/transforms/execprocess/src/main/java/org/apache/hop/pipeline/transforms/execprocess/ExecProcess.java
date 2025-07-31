@@ -301,7 +301,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
     }
 
     while ((line = b.readLine()) != null) {
-      if (returnValueBuffer.length() > 0) {
+      if (!returnValueBuffer.isEmpty()) {
         returnValueBuffer.append(delim);
       }
       returnValueBuffer.append(line);

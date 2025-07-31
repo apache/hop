@@ -22,6 +22,7 @@ import java.io.PushbackReader;
 import java.io.Reader;
 import java.nio.CharBuffer;
 import java.util.Arrays;
+import org.apache.hop.core.util.Utils;
 
 /**
  * Reader for in place token replacements. Does not use as much memory as the String.replace()
@@ -50,8 +51,7 @@ public class TokenReplacingReader extends Reader {
       throw new IllegalArgumentException("Token resolver may not be null");
     }
 
-    if ((tokenStartMarker == null || tokenStartMarker.length() < 1)
-        || (tokenEndMarker == null || tokenEndMarker.length() < 1)) {
+    if ((Utils.isEmpty(tokenStartMarker)) || (Utils.isEmpty(tokenEndMarker))) {
       throw new IllegalArgumentException("Token start / end marker may not be null or empty");
     }
 

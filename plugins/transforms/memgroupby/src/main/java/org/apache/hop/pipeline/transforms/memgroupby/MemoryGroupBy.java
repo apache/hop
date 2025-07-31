@@ -361,7 +361,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
         case ConcatComma:
           if (subj != null) {
             StringBuilder sb = (StringBuilder) value;
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
               sb.append(", ");
             }
             sb.append(subjMeta.getString(subj));
@@ -374,7 +374,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
               separator = resolve(agg.getValueField());
             }
             StringBuilder sb = (StringBuilder) value;
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
               sb.append(separator);
             }
             sb.append(subjMeta.getString(subj));

@@ -388,7 +388,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
-            if (wFilename.getText() == null || wFilename.getText().isEmpty()) {
+            if (Utils.isEmpty(wFilename.getText())) {
               displayErrorDialog(
                   new HopException(
                       BaseMessages.getString(
@@ -2960,7 +2960,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         f = provider.createInputStream(fi);
 
         InputStreamReader reader;
-        if (meta.getEncoding() != null && !meta.getEncoding().isEmpty()) {
+        if (!Utils.isEmpty(meta.getEncoding())) {
           reader = new InputStreamReader(f, meta.getEncoding());
         } else {
           reader = new InputStreamReader(f);

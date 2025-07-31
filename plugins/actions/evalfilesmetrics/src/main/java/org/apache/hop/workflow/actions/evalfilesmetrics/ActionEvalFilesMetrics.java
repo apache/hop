@@ -389,7 +389,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
                   (rows != null ? rows.size() : 0) + ""));
         }
 
-        if (rows != null && !rows.isEmpty()) {
+        if (!Utils.isEmpty(rows)) {
           // We get rows
           RowMetaAndData firstRow = rows.get(0);
           indexOfResultFieldFile = firstRow.getRowMeta().indexOfValue(realResultFieldFile);
@@ -464,7 +464,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
                   (resultFiles != null ? resultFiles.size() : 0) + ""));
         }
 
-        if (resultFiles != null && !resultFiles.isEmpty()) {
+        if (!Utils.isEmpty(resultFiles)) {
           // Let's check wildcard
           Pattern pattern = null;
           String realPattern = resolve(getResultFilenamesWildcard());

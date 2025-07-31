@@ -1102,18 +1102,18 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
       }
     }
     if (errorIgnored) {
-      if (errorCountField != null && errorCountField.length() > 0) {
+      if (!Utils.isEmpty(errorCountField)) {
         IValueMeta v = new ValueMetaInteger(errorCountField);
         v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
         v.setOrigin(name);
         row.addValueMeta(v);
       }
-      if (errorFieldsField != null && errorFieldsField.length() > 0) {
+      if (!Utils.isEmpty(errorFieldsField)) {
         IValueMeta v = new ValueMetaString(errorFieldsField);
         v.setOrigin(name);
         row.addValueMeta(v);
       }
-      if (errorTextField != null && errorTextField.length() > 0) {
+      if (!Utils.isEmpty(errorTextField)) {
         IValueMeta v = new ValueMetaString(errorTextField);
         v.setOrigin(name);
         row.addValueMeta(v);
@@ -1134,49 +1134,49 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
 
     // Add additional fields
 
-    if (getShortFileNameField() != null && getShortFileNameField().length() > 0) {
+    if (!Utils.isEmpty(getShortFileNameField())) {
       IValueMeta v = new ValueMetaString(variables.resolve(getShortFileNameField()));
       v.setLength(100, -1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (getExtensionField() != null && getExtensionField().length() > 0) {
+    if (!Utils.isEmpty(getExtensionField())) {
       IValueMeta v = new ValueMetaString(variables.resolve(getExtensionField()));
       v.setLength(100, -1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (getPathField() != null && getPathField().length() > 0) {
+    if (!Utils.isEmpty(getPathField())) {
       IValueMeta v = new ValueMetaString(variables.resolve(getPathField()));
       v.setLength(100, -1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (getSizeField() != null && getSizeField().length() > 0) {
+    if (!Utils.isEmpty(getSizeField())) {
       IValueMeta v = new ValueMetaInteger(variables.resolve(getSizeField()));
       v.setOrigin(name);
       v.setLength(9);
       row.addValueMeta(v);
     }
-    if (isHiddenField() != null && isHiddenField().length() > 0) {
+    if (!Utils.isEmpty(isHiddenField())) {
       IValueMeta v = new ValueMetaBoolean(variables.resolve(isHiddenField()));
       v.setOrigin(name);
       row.addValueMeta(v);
     }
 
-    if (getLastModificationDateField() != null && getLastModificationDateField().length() > 0) {
+    if (!Utils.isEmpty(getLastModificationDateField())) {
       IValueMeta v = new ValueMetaDate(variables.resolve(getLastModificationDateField()));
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (getUriField() != null && getUriField().length() > 0) {
+    if (!Utils.isEmpty(getUriField())) {
       IValueMeta v = new ValueMetaString(variables.resolve(getUriField()));
       v.setLength(100, -1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
 
-    if (getRootUriField() != null && getRootUriField().length() > 0) {
+    if (!Utils.isEmpty(getRootUriField())) {
       IValueMeta v = new ValueMetaString(getRootUriField());
       v.setLength(100, -1);
       v.setOrigin(name);

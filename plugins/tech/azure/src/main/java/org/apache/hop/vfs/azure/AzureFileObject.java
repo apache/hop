@@ -218,7 +218,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   private String getFilePath(String filename) {
-    return filename.substring(filename.indexOf('/'), filename.length());
+    return filename.substring(filename.indexOf('/'));
   }
 
   @Override

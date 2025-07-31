@@ -54,7 +54,7 @@ public final class S3Util {
   }
 
   public static boolean isEmpty(String value) {
-    return value == null || value.length() == 0;
+    return value == null || value.isEmpty();
   }
 
   private S3Util() {}

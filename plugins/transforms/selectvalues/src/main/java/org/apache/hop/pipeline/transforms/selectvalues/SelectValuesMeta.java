@@ -112,7 +112,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
@@ -154,7 +154,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
         remarks.add(cr);
       }
 
-      if (getSelectOption().getSelectFields().size() > 0) {
+      if (!getSelectOption().getSelectFields().isEmpty()) {
         // Starting from prev...
         for (int i = 0; i < prev.size(); i++) {
           IValueMeta pv = prev.getValueMeta(i);
@@ -339,7 +339,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     IRowMeta row;
 
     var selectFields = selectOption.getSelectFields();
-    if (selectFields != null && !selectFields.isEmpty()) { // SELECT values
+    if (!Utils.isEmpty(selectFields)) { // SELECT values
 
       // 0. Start with an empty row
       // 1. Keep only the selected values
@@ -357,7 +357,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
           // Do we need to rename ?
           if (!v.getName().equals(selectField.getRename())
               && selectField.getRename() != null
-              && selectField.getRename().length() > 0) {
+              && !selectField.getRename().isEmpty()) {
             v.setName(selectField.getRename());
             v.setOrigin(name);
           }
@@ -402,7 +402,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
 
   public void getDeleteFields(IRowMeta inputRowMeta) throws HopTransformException {
     var deleteNames = getSelectOption().getDeleteName();
-    if (deleteNames != null && !deleteNames.isEmpty()) { // DESELECT values from the stream...
+    if (!Utils.isEmpty(deleteNames)) { // DESELECT values from the stream...
       for (var deleteName : deleteNames) {
         try {
           inputRowMeta.removeValueMeta(deleteName.getName());
@@ -416,7 +416,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
   public void getMetadataFields(IRowMeta inputRowMeta, String name, IVariables variables)
       throws HopPluginException {
     var meta = getSelectOption().getMeta();
-    if (meta != null && !meta.isEmpty()) {
+    if (!Utils.isEmpty(meta)) {
       // METADATA mode: change the meta-data of the values mentioned...
 
       for (int i = 0; i < meta.size(); i++) {

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.apache.hop.core.util.Utils;
 
 /** Utilities for CQL processing. */
 public class CqlUtils {
@@ -81,14 +82,12 @@ public class CqlUtils {
   private static ArrayList<Selector> getSelectors(String selectExpression, boolean isCql3) {
     ArrayList<Selector> sList = new ArrayList<>();
     selectExpression = clean(selectExpression);
-    while (selectExpression.length() > 0) {
+    while (!selectExpression.isEmpty()) {
       int possibleEnd = selectExpression.indexOf(COMMA);
       String possibleSelectorElement =
           (possibleEnd != -1) ? selectExpression.substring(0, possibleEnd) : selectExpression;
       selectExpression =
-          (possibleEnd != -1)
-              ? selectExpression.substring(possibleEnd + 1, selectExpression.length()).trim()
-              : "";
+          (possibleEnd != -1) ? selectExpression.substring(possibleEnd + 1).trim() : "";
 
       Selector realSelectorElement = buildSelector(possibleSelectorElement, isCql3);
 
@@ -105,9 +104,7 @@ public class CqlUtils {
         sb.append(possibleSelectorElement);
         possibleSelectorElement = sb.toString();
         selectExpression =
-            (possibleEnd != -1)
-                ? selectExpression.substring(possibleEnd + 1, selectExpression.length()).trim()
-                : "";
+            (possibleEnd != -1) ? selectExpression.substring(possibleEnd + 1).trim() : "";
         realSelectorElement = buildSelector(possibleSelectorElement, isCql3);
       }
       sList.add(realSelectorElement);
@@ -124,7 +121,7 @@ public class CqlUtils {
    */
   public static String getSelectExpression(String cqlExpression) {
     String selectExpression = null;
-    if (cqlExpression != null && !cqlExpression.isEmpty()) {
+    if (!Utils.isEmpty(cqlExpression)) {
       cqlExpression = clean(cqlExpression);
       int end = cqlExpression.toLowerCase().indexOf(FROM);
       int start = cqlExpression.toLowerCase().indexOf(SELECT) + SELECT.length();
@@ -156,7 +153,7 @@ public class CqlUtils {
    * @return the array of selectors
    */
   public static Selector[] getColumnsInSelect(String selectExpression, boolean isCql3) {
-    if (selectExpression != null && !selectExpression.isEmpty()) {
+    if (!Utils.isEmpty(selectExpression)) {
       ArrayList<Selector> selectors = getSelectors(selectExpression.trim(), isCql3);
       return selectors.toArray(new Selector[selectors.size()]);
     }

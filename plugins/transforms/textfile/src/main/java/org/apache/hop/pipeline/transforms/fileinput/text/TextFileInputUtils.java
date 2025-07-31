@@ -386,19 +386,19 @@ public class TextFileInputUtils {
     Long errorCount = null;
     if (info.errorHandling.errorIgnored
         && info.getErrorCountField() != null
-        && info.getErrorCountField().length() > 0) {
+        && !info.getErrorCountField().isEmpty()) {
       errorCount = Long.valueOf(0L);
     }
     String errorFields = null;
     if (info.errorHandling.errorIgnored
         && info.getErrorFieldsField() != null
-        && info.getErrorFieldsField().length() > 0) {
+        && !info.getErrorFieldsField().isEmpty()) {
       errorFields = "";
     }
     String errorText = null;
     if (info.errorHandling.errorIgnored
         && info.getErrorTextField() != null
-        && info.getErrorTextField().length() > 0) {
+        && !info.getErrorTextField().isEmpty()) {
       errorText = "";
     }
 
@@ -456,7 +456,7 @@ public class TextFileInputUtils {
                 }
                 if (errorFields != null) {
                   StringBuilder sb = new StringBuilder(errorFields);
-                  if (sb.length() > 0) {
+                  if (!sb.isEmpty()) {
                     sb.append("\t"); // TODO document this change
                   }
                   sb.append(valueMeta.getName());
@@ -464,7 +464,7 @@ public class TextFileInputUtils {
                 }
                 if (errorText != null) {
                   StringBuilder sb = new StringBuilder(errorText);
-                  if (sb.length() > 0) {
+                  if (!sb.isEmpty()) {
                     sb.append(Const.CR);
                   }
                   sb.append(message);

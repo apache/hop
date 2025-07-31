@@ -171,7 +171,7 @@ public class MailValidation {
 
         // Just because we can send mail to the domain, doesn't mean that the
         // address is valid, but if we can't, it's a sure sign that it isn't
-        if (mxList == null || mxList.isEmpty()) {
+        if (Utils.isEmpty(mxList)) {
           result.setErrorMessage(
               BaseMessages.getString(PKG, "MailValidator.NoMachinesInDomain", domain));
           return result;

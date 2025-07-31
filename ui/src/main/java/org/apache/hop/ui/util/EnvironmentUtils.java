@@ -96,7 +96,7 @@ public class EnvironmentUtils {
   public synchronized boolean isWebkitUnavailable() {
     String path = getWebkitPath();
     String osName = getEnvironmentName();
-    return ((path == null || path.length() < 1 || !path.contains("webkit"))
+    return ((path == null || !path.contains("webkit"))
         && (osName.contains(
                 SUPPORTED_DISTRIBUTION_NAME
                     + " "

@@ -421,7 +421,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
 
   private List<String> getSqlReservedWords() {
     // Do not search keywords when connection is empty
-    if (input.getConnection() == null || input.getConnection().isEmpty()) {
+    if (Utils.isEmpty(input.getConnection())) {
       return List.of();
     }
 

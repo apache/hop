@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.apache.hop.core.util.Utils;
 
 public class NamedFieldsMapping implements IFieldsMapping {
 
@@ -58,7 +59,7 @@ public class NamedFieldsMapping implements IFieldsMapping {
     if (actualFieldNames != null) {
       for (int i = 0; i < actualFieldNames.length; i++) {
         List<Integer> columnIndexes = metaNameToIndex.get(actualFieldNames[i]);
-        if (columnIndexes == null || columnIndexes.isEmpty()) {
+        if (Utils.isEmpty(columnIndexes)) {
           unmatchedMetaFields.add(i);
           actualToMetaFieldMapping[i] = FIELD_DOES_NOT_EXIST;
           continue;

@@ -35,6 +35,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.core.GraphUsage;
 import org.apache.hop.neo4j.core.data.GraphData;
@@ -591,7 +592,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     // See if there's actual work to be done...
     //
-    if (data.unwindCount == 0 || data.unwindMapList == null || data.unwindMapList.isEmpty()) {
+    if (data.unwindCount == 0 || Utils.isEmpty(data.unwindMapList)) {
       return false;
     }
 
@@ -935,7 +936,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         // For performance this uses a hashmaps to cache these graph model lookups.
         //
         List<GraphRelationship> relationships = findRelationships(sourceNodeName, targetNodeName);
-        if (relationships == null || relationships.isEmpty()) {
+        if (Utils.isEmpty(relationships)) {
           continue;
         }
 
@@ -1355,7 +1356,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     // Add a SET clause if there are any non-primary key fields to update
     //
-    if (matchCypher.length() > 0) {
+    if (!matchCypher.isEmpty()) {
       cypher.append(matchCypher).append(Const.CR);
     }
   }
@@ -1639,7 +1640,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         if (napd.property.isPrimary()) {
 
           String propertyString = napd.sourceValueMeta.getString(napd.sourceValueData);
-          if (id.length() > 0) {
+          if (!id.isEmpty()) {
             id.append("-");
           }
           id.append(propertyString);

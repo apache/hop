@@ -180,7 +180,7 @@ public class MongoArrayExpansion {
 
     if (part.indexOf(']') < part.length() - 1) {
       // more dimensions to the array
-      part = part.substring(part.indexOf(']') + 1, part.length());
+      part = part.substring(part.indexOf(']') + 1);
       tempParts.add(0, part);
     }
 

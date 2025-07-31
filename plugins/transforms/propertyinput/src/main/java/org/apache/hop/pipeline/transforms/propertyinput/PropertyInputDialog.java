@@ -1166,7 +1166,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
             e);
       }
 
-      if (fields.size() > 0) {
+      if (!fields.isEmpty()) {
 
         // Clear Fields Grid
         wFields.removeAll();
