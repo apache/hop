@@ -34,6 +34,11 @@ public class DeleteField implements Cloneable {
 
   public DeleteField() {}
 
+  public DeleteField(DeleteField f) {
+    this();
+    this.name = f.name;
+  }
+
   @Override
   public final boolean equals(Object o) {
     if (this == o) return true;

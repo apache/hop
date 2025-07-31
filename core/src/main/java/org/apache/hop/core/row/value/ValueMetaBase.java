@@ -465,7 +465,7 @@ public class ValueMetaBase implements IValueMeta {
         && getPrecision() == that.getPrecision()
         && type == that.type
         && trimType == that.trimType
-        && roundingType == that.roundingType
+        && roundingType.equals(that.roundingType )
         && storageType == that.storageType
         && collatorStrength == that.collatorStrength
         && caseInsensitive == that.caseInsensitive

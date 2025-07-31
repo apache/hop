@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -34,7 +35,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -473,6 +476,10 @@ public class SelectValuesDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Currency"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.RoundingType"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaNumber.roundingTypeDesc),
         };
     colmeta[5].setToolTip(
         BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Tooltip"));
@@ -671,6 +678,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
         item.setText(index++, Const.NVL(change.getDecimalSymbol(), ""));
         item.setText(index++, Const.NVL(change.getGroupingSymbol(), ""));
         item.setText(index++, Const.NVL(change.getCurrencySymbol(), ""));
+        // Prevent setting the default to Half Even.
+        if (StringUtils.isNotEmpty(change.getRoundingType())) {
+          item.setText(
+              index, Const.NVL(ValueMetaBase.getRoundingTypeDesc(change.getRoundingType()), ""));
+        }
       }
       wMeta.setRowNums();
       wMeta.optWidth(true);
@@ -788,6 +800,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       change.setDecimalSymbol(item.getText(index++));
       change.setGroupingSymbol(item.getText(index++));
       change.setCurrencySymbol(item.getText(index++));
+      change.setRoundingType(ValueMetaBase.getRoundingTypeCode(item.getText(index)));
 
       input.getSelectOption().getMeta().add(change);
     }

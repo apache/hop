@@ -135,9 +135,35 @@ public class SelectMetadataChange {
       injectionKeyDescription = "SelectValues.Injection.META_ENCODING")
   private String encoding;
 
+  /** The encoding to use when decoding binary data to Strings */
+  @HopMetadataProperty(
+      key = "roundingType",
+      injectionKey = "META_ROUNDING_TYPE",
+      injectionKeyDescription = "SelectValues.Injection.META_ROUNDING_TYPE")
+  private String roundingType;
+
   public SelectMetadataChange() {
     storageType = "";
     type = ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NONE);
+  }
+
+  public SelectMetadataChange(SelectMetadataChange c) {
+    this.name = c.name;
+    this.rename = c.rename;
+    this.type = c.type;
+    this.length = c.length;
+    this.precision = c.precision;
+    this.storageType = c.storageType;
+    this.conversionMask = c.conversionMask;
+    this.dateFormatLenient = c.dateFormatLenient;
+    this.dateFormatLocale = c.dateFormatLocale;
+    this.dateFormatTimeZone = c.dateFormatTimeZone;
+    this.lenientStringToNumber = c.lenientStringToNumber;
+    this.decimalSymbol = c.decimalSymbol;
+    this.groupingSymbol = c.groupingSymbol;
+    this.currencySymbol = c.currencySymbol;
+    this.encoding = c.encoding;
+    this.roundingType = c.roundingType;
   }
 
   public SelectMetadataChange(

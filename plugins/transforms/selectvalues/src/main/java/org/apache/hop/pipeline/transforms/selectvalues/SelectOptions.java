@@ -33,6 +33,19 @@ public class SelectOptions {
     meta = new ArrayList<>();
   }
 
+  public SelectOptions(SelectOptions o) {
+    this();
+    for (SelectField f : o.selectFields) {
+      selectFields.add(new SelectField(f));
+    }
+    for (DeleteField f : o.deleteName) {
+      deleteName.add(new DeleteField(f));
+    }
+    for (SelectMetadataChange c : o.meta) {
+      meta.add(new SelectMetadataChange(c));
+    }
+  }
+
   @HopMetadataProperty(
       key = "field",
       injectionGroupKey = "FIELDS",
