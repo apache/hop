@@ -140,16 +140,35 @@ public class ExecutionData {
 
   @Override
   public String toString() {
-    return "ExecutionData{ " + Const.CR +
-            "  executionType=" + executionType + Const.CR +
-            ", dataSetMeta=" + dataSetMeta + Const.CR +
-            ", finished=" + finished + Const.CR +
-            ", collectionDate=" + collectionDate + Const.CR +
-            ", parentId='" + parentId + '\'' + Const.CR +
-            ", ownerId='" + ownerId + '\'' + Const.CR +
-            ", dataSets=" + dataSets + Const.CR +
-            ", setMetaData=" + setMetaData + Const.CR +
-            '}';
+    return "ExecutionData{ "
+        + Const.CR
+        + "  executionType="
+        + executionType
+        + Const.CR
+        + ", dataSetMeta="
+        + dataSetMeta
+        + Const.CR
+        + ", finished="
+        + finished
+        + Const.CR
+        + ", collectionDate="
+        + collectionDate
+        + Const.CR
+        + ", parentId='"
+        + parentId
+        + '\''
+        + Const.CR
+        + ", ownerId='"
+        + ownerId
+        + '\''
+        + Const.CR
+        + ", dataSets="
+        + dataSets
+        + Const.CR
+        + ", setMetaData="
+        + setMetaData
+        + Const.CR
+        + '}';
   }
 
   @Override

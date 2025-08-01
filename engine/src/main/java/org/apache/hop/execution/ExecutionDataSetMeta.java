@@ -59,15 +59,37 @@ public class ExecutionDataSetMeta {
 
   @Override
   public String toString() {
-    return "ExecutionDataSetMeta{" + Const.CR +
-            "  setKey='" + setKey + '\'' + Const.CR +
-            ", logChannelId='" + logChannelId + '\'' + Const.CR +
-            ", name='" + name + '\'' + Const.CR +
-            ", fieldName='" + fieldName + '\'' + Const.CR +
-            ", sampleDescription='" + sampleDescription + '\'' + Const.CR +
-            ", copyNr='" + copyNr + '\'' + Const.CR +
-            ", description='" + description + '\'' + Const.CR +
-            '}';
+    return "ExecutionDataSetMeta{"
+        + Const.CR
+        + "  setKey='"
+        + setKey
+        + '\''
+        + Const.CR
+        + ", logChannelId='"
+        + logChannelId
+        + '\''
+        + Const.CR
+        + ", name='"
+        + name
+        + '\''
+        + Const.CR
+        + ", fieldName='"
+        + fieldName
+        + '\''
+        + Const.CR
+        + ", sampleDescription='"
+        + sampleDescription
+        + '\''
+        + Const.CR
+        + ", copyNr='"
+        + copyNr
+        + '\''
+        + Const.CR
+        + ", description='"
+        + description
+        + '\''
+        + Const.CR
+        + '}';
   }
 
   /**
