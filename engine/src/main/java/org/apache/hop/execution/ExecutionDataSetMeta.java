@@ -18,6 +18,8 @@
 
 package org.apache.hop.execution;
 
+import org.apache.hop.core.Const;
+
 public class ExecutionDataSetMeta {
   private String setKey;
   private String logChannelId;
@@ -53,6 +55,19 @@ public class ExecutionDataSetMeta {
     this.fieldName = fieldName;
     this.sampleDescription = sampleDescription;
     this.description = description;
+  }
+
+  @Override
+  public String toString() {
+    return "ExecutionDataSetMeta{" + Const.CR +
+            "  setKey='" + setKey + '\'' + Const.CR +
+            ", logChannelId='" + logChannelId + '\'' + Const.CR +
+            ", name='" + name + '\'' + Const.CR +
+            ", fieldName='" + fieldName + '\'' + Const.CR +
+            ", sampleDescription='" + sampleDescription + '\'' + Const.CR +
+            ", copyNr='" + copyNr + '\'' + Const.CR +
+            ", description='" + description + '\'' + Const.CR +
+            '}';
   }
 
   /**
