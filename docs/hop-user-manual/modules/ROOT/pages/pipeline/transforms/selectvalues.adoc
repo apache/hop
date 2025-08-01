@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Select Values transform is useful for selecting, removing, renaming, changing data types and configuring the length and precision of the fields on the stream.
+:description: Use 'Select Values' for selecting, removing, renaming, changing data types and configuring the length and precision of the fields on the stream.
 
 = image:transforms/icons/selectvalues.svg[Select Values transform Icon, role="image-doc-icon"] Select Values
 
@@ -70,6 +70,9 @@ Leave blank if you do not wish to rename the field
 |Include unspecified fields, ordered by name|Enable if you want to implicitly select all other fields from the input stream(s) that are not explicitly selected in the Fields section
 |===
 
+[NOTE]
+To copy a field, simply specify the same field name multiple times with different rename values.
+
 ==== Edit Mapping
 
 The Edit Mapping dialog allows you to easily define multiple mappings between source and target fields.
@@ -121,6 +124,8 @@ To use Unicode, specify UTF-8 or UTF-16. On first use, Hop searches your system 
 |Grouping|A method of separating units of thousands in numbers of four digits or larger.
 This is either a dot or a comma.
 |Currency|Symbol used to represent currencies
+|Rounding type|This option allows you to define how Numbers are rounded when they are converted to String.
+This happens when previewing the data, but also when data is bulk loaded or converted to a string in scripts.
 |===
 
 == Special use cases

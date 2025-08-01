@@ -38,6 +38,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
@@ -135,6 +136,39 @@ public class ExecutionData {
     }
 
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return "ExecutionData{ "
+        + Const.CR
+        + "  executionType="
+        + executionType
+        + Const.CR
+        + ", dataSetMeta="
+        + dataSetMeta
+        + Const.CR
+        + ", finished="
+        + finished
+        + Const.CR
+        + ", collectionDate="
+        + collectionDate
+        + Const.CR
+        + ", parentId='"
+        + parentId
+        + '\''
+        + Const.CR
+        + ", ownerId='"
+        + ownerId
+        + '\''
+        + Const.CR
+        + ", dataSets="
+        + dataSets
+        + Const.CR
+        + ", setMetaData="
+        + setMetaData
+        + Const.CR
+        + '}';
   }
 
   @Override

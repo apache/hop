@@ -92,6 +92,23 @@ public class RowBuffer {
     return Objects.hash(rowMeta, buffer);
   }
 
+  @Override
+  public String toString() {
+    if (rowMeta == null) {
+      return null;
+    }
+    StringBuilder str = new StringBuilder(rowMeta.toStringMeta());
+    str.append("\n");
+    for (Object[] row : buffer) {
+      try {
+        str.append("  ").append(rowMeta.getString(row)).append("\n");
+      } catch (HopException e) {
+        str.append("  conversion error on row-to-string: ").append(e.getMessage()).append("\n");
+      }
+    }
+    return str.toString();
+  }
+
   @JsonIgnore
   public String getXml() throws IOException {
     StringBuilder xml = new StringBuilder();

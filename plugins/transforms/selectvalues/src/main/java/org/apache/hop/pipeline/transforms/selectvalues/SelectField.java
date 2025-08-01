@@ -27,6 +27,13 @@ public class SelectField {
 
   public SelectField() {}
 
+  public SelectField(SelectField f) {
+    this.name = f.name;
+    this.rename = f.rename;
+    this.length = f.length;
+    this.precision = f.precision;
+  }
+
   /** Select: Name of the selected field */
   @HopMetadataProperty(
       key = "name",
