@@ -20,6 +20,7 @@ package org.apache.hop.passwords.aes;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -49,8 +50,7 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
   public static final String AES_PREFIX = "AES2 ";
   public static final String AES_ALGORITHM = "AES/GCM/NoPadding";
 
-  private Cipher encryptCipher;
-  private Cipher decryptCipher;
+  private SecretKeySpec secretKeySpec;
 
   @Override
   public void init() throws HopException {
@@ -68,16 +68,7 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
       MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
       byte[] digestKey = messageDigest.digest(key);
       byte[] copiedKey = Arrays.copyOf(digestKey, 16);
-      SecretKeySpec secretKeySpec = new SecretKeySpec(copiedKey, "AES");
-      GCMParameterSpec parameterSpec = new GCMParameterSpec(128, copiedKey);
-
-      // Create the cyphers that will do the encoding/decoding below...
-      //
-      encryptCipher = Cipher.getInstance(AES_ALGORITHM);
-      encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, parameterSpec);
-
-      decryptCipher = Cipher.getInstance(AES_ALGORITHM);
-      decryptCipher.init(Cipher.DECRYPT_MODE, secretKeySpec, parameterSpec);
+      secretKeySpec = new SecretKeySpec(copiedKey, "AES");
     } catch (Exception e) {
       throw new HopException("Error initializing AES password encoder plugin", e);
     }
@@ -111,16 +102,31 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
     }
   }
 
-  private String encodeInternal(String password) {
+  private String encodeInternal(String password) throws Exception {
     if (StringUtils.isEmpty(password)) {
       return password;
     }
-    try {
-      return Base64.getEncoder()
-          .encodeToString(encryptCipher.doFinal(password.getBytes(StandardCharsets.UTF_8)));
-    } catch (Exception e) {
-      throw new RuntimeException("Error encoding password using AES", e);
-    }
+
+    // Generate a new, unique 12-byte IV for this encryption
+    byte[] iv = new byte[12];
+    SecureRandom secureRandom = new SecureRandom();
+    secureRandom.nextBytes(iv);
+
+    // Initialize a new Cipher with the unique IV
+    GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
+    Cipher cipher = Cipher.getInstance(AES_ALGORITHM);
+    cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, parameterSpec);
+
+    // Encrypt the password
+    byte[] ciphertext = cipher.doFinal(password.getBytes(StandardCharsets.UTF_8));
+
+    // Concatenate the IV and the ciphertext
+    byte[] ivAndCiphertext = new byte[iv.length + ciphertext.length];
+    System.arraycopy(iv, 0, ivAndCiphertext, 0, iv.length);
+    System.arraycopy(ciphertext, 0, ivAndCiphertext, iv.length, ciphertext.length);
+
+    // Base64 encode the combined result
+    return Base64.getEncoder().encodeToString(ivAndCiphertext);
   }
 
   @Override
@@ -163,7 +169,11 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
     List<String> varList = new ArrayList<>();
     StringUtil.getUsedVariables(password, varList, true);
     if (varList.isEmpty()) {
-      encryptedPassword = AES_PREFIX + encodeInternal(password);
+      try {
+        encryptedPassword = AES_PREFIX + encodeInternal(password);
+      } catch (Exception e) {
+        throw new RuntimeException("Error encoding password using AES", e);
+      }
     } else {
       encryptedPassword = password;
     }
@@ -173,7 +183,20 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
 
   private String decodeOnly(String encodedPassword) {
     try {
-      return new String(decryptCipher.doFinal(Base64.getDecoder().decode(encodedPassword)));
+      // Decode the Base64 string
+      byte[] ivAndCiphertext = Base64.getDecoder().decode(encodedPassword);
+
+      // Separate the IV (first 12 bytes) from the ciphertext
+      byte[] iv = Arrays.copyOfRange(ivAndCiphertext, 0, 12);
+      byte[] ciphertext = Arrays.copyOfRange(ivAndCiphertext, 12, ivAndCiphertext.length);
+
+      // Initialize a new Cipher with the extracted IV
+      GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
+      Cipher cipher = Cipher.getInstance(AES_ALGORITHM);
+      cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, parameterSpec);
+
+      // Decrypt the ciphertext and return as a String
+      return new String(cipher.doFinal(ciphertext));
     } catch (Exception e) {
       throw new RuntimeException("Error decoding password using AES", e);
     }
