@@ -242,9 +242,7 @@ public class Variables implements IVariables {
 
         // If we have a value to retrieve from the JSON we got back, we can do that:
         //
-        if (StringUtils.isEmpty(secretValue)) {
-          return resolvedArgument;
-        } else {
+        if (!StringUtils.isEmpty(secretValue)) {
           try {
             JSONObject js = (JSONObject) new JSONParser().parse(resolvedArgument);
             Object value = js.get(secretValue);
