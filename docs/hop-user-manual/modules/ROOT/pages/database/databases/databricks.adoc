@@ -20,7 +20,9 @@ under the License.
 
 = Databricks
 
-Check the https://docs.databricks.com/aws/en/integrations/compute-details[Databricks documentation] on how to get the details for your connection.
+Check the https://docs.databricks.com/aws/en/integrations/compute-details[Databricks documentation] on how to get the details for your connection to specify your catalog.
+
+WARNING: the database name field is not used in a Databricks connection. Use the Catalog Name field.
 
 [cols="2*",options="header"]
 |===
