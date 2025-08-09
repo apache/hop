@@ -28,8 +28,6 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Technology OpenSearch</name>
 
-    <properties />
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>

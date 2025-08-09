@@ -714,7 +714,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     Map<String, String> optionsMap = new HashMap<>();
 
     Map<String, String> map = getExtraOptions();
-    if (map.size() > 0) {
+    if (!map.isEmpty()) {
       Iterator<String> iterator = map.keySet().iterator();
       while (iterator.hasNext()) {
         String typedParameter = iterator.next();
@@ -1059,13 +1059,13 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadInterface"));
     }
 
-    if (getName() == null || getName().length() == 0) {
+    if (Utils.isEmpty(getName())) {
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadConnectionName"));
     }
 
     if (getIDatabase().isRequiresName()
         && getIDatabase().getManualUrl().isEmpty()
-        && (getDatabaseName() == null || getDatabaseName().length() == 0)) {
+        && (Utils.isEmpty(getDatabaseName()))) {
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadDatabaseName"));
     }
 
@@ -2049,7 +2049,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     // This is also covered/persisted by JDBC option MS SQL Server / instancename / <somevalue>
     // We want to return set <somevalue>
     // --> MSSQL.instancename
-    if ((instanceName != null) && (instanceName.length() > 0)) {
+    if ((instanceName != null) && (!instanceName.isEmpty())) {
       addExtraOption(getPluginId(), "instance", instanceName);
     }
   }

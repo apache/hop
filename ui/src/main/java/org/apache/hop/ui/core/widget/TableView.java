@@ -46,6 +46,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.undo.ChangeAction;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
@@ -3089,14 +3090,14 @@ public class TableView extends Composite {
     if (item != null) {
       if (colNr >= 0) {
         String str = item.getText(colNr);
-        if (str == null || str.isEmpty()) {
+        if (Utils.isEmpty(str)) {
           empty = true;
         }
       } else {
         empty = true;
         for (int j = 1; j < table.getColumnCount(); j++) {
           String str = item.getText(j);
-          if (str != null && !str.isEmpty()) {
+          if (!Utils.isEmpty(str)) {
             empty = false;
           }
         }

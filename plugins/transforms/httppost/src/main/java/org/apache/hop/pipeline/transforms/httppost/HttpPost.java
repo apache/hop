@@ -219,7 +219,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
             post.setEntity(entity);
           }
         } else {
-          if ((data.realEncoding != null) && (data.realEncoding.length() > 0)) {
+          if ((data.realEncoding != null) && (!data.realEncoding.isEmpty())) {
             bytes = tmp.getBytes(data.realEncoding);
           } else {
             bytes = tmp.getBytes();

@@ -28,6 +28,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Function;
+import org.apache.hop.core.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +109,7 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
     while (loggingObject != null) {
       if (loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == WORKFLOW) {
         String filename = loggingObject.getFilename();
-        if (filename != null && !filename.isEmpty()) {
+        if (!Utils.isEmpty(filename)) {
           subjects.add(filename);
         }
       }

@@ -854,7 +854,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         incrementLinesInput();
       }
 
-      if (conversionExceptions != null && !conversionExceptions.isEmpty()) {
+      if (!Utils.isEmpty(conversionExceptions)) {
         // Forward the first exception
         //
         throw new HopConversionException(

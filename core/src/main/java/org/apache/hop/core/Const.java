@@ -1359,10 +1359,10 @@ public class Const {
   public static void repl(StringBuffer str, String code, String repl) {
     if ((code == null)
         || (repl == null)
-        || (code.length() == 0)
-        || (repl.length() == 0)
+        || (code.isEmpty())
+        || (repl.isEmpty())
         || (str == null)
-        || (str.length() == 0)) {
+        || (str.isEmpty())) {
       return; // do nothing
     }
     String aString = str.toString();
@@ -1833,7 +1833,7 @@ public class Const {
    * @return source if source is not null, otherwise return def
    */
   public static String NVL(String source, String def) {
-    if (source == null || source.length() == 0) {
+    if (source == null || source.isEmpty()) {
       return def;
     }
     return source;
@@ -1989,7 +1989,7 @@ public class Const {
      */
     List<String> list = new ArrayList<>();
 
-    if (string == null || string.length() == 0) {
+    if (string == null || string.isEmpty()) {
       return new String[] {};
     }
 
@@ -2049,7 +2049,7 @@ public class Const {
      */
     List<String> list = new ArrayList<>();
 
-    if (string == null || string.length() == 0) {
+    if (string == null || string.isEmpty()) {
       return new String[] {};
     }
 
@@ -2101,7 +2101,7 @@ public class Const {
 
     // Check for empty paths...
     //
-    if (path == null || path.length() == 0 || path.equals(separator)) {
+    if (path == null || path.isEmpty() || path.equals(separator)) {
       return new String[] {};
     }
 
@@ -2138,7 +2138,7 @@ public class Const {
     //
     // a --> { a }
     //
-    if (spath.length == 0 && path.length() > 0) {
+    if (spath.length == 0 && !path.isEmpty()) {
       spath = new String[] {path};
     }
 
@@ -2718,7 +2718,7 @@ public class Const {
    * @return cleaned string
    */
   public static String removeCRLF(String in) {
-    if ((in != null) && (in.length() > 0)) {
+    if ((in != null) && (!in.isEmpty())) {
       int inLen = in.length();
       int posn = 0;
       char[] tmp = new char[inLen];
@@ -2745,7 +2745,7 @@ public class Const {
    * @return cleaned string
    */
   public static String removeChar(String in, char badChar) {
-    if ((in != null) && (in.length() > 0)) {
+    if ((in != null) && (!in.isEmpty())) {
       int inLen = in.length();
       int posn = 0;
       char[] tmp = new char[inLen];
@@ -2835,7 +2835,7 @@ public class Const {
    * @return number of occurrences
    */
   public static int getOccurenceString(String string, String searchFor) {
-    if (string == null || string.length() == 0) {
+    if (string == null || string.isEmpty()) {
       return 0;
     }
     int counter = 0;
@@ -2881,7 +2881,7 @@ public class Const {
    * @return number of occurrences
    */
   public static int getOcuranceString(String string, String searchFor) {
-    if (string == null || string.length() == 0) {
+    if (string == null || string.isEmpty()) {
       return 0;
     }
     Pattern p = Pattern.compile(searchFor);

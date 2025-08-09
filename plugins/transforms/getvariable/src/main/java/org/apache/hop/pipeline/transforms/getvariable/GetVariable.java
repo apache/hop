@@ -22,6 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -116,7 +117,7 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
   public boolean init() {
     if (super.init()) {
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      if (previous != null && !previous.isEmpty()) {
+      if (!Utils.isEmpty(previous)) {
         data.readsRows = true;
       }
 

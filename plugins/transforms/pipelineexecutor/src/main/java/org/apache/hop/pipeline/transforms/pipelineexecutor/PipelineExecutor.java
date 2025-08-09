@@ -217,7 +217,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
     PipelineExecutorData pipelineExecutorData = getData();
     // If we got 0 rows on input we don't really want to execute the pipeline
-    if (pipelineExecutorData.groupBuffer == null || pipelineExecutorData.groupBuffer.isEmpty()) {
+    if (Utils.isEmpty(pipelineExecutorData.groupBuffer)) {
       return;
     }
     pipelineExecutorData.groupTimeStart = System.currentTimeMillis();
@@ -237,9 +237,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       // exists
       // If not still pass the null parameter values
       passParametersToPipeline(
-          lastIncomingFieldValues != null && !lastIncomingFieldValues.isEmpty()
-              ? lastIncomingFieldValues
-              : incomingFieldValues);
+          !Utils.isEmpty(lastIncomingFieldValues) ? lastIncomingFieldValues : incomingFieldValues);
     }
 
     // keep track for drill down in HopGui...
@@ -332,8 +330,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     // For all parameters declared in pipelineExecutor
     for (int i = 0; i < parameters.size(); i++) {
       String currentVariableToUpdate = (String) resolvingValuesMap.keySet().toArray()[i];
-      boolean hasIncomingFieldValues =
-          incomingFieldValues != null && !incomingFieldValues.isEmpty();
+      boolean hasIncomingFieldValues = !Utils.isEmpty(incomingFieldValues);
       try {
         if (i < fieldsToUse.size()
             && incomingFields.contains(fieldsToUse.get(i))

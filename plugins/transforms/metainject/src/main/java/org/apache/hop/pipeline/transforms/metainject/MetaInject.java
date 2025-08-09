@@ -398,7 +398,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
         if (source.getTransformName() != null) {
           // from specified transform
           List<RowMetaAndData> rows = data.rowMap.get(source.getTransformName());
-          if (rows != null && !rows.isEmpty()) {
+          if (!Utils.isEmpty(rows)) {
             // Which metadata key is this referencing? Find the attribute key in the metadata
             // entries...
             //

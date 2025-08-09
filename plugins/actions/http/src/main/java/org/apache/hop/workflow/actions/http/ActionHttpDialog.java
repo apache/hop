@@ -295,7 +295,7 @@ public class ActionHttpDialog extends ActionDialog {
     int rows =
         action.getHeaders() == null
             ? 1
-            : (action.getHeaders().size() == 0 ? 0 : action.getHeaders().size());
+            : (action.getHeaders().isEmpty() ? 0 : action.getHeaders().size());
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -959,7 +959,7 @@ public class ActionHttpDialog extends ActionDialog {
       String varvalue = wHeaders.getNonEmpty(i).getText(2);
       ActionHttp.Header header = new ActionHttp.Header();
 
-      if (varname != null && varname.length() != 0) {
+      if (!Utils.isEmpty(varname)) {
         header.setHeaderName(varname);
         header.setHeaderValue(varvalue);
       }

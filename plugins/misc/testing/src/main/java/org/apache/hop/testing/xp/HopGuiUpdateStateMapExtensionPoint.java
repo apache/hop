@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.util.DataSetConst;
@@ -45,7 +46,7 @@ public class HopGuiUpdateStateMapExtensionPoint
     final List<UnitTestResult> results =
         (List<UnitTestResult>)
             ext.pipeline.getExtensionDataMap().get(DataSetConst.UNIT_TEST_RESULTS);
-    if (results != null && !results.isEmpty()) {
+    if (!Utils.isEmpty(results)) {
       Map<String, Object> stateMap = ext.pipelineGraph.getStateMap();
       if (stateMap == null) {
         stateMap = new HashMap<>();

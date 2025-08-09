@@ -2775,7 +2775,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         if (isNull(argList[0])) {
           return Boolean.TRUE;
         }
-        if (Context.toString(argList[0]).length() == 0) {
+        if (Context.toString(argList[0]).isEmpty()) {
           return Boolean.TRUE;
         } else {
           return Boolean.FALSE;
@@ -2800,7 +2800,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         if (isNull(argList[0])) {
           return Boolean.FALSE;
         }
-        if (Context.toString(argList[0]).length() == 0) {
+        if (Context.toString(argList[0]).isEmpty()) {
           return Boolean.FALSE;
         }
 

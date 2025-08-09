@@ -70,8 +70,7 @@ public class AzureFileNameParser extends HostFileNameParser {
 
       } else if (scheme.equals("azfs")) {
         fileType = getFileType(uri);
-        String path =
-            normalizedUri.substring(normalizedUri.indexOf('/', 1), normalizedUri.length());
+        String path = normalizedUri.substring(normalizedUri.indexOf('/', 1));
         AzureConfig azureConfig = AzureConfigSingleton.getConfig();
         absPath = stripFirstFolder(path);
       }

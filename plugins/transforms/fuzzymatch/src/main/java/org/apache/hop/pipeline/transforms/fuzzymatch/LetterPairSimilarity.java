@@ -43,7 +43,7 @@ public class LetterPairSimilarity {
    */
   private static String[] letterPairs(String str) {
     int numPairs = str.length() - 1;
-    if (str.length() == 0) {
+    if (str.isEmpty()) {
       numPairs = 0;
     }
     String[] pairs = new String[numPairs];

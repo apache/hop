@@ -30,6 +30,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -217,7 +218,7 @@ public final class ExecutionDataBuilder {
 
     // Store the result rows...
     //
-    if (result.getRows() != null && !result.getRows().isEmpty()) {
+    if (!Utils.isEmpty(result.getRows())) {
       IRowMeta rowsMeta = result.getRows().get(0).getRowMeta();
       RowBuffer rowsBuffer = new RowBuffer(rowsMeta);
       for (RowMetaAndData rowMetaAndData : result.getRows()) {
@@ -237,7 +238,7 @@ public final class ExecutionDataBuilder {
 
     // The result files
     //
-    if (result.getResultFiles() != null && !result.getResultFiles().isEmpty()) {
+    if (!Utils.isEmpty(result.getResultFiles())) {
       IRowMeta filesMeta =
           new RowMetaBuilder().addString("filename").addString("type").addString("origin").build();
       RowBuffer filesBuffer = new RowBuffer(filesMeta);

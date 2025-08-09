@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -646,7 +647,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
       tableItem.setText(3, mongoField.hopType);
     }
 
-    if (mongoField.indexedValues != null && !mongoField.indexedValues.isEmpty()) {
+    if (!Utils.isEmpty(mongoField.indexedValues)) {
       tableItem.setText(4, MongoDbInputData.indexedValsList(mongoField.indexedValues));
     }
 

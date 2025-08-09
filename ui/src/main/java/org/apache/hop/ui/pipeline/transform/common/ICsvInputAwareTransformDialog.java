@@ -101,7 +101,7 @@ public interface ICsvInputAwareTransformDialog {
           && fieldNames[i].endsWith(meta.getEnclosure())
           && fieldNames[i].length() > 1) {
         fieldNames[i] = fieldNames[i].substring(1, fieldNames[i].length() - 1);
-      } else if (meta.hasHeader() && fieldNames[i].length() == 0) {
+      } else if (meta.hasHeader() && fieldNames[i].isEmpty()) {
         final DecimalFormat df = new DecimalFormat("000");
         fieldNames[i] = "EmptyField_" + df.format(i);
       }

@@ -610,7 +610,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
 
     if (copyingPreviousFiles) {
       List<ResultFile> resultFiles = result.getResultFilesList();
-      if (resultFiles == null || resultFiles.isEmpty()) {
+      if (Utils.isEmpty(resultFiles)) {
         if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionSftpPut.ArgsFromPreviousNothingFiles"));
         }

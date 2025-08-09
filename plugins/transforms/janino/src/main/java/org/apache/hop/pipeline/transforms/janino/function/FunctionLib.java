@@ -33,6 +33,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.util.Utils;
 
 public class FunctionLib {
 
@@ -53,7 +54,7 @@ public class FunctionLib {
           JaninoFunction annotation = method.getAnnotation(JaninoFunction.class);
           List<FunctionExample> functionExamples = new ArrayList<>();
           if (annotation != null) {
-            if (annotation.examples() != null && !annotation.examples().isEmpty()) {
+            if (!Utils.isEmpty(annotation.examples())) {
               ObjectMapper mapper = new ObjectMapper();
               JsonNode arrayNode = mapper.readTree(annotation.examples());
               for (JsonNode jsonNode : arrayNode) {

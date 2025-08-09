@@ -355,7 +355,7 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
       }
     }
 
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

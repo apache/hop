@@ -288,12 +288,12 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   public void prepareNSMap(Element l) {
     List<Namespace> namespacesList = l.declaredNamespaces();
     for (Namespace ns : namespacesList) {
-      if (ns.getPrefix().trim().length() == 0) {
+      if (ns.getPrefix().trim().isEmpty()) {
         data.NAMESPACE.put("pre" + data.NSPath.size(), ns.getURI());
         String path = "";
         Element element = l;
         while (element != null) {
-          if (element.getNamespacePrefix() != null && element.getNamespacePrefix().length() > 0) {
+          if (!Utils.isEmpty(element.getNamespacePrefix())) {
             path =
                 GetXmlDataMeta.N0DE_SEPARATOR
                     + element.getNamespacePrefix()
@@ -541,10 +541,10 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       String[] pathStrs = path.split(GetXmlDataMeta.N0DE_SEPARATOR);
       for (int i = 0; i < pathStrs.length; i++) {
         String tmp = pathStrs[i];
-        if (newPath.length() > 0) {
+        if (!newPath.isEmpty()) {
           newPath.append(GetXmlDataMeta.N0DE_SEPARATOR);
         }
-        if (tmp.length() > 0
+        if (!tmp.isEmpty()
             && !tmp.contains(":")
             && !tmp.contains(".")
             && !tmp.contains(GetXmlDataMeta.AT)) {
@@ -595,26 +595,26 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       data.file = data.files.getFile(data.filenr);
       data.filename = HopVfs.getFilename(data.file);
       // Add additional fields?
-      if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
+      if (!Utils.isEmpty(meta.getShortFileNameField())) {
         data.shortFilename = data.file.getName().getBaseName();
       }
-      if (meta.getPathField() != null && meta.getPathField().length() > 0) {
+      if (!Utils.isEmpty(meta.getPathField())) {
         data.path = HopVfs.getFilename(data.file.getParent());
       }
-      if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
+      if (!Utils.isEmpty(meta.isHiddenField())) {
         data.hidden = data.file.isHidden();
       }
-      if (meta.getExtensionField() != null && meta.getExtensionField().length() > 0) {
+      if (!Utils.isEmpty(meta.getExtensionField())) {
         data.extension = data.file.getName().getExtension();
       }
       if (meta.getLastModificationDateField() != null
-          && meta.getLastModificationDateField().length() > 0) {
+          && !meta.getLastModificationDateField().isEmpty()) {
         data.lastModificationDateTime = new Date(data.file.getContent().getLastModifiedTime());
       }
-      if (meta.getUriField() != null && meta.getUriField().length() > 0) {
+      if (!Utils.isEmpty(meta.getUriField())) {
         data.uriName = data.file.getName().getURI();
       }
-      if (meta.getRootUriField() != null && meta.getRootUriField().length() > 0) {
+      if (!Utils.isEmpty(meta.getRootUriField())) {
         data.rootUriName = data.file.getName().getRootURI();
       }
       // Check if file is empty
@@ -625,7 +625,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         fileSize = -1;
       }
 
-      if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
+      if (!Utils.isEmpty(meta.getSizeField())) {
         data.size = fileSize;
       }
       // Move file pointer ahead!
@@ -879,36 +879,36 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         outputRowData[rowIndex++] = data.rownr;
       }
       // Possibly add short filename...
-      if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
+      if (!Utils.isEmpty(meta.getShortFileNameField())) {
         outputRowData[rowIndex++] = data.shortFilename;
       }
       // Add Extension
-      if (meta.getExtensionField() != null && meta.getExtensionField().length() > 0) {
+      if (!Utils.isEmpty(meta.getExtensionField())) {
         outputRowData[rowIndex++] = data.extension;
       }
       // add path
-      if (meta.getPathField() != null && meta.getPathField().length() > 0) {
+      if (!Utils.isEmpty(meta.getPathField())) {
         outputRowData[rowIndex++] = data.path;
       }
       // Add Size
-      if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
+      if (!Utils.isEmpty(meta.getSizeField())) {
         outputRowData[rowIndex++] = data.size;
       }
       // add Hidden
-      if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
+      if (!Utils.isEmpty(meta.isHiddenField())) {
         outputRowData[rowIndex++] = Boolean.valueOf(data.path);
       }
       // Add modification date
       if (meta.getLastModificationDateField() != null
-          && meta.getLastModificationDateField().length() > 0) {
+          && !meta.getLastModificationDateField().isEmpty()) {
         outputRowData[rowIndex++] = data.lastModificationDateTime;
       }
       // Add Uri
-      if (meta.getUriField() != null && meta.getUriField().length() > 0) {
+      if (!Utils.isEmpty(meta.getUriField())) {
         outputRowData[rowIndex++] = data.uriName;
       }
       // Add RootUri
-      if (meta.getRootUriField() != null && meta.getRootUriField().length() > 0) {
+      if (!Utils.isEmpty(meta.getRootUriField())) {
         outputRowData[rowIndex] = data.rootUriName;
       }
 
@@ -996,7 +996,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
           int last = xPathValue.lastIndexOf(GetXmlDataMeta.N0DE_SEPARATOR);
           if (last > -1) {
             last++;
-            String attribut = xPathValue.substring(last, xPathValue.length());
+            String attribut = xPathValue.substring(last);
             if (!attribut.startsWith(GetXmlDataMeta.AT)) {
               xPathValue = xPathValue.substring(0, last) + GetXmlDataMeta.AT + attribut;
             }

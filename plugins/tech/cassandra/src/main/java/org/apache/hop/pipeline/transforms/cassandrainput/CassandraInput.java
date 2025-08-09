@@ -116,7 +116,7 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
           connectionOptions.put(CassandraUtils.ConnectionOptions.MAX_LENGTH, maxLength);
         }
 
-        if (connectionOptions.size() > 0) {
+        if (!connectionOptions.isEmpty()) {
           logBasic(
               BaseMessages.getString(
                   CassandraInputMeta.PKG,
@@ -167,7 +167,7 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
         meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
         // check that there are some outgoing fields!
-        if (data.outputRowMeta.size() == 0) {
+        if (data.outputRowMeta.isEmpty()) {
           throw new HopException(
               BaseMessages.getString(
                   CassandraInputMeta.PKG, "CassandraInput.Error.QueryWontProduceOutputFields"));

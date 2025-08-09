@@ -660,18 +660,18 @@ public class TextFileInputMeta
       }
     }
     if (errorHandling.errorIgnored) {
-      if (errorCountField != null && errorCountField.length() > 0) {
+      if (!Utils.isEmpty(errorCountField)) {
         IValueMeta v = new ValueMetaInteger(errorCountField);
         v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
         v.setOrigin(name);
         row.addValueMeta(v);
       }
-      if (errorFieldsField != null && errorFieldsField.length() > 0) {
+      if (!Utils.isEmpty(errorFieldsField)) {
         IValueMeta v = new ValueMetaString(errorFieldsField);
         v.setOrigin(name);
         row.addValueMeta(v);
       }
-      if (errorTextField != null && errorTextField.length() > 0) {
+      if (!Utils.isEmpty(errorTextField)) {
         IValueMeta v = new ValueMetaString(errorTextField);
         v.setOrigin(name);
         row.addValueMeta(v);
@@ -1187,7 +1187,7 @@ public class TextFileInputMeta
         //
         for (int i = 0; i < inputFiles.fileName.length; i++) {
           final String fileName = inputFiles.fileName[i];
-          if (fileName == null || fileName.isEmpty()) {
+          if (Utils.isEmpty(fileName)) {
             continue;
           }
 

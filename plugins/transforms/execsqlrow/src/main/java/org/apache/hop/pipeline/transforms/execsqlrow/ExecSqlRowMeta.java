@@ -29,6 +29,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -309,7 +310,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
                 transformMeta);
         remarks.add(cr);
 
-        if (sqlField != null && sqlField.length() != 0) {
+        if (!Utils.isEmpty(sqlField)) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
