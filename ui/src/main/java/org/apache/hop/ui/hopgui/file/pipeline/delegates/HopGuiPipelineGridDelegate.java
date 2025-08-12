@@ -122,8 +122,10 @@ public class HopGuiPipelineGridDelegate {
     } else {
       if (pipelineGridTab != null && !pipelineGridTab.isDisposed()) {
         // just set this one active and get out...
+        // and activate the refresh timer
         //
         pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
+        startRefreshMetricsTimer();
         return;
       }
     }
@@ -276,7 +278,8 @@ public class HopGuiPipelineGridDelegate {
               hopGui.getDisplay().asyncExec(HopGuiPipelineGridDelegate.this::refreshView);
               if (pipelineGraph.getPipeline() != null
                   && (pipelineGraph.getPipeline().isFinished()
-                      || pipelineGraph.getPipeline().isStopped())) {
+                      || pipelineGraph.getPipeline().isStopped())
+                  && !pipelineGraph.getPipeline().isReadyToStart()) {
                 ExecutorUtil.cleanup(refreshMetricsTimer, UPDATE_TIME_VIEW + 10);
               }
             }
