@@ -82,7 +82,7 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       throws HopDatabaseException {
     String url = "jdbc:databricks://" + hostname + ":" + port + ";HttpPath=" + httpPath;
     if (!StringUtils.isEmpty(catalogName)) {
-      url += ";CatalogName=" + catalogName;
+      url += ";ConnCatalog=" + catalogName;
     }
     return url;
   }
