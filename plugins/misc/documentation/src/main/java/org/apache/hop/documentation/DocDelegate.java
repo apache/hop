@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.hop.workflow.actions.documentation;
+package org.apache.hop.documentation;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,10 +29,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.parameters.UnknownParamException;
 
 public abstract class DocDelegate {
-  protected ActionDoc action;
+  protected DocBuilder builder;
 
-  public DocDelegate(ActionDoc action) {
-    this.action = action;
+  public DocDelegate(DocBuilder action) {
+    this.builder = action;
   }
 
   protected String calculateTargetDocumentationFile(
@@ -41,20 +41,20 @@ public abstract class DocDelegate {
 
     // A workflow and a pipeline can have the same base name but a different extension
     //
-    if (action.isPipeline(sourceFile)) {
+    if (builder.isPipeline(sourceFile)) {
       return targetFolder.getName().getPath()
           + "/"
           + base
           + "-"
-          + ActionDoc.STRING_PIPELINE
+          + DocBuilder.STRING_PIPELINE
           + ".md";
     }
-    if (action.isWorkflow(sourceFile)) {
+    if (builder.isWorkflow(sourceFile)) {
       return targetFolder.getName().getPath()
           + "/"
           + base
           + "-"
-          + ActionDoc.STRING_WORKFLOW
+          + DocBuilder.STRING_WORKFLOW
           + ".md";
     }
     return targetFolder.getName().getPath()
@@ -66,7 +66,7 @@ public abstract class DocDelegate {
   }
 
   protected String calculateTargetImageFile(String name, String type) {
-    return name + "-" + type + UUID.randomUUID().toString() + ".svg";
+    return name + "-" + type + UUID.randomUUID() + ".svg";
   }
 
   protected String formatDate(Date date) {
@@ -102,7 +102,7 @@ public abstract class DocDelegate {
 
     // Include parameters?
     //
-    if (action.isIncludingParameters() && meta.listParameters().length > 0) {
+    if (builder.isIncludingParameters() && meta.listParameters().length > 0) {
       content.append("- Parameters : ").append(Const.CR);
       for (String parameterName : meta.listParameters()) {
         content

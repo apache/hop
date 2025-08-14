@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.hop.workflow.actions.documentation;
+package org.apache.hop.documentation;
 
 import java.util.ArrayList;
 import java.util.List;

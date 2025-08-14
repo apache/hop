@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.hop.workflow.actions.documentation;
+package org.apache.hop.documentation;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,13 +25,17 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineSvgPainter;
 
 public class PipelineDocDelegate extends DocDelegate {
-  public PipelineDocDelegate(ActionDoc action) {
-    super(action);
+  private final ILogChannel log;
+
+  public PipelineDocDelegate(DocBuilder builder) {
+    super(builder);
+    this.log = builder.getLog();
   }
 
   public void buildPipelineDocumentation(
@@ -48,10 +52,11 @@ public class PipelineDocDelegate extends DocDelegate {
     //
     String relativeSourceFile = sourceFolder.getName().getRelativeName(file.getName());
 
-    action.logBasic(" - documenting pipeline: " + relativeSourceFile + " to " + targetFileName);
+    log.logBasic(" - documenting pipeline: " + relativeSourceFile + " to " + targetFileName);
 
     PipelineMeta pipelineMeta =
-        new PipelineMeta(file.getName().getPath(), action.getMetadataProvider(), action);
+        new PipelineMeta(
+            file.getName().getPath(), builder.getMetadataProvider(), builder.getVariables());
     String pipelineName = pipelineMeta.getName();
 
     StringBuilder content = new StringBuilder();
@@ -74,11 +79,11 @@ public class PipelineDocDelegate extends DocDelegate {
     //
     String pipelineSvg =
         PipelineSvgPainter.generatePipelineSvg(
-            pipelineMeta, 1.0f, action, new DPoint(0, 0), 1.0f, 0);
-    String relativeSvgFilename = calculateTargetImageFile(pipelineName, ActionDoc.STRING_PIPELINE);
+            pipelineMeta, 1.0f, builder.getVariables(), new DPoint(0, 0), 1.0f, 0);
+    String relativeSvgFilename = calculateTargetImageFile(pipelineName, DocBuilder.STRING_PIPELINE);
     String svgFilename =
-        targetRootFolder.getName().getPath() + "/" + ActionDoc.ASSETS_IMAGES + relativeSvgFilename;
-    action.saveFile(svgFilename, pipelineSvg);
+        targetRootFolder.getName().getPath() + "/" + DocBuilder.ASSETS_IMAGES + relativeSvgFilename;
+    builder.saveFile(svgFilename, pipelineSvg);
 
     // We need the relative path from this MD file to the SVG file.
     //
@@ -105,7 +110,7 @@ public class PipelineDocDelegate extends DocDelegate {
         .append(Const.CR)
         .append(Const.CR);
 
-    if (action.isIncludingNotes() && !pipelineMeta.getNotes().isEmpty()) {
+    if (builder.isIncludingNotes() && !pipelineMeta.getNotes().isEmpty()) {
       content.append("## Notes : ").append(Const.CR).append(Const.CR);
 
       List<NotePadMeta> notes = new ArrayList<>(pipelineMeta.getNotes());
@@ -118,7 +123,7 @@ public class PipelineDocDelegate extends DocDelegate {
 
     // Now that we have the content, we can save the file.
     //
-    action.saveFile(targetFileName, content.toString());
+    builder.saveFile(targetFileName, content.toString());
 
     // Add it to the table of content
     //

@@ -19,7 +19,8 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <id>hop-action-documentation</id>
+
+    <id>hop-misc-debug</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -27,7 +28,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/actions/documentation</outputDirectory>
+            <outputDirectory>plugins/misc/documentation</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -42,9 +43,9 @@
     <dependencySets>
         <dependencySet>
             <includes>
-                <include>org.apache.hop:hop-action-documentation:jar</include>
+                <include>org.apache.hop:hop-misc-documentation:jar</include>
             </includes>
-            <outputDirectory>plugins/actions/documentation</outputDirectory>
+            <outputDirectory>plugins/misc/documentation</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>
