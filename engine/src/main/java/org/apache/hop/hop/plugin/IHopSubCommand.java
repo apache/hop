@@ -16,12 +16,14 @@
  *
  */
 
-package org.apache.hop.workflow.actions.documentation;
+package org.apache.hop.hop.plugin;
 
-/** An entry in the table of content */
-public record TocEntry(
-    String relativeFolder,
-    String type,
-    String description,
-    String sourceFile,
-    String targetDocFile) {}
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import picocli.CommandLine;
+
+public interface IHopSubCommand {
+  void initialize(CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
+      throws HopException;
+}

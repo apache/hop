@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.hop.workflow.actions.documentation;
+package org.apache.hop.documentation;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;

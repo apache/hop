@@ -16,43 +16,46 @@
  *
  */
 
-package org.apache.hop.workflow.actions.documentation;
+package org.apache.hop.documentation;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileExtensionSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.gui.plugin.GuiElementType;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.config.plugin.ConfigPlugin;
+import org.apache.hop.core.config.plugin.ConfigPluginType;
+import org.apache.hop.core.config.plugin.IConfigOptions;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.hop.plugin.HopSubCommand;
+import org.apache.hop.hop.plugin.IHopSubCommand;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import picocli.CommandLine;
 
-/** Generate documentation in MarkDown format. */
-@Action(
-    id = "DOCUMENTATION",
-    name = "i18n::ActionDoc.Name",
-    description = "i18n::ActionDoc.Description",
-    image = "info.svg",
-    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    keywords = "i18n::ActionDoc.keyword",
-    documentationUrl = "/workflow/actions/documentation.html")
 @Getter
 @Setter
-@GuiPlugin
-public class ActionDoc extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDoc.class;
-
-  public static final String GUI_WIDGETS_PARENT_ID = "ActionDocDialog-GuiWidgetsParent";
-
+@CommandLine.Command(
+    mixinStandardHelpOptions = true,
+    name = "doc",
+    description = "Generate documentation")
+@HopSubCommand(id = "doc", description = "Generate documentation")
+public class DocBuilder implements Runnable, IHopSubCommand, IHasHopMetadataProvider {
   public static final String PIPELINE_EXTENSION = "hpl";
   public static final String WORKFLOW_EXTENSION = "hwf";
   public static final String DATASETS_FOLDER = "datasets";
@@ -61,55 +64,142 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
   public static final String STRING_WORKFLOW = "workflow";
   public static final String ASSETS_IMAGES = "assets/images/";
   public static final String STYLES_CSS = "assets/styles.css";
-  public static final String EXPR_PROJECT_HOME = "${PROJECT_HOME}";
-  public static final String EXPR_PROJECT_NAME = "${HOP_PROJECT_NAME}";
+  public static final String VAR_PROJECT_HOME = "PROJECT_HOME";
+  public static final String VAR_PROJECT_NAME = "HOP_PROJECT_NAME";
   public static final String INDEX_MD = "index.md";
 
-  @GuiWidgetElement(
-      id = "1000-action-doc-dialog-target-filename",
-      parentId = GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.FILENAME,
-      variables = true,
-      label = "i18n::ActionDoc.Target.Label")
-  @HopMetadataProperty
+  private ILogChannel log;
+  private CommandLine cmd;
+  private IVariables variables;
+  private MultiMetadataProvider metadataProvider;
+
+  @CommandLine.Option(
+      names = {"-t", "--target-folder"},
+      description = "Specify the target parent folder where the documentation should end up")
   private String targetParentFolder;
 
-  @GuiWidgetElement(
-      id = "1010-action-doc-dialog-include-parameters",
-      parentId = GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.CHECKBOX,
-      variables = false,
-      label = "i18n::ActionDoc.Parameters.Label")
-  @HopMetadataProperty
-  private boolean includingParameters = true;
+  @CommandLine.Option(
+      names = {"-ip", "--include-parameters"},
+      description = "Include a list of parameters for each pipeline and workflow")
+  private boolean includingParameters;
 
-  @GuiWidgetElement(
-      id = "1020-action-doc-dialog-include-notes",
-      parentId = GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.CHECKBOX,
-      variables = false,
-      label = "i18n::ActionDoc.Notes.Label")
-  @HopMetadataProperty
+  @CommandLine.Option(
+      names = {"-in", "--include-notes"},
+      description = "List the text of any notes in alphabetical order")
   private boolean includingNotes;
 
-  public ActionDoc() {}
+  @CommandLine.Option(
+      names = {"-n", "--project-name"},
+      description = "The name of the project")
+  private String projectName;
 
-  public ActionDoc(ActionDoc other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.targetParentFolder = other.targetParentFolder;
-    this.includingNotes = other.includingNotes;
-    this.includingParameters = other.includingParameters;
+  @CommandLine.Option(
+      names = {"-s", "--source-folder"},
+      description = "The source folder to document")
+  private String sourceFolder;
+
+  public DocBuilder() {}
+
+  public DocBuilder(
+      ILogChannel log,
+      IVariables variables,
+      MultiMetadataProvider metadataProvider,
+      String projectName,
+      String projectHome,
+      String targetParentFolder,
+      boolean includingParameters,
+      boolean includingNotes) {
+    this.log = log;
+    this.variables = variables;
+    this.metadataProvider = metadataProvider;
+    this.projectName = projectName;
+    this.sourceFolder = projectHome;
+    this.targetParentFolder = targetParentFolder;
+    this.includingParameters = includingParameters;
+    this.includingNotes = includingNotes;
   }
 
   @Override
-  public ActionDoc clone() {
-    return new ActionDoc(this);
+  public void initialize(
+      CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
+      throws HopException {
+    this.cmd = cmd;
+    this.variables = variables;
+    this.metadataProvider = metadataProvider;
+    this.log = new LogChannel("HopDoc");
+
+    addRunConfigPlugins();
   }
 
-  private void buildDocumentation(Result result) {
-    try {
-      String projectName = resolve(EXPR_PROJECT_NAME);
+  protected void addRunConfigPlugins() throws HopPluginException {
+    // Now add configuration plugins with the RUN category.
+    // The 'projects' plugin for example configures things like the project metadata provider.
+    //
+    List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
+    for (IPlugin configPlugin : configPlugins) {
+      // Load only the plugins of the "doc" category
+      if (ConfigPlugin.CATEGORY_DOC.equals(configPlugin.getCategory())) {
+        IConfigOptions configOptions =
+            PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
+        cmd.addMixin(configPlugin.getIds()[0], configOptions);
+      }
+    }
+  }
 
+  protected void handleMixinActions() throws HopException {
+    // Handle the options of the configuration plugins
+    //
+    Map<String, Object> mixins = cmd.getMixins();
+    for (String key : mixins.keySet()) {
+      Object mixin = mixins.get(key);
+      if (mixin instanceof IConfigOptions configOptions) {
+        configOptions.handleOption(log, this, variables);
+      }
+    }
+  }
+
+  @Override
+  public void run() {
+    // Check a few variables...
+    //
+    try {
+      handleMixinActions();
+
+      if (StringUtils.isNotEmpty(variables.getVariable(VAR_PROJECT_NAME))) {
+        projectName = variables.getVariable(VAR_PROJECT_NAME);
+      }
+      if (StringUtils.isNotEmpty(variables.getVariable(VAR_PROJECT_HOME))) {
+        sourceFolder = variables.getVariable(VAR_PROJECT_HOME);
+      }
+
+      if (StringUtils.isEmpty(projectName)) {
+        projectName = "Hop";
+      }
+      if (StringUtils.isEmpty(sourceFolder)) {
+        log.logError("No project home folder specified: giving up.");
+        System.exit(1);
+      } else {
+        log.logBasic("Documenting folder: " + sourceFolder + " for project " + projectName);
+      }
+
+      DocBuilder docBuilder =
+          new DocBuilder(
+              log,
+              variables,
+              metadataProvider,
+              projectName,
+              sourceFolder,
+              targetParentFolder,
+              includingParameters,
+              includingNotes);
+      docBuilder.buildDocumentation(new Result());
+    } catch (Exception e) {
+      log.logError("Error generating documentation", e);
+    }
+  }
+
+  public void buildDocumentation(Result result) {
+    try {
       // In the target folder we should copy the folder structure of the project.
       // For every file in the project we have something to document.
       // This way we can also rely on the existence of files to create links between documents.
@@ -120,7 +210,7 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
         createImagesFolder(targetParentFolder);
         writeStylesFile(targetParentFolder);
 
-        try (FileObject parentFolder = HopVfs.getFileObject(resolve(EXPR_PROJECT_HOME))) {
+        try (FileObject parentFolder = HopVfs.getFileObject(sourceFolder)) {
           List<FileObject> sourceFolders = getSourceFolders(parentFolder, true);
           for (FileObject sourceFolder : sourceFolders) {
             // Get the relative path of the source folder vs the parent
@@ -133,9 +223,9 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
         }
       }
       writeToc(toc, targetParentFolder, projectName);
-      logBasic("Finished generating documentation for project " + projectName);
+      log.logBasic("Finished generating documentation for project " + projectName);
     } catch (Exception e) {
-      logError("Error building documentation", e);
+      log.logError("Error building documentation", e);
       result.setResult(false);
       result.setNrErrors(1);
     }
@@ -160,6 +250,15 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
         .append("---")
         .append(Const.CR)
         .append(Const.CR);
+
+    index.append("**Project name**: ").append(projectName).append("  ").append(Const.CR);
+    index.append("**Source folder**: ").append(sourceFolder).append("  ").append(Const.CR);
+    index
+        .append("**Updated**: ")
+        .append(XmlHandler.date2string(new Date()))
+        .append("  ")
+        .append(Const.CR);
+    index.append("---").append(Const.CR);
 
     // Now we can loop over the entries in the TOC
     //
@@ -187,7 +286,7 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
     index.append(Const.CR);
 
     // Save the file
-    logBasic("Saving index (TOC) to " + targetFilename);
+    log.logBasic("Saving index (TOC) to " + targetFilename);
     saveFile(targetFilename, index.toString());
   }
 
@@ -195,14 +294,14 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
     String stylesFileName = targetParentFolder.getName().getPath() + "/" + STYLES_CSS;
     String css =
         """
-                img {
-                  border: 1px solid #555;
-                }
+                        img {
+                          border: 1px solid #555;
+                        }
 
-                body {
-                  background-color: #ECFFFF;
-                }
-              """;
+                        body {
+                          background-color: #ECFFFF;
+                        }
+                      """;
 
     saveFile(stylesFileName, css);
   }
@@ -229,7 +328,7 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
       FileObject targetFolder,
       String relativeName)
       throws Exception {
-    logBasic("Processing documentation folder " + relativeName);
+    log.logBasic("Processing documentation folder " + relativeName);
     if (isMetadataFolder(relativeName)) {
       processMetadataFolders(toc, sourceFolder, targetFolder, relativeName);
     } else if (isDatasetsFolder(relativeName)) {
@@ -263,10 +362,10 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
       FileObject targetFolder,
       String relativeName)
       throws Exception {
-    logBasic("Processing pipelines and workflows in folder " + relativeName);
+    log.logBasic("Processing pipelines and workflows in folder " + relativeName);
     if (!targetFolder.exists()) {
       targetFolder.createFolder();
-      logBasic("Created target folder " + targetFolder.getName().getPath());
+      log.logBasic("Created target folder " + targetFolder.getName().getPath());
     }
 
     // Find sub-folders
@@ -346,28 +445,5 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
       }
     }
     return sourceFolders;
-  }
-
-  /**
-   * Execute this action and return the result. In this case it means, just set the result boolean
-   * in the Result class.
-   *
-   * @param prevResult The result of the previous execution
-   * @return The Result of the execution.
-   */
-  @Override
-  public Result execute(Result prevResult, int nr) {
-    buildDocumentation(prevResult);
-    return prevResult;
-  }
-
-  @Override
-  public boolean isEvaluation() {
-    return true;
-  }
-
-  @Override
-  public boolean isUnconditional() {
-    return false;
   }
 }

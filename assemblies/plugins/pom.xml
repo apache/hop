@@ -122,12 +122,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-documentation</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-dostounix</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -657,6 +651,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-debug</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-documentation</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>

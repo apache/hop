@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.config.plugin;
+package org.apache.hop.hop.plugin;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,21 +23,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** This annotation signals to the plugin system that the class is a configuration plugin. */
+/** This annotation signals to the plugin system that the class is a sub-command of the hop tool. */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ConfigPlugin {
-  String CATEGORY_CONFIG = "config";
-  String CATEGORY_RUN = "run";
-  String CATEGORY_SEARCH = "search";
-  String CATEGORY_IMPORT = "import";
-  String CATEGORY_SERVER = "server";
-  String CATEGORY_DOC = "doc";
+public @interface HopSubCommand {
 
   String id();
 
   String description() default "";
-
-  String category() default CATEGORY_CONFIG;
 }

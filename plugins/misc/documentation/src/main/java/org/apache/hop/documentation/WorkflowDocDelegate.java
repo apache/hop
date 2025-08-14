@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.hop.workflow.actions.documentation;
+package org.apache.hop.documentation;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,13 +24,17 @@ import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowSvgPainter;
 
 public class WorkflowDocDelegate extends DocDelegate {
-  public WorkflowDocDelegate(ActionDoc action) {
-    super(action);
+  private final ILogChannel log;
+
+  public WorkflowDocDelegate(DocBuilder builder) {
+    super(builder);
+    this.log = builder.getLog();
   }
 
   public void buildWorkflowDocumentation(
@@ -47,10 +51,11 @@ public class WorkflowDocDelegate extends DocDelegate {
     //
     String relativeSourceFile = sourceFolder.getName().getRelativeName(file.getName());
 
-    action.logBasic(" - documenting workflow: " + relativeSourceFile + " to " + targetFileName);
+    log.logBasic(" - documenting workflow: " + relativeSourceFile + " to " + targetFileName);
 
     WorkflowMeta workflowMeta =
-        new WorkflowMeta(action, file.getName().getPath(), action.getMetadataProvider());
+        new WorkflowMeta(
+            builder.getVariables(), file.getName().getPath(), builder.getMetadataProvider());
     String workflowName = workflowMeta.getName();
 
     StringBuilder content = new StringBuilder();
@@ -71,11 +76,12 @@ public class WorkflowDocDelegate extends DocDelegate {
 
     // Add the SVG image of the workflow
     //
-    String workflowSvg = WorkflowSvgPainter.generateWorkflowSvg(workflowMeta, 1.0f, action);
-    String relativeSvgFilename = calculateTargetImageFile(workflowName, ActionDoc.STRING_PIPELINE);
+    String workflowSvg =
+        WorkflowSvgPainter.generateWorkflowSvg(workflowMeta, 1.0f, builder.getVariables());
+    String relativeSvgFilename = calculateTargetImageFile(workflowName, DocBuilder.STRING_WORKFLOW);
     String svgFilename =
-        targetRootFolder.getName().getPath() + "/" + ActionDoc.ASSETS_IMAGES + relativeSvgFilename;
-    action.saveFile(svgFilename, workflowSvg);
+        targetRootFolder.getName().getPath() + "/" + DocBuilder.ASSETS_IMAGES + relativeSvgFilename;
+    builder.saveFile(svgFilename, workflowSvg);
 
     // We need the relative path from this MD file to the SVG file.
     //
@@ -102,7 +108,7 @@ public class WorkflowDocDelegate extends DocDelegate {
         .append(Const.CR)
         .append(Const.CR);
 
-    if (action.isIncludingNotes() && !workflowMeta.getNotes().isEmpty()) {
+    if (builder.isIncludingNotes() && !workflowMeta.getNotes().isEmpty()) {
       content.append("## Notes : ").append(Const.CR).append(Const.CR);
 
       List<NotePadMeta> notes = new ArrayList<>(workflowMeta.getNotes());
@@ -115,7 +121,7 @@ public class WorkflowDocDelegate extends DocDelegate {
 
     // Now that we have the content, we can save the file.
     //
-    action.saveFile(targetFileName, content.toString());
+    builder.saveFile(targetFileName, content.toString());
 
     // Add it to the table of content
     //
