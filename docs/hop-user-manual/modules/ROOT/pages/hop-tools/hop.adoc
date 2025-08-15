@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: This describes how to use the versatile hop command line tool.
+
+= Hop
+
+The `hop` command line tool is simplification of the many scripts that the project ships with like 'hop-run`, `hop-search`, `hop-gui`, and so on.
+The main goal is to have a single wrapper script to make maintenance easier for the developers, but also to allow plugins to contribute new commands.
+
+.Usage
+[%collapsible]
+=====
+
+== Usage
+
+To see the usage of the `hop` tool, you can simply use the `help` command to see which commands are available:
+
+[source,bash]
+----
+$ ./hop help
+Usage: hop [-hV] [-s=<systemProperties>[,<systemProperties>...]]... [COMMAND]
+  -h, --help      Show this help message and exit.
+  -s, --system-properties=<systemProperties>[,<systemProperties>...]
+                  A comma separated list of KEY=VALUE pairs
+  -V, --version   Print version information and exit.
+Commands:
+  help     Display help information about the specified command.
+  conf     Configure Hop
+  doc      Generate documentation
+  encrypt  Encrypt secrets
+  gui      The Hop GUI
+  import   Import metadata
+  run      Run a pipeline or workflow
+  search   Search in Hop metadata
+  server   Run a Hop server
+----
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|-s|One or more system parameters.  These will be set prior to execution of a given command.
+|-h|Displays this help message and quits
+|-V|Show the current Hop version
+|===
+
+

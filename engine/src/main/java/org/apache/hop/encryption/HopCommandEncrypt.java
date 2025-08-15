@@ -23,8 +23,8 @@ import lombok.Setter;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.hop.plugin.HopSubCommand;
-import org.apache.hop.hop.plugin.IHopSubCommand;
+import org.apache.hop.hop.plugin.HopCommand;
+import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.eclipse.jetty.util.security.Password;
 import picocli.CommandLine;
@@ -32,9 +32,9 @@ import picocli.CommandLine.Command;
 
 @Getter
 @Setter
-@HopSubCommand(id = "encrypt", description = "Encrypt or obfuscate a secret")
+@HopCommand(id = "encrypt", description = "Encrypt or obfuscate a secret")
 @Command(mixinStandardHelpOptions = true, description = "Encrypt secrets")
-public class HopSubCommandEncrypt implements Runnable, IHopSubCommand {
+public class HopCommandEncrypt implements Runnable, IHopCommand {
   @CommandLine.Option(
       names = {"-hop", "--hop"},
       description =

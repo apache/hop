@@ -57,8 +57,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.hop.plugin.HopSubCommand;
-import org.apache.hop.hop.plugin.IHopSubCommand;
+import org.apache.hop.hop.plugin.HopCommand;
+import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -83,8 +83,8 @@ import picocli.CommandLine.Parameters;
     versionProvider = HopVersionProvider.class,
     mixinStandardHelpOptions = true,
     description = "Run a Hop server")
-@HopSubCommand(id = "server", description = "Run a Hop server")
-public class HopServer implements Runnable, IHasHopMetadataProvider, IHopSubCommand {
+@HopCommand(id = "server", description = "Run a Hop server")
+public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand {
   private static final Class<?> PKG = HopServer.class;
   private static final String CONST_FOUND = " found.";
   private static final String CONST_SPACE = "        ";

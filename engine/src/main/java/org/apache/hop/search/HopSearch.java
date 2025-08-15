@@ -48,8 +48,8 @@ import org.apache.hop.core.search.SearchQuery;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.hop.plugin.HopSubCommand;
-import org.apache.hop.hop.plugin.IHopSubCommand;
+import org.apache.hop.hop.plugin.HopCommand;
+import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
@@ -67,8 +67,8 @@ import picocli.CommandLine.Parameters;
     versionProvider = HopVersionProvider.class,
     description = "Search in Hop metadata",
     mixinStandardHelpOptions = true)
-@HopSubCommand(id = "search", description = "Search in Hop metadata")
-public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopSubCommand {
+@HopCommand(id = "search", description = "Search in Hop metadata")
+public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopCommand {
   @Option(
       names = {"-v", "--version"},
       versionHelp = true,
