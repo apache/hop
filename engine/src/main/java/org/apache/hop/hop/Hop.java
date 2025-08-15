@@ -29,8 +29,8 @@ import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.hop.plugin.HopSubCommandPluginType;
-import org.apache.hop.hop.plugin.IHopSubCommand;
+import org.apache.hop.hop.plugin.HopCommandPluginType;
+import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
@@ -91,13 +91,13 @@ public class Hop {
     hop.metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(hop.variables);
     HopMetadataInstance.setMetadataProvider(hop.metadataProvider);
 
-    // Look in the plugin registry for Hop SubCommand plugins.
+    // Look in the plugin registry for @HopCommand plugins.
     // Instantiate and initialize each of them.
     //
     PluginRegistry registry = PluginRegistry.getInstance();
-    List<IPlugin> plugins = registry.getPlugins(HopSubCommandPluginType.class);
+    List<IPlugin> plugins = registry.getPlugins(HopCommandPluginType.class);
     for (IPlugin plugin : plugins) {
-      IHopSubCommand subCommand = (IHopSubCommand) registry.loadClass(plugin);
+      IHopCommand subCommand = (IHopCommand) registry.loadClass(plugin);
       CommandLine subCmd = new CommandLine(subCommand);
       hop.cmd.addSubcommand(plugin.getIds()[0], subCmd);
 

@@ -13,17 +13,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.hop.plugin;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-import picocli.CommandLine;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface IHopSubCommand {
-  void initialize(CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
-      throws HopException;
+/** This annotation signals to the plugin system that the class is a sub-command of the hop tool. */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface HopCommand {
+
+  String id();
+
+  String description() default "";
 }

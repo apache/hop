@@ -24,17 +24,17 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.run.HopSubCommandRun;
+import org.apache.hop.run.HopCommandRun;
 
 @ExtensionPoint(
-    id = "HopSubCommandRunCalculateFilenameExtensionPoint",
-    extensionPointId = "HopSubCommandRunCalculateFilename",
+    id = "HopCommandRunCalculateFilenameExtensionPoint",
+    extensionPointId = "HopCommandRunCalculateFilename",
     description = "Resolves filenames specified relative to the given project")
-public class HopSubCommandRunCalculateFilenameExtensionPoint
-    implements IExtensionPoint<HopSubCommandRun> {
+public class HopCommandRunCalculateFilenameExtensionPoint
+    implements IExtensionPoint<HopCommandRun> {
 
   @Override
-  public void callExtensionPoint(ILogChannel log, IVariables variables, HopSubCommandRun hopRun)
+  public void callExtensionPoint(ILogChannel log, IVariables variables, HopCommandRun hopRun)
       throws HopException {
 
     try {

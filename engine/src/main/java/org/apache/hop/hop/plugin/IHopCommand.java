@@ -16,38 +16,14 @@
  *
  */
 
-package org.apache.hop.run;
+package org.apache.hop.hop.plugin;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.hop.plugin.HopSubCommand;
-import org.apache.hop.hop.plugin.IHopSubCommand;
-import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
 
-@Getter
-@Setter
-@Command(mixinStandardHelpOptions = true, description = "Run a pipeline or workflow")
-@HopSubCommand(id = "run", description = "Runs a pipeline or workflow")
-public class HopSubCommandRun extends HopRunBase
-    implements Runnable, IHasHopMetadataProvider, IHopSubCommand {
-
-  public HopSubCommandRun() {
-    super();
-  }
-
-  @Override
-  public void initialize(
-      CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
-      throws HopException {
-    this.cmd = cmd;
-    this.variables = variables;
-    this.metadataProvider = metadataProvider;
-
-    addRunConfigPlugins();
-  }
+public interface IHopCommand {
+  void initialize(CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
+      throws HopException;
 }

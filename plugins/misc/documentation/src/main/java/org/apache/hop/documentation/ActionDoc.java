@@ -74,6 +74,15 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty
   private boolean includingNotes;
 
+  @GuiWidgetElement(
+      id = "1030-action-doc-dialog-include-metadata",
+      parentId = GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::ActionDoc.Metadata.Label")
+  @HopMetadataProperty
+  private boolean includingMetadata = true;
+
   public ActionDoc() {}
 
   public ActionDoc(ActionDoc other) {
@@ -114,7 +123,8 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
             getVariable(DocBuilder.VAR_PROJECT_HOME),
             targetParentFolder,
             includingParameters,
-            includingNotes);
+            includingNotes,
+            includingMetadata);
     docBuilder.buildDocumentation(prevResult);
     return prevResult;
   }

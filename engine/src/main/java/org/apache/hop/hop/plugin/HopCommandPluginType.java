@@ -22,34 +22,34 @@ import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
 /** This class represents the transform plugin type. */
-@PluginMainClassType(IHopSubCommand.class)
-@PluginAnnotationType(HopSubCommand.class)
-public class HopSubCommandPluginType extends BasePluginType<HopSubCommand> {
-  private static HopSubCommandPluginType pluginType;
+@PluginMainClassType(IHopCommand.class)
+@PluginAnnotationType(HopCommand.class)
+public class HopCommandPluginType extends BasePluginType<HopCommand> {
+  private static HopCommandPluginType pluginType;
 
-  private HopSubCommandPluginType() {
-    super(HopSubCommand.class, "HOP_SUB_COMMAND", "Hop Sub Command");
+  private HopCommandPluginType() {
+    super(HopCommand.class, "HOP_SUB_COMMAND", "Hop Sub Command");
   }
 
-  public static HopSubCommandPluginType getInstance() {
+  public static HopCommandPluginType getInstance() {
     if (pluginType == null) {
-      pluginType = new HopSubCommandPluginType();
+      pluginType = new HopCommandPluginType();
     }
     return pluginType;
   }
 
   @Override
-  protected String extractDesc(HopSubCommand annotation) {
+  protected String extractDesc(HopCommand annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID(HopSubCommand annotation) {
+  protected String extractID(HopCommand annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName(HopSubCommand annotation) {
+  protected String extractName(HopCommand annotation) {
     return null;
   }
 }

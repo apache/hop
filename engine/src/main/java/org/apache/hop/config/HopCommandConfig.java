@@ -16,42 +16,39 @@
  *
  */
 
-package org.apache.hop.ui.hopgui;
+package org.apache.hop.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.hop.plugin.HopSubCommand;
-import org.apache.hop.hop.plugin.IHopSubCommand;
+import org.apache.hop.hop.plugin.HopCommand;
+import org.apache.hop.hop.plugin.IHopCommand;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
 @Getter
 @Setter
-@CommandLine.Command(
-    versionProvider = HopVersionProvider.class,
-    mixinStandardHelpOptions = true,
-    description = "The Hop GUI")
-@HopSubCommand(id = "gui", description = "The Hop GUI")
-public class HopGuiSubCommand implements Runnable, IHopSubCommand {
-  @CommandLine.Unmatched private String[] unmatchedArguments;
+@Command(mixinStandardHelpOptions = true, description = "Configure Hop")
+@HopCommand(id = "conf", description = "Configure Hop")
+public class HopCommandConfig extends HopConfigBase
+    implements Runnable, IHasHopMetadataProvider, IHopCommand {
 
-  public HopGuiSubCommand() {}
+  public HopCommandConfig() {
+    super();
+  }
 
   @Override
   public void initialize(
       CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
       throws HopException {
-    // Nothing specific
-  }
+    this.cmd = cmd;
+    this.variables = variables;
+    this.metadataProvider = metadataProvider;
+    buildLogChannel();
 
-  @Override
-  public void run() {
-    if (unmatchedArguments == null) {
-      unmatchedArguments = new String[] {};
-    }
-    HopGui.main(unmatchedArguments);
+    addConfConfigPlugins();
   }
 }

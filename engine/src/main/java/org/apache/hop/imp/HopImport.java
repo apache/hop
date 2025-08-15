@@ -40,8 +40,8 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.hop.plugin.HopSubCommand;
-import org.apache.hop.hop.plugin.IHopSubCommand;
+import org.apache.hop.hop.plugin.HopCommand;
+import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import picocli.CommandLine;
@@ -57,8 +57,8 @@ import picocli.CommandLine.ParameterException;
     description = "Import metadata",
     versionProvider = HopVersionProvider.class,
     mixinStandardHelpOptions = true)
-@HopSubCommand(id = "import", description = "Import ")
-public class HopImport implements Runnable, IHasHopMetadataProvider, IHopSubCommand {
+@HopCommand(id = "import", description = "Import ")
+public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand {
   private static final String CONST_IMPORT = "Import is ";
 
   @Option(

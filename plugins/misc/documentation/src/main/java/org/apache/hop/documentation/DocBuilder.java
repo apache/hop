@@ -42,8 +42,8 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.hop.plugin.HopSubCommand;
-import org.apache.hop.hop.plugin.IHopSubCommand;
+import org.apache.hop.hop.plugin.HopCommand;
+import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import picocli.CommandLine;
@@ -54,8 +54,8 @@ import picocli.CommandLine;
     mixinStandardHelpOptions = true,
     name = "doc",
     description = "Generate documentation")
-@HopSubCommand(id = "doc", description = "Generate documentation")
-public class DocBuilder implements Runnable, IHopSubCommand, IHasHopMetadataProvider {
+@HopCommand(id = "doc", description = "Generate documentation")
+public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvider {
   public static final String PIPELINE_EXTENSION = "hpl";
   public static final String WORKFLOW_EXTENSION = "hwf";
   public static final String DATASETS_FOLDER = "datasets";
@@ -89,6 +89,11 @@ public class DocBuilder implements Runnable, IHopSubCommand, IHasHopMetadataProv
   private boolean includingNotes;
 
   @CommandLine.Option(
+      names = {"-im", "--include-metadata"},
+      description = "Include an overview of the available metadata elements")
+  private boolean includingMetadata;
+
+  @CommandLine.Option(
       names = {"-n", "--project-name"},
       description = "The name of the project")
   private String projectName;
@@ -108,7 +113,8 @@ public class DocBuilder implements Runnable, IHopSubCommand, IHasHopMetadataProv
       String projectHome,
       String targetParentFolder,
       boolean includingParameters,
-      boolean includingNotes) {
+      boolean includingNotes,
+      boolean includingMetadata) {
     this.log = log;
     this.variables = variables;
     this.metadataProvider = metadataProvider;
@@ -117,6 +123,7 @@ public class DocBuilder implements Runnable, IHopSubCommand, IHasHopMetadataProv
     this.targetParentFolder = targetParentFolder;
     this.includingParameters = includingParameters;
     this.includingNotes = includingNotes;
+    this.includingMetadata = includingMetadata;
   }
 
   @Override
@@ -191,7 +198,8 @@ public class DocBuilder implements Runnable, IHopSubCommand, IHasHopMetadataProv
               sourceFolder,
               targetParentFolder,
               includingParameters,
-              includingNotes);
+              includingNotes,
+              includingMetadata);
       docBuilder.buildDocumentation(new Result());
     } catch (Exception e) {
       log.logError("Error generating documentation", e);
@@ -220,6 +228,12 @@ public class DocBuilder implements Runnable, IHopSubCommand, IHasHopMetadataProv
             processDocumentationFolder(
                 toc, targetParentFolder, sourceFolder, targetFolder, relativeName);
           }
+        }
+
+        // Also cover the metadata
+        //
+        if (isIncludingMetadata()) {
+          new MetadataDelegate(this).documentMetadata(toc, targetParentFolder);
         }
       }
       writeToc(toc, targetParentFolder, projectName);
@@ -273,9 +287,9 @@ public class DocBuilder implements Runnable, IHopSubCommand, IHasHopMetadataProv
       index
           .append("- ")
           .append("[")
-          .append(path)
           .append(entry.type())
           .append(" : ")
+          .append(path)
           .append(entry.description())
           .append("]")
           .append("(")
