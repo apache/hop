@@ -59,6 +59,18 @@ REM # Settings for all OSses
 if "%HOP_OPTIONS%"=="" set HOP_OPTIONS="-Xmx2048m"
 
 REM
+REM See if we need to enable some remote debugging options for our developers.
+REM
+for %%arg in (%*) do (
+  if [%%~arg] == "--dev-debug" (
+    set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5010)
+  )
+  if [%%~arg] == "--dev-debug-wait" (
+    set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010)
+  )
+)
+
+REM
 REM If the user passes in DEBUG as the first parameter, it starts Hop in debugger mode and opens port 5005
 REM to allow attaching a debugger to step code.
 if [%1]==[DEBUG] (
