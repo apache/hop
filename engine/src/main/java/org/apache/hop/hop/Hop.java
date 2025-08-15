@@ -51,6 +51,17 @@ public class Hop {
       split = ",")
   private String[] systemProperties = null;
 
+  @CommandLine.Option(
+      names = {"--dev-debug"},
+      description = "Allow a Hop developer to debug remotely")
+  private boolean devDebug;
+
+  @CommandLine.Option(
+      names = {"--dev-debug-wait"},
+      description =
+          "Allow a Hop developer to debug remotely. The script will wait until a debugging session is set up.")
+  private boolean devDebugWait;
+
   private CommandLine cmd;
   private IVariables variables;
   private MultiMetadataProvider metadataProvider;

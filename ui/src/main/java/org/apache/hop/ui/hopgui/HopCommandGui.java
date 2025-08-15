@@ -35,10 +35,10 @@ import picocli.CommandLine;
     mixinStandardHelpOptions = true,
     description = "The Hop GUI")
 @HopCommand(id = "gui", description = "The Hop GUI")
-public class HopGuiCommand implements Runnable, IHopCommand {
+public class HopCommandGui implements Runnable, IHopCommand {
   @CommandLine.Unmatched private String[] unmatchedArguments;
 
-  public HopGuiCommand() {}
+  public HopCommandGui() {}
 
   @Override
   public void initialize(
