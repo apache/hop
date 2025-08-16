@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.mongodbdelete;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
@@ -71,7 +72,7 @@ public class MongoDbDeleteField implements Cloneable {
   }
 
   public void reset() {
-    if (tempPathList != null && !tempPathList.isEmpty()) {
+    if (!Utils.isEmpty(tempPathList)) {
       tempPathList.clear();
     }
     if (tempPathList != null) {

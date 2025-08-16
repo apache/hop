@@ -103,7 +103,7 @@ public class HttpUtil {
    * @throws IOException
    */
   public static String decodeBase64ZippedString(String loggingString64) throws IOException {
-    if (loggingString64 == null || loggingString64.isEmpty()) {
+    if (Utils.isEmpty(loggingString64)) {
       return "";
     }
     StringWriter writer = new StringWriter();

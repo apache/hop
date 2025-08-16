@@ -18,6 +18,7 @@
 package org.apache.hop.core;
 
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.util.Utils;
 
 /**
  * This class contains all that is needed to execute an SQL statement in a database. --> The
@@ -129,6 +130,6 @@ public class SqlStatement {
    * @return true if changes are present, false if this is not the case.
    */
   public boolean hasSql() {
-    return sql != null && sql.length() > 0;
+    return !Utils.isEmpty(sql);
   }
 }

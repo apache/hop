@@ -48,6 +48,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -639,7 +640,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       if (actionExecutions != null) {
         for (String actionName : actionExecutions.keySet()) {
           List<ExecutionData> executionDataList = actionExecutions.get(actionName);
-          if (executionDataList != null && !executionDataList.isEmpty()) {
+          if (!Utils.isEmpty(executionDataList)) {
             // Just consider the first
             //
             ExecutionData executionData = executionDataList.get(0);
@@ -869,7 +870,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       // Find the data for the selected action...
       //
       List<ExecutionData> executionDataList = actionExecutions.get(actionMeta.getName());
-      if (executionDataList == null || executionDataList.isEmpty()) {
+      if (Utils.isEmpty(executionDataList)) {
         return;
       }
 

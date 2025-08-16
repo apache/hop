@@ -382,7 +382,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
       }
 
       if (endIndex + 1 < path.length()) {
-        tempStr = path.substring(endIndex + 1, path.length());
+        tempStr = path.substring(endIndex + 1);
       } else {
         break;
       }

@@ -320,7 +320,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
           node.getNodeType() == Node.ELEMENT_NODE
               && !node.hasAttributes()
               && !node.hasChildNodes()
-              && node.getTextContent().length() == 0;
+              && node.getTextContent().isEmpty();
 
       if (nodeIsEmpty) {
         // We shifted elements left, do not increment counter

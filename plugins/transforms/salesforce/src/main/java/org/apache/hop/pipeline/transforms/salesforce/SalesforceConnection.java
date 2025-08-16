@@ -960,11 +960,11 @@ public class SalesforceConnection {
         String extIdName = null;
         String lookupField = null;
 
-        String rest = name.substring(indexOfType + 1, name.length());
+        String rest = name.substring(indexOfType + 1);
         int indexOfExtId = rest.indexOf("/");
         if (indexOfExtId > 0) {
           extIdName = rest.substring(0, indexOfExtId);
-          lookupField = rest.substring(indexOfExtId + 1, rest.length());
+          lookupField = rest.substring(indexOfExtId + 1);
         } else {
           extIdName = rest;
           lookupField = extIdName;

@@ -227,7 +227,7 @@ public class CassandraUtils {
     // replace leading and trailing whitespaces and newlines in the query
     result = result.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "");
 
-    if (result.length() == 0) {
+    if (result.isEmpty()) {
       throw new HopException("No FROM clause found in the query");
     }
 
@@ -648,7 +648,7 @@ public class CassandraUtils {
    * @return a one line string representation of a map of options
    */
   public static String optionsToString(Map<String, String> opts) {
-    if (opts.size() == 0) {
+    if (opts.isEmpty()) {
       return "";
     }
 
@@ -765,7 +765,7 @@ public class CassandraUtils {
   public static String getPartitionKey(String primaryKey) {
     String partitionKey = null;
 
-    if (primaryKey != null && !primaryKey.isEmpty()) {
+    if (!Utils.isEmpty(primaryKey)) {
       if (!primaryKey.contains("(") && !primaryKey.contains(")")) {
         if (primaryKey.contains(",")) {
           partitionKey = primaryKey.substring(0, primaryKey.indexOf(','));

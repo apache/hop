@@ -200,7 +200,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     ArrayList<Character> delimiterCandidates = new ArrayList<>(4);
     for (FileMetadataMeta.FMCandidate delimiterCandidate : meta.getDelimiterCandidates()) {
       String candidate = resolve(delimiterCandidate.getCandidate());
-      if (candidate.length() == 0) {
+      if (candidate.isEmpty()) {
         logBasic("Warning: file metadata transform ignores empty delimiter candidate");
       } else if (candidate.length() > 1) {
         logBasic(
@@ -214,7 +214,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     ArrayList<Character> enclosureCandidates = new ArrayList<>(4);
     for (FileMetadataMeta.FMCandidate enclosureCandidate : meta.getEnclosureCandidates()) {
       String candidate = resolve(enclosureCandidate.getCandidate());
-      if (candidate.length() == 0) {
+      if (candidate.isEmpty()) {
         logBasic("Warning: file metadata transform ignores empty enclosure candidate");
       } else if (candidate.length() > 1) {
         logBasic(

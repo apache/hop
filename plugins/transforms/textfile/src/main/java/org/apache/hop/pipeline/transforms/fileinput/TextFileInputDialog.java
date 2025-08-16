@@ -460,7 +460,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
             if (wFilemask.getText() != null
-                && wFilemask.getText().length() > 0) { // A mask: a directory!
+                && !wFilemask.getText().isEmpty()) { // A mask: a directory!
               BaseDialog.presentDirectoryDialog(shell, wFilename, variables);
             } else {
               ICompressionProvider provider =
@@ -2553,7 +2553,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
         inputStream = provider.createInputStream(fileInputStream);
 
         InputStreamReader reader;
-        if (meta.getEncoding() != null && meta.getEncoding().length() > 0) {
+        if (!Utils.isEmpty(meta.getEncoding())) {
           reader = new InputStreamReader(inputStream, meta.getEncoding());
         } else {
           reader = new InputStreamReader(inputStream);
@@ -2577,9 +2577,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
 
               for (int i = 0; i < fields.length; i++) {
                 String field = fields[i];
-                if (field == null
-                    || field.length() == 0
-                    || (nrInputFields == 0 && !meta.hasHeader())) {
+                if (Utils.isEmpty(field) || (nrInputFields == 0 && !meta.hasHeader())) {
                   field = "Field" + (i + 1);
                 } else {
                   // Trim the field
@@ -2798,7 +2796,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
         int nrLines = end.open();
         if (nrLines >= 0) {
           List<String> linesList = getFirst(nrLines, skipHeaders);
-          if (linesList != null && !linesList.isEmpty()) {
+          if (!Utils.isEmpty(linesList)) {
             String firstlines = "";
             for (String aLinesList : linesList) {
               firstlines += aLinesList + Const.CR;
@@ -2867,7 +2865,7 @@ public class TextFileInputDialog extends BaseTransformDialog {
         f = provider.createInputStream(fi);
 
         InputStreamReader reader;
-        if (meta.getEncoding() != null && meta.getEncoding().length() > 0) {
+        if (!Utils.isEmpty(meta.getEncoding())) {
           reader = new InputStreamReader(f, meta.getEncoding());
         } else {
           reader = new InputStreamReader(f);

@@ -289,7 +289,7 @@ public class HopGuiPipelineClipboardDelegate {
 
   public void copySelected(
       PipelineMeta pipelineMeta, List<TransformMeta> transforms, List<NotePadMeta> notes) {
-    if (transforms == null || transforms.size() + notes.size() == 0) {
+    if (transforms == null || transforms.isEmpty() && notes.isEmpty()) {
       return;
     }
 

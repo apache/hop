@@ -157,7 +157,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     } catch (HopFileException e) {
       throw e;
     } catch (Exception e) {
-      if (line.length() == 0) {
+      if (line.isEmpty()) {
         throw new HopFileException(
             BaseMessages.getString(
                 PKG, "TextFileInput.Log.Error.ExceptionReadingLine", e.toString()),
@@ -165,7 +165,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       }
       return line.toString();
     }
-    if (line.length() > 0) {
+    if (!line.isEmpty()) {
       return line.toString();
     }
 
@@ -833,19 +833,19 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     Long errorCount = null;
     if (info.isErrorIgnored()
         && info.getErrorCountField() != null
-        && info.getErrorCountField().length() > 0) {
+        && !info.getErrorCountField().isEmpty()) {
       errorCount = Long.valueOf(0L);
     }
     String errorFields = null;
     if (info.isErrorIgnored()
         && info.getErrorFieldsField() != null
-        && info.getErrorFieldsField().length() > 0) {
+        && !info.getErrorFieldsField().isEmpty()) {
       errorFields = "";
     }
     String errorText = null;
     if (info.isErrorIgnored()
         && info.getErrorTextField() != null
-        && info.getErrorTextField().length() > 0) {
+        && !info.getErrorTextField().isEmpty()) {
       errorText = "";
     }
 
@@ -903,7 +903,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                 }
                 if (errorFields != null) {
                   StringBuilder sb = new StringBuilder(errorFields);
-                  if (sb.length() > 0) {
+                  if (!sb.isEmpty()) {
                     sb.append("\t"); // TODO document this change
                   }
                   sb.append(valueMeta.getName());
@@ -911,7 +911,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                 }
                 if (errorText != null) {
                   StringBuilder sb = new StringBuilder(errorText);
-                  if (sb.length() > 0) {
+                  if (!sb.isEmpty()) {
                     sb.append(Const.CR);
                   }
                   sb.append(message);
@@ -1505,7 +1505,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     boolean filterOK = true;
 
     // check for noEmptyLines
-    if (meta.noEmptyLines() && line.length() == 0) {
+    if (meta.noEmptyLines() && line.isEmpty()) {
       filterOK = false;
     } else {
       // check the filters
@@ -1659,7 +1659,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             "This is a compressed file being handled by the " + provider.getName() + " provider");
       }
 
-      if (meta.getEncoding() != null && meta.getEncoding().length() > 0) {
+      if (!Utils.isEmpty(meta.getEncoding())) {
         data.isr =
             new InputStreamReader(
                 new BufferedInputStream(data.in, BUFFER_SIZE_INPUT_STREAM), meta.getEncoding());
@@ -1764,7 +1764,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         }
       } else { // don't checkFilterRow
 
-        if (!meta.noEmptyLines() || line.length() != 0) {
+        if (!meta.noEmptyLines() || !line.isEmpty()) {
           data.lineBuffer.add(
               new TextFileLine(line, lineNumberInFile, data.file)); // Store it in the line
           // buffer...
@@ -1793,7 +1793,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       Map<String, ResultFile> resultFiles =
           (previousResult != null) ? previousResult.getResultFiles() : null;
 
-      if ((previousResult == null || resultFiles == null || resultFiles.size() == 0)
+      if ((previousResult == null || Utils.isEmpty(resultFiles))
           && data.getFiles().nrOfMissingFiles() > 0
           && !meta.isAcceptingFilenames()
           && !meta.isErrorIgnored()) {

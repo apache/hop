@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.neo4j.transforms.gencsv.StreamConsumer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -51,8 +52,7 @@ public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
 
     Object[] row = getRow();
     if (row == null) {
-      if ((data.nodesFiles != null && !data.nodesFiles.isEmpty())
-          || (data.relsFiles != null && !data.relsFiles.isEmpty())) {
+      if ((!Utils.isEmpty(data.nodesFiles)) || (!Utils.isEmpty(data.relsFiles))) {
         runImport();
       }
       setOutputDone();

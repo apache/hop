@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.abort;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -90,7 +91,7 @@ public class Abort extends BaseTransform<AbortMeta, AbortData> {
                 getInputRowMeta().getString(r)));
 
         String message = resolve(meta.getMessage());
-        if (message == null || message.length() == 0) {
+        if (Utils.isEmpty(message)) {
           logError(BaseMessages.getString(PKG, "Abort.Log.DefaultAbortMessage", "" + nrInputRows));
         } else {
           logError(message);

@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -227,7 +228,7 @@ public class GoogleSheetsOutput
           }
 
           // now if share email is not null we share with R/W with the email given
-          if ((resolve(meta.getShareEmail()) != null && !resolve(meta.getShareEmail()).isEmpty())
+          if ((!Utils.isEmpty(resolve(meta.getShareEmail())))
               || (resolve(meta.getShareDomain()) != null
                   && !resolve(meta.getShareDomain()).isEmpty())) {
 
@@ -248,7 +249,7 @@ public class GoogleSheetsOutput
                   }
                 };
             BatchRequest batch = service.batch();
-            if (resolve(meta.getShareEmail()) != null && !resolve(meta.getShareEmail()).isEmpty()) {
+            if (!Utils.isEmpty(resolve(meta.getShareEmail()))) {
               logBasic("Sharing sheet with:" + resolve(meta.getShareEmail()));
               Permission userPermission =
                   new Permission()

@@ -864,7 +864,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   private void setActiveCtab(String strName) {
-    if (strName.length() == 0) {
+    if (strName.isEmpty()) {
       folder.setSelection(0);
     } else {
       folder.setSelection(getCTabPosition(strName));
@@ -1482,7 +1482,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         IRowMeta previewRowsMeta = progressDialog.getPreviewRowsMeta(wTransformName.getText());
         List<Object[]> previewRows = progressDialog.getPreviewRows(wTransformName.getText());
 
-        if (previewRowsMeta != null && previewRows != null && !previewRows.isEmpty()) {
+        if (previewRowsMeta != null && !Utils.isEmpty(previewRows)) {
           PreviewRowsDialog prd =
               new PreviewRowsDialog(
                   shell,

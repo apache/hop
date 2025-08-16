@@ -479,6 +479,7 @@ public class XmlOutputMetaTest {
     IRowMeta prev = mock(IRowMeta.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     IRowMeta info = mock(IRowMeta.class);
+    when(prev.isEmpty()).thenReturn(true);
     ArrayList<ICheckResult> remarks = new ArrayList<>();
     xmlOutputMeta.check(
         remarks,
@@ -501,6 +502,7 @@ public class XmlOutputMetaTest {
     xmlField.setPrecision(3);
     xmlOutputMeta.setOutputFields(new XmlField[] {xmlField});
     when(prev.size()).thenReturn(1);
+    when(prev.isEmpty()).thenReturn(false);
     remarks.clear();
     xmlOutputMeta.check(
         remarks,

@@ -145,7 +145,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
               data.outputRowMeta.getValueMeta(getInputRowMeta().size() + i);
 
           if (templateValueMeta.getType() != outputValueMeta.getType()) {
-            if (typeErrors.length() > 0) {
+            if (!typeErrors.isEmpty()) {
               typeErrors.append(Const.CR);
             }
             typeErrors.append(
@@ -156,7 +156,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
                     outputValueMeta.toString()));
           }
         }
-        if (typeErrors.length() > 0) {
+        if (!typeErrors.isEmpty()) {
           throw new HopException(typeErrors.toString());
         }
       }

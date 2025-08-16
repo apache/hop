@@ -588,7 +588,7 @@ public class TokenReplacementMeta
     for (int i = 0; i < tokenReplacementFields.length; i++) {
       TokenReplacementField field = tokenReplacementFields[i];
 
-      if (field.getName() != null && field.getName().length() != 0) {
+      if (!Utils.isEmpty(field.getName())) {
         retval.append("      <field>").append(Const.CR);
         retval.append("        ").append(XmlHandler.addTagValue(FIELD_NAME, field.getName()));
         retval.append("        ").append(XmlHandler.addTagValue(TOKEN_NAME, field.getTokenName()));
@@ -680,7 +680,7 @@ public class TokenReplacementMeta
       retval += "_" + splitnr;
     }
 
-    if (extension != null && extension.length() != 0) {
+    if (!Utils.isEmpty(extension)) {
       retval += "." + extension;
     }
     return retval;
@@ -700,7 +700,7 @@ public class TokenReplacementMeta
     CheckResult cr;
 
     // Check output fields
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
