@@ -168,9 +168,8 @@ public class Variables implements IVariables {
     while (startIndex < resolved.length()) {
       int resolverIndex = resolved.indexOf(StringUtil.RESOLVER_OPEN);
       if (resolverIndex < 0) {
-        // There's nothing more to do here.
-        //
-        return null;
+
+        return resolved;
       }
 
       // Is there a close token?
