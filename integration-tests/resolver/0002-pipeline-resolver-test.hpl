@@ -39,21 +39,6 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>get db1 configuration</from>
-      <to>db1</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>get db2 configuration</from>
-      <to>db2</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>get db3 configuration</from>
-      <to>db3</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>db1</from>
       <to>Union</to>
       <enabled>Y</enabled>
@@ -73,6 +58,36 @@ limitations under the License.
       <to>Validate</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>get db1 configuration</from>
+      <to>db1 string substitution test</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>db1 string substitution test</from>
+      <to>db1</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>get db2 configuration</from>
+      <to>db2 string substitution test</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>db2 string substitution test</from>
+      <to>db2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>get db3 configuration</from>
+      <to>db3 string substitution test</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>db3 string substitution test</from>
+      <to>db3</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
   <transform>
     <name>Union</name>
@@ -87,7 +102,7 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>432</xloc>
+      <xloc>816</xloc>
       <yloc>128</yloc>
     </GUI>
   </transform>
@@ -104,7 +119,7 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>544</xloc>
+      <xloc>928</xloc>
       <yloc>128</yloc>
     </GUI>
   </transform>
@@ -121,7 +136,115 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>304</xloc>
+      <xloc>688</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>db1 string substitution test</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>Hostname: #{conf:db1:hostname}; Port: #{conf:db1:port}</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_constant</field_name>
+      <grouping_symbol/>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>SUBSTITUTE_VARIABLE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>hostname_constant</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_str</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>{ "json": [ #{conf:db1} ] }</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>json_constant</field_name>
+      <grouping_symbol/>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>SUBSTITUTE_VARIABLE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>json_constant</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>json_str</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>#{conf:db1:hostname}</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_2_constant</field_name>
+      <grouping_symbol/>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>SUBSTITUTE_VARIABLE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>hostname_2_constant</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_2</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <failIfNoFile>Y</failIfNoFile>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -138,7 +261,115 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>304</xloc>
+      <xloc>688</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>db2 string substitution test</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>Hostname: #{conf:db2:hostname}; Port: #{conf:db2:port}</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_constant</field_name>
+      <grouping_symbol/>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>SUBSTITUTE_VARIABLE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>hostname_constant</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_str</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>{ "json": [ #{conf:db2} ] }</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>json_constant</field_name>
+      <grouping_symbol/>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>SUBSTITUTE_VARIABLE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>json_constant</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>json_str</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>#{conf:db2:hostname}</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_2_constant</field_name>
+      <grouping_symbol/>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>SUBSTITUTE_VARIABLE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>hostname_2_constant</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_2</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <failIfNoFile>Y</failIfNoFile>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
       <yloc>128</yloc>
     </GUI>
   </transform>
@@ -155,7 +386,115 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>304</xloc>
+      <xloc>688</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>db3 string substitution test</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>Hostname: #{conf:db3:hostname}; Port: #{conf:db3:port}</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_constant</field_name>
+      <grouping_symbol/>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>SUBSTITUTE_VARIABLE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>hostname_constant</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_str</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>{ "json": [ #{conf:db3} ] }</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>json_constant</field_name>
+      <grouping_symbol/>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>SUBSTITUTE_VARIABLE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>json_constant</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>json_str</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>#{conf:db3:hostname}</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_2_constant</field_name>
+      <grouping_symbol/>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>SUBSTITUTE_VARIABLE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>hostname_2_constant</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>hostname_2</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <failIfNoFile>Y</failIfNoFile>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
       <yloc>192</yloc>
     </GUI>
   </transform>
