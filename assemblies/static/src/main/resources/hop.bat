@@ -119,11 +119,11 @@ set _cmdline=%*
 
 :Run
 echo.
-echo Consolidated parameters to pass to HopRun are
+echo Consolidated parameters to pass to Hop are
 echo %_cmdline%%
 echo.
 echo Command to start HopRun will be:
-echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.run.HopRun %_cmdline%%
+echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.hop.Hop %_cmdline%%
 echo.
 echo ===[Starting HopRun]=========================================================
 %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.hop.Hop %_cmdline%%
