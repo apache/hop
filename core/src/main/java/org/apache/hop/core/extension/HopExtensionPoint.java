@@ -130,8 +130,6 @@ public enum HopExtensionPoint {
       "Mouse is hovering over a drawn area in a workflow graph (HopGuiTooltipExtension)"),
 
   HopRunCalculateFilename("Right after the filename is determined, before it is used in any way"),
-  HopCommandRunCalculateFilename(
-      "Right after the filename is determined, before it is used in any way"),
   HopRunStart("At the start of the HopRun command line, before loading metadata execution"),
   HopRunEnd("At the end of the HopRun command line execution"),
 
