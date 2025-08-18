@@ -36,7 +36,7 @@ import org.apache.hop.workflow.action.IAction;
     name = "i18n::ActionDoc.Name",
     description = "i18n::ActionDoc.Description",
     image = "info.svg",
-    categoryDescription = "i18n:org.apache.hop.documentation:ActionCategory.Category.Utility",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     keywords = "i18n::ActionDoc.keyword",
     documentationUrl = "/workflow/actions/documentation.html")
 @Getter
