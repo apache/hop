@@ -20,7 +20,9 @@ package org.apache.hop.config;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
+import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.hop.Hop;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -38,7 +40,7 @@ public class HopConfig extends HopConfigBase implements Runnable, IHasHopMetadat
 
       hopConfig.cmd = new CommandLine(hopConfig);
 
-      hopConfig.addConfConfigPlugins();
+      Hop.addMixinPlugins(hopConfig.cmd, ConfigPlugin.CATEGORY_CONFIG);
 
       hopConfig.variables = Variables.getADefaultVariableSpace();
 
