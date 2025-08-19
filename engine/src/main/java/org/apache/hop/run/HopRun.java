@@ -23,8 +23,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
+import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.JarCache;
+import org.apache.hop.hop.Hop;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
@@ -80,7 +82,7 @@ public class HopRun extends HopRunBase implements Runnable, IHasHopMetadataProvi
       hopRun.metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(hopRun.variables);
       HopMetadataInstance.setMetadataProvider(hopRun.metadataProvider);
 
-      hopRun.addRunConfigPlugins();
+      Hop.addMixinPlugins(hopRun.cmd, ConfigPlugin.CATEGORY_RUN);
 
       // This will calculate the option values and put them in HopRun or the plugin classes
       //
