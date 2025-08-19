@@ -36,7 +36,7 @@ import org.apache.hop.workflow.action.IAction;
 /** The start action is starting point for workflow execution. */
 @Action(
     id = ActionStart.ID,
-    image = "ui/images/start.svg",
+    image = "org/apache/hop/images/start.svg",
     name = "i18n::ActionStart.Name",
     description = "i18n::ActionStart.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
