@@ -17,21 +17,27 @@
 
 package org.apache.hop.core.database;
 
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Stream;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -1218,48 +1224,44 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   public boolean hasIndex(
       Database database, String schemaName, String tableName, String[] idxFields)
       throws HopDatabaseException {
-
-    String schemaTable =
-        database.getDatabaseMeta().getQuotedSchemaTableCombination(database, schemaName, tableName);
-
-    boolean[] exists = new boolean[idxFields.length];
-    for (int i = 0; i < exists.length; i++) {
-      exists[i] = false;
-    }
-
+    Map<String, SortedSet<String>> indexes = new HashMap<>();
+    String catalog = null;
+    String schema = schemaName;
     try {
-      // Get a list of all the indexes for this table
-      ResultSet indexList = null;
+      DatabaseMetaData metaData = database.getConnection().getMetaData();
       try {
-        indexList =
-            database.getDatabaseMetaData().getIndexInfo(null, null, schemaTable, false, true);
+        if (metaData.supportsCatalogsInIndexDefinitions()) {
+          catalog = database.getConnection().getCatalog();
+        }
+        schema =
+            metaData.supportsSchemasInIndexDefinitions() ? normalizeCase(metaData, schema) : null;
+        tableName = normalizeCase(metaData, tableName);
+      } catch (SQLException ignored) {
+      }
+      try (ResultSet indexList = metaData.getIndexInfo(catalog, schema, tableName, false, true)) {
         while (indexList.next()) {
-          String column = indexList.getString("COLUMN_NAME");
-
-          int idx = Const.indexOfString(column, idxFields);
-          if (idx >= 0) {
-            exists[idx] = true;
+          String indexName = indexList.getString("INDEX_NAME");
+          if (!StringUtil.isEmpty(indexName)) {
+            indexes
+                .computeIfAbsent(indexName, s -> new TreeSet<>(String::compareToIgnoreCase))
+                .add(indexList.getString("COLUMN_NAME"));
           }
         }
-      } finally {
-        if (indexList != null) {
-          indexList.close();
-        }
       }
-
-      // See if all the fields are indexed...
-      boolean all = true;
-      for (int i = 0; i < exists.length && all; i++) {
-        if (!exists[i]) {
-          all = false;
-        }
-      }
-
-      return all;
-    } catch (Exception e) {
+    } catch (SQLException e) {
       throw new HopDatabaseException(
-          "Unable to determine if indexes exists on table [" + schemaTable + "]", e);
+          "Unable to determine if indexes exists on table [" + tableName + "]", e);
     }
+    if (indexes.isEmpty()) {
+      return false;
+    }
+    String[] sorted =
+        Stream.of(idxFields).sorted(String::compareToIgnoreCase).toArray(String[]::new);
+    int len = sorted.length;
+    return indexes.values().stream()
+        .filter(strings -> strings.size() >= len)
+        .map(strings -> strings.toArray(String[]::new))
+        .anyMatch(cols -> Arrays.equals(sorted, 0, len, cols, 0, len, String::compareToIgnoreCase));
   }
 
   /**
@@ -1957,5 +1959,20 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public String getSqlInsertClauseBeforeFields(IVariables variables, String schemaTable) {
     return null;
+  }
+
+  private String normalizeCase(DatabaseMetaData metaData, String identifier) throws SQLException {
+    if (StringUtil.isEmpty(identifier)) {
+      return null;
+    }
+    if (!metaData.storesMixedCaseIdentifiers()) {
+      if (metaData.storesUpperCaseIdentifiers()) {
+        return identifier.toUpperCase();
+      }
+      if (metaData.storesLowerCaseIdentifiers()) {
+        return identifier.toLowerCase();
+      }
+    }
+    return identifier;
   }
 }
