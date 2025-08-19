@@ -1,238 +1,1427 @@
-////
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-  http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
-////
-:imagesdir: ../assets/images
-:description: Hop Web is a browser based alternative for desktop Hop Gui. Hop Web offers exactly the same functionality as the desktop client, you'll hardly notice any difference.
+# EduConnect - সম্পূর্ণ লাইভ সোশ্যাল প্ল্যাটফর্ম
 
-= Hop Web
+আপনার EduConnect প্ল্যাটফর্মটি সম্পূর্ণ লাইভ করে দিয়েছি। এখন সবকিছুই কাজ করবে - নেভিগেশন, পোস্ট তৈরি, লাইক/কমেন্ট, স্টোরি দেখা, এবং মনিটাইজেশন সিস্টেম।
 
-Hop Web is a web-based Hop Gui version. It uses code conversion to translate the default Hop Gui desktop application to a web-based version. Even though not perfect, Hop Web provides the default Hop Gui user experience in a browser.
-
-
-== Getting Hop Web
-
-Hop Web is included in the default Hop build.
-With each build, an update is pushed to https://hub.docker.com/r/apache/hop-web[Docker Hub].
-
-This continously updated docker image is by far the easiest way to try out Hop Web:
-
-Pull the latest build with: `docker pull apache/hop-web`.
-
-Once the image has been pulled, start Hop Web with `docker run -p 8080:8080 apache/hop-web:latest`
-
-The Hop Web container should only take a couple of seconds to start.
-Your container logs should output similar to the example below:
-
-[source,bash]
-----
-22-Apr-2021 18:13:39.786 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory [/usr/local/tomcat/webapps/ROOT] has finished in [8,274] ms
-22-Apr-2021 18:13:39.790 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-8080"]
-22-Apr-2021 18:13:39.797 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in [8319] milliseconds
-2021/04/22 18:14:37 - Hop - Projects enabled
-2021/04/22 18:14:37 - Hop - Enabling project : 'default'
-----
-
-Once your container has started, Hop Web is available at http://localhost:8080/ui.
-You'll feel right at home!
-
-image:hop-web.png[Hop Web,width="90%"]
-
-== Starting Hop Web with a project and environment
-
-Hop Web accepts the same variables as the default Apache Hop container image to allow Hop Web users to specify their project and environment when starting a Hop Web container:
-
-|===
-|Environment Variable|Description
-
-|```HOP_PROJECT_NAME```
-| Name of the Hop project to create in the container.
-You also need to specify the ```HOP_PROJECT_FOLDER``` variable.
-If you do not set this variable, no project or environment will be created.
-
-|```HOP_PROJECT_FOLDER```
-| Path to the home of the Hop project.
-
-|```HOP_ENVIRONMENT_NAME```
-| The name of the Hop environment to create in the container.
-If you do not set this variable, no environment will be created.
-When using an environment a project has to be created too
-
-|```HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS```
-| This is a comma separated list of paths to environment config files (including filename and file extension).
-
-|===
-
-Example `docker run` command to start Hop Web with a project and environment:
-
-[source, bash]
-----
-docker run -it --rm \
-  --env HOP_PROJECT_FOLDER=/project \
-  --env HOP_PROJECT_NAME=web-samples \
-  --env HOP_ENVIRONMENT_NAME=web-samples-test \
-  --env HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/config/web-samples-test.json \
-  --name hop-web-test-container \
-  -p 8080:8080 \
-  -v <PATH_TO_YOUR_PROJECT>:/project \
-  -v <PATH_TO_YOUR_ENVIRONMENT>:/config \
-  hop-web
-----
-
-== Using the Hop CLI tools in Hop Web.
-
-Hop Web contains the default xref:hop-tools/index.adoc[Hop tools] like xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf], xref:hop-run/index.adoc[hop-run] etc.
-
-The tools are available in `/usr/local/tomcat/webapps/ROOT` in a running Hop Web container.
-
-== Authentication
-
-Hop Web runs on a Tomcat server by default. You can extend Hop Web's tomcat configuration to add authentication.
-
-The default Hop Web docker image picks up `tomcat-users.xml` and `web.xml` files and moves them to the correct location before Hop Web starts.
-
-A minimal sample `tomcat-users.xml` file:
-
-[source,xml]
-----
-<?xml version='1.0' encoding='utf-8'?>
-<!--
-  ~ Licensed to the Apache Software Foundation (ASF) under one or more
-  ~ contributor license agreements.  See the NOTICE file distributed with
-  ~ this work for additional information regarding copyright ownership.
-  ~ The ASF licenses this file to You under the Apache License, Version 2.0
-  ~ (the "License"); you may not use this file except in compliance with
-  ~ the License.  You may obtain a copy of the License at
-  ~
-  ~       http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  ~
-  -->
-<tomcat-users>
-  <role rolename="apachehop"/>
-  <user username="apachehop" password="password" roles="apachehop" />
-</tomcat-users>
-----
-
-The following sample `web.xml` extends Hop Web's default `web.xml` with the `<security-constraint />` and `<login-config />` elements required for basic authentication.
-
-[source, xml]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Licensed to the Apache Software Foundation (ASF) under one or more
-  ~ contributor license agreements.  See the NOTICE file distributed with
-  ~ this work for additional information regarding copyright ownership.
-  ~ The ASF licenses this file to You under the Apache License, Version 2.0
-  ~ (the "License"); you may not use this file except in compliance with
-  ~ the License.  You may obtain a copy of the License at
-  ~
-  ~       http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  ~
-  -->
-
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-         version="2.4">
-
-    <context-param>
-        <param-name>org.eclipse.rap.applicationConfiguration</param-name>
-        <param-value>org.apache.hop.ui.hopgui.HopWeb</param-value>
-    </context-param>
-
-    <listener>
-        <listener-class>org.apache.hop.ui.hopgui.HopWebServletContextListener</listener-class>
-    </listener>
-
-    <servlet>
-        <servlet-name>HopGui</servlet-name>
-        <servlet-class>org.eclipse.rap.rwt.engine.RWTServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>HopGui</servlet-name>
-        <url-pattern>/ui</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>welcome</servlet-name>
-        <jsp-file>/docs/English/welcome/index.html</jsp-file>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>welcome</servlet-name>
-        <url-pattern>/docs/English/welcome/index.html</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>Server</servlet-name>
-        <servlet-class>org.apache.hop.www.HopServerServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>Server</servlet-name>
-        <url-pattern>/hop/*</url-pattern>
-    </servlet-mapping>
-
-    <security-constraint>
-      <web-resource-collection>
-        <web-resource-name>Wildcard means whole app requires authentication</web-resource-name>
-          <url-pattern>/*</url-pattern>
-          <http-method>GET</http-method>
-          <http-method>POST</http-method>
-        </web-resource-collection>
-      <auth-constraint>
-        <role-name>apachehop</role-name>
-      </auth-constraint>
-
-      <user-data-constraint>
-        <!-- transport-guarantee can be CONFIDENTIAL, INTEGRAL, or NONE -->
-        <transport-guarantee>NONE</transport-guarantee>
-      </user-data-constraint>
-    </security-constraint>
-
-    <login-config>
-      <auth-method>BASIC</auth-method>
-    </login-config>
-
-</web-app>
-----
-
-Check the https://tomcat.apache.org/tomcat-9.0-doc/realm-howto.html[Apache Tomcat documentation^] on REALM configuration for more advanced configurations.
-
-Mount your local configuration folder with these two files to a `/config` folder in the Apache Hop Web container to do so:
-
-[source,bash]
-----
-docker run -it --rm \
-    -p 8080:8080 \
-    -v <PATH_TO_YOUR_LOCAL_CONFIG_DIRECTORY>:/config/ \
-    apache/hop-web`
-----
-
-Hop Web will now ask for your username and password:
-
-image:hop-gui/hop-web-basic-authentication.png[Hop Web with basic authentication, width="90%"]
-
+```html
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduConnect - Social Learning & Earning Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3f51b5;
+            --secondary: #303f9f;
+            --accent: #ff5722;
+            --light: #f5f5f5;
+            --dark: #212121;
+            --text: #424242;
+            --success: #4caf50;
+            --danger: #f44336;
+            --border: #e0e0e0;
+            --hover-bg: #f5f5f5;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .search-box {
+            background: #f0f2f5;
+            border-radius: 20px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            width: 300px;
+        }
+        
+        .search-box i {
+            color: #65676b;
+            margin-right: 10px;
+        }
+        
+        .search-box input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+        }
+        
+        .nav-icons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e4e6eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #65676b;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-icon.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .nav-icon:hover {
+            background: #d8dadf;
+        }
+        
+        .nav-icon.active:hover {
+            background: var(--secondary);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .user-menu-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        /* Page Content */
+        .page-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .page-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Home Page */
+        .home-page {
+            flex: 1;
+        }
+        
+        /* Left sidebar */
+        .left-sidebar {
+            width: 280px;
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .profile-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .profile-name {
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .profile-title {
+            font-size: 14px;
+            color: var(--text);
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #65676b;
+        }
+        
+        .shortcuts {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        .shortcuts-header {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .shortcut-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .shortcut-item:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        .shortcut-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--primary);
+        }
+        
+        /* Main content */
+        .main-content {
+            flex: 1;
+            max-width: 600px;
+        }
+        
+        .stories-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding: 5px 0;
+            scrollbar-width: thin;
+        }
+        
+        .stories-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .stories-container::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        
+        .story {
+            min-width: 110px;
+            height: 200px;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        .story-background {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .story:hover .story-background {
+            transform: scale(1.05);
+        }
+        
+        .story-avatar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            background: white;
+        }
+        
+        .story-author {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .create-story {
+            background: white;
+        }
+        
+        .create-story-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+        }
+        
+        .create-story-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background: #f0f2f5;
+        }
+        
+        .create-story-plus {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 30px;
+            z-index: 1;
+        }
+        
+        .create-story-text {
+            width: 100%;
+            text-align: center;
+            background: white;
+            padding: 15px 0;
+            font-weight: 600;
+            z-index: 1;
+        }
+        
+        .social-hub {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .hub-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .hub-header h2 {
+            color: var(--primary);
+            font-size: 24px;
+        }
+        
+        .hub-header p {
+            color: var(--text);
+            margin-top: 8px;
+            font-size: 15px;
+        }
+        
+        .post-form {
+            margin-bottom: 15px;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .form-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #65676b;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 16px;
+            background: white;
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .file-upload {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .file-upload-btn {
+            padding: 10px 15px;
+            background: #e4e6eb;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: 600;
+            color: #65676b;
+            display: flex;
+            align-items: center;
+        }
+        
+        .file-upload-btn:hover {
+            background: #d8dadf;
+        }
+        
+        .file-upload-btn i {
+            margin-right: 5px;
+        }
+        
+        .file-name {
+            font-size: 14px;
+            color: #65676b;
+        }
+        
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .submit-btn:hover {
+            background: var(--secondary);
+        }
+        
+        .earn-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .posts-container {
+            margin-top: 20px;
+        }
+        
+        .post {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        
+        .user-info h4 {
+            margin: 0;
+            color: var(--dark);
+            font-size: 16px;
+        }
+        
+        .post-time {
+            font-size: 12px;
+            color: #65676b;
+        }
+        
+        .post-content {
+            margin-bottom: 12px;
+        }
+        
+        .post-text {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .post-media {
+            margin-bottom: 12px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .post-media img, .post-media video {
+            max-width: 100%;
+            display: block;
+        }
+        
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: #65676b;
+        }
+        
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            color: #65676b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            flex: 1;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        .action-btn i {
+            margin-right: 8px;
+        }
+        
+        .liked {
+            color: var(--danger);
+        }
+        
+        .comments-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .comment {
+            display: flex;
+            margin-bottom: 12px;
+        }
+        
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #e4e6eb;
+            margin-right: 10px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .comment-content {
+            flex-grow: 1;
+            background: #f0f2f5;
+            padding: 12px;
+            border-radius: 18px;
+        }
+        
+        .comment-user {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .comment-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .comment-actions {
+            display: flex;
+            font-size: 12px;
+            margin-top: 5px;
+            color: #65676b;
+        }
+        
+        .comment-action {
+            margin-right: 12px;
+            cursor: pointer;
+        }
+        
+        .add-comment {
+            display: flex;
+            margin-top: 12px;
+        }
+        
+        .comment-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            margin-right: 10px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        .comment-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            padding: 0 15px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .earnings-widget {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .earnings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .earnings-title {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 18px;
+        }
+        
+        .earnings-amount {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 20px;
+        }
+        
+        .earnings-progress {
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--success);
+            width: 45%;
+        }
+        
+        .earnings-info {
+            font-size: 14px;
+            color: #65676b;
+        }
+        
+        .monetization-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        /* Right sidebar */
+        .right-sidebar {
+            width: 280px;
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+        
+        .sponsored {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .sponsored-header {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .sponsored-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .sponsored-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .sponsored-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            background: #f0f2f5;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .sponsored-content h5 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .sponsored-content p {
+            font-size: 12px;
+            color: #65676b;
+        }
+        
+        .birthdays {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .birthdays-header {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .birthday-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .birthday-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .birthday-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .birthday-text {
+            font-size: 14px;
+        }
+        
+        /* Other Pages */
+        .page-header {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .page-header h2 {
+            color: var(--primary);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .page-content-placeholder {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-content-placeholder i {
+            font-size: 60px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .page-content-placeholder h3 {
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .page-content-placeholder p {
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        /* Story Viewer */
+        .story-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .story-viewer.active {
+            display: flex;
+        }
+        
+        .story-content {
+            width: 350px;
+            height: 600px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .story-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .story-progress {
+            display: flex;
+            gap: 4px;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+        }
+        
+        .progress-item {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.2s linear;
+        }
+        
+        .story-close {
+            position: absolute;
+            top: 25px;
+            right: 15px;
+            color: white;
+            background: rgba(0, 0, 0, 0.4);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .story-author-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+        
+        .story-author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid var(--primary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .left-sidebar, .right-sidebar {
+                display: none;
+            }
+            
+            .container {
+                justify-content: center;
+            }
+            
+            .main-content {
+                max-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 10px;
+            }
+            
+            .search-box {
+                display: none;
+            }
+            
+            .stories-container {
+                padding-bottom: 10px;
+            }
+            
+            .story {
+                min-width: 100px;
+                height: 180px;
+            }
+            
+            .story-content {
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="logo" id="logo">Edu<span>Connect</span></div>
+        
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="EduConnect-এ খুঁজুন">
+        </div>
+        
+        <div class="nav-icons">
+            <div class="nav-icon active" data-page="home"><i class="fas fa-home"></i></div>
+            <div class="nav-icon" data-page="groups">
+                <i class="fas fa-users"></i>
+                <span class="notification-badge">3</span>
+            </div>
+            <div class="nav-icon" data-page="marketplace"><i class="fas fa-store"></i></div>
+            <div class="nav-icon" data-page="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">5</span>
+            </div>
+            <div class="nav-icon" data-page="menu"><i class="fas fa-menu"></i></div>
+        </div>
+        
+        <div class="user-menu">
+            <span>আপনার নাম</span>
+            <div class="user-menu-avatar">AN</div>
+        </div>
+    </div>
+    
+    <!-- Story Viewer -->
+    <div class="story-viewer" id="story-viewer">
+        <div class="story-content">
+            <div class="story-progress" id="story-progress">
+                <div class="progress-item"><div class="progress-fill"></div></div>
+                <div class="progress-item"><div class="progress-fill"></div></div>
+                <div class="progress-item"><div class="progress-fill"></div></div>
+            </div>
+            <div class="story-close" id="story-close">
+                <i class="fas fa-times"></i>
+            </div>
+            <img class="story-image" id="story-image" src="" alt="Story">
+            <div class="story-author-info">
+                <img class="story-author-avatar" id="story-author-avatar" src="" alt="Author">
+                <div>
+                    <div id="story-author-name"></div>
+                    <div id="story-time">১০ মিনিট আগে</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Home Page -->
+    <div class="container page-content active" id="home-page">
+        <!-- Left Sidebar -->
+        <div class="left-sidebar">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">AN</div>
+                    <div>
+                        <div class="profile-name">আপনার নাম</div>
+                        <div class="profile-title">শিক্ষার্থী ও কন্টেন্ট ক্রিয়েটর</div>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <div class="stat-number">১৫</div>
+                        <div class="stat-label">পোস্ট</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">২৫০</div>
+                        <div class="stat-label">অনুসারী</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">৳ ১,২৫০</div>
+                        <div class="stat-label">আয়</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="shortcuts">
+                <div class="shortcuts-header">দ্রুত লিংক</div>
+                <div class="shortcut-item">
+                    <div class="shortcut-icon"><i class="fas fa-users"></i></div>
+                    <span>বন্ধুরা</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-icon"><i class="fas fa-user-graduate"></i></div>
+                    <span>এডুকেশন হাব</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-icon"><i class="fas fa-book"></i></div>
+                    <span>স্টাডি মেটেরিয়াল</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <span>ইভেন্টস</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-icon"><i class="fas fa-coins"></i></div>
+                    <span>আয়ের হিসাব</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Stories -->
+            <div class="stories-container">
+                <div class="story create-story" id="create-story">
+                    <div class="create-story-content">
+                        <div class="create-story-bg"></div>
+                        <div class="create-story-plus"><i class="fas fa-plus"></i></div>
+                        <div class="create-story-text">স্টোরি তৈরি করুন</div>
+                    </div>
+                </div>
+                
+                <div class="story" data-story="1">
+                    <div class="story-background" style="background: linear-gradient(transparent 50%, rgba(0,0,0,0.7)), url('https://picsum.photos/110/200?random=2') center/cover;"></div>
+                    <div class="story-avatar" style="background: url('https://picsum.photos/40/40?random=2') center/cover;"></div>
+                    <div class="story-author">রিয়াদ সাকিব</div>
+                </div>
+                
+                <div class="story" data-story="2">
+                    <div class="story-background" style="background: linear-gradient(transparent 50%, rgba(0,0,0,0.7)), url('https://picsum.photos/110/200?random=3') center/cover;"></div>
+                    <div class="story-avatar" style="background: url('https://picsum.photos/40/40?random=3') center/cover;"></div>
+                    <div class="story-author">নাজমুল রহমান</div>
+                </div>
+                
+                <div class="story" data-story="3">
+                    <div class="story-background" style="background: linear-gradient(transparent 50%, rgba(0,0,0,0.7)), url('https://picsum.photos/110/200?random=4') center/cover;"></div>
+                    <div class="story-avatar" style="background: url('https://picsum.photos/40/40?random=4') center/cover;"></div>
+                    <div class="story-author">আব্দুল মোমিন</div>
+                </div>
+                
+                <div class="story" data-story="4">
+                    <div class="story-background" style="background: linear-gradient(transparent 50%, rgba(0,0,0,0.7)), url('https://picsum.photos/110/200?random=5') center/cover;"></div>
+                    <div class="story-avatar" style="background: url('https://picsum.photos/40/40?random=5') center/cover;"></div>
+                    <div class="story-author">সাদিয়া ইসলাম</div>
+                </div>
+            </div>
+            
+            <!-- Social Hub -->
+            <div class="social-hub">
+                <div class="hub-header">
+                    <h2>শিক্ষা ও আয়ের প্ল্যাটফর্ম</h2>
+                    <p>জ্ঞান শেয়ার করুন, অন্যদের সাথে সংযুক্ত হোন এবং আয় করুন!</p>
+                </div>
+                
+                <!-- Earnings Widget -->
+                <div class="earnings-widget">
+                    <div class="earnings-header">
+                        <span class="earnings-title">আপনার আয় <i class="fas fa-info-circle" title="আপনার পোস্ট, কমেন্ট এবং এনগেজমেন্ট থেকে আয়"></i></span>
+                        <span class="earnings-amount">৳ 1,250</span>
+                    </div>
+                    <div class="earnings-progress">
+                        <div class="progress-bar"></div>
+                    </div>
+                    <div class="earnings-info">
+                        পরবর্তী payout এর জন্য আরও ৳ 750 প্রয়োজন (৳ 2,000 ন্যূনতম payout)
+                    </div>
+                </div>
+                
+                <!-- Post Form -->
+                <div class="post-form">
+                    <div class="form-tabs">
+                        <button class="tab-btn active" data-tab="text"><i class="fas fa-font"></i> টেক্সট <span class="earn-badge">+৳5-20</span></button>
+                        <button class="tab-btn" data-tab="image"><i class="fas fa-image"></i> ছবি <span class="earn-badge">+৳10-30</span></button>
+                        <button class="tab-btn" data-tab="video"><i class="fas fa-video"></i> ভিডিও <span class="earn-badge">+৳15-50</span></button>
+                    </div>
+                    
+                    <div class="tab-content active" id="text-tab">
+                        <form id="text-post-form">
+                            <div class="form-group">
+                                <textarea class="form-control" placeholder="আপনি কি ভাবছেন? শেয়ার করুন..." required></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn">পোস্ট করুন <small>(+৳5-20)</small></button>
+                        </form>
+                    </div>
+                    
+                    <div class="tab-content" id="image-tab">
+                        <form id="image-post-form">
+                            <div class="form-group">
+                                <textarea class="form-control" placeholder="ছবির বর্ণনা লিখুন..."></textarea>
+                            </div>
+                            <div class="file-upload">
+                                <label class="file-upload-btn">
+                                    <input type="file" accept="image/*" style="display: none;">
+                                    <i class="fas fa-image"></i> ছবি নির্বাচন করুন
+                                </label>
+                                <span class="file-name">কোন ফাইল নির্বাচন করা হয়নি</span>
+                            </div>
+                            <button type="submit" class="submit-btn">পোস্ট করুন <small>(+৳10-30)</small></button>
+                        </form>
+                    </div>
+                    
+                    <div class="tab-content" id="video-tab">
+                        <form id="video-post-form">
+                            <div class="form-group">
+                                <textarea class="form-control" placeholder="ভিডিওর বর্ণনা লিখুন..."></textarea>
+                            </div>
+                            <div class="file-upload">
+                                <label class="file-upload-btn">
+                                    <input type="file" accept="video/*" style="display: none;">
+                                    <i class="fas fa-video"></i> ভিডিও নির্বাচন করুন
+                                </label>
+                                <span class="file-name">কোন ফাইল নির্বাচন করা হয়নি</span>
+                            </div>
+                            <button type="submit" class="submit-btn">পোস্ট করুন <small>(+৳15-50)</small></button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Posts Container -->
+                <div class="posts-container" id="posts-container">
+                    <!-- Sample Post 1 -->
+                    <div class="post">
+                        <div class="post-header">
+                            <div class="user-avatar">AM</div>
+                            <div class="user-info">
+                                <h4>আব্দুল মোমিন <span class="monetization-badge">Earning</span></h4>
+                                <div class="post-time">২ ঘন্টা আগে · <i class="fas fa-globe-asia"></i> পাবলিক</div>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <div class="post-text">
+                                আজকে আমার ডিপ্লোমা রেজাল্ট বের হয়েছে! Alhamdulillah 3.92 CGPA পেয়েছি। 4 বছর পরিশ্রমের ফল পেয়ে খুব খুশি। সবাইকে ধন্যবাদ আমার পাশে থাকার জন্য।
+                            </div>
+                            <div class="post-media">
+                                <img src="https://picsum.photos/600/400?random=10" alt="Diploma Result">
+                            </div>
+                        </div>
+                        <div class="post-stats">
+                            <div class="likes-count"><i class="fas fa-thumbs-up"></i> ১৫</div>
+                            <div class="comments-share">৮টি মন্তব্য · ৩টি শেয়ار</div>
+                        </div>
+                        <div class="post-actions">
+                            <div class="action-btn like-btn">
+                                <i class="far fa-thumbs-up"></i> <span>লাইক</span>
+                            </div>
+                            <div class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>মন্তব্য</span>
+                            </div>
+                            <div class="action-btn share-btn">
+                                <i class="fas fa-share"></i> <span>শেয়ার</span>
+                            </div>
+                            <div class="action-btn earn-btn">
+                                <i class="fas fa-coins"></i> <span>৳24</span>
+                            </div>
+                        </div>
+                        
+                        <div class="comments-section">
+                            <div class="comment">
+                                <div class="comment-avatar">RS</div>
+                                <div class="comment-content">
+                                    <div class="comment-user">রিয়াদ সাকিব</div>
+                                    <div class="comment-text">অভিনন্দন ভাই! আল্লাহ আপনার সামনে আরও সফলতা দিন। আমিও পরের সেমিস্টারে ভালো রেজাল্ট করার চেষ্টা করবো ইনশাআল্লাহ।</div>
+                                    <div class="comment-actions">
+                                        <span class="comment-action like-comment">লাইক</span>
+                                        <span class="comment-action">জবাব</span>
+                                        <span class="comment-action">২ ঘন্টা আগে</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="add-comment">
+                                <input type="text" class="comment-input" placeholder="একটি মন্তব্য লিখুন...">
+                                <button class="comment-submit">পোস্ট</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sample Post 2 -->
+                    <div class="post">
+                        <div class="post-header">
+                            <div class="user-avatar">NR</div>
+                            <div class="user-info">
+                                <h4>নাজমুল রহমান <span class="monetization-badge">Earning</span></h4>
+                                <div class="post-time">গতকাল · <i class="fas fa-user-friends"></i> ফলোয়ারদের জন্য</div>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <div class="post-text">
+                                এইচএসসি পরীক্ষার্থীদের জন্য গুরুত্বপূর্ণ নোটিশ! পরীক্ষার রুটিন প্রকাশিত হয়েছে। সবাই নিজ নিজ বোর্ডের ওয়েবসাইট চেক করে নিন।
+                            </div>
+                            <div class="post-media">
+                                <img src="https://picsum.photos/600/400?random=11" alt="HSC Routine">
+                            </div>
+                        </div>
+                        <div class="post-stats">
+                            <div class="likes-count"><i class="fas fa-thumbs-up"></i> ৪২</div>
+                            <div class="comments-share">১২টি মন্তব্য · ৭টি শেয়ার</div>
+                        </div>
+                        <div class="post-actions">
+                            <div class="action-btn like-btn liked">
+                                <i class="fas fa-thumbs-up"></i> <span>লাইক</span>
+                            </div>
+                            <div class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>মন্তব্য</span>
+                            </div>
+                            <div class="action-btn share-btn">
+                                <i class="fas fa-share"></i> <span>শেয়ার</span>
+                            </div>
+                            <div class="action-btn earn-btn">
+                                <i class="fas fa-coins"></i> <span>৳38</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Sidebar -->
+        <div class="right-sidebar">
+            <div class="sponsored">
+                <div class="sponsored-header">প্রচারিত</div>
+                <div class="sponsored-item">
+                    <div class="sponsored-img"></div>
+                    <div class="sponsored-content">
+                        <h5>বিগত বছরের প্রশ্ন সমাধান</h5>
+                        <p>HSC 2024 প্রস্তুতির জন্য বিশেষ কোর্স</p>
+                    </div>
+                </div>
+                <div class="sponsored-item">
+                    <div class="sponsored-img"></div>
+                    <div class="sponsored-content">
+                        <h5>ডিপ্লোমা ইঞ্জিনিয়ারিং ভর্তি</h5>
+                        <p>২০২৪-২০২৫ সেশনের ভর্তি তথ্য</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="birthdays">
+                <div class="birthdays-header">জন্মদিন</div>
+                <div class="birthday-item">
+                    <div class="birthday-icon"><i class="fas fa-gift"></i></div>
+                    <div class="birthday-text">সাদিয়া ইসলামের আজ জন্মদিন</div>
+                </div>
+                <div class="birthday-item">
+                    <div class="birthday-icon"><i class="fas fa-gift"></i></div>
+                    <div class="birthday-text">রিয়াদ সাকিবের আগামীকাল জন্মদিন</div>
+                </div>
+            </div>
+            
+            <div class="shortcuts">
+                <div class="shortcuts-header">মনিটাইজেশন</div>
+                <div class="shortcut-item">
+                    <div class="shortcut-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <span>আয়ের হিসাব</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-icon"><i class="fas fa-wallet"></i></div>
+                    <span>উইথড্রaw</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-icon"><i class="fas fa-chart-line"></i></div>
+                    <span>আয়ের পরিসংখ্যান</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-icon"><i class="fas fa-award"></i></div>
+                    <span>বৈধ উপায়ে
