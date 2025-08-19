@@ -17,7 +17,6 @@
 
 package org.apache.hop.imp;
 
-import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,10 +27,8 @@ import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.LogProgressMonitor;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
@@ -40,6 +37,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.hop.Hop;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
@@ -146,7 +144,7 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
     this.variables = variables;
     this.metadataProvider = metadataProvider;
 
-    addImportPlugins();
+    Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_IMPORT);
   }
 
   @Override
@@ -302,7 +300,7 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
 
       // Now add run configuration plugins...
       //
-      hopImport.addImportPlugins();
+      Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_IMPORT);
       hopImport.setCmd(cmd);
 
       // This will calculate the option values and put them in HopRun or the plugin classes
@@ -335,18 +333,6 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
       System.err.println(Const.getStackTracker(e));
 
       System.exit(2);
-    }
-  }
-
-  private void addImportPlugins() throws HopPluginException {
-    List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
-    for (IPlugin configPlugin : configPlugins) {
-      // Load only the plugins of the "import" category
-      if (ConfigPlugin.CATEGORY_IMPORT.equals(configPlugin.getCategory())) {
-        IConfigOptions configOptions =
-            PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
-        cmd.addMixin(configPlugin.getIds()[0], configOptions);
-      }
     }
   }
 }

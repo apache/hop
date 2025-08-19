@@ -39,24 +39,21 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.JarCache;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.hop.Hop;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.i18n.BaseMessages;
@@ -172,7 +169,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
     this.metadataProvider = metadataProvider;
 
     HopClientEnvironment.getInstance().setClient(HopClientEnvironment.ClientType.SERVER);
-    addHopServerPlugins();
+    Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_SERVER);
 
     // Add optional metadata folder (legacy)
     //
@@ -560,7 +557,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
 
       // Now add server configuration plugins...
       //
-      hopServer.addHopServerPlugins();
+      Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_SERVER);
       hopServer.setCmd(cmd);
 
       // Add optional metadata folder (legacy)
@@ -594,18 +591,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
       System.err.println("General error found, something went horribly wrong!");
       System.err.println(Const.getStackTracker(e));
       System.exit(2);
-    }
-  }
-
-  protected void addHopServerPlugins() throws HopPluginException {
-    List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
-    for (IPlugin configPlugin : configPlugins) {
-      // Load only the plugins of the "run" category
-      if (ConfigPlugin.CATEGORY_SERVER.equals(configPlugin.getCategory())) {
-        IConfigOptions configOptions =
-            PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
-        cmd.addMixin(configPlugin.getIds()[0], configOptions);
-      }
     }
   }
 

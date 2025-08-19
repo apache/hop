@@ -29,7 +29,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
@@ -48,6 +47,7 @@ import org.apache.hop.core.search.SearchQuery;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.hop.Hop;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
@@ -112,7 +112,7 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopCommand
     this.metadataProvider = metadataProvider;
 
     registerSearchPluginType();
-    addHopSearchPlugins();
+    Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_SEARCH);
   }
 
   @Override
@@ -253,7 +253,7 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopCommand
 
       hopSearch.cmd = new CommandLine(hopSearch);
 
-      hopSearch.addHopSearchPlugins();
+      Hop.addMixinPlugins(hopSearch.cmd, ConfigPlugin.CATEGORY_SEARCH);
       hopSearch.setCmd(hopSearch.cmd);
       CommandLine.ParseResult parseResult = hopSearch.cmd.parseArgs(args);
       if (CommandLine.printHelpIfRequested(parseResult)) {
@@ -284,17 +284,5 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopCommand
         SearchableAnalyserPluginType.getInstance();
     PluginRegistry.addPluginType(searchableAnalyserPluginType);
     searchableAnalyserPluginType.searchPlugins();
-  }
-
-  protected void addHopSearchPlugins() throws HopPluginException {
-    PluginRegistry registry = PluginRegistry.getInstance();
-    List<IPlugin> configPlugins = registry.getPlugins(ConfigPluginType.class);
-    for (IPlugin configPlugin : configPlugins) {
-      // Load only the plugins of the "search" category
-      if (ConfigPlugin.CATEGORY_SEARCH.equals(configPlugin.getCategory())) {
-        IConfigOptions configOptions = registry.loadClass(configPlugin, IConfigOptions.class);
-        cmd.addMixin(configPlugin.getIds()[0], configOptions);
-      }
-    }
   }
 }

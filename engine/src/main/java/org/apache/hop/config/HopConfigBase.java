@@ -25,18 +25,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -79,18 +74,6 @@ public abstract class HopConfigBase implements Runnable, IHasHopMetadataProvider
       }
     } catch (Exception e) {
       throw new CommandLine.ExecutionException(cmd, "There was an error handling options", e);
-    }
-  }
-
-  protected void addConfConfigPlugins() throws HopPluginException {
-    List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
-    for (IPlugin configPlugin : configPlugins) {
-      // Load only the plugins of the "config" category
-      if (ConfigPlugin.CATEGORY_CONFIG.equals(configPlugin.getCategory())) {
-        IConfigOptions configOptions =
-            PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
-        cmd.addMixin(configPlugin.getIds()[0], configOptions);
-      }
     }
   }
 

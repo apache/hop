@@ -23,6 +23,9 @@ import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
+import org.apache.hop.core.config.plugin.ConfigPluginType;
+import org.apache.hop.core.config.plugin.IConfigOptions;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.JarCache;
@@ -138,6 +141,21 @@ public class Hop {
         if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value)) {
           System.setProperty(key, value);
         }
+      }
+    }
+  }
+
+  public static void addMixinPlugins(CommandLine cmd, String category) throws HopPluginException {
+    // Now add configuration plugins with the RUN category.
+    // The 'projects' plugin for example configures things like the project metadata provider.
+    //
+    List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
+    for (IPlugin configPlugin : configPlugins) {
+      // Load only the plugins of the "run" category
+      if (category.equals(configPlugin.getCategory())) {
+        IConfigOptions configOptions =
+            PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
+        cmd.addMixin(configPlugin.getIds()[0], configOptions);
       }
     }
   }

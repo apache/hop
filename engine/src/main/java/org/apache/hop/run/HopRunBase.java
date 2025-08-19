@@ -20,7 +20,6 @@ package org.apache.hop.run;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,11 +27,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.FileLoggingEventListener;
@@ -45,8 +41,6 @@ import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -549,21 +543,6 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       for (String parameter : configuration.getParametersMap().keySet()) {
         log.logMinimal(
             "OPTION:   " + parameter + " : '" + configuration.getParametersMap().get(parameter));
-      }
-    }
-  }
-
-  protected void addRunConfigPlugins() throws HopPluginException {
-    // Now add configuration plugins with the RUN category.
-    // The 'projects' plugin for example configures things like the project metadata provider.
-    //
-    List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
-    for (IPlugin configPlugin : configPlugins) {
-      // Load only the plugins of the "run" category
-      if (ConfigPlugin.CATEGORY_RUN.equals(configPlugin.getCategory())) {
-        IConfigOptions configOptions =
-            PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
-        cmd.addMixin(configPlugin.getIds()[0], configOptions);
       }
     }
   }

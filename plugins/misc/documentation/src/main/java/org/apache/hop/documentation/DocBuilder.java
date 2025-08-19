@@ -31,17 +31,14 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.hop.Hop;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
@@ -135,22 +132,7 @@ public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvide
     this.metadataProvider = metadataProvider;
     this.log = new LogChannel("HopDoc");
 
-    addRunConfigPlugins();
-  }
-
-  protected void addRunConfigPlugins() throws HopPluginException {
-    // Now add configuration plugins with the RUN category.
-    // The 'projects' plugin for example configures things like the project metadata provider.
-    //
-    List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
-    for (IPlugin configPlugin : configPlugins) {
-      // Load only the plugins of the "doc" category
-      if (ConfigPlugin.CATEGORY_DOC.equals(configPlugin.getCategory())) {
-        IConfigOptions configOptions =
-            PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
-        cmd.addMixin(configPlugin.getIds()[0], configOptions);
-      }
-    }
+    Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_DOC);
   }
 
   protected void handleMixinActions() throws HopException {

@@ -20,8 +20,10 @@ package org.apache.hop.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.hop.Hop;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
@@ -49,6 +51,6 @@ public class HopCommandConfig extends HopConfigBase
     this.metadataProvider = metadataProvider;
     buildLogChannel();
 
-    addConfConfigPlugins();
+    Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_CONFIG);
   }
 }
