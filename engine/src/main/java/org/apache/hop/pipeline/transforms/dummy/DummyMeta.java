@@ -34,7 +34,7 @@ import org.w3c.dom.Node;
 
 @Transform(
     id = "Dummy",
-    image = "ui/images/dummy.svg",
+    image = "org/apache/hop/images/dummy.svg",
     name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.Dummy",
     description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Dummy",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",

@@ -32,7 +32,7 @@ import org.w3c.dom.Node;
 
 @Action(
     id = "DUMMY",
-    image = "ui/images/dummy.svg",
+    image = "org/apache/hop/images/dummy.svg",
     name = "i18n::ActionDummy.Name",
     description = "i18n::ActionDummy.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
