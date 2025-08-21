@@ -70,7 +70,7 @@ import org.w3c.dom.Node;
 /** Meta-data for the Workflow executor transform. */
 @Transform(
     id = "WorkflowExecutor",
-    image = "ui/images/workflowexecutor.svg",
+    image = "workflowexecutor.svg",
     name = "i18n::WorkflowExecutor.Name",
     description = "i18n::WorkflowExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
