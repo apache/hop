@@ -379,7 +379,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     return SwtSvgImageUtil.getImage(
         shell.getDisplay(),
         getClass().getClassLoader(),
-        "ui/images/pipelineexecutor.svg",
+        "pipelineexecutor.svg",
         ConstUi.LARGE_ICON_SIZE,
         ConstUi.LARGE_ICON_SIZE);
   }
