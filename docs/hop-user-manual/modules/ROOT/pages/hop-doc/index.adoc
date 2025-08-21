@@ -1,0 +1,103 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopRun]]
+:imagesdir: ../assets/images
+:description: Hop doc is a command that you can use to document your projects
+
+= hop doc
+
+The `hop doc` can be used to document a project in https://www.markdownguide.org/basic-syntax/[MarkDown] format.
+It will create a separate file per workflow and pipeline, add an index, and so on.
+You can then serve up this documentation by MarkDown tools like https://www.mkdocs.org/[mkdocs]
+
+== Options
+
+You can run the `hop help doc` command to see the options:
+
+On Windows, run `hop.bat help doc`.
+The command on Mac and Linux is `sh hop help doc`.
+
+You'll see the option listed in a similar output to the one below:
+
+&nbsp;
+
+.Usage
+[%collapsible]
+=====
+
+.Output of help
+[source,bash]
+----
+Usage: hop doc [-hV] [-im] [-in] [-ip] [-e=<environmentOption>]
+               [-j=<projectOption>] [-n=<projectName>] [-s=<sourceFolder>]
+               [-t=<targetParentFolder>]
+Generate documentation
+  -e, --environment=<environmentOption>
+                             The name of the lifecycle environment to use
+  -h, --help                 Show this help message and exit.
+      -im, --include-metadata
+                             Include an overview of the available metadata
+                               elements
+      -in, --include-notes   List the text of any notes in alphabetical order
+      -ip, --include-parameters
+                             Include a list of parameters for each pipeline and
+                               workflow
+  -j, --project=<projectOption>
+                             The name of the project to use
+  -n, --project-name=<projectName>
+                             The name of the project
+  -s, --source-folder=<sourceFolder>
+                             The source folder to document
+  -t, --target-folder=<targetParentFolder>
+                             Specify the target parent folder where the
+                               documentation should end up
+  -V, --version              Print version information and exit.
+----
+=====
+
+As you can see, the `projects` plugin contributes options to select a project or environment, making it not needed to remember which folder the project was stored in.
+
+== Example
+
+The example below documents the `demo` project and asks to write the MarkDown files in the `/tmp/hop/docs` folder:
+
+&nbsp; +
+
+[tabs]
+====
+Windows::
++
+--
+Open a command (CMD) window, change to the directory where you unzipped Apache Hop and run:
+
+[code,shell]
+----
+hop.bat doc -j demo --target-folder /tmp/hop/docs --include-notes --include-parameters --include-metadata
+----
+
+--
+
+Linux, macOS::
++
+
+Open a terminal, change to the directory where you unzipped Apache Hop and run:
+
+[code,shell]
+----
+./hop doc -j demo -t /tmp/hop/docs --include-notes --include-parameters --include-metadata
+----
+

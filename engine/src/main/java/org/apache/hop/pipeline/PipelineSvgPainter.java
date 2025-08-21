@@ -40,13 +40,25 @@ public class PipelineSvgPainter {
       DPoint offset,
       float zoomFactor)
       throws HopException {
+    return generatePipelineSvg(pipelineMeta, magnification, variables, offset, zoomFactor, 100);
+  }
+
+  public static final String generatePipelineSvg(
+      PipelineMeta pipelineMeta,
+      float magnification,
+      IVariables variables,
+      DPoint offset,
+      float zoomFactor,
+      int extraSize)
+      throws HopException {
     try {
       Point maximum = pipelineMeta.getMaximum();
       maximum.multiply(magnification);
 
       HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
 
-      SvgGc gc = new SvgGc(graphics2D, new Point(maximum.x + 100, maximum.y + 100), 32, 0, 0);
+      SvgGc gc =
+          new SvgGc(graphics2D, new Point(maximum.x + extraSize, maximum.y + extraSize), 32, 0, 0);
       PipelinePainter pipelinePainter =
           new PipelinePainter(
               gc,

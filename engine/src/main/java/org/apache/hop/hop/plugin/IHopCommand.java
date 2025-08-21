@@ -13,31 +13,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.core.config.plugin;
+package org.apache.hop.hop.plugin;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import picocli.CommandLine;
 
-/** This annotation signals to the plugin system that the class is a configuration plugin. */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface ConfigPlugin {
-  String CATEGORY_CONFIG = "config";
-  String CATEGORY_RUN = "run";
-  String CATEGORY_SEARCH = "search";
-  String CATEGORY_IMPORT = "import";
-  String CATEGORY_SERVER = "server";
-  String CATEGORY_DOC = "doc";
-
-  String id();
-
-  String description() default "";
-
-  String category() default CATEGORY_CONFIG;
+public interface IHopCommand {
+  void initialize(CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
+      throws HopException;
 }

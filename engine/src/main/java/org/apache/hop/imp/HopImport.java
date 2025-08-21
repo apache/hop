@@ -17,8 +17,9 @@
 
 package org.apache.hop.imp;
 
-import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -26,7 +27,6 @@ import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.LogProgressMonitor;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -37,6 +37,9 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.hop.Hop;
+import org.apache.hop.hop.plugin.HopCommand;
+import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import picocli.CommandLine;
@@ -46,8 +49,14 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 
 @SuppressWarnings("java:S106")
-@Command(versionProvider = HopVersionProvider.class)
-public class HopImport implements Runnable, IHasHopMetadataProvider {
+@Getter
+@Setter
+@Command(
+    description = "Import metadata",
+    versionProvider = HopVersionProvider.class,
+    mixinStandardHelpOptions = true)
+@HopCommand(id = "import", description = "Import ")
+public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand {
   private static final String CONST_IMPORT = "Import is ";
 
   @Option(
@@ -110,17 +119,12 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
   private Boolean listPluginTypes;
 
   @Option(
-      names = {"-h", "--help"},
-      usageHelp = true,
-      description = "Displays this help message and quits.")
-  private boolean helpRequested;
-
-  @Option(
       names = {"-v", "--version"},
       versionHelp = true,
       description = "Print version information and exit")
   private boolean versionRequested;
 
+  private MultiMetadataProvider metadataProvider;
   private IVariables variables;
   private CommandLine cmd;
   private ILogChannel log;
@@ -130,6 +134,17 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
 
   public HopImport() {
     variables = new Variables();
+  }
+
+  @Override
+  public void initialize(
+      CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
+      throws HopException {
+    this.cmd = cmd;
+    this.variables = variables;
+    this.metadataProvider = metadataProvider;
+
+    Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_IMPORT);
   }
 
   @Override
@@ -266,344 +281,6 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return ok;
   }
 
-  /**
-   * Gets type
-   *
-   * @return value of type
-   */
-  public String getType() {
-    return type;
-  }
-
-  /**
-   * @param type The type to set
-   */
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  /**
-   * Gets skippingExistingTargetFiles
-   *
-   * @return value of skippingExistingTargetFiles
-   */
-  public Boolean getSkippingExistingTargetFiles() {
-    return skippingExistingTargetFiles;
-  }
-
-  /**
-   * @param skippingExistingTargetFiles The skippingExistingTargetFiles to set
-   */
-  public void setSkippingExistingTargetFiles(Boolean skippingExistingTargetFiles) {
-    this.skippingExistingTargetFiles = skippingExistingTargetFiles;
-  }
-
-  /**
-   * Gets skippingHiddenFilesAndFolders
-   *
-   * @return value of skippingHiddenFilesAndFolders
-   */
-  public Boolean getSkippingHiddenFilesAndFolders() {
-    return skippingHiddenFilesAndFolders;
-  }
-
-  /**
-   * @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set
-   */
-  public void setSkippingHiddenFilesAndFolders(Boolean skippingHiddenFilesAndFolders) {
-    this.skippingHiddenFilesAndFolders = skippingHiddenFilesAndFolders;
-  }
-
-  /**
-   * Gets skippingFolders
-   *
-   * @return value of skippingFolders
-   */
-  public Boolean getSkippingFolders() {
-    return skippingFolders;
-  }
-
-  /**
-   * @param skippingFolders The skippingFolders to set
-   */
-  public void setSkippingFolders(Boolean skippingFolders) {
-    this.skippingFolders = skippingFolders;
-  }
-
-  /**
-   * Gets hopImport
-   *
-   * @return value of hopImport
-   */
-  public IHopImport getHopImport() {
-    return hopImport;
-  }
-
-  /**
-   * @param hopImport The hopImport to set
-   */
-  public void setHopImport(IHopImport hopImport) {
-    this.hopImport = hopImport;
-  }
-
-  /**
-   * Gets inputFolderName
-   *
-   * @return value of inputFolderName
-   */
-  public String getInputFolderName() {
-    return inputFolderName;
-  }
-
-  /**
-   * @param inputFolderName The inputFolderName to set
-   */
-  public void setInputFolderName(String inputFolderName) {
-    this.inputFolderName = inputFolderName;
-  }
-
-  /**
-   * Gets outputFolderName
-   *
-   * @return value of outputFolderName
-   */
-  public String getOutputFolderName() {
-    return outputFolderName;
-  }
-
-  /**
-   * @param outputFolderName The outputFolderName to set
-   */
-  public void setOutputFolderName(String outputFolderName) {
-    this.outputFolderName = outputFolderName;
-  }
-
-  /**
-   * Gets sharedXmlFilename
-   *
-   * @return value of sharedXmlFilename
-   */
-  public String getSharedXmlFilename() {
-    return sharedXmlFilename;
-  }
-
-  /**
-   * @param sharedXmlFilename The sharedXmlFilename to set
-   */
-  public void setSharedXmlFilename(String sharedXmlFilename) {
-    this.sharedXmlFilename = sharedXmlFilename;
-  }
-
-  /**
-   * Gets kettlePropertiesFilename
-   *
-   * @return value of kettlePropertiesFilename
-   */
-  public String getKettlePropertiesFilename() {
-    return kettlePropertiesFilename;
-  }
-
-  /**
-   * @param kettlePropertiesFilename The kettlePropertiesFilename to set
-   */
-  public void setKettlePropertiesFilename(String kettlePropertiesFilename) {
-    this.kettlePropertiesFilename = kettlePropertiesFilename;
-  }
-
-  /**
-   * Gets jdbcPropertiesFilename
-   *
-   * @return value of jdbcPropertiesFilename
-   */
-  public String getJdbcPropertiesFilename() {
-    return jdbcPropertiesFilename;
-  }
-
-  /**
-   * @param jdbcPropertiesFilename The jdbcPropertiesFilename to set
-   */
-  public void setJdbcPropertiesFilename(String jdbcPropertiesFilename) {
-    this.jdbcPropertiesFilename = jdbcPropertiesFilename;
-  }
-
-  /**
-   * Gets targetConfigFilename
-   *
-   * @return value of targetConfigFilename
-   */
-  public String getTargetConfigFilename() {
-    return targetConfigFilename;
-  }
-
-  /**
-   * @param targetConfigFilename The targetConfigFilename to set
-   */
-  public void setTargetConfigFilename(String targetConfigFilename) {
-    this.targetConfigFilename = targetConfigFilename;
-  }
-
-  /**
-   * Gets skippingExistingTargetFiles
-   *
-   * @return value of skippingExistingTargetFiles
-   */
-  public boolean isSkippingExistingTargetFiles() {
-    return skippingExistingTargetFiles;
-  }
-
-  /**
-   * @param skippingExistingTargetFiles The skippingExistingTargetFiles to set
-   */
-  public void setSkippingExistingTargetFiles(boolean skippingExistingTargetFiles) {
-    this.skippingExistingTargetFiles = skippingExistingTargetFiles;
-  }
-
-  /**
-   * Gets skippingHiddenFilesAndFolders
-   *
-   * @return value of skippingHiddenFilesAndFolders
-   */
-  public boolean isSkippingHiddenFilesAndFolders() {
-    return skippingHiddenFilesAndFolders;
-  }
-
-  /**
-   * @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set
-   */
-  public void setSkippingHiddenFilesAndFolders(boolean skippingHiddenFilesAndFolders) {
-    this.skippingHiddenFilesAndFolders = skippingHiddenFilesAndFolders;
-  }
-
-  /**
-   * Gets skippingFolders
-   *
-   * @return value of skippingFolders
-   */
-  public boolean isSkippingFolders() {
-    return skippingFolders;
-  }
-
-  /**
-   * @param skippingFolders The skippingFolders to set
-   */
-  public void setSkippingFolders(boolean skippingFolders) {
-    this.skippingFolders = skippingFolders;
-  }
-
-  /**
-   * Gets helpRequested
-   *
-   * @return value of helpRequested
-   */
-  public boolean isHelpRequested() {
-    return helpRequested;
-  }
-
-  /**
-   * @param helpRequested The helpRequested to set
-   */
-  public void setHelpRequested(boolean helpRequested) {
-    this.helpRequested = helpRequested;
-  }
-
-  /**
-   * Gets variables
-   *
-   * @return value of variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables(IVariables variables) {
-    this.variables = variables;
-  }
-
-  /**
-   * Gets cmd
-   *
-   * @return value of cmd
-   */
-  public CommandLine getCmd() {
-    return cmd;
-  }
-
-  /**
-   * @param cmd The cmd to set
-   */
-  public void setCmd(CommandLine cmd) {
-    this.cmd = cmd;
-  }
-
-  /**
-   * Gets log
-   *
-   * @return value of log
-   */
-  public ILogChannel getLog() {
-    return log;
-  }
-
-  /**
-   * @param log The log to set
-   */
-  public void setLog(ILogChannel log) {
-    this.log = log;
-  }
-
-  /**
-   * Gets metadataProvider
-   *
-   * @return value of metadataProvider
-   */
-  @Override
-  public MultiMetadataProvider getMetadataProvider() {
-    return hopImport.getMetadataProvider();
-  }
-
-  /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  @Override
-  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
-    hopImport.setMetadataProvider(metadataProvider);
-  }
-
-  /**
-   * Gets finishedWithoutError
-   *
-   * @return value of finishedWithoutError
-   */
-  public boolean isFinishedWithoutError() {
-    return finishedWithoutError;
-  }
-
-  /**
-   * @param finishedWithoutError The finishedWithoutError to set
-   */
-  public void setFinishedWithoutError(boolean finishedWithoutError) {
-    this.finishedWithoutError = finishedWithoutError;
-  }
-
-  /**
-   * Gets listPluginTypes
-   *
-   * @return value of listPluginTypes
-   */
-  public Boolean getListPluginTypes() {
-    return listPluginTypes;
-  }
-
-  /**
-   * @param listPluginTypes The listPluginTypes to set
-   */
-  public void setListPluginTypes(Boolean listPluginTypes) {
-    this.listPluginTypes = listPluginTypes;
-  }
-
   public static void main(String[] args) {
 
     HopImport hopImport = new HopImport();
@@ -623,15 +300,7 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
 
       // Now add run configuration plugins...
       //
-      List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
-      for (IPlugin configPlugin : configPlugins) {
-        // Load only the plugins of the "import" category
-        if (ConfigPlugin.CATEGORY_IMPORT.equals(configPlugin.getCategory())) {
-          IConfigOptions configOptions =
-              PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
-          cmd.addMixin(configPlugin.getIds()[0], configOptions);
-        }
-      }
+      Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_IMPORT);
       hopImport.setCmd(cmd);
 
       // This will calculate the option values and put them in HopRun or the plugin classes
@@ -644,7 +313,7 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
         // now run!
         //
         hopImport.run();
-        if (hopImport != null && hopImport.isFinishedWithoutError()) {
+        if (hopImport.isFinishedWithoutError()) {
           System.exit(0);
         } else {
           System.exit(1);

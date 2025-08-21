@@ -476,6 +476,7 @@ under the License.
 ** xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf]
 ** xref:hop-tools/hop-encrypt.adoc[hop-encrypt]
 ** xref:hop-tools/hop-gui.adoc[hop-gui]
+** xref:hop-doc/index.adoc[hop doc (Generate documentation)]
 ** xref:hop-run/index.adoc[hop-run]
 ** xref:hop-tools/hop-search.adoc[hop-search]
 ** xref:hop-tools/hop-import.adoc[hop-import]

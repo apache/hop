@@ -22,17 +22,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
-import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
@@ -45,6 +47,9 @@ import org.apache.hop.core.search.SearchQuery;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.hop.Hop;
+import org.apache.hop.hop.plugin.HopCommand;
+import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
@@ -56,15 +61,14 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 
-@Command(versionProvider = HopVersionProvider.class)
-public class HopSearch implements Runnable, IHasHopMetadataProvider {
-
-  @Option(
-      names = {"-h", "--help"},
-      usageHelp = true,
-      description = "Displays this help message and quits.")
-  private boolean helpRequested;
-
+@Getter
+@Setter
+@Command(
+    versionProvider = HopVersionProvider.class,
+    description = "Search in Hop metadata",
+    mixinStandardHelpOptions = true)
+@HopCommand(id = "search", description = "Search in Hop metadata")
+public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopCommand {
   @Option(
       names = {"-v", "--version"},
       versionHelp = true,
@@ -100,8 +104,19 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
   }
 
   @Override
-  public void run() {
+  public void initialize(
+      CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
+      throws HopException {
+    this.cmd = cmd;
+    this.variables = variables;
+    this.metadataProvider = metadataProvider;
 
+    registerSearchPluginType();
+    Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_SEARCH);
+  }
+
+  @Override
+  public void run() {
     try {
       LogChannel logChannel = new LogChannel("hop-search");
       logChannel.setSimplified(true);
@@ -222,136 +237,6 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     metadataProvider = new MultiMetadataProvider(Encr.getEncoder(), providers, variables);
   }
 
-  /**
-   * Gets cmd
-   *
-   * @return value of cmd
-   */
-  public CommandLine getCmd() {
-    return cmd;
-  }
-
-  /**
-   * @param cmd The cmd to set
-   */
-  public void setCmd(CommandLine cmd) {
-    this.cmd = cmd;
-  }
-
-  /**
-   * Gets metadataProvider
-   *
-   * @return value of metadataProvider
-   */
-  @Override
-  public MultiMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  @Override
-  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
-  }
-
-  /**
-   * Gets helpRequested
-   *
-   * @return value of helpRequested
-   */
-  public boolean isHelpRequested() {
-    return helpRequested;
-  }
-
-  /**
-   * @param helpRequested The helpRequested to set
-   */
-  public void setHelpRequested(boolean helpRequested) {
-    this.helpRequested = helpRequested;
-  }
-
-  /**
-   * Gets variables
-   *
-   * @return value of variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables(IVariables variables) {
-    this.variables = variables;
-  }
-
-  /**
-   * Gets searchablesLocations
-   *
-   * @return value of searchablesLocations
-   */
-  public List<ISearchablesLocation> getSearchablesLocations() {
-    return searchablesLocations;
-  }
-
-  /**
-   * @param searchablesLocations The searchablesLocations to set
-   */
-  public void setSearchablesLocations(List<ISearchablesLocation> searchablesLocations) {
-    this.searchablesLocations = searchablesLocations;
-  }
-
-  /**
-   * Gets searchString
-   *
-   * @return value of searchString
-   */
-  public String getSearchString() {
-    return searchString;
-  }
-
-  /**
-   * @param searchString The searchString to set
-   */
-  public void setSearchString(String searchString) {
-    this.searchString = searchString;
-  }
-
-  /**
-   * Gets caseInsensitive
-   *
-   * @return value of caseInsensitive
-   */
-  public Boolean getCaseInsensitive() {
-    return caseInsensitive;
-  }
-
-  /**
-   * @param caseInsensitive The caseInsensitive to set
-   */
-  public void setCaseInsensitive(Boolean caseInsensitive) {
-    this.caseInsensitive = caseInsensitive;
-  }
-
-  /**
-   * Gets regularExpression
-   *
-   * @return value of regularExpression
-   */
-  public Boolean getRegularExpression() {
-    return regularExpression;
-  }
-
-  /**
-   * @param regularExpression The regularExpression to set
-   */
-  public void setRegularExpression(Boolean regularExpression) {
-    this.regularExpression = regularExpression;
-  }
-
   public static void main(String[] args) {
 
     HopSearch hopSearch = new HopSearch();
@@ -364,24 +249,13 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
       // only be useful in Hop GUI and Hop Search.  There is no need to slow down
       // Hop Run or Hop Server with this.
       //
-      PluginRegistry registry = PluginRegistry.getInstance();
-      SearchableAnalyserPluginType searchableAnalyserPluginType =
-          SearchableAnalyserPluginType.getInstance();
-      PluginRegistry.addPluginType(searchableAnalyserPluginType);
-      searchableAnalyserPluginType.searchPlugins();
+      registerSearchPluginType();
 
-      CommandLine cmd = new CommandLine(hopSearch);
-      List<IPlugin> configPlugins = registry.getPlugins(ConfigPluginType.class);
-      for (IPlugin configPlugin : configPlugins) {
-        // Load only the plugins of the "search" category
-        if (ConfigPlugin.CATEGORY_SEARCH.equals(configPlugin.getCategory())) {
-          IConfigOptions configOptions = registry.loadClass(configPlugin, IConfigOptions.class);
-          cmd.addMixin(configPlugin.getIds()[0], configOptions);
-        }
-      }
+      hopSearch.cmd = new CommandLine(hopSearch);
 
-      hopSearch.setCmd(cmd);
-      CommandLine.ParseResult parseResult = cmd.parseArgs(args);
+      Hop.addMixinPlugins(hopSearch.cmd, ConfigPlugin.CATEGORY_SEARCH);
+      hopSearch.setCmd(hopSearch.cmd);
+      CommandLine.ParseResult parseResult = hopSearch.cmd.parseArgs(args);
       if (CommandLine.printHelpIfRequested(parseResult)) {
         System.exit(1);
       } else {
@@ -403,5 +277,12 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
 
       System.exit(2);
     }
+  }
+
+  private static void registerSearchPluginType() throws HopPluginException {
+    SearchableAnalyserPluginType searchableAnalyserPluginType =
+        SearchableAnalyserPluginType.getInstance();
+    PluginRegistry.addPluginType(searchableAnalyserPluginType);
+    searchableAnalyserPluginType.searchPlugins();
   }
 }
