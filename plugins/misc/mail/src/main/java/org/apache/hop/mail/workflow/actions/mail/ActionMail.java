@@ -511,7 +511,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
               if (file != null && file.exists()) {
                 boolean found = false;
                 for (String fileTypeField : fileTypes) {
-                  if (fileTypeField.equals(resultFile.getTypeDesc())) {
+                  if (fileTypeField.equals(resultFile.getTypeCode())) {
                     found = true;
                   }
                 }
