@@ -23,7 +23,10 @@ import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -183,6 +186,26 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
   @Override
   public Object clone() {
     return super.clone();
+  }
+
+  @Override
+  public void getFields(
+      IRowMeta row,
+      String origin,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    if (isAddMessageToOutput()) {
+      try {
+        IValueMeta v = ValueMetaFactory.createValueMeta(messageOutputField, IValueMeta.TYPE_STRING);
+        v.setOrigin(origin);
+        row.addValueMeta(v);
+      } catch (Exception e) {
+        throw new HopTransformException(e);
+      }
+    }
   }
 
   @Override
