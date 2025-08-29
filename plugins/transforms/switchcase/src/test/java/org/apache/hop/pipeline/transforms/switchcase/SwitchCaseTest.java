@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.switchcase;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,9 +45,9 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -59,7 +59,7 @@ public class SwitchCaseTest {
   private TransformMockHelper<SwitchCaseMeta, SwitchCaseData> mockHelper;
   private static final Boolean EMPTY_STRING_AND_NULL_ARE_DIFFERENT = false;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     mockHelper =
         new TransformMockHelper<>("Switch Case", SwitchCaseMeta.class, SwitchCaseData.class);
@@ -68,7 +68,7 @@ public class SwitchCaseTest {
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     mockHelper.cleanUp();
   }

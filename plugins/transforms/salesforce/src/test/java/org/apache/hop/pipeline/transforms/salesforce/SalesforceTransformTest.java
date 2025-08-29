@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -37,30 +37,31 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 public class SalesforceTransformTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private TransformMockHelper<SalesforceTransformMeta, SalesforceTransformData> smh;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws HopException {
     smh =
         new TransformMockHelper<>(
@@ -70,7 +71,7 @@ public class SalesforceTransformTest {
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     smh.cleanUp();
   }

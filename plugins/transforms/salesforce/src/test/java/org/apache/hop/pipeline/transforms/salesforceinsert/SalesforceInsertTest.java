@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinsert;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -42,25 +42,26 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class SalesforceInsertTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT =
       "Account:ExtID_AccountId__c/Account";
   private static final String ACCOUNT_ID = "AccountId";
   private TransformMockHelper<SalesforceInsertMeta, SalesforceInsertData> smh;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
@@ -69,7 +70,7 @@ public class SalesforceInsertTest {
     Encr.init(passwordEncoderPluginID);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     smh =
         new TransformMockHelper<>(
@@ -78,7 +79,7 @@ public class SalesforceInsertTest {
         .thenReturn(smh.iLogChannel);
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     smh.cleanUp();
   }

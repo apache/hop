@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.transforms.groupby.Aggregation;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupingField;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GroupByMetaTest {
 

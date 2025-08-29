@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.checksum;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -38,7 +37,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -49,38 +48,38 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@Ignore("This test needs to be reviewed")
+@Disabled("This test needs to be reviewed")
 public class CheckSumTest {
   // calculations are different in Linux and Windows for files (due to CRLF vs LF)
-  @Before
+  @BeforeEach
   public void notOnWindows() {
-    org.junit.Assume.assumeFalse(SystemUtils.IS_OS_WINDOWS);
+    Assumptions.assumeFalse(SystemUtils.IS_OS_WINDOWS);
   }
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static Object previousHopDefaultNumberFormat;
 
-  @BeforeClass
-  public static void setUpBeforeClass()
-      throws HopException, NoSuchFieldException, IllegalAccessException {
+  @BeforeAll
+  public static void setUpBeforeClass() throws HopException {
     System.setProperty("file.encoding", "UTF-8");
     previousHopDefaultNumberFormat =
         System.getProperties().put(Const.HOP_DEFAULT_NUMBER_FORMAT, "0.0;-0.0");
-    java.lang.reflect.Field charset = Charset.class.getDeclaredField("defaultCharset");
-    charset.setAccessible(true);
-    charset.set(null, null);
+    // Note: Removed reflection access to Charset.defaultCharset due to module system restrictions
+    // This may affect charset testing but prevents InaccessibleObjectException
     HopEnvironment.init();
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDownAfterClass() {
     if (previousHopDefaultNumberFormat == null) {
       System.getProperties().remove(Const.HOP_DEFAULT_NUMBER_FORMAT);

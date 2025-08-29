@@ -17,11 +17,11 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -35,8 +35,8 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.bson.types.Binary;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
@@ -46,7 +46,7 @@ public class MongoFieldTest {
   @Mock IVariables variables;
   private MongoField field;
 
-  @Before
+  @BeforeEach
   public void before() throws HopPluginException {
     MockitoAnnotations.openMocks(this);
     when(variables.resolve(any(String.class)))
@@ -130,7 +130,7 @@ public class MongoFieldTest {
   public void testConvertUndefinedOrNullToHopValue() throws HopException {
     BasicDBObject dbObj = BasicDBObject.parse("{ test1 : undefined, test2 : null } ");
     initField("fieldName", "$.test1", "String");
-    assertNull("Undefined should be interpreted as null ", field.convertToHopValue(dbObj));
+    assertNull(field.convertToHopValue(dbObj), "Undefined should be interpreted as null ");
     initField("fieldName", "$.test2", "String");
     assertNull(field.convertToHopValue(dbObj));
     initField("fieldName", "$.test3", "String");

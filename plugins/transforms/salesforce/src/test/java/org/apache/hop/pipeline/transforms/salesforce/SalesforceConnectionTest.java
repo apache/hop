@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import com.sforce.soap.partner.Connector;
@@ -45,15 +45,16 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 public class SalesforceConnectionTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private ILogChannel logInterface = mock(ILogChannel.class);
   private String url = "url";
@@ -61,7 +62,7 @@ public class SalesforceConnectionTest {
   private String password = "password";
   private int recordsFilter = 0;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
@@ -334,23 +335,23 @@ public class SalesforceConnectionTest {
 
     SObject testObject = createObject("field", "value");
     sObject.addField("field", testObject);
-    assertEquals("Get value of simple record", "value", conn.getRecordValue(sObject, "field"));
+    assertEquals("value", conn.getRecordValue(sObject, "field"), "Get value of simple record");
 
     SObject parentObject = createObject("parentField", null);
     sObject.addField("parentField", parentObject);
     SObject childObject = createObject("subField", "subValue");
     parentObject.addField("subField", childObject);
     assertEquals(
-        "Get value of record with hierarchy",
         "subValue",
-        conn.getRecordValue(sObject, "parentField.subField"));
+        conn.getRecordValue(sObject, "parentField.subField"),
+        "Get value of record with hierarchy");
 
     XmlObject nullObject = new XmlObject(new QName("nullField"));
     sObject.addField("nullField", nullObject);
     assertEquals(
-        "Get null value when relational query id is null",
         null,
-        conn.getRecordValue(sObject, "nullField.childField"));
+        conn.getRecordValue(sObject, "nullField.childField"),
+        "Get null value when relational query id is null");
   }
 
   private SObject createObject(String fieldName, String value) {

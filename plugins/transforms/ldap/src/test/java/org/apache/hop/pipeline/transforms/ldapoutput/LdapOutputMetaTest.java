@@ -21,29 +21,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class LdapOutputMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   LoadSaveTester<LdapOutputMeta> loadSaveTester;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
+    HopEnvironment.init();
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "updateLookup",
@@ -128,8 +133,6 @@ public class LdapOutputMetaTest {
             attrValidatorMap,
             typeValidatorMap);
 
-    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
-    PluginRegistry.init();
     String passwordEncoderPluginID =
         Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
     Encr.init(passwordEncoderPluginID);

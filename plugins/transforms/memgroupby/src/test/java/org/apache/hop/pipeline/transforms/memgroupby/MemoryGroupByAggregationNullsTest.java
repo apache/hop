@@ -33,12 +33,12 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class MemoryGroupByAggregationNullsTest {
@@ -55,7 +55,7 @@ public class MemoryGroupByAggregationNullsTest {
   private IRowMeta rmi;
   private MemoryGroupByMeta meta;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
         new TransformMockHelper<>(
@@ -65,12 +65,12 @@ public class MemoryGroupByAggregationNullsTest {
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @AfterClass
+  @AfterAll
   public static void cleanUp() {
     mockHelper.cleanUp();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     data = new MemoryGroupByData();
     data.subjectnrs = new int[] {0};

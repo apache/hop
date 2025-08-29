@@ -29,9 +29,9 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for "Set field value to a constant" transform
@@ -41,7 +41,7 @@ import org.junit.Test;
 public class SetValueConstantTest {
   private TransformMockHelper<SetValueConstantMeta, SetValueConstantData> smh;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     smh =
         new TransformMockHelper<>(
@@ -50,7 +50,7 @@ public class SetValueConstantTest {
         .thenReturn(smh.iLogChannel);
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     smh.cleanUp();
   }

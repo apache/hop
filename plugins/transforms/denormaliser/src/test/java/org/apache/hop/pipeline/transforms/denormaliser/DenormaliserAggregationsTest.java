@@ -33,11 +33,11 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class DenormaliserAggregationsTest {
@@ -49,7 +49,7 @@ public class DenormaliserAggregationsTest {
   DenormaliserData data = new DenormaliserData();
   DenormaliserMeta meta = new DenormaliserMeta();
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
         new TransformMockHelper<>("Denormaliser", DenormaliserMeta.class, DenormaliserData.class);
@@ -58,12 +58,12 @@ public class DenormaliserAggregationsTest {
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @AfterClass
+  @AfterAll
   public static void cleanUp() {
     mockHelper.cleanUp();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     Mockito.when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
     transform =

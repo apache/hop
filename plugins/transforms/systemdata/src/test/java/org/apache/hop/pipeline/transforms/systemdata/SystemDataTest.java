@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -34,10 +34,10 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** User: Dzmitry Stsiapanau Date: 1/20/14 Time: 12:12 PM */
 public class SystemDataTest {
@@ -89,7 +89,7 @@ public class SystemDataTest {
 
   private TransformMockHelper<SystemDataMeta, SystemDataData> transformMockHelper;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     transformMockHelper =
         new TransformMockHelper<>("SYSTEM_DATA TEST", SystemDataMeta.class, SystemDataData.class);
@@ -99,7 +99,7 @@ public class SystemDataTest {
     verify(transformMockHelper.pipeline, never()).stopAll();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     transformMockHelper.cleanUp();
   }
@@ -110,21 +110,19 @@ public class SystemDataTest {
     SystemDataData systemDataData = new SystemDataData();
     SystemDataMeta systemDataMeta = new SystemDataMeta();
     systemDataMeta.allocate(2);
-    String[] names = systemDataMeta.getFieldName();
-    SystemDataTypes[] types = systemDataMeta.getFieldType();
-    names[0] = "hostname";
-    names[1] = "hostname_real";
-    types[0] =
-        SystemDataTypes.getTypeFromString(
-            SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME.getDescription());
-    types[1] =
-        SystemDataTypes.getTypeFromString(
-            SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME_REAL.getDescription());
+    systemDataMeta.setFieldName(new String[] {"hostname", "hostname_real"});
+    systemDataMeta.setFieldType(
+        new SystemDataTypes[] {
+          SystemDataTypes.getTypeFromString(
+              SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME.getDescription()),
+          SystemDataTypes.getTypeFromString(
+              SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME_REAL.getDescription())
+        });
     SystemDataHandler systemData =
         new SystemDataHandler(
             transformMockHelper.transformMeta,
-            transformMockHelper.iTransformMeta,
-            transformMockHelper.iTransformData,
+            systemDataMeta,
+            systemDataData,
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);

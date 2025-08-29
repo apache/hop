@@ -15,26 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.salesforceupsert;
+package org.apache.hop.junit.rules;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.apache.hop.core.HopEnvironment;
 
-import org.junit.jupiter.api.Test;
+/**
+ * JUnit 5 Extension that restores all system properties and resets any Hop related environment
+ * instances, including full engine initialization. This is the JUnit 5 equivalent of the JUnit 4
+ * RestoreHopEngineEnvironment rule.
+ */
+public class RestoreHopEngineEnvironmentExtension extends RestoreHopEnvironmentExtension {
 
-public class SalesforceUpsertDataTest {
+  @Override
+  protected void defaultInit() throws Throwable {
+    super.defaultInit();
+    HopEnvironment.init();
+  }
 
-  @Test
-  public void testConstructor() {
-    SalesforceUpsertData data = new SalesforceUpsertData();
-    assertNull(data.inputRowMeta);
-    assertNull(data.outputRowMeta);
-    assertEquals(0, data.nrFields);
-    assertNull(data.fieldnrs);
-    assertNull(data.upsertResult);
-    assertNull(data.sfBuffer);
-    assertNull(data.outputBuffer);
-    assertEquals(0, data.iBufferPos);
-    assertNull(data.realSalesforceFieldName);
+  @Override
+  protected void cleanUp() {
+    HopEnvironment.reset();
+    super.cleanUp();
   }
 }

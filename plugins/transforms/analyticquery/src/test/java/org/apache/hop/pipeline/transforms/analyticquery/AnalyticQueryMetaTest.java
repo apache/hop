@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -36,7 +36,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AnalyticQueryMetaTest {
 

@@ -31,16 +31,16 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DenormaliserTest {
 
   private TransformMockHelper<DenormaliserMeta, DenormaliserData> mockHelper;
 
-  @Before
+  @BeforeEach
   public void init() {
     mockHelper =
         new TransformMockHelper<>("Denormalizer", DenormaliserMeta.class, DenormaliserData.class);
@@ -48,7 +48,7 @@ public class DenormaliserTest {
         .thenReturn(mockHelper.iLogChannel);
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     mockHelper.cleanUp();
   }

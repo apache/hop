@@ -18,7 +18,7 @@ package org.apache.hop.pipeline.transforms.propertyinput;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PropertyInputMetaTest {
 

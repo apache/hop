@@ -21,8 +21,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.apache.hop.core.logging.ILogChannel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -32,7 +32,7 @@ public class HopMongoUtilLoggerTest {
   @Mock Exception exception;
   HopMongoUtilLogger logger;
 
-  @Before
+  @BeforeEach
   public void before() {
     MockitoAnnotations.openMocks(this);
     logger = new HopMongoUtilLogger(logChannelInterface);

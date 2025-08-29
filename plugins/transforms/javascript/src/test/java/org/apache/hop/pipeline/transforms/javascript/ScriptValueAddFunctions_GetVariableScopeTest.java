@@ -17,9 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mozilla.javascript.EvaluatorException;
 
 public class ScriptValueAddFunctions_GetVariableScopeTest {
@@ -52,8 +53,9 @@ public class ScriptValueAddFunctions_GetVariableScopeTest {
         ScriptValuesAddedFunctions.getVariableScope("g"));
   }
 
-  @Test(expected = EvaluatorException.class)
+  @Test
   public void getNonExistingVariableScope() {
-    ScriptValuesAddedFunctions.getVariableScope("dummy");
+    assertThrows(
+        EvaluatorException.class, () -> ScriptValuesAddedFunctions.getVariableScope("dummy"));
   }
 }

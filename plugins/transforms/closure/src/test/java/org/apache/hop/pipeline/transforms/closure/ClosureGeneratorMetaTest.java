@@ -20,19 +20,20 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ClosureGeneratorMetaTest {
   LoadSaveTester<ClosureGeneratorMeta> loadSaveTester;
   Class<ClosureGeneratorMeta> testMetaClass = ClosureGeneratorMeta.class;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
+  @BeforeEach
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     List<String> attributes =

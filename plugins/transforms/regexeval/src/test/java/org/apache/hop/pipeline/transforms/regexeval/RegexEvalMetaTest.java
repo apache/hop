@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -36,7 +36,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
@@ -45,10 +45,10 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 
 public class RegexEvalMetaTest implements IInitializer<ITransform> {
@@ -56,14 +56,16 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
   IVariables mockVariableSpace;
   LoadSaveTester loadSaveTester;
   Class<RegexEvalMeta> testMetaClass = RegexEvalMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @BeforeClass
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeAll
   public static void setupClass() throws HopException {
     ValueMetaPluginType.getInstance().searchPlugins();
   }
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     mockInputRowMeta = mock(IRowMeta.class);
     mockVariableSpace = mock(IVariables.class);
@@ -146,7 +148,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
     assertEquals(fieldName, captor.getValue().getName());
   }
 
-  @Before
+  @BeforeEach
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();

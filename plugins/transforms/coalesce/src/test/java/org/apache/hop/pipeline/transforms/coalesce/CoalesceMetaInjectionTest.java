@@ -18,11 +18,11 @@
 package org.apache.hop.pipeline.transforms.coalesce;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CoalesceMetaInjectionTest extends BaseMetadataInjectionTest<CoalesceMeta> {
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     setup(new CoalesceMeta());
   }

@@ -17,20 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /** Csv data is taken from the attachment to the issue. */
 public class PDI_15270_Test extends CsvInputUnitTestBase {
@@ -38,9 +38,11 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   private String[] expected;
   private String content;
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Before
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeEach
   public void setUp() throws Exception {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
     transformMockHelper =
@@ -48,7 +50,7 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
             CsvInputMeta.class, CsvInputData.class, "Pdi15270Test");
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     transformMockHelper.cleanUp();
   }

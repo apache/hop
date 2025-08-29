@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.textfileinput;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -40,7 +40,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileFilter;
@@ -50,19 +50,21 @@ import org.apache.hop.pipeline.transforms.fileinput.TextFileInputData;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileLine;
 import org.apache.hop.utils.TestUtils;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 /**
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
-public class TextFileInputTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class TextFileInputTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void initHop() throws Exception {
+  @BeforeAll
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
@@ -72,7 +74,7 @@ public class TextFileInputTest {
   }
 
   @Test
-  public void testGetLineDOS() throws HopFileException, UnsupportedEncodingException {
+  void testGetLineDOS() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\r\ndata1\tdata2\tdata3\r\n";
     String expected = "col1\tcol2\tcol3";
     String output =
@@ -85,7 +87,7 @@ public class TextFileInputTest {
   }
 
   @Test
-  public void testGetLineUnix() throws HopFileException, UnsupportedEncodingException {
+  void testGetLineUnix() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\ndata1\tdata2\tdata3\n";
     String expected = "col1\tcol2\tcol3";
     String output =
@@ -98,7 +100,7 @@ public class TextFileInputTest {
   }
 
   @Test
-  public void testGetLineOSX() throws HopFileException, UnsupportedEncodingException {
+  void testGetLineOSX() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\rdata1\tdata2\tdata3\r";
     String expected = "col1\tcol2\tcol3";
     String output =
@@ -111,7 +113,7 @@ public class TextFileInputTest {
   }
 
   @Test
-  public void testGetLineMixed() throws HopFileException, UnsupportedEncodingException {
+  void testGetLineMixed() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\r\ndata1\tdata2\tdata3\r";
     String expected = "col1\tcol2\tcol3";
     String output =
@@ -123,8 +125,9 @@ public class TextFileInputTest {
     assertEquals(expected, output);
   }
 
-  @Test(timeout = 100)
-  public void test_PDI695() throws HopFileException, UnsupportedEncodingException {
+  @Test
+  @Timeout(value = 100, unit = java.util.concurrent.TimeUnit.MILLISECONDS)
+  void test_PDI695() throws HopFileException, UnsupportedEncodingException {
     String inputDOS = "col1\tcol2\tcol3\r\ndata1\tdata2\tdata3\r\n";
     String inputUnix = "col1\tcol2\tcol3\ndata1\tdata2\tdata3\n";
     String inputOSX = "col1\tcol2\tcol3\rdata1\tdata2\tdata3\r";
@@ -154,7 +157,7 @@ public class TextFileInputTest {
   }
 
   @Test
-  public void readWrappedInputWithoutHeaders() throws Exception {
+  void readWrappedInputWithoutHeaders() throws Exception {
     final String content =
         new StringBuilder()
             .append("r1c1")
@@ -207,7 +210,7 @@ public class TextFileInputTest {
   }
 
   @Test
-  public void readInputWithMissedValues() throws Exception {
+  void readInputWithMissedValues() throws Exception {
     final String virtualFile = createVirtualFile("pdi-14172.txt", "1,1,1\n", "2,,2\n");
 
     TextFileInputMeta meta = new TextFileInputMeta();
@@ -252,7 +255,7 @@ public class TextFileInputTest {
   }
 
   @Test
-  public void readInputWithDefaultValues() throws Exception {
+  void readInputWithDefaultValues() throws Exception {
     final String virtualFile = createVirtualFile("pdi-14832.txt", "1,\n");
 
     TextFileInputMeta meta = new TextFileInputMeta();
@@ -328,7 +331,7 @@ public class TextFileInputTest {
    * @throws Exception
    */
   @Test
-  public void convertLineToRowTest() throws Exception {
+  void convertLineToRowTest() throws Exception {
     ILogChannel log = Mockito.mock(ILogChannel.class);
     TextFileLine textFileLine = Mockito.mock(TextFileLine.class);
     textFileLine.line = "testData1;testData2;testData3";

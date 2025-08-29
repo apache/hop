@@ -19,7 +19,7 @@ package org.apache.hop.pipeline.transforms.fake;
 
 import com.github.javafaker.Faker;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FakerTypeTest {
 

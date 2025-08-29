@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -33,31 +33,31 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /** Regression test */
-public class PDI_11152_Test {
+class PDI_11152_Test {
   TransformMockHelper<UpdateMeta, UpdateData> smh;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     smh = new TransformMockHelper<>("Update", UpdateMeta.class, UpdateData.class);
     when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testInputLazyConversion() throws HopException {
+  @Disabled("This test needs to be reviewed")
+  void testInputLazyConversion() throws HopException {
     Database db = mock(Database.class);
     RowMeta returnRowMeta = new RowMeta();
     doReturn(new Object[] {new Timestamp(System.currentTimeMillis())})
@@ -98,6 +98,6 @@ public class PDI_11152_Test {
         smh.getMockInputRowSet(new Object[] {"2013-12-20".getBytes()}));
     transform.init();
     transform.first = false;
-    assertTrue("Failure during row processing", transform.processRow());
+    assertTrue(transform.processRow(), "Transform should process row successfully");
   }
 }

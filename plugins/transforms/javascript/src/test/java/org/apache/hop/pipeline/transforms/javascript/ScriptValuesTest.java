@@ -26,24 +26,25 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ScriptValuesTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class ScriptValuesTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void initHop() throws Exception {
+  @BeforeAll
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void bigNumberAreNotTrimmedToInt() throws Exception {
+  @Disabled("This test needs to be reviewed")
+  void bigNumberAreNotTrimmedToInt() throws Exception {
     ScriptValues transform =
         TransformMockUtil.getTransform(
             ScriptValues.class, ScriptValuesMeta.class, ScriptValuesData.class, "test");
@@ -79,8 +80,8 @@ public class ScriptValuesTest {
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void variableIsSetInScopeOfTransform() throws Exception {
+  @Disabled("This test needs to be reviewed")
+  void variableIsSetInScopeOfTransform() throws Exception {
     ScriptValues transform =
         TransformMockUtil.getTransform(
             ScriptValues.class, ScriptValuesMeta.class, ScriptValuesData.class, "test");

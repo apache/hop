@@ -39,10 +39,10 @@ import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 
 public class FuzzyMatchTest {
@@ -101,7 +101,7 @@ public class FuzzyMatchTest {
     }
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     mockHelper =
         new TransformMockHelper<>("Fuzzy Match", FuzzyMatchMeta.class, FuzzyMatchData.class);
@@ -110,7 +110,7 @@ public class FuzzyMatchTest {
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     mockHelper.cleanUp();
   }

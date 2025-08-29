@@ -17,23 +17,25 @@
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.row.IValueMeta;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-@RunWith(MockitoJUnitRunner.class)
-public class KafkaConsumerFieldTest {
+class KafkaConsumerFieldTest {
   KafkaConsumerField field;
-  @Mock IValueMeta vmi;
+  IValueMeta vmi;
+
+  @BeforeEach
+  void setUp() {
+    vmi = org.mockito.Mockito.mock(IValueMeta.class);
+  }
 
   @Test
-  public void testEmptyConstructor() throws Exception {
+  void testEmptyConstructor() {
     field = new KafkaConsumerField();
 
     assertNull(field.getKafkaName());
@@ -42,7 +44,7 @@ public class KafkaConsumerFieldTest {
   }
 
   @Test
-  public void testSettersGetters() throws Exception {
+  void testSettersGetters() {
     field = new KafkaConsumerField();
     field.setKafkaName(KafkaConsumerField.Name.MESSAGE);
     field.setOutputName("MSG");
@@ -54,7 +56,7 @@ public class KafkaConsumerFieldTest {
   }
 
   @Test
-  public void testConstructor_noType() throws Exception {
+  void testConstructor_noType() {
     field = new KafkaConsumerField(KafkaConsumerField.Name.KEY, "Test Name");
 
     assertEquals(KafkaConsumerField.Name.KEY, field.getKafkaName());
@@ -63,7 +65,7 @@ public class KafkaConsumerFieldTest {
   }
 
   @Test
-  public void testConstructor_allProps() throws Exception {
+  void testConstructor_allProps() {
     field =
         new KafkaConsumerField(
             KafkaConsumerField.Name.KEY, "Test Name", KafkaConsumerField.Type.Binary);
@@ -74,7 +76,7 @@ public class KafkaConsumerFieldTest {
   }
 
   @Test
-  public void testSerializersSet() throws Exception {
+  void testSerializersSet() {
     field = new KafkaConsumerField(KafkaConsumerField.Name.KEY, "Test Name");
     assertEquals(
         "org.apache.kafka.common.serialization.StringSerializer",
@@ -115,7 +117,7 @@ public class KafkaConsumerFieldTest {
   }
 
   @Test
-  public void testFromIValueMeta() throws Exception {
+  void testFromIValueMeta() {
     when(vmi.getType()).thenReturn(IValueMeta.TYPE_STRING);
     KafkaConsumerField.Type t = KafkaConsumerField.Type.fromValueMeta(vmi);
     assertEquals("String", t.toString());

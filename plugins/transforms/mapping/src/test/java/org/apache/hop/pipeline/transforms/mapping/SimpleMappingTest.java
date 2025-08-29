@@ -16,9 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.mapping;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -41,10 +41,10 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.output.MappingOutput;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class SimpleMappingTest {
@@ -60,7 +60,7 @@ public class SimpleMappingTest {
 
   private SimpleMapping smp;
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     transformMockHelper =
         new TransformMockHelper<>(
@@ -106,7 +106,7 @@ public class SimpleMappingTest {
     when(transformMockHelper.iTransformMeta.getInputMapping()).thenReturn(mpIODefMock);
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     transformMockHelper.cleanUp();
   }
@@ -124,10 +124,10 @@ public class SimpleMappingTest {
             transformMockHelper.pipeline);
     smp.processRow();
     smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
-    assertTrue("The transform is processing in first", smp.first);
+    assertTrue(smp.first, "The transform is processing in first");
     assertTrue(smp.processRow());
-    assertFalse("The transform is processing not in first", smp.first);
-    assertTrue("The transform was started", smp.getData().wasStarted);
+    assertFalse(smp.first, "The transform is processing not in first");
+    assertTrue(smp.getData().wasStarted, "The transform was started");
   }
 
   @Ignore("This test needs to be reviewed")
@@ -159,7 +159,7 @@ public class SimpleMappingTest {
         .addActiveSubPipeline(anyString(), any(Pipeline.class));
     verify(transformMockHelper.pipeline, never()).getActiveSubPipeline(anyString());
     verify(transformMockHelper.pipeline, times(1)).getErrors();
-    assertEquals("The transform contains the errors", smp.getErrors(), errorCount);
+    assertEquals(smp.getErrors(), errorCount, "The transform contains the errors");
   }
 
   @Test
@@ -202,7 +202,7 @@ public class SimpleMappingTest {
     assertFalse(smp.processRow());
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     transformMockHelper.cleanUp();
   }

@@ -19,17 +19,18 @@ package org.apache.hop.pipeline.transforms.metainject;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTest<MetaInjectMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String TEST_ID = "TEST_ID";
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     setup(new MetaInjectMeta());
   }

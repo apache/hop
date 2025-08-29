@@ -21,16 +21,16 @@ import java.util.Arrays;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 
 /** Base class for all Fixed input transform tests. */
-@Ignore("No tests in abstract base class")
+@Disabled("No tests in abstract base class")
 public class BaseExcelParsingTest
     extends BaseParsingTest<ExcelInputMeta, ExcelInputData, ExcelInput> {
   /** Initialize transform info. */
-  @Before
+  @BeforeEach
   public void before() {
     inPrefix = '/' + this.getClass().getPackage().getName().replace('.', '/') + "/files/";
 
@@ -41,7 +41,7 @@ public class BaseExcelParsingTest
     data.outputRowMeta = new RowMeta();
   }
 
-  @After
+  @AfterEach
   public void after() {
     if (transform != null) {
       transform.dispose();

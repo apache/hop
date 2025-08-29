@@ -42,22 +42,22 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for IfNull transform */
 public class IfNullTest {
   TransformMockHelper<IfNullMeta, IfNullData> smh;
   private RestoreHopEngineEnvironment env;
 
-  @BeforeClass
+  @BeforeAll
   public static void beforeClass() throws HopException {
     HopEnvironment.init();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     env = new RestoreHopEngineEnvironment();
     smh = new TransformMockHelper<>("Field IfNull processor", IfNullMeta.class, IfNullData.class);
@@ -66,7 +66,7 @@ public class IfNullTest {
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
+  @AfterEach
   public void clean()
       throws NoSuchFieldException,
           SecurityException,

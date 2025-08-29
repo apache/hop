@@ -29,7 +29,7 @@ import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.Assert;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ScriptValueAddFunctions_SetVariableScopeTest {
   private static final String VARIABLE_NAME = "variable-name";

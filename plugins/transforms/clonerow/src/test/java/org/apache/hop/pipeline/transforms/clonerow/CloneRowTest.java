@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.clonerow;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -25,18 +26,19 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CloneRowTest {
 
   private TransformMockHelper<CloneRowMeta, CloneRowData> transformMockHelper;
 
-  @Before
+  @BeforeEach
   public void setup() {
     transformMockHelper =
         new TransformMockHelper<>("Test CloneRow", CloneRowMeta.class, CloneRowData.class);
@@ -45,13 +47,13 @@ public class CloneRowTest {
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     transformMockHelper.cleanUp();
   }
 
-  @Test(expected = HopException.class)
-  public void nullNrCloneField() throws Exception {
+  @Test
+  public void nullNrCloneField() throws HopValueException {
     CloneRow transform =
         new CloneRow(
             transformMockHelper.transformMeta,
@@ -72,6 +74,14 @@ public class CloneRowTest {
     when(transformMockHelper.iTransformMeta.isNrCloneInField()).thenReturn(true);
     when(transformMockHelper.iTransformMeta.getNrCloneField()).thenReturn("field");
 
-    transform.processRow();
+    assertThrows(
+        HopException.class,
+        () -> {
+          try {
+            transform.processRow();
+          } catch (HopValueException e) {
+            throw new HopException(e);
+          }
+        });
   }
 }
