@@ -30,6 +30,8 @@ include::snippets/hop-concepts/hop-projects-environments.adoc[]
 
 include::snippets/hop-concepts/metadata.adoc[]
 
+xref:metadata-driven-architecture.adoc[Metadata Driven Architecture]
+
 // Data types
 include::snippets/hop-concepts/data-types.adoc[]
 
