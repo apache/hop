@@ -18,11 +18,12 @@
 
 package org.apache.hop.pipeline.transform;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
-import org.junit.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -50,7 +51,7 @@ public class TransformSerializationTestUtil {
     Node copyNode = XmlHandler.getSubNode(copyDocument, xmlTag);
     T copy = clazz.getConstructor().newInstance();
     XmlMetadataUtil.deSerializeFromXml(null, copyNode, clazz, copy, metadataProvider);
-    Assert.assertEquals(meta.getXml(), copy.getXml());
+    assertEquals(meta.getXml(), copy.getXml());
 
     return meta;
   }

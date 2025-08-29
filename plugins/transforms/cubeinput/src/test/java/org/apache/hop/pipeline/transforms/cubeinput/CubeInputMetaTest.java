@@ -17,15 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.cubeinput;
 
-import static org.apache.hop.core.util.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CubeInputMetaTest {
+class CubeInputMetaTest {
 
   @Test
-  public void testRoundTrip() throws Exception {
+  void testRoundTrip() throws Exception {
     CubeInputMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/de-serialize-transform.xml", CubeInputMeta.class);

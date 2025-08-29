@@ -16,19 +16,21 @@
  */
 package org.apache.hop.mongo.wrapper;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.mongodb.MongoCredential;
 import java.util.List;
 import org.apache.hop.mongo.MongoProp;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /** Test class for {@link org.apache.hop.mongo.wrapper.UsernamePasswordMongoClientWrapper}. */
-public class UsernamePasswordMongoClientWrapperTest {
+class UsernamePasswordMongoClientWrapperTest {
 
   /** Mocked MongoUtilLogger for UsernamePasswordMongoClientWrapper initialization. */
   @Mock private MongoUtilLogger log;
@@ -36,8 +38,8 @@ public class UsernamePasswordMongoClientWrapperTest {
   /** Builder for MongoProperties initialization. */
   private MongoProperties.Builder mongoPropertiesBuilder;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     MockitoAnnotations.initMocks(this);
   }
 
@@ -47,7 +49,7 @@ public class UsernamePasswordMongoClientWrapperTest {
    * @throws Exception
    */
   @Test
-  public void getCredentialListTest() throws Exception {
+  void getCredentialListTest() throws Exception {
     final String username = "testuser";
     final String password = "testpass";
     final String authDb = "testuser-auth-db";
@@ -62,11 +64,11 @@ public class UsernamePasswordMongoClientWrapperTest {
     UsernamePasswordMongoClientWrapper mongoClientWrapper =
         new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
     List<MongoCredential> credentials = mongoClientWrapper.getCredentialList();
-    Assert.assertEquals(1, credentials.size());
-    Assert.assertEquals(null, credentials.get(0).getMechanism());
-    Assert.assertEquals(username, credentials.get(0).getUserName());
-    Assert.assertEquals(authDb, credentials.get(0).getSource());
-    Assert.assertArrayEquals(password.toCharArray(), credentials.get(0).getPassword());
+    assertEquals(1, credentials.size());
+    assertEquals(null, credentials.get(0).getMechanism());
+    assertEquals(username, credentials.get(0).getUserName());
+    assertEquals(authDb, credentials.get(0).getSource());
+    assertArrayEquals(password.toCharArray(), credentials.get(0).getPassword());
   }
 
   /**
@@ -76,7 +78,7 @@ public class UsernamePasswordMongoClientWrapperTest {
    * @throws Exception
    */
   @Test
-  public void getCredentialListUsernameOnlyTest() throws Exception {
+  void getCredentialListUsernameOnlyTest() throws Exception {
     final String username = "testuser";
     final String source = "dbname";
     mongoPropertiesBuilder =
@@ -86,11 +88,11 @@ public class UsernamePasswordMongoClientWrapperTest {
     UsernamePasswordMongoClientWrapper mongoClientWrapper =
         new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
     List<MongoCredential> credentials = mongoClientWrapper.getCredentialList();
-    Assert.assertEquals(1, credentials.size());
-    Assert.assertEquals(null, credentials.get(0).getMechanism());
-    Assert.assertEquals(username, credentials.get(0).getUserName());
-    Assert.assertEquals(source, credentials.get(0).getSource());
-    Assert.assertArrayEquals("".toCharArray(), credentials.get(0).getPassword());
+    assertEquals(1, credentials.size());
+    assertEquals(null, credentials.get(0).getMechanism());
+    assertEquals(username, credentials.get(0).getUserName());
+    assertEquals(source, credentials.get(0).getSource());
+    assertArrayEquals("".toCharArray(), credentials.get(0).getPassword());
   }
 
   /**
@@ -101,7 +103,7 @@ public class UsernamePasswordMongoClientWrapperTest {
    * @throws Exception
    */
   @Test
-  public void getCredentialListEmptyAuthDatabaseTest() throws Exception {
+  void getCredentialListEmptyAuthDatabaseTest() throws Exception {
     final String username = "testuser";
     final String password = "testpass";
     final String dbName = "database";
@@ -116,26 +118,26 @@ public class UsernamePasswordMongoClientWrapperTest {
     UsernamePasswordMongoClientWrapper mongoClientWrapper =
         new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
     List<MongoCredential> credentials = mongoClientWrapper.getCredentialList();
-    Assert.assertEquals(1, credentials.size());
-    Assert.assertEquals(null, credentials.get(0).getMechanism());
-    Assert.assertEquals(username, credentials.get(0).getUserName());
-    Assert.assertEquals(dbName, credentials.get(0).getSource());
-    Assert.assertArrayEquals(password.toCharArray(), credentials.get(0).getPassword());
+    assertEquals(1, credentials.size());
+    assertEquals(null, credentials.get(0).getMechanism());
+    assertEquals(username, credentials.get(0).getUserName());
+    assertEquals(dbName, credentials.get(0).getSource());
+    assertArrayEquals(password.toCharArray(), credentials.get(0).getPassword());
 
     // MongoProp.AUTH_DATABASE is empty string
     mongoPropertiesBuilder.set(MongoProp.AUTH_DATABASE, null);
     mongoClientWrapper =
         new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
     credentials = mongoClientWrapper.getCredentialList();
-    Assert.assertEquals(1, credentials.size());
-    Assert.assertEquals(null, credentials.get(0).getMechanism());
-    Assert.assertEquals(username, credentials.get(0).getUserName());
-    Assert.assertEquals(dbName, credentials.get(0).getSource());
-    Assert.assertArrayEquals(password.toCharArray(), credentials.get(0).getPassword());
+    assertEquals(1, credentials.size());
+    assertEquals(null, credentials.get(0).getMechanism());
+    assertEquals(username, credentials.get(0).getUserName());
+    assertEquals(dbName, credentials.get(0).getSource());
+    assertArrayEquals(password.toCharArray(), credentials.get(0).getPassword());
   }
 
   @Test
-  public void getCredentialAuthMechanism() throws Exception {
+  void getCredentialAuthMechanism() throws Exception {
     final String username = "testuser";
     final String password = "testpass";
     final String dbName = "database";
@@ -156,11 +158,11 @@ public class UsernamePasswordMongoClientWrapperTest {
       UsernamePasswordMongoClientWrapper mongoClientWrapper =
           new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
       List<MongoCredential> credentials = mongoClientWrapper.getCredentialList();
-      Assert.assertEquals(1, credentials.size());
-      Assert.assertEquals(authMecha, credentials.get(0).getMechanism());
-      Assert.assertEquals(username, credentials.get(0).getUserName());
-      Assert.assertEquals(dbName, credentials.get(0).getSource());
-      Assert.assertArrayEquals(password.toCharArray(), credentials.get(0).getPassword());
+      assertEquals(1, credentials.size());
+      assertEquals(authMecha, credentials.get(0).getMechanism());
+      assertEquals(username, credentials.get(0).getUserName());
+      assertEquals(dbName, credentials.get(0).getSource());
+      assertArrayEquals(password.toCharArray(), credentials.get(0).getPassword());
     }
   }
 }

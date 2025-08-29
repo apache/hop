@@ -17,17 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.TextFileInputField;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class CsvInputContentParsingTest extends BaseCsvParsingTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
   public void testDefaultOptions() throws Exception {
@@ -144,7 +147,7 @@ public class CsvInputContentParsingTest extends BaseCsvParsingTest {
         });
   }
 
-  @Test(expected = HopTransformException.class)
+  @Test
   public void testNoHeaderOptions() throws Exception {
     meta.setHeaderPresent(false);
     init("default.csv");
@@ -153,7 +156,7 @@ public class CsvInputContentParsingTest extends BaseCsvParsingTest {
 
     transform.setAllowEmptyFieldNamesAndTypes(false);
 
-    process();
+    assertThrows(HopTransformException.class, () -> process());
   }
 
   File createTestFile(final String encoding, final String content) throws IOException {

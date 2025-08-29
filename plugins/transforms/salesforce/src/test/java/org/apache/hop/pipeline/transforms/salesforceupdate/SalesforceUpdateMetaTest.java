@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.salesforceupdate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.TransformLoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
@@ -48,14 +48,15 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceMetaTest;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class SalesforceUpdateMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());

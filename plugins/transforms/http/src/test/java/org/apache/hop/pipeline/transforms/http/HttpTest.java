@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.http;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
@@ -37,14 +37,14 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-public class HttpTest {
+class HttpTest {
 
   private static MockedStatic<HttpClientManager> mockedHttpClientManager;
 
@@ -60,7 +60,7 @@ public class HttpTest {
           + "&lt;p&gt;é, è, ô, ç, à, ê, â.&lt;/p&gt; They can, of course, come in uppercase as well: &lt;p&gt;É, È Ô, Ç, À,"
           + " Ê, Â&lt;/p&gt;. UTF-8 handles this well.";
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     HttpClientManager.HttpClientBuilderFacade builder =
         mock(HttpClientManager.HttpClientBuilderFacade.class);
@@ -93,26 +93,26 @@ public class HttpTest {
     doReturn(new Header[0]).when(http).searchForHeaders(any(CloseableHttpResponse.class));
   }
 
-  @BeforeClass
-  public static void setUpStaticMocks() {
+  @BeforeAll
+  static void setUpStaticMocks() {
     mockedHttpClientManager = mockStatic(HttpClientManager.class);
   }
 
-  @AfterClass
-  public static void tearDownStaticMocks() {
+  @AfterAll
+  static void tearDownStaticMocks() {
     mockedHttpClientManager.close();
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void callHttpServiceWithUTF8Encoding() throws Exception {
+  void callHttpServiceWithUTF8Encoding() throws Exception {
     doReturn("UTF-8").when(meta).getEncoding();
     assertEquals(DATA, http.callHttpService(rmi, new Object[] {0})[0]);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void callHttpServiceWithoutEncoding() throws Exception {
+  void callHttpServiceWithoutEncoding() throws Exception {
     doReturn(null).when(meta).getEncoding();
     assertNotEquals(DATA, http.callHttpService(rmi, new Object[] {0})[0]);
   }

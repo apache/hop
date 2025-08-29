@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.delete;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -44,17 +44,19 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class DeleteMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<DeleteMeta> testMetaClass = DeleteMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Before
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeEach
   public void setUpLoadSave() throws Exception {
     PluginRegistry.init();
     List<String> attributes = Arrays.asList("commit", "connection", "lookup");
@@ -145,12 +147,12 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
   private DeleteData data;
   private DeleteMeta meta;
 
-  @BeforeClass
+  @BeforeAll
   public static void initEnvironment() throws Exception {
     HopEnvironment.init();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("delete1");

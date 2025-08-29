@@ -17,16 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.setvaluefield;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SetValueFieldMetaInjectionTest extends BaseMetadataInjectionTest<SetValueFieldMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+public class SetValueFieldMetaInjectionTest
+    extends BaseMetadataInjectionTestJunit5<SetValueFieldMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     setup(new SetValueFieldMeta());
   }

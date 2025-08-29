@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -25,7 +26,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Assert;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
@@ -38,36 +38,38 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /** Tests for IfNull transform */
-public class IfNullTest {
+class IfNullTest {
   TransformMockHelper<IfNullMeta, IfNullData> smh;
-  private RestoreHopEngineEnvironment env;
 
-  @BeforeClass
-  public static void beforeClass() throws HopException {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeAll
+  static void beforeClass() throws HopException {
     HopEnvironment.init();
   }
 
-  @Before
-  public void setUp() {
-    env = new RestoreHopEngineEnvironment();
+  @BeforeEach
+  void setUp() {
     smh = new TransformMockHelper<>("Field IfNull processor", IfNullMeta.class, IfNullData.class);
     when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void clean()
+  @AfterEach
+  void clean()
       throws NoSuchFieldException,
           SecurityException,
           IllegalArgumentException,
@@ -116,7 +118,7 @@ public class IfNullTest {
   }
 
   @Test
-  public void testStringEmptyIsNull() throws HopException {
+  void testStringEmptyIsNull() throws HopException {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
     IfNull transform =
         new IfNull(
@@ -155,7 +157,7 @@ public class IfNullTest {
   }
 
   @Test
-  public void testStringEmptyIsNotNull() throws HopException {
+  void testStringEmptyIsNotNull() throws HopException {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
     IfNull transform =
         new IfNull(
@@ -194,14 +196,13 @@ public class IfNullTest {
 
   private void assertRowSetMatches(String msg, Object[] expectedRow, IRowSet outputRowSet) {
     Object[] actualRow = outputRowSet.getRow();
-    Assert.assertEquals(
-        msg + ". Output row is of an unexpected length",
+    assertEquals(
         expectedRow.length,
-        outputRowSet.getRowMeta().size());
+        outputRowSet.getRowMeta().size(),
+        msg + ". Output row is of an unexpected length");
 
     for (int i = 0; i < expectedRow.length; i++) {
-      Assert.assertEquals(
-          msg + ". Unexpected output value at index " + i, expectedRow[i], actualRow[i]);
+      assertEquals(expectedRow[i], actualRow[i], msg + ". Unexpected output value at index " + i);
     }
   }
 }

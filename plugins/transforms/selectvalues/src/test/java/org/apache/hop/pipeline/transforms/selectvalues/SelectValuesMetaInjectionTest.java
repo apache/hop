@@ -17,22 +17,24 @@
 //
 package org.apache.hop.pipeline.transforms.selectvalues;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<SelectValuesMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+public class SelectValuesMetaInjectionTest
+    extends BaseMetadataInjectionTestJunit5<SelectValuesMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     SelectValuesMeta selectValuesMeta = new SelectValuesMeta();
     selectValuesMeta
@@ -42,7 +44,7 @@ public class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTest<Sel
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void test() throws Exception {
     check(
         "SELECT_UNSPECIFIED",

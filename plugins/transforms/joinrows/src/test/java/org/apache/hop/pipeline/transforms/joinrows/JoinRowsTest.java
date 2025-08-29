@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.joinrows;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -46,18 +46,18 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class JoinRowsTest {
+class JoinRowsTest {
 
   private JoinRowsMeta meta;
   private JoinRowsData data;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     meta = new JoinRowsMeta();
     data = new JoinRowsData();
 
@@ -68,22 +68,22 @@ public class JoinRowsTest {
         .thenReturn(logChannelInterface);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     meta = null;
     data = null;
   }
 
   /** BACKLOG-8520 Check that method call does't throw an error NullPointerException. */
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void checkThatMethodPerformedWithoutError() throws Exception {
+  @Disabled("This test needs to be reviewed")
+  void checkThatMethodPerformedWithoutError() throws Exception {
     getJoinRows().dispose();
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void disposeDataFiles() throws Exception {
+  @Disabled("This test needs to be reviewed")
+  void disposeDataFiles() throws Exception {
     File mockFile1 = mock(File.class);
     File mockFile2 = mock(File.class);
     data.file = new File[] {null, mockFile1, mockFile2};
@@ -109,8 +109,8 @@ public class JoinRowsTest {
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testJoinRowsTransform() throws Exception {
+  @Disabled("This test needs to be reviewed")
+  void testJoinRowsTransform() throws Exception {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
     joinRowsMeta.setMainTransformName("main transform name");
     joinRowsMeta.setPrefix("out");

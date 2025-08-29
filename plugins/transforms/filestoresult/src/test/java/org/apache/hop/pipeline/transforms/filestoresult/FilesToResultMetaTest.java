@@ -17,18 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.filestoresult;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class FilesToResultMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class FilesToResultMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     FilesToResultMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/files-to-result-transform.xml", FilesToResultMeta.class);
-    Assert.assertNotNull(meta.getFilenameField());
-    Assert.assertNotNull(meta.getFileType());
+    assertNotNull(meta.getFilenameField());
+    assertNotNull(meta.getFileType());
   }
 }

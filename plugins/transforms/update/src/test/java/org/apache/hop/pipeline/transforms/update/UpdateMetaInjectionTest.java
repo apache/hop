@@ -17,15 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class UpdateMetaInjectionTest extends BaseMetadataInjectionTest<UpdateMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+public class UpdateMetaInjectionTest extends BaseMetadataInjectionTestJunit5<UpdateMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     setup(new UpdateMeta());
   }

@@ -17,23 +17,24 @@
 
 package org.apache.hop.pipeline.transforms.uniquerowsbyhashset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class RowKeyTest {
+class RowKeyTest {
 
   @Test
-  @Ignore("This test needs to be reviewed") // TODO see what the problem is with the hash code, new
+  @Disabled(
+      "This test needs to be reviewed") // TODO see what the problem is with the hash code, new
   // commons API somewhere?
-  public void testHashCodeCalculationsandEquals() throws Exception {
+  void testHashCodeCalculationsandEquals() throws Exception {
     Object[] arr1 = new Object[9];
     arr1[0] = true;
 

@@ -17,23 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.BitSet;
 import java.util.List;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
-public class EqIndexTest extends IndexTestBase<EqIndex> {
+class EqIndexTest extends IndexTestBase<EqIndex> {
 
-  @Parameterized.Parameters
-  public static List<Object[]> createSampleData() {
+  static List<Object[]> createSampleData() {
     return IndexTestBase.createSampleData();
   }
 
-  public EqIndexTest(Long[][] rows) {
-    super(EqIndex.class, rows);
+  public EqIndexTest() {
+    super(EqIndex.class, null);
   }
 
   @Override

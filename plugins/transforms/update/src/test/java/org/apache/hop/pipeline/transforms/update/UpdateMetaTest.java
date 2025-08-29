@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -46,14 +46,15 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
-public class UpdateMetaTest implements IInitializer<ITransformMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class UpdateMetaTest implements IInitializer<ITransformMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private TransformMeta transformMeta;
   private Update upd;
@@ -63,8 +64,8 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
   Class<UpdateMeta> testMetaClass = UpdateMeta.class;
   private TransformMockHelper<UpdateMeta, UpdateData> mockHelper;
 
-  @Before
-  public void setUp() throws HopException {
+  @BeforeEach
+  void setUp() throws HopException {
     HopEnvironment.init();
     PluginRegistry.init();
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -219,7 +220,7 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
         new ListLoadSaveValidator<UpdateField>(new UpdateFieldLoadSaveValidator()));
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     mockHelper.cleanUp();
   }

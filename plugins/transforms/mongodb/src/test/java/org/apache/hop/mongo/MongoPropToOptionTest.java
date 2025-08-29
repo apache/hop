@@ -17,25 +17,25 @@
 
 package org.apache.hop.mongo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.util.JSONParseException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 public class MongoPropToOptionTest {
   @Mock private MongoUtilLogger log;
 
-  @Before
+  @BeforeEach
   public void before() {
     MockitoAnnotations.openMocks(this);
   }

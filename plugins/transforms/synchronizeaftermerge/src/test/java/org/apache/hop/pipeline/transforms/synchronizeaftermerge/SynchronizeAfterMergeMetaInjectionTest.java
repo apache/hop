@@ -17,21 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class SynchronizeAfterMergeMetaInjectionTest
-    extends BaseMetadataInjectionTest<SynchronizeAfterMergeMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+    extends BaseMetadataInjectionTestJunit5<SynchronizeAfterMergeMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     super.setup(new SynchronizeAfterMergeMeta());
   }

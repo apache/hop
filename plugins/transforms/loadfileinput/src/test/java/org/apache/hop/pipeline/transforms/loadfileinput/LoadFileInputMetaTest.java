@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.StringReader;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import java.util.UUID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -38,15 +38,17 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValida
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.YNLoadSaveValidator;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 /** User: Dzmitry Stsiapanau Date: 12/17/13 Time: 3:11 PM */
 public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
   LoadSaveTester loadSaveTester;
 
   String xmlOrig =
@@ -111,7 +113,7 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
     assertEquals(origMeta, testMeta);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     List<String> attributes =
         Arrays.asList(

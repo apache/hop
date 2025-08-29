@@ -17,10 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -40,9 +42,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.xml.RowTransformCollector;
+import org.junit.jupiter.api.Test;
 
 /** Test class for the "Get XML Data" transform. */
-public class GetXMLDataTest extends TestCase {
+class GetXMLDataTest {
   public IRowMeta createRowMetaInterface() {
     IRowMeta rm = new RowMeta();
 
@@ -186,6 +189,7 @@ public class GetXMLDataTest extends TestCase {
    *
    * @throws Exception Upon any exception
    */
+  @Test
   public void testGetXMLDataSimple1() throws Exception {
     HopEnvironment.init();
 
@@ -338,7 +342,8 @@ public class GetXMLDataTest extends TestCase {
     checkRows(goldenImageRows, resultRows);
   }
 
-  public void testInit() throws Exception {
+  @Test
+  void testInit() throws Exception {
 
     HopEnvironment.init();
 

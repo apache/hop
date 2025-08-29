@@ -17,7 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.replacestring;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -31,13 +32,12 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** User: Dzmitry Stsiapanau Date: 1/31/14 Time: 11:19 AM */
-public class ReplaceStringTest {
+class ReplaceStringTest {
 
   private static final String LITERAL_STRING = "[a-z]{2,7}";
 
@@ -64,8 +64,8 @@ public class ReplaceStringTest {
 
   private TransformMockHelper<ReplaceStringMeta, ReplaceStringData> transformMockHelper;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     transformMockHelper =
         new TransformMockHelper<>(
             "REPLACE STRING TEST", ReplaceStringMeta.class, ReplaceStringData.class);
@@ -77,13 +77,13 @@ public class ReplaceStringTest {
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void tearDown() throws Exception {
+  @AfterEach
+  void tearDown() throws Exception {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testGetOneRow() throws Exception {
+  void testGetOneRow() throws Exception {
     ReplaceStringData data = new ReplaceStringData();
     ReplaceStringMeta meta = new ReplaceStringMeta();
 
@@ -114,22 +114,22 @@ public class ReplaceStringTest {
     // when( inputRowMeta.getString( anyObject(), 1 ) ).thenReturn((String) row[1]);
 
     Object[] output = replaceString.handleOneRow(inputRowMeta, row);
-    assertArrayEquals("Output varies", expectedRow, output);
+    assertArrayEquals(expectedRow, output, "Output varies");
   }
 
   @Test
-  public void testBuildPatternWithLiteralParsingAndWholeWord() throws Exception {
+  void testBuildPatternWithLiteralParsingAndWholeWord() throws Exception {
     Pattern actualPattern = ReplaceString.buildPattern(true, true, true, LITERAL_STRING, false);
     Matcher matcher = actualPattern.matcher(INPUT_STRING);
     String actualString = matcher.replaceAll("are");
-    Assert.assertEquals(INPUT_STRING, actualString);
+    assertEquals(INPUT_STRING, actualString);
   }
 
   @Test
-  public void testBuildPatternWithNonLiteralParsingAndWholeWord() throws Exception {
+  void testBuildPatternWithNonLiteralParsingAndWholeWord() throws Exception {
     Pattern actualPattern = ReplaceString.buildPattern(false, true, true, LITERAL_STRING, false);
     Matcher matcher = actualPattern.matcher(INPUT_STRING);
     String actualString = matcher.replaceAll("are");
-    Assert.assertEquals("This are String This Is String THIS IS STRING", actualString);
+    assertEquals("This are String This Is String THIS IS STRING", actualString);
   }
 }

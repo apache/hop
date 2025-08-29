@@ -17,18 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.cubeoutput;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class CubeOutputMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class CubeOutputMetaTest {
 
   @Test
-  public void testRoundTrip() throws Exception {
+  void testRoundTrip() throws Exception {
     CubeOutputMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/serialize-transform.xml", CubeOutputMeta.class);
 
-    Assert.assertNotNull(meta.getFilename());
+    assertNotNull(meta.getFilename());
   }
 }

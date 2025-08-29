@@ -30,16 +30,16 @@ import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class DorisBulkLoaderTest {
+class DorisBulkLoaderTest {
 
   private static boolean canWrite = true;
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void testCallProcessStreamLoadWithOneBatch() throws Exception {
+  void testCallProcessStreamLoadWithOneBatch() throws Exception {
     DorisBulkLoaderMeta meta = mock(DorisBulkLoaderMeta.class);
     doReturn(40).when(meta).getBufferSize();
     doReturn(2).when(meta).getBufferCount();
@@ -66,9 +66,9 @@ public class DorisBulkLoaderTest {
     verify(data.dorisStreamLoad, times(1)).executeDorisStreamLoad();
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void testCallProcessStreamLoadWithTwoBatch() throws Exception {
+  void testCallProcessStreamLoadWithTwoBatch() throws Exception {
     DorisBulkLoaderMeta meta = mock(DorisBulkLoaderMeta.class);
     doReturn(40).when(meta).getBufferSize();
     doReturn(2).when(meta).getBufferCount();

@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.mock;
 import org.apache.hop.core.exception.HopException;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class HttpPostTest {
 

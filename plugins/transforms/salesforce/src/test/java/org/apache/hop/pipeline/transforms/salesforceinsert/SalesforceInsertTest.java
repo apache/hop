@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinsert;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -42,26 +42,26 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SalesforceInsertTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SalesforceInsertTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT =
       "Account:ExtID_AccountId__c/Account";
   private static final String ACCOUNT_ID = "AccountId";
   private TransformMockHelper<SalesforceInsertMeta, SalesforceInsertData> smh;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -69,8 +69,8 @@ public class SalesforceInsertTest {
     Encr.init(passwordEncoderPluginID);
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     smh =
         new TransformMockHelper<>(
             "SalesforceInsert", SalesforceInsertMeta.class, SalesforceInsertData.class);
@@ -78,13 +78,13 @@ public class SalesforceInsertTest {
         .thenReturn(smh.iLogChannel);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testWriteToSalesForceForNullExtIdField_WithExtIdNO() throws Exception {
+  void testWriteToSalesForceForNullExtIdField_WithExtIdNO() throws Exception {
     SalesforceInsertMeta meta =
         generateSalesforceInsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceInsertData data = generateSalesforceInsertData();
@@ -105,7 +105,7 @@ public class SalesforceInsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNullExtIdField_WithExtIdYES() throws Exception {
+  void testWriteToSalesForceForNullExtIdField_WithExtIdYES() throws Exception {
     SalesforceInsertMeta meta =
         generateSalesforceInsertMeta(
             new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
@@ -126,7 +126,7 @@ public class SalesforceInsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNotNullExtIdField_WithExtIdNO() throws Exception {
+  void testWriteToSalesForceForNotNullExtIdField_WithExtIdNO() throws Exception {
     SalesforceInsertMeta meta =
         generateSalesforceInsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceInsertData data = generateSalesforceInsertData();
@@ -153,7 +153,7 @@ public class SalesforceInsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNotNullExtIdField_WithExtIdYES() throws Exception {
+  void testWriteToSalesForceForNotNullExtIdField_WithExtIdYES() throws Exception {
     SalesforceInsertMeta meta =
         generateSalesforceInsertMeta(
             new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
@@ -180,7 +180,7 @@ public class SalesforceInsertTest {
   }
 
   @Test
-  public void testLogMessageInDetailedModeFotWriteToSalesForce() throws HopException {
+  void testLogMessageInDetailedModeFotWriteToSalesForce() throws HopException {
     SalesforceInsertMeta meta =
         generateSalesforceInsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceInsertData data = generateSalesforceInsertData();
@@ -224,7 +224,7 @@ public class SalesforceInsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceHopIntegerValue() throws Exception {
+  void testWriteToSalesForceHopIntegerValue() throws Exception {
     SalesforceInsertMeta meta =
         generateSalesforceInsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceInsertData data = generateSalesforceInsertData();
@@ -239,6 +239,6 @@ public class SalesforceInsertTest {
 
     sfInputTransform.writeToSalesForce(new Object[] {1L});
     XmlObject sObject = data.sfBuffer[0].getChild(ACCOUNT_ID);
-    Assert.assertEquals(1, sObject.getValue());
+    assertEquals(1, sObject.getValue());
   }
 }

@@ -16,7 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -37,12 +37,12 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.xml.xmloutput.XmlField.ContentType;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
-public class XmlOutputTest {
+class XmlOutputTest {
 
   private TransformMockHelper<XmlOutputMeta, XmlOutputData> transformMockHelper;
   private XmlOutput xmlOutput;
@@ -54,15 +54,15 @@ public class XmlOutputTest {
   private static Object[] rowWithData;
   private static Object[] rowWithNullData;
 
-  @BeforeClass
-  public static void setUpBeforeClass() {
+  @BeforeAll
+  static void setUpBeforeClass() {
 
     rowWithData = initRowWithData(ILLEGAL_CHARACTERS_IN_XML_ATTRIBUTES);
     rowWithNullData = initRowWithNullData();
   }
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
 
     transformMockHelper =
         new TransformMockHelper<>("XML_OUTPUT_TEST", XmlOutputMeta.class, XmlOutputData.class);
@@ -98,8 +98,7 @@ public class XmlOutputTest {
   }
 
   @Test
-  public void testSpecialSymbolsInAttributeValuesAreEscaped()
-      throws HopException, XMLStreamException {
+  void testSpecialSymbolsInAttributeValuesAreEscaped() throws HopException, XMLStreamException {
     xmlOutput.init();
 
     xmlOutputData.writer = mock(XMLStreamWriter.class);
@@ -110,14 +109,14 @@ public class XmlOutputTest {
   }
 
   @Test
-  public void testNullInAttributeValuesAreEscaped() throws HopException, XMLStreamException {
+  void testNullInAttributeValuesAreEscaped() throws HopException, XMLStreamException {
 
     testNullValuesInAttribute(0);
   }
 
   /** Testing to verify that getIfPresent defaults the XMLField ContentType value */
   @Test
-  public void testDefaultXmlFieldContentType() {
+  void testDefaultXmlFieldContentType() {
     XmlField[] xmlFields = initOutputFields(4, null);
     xmlFields[0].setContentType(ContentType.getIfPresent("Element"));
     xmlFields[1].setContentType(ContentType.getIfPresent("Attribute"));

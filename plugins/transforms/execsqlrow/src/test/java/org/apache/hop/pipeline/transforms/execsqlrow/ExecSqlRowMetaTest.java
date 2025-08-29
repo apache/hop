@@ -23,18 +23,20 @@ import java.util.Map;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ExecSqlRowMetaTest {
   LoadSaveTester loadSaveTester;
   Class<ExecSqlRowMeta> testMetaClass = ExecSqlRowMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Before
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeEach
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();

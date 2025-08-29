@@ -17,20 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.flattener;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FlattenerMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class FlattenerMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     FlattenerMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/flattener-transform.xml", FlattenerMeta.class);
 
-    Assert.assertEquals("flatten", meta.getFieldName());
-    Assert.assertEquals(2, meta.getTargetFields().size());
-    Assert.assertEquals("target1", meta.getTargetFields().get(0).getName());
-    Assert.assertEquals("target2", meta.getTargetFields().get(1).getName());
+    assertEquals("flatten", meta.getFieldName());
+    assertEquals(2, meta.getTargetFields().size());
+    assertEquals("target1", meta.getTargetFields().get(0).getName());
+    assertEquals("target2", meta.getTargetFields().get(1).getName());
   }
 }

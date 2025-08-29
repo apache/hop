@@ -17,17 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.fieldsplitter;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FieldSplitterMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class FieldSplitterMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     FieldSplitterMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/field-splitter-transform.xml", FieldSplitterMeta.class);
-    Assert.assertEquals(4, meta.getFields().size());
+    assertEquals(4, meta.getFields().size());
   }
 }

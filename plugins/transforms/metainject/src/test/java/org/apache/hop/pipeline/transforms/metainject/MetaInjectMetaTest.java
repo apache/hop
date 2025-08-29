@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -30,17 +30,17 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class MetaInjectMetaTest {
 
@@ -58,9 +58,10 @@ public class MetaInjectMetaTest {
 
   private static MetaInjectMeta metaInjectMeta;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
+  @BeforeAll
   public static void SetUp() throws Exception {
     if (!HopClientEnvironment.isInitialized()) {
       HopClientEnvironment.init();
@@ -68,7 +69,7 @@ public class MetaInjectMetaTest {
     metaInjectMeta = new MetaInjectMeta();
   }
 
-  @Before
+  @BeforeEach
   public void before() {
     metaInjectMeta = new MetaInjectMeta();
   }

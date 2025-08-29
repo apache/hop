@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -28,21 +31,22 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.TransformLoadSaveTester;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
   TransformLoadSaveTester<CsvInputMeta> transformLoadSaveTester;
   Class<CsvInputMeta> testMetaClass = CsvInputMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static class TextFileInputFieldValidator
       implements IFieldLoadSaveValidator<TextFileInputField> {
@@ -68,7 +72,7 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
     }
   }
 
-  @Before
+  @BeforeEach
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
@@ -145,13 +149,12 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
     final CsvInputMeta clone = (CsvInputMeta) original.clone();
     // verify that the clone and its input fields are "equal" to the originals, but not the same
     // objects
-    Assert.assertNotSame(original, clone);
-    Assert.assertEquals(original.getDelimiter(), clone.getDelimiter());
-    Assert.assertEquals(original.getEnclosure(), clone.getEnclosure());
+    assertNotSame(original, clone);
+    assertEquals(original.getDelimiter(), clone.getDelimiter());
+    assertEquals(original.getEnclosure(), clone.getEnclosure());
 
-    Assert.assertNotSame(original.getInputFields(), clone.getInputFields());
-    Assert.assertNotSame(original.getInputFields()[0], clone.getInputFields()[0]);
-    Assert.assertEquals(
-        original.getInputFields()[0].getName(), clone.getInputFields()[0].getName());
+    assertNotSame(original.getInputFields(), clone.getInputFields());
+    assertNotSame(original.getInputFields()[0], clone.getInputFields()[0]);
+    assertEquals(original.getInputFields()[0].getName(), clone.getInputFields()[0].getName());
   }
 }

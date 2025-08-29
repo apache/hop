@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -45,16 +45,16 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class DatabaseLookupMetaTest {
+class DatabaseLookupMetaTest {
 
   private DatabaseLookupMeta databaseLookupMeta;
   private IHopMetadataProvider metadataProvider;
 
-  @Before
-  public void before() throws Exception {
+  @BeforeEach
+  void before() throws Exception {
     HopClientEnvironment.init();
     databaseLookupMeta = new DatabaseLookupMeta();
     metadataProvider = new MemoryMetadataProvider();
@@ -66,7 +66,7 @@ public class DatabaseLookupMetaTest {
   }
 
   @Test
-  public void getFieldWithValueUsedTwice() throws HopTransformException {
+  void getFieldWithValueUsedTwice() throws HopTransformException {
 
     Lookup lookup = databaseLookupMeta.getLookup();
     lookup
@@ -121,7 +121,7 @@ public class DatabaseLookupMetaTest {
   }
 
   @Test
-  public void cloneTest() throws Exception {
+  void cloneTest() throws Exception {
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
     meta.setCached(true);
     meta.setCacheSize(123456);
@@ -190,7 +190,7 @@ public class DatabaseLookupMetaTest {
   }
 
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     String tag = TransformMeta.XML_TAG;
 
     Path path = Paths.get(getClass().getResource("/transform1.snippet").toURI());
@@ -253,7 +253,7 @@ public class DatabaseLookupMetaTest {
   }
 
   @Test
-  public void testInjection() throws Exception {
+  void testInjection() throws Exception {
     BeanInjectionInfo<DatabaseLookupMeta> injectionInfo =
         new BeanInjectionInfo<>(DatabaseLookupMeta.class);
     BeanInjector<DatabaseLookupMeta> injector = new BeanInjector<>(injectionInfo, metadataProvider);

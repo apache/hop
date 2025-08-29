@@ -16,6 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.javascript;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +28,7 @@ import java.util.Random;
 import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
@@ -35,18 +39,18 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidato
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   LoadSaveTester loadSaveTester;
   Class<ScriptValuesMeta> testMetaClass = ScriptValuesMeta.class;
 
-  @Before
+  @BeforeEach
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
@@ -158,18 +162,18 @@ public class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
     int size = 1;
     meta.extend(size);
 
-    Assert.assertEquals(size, meta.getFieldname().length);
-    Assert.assertNull(meta.getFieldname()[0]);
-    Assert.assertEquals(size, meta.getRename().length);
-    Assert.assertNull(meta.getRename()[0]);
-    Assert.assertEquals(size, meta.getType().length);
-    Assert.assertEquals(-1, meta.getType()[0]);
-    Assert.assertEquals(size, meta.getLength().length);
-    Assert.assertEquals(-1, meta.getLength()[0]);
-    Assert.assertEquals(size, meta.getPrecision().length);
-    Assert.assertEquals(-1, meta.getPrecision()[0]);
-    Assert.assertEquals(size, meta.getReplace().length);
-    Assert.assertFalse(meta.getReplace()[0]);
+    assertEquals(size, meta.getFieldname().length);
+    assertNull(meta.getFieldname()[0]);
+    assertEquals(size, meta.getRename().length);
+    assertNull(meta.getRename()[0]);
+    assertEquals(size, meta.getType().length);
+    assertEquals(-1, meta.getType()[0]);
+    assertEquals(size, meta.getLength().length);
+    assertEquals(-1, meta.getLength()[0]);
+    assertEquals(size, meta.getPrecision().length);
+    assertEquals(-1, meta.getPrecision()[0]);
+    assertEquals(size, meta.getReplace().length);
+    assertFalse(meta.getReplace()[0]);
 
     meta = new ScriptValuesMeta();
 
@@ -179,29 +183,29 @@ public class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
 
   private void validateExtended(final ScriptValuesMeta meta) {
 
-    Assert.assertEquals(3, meta.getFieldname().length);
-    //    Assert.assertEquals("Field 1", meta.getFieldname()[0]);
-    //    Assert.assertEquals("Field 2", meta.getFieldname()[1]);
-    //    Assert.assertEquals("Field 3", meta.getFieldname()[2]);
-    //    Assert.assertEquals(3, meta.getRename().length);
-    //    Assert.assertEquals("Field 1 - new", meta.getRename()[0]);
-    //    Assert.assertNull(meta.getRename()[1]);
-    //    Assert.assertNull(meta.getRename()[2]);
-    //    Assert.assertEquals(3, meta.getType().length);
-    //    Assert.assertEquals(IValueMeta.TYPE_STRING, meta.getType()[0]);
-    //    Assert.assertEquals(IValueMeta.TYPE_INTEGER, meta.getType()[1]);
-    //    Assert.assertEquals(IValueMeta.TYPE_NUMBER, meta.getType()[2]);
-    //    Assert.assertEquals(3, meta.getLength().length);
-    //    Assert.assertEquals(-1, meta.getLength()[0]);
-    //    Assert.assertEquals(-1, meta.getLength()[1]);
-    //    Assert.assertEquals(-1, meta.getLength()[2]);
-    //    Assert.assertEquals(3, meta.getPrecision().length);
-    //    Assert.assertEquals(-1, meta.getPrecision()[0]);
-    //    Assert.assertEquals(-1, meta.getPrecision()[1]);
-    //    Assert.assertEquals(-1, meta.getPrecision()[2]);
-    //    Assert.assertEquals(3, meta.getReplace().length);
-    //    Assert.assertFalse(meta.getReplace()[0]);
-    //    Assert.assertFalse(meta.getReplace()[1]);
-    //    Assert.assertFalse(meta.getReplace()[2]);
+    assertEquals(3, meta.getFieldname().length);
+    //    assertEquals("Field 1", meta.getFieldname()[0]);
+    //    assertEquals("Field 2", meta.getFieldname()[1]);
+    //    assertEquals("Field 3", meta.getFieldname()[2]);
+    //    assertEquals(3, meta.getRename().length);
+    //    assertEquals("Field 1 - new", meta.getRename()[0]);
+    //    assertNull(meta.getRename()[1]);
+    //    assertNull(meta.getRename()[2]);
+    //    assertEquals(3, meta.getType().length);
+    //    assertEquals(IValueMeta.TYPE_STRING, meta.getType()[0]);
+    //    assertEquals(IValueMeta.TYPE_INTEGER, meta.getType()[1]);
+    //    assertEquals(IValueMeta.TYPE_NUMBER, meta.getType()[2]);
+    //    assertEquals(3, meta.getLength().length);
+    //    assertEquals(-1, meta.getLength()[0]);
+    //    assertEquals(-1, meta.getLength()[1]);
+    //    assertEquals(-1, meta.getLength()[2]);
+    //    assertEquals(3, meta.getPrecision().length);
+    //    assertEquals(-1, meta.getPrecision()[0]);
+    //    assertEquals(-1, meta.getPrecision()[1]);
+    //    assertEquals(-1, meta.getPrecision()[2]);
+    //    assertEquals(3, meta.getReplace().length);
+    //    assertFalse(meta.getReplace()[0]);
+    //    assertFalse(meta.getReplace()[1]);
+    //    assertFalse(meta.getReplace()[2]);
   }
 }

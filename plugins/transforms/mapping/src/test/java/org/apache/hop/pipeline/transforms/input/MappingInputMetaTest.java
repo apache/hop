@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.input;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -27,21 +27,20 @@ import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.mapping.SimpleMappingMeta;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class MappingInputMetaTest {
-  @Before
-  public void setUp() throws Exception {
+class MappingInputMetaTest {
+  @BeforeEach
+  void setUp() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
 
   @Test
-  public void clonesCorrectly() throws Exception {
+  void clonesCorrectly() throws Exception {
     MappingInputMeta meta = new MappingInputMeta();
     meta.getFields().add(new InputField("f1", "Integer", "1", "3"));
     meta.getFields().add(new InputField("f2", "String", "2", "4"));
@@ -59,7 +58,7 @@ public class MappingInputMetaTest {
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     TransformSerializationTestUtil.testSerialization(
         "/mapping-input-transform.xml", MappingInputMeta.class);
 
@@ -79,6 +78,6 @@ public class MappingInputMetaTest {
     MappingInputMeta copy = new MappingInputMeta();
     XmlMetadataUtil.deSerializeFromXml(
         null, copyNode, SimpleMappingMeta.class, copy, new MemoryMetadataProvider());
-    Assert.assertEquals(meta.getXml(), copy.getXml());
+    assertEquals(meta.getXml(), copy.getXml());
   }
 }

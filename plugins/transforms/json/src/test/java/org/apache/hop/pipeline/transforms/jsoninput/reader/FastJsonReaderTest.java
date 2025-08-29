@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 import com.jayway.jsonpath.Option;
@@ -30,8 +30,8 @@ import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputField;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FastJsonReaderTest {
   private static final Option[] DEFAULT_OPTIONS = {
@@ -46,7 +46,7 @@ public class FastJsonReaderTest {
   private FastJsonReader fJsonReader;
   private ILogChannel logMock = mock(ILogChannel.class);
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     fields = new JsonInputField[] {};
   }

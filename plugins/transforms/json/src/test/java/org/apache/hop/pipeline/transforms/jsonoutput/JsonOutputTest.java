@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -34,7 +35,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.TestUtilities;
 import org.apache.hop.core.HopEnvironment;
@@ -61,9 +61,8 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.json.simple.JSONObject;
-import org.junit.Assert;
 
-public class JsonOutputTest extends TestCase {
+public class JsonOutputTest {
 
   private static final String EXPECTED_JSON =
       "{\"data\":[{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"},"
@@ -77,13 +76,7 @@ public class JsonOutputTest extends TestCase {
           + "{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"},"
           + "{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"}]}";
 
-  /**
-   * Creates a row generator transform for this class..
-   *
-   * @param name
-   * @param registry
-   * @return
-   */
+  /** Creates a row generator transform for this class.. */
   private TransformMeta createRowGeneratorTransform(String name, PluginRegistry registry) {
 
     // Default the name if it is empty
@@ -109,13 +102,7 @@ public class JsonOutputTest extends TestCase {
     return generateRowsTransform;
   }
 
-  /**
-   * Create a dummy transform for this class.
-   *
-   * @param name
-   * @param registry
-   * @return
-   */
+  /** Create a dummy transform for this class. */
   private TransformMeta createDummyTransform(String name, PluginRegistry registry) {
     // Create a dummy transform 1 and add it to the tranMeta
     String dummyTransformName = "dummy transform";
@@ -135,16 +122,16 @@ public class JsonOutputTest extends TestCase {
 
     IRowMeta rowMetaInterface = createResultRowMeta();
 
-    Object[] r1 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
-    Object[] r2 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
-    Object[] r3 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
-    Object[] r4 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
-    Object[] r5 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
-    Object[] r6 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
-    Object[] r7 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
-    Object[] r8 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
-    Object[] r9 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
-    Object[] r10 = new Object[] {Long.valueOf(1L), "Orlando", "Florida"};
+    Object[] r1 = new Object[] {1L, "Orlando", "Florida"};
+    Object[] r2 = new Object[] {1L, "Orlando", "Florida"};
+    Object[] r3 = new Object[] {1L, "Orlando", "Florida"};
+    Object[] r4 = new Object[] {1L, "Orlando", "Florida"};
+    Object[] r5 = new Object[] {1L, "Orlando", "Florida"};
+    Object[] r6 = new Object[] {1L, "Orlando", "Florida"};
+    Object[] r7 = new Object[] {1L, "Orlando", "Florida"};
+    Object[] r8 = new Object[] {1L, "Orlando", "Florida"};
+    Object[] r9 = new Object[] {1L, "Orlando", "Florida"};
+    Object[] r10 = new Object[] {1L, "Orlando", "Florida"};
 
     list.add(new RowMetaAndData(rowMetaInterface, r1));
     list.add(new RowMetaAndData(rowMetaInterface, r2));
@@ -159,29 +146,21 @@ public class JsonOutputTest extends TestCase {
     return list;
   }
 
-  /**
-   * Creates a IRowMeta with a IValueMeta with the name "filename".
-   *
-   * @return
-   */
+  /** Creates a IRowMeta with a IValueMeta with the name "filename". */
   public IRowMeta createIRowMeta() {
     IRowMeta rowMetaInterface = new RowMeta();
 
     IValueMeta[] valuesMeta = {
       new ValueMetaString("filename"),
     };
-    for (int i = 0; i < valuesMeta.length; i++) {
-      rowMetaInterface.addValueMeta(valuesMeta[i]);
+    for (IValueMeta iValueMeta : valuesMeta) {
+      rowMetaInterface.addValueMeta(iValueMeta);
     }
 
     return rowMetaInterface;
   }
 
-  /**
-   * Creates data... Will add more as I figure what the data is.
-   *
-   * @return
-   */
+  /** Creates data... Will add more as I figure what the data is. */
   public List<RowMetaAndData> createData() {
     List<RowMetaAndData> list = new ArrayList<>();
     IRowMeta rowMetaInterface = createIRowMeta();
@@ -193,8 +172,6 @@ public class JsonOutputTest extends TestCase {
   /**
    * Creates a row meta interface for the fields that are defined by performing a getFields and by
    * checking "Result filenames - Add filenames to result from "Text File Input" dialog.
-   *
-   * @return
    */
   public IRowMeta createResultRowMeta() {
     IRowMeta rowMetaInterface = new RowMeta();
@@ -203,8 +180,8 @@ public class JsonOutputTest extends TestCase {
       new ValueMetaInteger("Id"), new ValueMetaString("State"), new ValueMetaString("City")
     };
 
-    for (int i = 0; i < valuesMeta.length; i++) {
-      rowMetaInterface.addValueMeta(valuesMeta[i]);
+    for (IValueMeta iValueMeta : valuesMeta) {
+      rowMetaInterface.addValueMeta(iValueMeta);
     }
 
     return rowMetaInterface;
@@ -323,7 +300,7 @@ public class JsonOutputTest extends TestCase {
     // get the results and return it
     File outputFile = new File(jsonFileName + ".js");
     String jsonStructure = FileUtils.readFileToString(outputFile);
-    Assert.assertTrue(jsonEquals(EXPECTED_JSON, jsonStructure));
+    assertTrue(jsonEquals(EXPECTED_JSON, jsonStructure));
   }
 
   public void testNpeIsNotThrownOnNullInput() throws Exception {

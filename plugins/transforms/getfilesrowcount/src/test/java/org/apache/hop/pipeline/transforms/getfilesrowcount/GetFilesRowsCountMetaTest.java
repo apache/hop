@@ -17,29 +17,33 @@
 
 package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GetFilesRowsCountMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class GetFilesRowsCountMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     GetFilesRowsCountMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/get-files-rows-count-transform.xml", GetFilesRowsCountMeta.class);
 
-    Assert.assertEquals("filesCount", meta.getFilesCountFieldName());
-    Assert.assertEquals("rowsCount", meta.getRowsCountFieldName());
-    Assert.assertEquals(GetFilesRowsCountMeta.SeparatorFormat.LF, meta.getRowSeparatorFormat());
-    Assert.assertNull(meta.getRowSeparator());
-    Assert.assertTrue(meta.isIncludeFilesCount());
-    Assert.assertTrue(meta.isAddResultFilename());
-    Assert.assertFalse(meta.isFileFromField());
-    Assert.assertEquals(1, meta.getFiles().size());
-    Assert.assertEquals("${PROJECT_HOME}/files/", meta.getFiles().get(0).getName());
-    Assert.assertEquals(".*\\.txt$", meta.getFiles().get(0).getMask());
-    Assert.assertNull(meta.getFiles().get(0).getExcludeMask());
-    Assert.assertTrue(meta.getFiles().get(0).isRequired());
-    Assert.assertTrue(meta.getFiles().get(0).isIncludeSubFolder());
+    assertEquals("filesCount", meta.getFilesCountFieldName());
+    assertEquals("rowsCount", meta.getRowsCountFieldName());
+    assertEquals(GetFilesRowsCountMeta.SeparatorFormat.LF, meta.getRowSeparatorFormat());
+    assertNull(meta.getRowSeparator());
+    assertTrue(meta.isIncludeFilesCount());
+    assertTrue(meta.isAddResultFilename());
+    assertFalse(meta.isFileFromField());
+    assertEquals(1, meta.getFiles().size());
+    assertEquals("${PROJECT_HOME}/files/", meta.getFiles().get(0).getName());
+    assertEquals(".*\\.txt$", meta.getFiles().get(0).getMask());
+    assertNull(meta.getFiles().get(0).getExcludeMask());
+    assertTrue(meta.getFiles().get(0).isRequired());
+    assertTrue(meta.getFiles().get(0).isIncludeSubFolder());
   }
 }

@@ -17,25 +17,26 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CalculatorDataTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class CalculatorDataTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void dataReturnsCachedValues() throws Exception {
+  void dataReturnsCachedValues() throws Exception {
     HopEnvironment.init();
 
     CalculatorData data = new CalculatorData();
     IValueMeta valueMeta = data.getValueMetaFor(IValueMeta.TYPE_INTEGER, null);
     IValueMeta shouldBeTheSame = data.getValueMetaFor(IValueMeta.TYPE_INTEGER, null);
     assertSame(
-        "CalculatorData should cache loaded value meta instances", valueMeta, shouldBeTheSame);
+        valueMeta, shouldBeTheSame, "CalculatorData should cache loaded value meta instances");
   }
 }

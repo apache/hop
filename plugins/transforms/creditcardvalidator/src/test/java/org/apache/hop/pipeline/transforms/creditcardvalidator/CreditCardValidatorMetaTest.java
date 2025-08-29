@@ -17,38 +17,38 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CreditCardValidatorMetaTest {
+class CreditCardValidatorMetaTest {
   @Test
-  public void testLoadSave() throws Exception {
+  void testLoadSave() throws Exception {
     CreditCardValidatorMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/credit-card-validator-transform.xml", CreditCardValidatorMeta.class);
-    Assert.assertNotNull(meta.getFieldName());
-    Assert.assertNotNull(meta.getResultFieldName());
-    Assert.assertNotNull(meta.getNotValidMessage());
-    Assert.assertTrue(meta.isOnlyDigits());
-    Assert.assertNotNull(meta.getCardType());
+    assertNotNull(meta.getFieldName());
+    assertNotNull(meta.getResultFieldName());
+    assertNotNull(meta.getNotValidMessage());
+    assertTrue(meta.isOnlyDigits());
+    assertNotNull(meta.getCardType());
   }
 
   @Test
-  public void testSupportsErrorHandling() {
+  void testSupportsErrorHandling() {
     assertTrue(new CreditCardValidatorMeta().supportsErrorHandling());
   }
 
   @Test
-  public void testDefaults() {
+  void testDefaults() {
     CreditCardValidatorMeta meta = new CreditCardValidatorMeta();
     meta.setDefault();
     assertEquals("result", meta.getResultFieldName());
@@ -58,7 +58,7 @@ public class CreditCardValidatorMetaTest {
   }
 
   @Test
-  public void testGetFields() throws HopTransformException {
+  void testGetFields() throws HopTransformException {
     CreditCardValidatorMeta meta = new CreditCardValidatorMeta();
     meta.setDefault();
     meta.setResultFieldName("The Result Field");
