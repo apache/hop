@@ -21,9 +21,9 @@ import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doNothing;
@@ -48,9 +48,9 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.collection.DefaultMongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.pipeline.transforms.mongodboutput.MongoDbOutputMeta.MongoIndex;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -64,7 +64,7 @@ public class MongoDbOutputDataTest {
   @Mock private IRowMeta rowMeta;
   @Mock private IValueMeta valueMeta;
 
-  @Before
+  @BeforeEach
   public void before() {
     MockitoAnnotations.openMocks(this);
     when(variables.resolve(any(String.class)))
@@ -75,7 +75,7 @@ public class MongoDbOutputDataTest {
             (Answer<String>) invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }

@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -63,7 +63,7 @@ public class BaseMongoDbTransformTest {
   protected RowMeta rowMeta = new RowMeta();
   protected Object[] rowData;
 
-  @Before
+  @BeforeEach
   public void before() throws Exception {
     MockitoAnnotations.openMocks(this);
     when(mongoClientWrapperFactory.createMongoClientWrapper(

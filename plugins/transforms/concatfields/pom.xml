@@ -29,4 +29,14 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Concat Fields</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
 </project>

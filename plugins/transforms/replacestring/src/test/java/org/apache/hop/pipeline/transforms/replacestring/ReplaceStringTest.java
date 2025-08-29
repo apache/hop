@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.replacestring;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -31,10 +31,10 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** User: Dzmitry Stsiapanau Date: 1/31/14 Time: 11:19 AM */
 public class ReplaceStringTest {
@@ -64,7 +64,7 @@ public class ReplaceStringTest {
 
   private TransformMockHelper<ReplaceStringMeta, ReplaceStringData> transformMockHelper;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     transformMockHelper =
         new TransformMockHelper<>(
@@ -77,7 +77,7 @@ public class ReplaceStringTest {
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     transformMockHelper.cleanUp();
   }
@@ -114,7 +114,7 @@ public class ReplaceStringTest {
     // when( inputRowMeta.getString( anyObject(), 1 ) ).thenReturn((String) row[1]);
 
     Object[] output = replaceString.handleOneRow(inputRowMeta, row);
-    assertArrayEquals("Output varies", expectedRow, output);
+    assertArrayEquals(expectedRow, output, "Output varies");
   }
 
   @Test

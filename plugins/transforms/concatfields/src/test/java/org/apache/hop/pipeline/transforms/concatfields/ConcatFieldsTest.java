@@ -16,14 +16,13 @@
  */
 package org.apache.hop.pipeline.transforms.concatfields;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -31,27 +30,22 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ConcatFieldsTest {
 
   private TransformMockHelper<ConcatFieldsMeta, ConcatFieldsData> tmh;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void init() throws HopException {
-    HopEnvironment.init();
-  }
-
-  @Before
+  @BeforeEach
   public void setUp() {
     tmh = new TransformMockHelper<>("ConcatFields", ConcatFieldsMeta.class, ConcatFieldsData.class);
     when(tmh.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -59,7 +53,7 @@ public class ConcatFieldsTest {
     when(tmh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     tmh.cleanUp();
   }
@@ -115,20 +109,32 @@ public class ConcatFieldsTest {
 
     // Verify field with trim type not specified is present
     try {
-      cfTransform.addRowListener(
-          new RowAdapter() {
-            @Override
-            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                throws HopTransformException {
-              // Get value from last field of the output row and check content. If trim type is
-              // missing the value should be same as input
-              assertEquals("A ;B;C", row[3]);
-            }
-          });
+      // Use a simple collector instead of anonymous inner class
+      TestRowCollector collector = new TestRowCollector();
+      cfTransform.addRowListener(collector);
       cfTransform.processRow();
+
+      // Verify the result
+      assertEquals(1, collector.getRowsWritten().size());
+      Object[] resultRow = collector.getRowsWritten().get(0);
+      assertEquals("A ;B;C", resultRow[3]);
     } catch (HopException ke) {
       ke.printStackTrace();
       fail();
+    }
+  }
+
+  /** Simple test row collector to avoid anonymous inner class compilation issues */
+  private static class TestRowCollector extends RowAdapter {
+    private final List<Object[]> rowsWritten = new ArrayList<>();
+
+    @Override
+    public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+      rowsWritten.add(row);
+    }
+
+    public List<Object[]> getRowsWritten() {
+      return rowsWritten;
     }
   }
 }

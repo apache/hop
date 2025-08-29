@@ -35,7 +35,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -46,17 +46,19 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 public class InsertUpdateMetaTest {
   LoadSaveTester loadSaveTester;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private IVariables variables;
   private TransformMeta transformMeta;
@@ -65,12 +67,12 @@ public class InsertUpdateMetaTest {
   private InsertUpdateMeta umi;
   private TransformMockHelper<InsertUpdateMeta, InsertUpdateData> mockHelper;
 
-  @BeforeClass
+  @BeforeAll
   public static void initEnvironment() throws Exception {
     HopEnvironment.init();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     variables = new Variables();
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -100,7 +102,7 @@ public class InsertUpdateMetaTest {
     Mockito.when(mockHelper.transformMeta.getTransform()).thenReturn(new InsertUpdateMeta());
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     mockHelper.cleanUp();
   }
@@ -127,7 +129,7 @@ public class InsertUpdateMetaTest {
     }
   }
 
-  @Before
+  @BeforeEach
   public void setUpLoadSave() throws Exception {
 
     List<String> attributes = Arrays.asList("connection", "lookup", "commit", "update_bypassed");

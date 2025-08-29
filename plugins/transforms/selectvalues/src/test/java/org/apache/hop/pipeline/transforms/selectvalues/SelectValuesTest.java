@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -41,19 +41,20 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class SelectValuesTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String SELECTED_FIELD = "field";
 
@@ -62,12 +63,12 @@ public class SelectValuesTest {
   private SelectValues transform;
   private TransformMockHelper<SelectValuesMeta, SelectValuesData> helper;
 
-  @BeforeClass
+  @BeforeAll
   public static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     helper =
         TransformMockUtil.getTransformMockHelper(
@@ -95,7 +96,7 @@ public class SelectValuesTest {
     transform.setInputRowMeta(inputRowMeta);
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     helper.cleanUp();
   }

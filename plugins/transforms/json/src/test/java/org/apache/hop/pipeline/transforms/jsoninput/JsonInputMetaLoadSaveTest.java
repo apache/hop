@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
 

@@ -39,15 +39,15 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
  * Tests for SalesforceInsert transform
@@ -55,10 +55,12 @@ import org.junit.Test;
  * @see SalesforceInsert
  */
 public class SalesForceDateFieldTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
   private TransformMockHelper<SalesforceInsertMeta, SalesforceInsertData> smh;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
@@ -67,7 +69,7 @@ public class SalesForceDateFieldTest {
     Encr.init(passwordEncoderPluginID);
   }
 
-  @Before
+  @BeforeEach
   public void init() {
     smh =
         new TransformMockHelper<>(
@@ -76,7 +78,7 @@ public class SalesForceDateFieldTest {
         .thenReturn(smh.iLogChannel);
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     smh.cleanUp();
   }

@@ -23,7 +23,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DimensionCacheTest {
 

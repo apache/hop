@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** User: Dzmitry Stsiapanau Date: 2/6/14 Time: 2:29 PM */
 public class TransformDefinitionTest {

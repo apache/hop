@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.input;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -28,13 +28,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.mapping.SimpleMappingMeta;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class MappingInputMetaTest {
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();

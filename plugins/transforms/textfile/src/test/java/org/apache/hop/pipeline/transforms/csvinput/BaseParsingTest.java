@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -44,8 +44,8 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
-import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
 
 /** Base class for all tests for BaseFileInput transforms. */
 @Ignore("No tests in abstract base class")
@@ -66,7 +66,7 @@ public abstract class BaseParsingTest<
   protected int errorsCount;
 
   /** Initialize transform info. Method is final against redefine in descendants. */
-  @Before
+  @BeforeEach
   public final void beforeCommon() throws Exception {
     HopEnvironment.init();
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
@@ -93,9 +93,9 @@ public abstract class BaseParsingTest<
   /** Resolve file from test directory. */
   protected FileObject getFile(String filename) throws Exception {
     URL res = this.getClass().getResource(inPrefix + filename);
-    assertNotNull("There is no file", res);
+    assertNotNull(res);
     FileObject file = fs.resolveFile(res.toExternalForm());
-    assertNotNull("There is no file", file);
+    assertNotNull(file);
     return file;
   }
 
@@ -122,8 +122,8 @@ public abstract class BaseParsingTest<
 
   /** Check result no has errors. */
   protected void checkErrors() {
-    assertEquals("There are errors", 0, errorsCount);
-    assertEquals("There are transform errors", 0, transform.getErrors());
+    assertEquals(0, errorsCount);
+    assertEquals(0, transform.getErrors());
   }
 
   /**
@@ -133,7 +133,7 @@ public abstract class BaseParsingTest<
    *     1"}, { "field 1 value in row 2","field 2 value in row 2"} }
    */
   protected void checkRowCount(Object[][] expected) {
-    assertEquals("Wrong rows count", expected.length, rows.size());
+    assertEquals(expected.length, rows.size());
     checkContent(expected);
   }
 
@@ -145,7 +145,7 @@ public abstract class BaseParsingTest<
    */
   protected void checkContent(Object[][] expected) {
     for (int i = 0; i < expected.length; i++) {
-      assertArrayEquals("Wrong row: " + Arrays.asList(rows.get(i)), expected[i], rows.get(i));
+      assertArrayEquals(expected[i], rows.get(i));
     }
   }
 

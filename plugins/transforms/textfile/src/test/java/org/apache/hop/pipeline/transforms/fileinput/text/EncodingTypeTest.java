@@ -17,11 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.file.EncodingType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** User: Dzmitry Stsiapanau Date: 3/11/14 Time: 11:44 AM */
 public class EncodingTypeTest {
@@ -29,40 +29,40 @@ public class EncodingTypeTest {
   public void testIsReturn() {
     int lineFeed = '\n';
     int carriageReturn = '\r';
-    assertTrue("SINGLE.isLineFeed is not line feed", EncodingType.SINGLE.isLinefeed(lineFeed));
+    assertTrue(EncodingType.SINGLE.isLinefeed(lineFeed), "SINGLE.isLineFeed is not line feed");
     assertTrue(
-        "DOUBLE_BIG_ENDIAN is not line feed", EncodingType.DOUBLE_BIG_ENDIAN.isLinefeed(lineFeed));
+        EncodingType.DOUBLE_BIG_ENDIAN.isLinefeed(lineFeed), "DOUBLE_BIG_ENDIAN is not line feed");
     assertTrue(
-        "DOUBLE_LITTLE_ENDIAN.isLineFeed is not line feed",
-        EncodingType.DOUBLE_LITTLE_ENDIAN.isLinefeed(lineFeed));
+        EncodingType.DOUBLE_LITTLE_ENDIAN.isLinefeed(lineFeed),
+        "DOUBLE_LITTLE_ENDIAN.isLineFeed is not line feed");
     assertFalse(
-        "SINGLE.isLineFeed is carriage return", EncodingType.SINGLE.isLinefeed(carriageReturn));
+        EncodingType.SINGLE.isLinefeed(carriageReturn), "SINGLE.isLineFeed is carriage return");
     assertFalse(
-        "DOUBLE_BIG_ENDIAN.isLineFeed is carriage return",
-        EncodingType.DOUBLE_BIG_ENDIAN.isLinefeed(carriageReturn));
+        EncodingType.DOUBLE_BIG_ENDIAN.isLinefeed(carriageReturn),
+        "DOUBLE_BIG_ENDIAN.isLineFeed is carriage return");
     assertFalse(
-        "DOUBLE_LITTLE_ENDIAN.isLineFeed is carriage return",
-        EncodingType.DOUBLE_LITTLE_ENDIAN.isLinefeed(carriageReturn));
+        EncodingType.DOUBLE_LITTLE_ENDIAN.isLinefeed(carriageReturn),
+        "DOUBLE_LITTLE_ENDIAN.isLineFeed is carriage return");
   }
 
   @Test
-  public void testIsLinefeed() {
+  void testIsLinefeed() {
     int lineFeed = '\n';
     int carriageReturn = '\r';
-    assertFalse("SINGLE.isReturn is line feed", EncodingType.SINGLE.isReturn(lineFeed));
+    assertFalse(EncodingType.SINGLE.isReturn(lineFeed), "SINGLE.isReturn is line feed");
     assertFalse(
-        "DOUBLE_BIG_ENDIAN.isReturn is line feed",
-        EncodingType.DOUBLE_BIG_ENDIAN.isReturn(lineFeed));
+        EncodingType.DOUBLE_BIG_ENDIAN.isReturn(lineFeed),
+        "DOUBLE_BIG_ENDIAN.isReturn is line feed");
     assertFalse(
-        "DOUBLE_LITTLE_ENDIAN.isReturn is line feed",
-        EncodingType.DOUBLE_LITTLE_ENDIAN.isReturn(lineFeed));
+        EncodingType.DOUBLE_LITTLE_ENDIAN.isReturn(lineFeed),
+        "DOUBLE_LITTLE_ENDIAN.isReturn is line feed");
     assertTrue(
-        "SINGLE.isReturn is not carriage return", EncodingType.SINGLE.isReturn(carriageReturn));
+        EncodingType.SINGLE.isReturn(carriageReturn), "SINGLE.isReturn is not carriage return");
     assertTrue(
-        "DOUBLE_BIG_ENDIAN.isReturn is not carriage return",
-        EncodingType.DOUBLE_BIG_ENDIAN.isReturn(carriageReturn));
+        EncodingType.DOUBLE_BIG_ENDIAN.isReturn(carriageReturn),
+        "DOUBLE_BIG_ENDIAN.isReturn is not carriage return");
     assertTrue(
-        "DOUBLE_LITTLE_ENDIAN.isReturn is not carriage return",
-        EncodingType.DOUBLE_LITTLE_ENDIAN.isReturn(carriageReturn));
+        EncodingType.DOUBLE_LITTLE_ENDIAN.isReturn(carriageReturn),
+        "DOUBLE_LITTLE_ENDIAN.isReturn is not carriage return");
   }
 }

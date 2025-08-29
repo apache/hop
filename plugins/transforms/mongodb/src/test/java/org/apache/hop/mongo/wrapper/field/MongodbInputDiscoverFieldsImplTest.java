@@ -48,8 +48,8 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.MongoDBAction;
 import org.apache.hop.mongo.wrapper.MongoWrapperClientFactory;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -74,7 +74,7 @@ public class MongodbInputDiscoverFieldsImplTest {
   private MongodbInputDiscoverFieldsImpl discoverFields;
   private static final int NUM_DOCS_TO_SAMPLE = 2;
 
-  @Before
+  @BeforeEach
   public void before() throws MongoDbException, HopPluginException {
     variables = new Variables();
     MockitoAnnotations.openMocks(this);

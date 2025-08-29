@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class UserDefinedJavaClassMetaTest {

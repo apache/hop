@@ -17,7 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -30,9 +31,9 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicHeader;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class WebServiceTest {
 
@@ -46,7 +47,7 @@ public class WebServiceTest {
 
   private WebService webServiceTransform;
 
-  @Before
+  @BeforeEach
   public void setUpBefore() {
     mockHelper =
         new TransformMockHelper<>("WebService", WebServiceMeta.class, WebServiceData.class);
@@ -65,14 +66,14 @@ public class WebServiceTest {
                 mockHelper.pipeline));
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     mockHelper.cleanUp();
   }
 
-  @Test(expected = URISyntaxException.class)
-  public void newHttpMethodWithInvalidUrl() throws URISyntaxException {
-    webServiceTransform.getHttpMethod(NOT_VALID_URL);
+  @Test
+  public void newHttpMethodWithInvalidUrl() {
+    assertThrows(URISyntaxException.class, () -> webServiceTransform.getHttpMethod(NOT_VALID_URL));
   }
 
   @Test

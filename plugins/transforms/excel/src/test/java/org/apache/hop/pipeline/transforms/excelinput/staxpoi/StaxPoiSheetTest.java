@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,7 @@ import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
@@ -168,7 +168,7 @@ public class StaxPoiSheetTest {
     assertNotNull(cell);
     assertEquals(KCellType.DATE, cell.getType());
     cell = spSheet.getRow(2)[0];
-    assertNull("cell must be null", cell);
+    assertNull(cell, "cell must be null");
   }
 
   @Test
@@ -205,7 +205,7 @@ public class StaxPoiSheetTest {
   public void testReadEmptyRow() throws Exception {
     IKSheet sheet1 = getSampleSheet();
     IKCell[] row = sheet1.getRow(0);
-    assertEquals("empty row expected", 0, row.length);
+    assertEquals(0, row.length, "empty row expected");
   }
 
   @Test

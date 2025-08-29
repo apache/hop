@@ -22,8 +22,8 @@ import org.apache.hop.mongo.MongoProp;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -36,7 +36,7 @@ public class UsernamePasswordMongoClientWrapperTest {
   /** Builder for MongoProperties initialization. */
   private MongoProperties.Builder mongoPropertiesBuilder;
 
-  @Before
+  @BeforeEach
   public void before() {
     MockitoAnnotations.initMocks(this);
   }

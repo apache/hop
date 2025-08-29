@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -66,11 +66,11 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JsonInputTest {
 
@@ -145,12 +145,12 @@ public class JsonInputTest {
         + "}";
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void init() throws HopException {
     HopClientEnvironment.init();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     helper = new TransformMockHelper<>("json input test", JsonInputMeta.class, JsonInputData.class);
     when(helper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -158,7 +158,7 @@ public class JsonInputTest {
     when(helper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     helper.cleanUp();
   }
@@ -783,8 +783,8 @@ public class JsonInputTest {
     jsonInput.addRowListener(rowComparator);
 
     processRows(jsonInput, 2);
-    assertEquals(out.toString(), 0, jsonInput.getErrors());
-    assertEquals("rows written", 2, jsonInput.getLinesWritten());
+    assertEquals(0, jsonInput.getErrors(), out.toString());
+    assertEquals(2, jsonInput.getLinesWritten(), "rows written");
   }
 
   @Test
@@ -824,7 +824,7 @@ public class JsonInputTest {
       JsonInput jsonInput = createJsonInput(meta);
       processRows(jsonInput, 5);
       disposeJsonInput(jsonInput);
-      assertEquals(err.toString(), 2, jsonInput.getErrors());
+      assertEquals(2, jsonInput.getErrors(), err.toString());
     } finally {
       deleteFiles();
     }
@@ -870,7 +870,7 @@ public class JsonInputTest {
 
       processRows(jsonInput, 5);
       disposeJsonInput(jsonInput);
-      assertEquals(err.toString(), 0, jsonInput.getErrors());
+      assertEquals(0, jsonInput.getErrors(), err.toString());
     } finally {
       deleteFiles();
     }
@@ -894,7 +894,7 @@ public class JsonInputTest {
       processRows(jsonInput, 1);
     }
     String errMsgs = err.toString();
-    assertTrue(errMsgs, errMsgs.contains("No file(s) specified!"));
+    assertTrue(errMsgs.contains("No file(s) specified!"), errMsgs);
   }
 
   @Test
@@ -1044,7 +1044,7 @@ public class JsonInputTest {
               "in file", meta, new Object[][] {new Object[] {BASE_RAM_DIR + "test.json"}});
       processRows(jsonInput, 1);
       String logMsgs = log.toString();
-      assertTrue(logMsgs, logMsgs.contains("is empty!"));
+      assertTrue(logMsgs.contains("is empty!"), logMsgs);
     } finally {
       deleteFiles();
     }
@@ -1144,17 +1144,17 @@ public class JsonInputTest {
     JsonInput jsonInput =
         createJsonInput("json", inputMeta, variables, new Object[] {getBasicTestJson()});
     assertEquals(
-        "Without the parameter, this call should fail with an InvalidPathException. If it does not, test fails.",
         1,
-        jsonInput.getErrors());
+        jsonInput.getErrors(),
+        "Without the parameter, this call should fail with an InvalidPathException. If it does not, test fails.");
 
     variables.setVariable("PARAM_PATH", "$..book.[*]");
 
     jsonInput = createJsonInput("json", inputMeta, variables, new Object[] {getBasicTestJson()});
     assertEquals(
-        "Json Input should be able to resolve the paths with the parameter introduced in the variable space",
         0,
-        jsonInput.getErrors());
+        jsonInput.getErrors(),
+        "Json Input should be able to resolve the paths with the parameter introduced in the variable space");
   }
 
   protected JsonInputMeta createSimpleMeta(String inputColumn, JsonInputField... jsonPathFields) {
@@ -1376,9 +1376,9 @@ public class JsonInputTest {
         createJsonInput("json", inputMeta, variables, new Object[] {getBasicTestJson()});
     processRows(jsonInput, 2);
     assertEquals(
-        "Meta input fields paths should be the same after processRows",
         PATH,
-        inputMeta.getInputFields()[0].getPath());
+        inputMeta.getInputFields()[0].getPath(),
+        "Meta input fields paths should be the same after processRows");
   }
 
   @Test
