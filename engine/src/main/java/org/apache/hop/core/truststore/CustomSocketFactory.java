@@ -80,7 +80,7 @@ public class CustomSocketFactory extends SSLSocketFactory {
       if (!Utils.isEmpty(path) && path.endsWith(".p12")) {
         keyStore = KeyStore.getInstance("PKCS12");
       } else {
-        keyStore = KeyStore.getInstance("JKS");
+        keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
       }
     } catch (Exception e) {
       throw new HopException(
