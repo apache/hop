@@ -378,7 +378,16 @@ public class CalculatorMetaFunction implements Cloneable {
     BASE64_DECODE(
         "BASE64_DECODE",
         BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.Base64Decode"),
-        IValueMeta.TYPE_STRING);
+        IValueMeta.TYPE_STRING),
+    FIRST_DAY_OF_MONTH(
+        "FIRST_DAY_OF_MONTH",
+        BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.FirstDayOfMonthDate"),
+        IValueMeta.TYPE_DATE),
+    // ADD THIS NEW CALCULATION:
+    LAST_DAY_OF_MONTH(
+        "LAST_DAY_OF_MONTH",
+        BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.LastDayOfMonthDate"),
+        IValueMeta.TYPE_DATE);
 
     private String code;
     private String description;
