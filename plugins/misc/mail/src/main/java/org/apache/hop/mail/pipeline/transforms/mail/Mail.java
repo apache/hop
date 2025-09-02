@@ -129,13 +129,14 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
 
       // Check Attached zipfilename when dynamic
-      if (meta.isZipFilenameDynamic() && Utils.isEmpty(meta.getDynamicZipFilename())) {
-        throw new HopException(
-            BaseMessages.getString(PKG, "Mail.Log.DynamicZipFilenameFieldEmpty"));
-      }
-
-      if (meta.isZipFiles() && Utils.isEmpty(meta.getZipFilename())) {
-        throw new HopException(BaseMessages.getString(PKG, "Mail.Log.ZipFilenameEmpty"));
+      if (meta.isZipFiles()) {
+        if (meta.isZipFilenameDynamic() && Utils.isEmpty(meta.getDynamicZipFilename())) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "Mail.Log.DynamicZipFilenameFieldEmpty"));
+        }
+        if (!meta.isZipFilenameDynamic() && Utils.isEmpty(meta.getZipFilename())) {
+          throw new HopException(BaseMessages.getString(PKG, "Mail.Log.ZipFilenameEmpty"));
+        }
       }
 
       // check authentication
