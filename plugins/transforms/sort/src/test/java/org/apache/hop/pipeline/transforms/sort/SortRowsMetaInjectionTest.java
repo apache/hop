@@ -19,16 +19,17 @@ package org.apache.hop.pipeline.transforms.sort;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTest<SortRowsMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTestJunit5<SortRowsMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     SortRowsMeta sortRowsMeta = new SortRowsMeta();
     SortRowsField sortRowsField = new SortRowsField();

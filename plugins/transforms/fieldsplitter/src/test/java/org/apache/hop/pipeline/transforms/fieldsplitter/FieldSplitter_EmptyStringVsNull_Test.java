@@ -28,39 +28,41 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class FieldSplitter_EmptyStringVsNull_Test {
+class FieldSplitter_EmptyStringVsNull_Test {
   private TransformMockHelper<FieldSplitterMeta, ITransformData> helper;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @BeforeClass
-  public static void initHop() throws Exception {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeAll
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     helper =
         TransformMockUtil.getTransformMockHelper(
             FieldSplitterMeta.class, "FieldSplitter_EmptyStringVsNull_Test");
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     helper.cleanUp();
   }
 
   @Test
-  public void emptyAndNullsAreNotDifferent() throws Exception {
+  void emptyAndNullsAreNotDifferent() throws Exception {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
     List<Object[]> expected =
         Arrays.asList(
@@ -69,7 +71,7 @@ public class FieldSplitter_EmptyStringVsNull_Test {
   }
 
   @Test
-  public void emptyAndNullsAreDifferent() throws Exception {
+  void emptyAndNullsAreDifferent() throws Exception {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
     List<Object[]> expected =
         Arrays.asList(

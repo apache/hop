@@ -20,11 +20,11 @@ package org.apache.hop.pipeline.transforms.propertyoutput;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class PropertyOutputIT {
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     HopClientEnvironment.init();
     PluginRegistry.addPluginType(TransformPluginType.getInstance());

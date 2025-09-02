@@ -16,17 +16,19 @@
  */
 package org.apache.hop.pipeline.transforms.calculator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.Random;
 import java.util.UUID;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CalculatorMetaTest {
+class CalculatorMetaTest {
 
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     CalculatorMeta meta = new CalculatorMeta();
     meta.setFailIfNoFile(true);
     for (int i = 0; i < 100; i++) {
@@ -34,7 +36,7 @@ public class CalculatorMetaTest {
     }
 
     String xml = meta.getXml();
-    Assert.assertNotNull(xml);
+    assertNotNull(xml);
 
     // Re-load it into a new meta
     //
@@ -46,12 +48,12 @@ public class CalculatorMetaTest {
     meta2.loadXml(XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG), null);
 
     // Verify the functions...
-    Assert.assertEquals(meta.isFailIfNoFile(), meta2.isFailIfNoFile());
-    Assert.assertEquals(meta.getFunctions().size(), meta2.getFunctions().size());
+    assertEquals(meta.isFailIfNoFile(), meta2.isFailIfNoFile());
+    assertEquals(meta.getFunctions().size(), meta2.getFunctions().size());
     for (int i = 0; i < meta.getFunctions().size(); i++) {
       CalculatorMetaFunction function = meta.getFunctions().get(i);
       CalculatorMetaFunction function2 = meta2.getFunctions().get(i);
-      Assert.assertEquals(function, function2);
+      assertEquals(function, function2);
     }
   }
 

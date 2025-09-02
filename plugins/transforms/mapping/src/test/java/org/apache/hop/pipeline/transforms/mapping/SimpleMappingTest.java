@@ -16,9 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.mapping;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -41,13 +41,13 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.output.MappingOutput;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class SimpleMappingTest {
+class SimpleMappingTest {
 
   private static final String MAPPING_INPUT_TRANSFORM_NAME = "MAPPING_INPUT_TRANSFORM_NAME";
 
@@ -60,8 +60,8 @@ public class SimpleMappingTest {
 
   private SimpleMapping smp;
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     transformMockHelper =
         new TransformMockHelper<>(
             "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class, SimpleMappingData.class);
@@ -106,13 +106,14 @@ public class SimpleMappingTest {
     when(transformMockHelper.iTransformMeta.getInputMapping()).thenReturn(mpIODefMock);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     transformMockHelper.cleanUp();
   }
 
-  @Ignore("This test needs to be reviewed")
-  public void testTransformSetUpAsWasStarted_AtProcessingFirstRow() throws HopException {
+  @Test
+  @Disabled("This test needs to be reviewed")
+  void testTransformSetUpAsWasStarted_AtProcessingFirstRow() throws HopException {
 
     smp =
         new SimpleMapping(
@@ -124,14 +125,15 @@ public class SimpleMappingTest {
             transformMockHelper.pipeline);
     smp.processRow();
     smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
-    assertTrue("The transform is processing in first", smp.first);
+    assertTrue(smp.first, "The transform is processing in first");
     assertTrue(smp.processRow());
-    assertFalse("The transform is processing not in first", smp.first);
-    assertTrue("The transform was started", smp.getData().wasStarted);
+    assertFalse(smp.first, "The transform is processing not in first");
+    assertTrue(smp.getData().wasStarted, "The transform was started");
   }
 
-  @Ignore("This test needs to be reviewed")
-  public void testTransformShouldProcessError_WhenMappingPipelineHasError() throws HopException {
+  @Test
+  @Disabled("This test needs to be reviewed")
+  void testTransformShouldProcessError_WhenMappingPipelineHasError() throws HopException {
 
     // Set Up TransMock to return the error
     int errorCount = 1;
@@ -159,12 +161,11 @@ public class SimpleMappingTest {
         .addActiveSubPipeline(anyString(), any(Pipeline.class));
     verify(transformMockHelper.pipeline, never()).getActiveSubPipeline(anyString());
     verify(transformMockHelper.pipeline, times(1)).getErrors();
-    assertEquals("The transform contains the errors", smp.getErrors(), errorCount);
+    assertEquals(smp.getErrors(), errorCount, "The transform contains the errors");
   }
 
   @Test
-  public void testTransformShouldStopProcessingInput_IfUnderlyingTransitionIsStopped()
-      throws Exception {
+  void testTransformShouldStopProcessingInput_IfUnderlyingTransitionIsStopped() throws Exception {
 
     MappingInput mappingInput = mock(MappingInput.class);
     when(mappingInput.getTransformName()).thenReturn(MAPPING_INPUT_TRANSFORM_NAME);
@@ -202,12 +203,13 @@ public class SimpleMappingTest {
     assertFalse(smp.processRow());
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Test
+  @Disabled("This test needs to be reviewed")
   public void testDispose() throws HopException {
 
     // Set Up TransMock to return the error

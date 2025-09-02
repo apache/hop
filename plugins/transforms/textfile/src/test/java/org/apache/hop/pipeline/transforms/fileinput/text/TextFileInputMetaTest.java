@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -31,8 +31,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TextFileInputMetaTest {
   private static final String FILE_NAME_NULL = null;
@@ -42,7 +42,7 @@ public class TextFileInputMetaTest {
   private TextFileInputMeta inputMeta;
   private IVariables variables;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
 
     PipelineMeta parentPipelineMeta = mock(PipelineMeta.class);

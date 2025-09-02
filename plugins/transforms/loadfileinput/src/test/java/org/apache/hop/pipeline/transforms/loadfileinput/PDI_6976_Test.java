@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -26,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import javax.tools.FileObject;
-import junit.framework.TestCase;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
@@ -34,7 +34,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
 /**
@@ -42,9 +42,9 @@ import org.mockito.stubbing.Answer;
  *
  * @see LoadFileInputMeta
  */
-public class PDI_6976_Test {
+class PDI_6976_Test {
   @Test
-  public void testVerifyNoPreviousTransform() {
+  void testVerifyNoPreviousTransform() {
     LoadFileInputMeta spy = spy(new LoadFileInputMeta());
 
     FileInputList fileInputList = mock(FileInputList.class);
@@ -60,7 +60,7 @@ public class PDI_6976_Test {
                 invocation -> {
                   if (((ICheckResult) invocation.getArguments()[0]).getType()
                       != ICheckResult.TYPE_RESULT_OK) {
-                    TestCase.fail("We've got validation error");
+                    fail("We've got validation error");
                   }
 
                   return null;

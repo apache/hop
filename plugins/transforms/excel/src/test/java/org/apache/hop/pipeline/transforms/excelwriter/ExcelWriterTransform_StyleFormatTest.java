@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -48,9 +48,9 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for applying Format and Style from cell (from a template) when writing fields */
 public class ExcelWriterTransform_StyleFormatTest {
@@ -64,7 +64,7 @@ public class ExcelWriterTransform_StyleFormatTest {
   private IRowMeta outputRowMeta;
   private IRowSet inputRowSet;
 
-  @Before
+  @BeforeEach
   /** Get mock helper */
   public void setUp() throws Exception {
     transformMockHelper =
@@ -82,7 +82,7 @@ public class ExcelWriterTransform_StyleFormatTest {
     data = mock(ExcelWriterTransformData.class);
   }
 
-  @After
+  @AfterEach
   /** Clean-up objects */
   public void tearDown() {
     ExcelWriterWorkbookDefinition workbookDefinition =

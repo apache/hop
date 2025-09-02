@@ -20,9 +20,9 @@ package org.apache.hop.pipeline.transforms.databaselookup;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -59,48 +59,49 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCache;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-public class DatabaseLookupUTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class DatabaseLookupUTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String BINARY_FIELD = "aBinaryFieldInDb";
   private static final String ID_FIELD = "id";
   private TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> mockHelper;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
+  @BeforeAll
+  static void setUpClass() throws Exception {
     HopEnvironment.init();
   }
 
-  @AfterClass
-  public static void tearDown() {
+  @AfterAll
+  static void tearDown() {
     HopEnvironment.reset();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     variables = new Variables();
     mockHelper = createMockHelper();
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     mockHelper.cleanUp();
   }
 
@@ -189,7 +190,7 @@ public class DatabaseLookupUTest {
   }
 
   @Test
-  public void testEqualsAndIsNullAreCached() throws Exception {
+  void testEqualsAndIsNullAreCached() throws Exception {
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel);
 
@@ -256,7 +257,7 @@ public class DatabaseLookupUTest {
   }
 
   @Test
-  public void getRowInCacheTest() throws HopException {
+  void getRowInCacheTest() throws HopException {
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel);
 
@@ -299,13 +300,13 @@ public class DatabaseLookupUTest {
   }
 
   @Test
-  public void createsReadOnlyCache_WhenReadAll_AndNotAllEquals() throws Exception {
+  void createsReadOnlyCache_WhenReadAll_AndNotAllEquals() throws Exception {
     DatabaseLookupData data = getCreatedData(false);
     assertThat(data.cache, is(instanceOf(ReadAllCache.class)));
   }
 
   @Test
-  public void createsReadDefaultCache_WhenReadAll_AndAllEquals() throws Exception {
+  void createsReadDefaultCache_WhenReadAll_AndAllEquals() throws Exception {
     DatabaseLookupData data = getCreatedData(true);
     assertThat(data.cache, is(instanceOf(DefaultCache.class)));
   }
@@ -374,7 +375,7 @@ public class DatabaseLookupUTest {
   }
 
   @Test
-  public void createsReadDefaultCache_AndUsesOnlyNeededFieldsFromMeta() throws Exception {
+  void createsReadDefaultCache_AndUsesOnlyNeededFieldsFromMeta() throws Exception {
     Database db = mock(Database.class);
     when(db.getRows(anyString(), anyInt()))
         .thenReturn(Arrays.asList(new Object[] {1L}, new Object[] {2L}));

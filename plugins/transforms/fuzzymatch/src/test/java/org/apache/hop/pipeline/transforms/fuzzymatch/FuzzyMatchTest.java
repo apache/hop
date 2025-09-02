@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -39,13 +42,12 @@ import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 
-public class FuzzyMatchTest {
+class FuzzyMatchTest {
   @InjectMocks private FuzzyMatchHandler fuzzyMatch;
   private TransformMockHelper<FuzzyMatchMeta, FuzzyMatchData> mockHelper;
 
@@ -101,8 +103,8 @@ public class FuzzyMatchTest {
     }
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     mockHelper =
         new TransformMockHelper<>("Fuzzy Match", FuzzyMatchMeta.class, FuzzyMatchData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -110,13 +112,13 @@ public class FuzzyMatchTest {
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void tearDown() throws Exception {
+  @AfterEach
+  void tearDown() throws Exception {
     mockHelper.cleanUp();
   }
 
   @Test
-  public void testProcessRow() throws Exception {
+  void testProcessRow() throws Exception {
     fuzzyMatch =
         new FuzzyMatchHandler(
             mockHelper.transformMeta,
@@ -134,11 +136,11 @@ public class FuzzyMatchTest {
     when(mockHelper.iTransformData.look.iterator()).thenReturn(lookupRows.iterator());
 
     fuzzyMatch.processRow();
-    Assert.assertEquals(fuzzyMatch.resultRow[0], row3[0]);
+    assertEquals(fuzzyMatch.resultRow[0], row3[0]);
   }
 
   @Test
-  public void testReadLookupValues() throws Exception {
+  void testReadLookupValues() throws Exception {
     FuzzyMatchData data = spy(new FuzzyMatchData());
     data.indexOfCachedFields = new int[2];
     data.minimalDistance = 0;
@@ -177,12 +179,12 @@ public class FuzzyMatchTest {
     when(transformIOMetaInterface.getInfoStreams()).thenReturn(streamInterfaceList);
 
     fuzzyMatch.processRow();
-    Assert.assertEquals(
+    assertEquals(
         iRowMeta.getString(row3B, 0), data.outputRowMeta.getString(fuzzyMatch.resultRow, 1));
   }
 
   @Test
-  public void testLookupValuesWhenMainFieldIsNull() throws Exception {
+  void testLookupValuesWhenMainFieldIsNull() throws Exception {
     FuzzyMatchData data = spy(new FuzzyMatchData());
     FuzzyMatchMeta meta = spy(new FuzzyMatchMeta());
     data.readLookupValues = false;
@@ -208,9 +210,9 @@ public class FuzzyMatchTest {
     data.outputRowMeta = iRowMeta.clone();
 
     fuzzyMatch.processRow();
-    Assert.assertEquals(inputRow[0], fuzzyMatch.resultRow[0]);
-    Assert.assertNull(fuzzyMatch.resultRow[1]);
-    Assert.assertTrue(
+    assertEquals(inputRow[0], fuzzyMatch.resultRow[0]);
+    assertNull(fuzzyMatch.resultRow[1]);
+    assertTrue(
         Arrays.stream(fuzzyMatch.resultRow, 3, fuzzyMatch.resultRow.length)
             .allMatch(val -> val == null));
   }

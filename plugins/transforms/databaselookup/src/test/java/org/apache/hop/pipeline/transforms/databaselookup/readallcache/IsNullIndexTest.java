@@ -17,27 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-@RunWith(Parameterized.class)
-public class IsNullIndexTest {
+class IsNullIndexTest {
 
-  @Parameterized.Parameters
-  public static List<Object[]> createSampleData() {
+  static List<Object[]> createSampleData() {
     Long[][] sample1 = new Long[][] {{null}, {null}, {1L}, {null}, {null}};
     Long[][] sample2 = new Long[][] {{1L}, {null}, {null}, {1L}, {1L}};
     Long[][] sample3 = new Long[][] {{null}, {1L}, {null}, {1L}, {null}};
@@ -58,8 +54,9 @@ public class IsNullIndexTest {
   private IsNullIndex matchingNonNulls;
   private SearchingContext context;
 
-  public IsNullIndexTest(Long[][] rows) {
-    this.rows = rows;
+  public IsNullIndexTest() {
+    // Default constructor for JUnit 5 - use sample data
+    this.rows = new Long[][] {{null}, {null}, {1L}, {null}, {null}};
 
     int cnt = 0;
     for (Long[] row : rows) {
@@ -72,8 +69,8 @@ public class IsNullIndexTest {
     this.amountOfNulls = cnt;
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     matchingNulls = new IsNullIndex(0, new ValueMetaInteger(), 5, true);
     matchingNulls.performIndexingOf(rows);
 
@@ -84,20 +81,20 @@ public class IsNullIndexTest {
     context.init(5);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     matchingNulls = null;
     matchingNonNulls = null;
     context = null;
   }
 
   @Test
-  public void lookupFor_Null() {
+  void lookupFor_Null() {
     testFindsCorrectly(matchingNulls, true);
   }
 
   @Test
-  public void lookupFor_One() {
+  void lookupFor_One() {
     testFindsCorrectly(matchingNonNulls, false);
   }
 
@@ -113,7 +110,7 @@ public class IsNullIndexTest {
       return;
     }
 
-    assertFalse(String.format("Expected to find %d values", expectedAmount), context.isEmpty());
+    assertFalse(context.isEmpty(), String.format("Expected to find %d values", expectedAmount));
 
     BitSet actual = context.getCandidates();
     int cnt = expectedAmount;
@@ -121,7 +118,7 @@ public class IsNullIndexTest {
     while (cnt > 0) {
       lastSetBit = actual.nextSetBit(lastSetBit);
       if (lastSetBit < 0) {
-        fail("Expected to find " + expectedAmount + " values, but got: " + actual.toString());
+        fail("Expected to find " + expectedAmount + " values, but got: " + actual);
       }
 
       Long actualValue = rows[lastSetBit][0];

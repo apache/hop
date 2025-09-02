@@ -16,36 +16,37 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-@RunWith(MockitoJUnitRunner.class)
 public class LdapConnectionTest {
 
-  @Mock private ILogChannel logChannelInterface;
+  private ILogChannel logChannelInterface;
 
-  @Mock private IVariables variables;
+  private IVariables variables;
 
   private LdapInputMeta meta;
 
-  @Rule public ExpectedException expectedEx = ExpectedException.none();
+  @BeforeEach
+  public void setUp() {
+    logChannelInterface = Mockito.mock(ILogChannel.class);
+    variables = Mockito.mock(IVariables.class);
+  }
 
   @Test
   public void testFake() {
-    Assert.assertTrue("To Keep RunWith annotation", true);
+    assertTrue(true, "To Keep ExtendWith annotation");
   }
 
   // @Test
@@ -77,12 +78,17 @@ public class LdapConnectionTest {
     when(variables.resolve(ArgumentMatchers.<String>any()))
         .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
-    expectedEx.expect(HopException.class);
-    expectedEx.expectMessage("Invalid Credentials");
+    LdapConnection connection = new LdapConnection(logChannelInterface, variables, meta, null);
 
-    LdapConnection connection;
-    connection = new LdapConnection(logChannelInterface, variables, meta, null);
-    connection.connect("cn=Directory Manager", "idontknow");
+    HopException exception =
+        assertThrows(
+            HopException.class,
+            () -> {
+              connection.connect("cn=Directory Manager", "idontknow");
+            });
+    assertTrue(
+        exception.getMessage().contains("Invalid Credentials"),
+        "Exception should contain 'Invalid Credentials'");
   }
 
   // Failing test case - TODO Need to mock Utils.resolvePassword

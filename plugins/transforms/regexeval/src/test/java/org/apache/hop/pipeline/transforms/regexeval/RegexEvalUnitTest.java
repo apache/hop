@@ -28,14 +28,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RegexEvalUnitTest {
   private TransformMockHelper<RegexEvalMeta, RegexEvalData> transformMockHelper;
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     transformMockHelper =
         new TransformMockHelper<>("REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class);
@@ -44,7 +44,7 @@ public class RegexEvalUnitTest {
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     transformMockHelper.cleanUp();
   }

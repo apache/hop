@@ -17,15 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.blockingtransform;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class BlockingTransformMetaTest {
+class BlockingTransformMetaTest {
 
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     BlockingTransformMeta meta = new BlockingTransformMeta();
     meta.setDirectory("my-folder");
     meta.setCompressFiles(true);
@@ -43,10 +44,10 @@ public class BlockingTransformMetaTest {
     BlockingTransformMeta meta2 = new BlockingTransformMeta();
     meta2.loadXml(XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG), null);
 
-    Assert.assertEquals(meta.getDirectory(), meta2.getDirectory());
-    Assert.assertEquals(meta.isCompressFiles(), meta2.isCompressFiles());
-    Assert.assertEquals(meta.getCacheSize(), meta2.getCacheSize());
-    Assert.assertEquals(meta.isPassAllRows(), meta2.isPassAllRows());
-    Assert.assertEquals(meta.getPrefix(), meta2.getPrefix());
+    assertEquals(meta.getDirectory(), meta2.getDirectory());
+    assertEquals(meta.isCompressFiles(), meta2.isCompressFiles());
+    assertEquals(meta.getCacheSize(), meta2.getCacheSize());
+    assertEquals(meta.isPassAllRows(), meta2.isPassAllRows());
+    assertEquals(meta.getPrefix(), meta2.getPrefix());
   }
 }

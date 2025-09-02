@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -48,20 +48,21 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 public class LoadFileInputTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private FileSystemManager fs;
   private String filesPath;
@@ -78,7 +79,7 @@ public class LoadFileInputTest {
   private LoadFileInputField loadFileInputField;
   private static String wasEncoding;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupBeforeClass() throws HopException {
     if (Const.isWindows()) {
       wasEncoding = System.getProperty("file.encoding");
@@ -87,7 +88,7 @@ public class LoadFileInputTest {
     HopClientEnvironment.init();
   }
 
-  @AfterClass
+  @AfterAll
   public static void teardownAfterClass() {
     if (wasEncoding != null) {
       fiddleWithDefaultCharset(wasEncoding);
@@ -107,7 +108,7 @@ public class LoadFileInputTest {
     }
   }
 
-  @Before
+  @BeforeEach
   public void setup() throws FileSystemException {
     fs = VFS.getManager();
     filesPath = '/' + this.getClass().getPackage().getName().replace('.', '/') + "/files/";

@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.mongodboutput;
 
-import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doNothing;
@@ -48,15 +48,15 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.collection.DefaultMongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.pipeline.transforms.mongodboutput.MongoDbOutputMeta.MongoIndex;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 
-public class MongoDbOutputDataTest {
+class MongoDbOutputDataTest {
 
   @Mock private IVariables variables;
   @Mock private MongoClientWrapper client;
@@ -64,8 +64,8 @@ public class MongoDbOutputDataTest {
   @Mock private IRowMeta rowMeta;
   @Mock private IValueMeta valueMeta;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     MockitoAnnotations.openMocks(this);
     when(variables.resolve(any(String.class)))
         .thenAnswer(
@@ -75,13 +75,13 @@ public class MongoDbOutputDataTest {
             (Answer<String>) invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
   }
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
   @Test
-  public void testApplyIndexesOptions() throws HopException, MongoDbException {
+  void testApplyIndexesOptions() throws HopException, MongoDbException {
     MongoDbOutputData data = new MongoDbOutputData();
     ILogChannel log = LogChannel.GENERAL;
     DBCollection collection = mock(DBCollection.class);
@@ -168,7 +168,7 @@ public class MongoDbOutputDataTest {
   }
 
   @Test
-  public void testApplyIndexesSplits() throws HopException, MongoDbException {
+  void testApplyIndexesSplits() throws HopException, MongoDbException {
     MongoDbOutputData data = new MongoDbOutputData();
     ILogChannel log = LogChannel.GENERAL;
     DBCollection collection = mock(DBCollection.class);
@@ -206,7 +206,7 @@ public class MongoDbOutputDataTest {
   }
 
   @Test
-  public void testSetInitGet() throws HopException {
+  void testSetInitGet() throws HopException {
     // validates setting, initializing, and getting of MongoFields.
     MongoDbOutputMeta.MongoField field1 = new MongoDbOutputMeta.MongoField();
     MongoDbOutputMeta.MongoField field2 = new MongoDbOutputMeta.MongoField();
@@ -228,7 +228,7 @@ public class MongoDbOutputDataTest {
   }
 
   @Test
-  public void testGetQueryObjectWithIncomingJson() throws HopException {
+  void testGetQueryObjectWithIncomingJson() throws HopException {
     MongoDbOutputMeta.MongoField field1 = new MongoDbOutputMeta.MongoField();
     field1.inputJson = true;
     field1.updateMatchField = true;
@@ -262,7 +262,7 @@ public class MongoDbOutputDataTest {
   }
 
   @Test
-  public void testWrapperMethods() {
+  void testWrapperMethods() {
     MongoDbOutputData data = new MongoDbOutputData();
     data.setConnection(client);
     assertThat(data.getConnection(), equalTo(client));

@@ -17,24 +17,26 @@
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ExecProcessMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class ExecProcessMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     ExecProcessMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/execute-process-transform.xml", ExecProcessMeta.class);
 
-    Assert.assertEquals("script", meta.getProcessField());
-    Assert.assertEquals("output", meta.getResultFieldName());
-    Assert.assertEquals("error", meta.getErrorFieldName());
-    Assert.assertEquals("exit", meta.getExitValueFieldName());
-    Assert.assertTrue(meta.isFailWhenNotSuccess());
-    Assert.assertEquals(2, meta.getArgumentFields().size());
-    Assert.assertEquals("value1", meta.getArgumentFields().get(0).getName());
-    Assert.assertEquals("value2", meta.getArgumentFields().get(1).getName());
+    assertEquals("script", meta.getProcessField());
+    assertEquals("output", meta.getResultFieldName());
+    assertEquals("error", meta.getErrorFieldName());
+    assertEquals("exit", meta.getExitValueFieldName());
+    assertTrue(meta.isFailWhenNotSuccess());
+    assertEquals(2, meta.getArgumentFields().size());
+    assertEquals("value1", meta.getArgumentFields().get(0).getName());
+    assertEquals("value2", meta.getArgumentFields().get(1).getName());
   }
 }

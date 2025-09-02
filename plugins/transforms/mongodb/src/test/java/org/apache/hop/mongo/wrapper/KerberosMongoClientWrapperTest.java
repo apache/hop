@@ -31,7 +31,7 @@ import org.apache.hop.mongo.AuthContext;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoUtilLogger;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 

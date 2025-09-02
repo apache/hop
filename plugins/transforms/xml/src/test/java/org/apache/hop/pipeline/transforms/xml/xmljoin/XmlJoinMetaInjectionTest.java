@@ -17,18 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class XmlJoinMetaInjectionTest extends BaseMetadataInjectionTest<XmlJoinMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class XmlJoinMetaInjectionTest extends BaseMetadataInjectionTestJunit5<XmlJoinMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     try {
       setup(new XmlJoinMeta());
@@ -38,8 +39,8 @@ public class XmlJoinMetaInjectionTest extends BaseMetadataInjectionTest<XmlJoinM
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void test() throws Exception {
+  @Disabled("This test needs to be reviewed")
+  void test() throws Exception {
 
     check("COMPLEX_JOIN", () -> meta.isComplexJoin());
 

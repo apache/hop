@@ -16,17 +16,18 @@
  */
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class XmlOutputMetaInjectionTest extends BaseMetadataInjectionTest<XmlOutputMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class XmlOutputMetaInjectionTest extends BaseMetadataInjectionTestJunit5<XmlOutputMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     try {
       setup(new XmlOutputMeta());
@@ -36,7 +37,7 @@ public class XmlOutputMetaInjectionTest extends BaseMetadataInjectionTest<XmlOut
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FILENAME", () -> meta.getFileName());
     check("EXTENSION", () -> meta.getExtension());
     check("SPLIT_EVERY", () -> meta.getSplitEvery());

@@ -19,16 +19,15 @@ package org.apache.hop.pipeline.transforms.cubeinput;
 
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 
 /** Base class for all Cube Input transform tests. */
-@Ignore("No tests in abstract base class")
-public class BaseCubeInputParsingTest
-    extends BaseParsingTest<CubeInputMeta, CubeInputData, CubeInput> {
+@Disabled("No tests in abstract base class")
+class BaseCubeInputParsingTest extends BaseParsingTest<CubeInputMeta, CubeInputData, CubeInput> {
   /** Initialize transform info. */
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     meta = new CubeInputMeta();
     meta.setDefault();
 

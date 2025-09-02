@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,7 +39,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -46,17 +50,18 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
-public class InsertUpdateMetaTest {
+class InsertUpdateMetaTest {
   LoadSaveTester loadSaveTester;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private IVariables variables;
   private TransformMeta transformMeta;
@@ -65,13 +70,13 @@ public class InsertUpdateMetaTest {
   private InsertUpdateMeta umi;
   private TransformMockHelper<InsertUpdateMeta, InsertUpdateData> mockHelper;
 
-  @BeforeClass
-  public static void initEnvironment() throws Exception {
+  @BeforeAll
+  static void initEnvironment() throws Exception {
     HopEnvironment.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     variables = new Variables();
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("delete1");
@@ -100,35 +105,35 @@ public class InsertUpdateMetaTest {
     Mockito.when(mockHelper.transformMeta.getTransform()).thenReturn(new InsertUpdateMeta());
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     mockHelper.cleanUp();
   }
 
   @Test
-  public void testCommitCountFixed() {
+  void testCommitCountFixed() {
     umi.setCommitSize("100");
-    Assert.assertEquals(100, umi.getCommitSizeVar(upd));
+    assertEquals(100, umi.getCommitSizeVar(upd));
   }
 
   @Test
-  public void testCommitCountVar() {
+  void testCommitCountVar() {
     umi.setCommitSize("${max.sz}");
-    Assert.assertEquals(10, umi.getCommitSizeVar(upd));
+    assertEquals(10, umi.getCommitSizeVar(upd));
   }
 
   @Test
-  public void testCommitCountMissedVar() {
+  void testCommitCountMissedVar() {
     umi.setCommitSize("missed-var");
     try {
       umi.getCommitSizeVar(upd);
-      Assert.fail();
+      fail();
     } catch (Exception ex) {
     }
   }
 
-  @Before
-  public void setUpLoadSave() throws Exception {
+  @BeforeEach
+  void setUpLoadSave() throws Exception {
 
     List<String> attributes = Arrays.asList("connection", "lookup", "commit", "update_bypassed");
 
@@ -247,12 +252,12 @@ public class InsertUpdateMetaTest {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 
   @Test
-  public void testErrorProcessRow() throws HopException {
+  void testErrorProcessRow() throws HopException {
     Mockito.when(
             mockHelper.logChannelFactory.create(Mockito.any(), Mockito.any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel);
@@ -279,7 +284,7 @@ public class InsertUpdateMetaTest {
         .putRow(Mockito.any(), Mockito.any());
 
     boolean result = insertUpdateTransform.processRow();
-    Assert.assertFalse(result);
+    assertFalse(result);
   }
 
   public class InsertUpdateLookupFieldLoadSaveValidator

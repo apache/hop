@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -52,19 +52,20 @@ import org.apache.hop.pipeline.transforms.rest.fields.HeaderField;
 import org.apache.hop.pipeline.transforms.rest.fields.MatrixParameterField;
 import org.apache.hop.pipeline.transforms.rest.fields.ParameterField;
 import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class RestMetaTest implements IInitializer<ITransformMeta> {
+class RestMetaTest implements IInitializer<ITransformMeta> {
 
   LoadSaveTester loadSaveTester;
   Class<RestMeta> testMetaClass = RestMeta.class;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void beforeClass() throws HopException {
+  @BeforeAll
+  static void beforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -73,7 +74,7 @@ public class RestMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testLoadSaveRoundTrip() throws HopException {
+  void testLoadSaveRoundTrip() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "applicationType",
@@ -282,7 +283,7 @@ public class RestMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testTransformChecks() {
+  void testTransformChecks() {
     RestMeta meta = new RestMeta();
     List<ICheckResult> remarks = new ArrayList<>();
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -322,7 +323,7 @@ public class RestMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testEntityEnclosingMethods() {
+  void testEntityEnclosingMethods() {
     assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_POST));
     assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_PUT));
     assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_PATCH));

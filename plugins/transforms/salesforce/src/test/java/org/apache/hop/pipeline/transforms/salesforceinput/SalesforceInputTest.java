@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinput;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
 import com.sforce.ws.util.Base64;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -25,14 +27,13 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class SalesforceInputTest {
+class SalesforceInputTest {
 
   @Test
-  public void doConversions() throws Exception {
+  void doConversions() throws Exception {
     TransformMeta transformMeta = new TransformMeta();
     String name = "test";
     transformMeta.setName(name);
@@ -56,10 +57,10 @@ public class SalesforceInputTest {
     Object[] outputRowData = new Object[1];
     byte[] binary = {0, 1, 0, 1, 1, 1};
     salesforceInput.doConversions(outputRowData, 0, new String(Base64.encode(binary)));
-    Assert.assertArrayEquals(binary, (byte[]) outputRowData[0]);
+    assertArrayEquals(binary, (byte[]) outputRowData[0]);
 
     binary = new byte[0];
     salesforceInput.doConversions(outputRowData, 0, new String(Base64.encode(binary)));
-    Assert.assertArrayEquals(binary, (byte[]) outputRowData[0]);
+    assertArrayEquals(binary, (byte[]) outputRowData[0]);
   }
 }

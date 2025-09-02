@@ -17,20 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.fake;
 
-import com.github.javafaker.Faker;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class FakerTypeTest {
+import com.github.javafaker.Faker;
+import org.junit.jupiter.api.Test;
+
+class FakerTypeTest {
 
   @Test
-  public void testFakerTypeMethodMapping() throws Exception {
+  void testFakerTypeMethodMapping() throws Exception {
     Faker faker = new Faker();
     for (FakerType type : FakerType.values()) {
       try {
         faker.getClass().getMethod(type.getFakerMethod());
       } catch (NoSuchMethodException | SecurityException e) {
-        Assert.fail(String.format("%s method was not found in Faker", type.getFakerMethod()));
+        fail(String.format("%s method was not found in Faker", type.getFakerMethod()));
       }
     }
   }

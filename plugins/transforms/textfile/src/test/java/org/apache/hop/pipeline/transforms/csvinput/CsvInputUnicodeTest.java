@@ -17,20 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -40,7 +41,9 @@ import org.mockito.Mockito;
  * @see CsvInput
  */
 public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
   private static final String UTF8 = "UTF-8";
   private static final String UTF16LE = "UTF-16LE";
   private static final String UTF16LEBOM = "x-UTF-16LE-BOM";
@@ -75,7 +78,7 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
 
   private static TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws HopException {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
@@ -87,7 +90,7 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
     Mockito.when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @AfterClass
+  @AfterAll
   public static void cleanUp() {
     transformMockHelper.cleanUp();
   }
@@ -199,7 +202,7 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
           @Override
           public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
             for (int i = 0; i < rowMeta.size(); i++) {
-              Assert.assertEquals("Value", row[i]);
+              assertEquals("Value", row[i]);
             }
           }
         });
@@ -210,7 +213,7 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
     } while (!haveRowsToRead);
 
     csvInput.dispose();
-    Assert.assertEquals(2, csvInput.getLinesWritten());
+    assertEquals(2, csvInput.getLinesWritten());
   }
 
   private CsvInputMeta createTransformMeta(

@@ -18,21 +18,23 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class FileMetadataMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class FileMetadataMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     FileMetadataMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/file-metadata-transform.xml", FileMetadataMeta.class);
-    Assert.assertNotNull(meta.getFileName());
-    Assert.assertNotNull(meta.getLimitRows());
-    Assert.assertNotNull(meta.getDefaultCharset());
-    Assert.assertEquals(3, meta.getDelimiterCandidates().size());
-    Assert.assertEquals(2, meta.getEnclosureCandidates().size());
+    assertNotNull(meta.getFileName());
+    assertNotNull(meta.getLimitRows());
+    assertNotNull(meta.getDefaultCharset());
+    assertEquals(3, meta.getDelimiterCandidates().size());
+    assertEquals(2, meta.getEnclosureCandidates().size());
   }
 }

@@ -17,8 +17,8 @@
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,16 +29,16 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class AddXmlTest {
+class AddXmlTest {
 
   private TransformMockHelper<AddXmlMeta, AddXmlData> transformMockHelper;
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     HopEnvironment.init();
     XmlField field = mock(XmlField.class);
@@ -56,13 +56,13 @@ public class AddXmlTest {
     when(transformMockHelper.iTransformMeta.getRootNode()).thenReturn("ADDXML_TEST");
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testProcessRow() throws HopException {
+  void testProcessRow() throws HopException {
     AddXml addXML =
         new AddXml(
             transformMockHelper.transformMeta,

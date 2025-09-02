@@ -17,15 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UpdateSqlTest extends TestCase {
+public class UpdateSqlTest {
 
   @Test
   public void testRowsTransform() {

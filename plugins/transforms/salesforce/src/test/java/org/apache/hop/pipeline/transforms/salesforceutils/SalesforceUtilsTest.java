@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.salesforceutils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -27,8 +27,8 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
 import org.apache.hop.core.logging.ILogChannel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SalesforceUtilsTest {
 
@@ -38,7 +38,7 @@ public class SalesforceUtilsTest {
 
   private String expectedFieldName;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     logMock = mock(ILogChannel.class);
   }

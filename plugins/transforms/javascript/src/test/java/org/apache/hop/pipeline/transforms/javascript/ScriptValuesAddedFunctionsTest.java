@@ -17,10 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Calendar;
 import java.util.Date;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ScriptValuesAddedFunctionsTest {
 
@@ -35,31 +37,31 @@ public class ScriptValuesAddedFunctionsTest {
     Calendar c2 = Calendar.getInstance();
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 5);
     c2.setTime(rtn);
-    Assert.assertEquals(Calendar.JANUARY, c2.get(Calendar.MONTH));
+    assertEquals(Calendar.JANUARY, c2.get(Calendar.MONTH));
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 4);
     c2.setTime(rtn);
-    Assert.assertEquals(1, c2.get(Calendar.DAY_OF_MONTH));
+    assertEquals(1, c2.get(Calendar.DAY_OF_MONTH));
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 3);
     c2.setTime(rtn);
-    Assert.assertEquals(0, c2.get(Calendar.HOUR_OF_DAY));
+    assertEquals(0, c2.get(Calendar.HOUR_OF_DAY));
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 2);
     c2.setTime(rtn);
-    Assert.assertEquals(0, c2.get(Calendar.MINUTE));
+    assertEquals(0, c2.get(Calendar.MINUTE));
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 1);
     c2.setTime(rtn);
-    Assert.assertEquals(0, c2.get(Calendar.SECOND));
+    assertEquals(0, c2.get(Calendar.SECOND));
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 0);
     c2.setTime(rtn);
-    Assert.assertEquals(0, c2.get(Calendar.MILLISECOND));
+    assertEquals(0, c2.get(Calendar.MILLISECOND));
     try {
       ScriptValuesAddedFunctions.truncDate(rtn, 6); // Should throw exception
-      Assert.fail("Expected exception - passed in level > 5 to truncDate");
+      fail("Expected exception - passed in level > 5 to truncDate");
     } catch (Exception expected) {
       // Should get here
     }
     try {
       ScriptValuesAddedFunctions.truncDate(rtn, -7); // Should throw exception
-      Assert.fail("Expected exception - passed in level < 0  to truncDate");
+      fail("Expected exception - passed in level < 0  to truncDate");
     } catch (Exception expected) {
       // Should get here
     }

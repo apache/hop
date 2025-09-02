@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
@@ -45,8 +45,8 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.field.MongoField;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MongoDbInputDataTest {
   private IHopMetadataProvider metadataProvider;
@@ -61,7 +61,7 @@ public class MongoDbInputDataTest {
           + "{ \"rec1\" : { \"f1\" : \"sid\", \"f2\" : \"zaphod\" } } ] }, "
           + "\"name\" : \"george\", \"aNumber\" : \"Forty two\" }";
 
-  @Before
+  @BeforeEach
   public void setUp() throws HopException {
     HopClientEnvironment.init();
     metadataProvider = mock(IHopMetadataProvider.class);

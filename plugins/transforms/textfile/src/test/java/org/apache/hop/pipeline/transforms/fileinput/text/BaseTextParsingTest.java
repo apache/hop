@@ -21,15 +21,15 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 
 /** Base class for all TextFileInput transform tests. */
-@Ignore("No tests in abstract base class")
+@Disabled("No tests in abstract base class")
 public abstract class BaseTextParsingTest
     extends BaseParsingTest<TextFileInputMeta, TextFileInputData, TextFileInput> {
   /** Initialize transform info. */
-  @Before
+  @BeforeEach
   public void before() {
     meta = new TextFileInputMeta();
     meta.setDefault();

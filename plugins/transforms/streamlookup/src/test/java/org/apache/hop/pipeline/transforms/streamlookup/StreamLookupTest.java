@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.streamlookup;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
@@ -42,29 +42,29 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for StreamLookup transform
  *
  * @see StreamLookup
  */
-public class StreamLookupTest {
+class StreamLookupTest {
   private TransformMockHelper<StreamLookupMeta, StreamLookupData> smh;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     smh = new TransformMockHelper<>("StreamLookup", StreamLookupMeta.class, StreamLookupData.class);
     when(smh.logChannelFactory.create(any(), nullable(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
@@ -195,7 +195,7 @@ public class StreamLookupTest {
       Object[] rowData = outputRowSet.getRow();
       if (rowData != null) {
         IRowMeta rowMeta = outputRowSet.getRowMeta();
-        assertEquals("Output row is of wrong size", 3, rowMeta.size());
+        assertEquals(3, rowMeta.size(), "Output row is of wrong size");
         rowNumber++;
         // Verify output
         for (int valueIndex = 0; valueIndex < rowMeta.size(); valueIndex++) {
@@ -203,57 +203,57 @@ public class StreamLookupTest {
           Object actualValue =
               rowMeta.getValueMeta(valueIndex).convertToNormalStorageType(rowData[valueIndex]);
           assertEquals(
-              "Unexpected value at row " + rowNumber + " position " + valueIndex,
               expectedValue,
-              actualValue);
+              actualValue,
+              "Unexpected value at row " + rowNumber + " position " + valueIndex);
         }
       }
     }
 
-    assertEquals("Incorrect output row number", 2, rowNumber);
+    assertEquals(2, rowNumber, "Incorrect output row number");
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testWithNormalStreams() throws HopException {
+  @Disabled("This test needs to be reviewed")
+  void testWithNormalStreams() throws HopException {
     doTest(false, false, false);
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testWithBinaryLookupStream() throws HopException {
+  @Disabled("This test needs to be reviewed")
+  void testWithBinaryLookupStream() throws HopException {
     doTest(false, true, false);
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testWithBinaryDateStream() throws HopException {
+  @Disabled("This test needs to be reviewed")
+  void testWithBinaryDateStream() throws HopException {
     doTest(false, false, true);
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testWithBinaryStreams() throws HopException {
+  @Disabled("This test needs to be reviewed")
+  void testWithBinaryStreams() throws HopException {
     doTest(false, false, true);
   }
 
   @Test
-  public void testMemoryPreservationWithNormalStreams() throws HopException {
+  void testMemoryPreservationWithNormalStreams() throws HopException {
     doTest(true, false, false);
   }
 
   @Test
-  public void testMemoryPreservationWithBinaryLookupStream() throws HopException {
+  void testMemoryPreservationWithBinaryLookupStream() throws HopException {
     doTest(true, true, false);
   }
 
   @Test
-  public void testMemoryPreservationWithBinaryDateStream() throws HopException {
+  void testMemoryPreservationWithBinaryDateStream() throws HopException {
     doTest(true, false, true);
   }
 
   @Test
-  public void testMemoryPreservationWithBinaryStreams() throws HopException {
+  void testMemoryPreservationWithBinaryStreams() throws HopException {
     doTest(true, false, true);
   }
 }

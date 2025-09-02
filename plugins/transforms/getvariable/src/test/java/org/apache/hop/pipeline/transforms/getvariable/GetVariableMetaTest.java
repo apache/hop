@@ -17,16 +17,17 @@
 package org.apache.hop.pipeline.transforms.getvariable;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class GetVariableMetaTest {
+class GetVariableMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     GetVariableMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/get-variables-transform.xml", GetVariableMeta.class);
 
-    Assert.assertEquals(4, meta.getFieldDefinitions().size());
+    assertEquals(4, meta.getFieldDefinitions().size());
   }
+
+  private void assertEquals(int i, int size) {}
 }

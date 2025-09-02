@@ -25,7 +25,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AddXmlMetaTest {
 

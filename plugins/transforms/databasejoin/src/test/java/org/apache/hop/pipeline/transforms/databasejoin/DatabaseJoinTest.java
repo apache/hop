@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -39,17 +39,17 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class DatabaseJoinTest {
+class DatabaseJoinTest {
 
   DatabaseJoinMeta mockTransformMetaInterface;
   DatabaseJoinData mockTransformDataInterface;
   DatabaseJoin mockDatabaseJoin;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     TransformMeta mockTransformMeta = mock(TransformMeta.class);
     PipelineMeta mockPipelineMeta = mock(PipelineMeta.class);
@@ -79,7 +79,7 @@ public class DatabaseJoinTest {
   }
 
   @Test
-  public void testStopRunningWhenTransformIsStopped() throws HopException {
+  void testStopRunningWhenTransformIsStopped() throws HopException {
     doReturn(true).when(mockDatabaseJoin).isStopped();
 
     mockDatabaseJoin.stopRunning();
@@ -89,7 +89,7 @@ public class DatabaseJoinTest {
   }
 
   @Test
-  public void testStopRunningWhenTransformDataInterfaceIsDisposed() throws HopException {
+  void testStopRunningWhenTransformDataInterfaceIsDisposed() throws HopException {
     doReturn(false).when(mockDatabaseJoin).isStopped();
     doReturn(true).when(mockTransformDataInterface).isDisposed();
 
@@ -100,7 +100,7 @@ public class DatabaseJoinTest {
   }
 
   @Test
-  public void
+  void
       testStopRunningWhenTransformIsNotStoppedNorTransformDataInterfaceIsDisposedAndDatabaseConnectionIsValid()
           throws HopException {
     doReturn(false).when(mockDatabaseJoin).isStopped();
@@ -117,7 +117,7 @@ public class DatabaseJoinTest {
   }
 
   @Test
-  public void
+  void
       testStopRunningWhenTransformIsNotStoppedNorTransformDataInterfaceIsDisposedAndDatabaseConnectionIsNotValid()
           throws HopException {
     doReturn(false).when(mockDatabaseJoin).isStopped();

@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -37,8 +37,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MergeRowsMetaCheckTest {
 
@@ -77,7 +77,7 @@ public class MergeRowsMetaCheckTest {
     return output;
   }
 
-  @Before
+  @BeforeEach
   public void setup() {
     pipelineMeta = mock(PipelineMeta.class);
     meta = new MergeRowsMeta();

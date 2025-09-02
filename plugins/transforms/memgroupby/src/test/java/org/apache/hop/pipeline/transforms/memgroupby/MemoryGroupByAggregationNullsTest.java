@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -33,15 +36,14 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class MemoryGroupByAggregationNullsTest {
+class MemoryGroupByAggregationNullsTest {
 
   static TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData> mockHelper;
 
@@ -55,8 +57,8 @@ public class MemoryGroupByAggregationNullsTest {
   private IRowMeta rmi;
   private MemoryGroupByMeta meta;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() {
     mockHelper =
         new TransformMockHelper<>(
             "Memory Group By", MemoryGroupByMeta.class, MemoryGroupByData.class);
@@ -65,13 +67,13 @@ public class MemoryGroupByAggregationNullsTest {
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @AfterClass
-  public static void cleanUp() {
+  @AfterAll
+  static void cleanUp() {
     mockHelper.cleanUp();
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
     data = new MemoryGroupByData();
     data.subjectnrs = new int[] {0};
     meta = new MemoryGroupByMeta();
@@ -110,81 +112,77 @@ public class MemoryGroupByAggregationNullsTest {
    * <p>Set this variable to Y to set the minimum to NULL if NULL is within an aggregate. Otherwise
    * by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not
    * NULL. See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
-   *
-   * @throws HopException
    */
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void calcAggregateResulTestMin_1_Test() throws HopException {
+  @Disabled("This test needs to be reviewed")
+  void calcAggregateResulTestMin_1_Test() throws HopException {
     transform.setMinNullIsValued(true);
     transform.addToAggregate(new Object[] {null});
 
     Aggregate agg = data.map.get(getHashEntry());
-    Assert.assertNotNull("Hash code strategy changed?", agg);
+    assertNotNull(agg, "Hash code strategy changed?");
 
-    Assert.assertNull("Value is set", agg.agg[0]);
+    assertNull(agg.agg[0], "Value is set");
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void calcAggregateResulTestMin_5_Test() throws HopException {
+  @Disabled("This test needs to be reviewed")
+  void calcAggregateResulTestMin_5_Test() throws HopException {
     transform.setMinNullIsValued(false);
     transform.addToAggregate(new Object[] {null});
 
     Aggregate agg = data.map.get(getHashEntry());
-    Assert.assertNotNull("Hash code strategy changed?", agg);
+    assertNotNull(agg, "Hash code strategy changed?");
 
-    Assert.assertEquals("Value is NOT set", def, agg.agg[0]);
+    assertEquals(def, agg.agg[0], "Value is NOT set");
   }
 
   /**
    * Set this variable to Y to return 0 when all values within an aggregate are NULL. Otherwise by
    * default a NULL is returned when all values are NULL.
-   *
-   * @throws HopValueException
    */
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void getAggregateResulTestMin_0_Test() throws HopValueException {
+  @Disabled("This test needs to be reviewed")
+  void getAggregateResulTestMin_0_Test() throws HopValueException {
     // data.agg[0] is not null - this is the default behavior
     transform.setAllNullsAreZero(true);
     Object[] row = transform.getAggregateResult(aggregate);
-    Assert.assertEquals("Default value is not corrupted", def, row[0]);
+    assertEquals(def, row[0], "Default value is not corrupted");
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void getAggregateResulTestMin_1_Test() throws HopValueException {
+  @Disabled("This test needs to be reviewed")
+  void getAggregateResulTestMin_1_Test() throws HopValueException {
     aggregate.agg[0] = null;
     transform.setAllNullsAreZero(true);
     Object[] row = transform.getAggregateResult(aggregate);
-    Assert.assertEquals("Returns 0 if aggregation is null", Long.valueOf(0), row[0]);
+    assertEquals(0L, row[0], "Returns 0 if aggregation is null");
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void getAggregateResulTestMin_3_Test() throws HopValueException {
+  @Disabled("This test needs to be reviewed")
+  void getAggregateResulTestMin_3_Test() throws HopValueException {
     aggregate.agg[0] = null;
     transform.setAllNullsAreZero(false);
     Object[] row = transform.getAggregateResult(aggregate);
-    Assert.assertNull("Returns null if aggregation is null", row[0]);
+    assertNull(row[0], "Returns null if aggregation is null");
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void addToAggregateLazyConversionMinTest() throws Exception {
+  @Disabled("This test needs to be reviewed")
+  void addToAggregateLazyConversionMinTest() throws Exception {
     vmi.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     vmi.setStorageMetadata(new ValueMetaString());
     aggregate.agg = new Object[] {new byte[0]};
     byte[] bytes = {51};
     transform.addToAggregate(new Object[] {bytes});
     Aggregate result = data.map.get(getHashEntry());
-    Assert.assertEquals("Returns non-null value", bytes, result.agg[0]);
+    assertEquals(bytes, result.agg[0], "Returns non-null value");
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void addToAggregateBinaryData() throws Exception {
+  @Disabled("This test needs to be reviewed")
+  void addToAggregateBinaryData() throws Exception {
     MemoryGroupByMeta memoryGroupByMeta = spy(meta);
     memoryGroupByMeta.setAggregates(
         List.of(new GAggregate("f", "test", GroupType.CountDistinct, null)));
@@ -209,7 +207,7 @@ public class MemoryGroupByAggregationNullsTest {
 
     Object[] distinctObjs = data.map.get(getHashEntry()).distinctObjs[0].toArray();
 
-    Assert.assertEquals(binaryData0, distinctObjs[1]);
-    Assert.assertEquals(binaryData1, distinctObjs[0]);
+    assertEquals(binaryData0, distinctObjs[1]);
+    assertEquals(binaryData1, distinctObjs[0]);
   }
 }

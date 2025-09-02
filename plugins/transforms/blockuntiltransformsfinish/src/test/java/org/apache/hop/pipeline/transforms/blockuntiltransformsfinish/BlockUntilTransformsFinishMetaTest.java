@@ -19,7 +19,7 @@ package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BlockUntilTransformsFinishMetaTest {
 

@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -39,12 +39,9 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 public class MemoryGroupByMetaGetFieldsTest {
@@ -59,18 +56,14 @@ public class MemoryGroupByMetaGetFieldsTest {
   private IVariables mockSpace;
   private IHopMetadataProvider mockIHopMetadataProvider;
 
-  @BeforeClass
-  public static void setUpBeforeClass() {
-    mockedValueMetaFactory = mockStatic(ValueMetaFactory.class);
-  }
+  // Static mock is now managed at method level in @BeforeEach/@AfterEach
 
-  @AfterClass
-  public static void tearDownAfterClass() {
-    mockedValueMetaFactory.close();
-  }
-
-  @Before
+  @BeforeEach
   public void setup() {
+    // Create static mock first
+    mockedValueMetaFactory = mockStatic(ValueMetaFactory.class);
+
+    // Then set up other mocks
     mockSpace = mock(IVariables.class);
 
     doReturn("N").when(mockSpace).getVariable(any(), anyString());
@@ -96,14 +89,11 @@ public class MemoryGroupByMetaGetFieldsTest {
     mockedValueMetaFactory.when(() -> ValueMetaFactory.getValueMetaName(5)).thenReturn("Integer");
   }
 
-  @BeforeEach
-  void setUpStaticMocks() {
-    mockedValueMetaFactory = mockStatic(ValueMetaFactory.class);
-  }
-
   @AfterEach
-  void tearDownStaticMocks() {
-    mockedValueMetaFactory.closeOnDemand();
+  void tearDown() {
+    if (mockedValueMetaFactory != null) {
+      mockedValueMetaFactory.close();
+    }
   }
 
   @Test

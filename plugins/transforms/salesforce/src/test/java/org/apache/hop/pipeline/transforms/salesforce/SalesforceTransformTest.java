@@ -17,10 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -37,31 +38,31 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
-public class SalesforceTransformTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SalesforceTransformTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private TransformMockHelper<SalesforceTransformMeta, SalesforceTransformData> smh;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
-  @Before
-  public void setUp() throws HopException {
+  @BeforeEach
+  void setUp() throws HopException {
     smh =
         new TransformMockHelper<>(
             "Salesforce", SalesforceTransformMeta.class, SalesforceTransformData.class);
@@ -70,19 +71,19 @@ public class SalesforceTransformTest {
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testErrorHandling() {
+  void testErrorHandling() {
     SalesforceTransformMeta meta = mock(SalesforceTransformMeta.class, Mockito.CALLS_REAL_METHODS);
     assertFalse(meta.supportsErrorHandling());
   }
 
   @Test
-  public void testInitDispose() {
+  void testInitDispose() {
     SalesforceTransformMeta meta = mock(SalesforceTransformMeta.class, Mockito.CALLS_REAL_METHODS);
     SalesforceTransform transform =
         spy(
@@ -138,7 +139,7 @@ public class SalesforceTransformTest {
   }
 
   @Test
-  public void createIntObjectTest() throws HopValueException {
+  void createIntObjectTest() throws HopValueException {
     SalesforceTransform transform =
         spy(
             new MockSalesforceTransform(
@@ -151,11 +152,11 @@ public class SalesforceTransformTest {
     IValueMeta valueMeta = Mockito.mock(IValueMeta.class);
     Mockito.when(valueMeta.getType()).thenReturn(IValueMeta.TYPE_INTEGER);
     Object value = transform.normalizeValue(valueMeta, 100L);
-    Assert.assertTrue(value instanceof Integer);
+    assertTrue(value instanceof Integer);
   }
 
   @Test
-  public void createDateObjectTest() throws HopValueException, ParseException {
+  void createDateObjectTest() throws HopValueException, ParseException {
     SalesforceTransform transform =
         spy(
             new MockSalesforceTransform(
@@ -172,10 +173,10 @@ public class SalesforceTransformTest {
     Mockito.when(valueMeta.getDateFormatTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
     Mockito.when(valueMeta.getDate(date)).thenReturn(date);
     Object value = transform.normalizeValue(valueMeta, date);
-    Assert.assertTrue(value instanceof Calendar);
+    assertTrue(value instanceof Calendar);
     DateFormat minutesDateFormat = new SimpleDateFormat("mm:ss");
     // check not missing minutes and seconds
-    Assert.assertEquals(
+    assertEquals(
         minutesDateFormat.format(date), minutesDateFormat.format(((Calendar) value).getTime()));
   }
 }

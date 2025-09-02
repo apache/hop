@@ -29,23 +29,23 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class GetTableNamesTest {
+@ExtendWith(MockitoExtension.class)
+class GetTableNamesTest {
   private TransformMockHelper<GetTableNamesMeta, GetTableNamesData> mockHelper;
   private GetTableNames getTableNamesSpy;
   private Database database;
   private GetTableNamesMeta getTableNamesMeta;
   private GetTableNamesData getTableNamesData;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     mockHelper =
         new TransformMockHelper<>(
             "Get Table Names", GetTableNamesMeta.class, GetTableNamesData.class);
@@ -67,14 +67,14 @@ public class GetTableNamesTest {
     getTableNamesData = mock(GetTableNamesData.class);
   }
 
-  @After
-  public void tearDown() throws Exception {
+  @AfterEach
+  void tearDown() throws Exception {
     mockHelper.cleanUp();
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void processIncludeTableIncludeSchemaTest() throws HopException {
+  void processIncludeTableIncludeSchemaTest() throws HopException {
     prepareIncludeTableTest(true);
     getTableNamesSpy.processIncludeTable(new Object[] {"", "", "", ""});
     // Regardless of include schema is true or false calls to isSystemTable and getTableFieldsMeta
@@ -92,9 +92,9 @@ public class GetTableNamesTest {
     verify(database, times(1)).getTablenames("schema", true);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void processIncludeTableDontIncludeSchemaTest() throws HopException {
+  void processIncludeTableDontIncludeSchemaTest() throws HopException {
     prepareIncludeTableTest(false);
     getTableNamesSpy.processIncludeTable(new Object[] {"", "", "", ""});
     // Regardless of include schema is true or false calls to isSystemTable and getTableFieldsMeta
@@ -113,9 +113,9 @@ public class GetTableNamesTest {
     verify(database, times(0)).getTablenames("schema", true);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void processIncludeViewIncludesSchemaTest() throws HopException {
+  void processIncludeViewIncludesSchemaTest() throws HopException {
     prepareIncludeViewTest(true);
     getTableNamesSpy.processIncludeView(new Object[] {"", "", "", ""});
     // Regardless of include schema is true or false calls to isSystemTable should be done
@@ -130,9 +130,9 @@ public class GetTableNamesTest {
     verify(database, times(1)).getViews("schema", true);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void processIncludeViewDontIncludeSchemaTest() throws HopException {
+  void processIncludeViewDontIncludeSchemaTest() throws HopException {
     prepareIncludeViewTest(false);
     getTableNamesSpy.processIncludeView(new Object[] {"", "", "", ""});
     // Regardless of include schema is true or false calls to isSystemTable should be done

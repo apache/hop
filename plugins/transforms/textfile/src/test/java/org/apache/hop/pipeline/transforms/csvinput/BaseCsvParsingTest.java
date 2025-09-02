@@ -23,15 +23,15 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 
 /** Base class for all CSV input transform tests. */
-@Ignore("No tests in abstract base class")
+@Disabled("No tests in abstract base class")
 public abstract class BaseCsvParsingTest
     extends BaseParsingTest<CsvInputMeta, CsvInputData, CsvInput> {
   /** Initialize transform info. */
-  @Before
+  @BeforeEach
   public void before() {
     meta = new CsvInputMeta();
     meta.setDefault();

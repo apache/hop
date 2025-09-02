@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.denormaliser;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -31,30 +32,29 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class DenormaliserTest {
+class DenormaliserTest {
 
   private TransformMockHelper<DenormaliserMeta, DenormaliserData> mockHelper;
 
-  @Before
-  public void init() {
+  @BeforeEach
+  void init() {
     mockHelper =
         new TransformMockHelper<>("Denormalizer", DenormaliserMeta.class, DenormaliserData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     mockHelper.cleanUp();
   }
 
   @Test
-  public void testDeNormalise() throws Exception {
+  void testDeNormalise() throws Exception {
 
     // init transform data
     DenormaliserData data = new DenormaliserData();
@@ -99,13 +99,13 @@ public class DenormaliserTest {
     // call tested method
     Method deNormalise =
         denormaliser.getClass().getDeclaredMethod("deNormalise", IRowMeta.class, Object[].class);
-    Assert.assertNotNull("Can't find a method 'deNormalise' in class Denormalizer", deNormalise);
+    assertNotNull(deNormalise, "Can't find a method 'deNormalise' in class Denormalizer");
     deNormalise.setAccessible(true);
     deNormalise.invoke(denormaliser, rowMeta, rowData);
 
     // vefiry
     for (Object res : data.targetResult) {
-      Assert.assertNotNull("Date is null", res);
+      assertNotNull(res, "Date is null");
     }
   }
 }

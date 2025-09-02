@@ -17,17 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.cubeinput;
 
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@Ignore("Ignored, not running with ant build. Investigate.")
-public class CubeInputContentParsingTest extends BaseCubeInputParsingTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+@Disabled("Ignored, not running with ant build. Investigate.")
+class CubeInputContentParsingTest extends BaseCubeInputParsingTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     init("input.ser");
 
     process();

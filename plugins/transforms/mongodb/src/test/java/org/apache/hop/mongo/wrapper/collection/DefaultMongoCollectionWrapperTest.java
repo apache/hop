@@ -16,8 +16,8 @@
  */
 package org.apache.hop.mongo.wrapper.collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
@@ -34,8 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -48,7 +48,7 @@ public class DefaultMongoCollectionWrapperTest {
 
   private DBObject[] dbObjectArray = new DBObject[0];
 
-  @Before
+  @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
     defaultMongoCollectionWrapper = new DefaultMongoCollectionWrapper(mockDBCollection);

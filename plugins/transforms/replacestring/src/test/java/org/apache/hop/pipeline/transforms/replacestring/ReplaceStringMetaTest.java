@@ -17,21 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.replacestring;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ReplaceStringMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class ReplaceStringMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     ReplaceStringMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/replace-in-string-transform.xml", ReplaceStringMeta.class);
 
-    Assert.assertEquals(6, meta.getFields().size());
+    assertEquals(6, meta.getFields().size());
     ReplaceStringMeta.RSField field = meta.getFields().get(5);
-    Assert.assertEquals("strD", field.getFieldInStream());
-    Assert.assertTrue(field.isUsingRegEx());
-    Assert.assertEquals("[CIOKSX]", field.getReplaceString());
+    assertEquals("strD", field.getFieldInStream());
+    assertTrue(field.isUsingRegEx());
+    assertEquals("[CIOKSX]", field.getReplaceString());
   }
 }

@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -56,9 +56,9 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -81,7 +81,7 @@ public class ExcelWriterTransformTest {
 
   private File templateFile;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     String path = TestUtils.createRamFile(getClass().getSimpleName() + "/testXLSProtect.xls");
     FileObject xlsFile = TestUtils.getFileObject(path);
@@ -119,7 +119,7 @@ public class ExcelWriterTransformTest {
     assertTrue(transform.init());
   }
 
-  @After
+  @AfterEach
   public void cleanUp() {
     mockHelper.cleanUp();
   }

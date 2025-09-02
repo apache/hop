@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -34,11 +34,11 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class MemoryGroupByNewAggregateTest {
@@ -50,7 +50,7 @@ public class MemoryGroupByNewAggregateTest {
   MemoryGroupBy transform;
   MemoryGroupByData data;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
         new TransformMockHelper<>(
@@ -70,12 +70,12 @@ public class MemoryGroupByNewAggregateTest {
     statistics.add(GroupType.Percentile);
   }
 
-  @AfterClass
+  @AfterAll
   public static void cleanUp() {
     mockHelper.cleanUp();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     data = new MemoryGroupByData();
 
@@ -87,7 +87,7 @@ public class MemoryGroupByNewAggregateTest {
     int i = 0;
     for (GroupType type : types) {
       data.subjectnrs[i] = i++;
-      new GAggregate("x" + 1, "x", type, null);
+      aggregates.add(new GAggregate("x" + 1, "x", type, null));
     }
 
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
@@ -106,7 +106,7 @@ public class MemoryGroupByNewAggregateTest {
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   public void testNewAggregate() throws HopException {
     Object[] r = new Object[16];
     Arrays.fill(r, null);
@@ -115,17 +115,17 @@ public class MemoryGroupByNewAggregateTest {
 
     transform.newAggregate(r, agg);
 
-    assertEquals("All possible aggregation cases considered", 16, agg.agg.length);
+    assertEquals(16, agg.agg.length, "All possible aggregation cases considered");
 
     // all aggregations types is int values, filled in ascending order in perconditions
     for (int i = 0; i < agg.agg.length; i++) {
       int type = i + 1;
       if (strings.contains(type)) {
-        assertTrue("This is appendable type, type=" + type, agg.agg[i] instanceof Appendable);
+        assertTrue(agg.agg[i] instanceof Appendable, "This is appendable type, type=" + type);
       } else if (statistics.contains(type)) {
-        assertTrue("This is collection, type=" + type, agg.agg[i] instanceof Collection);
+        assertTrue(agg.agg[i] instanceof Collection, "This is collection, type=" + type);
       } else {
-        assertNull("Aggregation initialized with null, type=" + type, agg.agg[i]);
+        assertNull(agg.agg[i], "Aggregation initialized with null, type=" + type);
       }
     }
   }

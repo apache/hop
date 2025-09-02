@@ -17,6 +17,8 @@
 
 package org.apache.hop;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -28,7 +30,6 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import junit.framework.ComparisonFailure;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -78,7 +79,6 @@ public class TestUtilities {
    *
    * @param rows1 set 1 of rows to compare
    * @param rows2 set 2 of rows to compare
-   * @throws TestFailedException
    */
   public static void checkRows(List<RowMetaAndData> rows1, List<RowMetaAndData> rows2)
       throws TestFailedException {
@@ -130,10 +130,13 @@ public class TestUtilities {
           rowObject1[fileNameColumn] = rowObject2[fileNameColumn];
         }
         if (rowMetaAndData1.getRowMeta().compare(rowObject1, rowObject2, fields) != 0) {
-          throw new ComparisonFailure(
-              "row nr " + idx + " is not equal",
-              rowMetaInterface1.getString(rowObject1),
-              rowMetaInterface1.getString(rowObject2));
+          fail(
+              "row nr "
+                  + idx
+                  + " is not equal : "
+                  + rowMetaInterface1.getString(rowObject1)
+                  + " - "
+                  + rowMetaInterface1.getString(rowObject2));
         }
       } catch (HopValueException e) {
         throw new TestFailedException("row nr " + idx + " is not equal");
@@ -145,8 +148,6 @@ public class TestUtilities {
   /**
    * Creates a dummy
    *
-   * @param name
-   * @param pluginRegistry
    * @return TransformMata
    */
   public static synchronized TransformMeta createDummyTransform(
@@ -159,8 +160,6 @@ public class TestUtilities {
   /**
    * Create an injector transform.
    *
-   * @param name
-   * @param pluginRegistry
    * @return TransformMeta
    */
   public static synchronized TransformMeta createInjectorTransform(
@@ -173,13 +172,7 @@ public class TestUtilities {
     return new TransformMeta(injectorPid, name, injectorMeta);
   }
 
-  /**
-   * Create an empty temp file and return it's absolute path.
-   *
-   * @param fileName
-   * @return
-   * @throws IOException
-   */
+  /** Create an empty temp file and return it's absolute path. */
   public static synchronized String createEmptyTempFile(String fileName) throws IOException {
     return createEmptyTempFile(fileName, null);
   }
@@ -187,10 +180,7 @@ public class TestUtilities {
   /**
    * Create an empty temp file and return it's absolute path.
    *
-   * @param fileName
    * @param suffix A suffix to add at the end of the file name
-   * @return
-   * @throws IOException
    */
   public static synchronized String createEmptyTempFile(String fileName, String suffix)
       throws IOException {
@@ -201,9 +191,6 @@ public class TestUtilities {
 
   /**
    * Creates a the folder folderName under the java io temp directory. We suffix the file with ???
-   *
-   * @param folderName
-   * @return
    */
   public static synchronized String createTempFolder(String folderName) {
 
@@ -217,11 +204,7 @@ public class TestUtilities {
     }
   }
 
-  /**
-   * Returns the current date using this classes DATE_FORMAT_NOW format string.
-   *
-   * @return
-   */
+  /** Returns the current date using this classes DATE_FORMAT_NOW format string. */
   public static String now() {
     Calendar cal = Calendar.getInstance();
     SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
@@ -296,13 +279,11 @@ public class TestUtilities {
   /**
    * Create and return a SortRows transform.
    *
-   * @param name
    * @param directory The directory in the file system where the sort is to take place if it can't
    *     fit into memory?
    * @param sortSize ???
    * @param sortRowsFields the fields to sort by
    * @param pluginRegistry The environment's Hop plugin registry.
-   * @return
    */
   public static synchronized TransformMeta createSortRowsTransform(
       String name,
@@ -321,13 +302,7 @@ public class TestUtilities {
     return new TransformMeta(sortRowsTransformPid, name, sortRowsMeta);
   }
 
-  /**
-   * 65-90 = big, 97-122 - small
-   *
-   * @param rng
-   * @param length
-   * @return
-   */
+  /** 65-90 = big, 97-122 - small */
   public static String generateString(Random rng, int length) {
     char[] text = new char[length];
     for (int i = 0; i < length; i++) {

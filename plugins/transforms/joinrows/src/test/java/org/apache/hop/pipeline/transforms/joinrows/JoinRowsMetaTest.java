@@ -16,25 +16,27 @@
  */
 package org.apache.hop.pipeline.transforms.joinrows;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class JoinRowsMetaTest {
+class JoinRowsMetaTest {
   LoadSaveTester loadSaveTester;
   Class<JoinRowsMeta> testMetaClass = JoinRowsMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testCleanAfterHopToRemove_NullParameter() {
+  void testCleanAfterHopToRemove_NullParameter() {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
     TransformMeta transformMeta1 = new TransformMeta("Transform1", mock(ITransformMeta.class));
     joinRowsMeta.setMainTransform(transformMeta1);
@@ -49,7 +51,7 @@ public class JoinRowsMetaTest {
   }
 
   @Test
-  public void testCleanAfterHopToRemove_UnknownTransform() {
+  void testCleanAfterHopToRemove_UnknownTransform() {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
 
     TransformMeta transformMeta1 = new TransformMeta("Transform1", mock(ITransformMeta.class));
@@ -65,7 +67,7 @@ public class JoinRowsMetaTest {
   }
 
   @Test
-  public void testCleanAfterHopToRemove_ReferredTransform() {
+  void testCleanAfterHopToRemove_ReferredTransform() {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
 
     TransformMeta transformMeta1 = new TransformMeta("Transform1", mock(ITransformMeta.class));
@@ -80,7 +82,7 @@ public class JoinRowsMetaTest {
   }
 
   @Test
-  public void testSerialisation() throws Exception {
+  void testSerialisation() throws Exception {
     JoinRowsMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/join-rows-transform.xml", JoinRowsMeta.class);
@@ -89,7 +91,7 @@ public class JoinRowsMetaTest {
   }
 
   @Test
-  public void testSerialisationWithConditions() throws Exception {
+  void testSerialisationWithConditions() throws Exception {
     JoinRowsMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/join-rows-transform-with-condition.xml", JoinRowsMeta.class);
@@ -98,7 +100,7 @@ public class JoinRowsMetaTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     JoinRowsMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/join-rows-transform-with-condition.xml", JoinRowsMeta.class);

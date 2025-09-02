@@ -16,8 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.streamlookup;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +29,7 @@ import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -39,18 +39,19 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
+class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<StreamLookupMeta> testMetaClass = StreamLookupMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Before
-  public void setUpLoadSave() throws Exception {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeEach
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
@@ -100,12 +101,12 @@ public class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 
   @Test
-  public void testCloneInfoTransforms() {
+  void testCloneInfoTransforms() {
     StreamLookupMeta meta = new StreamLookupMeta();
     meta.setDefault();
 
@@ -123,7 +124,7 @@ public class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testGetXml() {
+  void testGetXml() {
     StreamLookupMeta streamLookupMeta = new StreamLookupMeta();
     streamLookupMeta.setKeystream(new String[] {"testKeyStreamValue"});
     streamLookupMeta.setKeylookup(new String[] {"testKeyLookupValue"});
@@ -136,11 +137,9 @@ public class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
     streamLookupMeta.afterInjectionSynchronization();
     streamLookupMeta.getXml();
 
-    Assert.assertEquals(
-        streamLookupMeta.getKeystream().length, streamLookupMeta.getValueName().length);
-    Assert.assertEquals(
-        streamLookupMeta.getKeystream().length, streamLookupMeta.getValueDefault().length);
-    Assert.assertEquals(
+    assertEquals(streamLookupMeta.getKeystream().length, streamLookupMeta.getValueName().length);
+    assertEquals(streamLookupMeta.getKeystream().length, streamLookupMeta.getValueDefault().length);
+    assertEquals(
         streamLookupMeta.getKeystream().length, streamLookupMeta.getValueDefaultType().length);
   }
 }

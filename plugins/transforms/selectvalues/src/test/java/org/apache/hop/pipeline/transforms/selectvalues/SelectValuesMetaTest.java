@@ -28,18 +28,19 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SelectValuesMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SelectValuesMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String FIRST_NAME = "FIRST_FIELD";
 
@@ -51,15 +52,15 @@ public class SelectValuesMetaTest {
 
   private SelectValuesMeta selectValuesMeta;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     selectValuesMeta = new SelectValuesMeta();
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void loadSaveTest() throws HopException {
-    List<String> attributes = Arrays.asList("selectFields", "deleteName");
+  void loadSaveTest() throws HopException {
+    List<String> attributes = Arrays.asList("selectOption", "deleteName");
 
     SelectField selectField = new SelectField();
     selectField.setName("TEST_NAME");
@@ -85,7 +86,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void setSelectName() {
+  void setSelectName() {
     List<SelectField> fields = getSelectFields(FIRST_NAME, SECOND_NAME);
 
     selectValuesMeta.getSelectOption().setSelectFields(fields);
@@ -94,7 +95,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void setSelectName_getOtherFields() {
+  void setSelectName_getOtherFields() {
 
     selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
 
@@ -105,7 +106,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void setSelectName_smallerThanPrevious() {
+  void setSelectName_smallerThanPrevious() {
     selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
     selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME));
     assertThat(selectValuesMeta.getSelectOption().getSelectFields())
@@ -114,12 +115,12 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void getSelectName() {
+  void getSelectName() {
     assertThat(selectValuesMeta.getSelectName()).isEmpty();
   }
 
   @Test
-  public void setSelectRename() {
+  void setSelectRename() {
     selectValuesMeta
         .getSelectOption()
         .setSelectFields(
@@ -131,7 +132,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void setSelectRename_getOtherFields() {
+  void setSelectRename_getOtherFields() {
     selectValuesMeta
         .getSelectOption()
         .setSelectFields(
@@ -146,7 +147,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void setSelectRename_smallerThanPrevious() {
+  void setSelectRename_smallerThanPrevious() {
     selectValuesMeta
         .getSelectOption()
         .setSelectFields(
@@ -162,13 +163,13 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void getSelectRename() {
+  void getSelectRename() {
     assertThat(selectValuesMeta.getSelectOption().getSelectFields())
         .allMatch(field -> field.getRename().isEmpty());
   }
 
   @Test
-  public void setSelectLength() {
+  void setSelectLength() {
     List<SelectField> selectFields = getSelectFields(FIRST_NAME, SECOND_NAME);
     selectFields.get(0).setLength(1);
     selectFields.get(1).setLength(2);
@@ -177,7 +178,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void setSelectLength_getOtherFields() {
+  void setSelectLength_getOtherFields() {
     selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
     selectValuesMeta.getSelectOption().getSelectFields().get(0).setLength(1);
     selectValuesMeta.getSelectOption().getSelectFields().get(1).setLength(2);
@@ -189,7 +190,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void setSelectLength_smallerThanPrevious() {
+  void setSelectLength_smallerThanPrevious() {
     selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
     selectValuesMeta.getSelectOption().getSelectFields().get(0).setLength(1);
     selectValuesMeta.getSelectOption().getSelectFields().get(1).setLength(2);
@@ -201,7 +202,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void setSelectPrecision() {
+  void setSelectPrecision() {
     selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
     selectValuesMeta.getSelectOption().getSelectFields().get(0).setPrecision(1);
     selectValuesMeta.getSelectOption().getSelectFields().get(1).setPrecision(2);
@@ -212,7 +213,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void setSelectPrecision_smallerThanPrevious() {
+  void setSelectPrecision_smallerThanPrevious() {
 
     selectValuesMeta.getSelectOption().setSelectFields(getSelectFields(FIRST_NAME, SECOND_NAME));
     selectValuesMeta.getSelectOption().getSelectFields().get(0).setPrecision(1);
@@ -244,7 +245,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void testNewSerialization() throws Exception {
+  void testNewSerialization() throws Exception {
     SelectValuesMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/select-values-transform.xml", SelectValuesMeta.class);
@@ -255,7 +256,7 @@ public class SelectValuesMetaTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     SelectValuesMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/select-values-transform.xml", SelectValuesMeta.class);

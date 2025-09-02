@@ -17,19 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class UserDefinedJavaClassMetaTest {
+class UserDefinedJavaClassMetaTest {
 
   @Test
-  public void cookClassErrorCompilationTest() {
+  void cookClassErrorCompilationTest() {
     String wrongCode =
         "public boolean processRow() {\n"
             + "   return true;\n"
@@ -61,11 +64,11 @@ public class UserDefinedJavaClassMetaTest {
       throw new RuntimeException(e);
     }
 
-    Assert.assertEquals(1, userDefinedJavaClassMeta.cookErrors.size());
+    assertEquals(1, userDefinedJavaClassMeta.cookErrors.size());
   }
 
   @Test
-  public void cookClassesCachingTest() throws Exception {
+  void cookClassesCachingTest() throws Exception {
     String codeBlock1 = "public boolean processRow() {\n" + "    return true;\n" + "}\n\n";
     String codeBlock2 =
         "public boolean processRow() {\n"
@@ -88,7 +91,7 @@ public class UserDefinedJavaClassMetaTest {
     Class<?> clazz1 = userDefinedJavaClassMetaSpy.cookClass(userDefinedJavaClassDef1, null);
     Class<?> clazz2 =
         userDefinedJavaClassMetaSpy.cookClass(userDefinedJavaClassDef1, clazz1.getClassLoader());
-    Assert.assertSame(clazz1, clazz2); // Caching should work here and return exact same class
+    assertSame(clazz1, clazz2); // Caching should work here and return exact same class
 
     UserDefinedJavaClassMeta userDefinedJavaClassMeta2 = new UserDefinedJavaClassMeta();
     UserDefinedJavaClassDef userDefinedJavaClassDef2 =
@@ -103,11 +106,11 @@ public class UserDefinedJavaClassMetaTest {
     Class<?> clazz3 =
         userDefinedJavaClassMeta2Spy.cookClass(userDefinedJavaClassDef2, clazz2.getClassLoader());
 
-    Assert.assertNotSame(clazz3, clazz1); // They should not be the exact same class
+    assertNotSame(clazz3, clazz1); // They should not be the exact same class
   }
 
   @Test
-  public void oderDefinitionTest() {
+  void oderDefinitionTest() {
     String codeBlock1 = "public boolean processRow() {\n" + "    return true;\n" + "}\n\n";
     UserDefinedJavaClassMeta userDefinedJavaClassMeta = new UserDefinedJavaClassMeta();
     UserDefinedJavaClassDef processClassDef =
@@ -139,11 +142,11 @@ public class UserDefinedJavaClassMetaTest {
 
     // Test reording the reverse order test
     List<UserDefinedJavaClassDef> orderDefs = userDefinedJavaClassMeta.orderDefinitions(defs);
-    Assert.assertEquals("A", orderDefs.get(0).getClassName());
-    Assert.assertEquals("B", orderDefs.get(1).getClassName());
-    Assert.assertEquals("C", orderDefs.get(2).getClassName());
-    Assert.assertEquals("Process", orderDefs.get(3).getClassName());
-    Assert.assertEquals("ProcessA", orderDefs.get(4).getClassName());
+    assertEquals("A", orderDefs.get(0).getClassName());
+    assertEquals("B", orderDefs.get(1).getClassName());
+    assertEquals("C", orderDefs.get(2).getClassName());
+    assertEquals("Process", orderDefs.get(3).getClassName());
+    assertEquals("ProcessA", orderDefs.get(4).getClassName());
 
     // Random order test
     defs.clear();
@@ -153,10 +156,10 @@ public class UserDefinedJavaClassMetaTest {
     defs.add(normalClassBDef);
     defs.add(processClassDef);
     orderDefs = userDefinedJavaClassMeta.orderDefinitions(defs);
-    Assert.assertEquals("A", orderDefs.get(0).getClassName());
-    Assert.assertEquals("B", orderDefs.get(1).getClassName());
-    Assert.assertEquals("C", orderDefs.get(2).getClassName());
-    Assert.assertEquals("Process", orderDefs.get(3).getClassName());
-    Assert.assertEquals("ProcessA", orderDefs.get(4).getClassName());
+    assertEquals("A", orderDefs.get(0).getClassName());
+    assertEquals("B", orderDefs.get(1).getClassName());
+    assertEquals("C", orderDefs.get(2).getClassName());
+    assertEquals("Process", orderDefs.get(3).getClassName());
+    assertEquals("ProcessA", orderDefs.get(4).getClassName());
   }
 }
