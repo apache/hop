@@ -6,23 +6,19 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -46,40 +42,20 @@ public class MergeRowsMetaTest implements IInitializer<ITransformMeta> {
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
-    List<String> attributes = Arrays.asList("flagField", "keyFields", "valueFields");
-
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("keyFields", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("valueFields", stringArrayLoadSaveValidator);
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass,
-            attributes,
-            new HashMap<>(),
-            new HashMap<>(),
-            attrValidatorMap,
-            typeValidatorMap,
-            this);
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(ITransformMeta someMeta) {
-    if (someMeta instanceof MergeRowsMeta) {
-      ((MergeRowsMeta) someMeta).allocate(5, 5);
-    }
   }
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
+  public void testSerialization() throws Exception {
+    MergeRowsMeta meta =
+        TransformSerializationTestUtil.testSerialization("/merge-rows.xml", MergeRowsMeta.class);
 
-  // Note - cloneTest removed as load/save validator covers clone testing as well now.
+    Assert.assertEquals(1, meta.getKeyFields().size());
+    Assert.assertEquals("id", meta.getKeyFields().get(0));
+    Assert.assertEquals("flagfield", meta.getFlagField());
+    Assert.assertEquals("source1", meta.getReferenceTransform());
+    Assert.assertEquals("source2", meta.getCompareTransform());
+    Assert.assertEquals(2, meta.getValueFields().size());
+    Assert.assertEquals("name", meta.getValueFields().get(0));
+    Assert.assertEquals("score", meta.getValueFields().get(1));
+  }
 }
