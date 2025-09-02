@@ -1,0 +1,13 @@
+id,name,score,flagfield,difference
+1,James,3.6,"{""changes"":[]}",identical
+2,Marie,8.3,"{""changes"":[]}",deleted
+3,Michael,9.1,"{""changes"":[]}",identical
+4,Patricia,4.2,"{""changes"":[{""name"":{""from"":""Patrcia"",""to"":""Patricia""}}]}",changed
+5,Robert,5,"{""changes"":[]}",identical
+6,Linda,1.6,"{""changes"":[]}",deleted
+7,David,7.2,"{""changes"":[]}",identical
+8,Elizabeth,6.9,"{""changes"":[]}",identical
+9,William,4.3,"{""changes"":[{""name"":{""from"":""Willian"",""to"":""William""}},{""score"":{""from"":4.2,""to"":4.3}}]}",changed
+10,Barbara,0.7,"{""changes"":[{""score"":{""from"":0.5,""to"":0.7}}]}",changed
+11,Richard,9.6,"{""changes"":[]}",new
+12,Susan,5.4,"{""changes"":[]}",new

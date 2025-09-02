@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -45,6 +46,7 @@ public class HopCommandGui implements Runnable, IHopCommand {
       CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
       throws HopException {
     // Nothing specific
+    System.setProperty(Const.HOP_PLATFORM_RUNTIME, "GUI");
   }
 
   @Override
