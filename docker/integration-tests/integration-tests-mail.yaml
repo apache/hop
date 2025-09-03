@@ -24,20 +24,21 @@ services:
       HOP_OPTIONS: "${HOP_OPTIONS} -Djavax.net.ssl.keyStore=/tmp/keystore -Djavax.net.ssl.trustStore=/tmp/keystore -Djavax.net.ssl.keyStorePassword=james72laBalle"
     depends_on:
       - james
-    links: 
-      - james  
+    links:
+      - james
+ #   command: [ "bash", "-c", "/files/scripts/run-tests.sh mail" ]
 
-  james: 
+  james:
     image: apache/james:jpa-latest
-    # hostname: james   
-    ports: 
-      - "25"
-      - "465"
-      - "587"
-      - "143"
-      - "993"
-      - "8000"
-    volumes: 
+    # hostname: james
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "143:143"
+      - "993:993"
+      - "8000:8000"
+    volumes:
       - ./resource/mail/conf:/root/conf
     healthcheck:
       test: [ "CMD-SHELL", "true" ]
