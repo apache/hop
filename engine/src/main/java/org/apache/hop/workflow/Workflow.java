@@ -679,6 +679,24 @@ public abstract class Workflow extends Variables
       return res;
     }
 
+    // If previous is not null then that action has finished
+    if (previous != null) {
+      if (log.isBasic()) {
+        log.logBasic(
+            BaseMessages.getString(
+                PKG,
+                "Workflow.Log.FinishedAction",
+                previous.getName(),
+                previousResult.getResult() + ""));
+      }
+    }
+
+    // Start this action!
+    if (log.isBasic()) {
+      log.logBasic(
+          BaseMessages.getString(PKG, "Workflow.Log.StartingAction", actionMeta.getName()));
+    }
+
     // if we didn't have a previous result, create one, otherwise, copy the content...
     //
     final Result newResult;
@@ -847,12 +865,6 @@ public abstract class Workflow extends Variables
           }
         }
 
-        // Start this next action!
-        if (log.isBasic()) {
-          log.logBasic(
-              BaseMessages.getString(PKG, "Workflow.Log.StartingAction", nextAction.getName()));
-        }
-
         // Pass along the previous result, perhaps the next workflow can use it...
         // However, set the number of errors back to 0 (if it should be reset)
         // When an evaluation is executed the errors e.g. should not be reset.
@@ -903,14 +915,6 @@ public abstract class Workflow extends Variables
             throw new HopException(
                 BaseMessages.getString(PKG, "Workflow.Log.UnexpectedError", nextAction.toString()),
                 e);
-          }
-          if (log.isBasic()) {
-            log.logBasic(
-                BaseMessages.getString(
-                    PKG,
-                    "Workflow.Log.FinishedAction",
-                    nextAction.getName(),
-                    res.getResult() + ""));
           }
         }
       }
@@ -975,6 +979,14 @@ public abstract class Workflow extends Variables
     //
     if (res.getNrErrors() > 0) {
       res.setResult(false);
+    }
+    // Log the final action that has finished
+    if (res.getEntryNr() == nr) {
+      if (log.isBasic()) {
+        log.logBasic(
+            BaseMessages.getString(
+                PKG, "Workflow.Log.FinishedAction", actionMeta.getName(), res.getResult() + ""));
+      }
     }
 
     return res;
