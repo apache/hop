@@ -18,6 +18,7 @@
 
 package org.apache.hop.vfs.gs;
 
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import java.util.Collection;
@@ -28,6 +29,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
+import org.threeten.bp.Duration;
 
 public class GoogleStorageFileSystem extends AbstractFileSystem {
 
@@ -58,10 +60,21 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
     if (storage != null) {
       return storage;
     }
+    RetrySettings retrySettings =
+        StorageOptions.getDefaultRetrySettings().toBuilder()
+            // Set the max number of attempts to 10 (initial attempt plus 9 retries)
+            .setMaxAttempts(10)
+            // Set the backoff multiplier to 3.0
+            .setRetryDelayMultiplier(3.0)
+            // Set the max duration of all attempts to 5 minutes
+            .setTotalTimeout(Duration.ofMinutes(5))
+            .build();
 
     StorageOptions.Builder optionsBuilder = StorageOptions.newBuilder();
     optionsBuilder.setCredentials(
         GoogleStorageFileSystemConfigBuilder.getInstance().getGoogleCredentials(fileSystemOptions));
+    optionsBuilder.setRetrySettings(retrySettings);
+
     return storage = optionsBuilder.build().getService();
   }
 
