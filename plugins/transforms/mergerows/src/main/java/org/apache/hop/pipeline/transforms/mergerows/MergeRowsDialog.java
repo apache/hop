@@ -350,6 +350,8 @@ public class MergeRowsDialog extends BaseTransformDialog {
       return;
     }
 
+    input.setReferenceTransform(wReference.getText());
+    input.setCompareTransform(wCompare.getText());
     List<IStream> infoStreams = input.getTransformIOMeta().getInfoStreams();
     infoStreams.get(0).setTransformMeta(pipelineMeta.findTransform(wReference.getText()));
     infoStreams.get(1).setTransformMeta(pipelineMeta.findTransform(wCompare.getText()));
