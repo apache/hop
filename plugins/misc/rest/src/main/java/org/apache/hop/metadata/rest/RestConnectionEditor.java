@@ -195,9 +195,10 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     restConnection.setName(wName.getText());
     if (StringUtils.isEmpty(wTestUrl.getText())) {
       restConnection.setTestUrl(wBaseUrl.getText());
+    } else {
+      restConnection.setTestUrl(wTestUrl.getText());
     }
     restConnection.setBaseUrl(wBaseUrl.getText());
-    restConnection.setTestUrl(wTestUrl.getText());
     restConnection.setAuthorizationHeaderName(wAuthorizationName.getText());
     restConnection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
     restConnection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
@@ -208,7 +209,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       String message =
           BaseMessages.getString(PKG, "RestConnectionEditor.ConnectionTestSuccess") + Const.CR;
       message += Const.CR;
-      message += "URL : " + wTestUrl.getText();
+      message += "URL : " + restConnection.getTestUrl();
       box.setMessage(message);
       box.open();
     } catch (Exception e) {
