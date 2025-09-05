@@ -549,7 +549,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
               for (ResultFile resultFile : resultFiles) {
                 boolean found = false;
                 for (int i = 0; i < fileTypes.size(); i++) {
-                  if (fileTypes.get(i).equals(resultFile.getTypeDesc())) {
+                  if (fileTypes.get(i).equals(resultFile.getTypeCode())) {
                     found = true;
                   }
                 }

@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0009-mail-with-zip</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2025/02/14 19:44:15.999</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2025/02/14 19:44:15.999</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>720</xloc>
+      <yloc>1376</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>get mails</name>
+      <description/>
+      <type>GET_POP</type>
+      <attributes/>
+      <createlocalfolder>Y</createlocalfolder>
+      <createmovetofolder>N</createmovetofolder>
+      <delete>N</delete>
+      <filenamepattern>name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail</filenamepattern>
+      <imapfirstmails>0</imapfirstmails>
+      <imapfolder>INBOX</imapfolder>
+      <includesubfolders>N</includesubfolders>
+      <nottermbodysearch>N</nottermbodysearch>
+      <nottermreceipientsearh>N</nottermreceipientsearh>
+      <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
+      <nottermsendersearch>N</nottermsendersearch>
+      <nottermsubjectsearch>N</nottermsubjectsearch>
+      <outputdirectory>${PROJECT_HOME}/output</outputdirectory>
+      <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
+      <protocol>IMAP</protocol>
+      <retrievemails>0</retrievemails>
+      <saveattachment>Y</saveattachment>
+      <savemessage>Y</savemessage>
+      <servername>${MAIL_SMTP_SERVER}</servername>
+      <sslport>993</sslport>
+      <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
+      <useproxy>N</useproxy>
+      <username>user01@example.com</username>
+      <usessl>Y</usessl>
+      <usexoauth2>N</usexoauth2>
+      <parallel>N</parallel>
+      <xloc>1600</xloc>
+      <yloc>1616</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>2256</xloc>
+      <yloc>1616</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Unzip attachment</name>
+      <description/>
+      <type>UNZIP</type>
+      <attributes/>
+      <SpecifyFormat>N</SpecifyFormat>
+      <addOriginalTimestamp>N</addOriginalTimestamp>
+      <adddate>N</adddate>
+      <addfiletoresult>N</addfiletoresult>
+      <addtime>N</addtime>
+      <afterunzip>0</afterunzip>
+      <create_move_to_directory>N</create_move_to_directory>
+      <createfolder>N</createfolder>
+      <iffileexists>1</iffileexists>
+      <isfromprevious>N</isfromprevious>
+      <nr_limit>10</nr_limit>
+      <rootzip>N</rootzip>
+      <setOriginalModificationDate>N</setOriginalModificationDate>
+      <success_condition>success_if_no_errors</success_condition>
+      <targetdirectory>${PROJECT_HOME}/output</targetdirectory>
+      <zipfilename>${PROJECT_HOME}/output/attachment.zip</zipfilename>
+      <parallel>N</parallel>
+      <xloc>1792</xloc>
+      <yloc>1376</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>add domains, users</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <arg_from_previous>N</arg_from_previous>
+      <arguments>
+</arguments>
+      <exec_per_row>N</exec_per_row>
+      <insertScript>Y</insertScript>
+      <loglevel>Basic</loglevel>
+      <script>#!/bin/bash 
+
+echo "james server: " ${MAIL_SMTP_SERVER} 
+
+curl -XPUT http://${MAIL_SMTP_SERVER}:8000/domains/example.com
+curl -XPUT http://${MAIL_SMTP_SERVER}:8000/domains/acme.be
+
+curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/user01@example.com   -d '{"password":"password"}'    -H "Content-Type: application/json"
+curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"password":"password"}'    -H "Content-Type: application/json"
+
+</script>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <parallel>N</parallel>
+      <xloc>1184</xloc>
+      <yloc>1376</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Add filenames to result</name>
+      <description/>
+      <type>ADD_RESULT_FILENAMES</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <delete_all_before>N</delete_all_before>
+      <fields>
+        <field>
+          <name>${PROJECT_HOME}/datasets/test.txt</name>
+        </field>
+      </fields>
+      <include_subfolders>N</include_subfolders>
+      <parallel>N</parallel>
+      <xloc>944</xloc>
+      <yloc>1376</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Mail w General zipd</name>
+      <description/>
+      <type>MAIL</type>
+      <attributes/>
+      <check_server_identity>N</check_server_identity>
+      <comment>jello</comment>
+      <destination>user01@example.com</destination>
+      <embeddedimages>
+</embeddedimages>
+      <encoding>UTF-8</encoding>
+      <fileTypes>
+        <fileType>GENERAL</fileType>
+      </fileTypes>
+      <importance>normal</importance>
+      <include_date>N</include_date>
+      <include_files>Y</include_files>
+      <only_comment>N</only_comment>
+      <port>25</port>
+      <priority>normal</priority>
+      <replyto>user01@example.com</replyto>
+      <replytoname>user01@example.com</replytoname>
+      <secureconnectiontype>SSL</secureconnectiontype>
+      <sensitivity>normal</sensitivity>
+      <server>${MAIL_SMTP_SERVER}</server>
+      <subject>with General zipd</subject>
+      <use_HTML>N</use_HTML>
+      <use_Priority>N</use_Priority>
+      <use_auth>N</use_auth>
+      <use_secure_auth>N</use_secure_auth>
+      <usexoauth2>N</usexoauth2>
+      <zip_files>Y</zip_files>
+      <zip_name>attachment.zip</zip_name>
+      <parallel>N</parallel>
+      <xloc>1184</xloc>
+      <yloc>1616</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Wait for 5 sec</name>
+      <description/>
+      <type>DELAY</type>
+      <attributes/>
+      <maximumTimeout>5</maximumTimeout>
+      <scaletime>0</scaletime>
+      <parallel>N</parallel>
+      <xloc>1392</xloc>
+      <yloc>1616</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Tear down</name>
+      <description/>
+      <type>DELETE_FILES</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <fields>
+        <field>
+          <filemask>.*</filemask>
+          <name>${PROJECT_HOME}/output</name>
+        </field>
+      </fields>
+      <include_subfolders>N</include_subfolders>
+      <parallel>N</parallel>
+      <xloc>2256</xloc>
+      <yloc>1376</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Wait for attachment to be downloaded</name>
+      <description/>
+      <type>WAIT_FOR_FILE</type>
+      <attributes/>
+      <add_filename_result>N</add_filename_result>
+      <check_cycle_time>60</check_cycle_time>
+      <file_size_check>N</file_size_check>
+      <filename>${PROJECT_HOME}/output/attachment.zip</filename>
+      <maximum_timeout>0</maximum_timeout>
+      <success_on_timeout>N</success_on_timeout>
+      <parallel>N</parallel>
+      <xloc>1792</xloc>
+      <yloc>1616</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check if attachment content is valid</name>
+      <description/>
+      <type>FILE_COMPARE</type>
+      <attributes/>
+      <add_filename_result>N</add_filename_result>
+      <filename1>${PROJECT_HOME}/output/test.txt</filename1>
+      <filename2>${PROJECT_HOME}/datasets/test.txt</filename2>
+      <parallel>N</parallel>
+      <xloc>1984</xloc>
+      <yloc>1376</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>add domains, users</from>
+      <to>Mail w General zipd</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Add filenames to result</from>
+      <to>add domains, users</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Mail w General zipd</from>
+      <to>Wait for 5 sec</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Wait for 5 sec</from>
+      <to>get mails</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Start</from>
+      <to>Add filenames to result</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>get mails</from>
+      <to>Wait for attachment to be downloaded</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Wait for attachment to be downloaded</from>
+      <to>Unzip attachment</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Unzip attachment</from>
+      <to>Check if attachment content is valid</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check if attachment content is valid</from>
+      <to>Tear down</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Tear down</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>.AppleSystemUIFont</fontname>
+      <fontsize>13</fontsize>
+      <height>42</height>
+      <xloc>848</xloc>
+      <yloc>1440</yloc>
+      <note>Docker Compose health check for James is not reliable. 
+Wait 30s just to be on the safe side. </note>
+      <width>351</width>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>
