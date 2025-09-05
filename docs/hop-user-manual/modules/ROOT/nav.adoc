@@ -373,6 +373,7 @@ under the License.
 ** xref:vfs/dropbox-vfs.adoc[Dropbox]
 ** xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage]
 ** xref:vfs/google-drive-vfs.adoc[Google Drive]
+** xref:vfs/minio-vfs.adoc[MinIO]
 * xref:database/databases.adoc[Relational Database Connections]
 //::=START AUTO GENERATED LINKS DATABASES
 ** xref:database/databases/derby.adoc[Apache Derby]
