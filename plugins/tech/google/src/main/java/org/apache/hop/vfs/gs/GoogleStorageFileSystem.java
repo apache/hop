@@ -18,6 +18,7 @@
 
 package org.apache.hop.vfs.gs;
 
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import java.util.Collection;
@@ -28,6 +29,9 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
+import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
+import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
+import org.threeten.bp.Duration;
 
 public class GoogleStorageFileSystem extends AbstractFileSystem {
 
@@ -59,9 +63,28 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
       return storage;
     }
 
+    GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
+
+    RetrySettings retrySettings =
+        StorageOptions.getDefaultRetrySettings().toBuilder()
+            .setMaxAttempts(Integer.parseInt(config.getMaxAttempts()))
+            .setInitialRetryDelay(
+                Duration.ofSeconds(Integer.parseInt(config.getInitialRetryDelay())))
+            .setRetryDelayMultiplier(Double.parseDouble(config.getRetryDelayMultiplier()))
+            .setMaxRetryDelay(Duration.ofSeconds(Integer.parseInt(config.getMaxRetryDelay())))
+            .setTotalTimeout(Duration.ofMinutes(Integer.parseInt(config.getTotalTimeout())))
+            .setInitialRpcTimeout(
+                Duration.ofSeconds(Integer.parseInt(config.getInitialRpcTimeout())))
+            .setRpcTimeoutMultiplier(Double.parseDouble(config.getRpcTimeoutMultiplier()))
+            // max RPC Timeout setting causes problems,  disabled for now
+            // .setMaxRpcTimeout(Duration.ofSeconds(Integer.parseInt(config.getMaxRpcTimeout())))
+            .build();
+
     StorageOptions.Builder optionsBuilder = StorageOptions.newBuilder();
     optionsBuilder.setCredentials(
         GoogleStorageFileSystemConfigBuilder.getInstance().getGoogleCredentials(fileSystemOptions));
+    optionsBuilder.setRetrySettings(retrySettings);
+
     return storage = optionsBuilder.build().getService();
   }
 
