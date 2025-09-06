@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.IntStream;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
@@ -31,40 +33,43 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.formula.util.FormulaFieldsExtractor;
 import org.apache.hop.pipeline.transforms.formula.util.FormulaParser;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
-  private XSSFWorkbook workBook;
-  private XSSFSheet workSheet;
-  private Row sheetRow;
-  private HashMap<String, String> replaceMap;
+  private FormulaPoi[] poi;
+  private List<String>[] formulaFieldLists;
+  private final HashMap<String, String> replaceMap = new HashMap<>();
 
   @Override
   public boolean init() {
-
-    workBook = new XSSFWorkbook();
-    workSheet = workBook.createSheet();
-    sheetRow = workSheet.createRow(0);
-    replaceMap = new HashMap<>();
-
     return true;
   }
 
   @Override
   public void dispose() {
-    try {
-      workBook.close();
-    } catch (IOException e) {
-      logError("Unable to close temporary workbook", e);
+    if (poi != null) {
+      for (final var it : poi) {
+        try {
+          it.destroy();
+        } catch (IOException e) {
+          logError("Unable to close temporary workbook", e);
+        }
+      }
     }
     super.dispose();
+  }
+
+  @Override
+  public void batchComplete() throws HopException {
+    super.batchComplete();
+    for (final var it : poi) {
+      it.reset();
+    }
   }
 
   @Override
@@ -112,6 +117,18 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
           data.replaceIndex[j] = -1;
         }
       }
+
+      // create one backing row per formula
+      poi =
+          IntStream.range(0, meta.getFormulas().size())
+              .mapToObj(it -> new FormulaPoi(this::logDebug))
+              .toArray(FormulaPoi[]::new);
+      // compute only once for all rows the default field list
+      formulaFieldLists =
+          meta.getFormulas().stream()
+              .map(FormulaMetaFunction::getFormula)
+              .map(FormulaFieldsExtractor::getFormulaFieldList)
+              .toArray(List[]::new);
     }
 
     int tempIndex = getInputRowMeta().size();
@@ -119,11 +136,6 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     if (isRowLevel()) {
       logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(r));
     }
-
-    if (sheetRow != null) {
-      workSheet.removeRow(sheetRow);
-    }
-    sheetRow = workSheet.createRow(0);
 
     Object[] outputRowData = RowDataUtil.resizeArray(r, data.outputRowMeta.size());
     Object outputValue = null;
@@ -133,7 +145,13 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
       FormulaMetaFunction formula = meta.getFormulas().get(i);
       FormulaParser parser =
           new FormulaParser(
-              formula, data.outputRowMeta, outputRowData, sheetRow, variables, replaceMap);
+              formula,
+              data.outputRowMeta,
+              outputRowData,
+              poi[i],
+              variables,
+              replaceMap,
+              formulaFieldLists[i]);
       try {
         CellValue cellValue = parser.getFormulaValue();
         CellType cellType = cellValue.getCellType();
