@@ -27,11 +27,42 @@ public class GoogleCloudConfig {
   public static final String HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY = "googleCloud";
 
   private String serviceAccountKeyFile;
+  private String maxAttempts;
+  private String initialRetryDelay;
+  private String retryDelayMultiplier;
+  private String maxRetryDelay;
+  private String totalTimeout;
+  private String initialRpcTimeout;
+  private String rpcTimeoutMultiplier;
+  private String maxRpcTimeout;
+  private String connectionTimeout;
+  private String readTimeout;
 
-  public GoogleCloudConfig() {}
+  public GoogleCloudConfig() {
+    maxAttempts = "6";
+    initialRetryDelay = "1";
+    retryDelayMultiplier = "2.0";
+    maxRetryDelay = "32";
+    totalTimeout = "50";
+    initialRpcTimeout = "50";
+    rpcTimeoutMultiplier = "1.0";
+    maxRpcTimeout = "50";
+    connectionTimeout = "20";
+    readTimeout = "20";
+  }
 
   public GoogleCloudConfig(GoogleCloudConfig config) {
     this();
     serviceAccountKeyFile = config.serviceAccountKeyFile;
+    maxAttempts = config.maxAttempts;
+    initialRetryDelay = config.initialRetryDelay;
+    retryDelayMultiplier = config.retryDelayMultiplier;
+    maxRetryDelay = config.maxRetryDelay;
+    totalTimeout = config.totalTimeout;
+    initialRpcTimeout = config.initialRpcTimeout;
+    rpcTimeoutMultiplier = config.rpcTimeoutMultiplier;
+    maxRpcTimeout = config.maxRpcTimeout;
+    connectionTimeout = config.connectionTimeout;
+    readTimeout = config.readTimeout;
   }
 }
