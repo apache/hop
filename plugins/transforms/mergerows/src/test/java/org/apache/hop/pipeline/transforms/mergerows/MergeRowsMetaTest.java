@@ -18,44 +18,39 @@
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class MergeRowsMetaTest implements IInitializer<ITransformMeta> {
-  LoadSaveTester loadSaveTester;
-  Class<MergeRowsMeta> testMetaClass = MergeRowsMeta.class;
+class MergeRowsMetaTest {
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     MergeRowsMeta meta =
         TransformSerializationTestUtil.testSerialization("/merge-rows.xml", MergeRowsMeta.class);
 
-    Assert.assertEquals(1, meta.getKeyFields().size());
-    Assert.assertEquals("id", meta.getKeyFields().get(0));
-    Assert.assertEquals("flagfield", meta.getFlagField());
-    Assert.assertEquals("source1", meta.getReferenceTransform());
-    Assert.assertEquals("source2", meta.getCompareTransform());
-    Assert.assertEquals(2, meta.getValueFields().size());
-    Assert.assertEquals("name", meta.getValueFields().get(0));
-    Assert.assertEquals("score", meta.getValueFields().get(1));
+    assertEquals(1, meta.getKeyFields().size());
+    assertEquals("id", meta.getKeyFields().get(0));
+    assertEquals("flagfield", meta.getFlagField());
+    assertEquals("source1", meta.getReferenceTransform());
+    assertEquals("source2", meta.getCompareTransform());
+    assertEquals(2, meta.getValueFields().size());
+    assertEquals("name", meta.getValueFields().get(0));
+    assertEquals("score", meta.getValueFields().get(1));
   }
 }
