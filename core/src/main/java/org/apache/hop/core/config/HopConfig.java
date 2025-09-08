@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
@@ -33,7 +32,7 @@ import org.apache.hop.core.variables.DescribedVariable;
  * This class keeps track of storing and retrieving all the configuration options in Hop. This
  * includes all options of the various plugins in the Hop ecosystem.
  */
-public class HopConfig extends ConfigFile implements IConfigFile {
+public class HopConfig extends ConfigFile {
 
   private static final String HOP_GUI_PROPERTIES_KEY = "guiProperties";
 
@@ -147,11 +146,19 @@ public class HopConfig extends ConfigFile implements IConfigFile {
         Map<String, String> map = new HashMap<>();
         getInstance().configMap.put(HOP_GUI_PROPERTIES_KEY, map);
         return map;
+      } else if (propertiesObject instanceof Map) {
+        @SuppressWarnings("unchecked")
+        Map<String, String> propertiesMap = (Map<String, String>) propertiesObject;
+        return propertiesMap;
       } else {
-        return (Map<String, String>) propertiesObject;
+        // If the object is not a Map, create a new one and log a warning
+        System.err.println("Warning: GUI properties object is not a Map, creating new one");
+        Map<String, String> map = new HashMap<>();
+        getInstance().configMap.put(HOP_GUI_PROPERTIES_KEY, map);
+        return map;
       }
     } catch (Exception e) {
-      throw new RuntimeException("Error getting GUI properties from the Hop configuration");
+      throw new RuntimeException("Error getting GUI properties from the Hop configuration", e);
     }
   }
 
@@ -163,20 +170,22 @@ public class HopConfig extends ConfigFile implements IConfigFile {
    * @return the value associated to the variable
    */
   public static String readStringVariable(String key, String defaultValue) {
-    String value = null;
-
-    ArrayList<DescribedVariable> variables =
-        (ArrayList<DescribedVariable>) getInstance().configMap.get(HOP_VARIABLES_KEY);
-    if (variables != null) {
-      Iterator<DescribedVariable> i = variables.iterator();
-
-      while (i.hasNext() && value == null) {
-        DescribedVariable v = i.next();
-        if (v.getName().equals(key)) value = v.getValue();
+    try {
+      List<DescribedVariable> variables = getInstance().getDescribedVariables();
+      if (variables != null) {
+        for (DescribedVariable v : variables) {
+          if (v.getName().equals(key)) {
+            return v.getValue();
+          }
+        }
       }
+    } catch (Exception e) {
+      // Log the error but don't fail the entire operation
+      // Return the default value instead
+      System.err.println("Error reading string variable '" + key + "': " + e.getMessage());
     }
 
-    return value == null ? defaultValue : value;
+    return defaultValue;
   }
 
   public static void setGuiProperty(String key, String value) {
