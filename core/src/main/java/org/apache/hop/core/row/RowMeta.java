@@ -1314,7 +1314,7 @@ public class RowMeta implements IRowMeta {
       Integer index = mapping.get(name);
       if (index != null) {
         IValueMeta value = metas.get(index);
-        if (!name.equalsIgnoreCase(value.getName())) {
+        if (!name.equals(value.getName())) { // case insensitive since we lowercase
           mapping.remove(name);
           index = null;
         }
