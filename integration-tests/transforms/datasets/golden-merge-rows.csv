@@ -1,0 +1,13 @@
+id,name,score,flagfield
+1,James,3.6,identical
+2,Marie,8.3,deleted
+3,Michael,9.1,identical
+4,Patricia,4.2,changed
+5,Robert,5,identical
+6,Linda,1.6,deleted
+7,David,7.2,identical
+8,Elizabeth,6.9,identical
+9,William,4.2,changed
+10,Barbara,0.5,identical
+11,Richard,9.6,new
+12,Susan,5.4,new
