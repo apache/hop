@@ -27,7 +27,7 @@ services:
       - opensearch
 
   opensearch:
-    image: opensearch:latest
+    image: opensearchproject/opensearch:latest
     ports:
       - "9200"
       - "9600"
