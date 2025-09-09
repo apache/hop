@@ -32,7 +32,7 @@
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_name": "flagfield",
+      "field_name": "difference",
       "field_format": ""
     },
     {
@@ -40,7 +40,7 @@
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_name": "difference",
+      "field_name": "flagfield",
       "field_format": ""
     }
   ],
