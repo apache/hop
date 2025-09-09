@@ -66,12 +66,12 @@ public class FormulaMetaFunction {
   private transient boolean needDataConversion = false;
 
   /**
-   * @param fieldName
-   * @param formula
-   * @param valueType
-   * @param valueLength
-   * @param valuePrecision
-   * @param replaceField
+   * @param fieldName Output field name
+   * @param formula Formula
+   * @param valueType The value type of the return value
+   * @param valueLength Lenght of valueMeta
+   * @param valuePrecision Precision of valueMeta
+   * @param replaceField Should the source field be replaced
    */
   public FormulaMetaFunction(
       String fieldName,

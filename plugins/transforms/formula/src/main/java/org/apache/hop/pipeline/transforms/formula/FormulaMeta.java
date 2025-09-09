@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.formula;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -39,6 +41,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::Formula.keywords",
     documentationUrl = "/pipeline/transforms/formula.html")
+@Getter
+@Setter
 public class FormulaMeta extends BaseTransformMeta<Formula, FormulaData> {
 
   /** The formula calculations to be performed */
@@ -56,19 +60,6 @@ public class FormulaMeta extends BaseTransformMeta<Formula, FormulaData> {
 
   public FormulaMeta(FormulaMeta m) {
     this.formulas = m.formulas;
-  }
-
-  public void setFormulas(List<FormulaMetaFunction> formulas) {
-    this.formulas = formulas;
-  }
-
-  public List<FormulaMetaFunction> getFormulas() {
-    return formulas;
-  }
-
-  @Override
-  public Object clone() {
-    return new FormulaMeta(this);
   }
 
   @Override
