@@ -159,15 +159,14 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "MergeRowsMeta.Exception.FlagFieldNotSpecified"));
     }
-    IValueMeta flagFieldValue = new ValueMetaString(flagField);
-    flagFieldValue.setOrigin(name);
-    r.addValueMeta(flagFieldValue);
-
     if (StringUtils.isNotEmpty(variables.resolve(diffJsonField))) {
       IValueMeta diffField = new ValueMetaString(variables.resolve(diffJsonField));
       diffField.setOrigin(name);
       r.addValueMeta(diffField);
     }
+    IValueMeta flagFieldValue = new ValueMetaString(flagField);
+    flagFieldValue.setOrigin(name);
+    r.addValueMeta(flagFieldValue);
   }
 
   @Override
