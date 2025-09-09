@@ -24,6 +24,7 @@ import io.minio.CopySource;
 import io.minio.GetObjectArgs;
 import io.minio.GetObjectResponse;
 import io.minio.ListObjectsArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
@@ -86,10 +87,18 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   @Override
   public boolean exists() throws FileSystemException {
-    if (!bucketExists(bucketName)) {
+    // If the bucket isn's specified and we don't have key, we're looking at minio:///
+    // This is the absolute root folder of minio:///, and it exists to create and navigate to
+    // buckets.
+    if (StringUtils.isEmpty(bucketName) && StringUtils.isEmpty(key)) {
+      return true;
+    }
+
+    if (StringUtils.isNotEmpty(bucketName) && !bucketExists(bucketName)) {
       return false;
     }
-    // If we don't have a key, it means that the folder is bucket
+
+    // If we don't have a key, it means that the folder is a bucket
     //
     if (StringUtils.isEmpty(key)) {
       return true;
@@ -103,6 +112,10 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
   }
 
   private boolean bucketExists(String bucket) {
+    if (StringUtils.isEmpty(bucket)) {
+      // no bucket given, doesn't exist
+      return false;
+    }
     boolean bucketExists = false;
     try {
       BucketExistsArgs args = BucketExistsArgs.builder().bucket(bucket).build();
@@ -284,10 +297,28 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   @Override
   public void createFolder() throws FileSystemException {
+    MinioClient client = fileSystem.getClient();
     try {
       if (key.isEmpty()) {
+        if (StringUtils.isEmpty(bucketName)) {
+          // Nothing to do here, move along!
+          return;
+        }
+
+        // Does the bucket exist?  If not, create it.
+        //
+        BucketExistsArgs existsArgs = BucketExistsArgs.builder().bucket(bucketName).build();
+        boolean exists = client.bucketExists(existsArgs);
+
+        if (!exists) {
+          // We want to create a bucket.
+          //
+          MakeBucketArgs args = MakeBucketArgs.builder().bucket(bucketName).build();
+          client.makeBucket(args);
+        }
         return;
       }
+
       // We know it's a folder and MinIO needs to have a / at the end to create and find folders
       //
       if (!key.endsWith(DELIMITER)) {
@@ -300,11 +331,12 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
               .contentType("application/x-directory")
               .stream(new ByteArrayInputStream(new byte[] {}), 0, -1)
               .build();
-      fileSystem.getClient().putObject(args);
-      closeMinio();
-      doAttach();
+      client.putObject(args);
     } catch (Exception e) {
       throw new FileSystemException("Error creating folder", e);
+    } finally {
+      closeMinio();
+      doAttach();
     }
   }
 
