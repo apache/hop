@@ -1083,7 +1083,16 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
               val = "<binary val>"; //
               break;
             default:
-              val = "<unsupported value type>"; //
+              try {
+                int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+                if (actualR.getValueMeta(index).getType() == uuidTypeId) {
+                  val = "<UUID val>"; //
+                } else {
+                  val = "<unsupported value type>"; //
+                }
+              } catch (Exception ignore) {
+                // UUID plugin not present, fall through
+              }
           }
         } else {
           val = "<value>"; //
