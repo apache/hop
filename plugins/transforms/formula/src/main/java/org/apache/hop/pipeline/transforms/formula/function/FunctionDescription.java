@@ -19,11 +19,15 @@ package org.apache.hop.pipeline.transforms.formula.function;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
+@Getter
+@Setter
 public class FunctionDescription {
   public static final String XML_TAG = "function";
   public static final String CONST_TD = "</td>";
@@ -38,14 +42,14 @@ public class FunctionDescription {
   private List<FunctionExample> functionExamples;
 
   /**
-   * @param category
-   * @param name
-   * @param description
-   * @param syntax
-   * @param returns
-   * @param constraints
-   * @param semantics
-   * @param functionExamples
+   * @param category function category
+   * @param name function name
+   * @param description function description
+   * @param syntax of the function
+   * @param returns type of value this function returns
+   * @param constraints limitation of this function
+   * @param semantics of the functions
+   * @param functionExamples examples of how the function can be used
    */
   public FunctionDescription(
       String category,
@@ -86,121 +90,9 @@ public class FunctionDescription {
   }
 
   /**
-   * @return the category
-   */
-  public String getCategory() {
-    return category;
-  }
-
-  /**
-   * @param category the category to set
-   */
-  public void setCategory(String category) {
-    this.category = category;
-  }
-
-  /**
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name the name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * @return the description
-   */
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * @param description the description to set
-   */
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  /**
-   * @return the syntax
-   */
-  public String getSyntax() {
-    return syntax;
-  }
-
-  /**
-   * @param syntax the syntax to set
-   */
-  public void setSyntax(String syntax) {
-    this.syntax = syntax;
-  }
-
-  /**
-   * @return the returns
-   */
-  public String getReturns() {
-    return returns;
-  }
-
-  /**
-   * @param returns the returns to set
-   */
-  public void setReturns(String returns) {
-    this.returns = returns;
-  }
-
-  /**
-   * @return the constraints
-   */
-  public String getConstraints() {
-    return constraints;
-  }
-
-  /**
-   * @param constraints the constraints to set
-   */
-  public void setConstraints(String constraints) {
-    this.constraints = constraints;
-  }
-
-  /**
-   * @return the semantics
-   */
-  public String getSemantics() {
-    return semantics;
-  }
-
-  /**
-   * @param semantics the semantics to set
-   */
-  public void setSemantics(String semantics) {
-    this.semantics = semantics;
-  }
-
-  /**
-   * @return the functionExamples
-   */
-  public List<FunctionExample> getFunctionExamples() {
-    return functionExamples;
-  }
-
-  /**
-   * @param functionExamples the functionExamples to set
-   */
-  public void setFunctionExamples(List<FunctionExample> functionExamples) {
-    this.functionExamples = functionExamples;
-  }
-
-  /**
    * Create a text version of a report on this function
    *
-   * @return
+   * @return an HTML representation of the function description
    */
   public String getHtmlReport() {
     StringBuilder report = new StringBuilder(200);

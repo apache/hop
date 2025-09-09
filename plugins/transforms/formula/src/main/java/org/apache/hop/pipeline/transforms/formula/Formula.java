@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.formula;
 
+import static org.apache.hop.pipeline.transforms.formula.util.FormulaFieldsExtractor.getFormulaFieldList;
+
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -33,7 +35,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.formula.util.FormulaFieldsExtractor;
 import org.apache.hop.pipeline.transforms.formula.util.FormulaParser;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
@@ -127,7 +128,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
       formulaFieldLists =
           meta.getFormulas().stream()
               .map(FormulaMetaFunction::getFormula)
-              .map(FormulaFieldsExtractor::getFormulaFieldList)
+              .map(f -> getFormulaFieldList(resolve(f)))
               .toArray(List[]::new);
     }
 
@@ -233,7 +234,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
    * class to implement your own transforms.
    *
    * @param transformMeta The TransformMeta object to run.
-   * @param meta
+   * @param meta Formula Meta of the transform
    * @param data the data object to store temporary data, database connections, caches, result sets,
    *     hashtables etc.
    * @param copyNr The copynumber for this transform.
@@ -272,46 +273,21 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
           value = ((Number) formulaResult).doubleValue();
         }
         break;
-      case FormulaData.RETURN_TYPE_INTEGER:
+      case FormulaData.RETURN_TYPE_INTEGER,
+          FormulaData.RETURN_TYPE_LONG,
+          FormulaData.RETURN_TYPE_DATE,
+          FormulaData.RETURN_TYPE_BIGDECIMAL,
+          FormulaData.RETURN_TYPE_TIMESTAMP:
         if (fn.isNeedDataConversion()) {
           value = convertDataToTargetValueMeta(realIndex, formulaResult);
         } else {
           value = formulaResult;
         }
         break;
-      case FormulaData.RETURN_TYPE_LONG:
-        if (fn.isNeedDataConversion()) {
-          value = convertDataToTargetValueMeta(realIndex, formulaResult);
-        } else {
-          value = formulaResult;
-        }
-        break;
-      case FormulaData.RETURN_TYPE_DATE:
-        if (fn.isNeedDataConversion()) {
-          value = convertDataToTargetValueMeta(realIndex, formulaResult);
-        } else {
-          value = formulaResult;
-        }
-        break;
-      case FormulaData.RETURN_TYPE_BIGDECIMAL:
-        if (fn.isNeedDataConversion()) {
-          value = convertDataToTargetValueMeta(realIndex, formulaResult);
-        } else {
-          value = formulaResult;
-        }
-        break;
-      case FormulaData.RETURN_TYPE_BYTE_ARRAY:
+      case FormulaData.RETURN_TYPE_BYTE_ARRAY, FormulaData.RETURN_TYPE_BOOLEAN:
         value = formulaResult;
         break;
-      case FormulaData.RETURN_TYPE_BOOLEAN:
-        value = formulaResult;
-        break;
-      case FormulaData.RETURN_TYPE_TIMESTAMP:
-        if (fn.isNeedDataConversion()) {
-          value = convertDataToTargetValueMeta(realIndex, formulaResult);
-        } else {
-          value = formulaResult;
-        }
+      default:
         break;
     } // if none case is caught - null is returned.
     return value;

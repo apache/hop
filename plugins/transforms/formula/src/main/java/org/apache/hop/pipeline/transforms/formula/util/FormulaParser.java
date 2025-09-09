@@ -71,7 +71,7 @@ public class FormulaParser {
     }
 
     if (getNewList) {
-      this.formulaFieldList = getFormulaFieldList(formula);
+      this.formulaFieldList = getFormulaFieldList(variables.resolve(formula));
     }
     this.evaluator = poi.evaluator(formulaFieldList.size() + 1);
     this.evaluator.evaluator().clearAllCachedResultValues();
