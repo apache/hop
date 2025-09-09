@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.ICheckResult;
@@ -31,6 +32,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataObject;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -131,6 +133,25 @@ import org.w3c.dom.Node;
 public interface ITransformMeta {
   /** Set default values */
   void setDefault();
+
+  /**
+   * Returns a map of metadata type to metadata names that this transform depends on for proper
+   * functioning.
+   *
+   * <p>This is used to identify dependencies on metadata objects, allowing the system to track
+   * which transforms are impacted when metadata objects are modified or deleted.
+   *
+   * <p>The map keys are classes extending IHopMetadata, and the values are lists of metadata names
+   * that this transform references.
+   *
+   * <p>Default implementation returns an empty map indicating no dependencies.
+   *
+   * @return A map of metadata type classes to lists of metadata object names
+   */
+  default java.util.Map<Class<? extends IHopMetadata>, List<String>>
+      getResourceMetaDataDependencies() {
+    return Collections.emptyMap();
+  }
 
   /**
    * Gets the fields.
