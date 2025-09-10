@@ -37,6 +37,7 @@
         <module>dropbox</module>
         <module>elastic</module>
         <module>google</module>
+        <module>minio</module>
         <module>neo4j</module>
         <module>opensearch</module>
         <module>parquet</module>

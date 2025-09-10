@@ -1,0 +1,55 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+services:
+  integration_test_minio:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    environment:
+      HOP_MINIO_ENDPOINT_HOSTNAME: "minio"
+      HOP_MINIO_ENDPOINT_PORT: "9000"
+      HOP_MINIO_ENDPOINT_SECURE: "false"
+      HOP_MINIO_ACCESS_KEY: "ApacheHopAccessKey"
+      HOP_MINIO_SECRET_KEY: "ApacheHopSecretKey"
+      HOP_MINIO_REGION: "local"
+      HOP_MINIO_PART_SIZE: "50000000"
+      HOP_CONFIG_OPTIONS: "--minio-access-key=ApacheHopAccessKey --minio-secret-key=ApacheHopSecretKey --minio-endpoint-host=minio --minio-part-size=50000000 --minio-region=local --minio-endpoint-port=9000 --minio-endpoint-secure=false"
+    depends_on:
+      minio:
+        condition: service_healthy
+    links: 
+      - minio
+
+  minio:
+    image: minio/minio
+    ports: 
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_REGION: "local"
+      MINIO_REGION_NAME: "local"
+      MINIO_SCHEME: "http"
+      MINIO_ROOT_USER: "ApacheHopAccessKey"
+      MINIO_ROOT_PASSWORD: "ApacheHopSecretKey"
+    command: server /data --console-address ":9001"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3

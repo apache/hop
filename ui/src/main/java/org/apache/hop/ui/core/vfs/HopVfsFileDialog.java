@@ -1293,9 +1293,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       if (fileObject.isFile() || !fileObject.exists()) {
         fileObject = fileObject.getParent();
       }
-      FileObject navigateUpParent = fileObject.getParent();
-      if (navigateUpParent != null) {
-        navigateTo(HopVfs.getFilename(navigateUpParent), true);
+      if (fileObject != null) {
+        FileObject navigateUpParent = fileObject.getParent();
+        if (navigateUpParent != null) {
+          navigateTo(HopVfs.getFilename(navigateUpParent), true);
+        }
       }
     } catch (Exception e) {
       showError(
