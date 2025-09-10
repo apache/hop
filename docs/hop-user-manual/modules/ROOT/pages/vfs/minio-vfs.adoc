@@ -36,28 +36,35 @@ xref:hop-gui/perspective-configuration.adoc[configuration perspective], in the p
 You will find the following options to configure:
 
 |===
-|Option |Description
+|Option |Description |Variable
 
 |Access key
 |The MinIO access key to use
+|`HOP_MINIO_ENDPOINT_HOSTNAME`
 
 |Secret key
 |The MinIO secret key to use
+|`HOP_MINIO_ENDPOINT_PORT`
 
 |Endpoint hostname
 |The hostname of the MinIO service
+|`HOP_MINIO_ENDPOINT_SECURE`
 
 |Endpoint port
 |The port of the MinIO service (Default is 9000)
+|`HOP_MINIO_ACCESS_KEY`
 
 |Endpoint secure?
 |Check this option if you want to connect over https:// instead of http
+|`HOP_MINIO_SECRET_KEY`
 
 |Region
 |The MinIO region to use
+|`HOP_MINIO_REGION`
 
 |Object part size
 |The object part size for your files on MinIO
+|`HOP_MINIO_PART_SIZE`
 
 |===
 

@@ -117,6 +117,11 @@ You can specify the properties as a comma separated list, e.g. `PROP1=xxx,PROP2=
 |
 | The name of the Workflow Action you want the Workflow to start from
 
+|```HOP_CONFIG_OPTIONS```
+|
+|If you specify a value for this variable, they will be used to execute `hop-config.sh` right before execution of the short- or long-lived container.
+You can use it for example to configure values for keys, plugins, and so on.
+
 |===
 
 Here are the variables for **short-lived** containers, to execute a workflow or pipeline:
