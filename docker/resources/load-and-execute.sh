@@ -197,6 +197,17 @@ else
   log "Not creating a project or environment in the container"
 fi
 
+# Configure Hop settings in the container
+#
+if [ -n "${HOP_CONFIG_OPTIONS}" ]; then
+  # We have a hop-config to run with the given options
+  #
+  echo "Configuring Hop with : ${HOP_CONFIG_OPTIONS}"
+  "${DEPLOYMENT_PATH}"/hop-config.sh \
+    "{HOP_CONFIG_OPTIONS}" \
+    2>&1 | tee ${HOP_LOG_PATH}
+fi
+
 if [ -z "${HOP_FILE_PATH}" ]; then
   write_server_config
   log "Starting a hop-server on port "${HOP_SERVER_PORT}

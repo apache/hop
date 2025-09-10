@@ -85,55 +85,17 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
     return bucketName;
   }
 
-  @Override
-  public boolean exists() throws FileSystemException {
-    // If the bucket isn's specified and we don't have key, we're looking at minio:///
-    // This is the absolute root folder of minio:///, and it exists to create and navigate to
-    // buckets.
-    if (StringUtils.isEmpty(bucketName) && StringUtils.isEmpty(key)) {
-      return true;
-    }
-
-    if (StringUtils.isNotEmpty(bucketName) && !bucketExists(bucketName)) {
-      return false;
-    }
-
-    // If we don't have a key, it means that the folder is a bucket
-    //
-    if (StringUtils.isEmpty(key)) {
-      return true;
-    }
-
-    doAttach();
-
-    // We get the object metadata from doAttach()
-    //
-    return statObjectResponse != null;
-  }
-
-  private boolean bucketExists(String bucket) {
-    if (StringUtils.isEmpty(bucket)) {
-      // no bucket given, doesn't exist
-      return false;
-    }
-    boolean bucketExists = false;
-    try {
-      BucketExistsArgs args = BucketExistsArgs.builder().bucket(bucket).build();
-      bucketExists = fileSystem.getClient().bucketExists(args);
-    } catch (Exception e) {
-      LogChannel.GENERAL.logError("Exception checking if bucket exists", e);
-    }
-    return bucketExists;
-  }
-
   protected boolean isRootBucket() {
     return StringUtils.isEmpty(bucketName);
   }
 
   @Override
   protected long doGetContentSize() {
-
-    return statObjectResponse.size();
+    if (statObjectResponse != null) {
+      return statObjectResponse.size();
+    } else {
+      return -1L;
+    }
   }
 
   @Override
@@ -198,6 +160,8 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   @Override
   public void doAttach() throws FileSystemException {
+    // This allows us to sprinkle doAttach() where needed without incurring a performance hit.
+    //
     if (attached) {
       return;
     }
@@ -216,21 +180,38 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
     }
 
     try {
+      // We'll first try the file scenario:
+      //
       StatObjectArgs statArgs = StatObjectArgs.builder().bucket(bucketName).object(key).build();
       statObjectResponse = fileSystem.getClient().statObject(statArgs);
 
-      // If this worked then the automatically detected type is right
-      injectType(getName().getType());
+      // In MinIO keys with a trailing slash (delimiter), are considered folders.
+      //
+      if (key.endsWith(DELIMITER)) {
+        injectType(FileType.FOLDER);
+      } else {
+        injectType(getName().getType());
+      }
     } catch (Exception e) {
-      // File or folder does not exist
-      handleAttachException(key, bucketName);
+      // File does not exist.
+      // Perhaps it's a folder and we can find it by looking for the key with an extra slash?
+      //
+      if (key.endsWith(DELIMITER)) {
+        statObjectResponse = null;
+      } else {
+        try {
+          StatObjectArgs statArgs =
+              StatObjectArgs.builder().bucket(bucketName).object(key + DELIMITER).build();
+          statObjectResponse = fileSystem.getClient().statObject(statArgs);
+          injectType(FileType.FOLDER);
+        } catch (Exception ex) {
+          // Still doesn't exist?
+          statObjectResponse = null;
+        }
+      }
     } finally {
       close();
     }
-  }
-
-  protected void handleAttachException(String key, String bucket) {
-    statObjectResponse = null;
   }
 
   public void closeMinio() throws FileSystemException {
@@ -244,6 +225,7 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
     } catch (Exception e) {
       // Ignore for now. Just making sure these things are closed properly.
     } finally {
+      injectType(FileType.IMAGINARY);
       outputStream = null;
       responseInputStream = null;
       statObjectResponse = null;
@@ -395,7 +377,10 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   @Override
   protected void doRename(FileObject newFile) throws Exception {
-    // no folder renames on S3
+    // Renames are not supported on the S3 protocol.
+    // For a file we can copy to a new name and delete the old one.
+    // The folders, we throw an error.
+    //
     if (getType().equals(FileType.FOLDER)) {
       throw new FileSystemException("vfs.provider/rename-not-supported.error");
     }
@@ -416,8 +401,12 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
             .build();
     fileSystem.getClient().copyObject(args);
 
-    // 2. delete self
+    // Delete self
     delete();
+
+    // Invalidate metadata: the old file no longer exists
+    //
+    closeMinio();
   }
 
   protected String getQualifiedName() {

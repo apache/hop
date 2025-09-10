@@ -1,0 +1,104 @@
+{
+  "base_filename": "golden-minio-validate-files.csv",
+  "name": "golden-minio-validate-files",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 500,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "filename",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 500,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "short_filename",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 500,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "path",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 500,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "type",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "exists",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "ishidden",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "isreadable",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "iswriteable",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "size",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "extension",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "uri",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "rooturi",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
