@@ -111,6 +111,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private int margin;
 
   private Map<Class<? extends IDatabase>, IDatabase> metaMap;
+  private List<String> excludedElementIds;
 
   /**
    * @param hopGui The hop GUI
@@ -119,11 +120,52 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
    */
   public DatabaseMetaEditor(
       HopGui hopGui, MetadataManager<DatabaseMeta> manager, DatabaseMeta databaseMeta) {
+    this(hopGui, manager, databaseMeta, databaseMeta.getRemoveItems());
+  }
+
+  /**
+   * @param hopGui The hop GUI
+   * @param manager The metadata
+   * @param databaseMeta The object to edit
+   * @param excludedElementIds List of GUI element IDs to exclude from the editor
+   */
+  public DatabaseMetaEditor(
+      HopGui hopGui,
+      MetadataManager<DatabaseMeta> manager,
+      DatabaseMeta databaseMeta,
+      List<String> excludedElementIds) {
     super(hopGui, manager, databaseMeta);
     props = PropsUi.getInstance();
+    this.excludedElementIds =
+        excludedElementIds != null ? excludedElementIds : databaseMeta.getRemoveItems();
     metaMap = populateMetaMap();
     metaMap.put(databaseMeta.getIDatabase().getClass(), databaseMeta.getIDatabase());
   }
+
+  //  /** Check if a database type wants to hide URL information in test connections */
+  //  private static boolean shouldHideUrlForDatabase(DatabaseMeta databaseMeta) {
+  //    return databaseMeta.isHideUrlInTestConnection();
+  //  }
+
+  //  /**
+  //   * Get default excluded elements for a database type by checking if it has a
+  // getExcludedElements
+  //   * method
+  //   */
+  //  private static List<String> getDefaultExcludedElements(DatabaseMeta databaseMeta) {
+  //    try {
+  //      Class<?> databaseClass = databaseMeta.getIDatabase().getClass();
+  //      java.lang.reflect.Method method = databaseClass.getMethod("getExcludedElements");
+  //      if (method != null && java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
+  //        @SuppressWarnings("unchecked")
+  //        List<String> result = (List<String>) method.invoke(null);
+  //        return result != null ? result : new ArrayList<>();
+  //      }
+  //    } catch (Exception e) {
+  //      // Method doesn't exist or other reflection issue, return empty list
+  //    }
+  //    return new ArrayList<>();
+  //  }
 
   private Map<Class<? extends IDatabase>, IDatabase> populateMetaMap() {
     metaMap = new HashMap<>();
@@ -164,7 +206,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wIcon.setLayoutData(fdlicon);
     PropsUi.setLook(wIcon);
 
-    // What's the name
+    // What's the name - always required, never excluded
     Label wlName = new Label(parent, SWT.RIGHT);
     PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.ConnectionName"));
@@ -220,9 +262,15 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wName.addListener(SWT.Modify, modifyListener);
     wConnectionType.addListener(SWT.Modify, modifyListener);
     wConnectionType.addListener(SWT.Modify, event -> changeConnectionType());
-    wUsername.addListener(SWT.Modify, modifyListener);
-    wPassword.addListener(SWT.Modify, modifyListener);
-    wManualUrl.addListener(SWT.Modify, modifyListener);
+    if (wUsername != null) {
+      wUsername.addListener(SWT.Modify, modifyListener);
+    }
+    if (wPassword != null) {
+      wPassword.addListener(SWT.Modify, modifyListener);
+    }
+    if (wManualUrl != null) {
+      wManualUrl.addListener(SWT.Modify, modifyListener);
+    }
     wSupportsBoolean.addListener(SWT.Selection, modifyListener);
     wSupportsTimestamp.addListener(SWT.Selection, modifyListener);
     wQuoteAll.addListener(SWT.Selection, modifyListener);
@@ -302,48 +350,52 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wDriverInfo.setLayoutData(fdDriverInfo);
     lastControl = wDriverInfo;
 
-    // Username field
+    // Username field - only create if not excluded
     //
-    wlUsername = new Label(wGeneralComp, SWT.RIGHT);
-    PropsUi.setLook(wlUsername);
-    wlUsername.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.Username"));
-    FormData fdlUsername = new FormData();
-    fdlUsername.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
-    fdlUsername.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlUsername.right = new FormAttachment(middle, -margin);
-    wlUsername.setLayoutData(fdlUsername);
-    wUsername =
-        new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wUsername);
-    FormData fdUsername = new FormData();
-    fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
-    fdUsername.left = new FormAttachment(middle, 0); // To the right of the label
-    fdUsername.right = new FormAttachment(100, 0);
-    wUsername.setLayoutData(fdUsername);
-    lastControl = wUsername;
+    if (!excludedElementIds.contains(BaseDatabaseMeta.ELEMENT_ID_USERNAME)) {
+      wlUsername = new Label(wGeneralComp, SWT.RIGHT);
+      PropsUi.setLook(wlUsername);
+      wlUsername.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.Username"));
+      FormData fdlUsername = new FormData();
+      fdlUsername.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
+      fdlUsername.left = new FormAttachment(0, 0); // First one in the left top corner
+      fdlUsername.right = new FormAttachment(middle, -margin);
+      wlUsername.setLayoutData(fdlUsername);
+      wUsername =
+          new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+      PropsUi.setLook(wUsername);
+      FormData fdUsername = new FormData();
+      fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
+      fdUsername.left = new FormAttachment(middle, 0); // To the right of the label
+      fdUsername.right = new FormAttachment(100, 0);
+      wUsername.setLayoutData(fdUsername);
+      lastControl = wUsername;
+    }
 
-    // Password field
+    // Password field - only create if not excluded
     //
-    wlPassword = new Label(wGeneralComp, SWT.RIGHT);
-    PropsUi.setLook(wlPassword);
-    wlPassword.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.Password"));
-    FormData fdlPassword = new FormData();
-    fdlPassword.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
-    fdlPassword.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlPassword.right = new FormAttachment(middle, -margin);
-    wlPassword.setLayoutData(fdlPassword);
-    wPassword =
-        new TextVar(
-            manager.getVariables(),
-            wGeneralComp,
-            SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
-    PropsUi.setLook(wPassword);
-    FormData fdPassword = new FormData();
-    fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
-    fdPassword.left = new FormAttachment(middle, 0); // To the right of the label
-    fdPassword.right = new FormAttachment(100, 0);
-    wPassword.setLayoutData(fdPassword);
-    lastControl = wPassword;
+    if (!excludedElementIds.contains(BaseDatabaseMeta.ELEMENT_ID_PASSWORD)) {
+      wlPassword = new Label(wGeneralComp, SWT.RIGHT);
+      PropsUi.setLook(wlPassword);
+      wlPassword.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.Password"));
+      FormData fdlPassword = new FormData();
+      fdlPassword.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
+      fdlPassword.left = new FormAttachment(0, 0); // First one in the left top corner
+      fdlPassword.right = new FormAttachment(middle, -margin);
+      wlPassword.setLayoutData(fdlPassword);
+      wPassword =
+          new TextVar(
+              manager.getVariables(),
+              wGeneralComp,
+              SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+      PropsUi.setLook(wPassword);
+      FormData fdPassword = new FormData();
+      fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
+      fdPassword.left = new FormAttachment(middle, 0); // To the right of the label
+      fdPassword.right = new FormAttachment(100, 0);
+      wPassword.setLayoutData(fdPassword);
+      lastControl = wPassword;
+    }
 
     // Add a composite area
     //
@@ -365,7 +417,8 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         null,
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
-        null);
+        null,
+        excludedElementIds);
 
     // Add listener to detect change
     guiCompositeWidgets.setWidgetsListener(
@@ -380,25 +433,27 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     addCompositeWidgetsUsernamePassword();
 
-    // manual URL field
+    // manual URL field - only create if not excluded
     //
-    Label wlManualUrl = new Label(wGeneralComp, SWT.RIGHT);
-    PropsUi.setLook(wlManualUrl);
-    wlManualUrl.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.ManualUrl"));
-    FormData fdlManualUrl = new FormData();
-    fdlManualUrl.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
-    fdlManualUrl.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlManualUrl.right = new FormAttachment(middle, -margin);
-    wlManualUrl.setLayoutData(fdlManualUrl);
-    wManualUrl =
-        new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wManualUrl);
-    FormData fdManualUrl = new FormData();
-    fdManualUrl.top = new FormAttachment(wlManualUrl, 0, SWT.CENTER);
-    fdManualUrl.left = new FormAttachment(middle, 0); // To the right of the label
-    fdManualUrl.right = new FormAttachment(100, 0);
-    wManualUrl.setLayoutData(fdManualUrl);
-    wManualUrl.addListener(SWT.Modify, e -> enableFields());
+    if (!excludedElementIds.contains(BaseDatabaseMeta.ELEMENT_ID_MANUAL_URL)) {
+      Label wlManualUrl = new Label(wGeneralComp, SWT.RIGHT);
+      PropsUi.setLook(wlManualUrl);
+      wlManualUrl.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.ManualUrl"));
+      FormData fdlManualUrl = new FormData();
+      fdlManualUrl.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
+      fdlManualUrl.left = new FormAttachment(0, 0); // First one in the left top corner
+      fdlManualUrl.right = new FormAttachment(middle, -margin);
+      wlManualUrl.setLayoutData(fdlManualUrl);
+      wManualUrl =
+          new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+      PropsUi.setLook(wManualUrl);
+      FormData fdManualUrl = new FormData();
+      fdManualUrl.top = new FormAttachment(wlManualUrl, 0, SWT.CENTER);
+      fdManualUrl.left = new FormAttachment(middle, 0); // To the right of the label
+      fdManualUrl.right = new FormAttachment(100, 0);
+      wManualUrl.setLayoutData(fdManualUrl);
+      wManualUrl.addListener(SWT.Modify, e -> enableFields());
+    }
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
@@ -414,10 +469,18 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private void addCompositeWidgetsUsernamePassword() {
     // Add username and password to the mix so folks can enable/disable those
     //
-    guiCompositeWidgets.getWidgetsMap().put(BaseDatabaseMeta.ID_USERNAME_LABEL, wlUsername);
-    guiCompositeWidgets.getWidgetsMap().put(BaseDatabaseMeta.ID_USERNAME_WIDGET, wUsername);
-    guiCompositeWidgets.getWidgetsMap().put(BaseDatabaseMeta.ID_PASSWORD_LABEL, wlPassword);
-    guiCompositeWidgets.getWidgetsMap().put(BaseDatabaseMeta.ID_PASSWORD_WIDGET, wPassword);
+    if (wlUsername != null) {
+      guiCompositeWidgets.getWidgetsMap().put(BaseDatabaseMeta.ID_USERNAME_LABEL, wlUsername);
+    }
+    if (wUsername != null) {
+      guiCompositeWidgets.getWidgetsMap().put(BaseDatabaseMeta.ID_USERNAME_WIDGET, wUsername);
+    }
+    if (wlPassword != null) {
+      guiCompositeWidgets.getWidgetsMap().put(BaseDatabaseMeta.ID_PASSWORD_LABEL, wlPassword);
+    }
+    if (wPassword != null) {
+      guiCompositeWidgets.getWidgetsMap().put(BaseDatabaseMeta.ID_PASSWORD_WIDGET, wPassword);
+    }
   }
 
   private AtomicBoolean busyChangingConnectionType = new AtomicBoolean(false);
@@ -469,7 +532,8 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         null,
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
-        null);
+        null,
+        excludedElementIds);
     guiCompositeWidgets.setWidgetsListener(
         new GuiCompositeWidgetsAdapter() {
           @Override
@@ -750,9 +814,12 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   }
 
   private void enableFields() {
-    boolean manualUrl =
-        StringUtils.isNotEmpty(wManualUrl.getText())
-            && StringUtils.isNotBlank(wManualUrl.getText());
+    boolean manualUrl = false;
+    if (wManualUrl != null) {
+      manualUrl =
+          StringUtils.isNotEmpty(wManualUrl.getText())
+              && StringUtils.isNotBlank(wManualUrl.getText());
+    }
 
     // Also enable/disable the custom native fields
     //
@@ -763,7 +830,8 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private void test() {
     DatabaseMeta meta = new DatabaseMeta();
     getWidgetsContent(meta);
-    testConnection(getShell(), manager.getVariables(), meta);
+    //    boolean hideUrl = shouldHideUrlForDatabase(meta);
+    testConnection(getShell(), manager.getVariables(), meta, meta.isHideUrlInTestConnection());
   }
 
   private void explore() {
@@ -802,15 +870,21 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wName.setText(Const.NVL(databaseMeta.getName(), ""));
     wConnectionType.setText(Const.NVL(databaseMeta.getPluginName(), ""));
 
-    wUsername.setText(Const.NVL(databaseMeta.getUsername(), ""));
-    wPassword.setText(Const.NVL(databaseMeta.getPassword(), ""));
+    if (wUsername != null) {
+      wUsername.setText(Const.NVL(databaseMeta.getUsername(), ""));
+    }
+    if (wPassword != null) {
+      wPassword.setText(Const.NVL(databaseMeta.getPassword(), ""));
+    }
 
     guiCompositeWidgets.setWidgetsContents(
         databaseMeta.getIDatabase(),
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
 
-    wManualUrl.setText(Const.NVL(databaseMeta.getManualUrl(), ""));
+    if (wManualUrl != null) {
+      wManualUrl.setText(Const.NVL(databaseMeta.getManualUrl(), ""));
+    }
     wSupportsBoolean.setSelection(databaseMeta.supportsBooleanDataType());
     wSupportsTimestamp.setSelection(databaseMeta.supportsTimestampDataType());
     wQuoteAll.setSelection(databaseMeta.isQuoteAllFields());
@@ -850,9 +924,24 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         meta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
 
     meta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
-    meta.setManualUrl(wManualUrl.getText());
-    meta.setUsername(wUsername.getText());
-    meta.setPassword(wPassword.getText());
+    if (wManualUrl != null) {
+      meta.setManualUrl(wManualUrl.getText());
+    } else {
+      // Initialize excluded manual URL field with empty string to prevent null pointer exceptions
+      meta.setManualUrl("");
+    }
+    if (wUsername != null) {
+      meta.setUsername(wUsername.getText());
+    } else {
+      // Initialize excluded username field with empty string
+      meta.setUsername("");
+    }
+    if (wPassword != null) {
+      meta.setPassword(wPassword.getText());
+    } else {
+      // Initialize excluded password field with empty string
+      meta.setPassword("");
+    }
     meta.setSupportsBooleanDataType(wSupportsBoolean.getSelection());
     meta.setSupportsTimestampDataType(wSupportsTimestamp.getSelection());
     meta.setQuoteAllFields(wQuoteAll.getSelection());
@@ -897,11 +986,29 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   /** Test the database connection */
   public static final void testConnection(
       Shell shell, IVariables variables, DatabaseMeta databaseMeta) {
+    testConnection(shell, variables, databaseMeta, false);
+  }
+
+  /**
+   * Test the database connection with option to hide sensitive URL information
+   *
+   * @param shell The shell for the dialog
+   * @param variables The variables to use
+   * @param databaseMeta The database metadata
+   * @param hideUrl Whether to hide URL information from the test results
+   */
+  public static final void testConnection(
+      Shell shell, IVariables variables, DatabaseMeta databaseMeta, boolean hideUrl) {
     String[] remarks = databaseMeta.checkParameters();
     if (remarks.length == 0) {
       // Get a "test" report from this database
       DatabaseTestResults databaseTestResults = databaseMeta.testConnectionSuccess(variables);
       String message = databaseTestResults.getMessage();
+
+      // Hide URL information if requested
+      if (hideUrl && message != null) {
+        message = hideUrlInMessage(message, databaseMeta, variables);
+      }
       boolean success = databaseTestResults.isSuccess();
       String title =
           success
@@ -934,6 +1041,48 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
           BaseMessages.getString(PKG, "DatabaseDialog.ErrorParameters2.description", message));
       mb.open();
     }
+  }
+
+  /**
+   * Helper method to hide URL information from connection test messages
+   *
+   * @param message The original message
+   * @param databaseMeta The database metadata
+   * @param variables The variables
+   * @return The message with URL information hidden
+   */
+  private static String hideUrlInMessage(
+      String message, DatabaseMeta databaseMeta, IVariables variables) {
+    if (message == null) {
+      return message;
+    }
+
+    try {
+      // Get the actual URL to replace it
+      String url = databaseMeta.getURL(variables);
+      if (url != null && !url.isEmpty()) {
+        // Replace the full URL with a masked version
+        String maskedUrl = BaseMessages.getString(PKG, "DatabaseDialog.Url.Hidden");
+        message = message.replace(url, maskedUrl);
+      }
+
+      // Also hide any manual URL if present
+      String manualUrl = databaseMeta.getManualUrl();
+      if (manualUrl != null && !manualUrl.isEmpty()) {
+        String resolvedManualUrl = variables.resolve(manualUrl);
+        message =
+            message.replace(
+                resolvedManualUrl, BaseMessages.getString(PKG, "DatabaseDialog.Url.Hidden"));
+        message =
+            message.replace(manualUrl, BaseMessages.getString(PKG, "DatabaseDialog.Url.Hidden"));
+      }
+
+    } catch (Exception e) {
+      // If there's any issue getting the URL, just return the original message
+      // We don't want to break the test connection functionality
+    }
+
+    return message;
   }
 
   private String[] getConnectionTypes() {

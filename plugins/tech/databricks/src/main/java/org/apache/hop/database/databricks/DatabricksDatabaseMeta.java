@@ -18,6 +18,8 @@
 
 package org.apache.hop.database.databricks;
 
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -155,5 +157,35 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       "UNION",
       "USING"
     };
+  }
+
+  /**
+   * Returns a list of UI element IDs that should be excluded from the database editor. Databricks
+   * doesn't need database name or manual URL fields.
+   *
+   * @return List of element IDs to exclude
+   */
+  @Override
+  public List<String> getRemoveItems() {
+    return Arrays.asList(
+        BaseDatabaseMeta.ELEMENT_ID_DATABASE_NAME, // We don't use database name for Databricks
+        BaseDatabaseMeta.ELEMENT_ID_MANUAL_URL, // We construct the URL automatically
+        "port");
+  }
+
+  /**
+   * Returns whether URL information should be hidden in test connection dialogs. Databricks URLs
+   * may contain sensitive authentication tokens.
+   *
+   * @return true to hide URL information in test connection results
+   */
+  @Override
+  public boolean isHideUrlInTestConnection() {
+    return true; // Hide URLs as they may contain sensitive tokens
+  }
+
+  @Override
+  public boolean isRequiresName() {
+    return false;
   }
 }

@@ -96,6 +96,16 @@ public class GuiCompositeWidgets {
       Composite parent,
       String parentGuiElementId,
       Control lastControl) {
+    createCompositeWidgets(sourceData, parentKey, parent, parentGuiElementId, lastControl, null);
+  }
+
+  public void createCompositeWidgets(
+      Object sourceData,
+      String parentKey,
+      Composite parent,
+      String parentGuiElementId,
+      Control lastControl,
+      List<String> excludedElementIds) {
     if (sourceData == null) {
       // Nothing to do here. We can't detect widgets without an object.
       return;
@@ -125,7 +135,7 @@ public class GuiCompositeWidgets {
 
     // Loop over the GUI elements, create and remember the widgets...
     //
-    addCompositeWidgets(sourceData, parent, guiElements, lastControl);
+    addCompositeWidgets(sourceData, parent, guiElements, lastControl, excludedElementIds);
 
     if (compositeWidgetsListener != null) {
       compositeWidgetsListener.widgetsCreated(this);
@@ -138,8 +148,22 @@ public class GuiCompositeWidgets {
 
   private Control addCompositeWidgets(
       Object sourceObject, Composite parent, GuiElements guiElements, Control lastControl) {
+    return addCompositeWidgets(sourceObject, parent, guiElements, lastControl, null);
+  }
+
+  private Control addCompositeWidgets(
+      Object sourceObject,
+      Composite parent,
+      GuiElements guiElements,
+      Control lastControl,
+      List<String> excludedElementIds) {
 
     if (guiElements.isIgnored()) {
+      return lastControl;
+    }
+
+    // Check if this element should be excluded
+    if (excludedElementIds != null && excludedElementIds.contains(guiElements.getId())) {
       return lastControl;
     }
 
@@ -224,7 +248,8 @@ public class GuiCompositeWidgets {
     Collections.sort(children);
 
     for (GuiElements child : guiElements.getChildren()) {
-      previousControl = addCompositeWidgets(sourceObject, parent, child, previousControl);
+      previousControl =
+          addCompositeWidgets(sourceObject, parent, child, previousControl, excludedElementIds);
       nrItems++;
     }
 

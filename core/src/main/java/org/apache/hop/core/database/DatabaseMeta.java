@@ -2296,4 +2296,24 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   protected IDatabase getDbInterface(String typeCode) throws HopDatabaseException {
     return getIDatabase(typeCode);
   }
+
+  /**
+   * Returns a list of UI element IDs that should be excluded from the database editor. Databricks
+   * doesn't need database name or manual URL fields.
+   *
+   * @return List of element IDs to exclude
+   */
+  public List<String> getRemoveItems() {
+    return iDatabase.getRemoveItems();
+  }
+
+  /**
+   * Returns whether URL information should be hidden in test connection dialogs. Databricks URLs
+   * may contain sensitive authentication tokens.
+   *
+   * @return true to hide URL information in test connection results
+   */
+  public boolean isHideUrlInTestConnection() {
+    return iDatabase.isHideUrlInTestConnection();
+  }
 }
