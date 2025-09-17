@@ -25,10 +25,10 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.util.Utils;
 import org.junit.Test;
 
-public class SequenceMetaTest {
+class SequenceMetaTest {
 
   @Test
-  public void testSupport() {
+  void testSupport() {
 
     IDatabase[] support =
         new IDatabase[] {
@@ -60,7 +60,7 @@ public class SequenceMetaTest {
   }
 
   @Test
-  public void testSql() {
+  void testSql() {
 
     IDatabase iDatabase;
     final String sequenceName = "sequence_name";

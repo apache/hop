@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MergeRowsMetaCheckTest {
+class MergeRowsMetaCheckTest {
 
   private PipelineMeta pipelineMeta;
   private MergeRowsMeta meta;
@@ -78,7 +78,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     pipelineMeta = mock(PipelineMeta.class);
     meta = new MergeRowsMeta();
     transformMeta = new TransformMeta(TRANSFORM_NAME, meta);
@@ -92,7 +92,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @Test
-  public void testCheckInputRowsBothEmpty() throws HopTransformException {
+  void testCheckInputRowsBothEmpty() throws HopTransformException {
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMetaEmpty());
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(COMPARISON_TRANSFORM_NAME)))
@@ -115,7 +115,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @Test
-  public void testCheckInputRowsBothNonEmpty() throws HopTransformException {
+  void testCheckInputRowsBothNonEmpty() throws HopTransformException {
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMeta10Strings());
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(COMPARISON_TRANSFORM_NAME)))
@@ -138,7 +138,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @Test
-  public void testCheckInputRowsEmptyAndNonEmpty() throws HopTransformException {
+  void testCheckInputRowsEmptyAndNonEmpty() throws HopTransformException {
     when(pipelineMeta.getPrevTransformFields(any(), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMetaEmpty());
     when(pipelineMeta.getPrevTransformFields(any(), eq(COMPARISON_TRANSFORM_NAME)))
@@ -161,7 +161,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @Test
-  public void testCheckInputRowsDifferentRowMetaTypes() throws HopTransformException {
+  void testCheckInputRowsDifferentRowMetaTypes() throws HopTransformException {
     when(pipelineMeta.getPrevTransformFields(any(), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMeta10MixedTypes());
     when(pipelineMeta.getPrevTransformFields(any(), eq(COMPARISON_TRANSFORM_NAME)))

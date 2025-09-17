@@ -23,10 +23,10 @@ import static org.junit.Assert.assertNotEquals;
 import java.util.Date;
 import org.junit.Test;
 
-public class HopRowTest {
+class HopRowTest {
 
   @Test
-  public void equalsTest() {
+  void equalsTest() {
     Object[] row1 =
         new Object[] {"AAA", "BBB", Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)};
     Object[] row2 =
@@ -61,7 +61,7 @@ public class HopRowTest {
   }
 
   @Test
-  public void hashCodeTest() {
+  void hashCodeTest() {
     Object[] row1 =
         new Object[] {"AAA", "BBB", Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)};
     HopRow hopRow1 = new HopRow(row1);

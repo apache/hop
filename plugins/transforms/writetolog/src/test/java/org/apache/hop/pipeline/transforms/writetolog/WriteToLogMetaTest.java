@@ -39,14 +39,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
+class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   LoadSaveTester<WriteToLogMeta> loadSaveTester;
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
@@ -99,7 +99,7 @@ public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

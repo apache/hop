@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class ClickhouseDatabaseMetaTest {
+class ClickhouseDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   ClickhouseDatabaseMeta nativeMeta;
@@ -45,13 +45,13 @@ public class ClickhouseDatabaseMetaTest {
   }
 
   @Test
-  public void testAccessType() {
+  void testAccessType() {
     int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
   }
 
   @Test
-  public void testUrl() {
+  void testUrl() {
     assertEquals("com.clickhouse.jdbc.ClickHouseDriver", nativeMeta.getDriverClass());
 
     assertEquals(
@@ -67,7 +67,7 @@ public class ClickhouseDatabaseMetaTest {
   }
 
   @Test
-  public void testSupport() {
+  void testSupport() {
     assertFalse(nativeMeta.isSupportsSchemas());
     assertTrue(nativeMeta.isSupportsViews());
     assertFalse(nativeMeta.isSupportsSequences());

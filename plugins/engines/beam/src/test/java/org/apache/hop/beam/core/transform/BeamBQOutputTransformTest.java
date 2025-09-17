@@ -22,10 +22,10 @@ import static org.apache.hop.beam.core.transform.BeamBQOutputTransform.validateB
 import org.apache.hop.core.exception.HopException;
 import org.junit.Test;
 
-public class BeamBQOutputTransformTest {
+class BeamBQOutputTransformTest {
 
   @Test
-  public void testValidateBQFieldName() throws Exception {
+  void testValidateBQFieldName() throws Exception {
     validateBQFieldName("_name1");
     validateBQFieldName("name2");
     validateBQFieldName("name_3");

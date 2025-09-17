@@ -44,7 +44,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class XsdValidatorIntTest {
+class XsdValidatorIntTest {
 
   private static final String RAMDIR = "ram://" + XsdValidatorIntTest.class.getSimpleName();
   private static final String TEST_FILES_DIR = "src/test/resources/xsdvalidator/";
@@ -53,12 +53,12 @@ public class XsdValidatorIntTest {
   private static FileObject dataRamFile = null;
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
   @AfterAll
-  public static void tearDownAfterClass() {
+  static void tearDownAfterClass() {
     try {
       if (schemaRamFile != null && schemaRamFile.exists()) {
         schemaRamFile.delete();
@@ -72,7 +72,7 @@ public class XsdValidatorIntTest {
   }
 
   @Test
-  public void testVfsInputFiles() throws Exception {
+  void testVfsInputFiles() throws Exception {
     testVfsFileTypes(
         getDataRamFile().getURL().toString(), getSchemaRamFile().getURL().toString(), true);
     testVfsFileTypes(

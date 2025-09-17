@@ -29,15 +29,15 @@ import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class DimensionLookupMetaTest {
+class DimensionLookupMetaTest {
 
   @BeforeEach
-  public void before() throws Exception {
+  void before() throws Exception {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
     DatabaseMeta unitTestDb = new DatabaseMeta();
     unitTestDb.setName("unit-test-db");

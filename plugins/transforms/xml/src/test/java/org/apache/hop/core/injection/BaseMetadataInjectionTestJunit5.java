@@ -68,7 +68,7 @@ public abstract class BaseMetadataInjectionTestJunit5<Meta extends ITransformMet
   }
 
   @AfterEach
-  public void after() {
+  void after() {
     assertTrue(
         nonTestedProperties.isEmpty(), "Some properties where not tested: " + nonTestedProperties);
   }

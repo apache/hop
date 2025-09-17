@@ -41,13 +41,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 
-public class MongoFieldTest {
+class MongoFieldTest {
 
   @Mock IVariables variables;
   private MongoField field;
 
   @BeforeEach
-  public void before() throws HopPluginException {
+  void before() throws HopPluginException {
     MockitoAnnotations.openMocks(this);
     when(variables.resolve(any(String.class)))
         .thenAnswer(
@@ -57,7 +57,7 @@ public class MongoFieldTest {
   }
 
   @Test
-  public void testGetPath() {
+  void testGetPath() {
     MongoField mongoField = new MongoField();
 
     mongoField.fieldPath = "$.parent[0].child[0]";
@@ -73,7 +73,7 @@ public class MongoFieldTest {
   // "Number", "String", "Date", "Boolean", "Integer", "BigNumber", "Serializable",
   // "Binary", "Timestamp", "Internet Address"
   @Test
-  public void testDatatypes() throws HopException {
+  void testDatatypes() throws HopException {
     initField("Number");
     assertEquals(1.1, field.getHopValue(1.1));
     assertEquals(1.1, field.getHopValue("1.1"));
@@ -116,7 +116,7 @@ public class MongoFieldTest {
   }
 
   @Test
-  public void testConvertArrayIndicesToHopValue() throws HopException {
+  void testConvertArrayIndicesToHopValue() throws HopException {
     BasicDBObject dbObj =
         (BasicDBObject) BasicDBObject.parse("{ parent : { fieldName : ['valA', 'valB'] } } ");
 
@@ -127,7 +127,7 @@ public class MongoFieldTest {
   }
 
   @Test
-  public void testConvertUndefinedOrNullToHopValue() throws HopException {
+  void testConvertUndefinedOrNullToHopValue() throws HopException {
     BasicDBObject dbObj = BasicDBObject.parse("{ test1 : undefined, test2 : null } ");
     initField("fieldName", "$.test1", "String");
     assertNull(field.convertToHopValue(dbObj), "Undefined should be interpreted as null ");

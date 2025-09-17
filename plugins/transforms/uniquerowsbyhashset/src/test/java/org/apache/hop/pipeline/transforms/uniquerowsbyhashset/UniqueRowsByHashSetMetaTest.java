@@ -30,12 +30,12 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValid
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class UniqueRowsByHashSetMetaTest {
+class UniqueRowsByHashSetMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testRoundTrip() throws HopException {
+  void testRoundTrip() throws HopException {
     List<String> attributes =
         Arrays.asList("store_values", "reject_duplicate_row", "error_description", "name");
 

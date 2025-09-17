@@ -27,18 +27,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TextFileOutputMetaInjectionTest
-    extends BaseMetadataInjectionTestJunit5<TextFileOutputMeta> {
+class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTestJunit5<TextFileOutputMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new TextFileOutputMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FILENAME", () -> meta.getFileName());
     check("PASS_TO_SERVLET", () -> meta.isServletOutput());
     check("CREATE_PARENT_FOLDER", () -> meta.isCreateParentFolder());

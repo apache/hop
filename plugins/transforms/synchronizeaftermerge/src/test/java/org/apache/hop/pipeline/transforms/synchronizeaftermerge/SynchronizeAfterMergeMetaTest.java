@@ -36,7 +36,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
+class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<SynchronizeAfterMergeMeta> testMetaClass = SynchronizeAfterMergeMeta.class;
 
@@ -44,7 +44,7 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
@@ -118,7 +118,7 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void testPDI16559() throws Exception {
+  void testPDI16559() throws Exception {
     SynchronizeAfterMergeMeta synchronizeAfterMerge = new SynchronizeAfterMergeMeta();
 
     synchronizeAfterMerge.setKeyStream(

@@ -125,20 +125,20 @@ public abstract class IndexTestBase<T extends Index> {
   abstract void doAssertMatches(BitSet candidates, long lookupValue, long actualValue);
 
   @Test
-  public abstract void lookupFor_MinusOne();
+  abstract void lookupFor_MinusOne();
 
   @Test
-  public abstract void lookupFor_Zero();
+  abstract void lookupFor_Zero();
 
   @Test
-  public abstract void lookupFor_One();
+  abstract void lookupFor_One();
 
   @Test
-  public abstract void lookupFor_Two();
+  abstract void lookupFor_Two();
 
   @Test
-  public abstract void lookupFor_Three();
+  abstract void lookupFor_Three();
 
   @Test
-  public abstract void lookupFor_Hundred();
+  abstract void lookupFor_Hundred();
 }

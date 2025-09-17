@@ -22,17 +22,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class JoinRowsMetaInjectionTest extends BaseMetadataInjectionTestJunit5<JoinRowsMeta> {
+class JoinRowsMetaInjectionTest extends BaseMetadataInjectionTestJunit5<JoinRowsMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new JoinRowsMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("TEMP_DIR", () -> meta.getDirectory());
     check("TEMP_FILE_PREFIX", () -> meta.getPrefix());
     check("MAX_CACHE_SIZE", () -> meta.getCacheSize());

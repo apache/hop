@@ -54,7 +54,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UIGitTest extends RepositoryTestCase {
+class UIGitTest extends RepositoryTestCase {
   private Git git;
   private UIGit uiGit;
   Repository db2;
@@ -90,19 +90,19 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testGetBranch() {
+  void testGetBranch() {
     assertEquals("master", uiGit.getBranch());
   }
 
   @Test
-  public void testGetBranches() throws Exception {
+  void testGetBranches() throws Exception {
     initialCommit();
 
     assertEquals(Constants.MASTER, uiGit.getLocalBranches().get(0));
   }
 
   @Test
-  public void testAddRemoveRemote() throws Exception {
+  void testAddRemoveRemote() throws Exception {
     URIish uri = new URIish(db2.getDirectory().toURI().toURL().toString());
     uiGit.addRemote(uri.toString());
     assertEquals(uri.toString(), uiGit.getRemote());
@@ -121,7 +121,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testCommit() throws Exception {
+  void testCommit() throws Exception {
     assertFalse(uiGit.hasStagedFiles());
 
     writeTrashFile("Test.txt", "Hello world");
@@ -140,7 +140,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void shouldNotCommitWhenAuthorNameMalformed() throws Exception {
+  void shouldNotCommitWhenAuthorNameMalformed() throws Exception {
     writeTrashFile("Test.txt", "Hello world");
     uiGit.add("Test.txt");
 
@@ -148,14 +148,14 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testGetRevisions() throws Exception {
+  void testGetRevisions() throws Exception {
     initialCommit();
     List<ObjectRevision> revisions = uiGit.getRevisions();
     assertEquals(1, revisions.size());
   }
 
   @Test
-  public void testGetUnstagedAndStagedObjects() throws Exception {
+  void testGetUnstagedAndStagedObjects() throws Exception {
     // Create files
     File a = writeTrashFile("a.hpl", "1234567");
     File b = writeTrashFile("b.hwf", "content");
@@ -223,7 +223,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testPull() throws Exception {
+  void testPull() throws Exception {
     // source: db2, target: db
     setupRemote();
     Git git2 = new Git(db2);
@@ -245,7 +245,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testPullMerge() throws Exception {
+  void testPullMerge() throws Exception {
     // source: db2, target: db
     setupRemote();
     Git git2 = new Git(db2);
@@ -293,7 +293,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testPush() throws Exception {
+  void testPush() throws Exception {
     // Set remote
     Git git2 = new Git(db2);
     UIGit uiGit2 = new UIGit();
@@ -343,7 +343,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testShouldPushOnlyToOrigin() throws Exception {
+  void testShouldPushOnlyToOrigin() throws Exception {
     // origin for db2
     URIish uri = new URIish(db2.getDirectory().toURI().toURL());
     RemoteAddCommand cmd = git.remoteAdd();
@@ -379,7 +379,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testDiff() throws Exception {
+  void testDiff() throws Exception {
     File file = writeTrashFile("Test.txt", "Hello world");
 
     String diff = uiGit.diff(VCS.INDEX, uiGit.getShortenedName(VCS.WORKINGTREE), "Test.txt");
@@ -409,7 +409,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testOpen() throws Exception {
+  void testOpen() throws Exception {
     RevCommit commit = initialCommit();
 
     InputStream inputStream = uiGit.open("Test.txt", commit.getName());
@@ -428,7 +428,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testCheckout() throws Exception {
+  void testCheckout() throws Exception {
     initialCommit();
 
     git.branchCreate().setName("develop").call();
@@ -439,7 +439,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testRevertPath() throws Exception {
+  void testRevertPath() throws Exception {
     // commit something
     File file = writeTrashFile("Test.txt", "Hello world");
     git.add().addFilepattern("Test.txt").call();
@@ -454,7 +454,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testCreateDeleteBranchTag() throws Exception {
+  void testCreateDeleteBranchTag() throws Exception {
     initialCommit();
 
     // create a tag
@@ -488,7 +488,7 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
-  public void testCloneShouldFail() throws Exception {
+  void testCloneShouldFail() throws Exception {
     // WhenDirAlreadyExists
     boolean success = uiGit.cloneRepo(db.getDirectory().getPath(), db.getDirectory().getPath());
     assertFalse(success);

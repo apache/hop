@@ -30,18 +30,18 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class AddSequenceMetaTest {
+class AddSequenceMetaTest {
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
   @Test
-  public void testRoundTrip() throws HopException {
+  void testRoundTrip() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "valueName",

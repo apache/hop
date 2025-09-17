@@ -33,7 +33,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SqliteDatabaseMetaTest {
+class SqliteDatabaseMetaTest {
 
   private SqliteDatabaseMeta nativeMeta;
 
@@ -44,7 +44,7 @@ public class SqliteDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(-1, nativeMeta.getDefaultDatabasePort());
     assertTrue(nativeMeta.isSupportsAutoInc());
@@ -61,7 +61,7 @@ public class SqliteDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("DELETE FROM FOO", nativeMeta.getTruncateTableStatement("FOO"));
     assertEquals(
         "ALTER TABLE FOO ADD BAR TEXT",
@@ -74,7 +74,7 @@ public class SqliteDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO DATETIME",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));

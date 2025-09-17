@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /** Unit tests for RedshiftDatabaseMeta */
-public class RedshiftDatabaseMetaTest {
+class RedshiftDatabaseMetaTest {
 
   private RedshiftDatabaseMeta dbMeta;
 
@@ -38,24 +38,24 @@ public class RedshiftDatabaseMetaTest {
   }
 
   @Test
-  public void testExtraOption() {
+  void testExtraOption() {
     Map<String, String> opts = dbMeta.getExtraOptions();
     assertNotNull(opts);
     assertEquals("true", opts.get("REDSHIFT.tcpKeepAlive"));
   }
 
   @Test
-  public void testGetDefaultDatabasePort() {
+  void testGetDefaultDatabasePort() {
     assertEquals(5439, dbMeta.getDefaultDatabasePort());
   }
 
   @Test
-  public void testGetDriverClass() {
+  void testGetDriverClass() {
     assertEquals("com.amazon.redshift.jdbc42.Driver", dbMeta.getDriverClass());
   }
 
   @Test
-  public void testGetURL() {
+  void testGetURL() {
     assertEquals("jdbc:redshift://:/", dbMeta.getURL("", "", ""));
     assertEquals(
         "jdbc:redshift://rs.project-hop.org:4444/myDB",
@@ -63,19 +63,19 @@ public class RedshiftDatabaseMetaTest {
   }
 
   @Test
-  public void testGetExtraOptionsHelpText() {
+  void testGetExtraOptionsHelpText() {
     assertEquals(
         "http://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html",
         dbMeta.getExtraOptionsHelpText());
   }
 
   @Test
-  public void testIsFetchSizeSupported() {
+  void testIsFetchSizeSupported() {
     assertFalse(dbMeta.isFetchSizeSupported());
   }
 
   @Test
-  public void testSupportsSetMaxRows() {
+  void testSupportsSetMaxRows() {
     assertFalse(dbMeta.isSupportsSetMaxRows());
   }
 }

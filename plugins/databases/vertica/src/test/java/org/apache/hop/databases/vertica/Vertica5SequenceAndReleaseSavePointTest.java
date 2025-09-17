@@ -27,7 +27,7 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class Vertica5SequenceAndReleaseSavePointTest {
+class Vertica5SequenceAndReleaseSavePointTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   final String sequenceName = "sequence_name";
@@ -38,14 +38,14 @@ public class Vertica5SequenceAndReleaseSavePointTest {
   Boolean savepointSupport = true;
 
   @Test
-  public void testSequenceSupport() {
+  void testSequenceSupport() {
     assertSupports(db, sequenceSupport);
     assertEquals("SELECT nextval('sequence_name')", db.getSqlNextSequenceValue(sequenceName));
     assertEquals("SELECT currval('sequence_name')", db.getSqlCurrentSequenceValue(sequenceName));
   }
 
   @Test
-  public void testSavepointSuport() {
+  void testSavepointSuport() {
     if (savepointSupport) {
       assertTrue(db.isReleaseSavepoint());
     } else {

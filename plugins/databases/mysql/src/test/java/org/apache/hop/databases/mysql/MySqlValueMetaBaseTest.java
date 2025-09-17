@@ -54,7 +54,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class MySqlValueMetaBaseTest {
+class MySqlValueMetaBaseTest {
   protected static final String TEST_NAME = "TEST_NAME";
   protected static final String LOG_FIELD = "LOG_FIELD";
 
@@ -90,7 +90,7 @@ public class MySqlValueMetaBaseTest {
   }
 
   @Test
-  public void test_Pdi_17126_mysql() throws Exception {
+  void test_Pdi_17126_mysql() throws Exception {
     String data = StringUtils.repeat("*", 10);
     initValueMeta(new MySqlDatabaseMeta(), DatabaseMeta.CLOB_LENGTH, data);
 
@@ -98,7 +98,7 @@ public class MySqlValueMetaBaseTest {
   }
 
   @Test
-  public void testGetValueFromSqlTypeBinaryMysql() throws Exception {
+  void testGetValueFromSqlTypeBinaryMysql() throws Exception {
 
     final int binaryColumnIndex = 1;
     ValueMetaBase valueMetaBase = new ValueMetaBase();
@@ -119,7 +119,7 @@ public class MySqlValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDoubleWithPrecisionGreaterThanLengthUsingMySqlVariant()
+  void testMetdataPreviewSqlDoubleWithPrecisionGreaterThanLengthUsingMySqlVariant()
       throws SQLException, HopDatabaseException {
     doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
     doReturn(4).when(resultSet).getInt("COLUMN_SIZE");
@@ -134,7 +134,7 @@ public class MySqlValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlTimeToHopIntegerUsingMySqlVariant()
+  void testMetdataPreviewSqlTimeToHopIntegerUsingMySqlVariant()
       throws SQLException, HopDatabaseException {
     doReturn(Types.TIME).when(resultSet).getInt("DATA_TYPE");
     doReturn(mock(MySqlDatabaseMeta.class)).when(databaseMeta).getIDatabase();
@@ -150,7 +150,7 @@ public class MySqlValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlVarBinaryToHopBinaryUsingMySqlVariant()
+  void testMetdataPreviewSqlVarBinaryToHopBinaryUsingMySqlVariant()
       throws SQLException, HopDatabaseException {
     doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
     doReturn(16).when(resultSet).getInt("COLUMN_SIZE");
@@ -162,7 +162,7 @@ public class MySqlValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDoubleToHopNumberUsingMySql()
+  void testMetdataPreviewSqlDoubleToHopNumberUsingMySql()
       throws SQLException, HopDatabaseException {
     doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
     doReturn(22).when(resultSet).getInt("COLUMN_SIZE");

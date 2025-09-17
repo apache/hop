@@ -21,10 +21,10 @@ import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Test;
 
-public class BasePipelineTest extends PipelineTestBase {
+class BasePipelineTest extends PipelineTestBase {
 
   @Test
-  public void testBasicPipeline() throws Exception {
+  void testBasicPipeline() throws Exception {
 
     PipelineMeta pipelineMeta =
         BeamPipelineMetaUtil.generateBeamInputOutputPipelineMeta(

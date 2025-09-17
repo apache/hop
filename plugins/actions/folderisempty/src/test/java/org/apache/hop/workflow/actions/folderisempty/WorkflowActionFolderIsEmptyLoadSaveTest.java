@@ -24,7 +24,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionFolderIsEmptyLoadSaveTest
+class WorkflowActionFolderIsEmptyLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionFolderIsEmpty> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

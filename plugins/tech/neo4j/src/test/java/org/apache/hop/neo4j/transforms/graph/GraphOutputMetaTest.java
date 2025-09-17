@@ -28,9 +28,9 @@ import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
 
-public class GraphOutputMetaTest {
+class GraphOutputMetaTest {
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     String tag = TransformMeta.XML_TAG;
 
     Path path = Paths.get(getClass().getResource("/transform1.snippet").toURI());

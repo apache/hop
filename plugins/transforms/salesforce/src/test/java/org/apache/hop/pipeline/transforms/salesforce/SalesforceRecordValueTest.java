@@ -28,10 +28,10 @@ import com.sforce.soap.partner.sobject.SObject;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
 
-public class SalesforceRecordValueTest {
+class SalesforceRecordValueTest {
 
   @Test
-  public void testClass() {
+  void testClass() {
     SalesforceRecordValue srv = new SalesforceRecordValue(100);
     assertEquals(100, srv.getRecordIndex());
     assertNull(srv.getRecordValue());

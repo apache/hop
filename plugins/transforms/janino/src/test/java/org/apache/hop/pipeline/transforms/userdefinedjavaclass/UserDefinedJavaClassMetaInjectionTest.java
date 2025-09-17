@@ -28,18 +28,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class UserDefinedJavaClassMetaInjectionTest
+class UserDefinedJavaClassMetaInjectionTest
     extends BaseMetadataInjectionTestJunit5<UserDefinedJavaClassMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new UserDefinedJavaClassMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("CLEAR_RESULT_FIELDS", () -> meta.isClearingResultFields());
     check("TARGET_DESCRIPTION", () -> meta.getTargetTransformDefinitions().get(0).description);
     check("TARGET_TRANSFORM_NAME", () -> meta.getTargetTransformDefinitions().get(0).transformName);

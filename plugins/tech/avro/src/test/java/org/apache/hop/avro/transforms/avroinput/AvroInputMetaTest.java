@@ -25,10 +25,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
-public class AvroInputMetaTest {
+class AvroInputMetaTest {
 
   @Test
-  public void testGetLoadXml() throws Exception {
+  void testGetLoadXml() throws Exception {
 
     AvroFileInputMeta meta = new AvroFileInputMeta();
     meta.setOutputFieldName("avro");

@@ -50,7 +50,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Spy;
 
-public class TeradataValueMetaBaseTest {
+class TeradataValueMetaBaseTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   // Get PKG from class under test
@@ -106,8 +106,7 @@ public class TeradataValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDateToHopDateUsingTeradata()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlDateToHopDateUsingTeradata() throws SQLException, HopDatabaseException {
     doReturn(Types.DATE).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isDate());

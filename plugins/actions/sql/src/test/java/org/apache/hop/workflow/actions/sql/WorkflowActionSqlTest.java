@@ -24,7 +24,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<ActionSql> {
+class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<ActionSql> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override

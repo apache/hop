@@ -23,18 +23,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CheckSumMetaInjectionTest extends BaseMetadataInjectionTestJunit5<CheckSumMeta> {
+class CheckSumMetaInjectionTest extends BaseMetadataInjectionTestJunit5<CheckSumMeta> {
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new CheckSumMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("RESULT_FIELD", () -> meta.getResultFieldName());
     check("TYPE", () -> meta.getCheckSumType(), CheckSumMeta.CheckSumType.class);
     check("RESULT_TYPE", () -> meta.getResultType(), CheckSumMeta.ResultType.class);

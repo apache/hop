@@ -30,7 +30,7 @@ import org.apache.avro.util.Utf8;
 import org.apache.hop.beam.core.HopRow;
 import org.junit.Test;
 
-public class HopRowCoderTest extends TestCase {
+class HopRowCoderTest extends TestCase {
 
   ByteArrayOutputStream outputStream;
   private HopRowCoder hopRowCoder;
@@ -43,7 +43,7 @@ public class HopRowCoderTest extends TestCase {
   }
 
   @Test
-  public void testEncodeDecodeBasic() throws IOException {
+  void testEncodeDecodeBasic() throws IOException {
 
     HopRow row1 =
         new HopRow(
@@ -68,7 +68,7 @@ public class HopRowCoderTest extends TestCase {
   }
 
   @Test
-  public void testEncodeDecodeAvro() throws Exception {
+  void testEncodeDecodeAvro() throws Exception {
     String schemaJson =
         "{\n"
             + "  \"doc\": \"No documentation URL for now\",\n"

@@ -25,10 +25,10 @@ import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
 
-public class AzureListenerMetaTest extends TestCase {
+class AzureListenerMetaTest extends TestCase {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init(List.of(TwoWayPasswordEncoderPluginType.getInstance()));
     AzureListenerMeta meta =
         TransformSerializationTestUtil.testSerialization(

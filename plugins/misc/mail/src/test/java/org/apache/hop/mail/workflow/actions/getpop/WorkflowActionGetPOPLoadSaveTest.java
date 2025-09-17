@@ -26,8 +26,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionGetPOPLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionGetPOP> {
+class WorkflowActionGetPOPLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionGetPOP> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override

@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /** Unit tests for S3FileProvider */
-public class S3NFileProviderTest {
+class S3NFileProviderTest {
 
   S3NFileProvider provider;
 
@@ -36,7 +36,7 @@ public class S3NFileProviderTest {
   }
 
   @Test
-  public void testDoCreateFileSystem() throws Exception {
+  void testDoCreateFileSystem() throws Exception {
     FileName fileName = mock(FileName.class);
     FileSystemOptions options = new FileSystemOptions();
     assertNotNull(provider.doCreateFileSystem(fileName, options));

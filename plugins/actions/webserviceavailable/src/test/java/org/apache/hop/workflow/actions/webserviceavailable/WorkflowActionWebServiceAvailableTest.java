@@ -23,7 +23,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionWebServiceAvailableTest
+class WorkflowActionWebServiceAvailableTest
     extends WorkflowActionLoadSaveTestSupport<ActionWebServiceAvailable> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

@@ -50,7 +50,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Spy;
 
-public class GreenplumValueMetaBaseTest {
+class GreenplumValueMetaBaseTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static final String TEST_NAME = "TEST_NAME";
@@ -110,7 +110,7 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum()
+  void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum()
       throws SQLException, HopDatabaseException {
     doReturn(Types.NUMERIC).when(resultSet).getInt("DATA_TYPE");
     doReturn(0).when(resultSet).getInt("COLUMN_SIZE");
@@ -123,14 +123,14 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BINARY).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
   }
 
   @Test
-  public void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BLOB).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
@@ -138,8 +138,7 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlVarBinaryToHopBinary()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlVarBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());

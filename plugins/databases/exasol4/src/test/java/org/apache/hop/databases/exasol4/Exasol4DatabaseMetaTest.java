@@ -33,7 +33,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class Exasol4DatabaseMetaTest {
+class Exasol4DatabaseMetaTest {
   Exasol4DatabaseMeta nativeMeta;
 
   @Before
@@ -43,7 +43,7 @@ public class Exasol4DatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() throws Exception {
+  void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(8563, nativeMeta.getDefaultDatabasePort());
     assertFalse(nativeMeta.isSupportsAutoInc());
@@ -501,7 +501,7 @@ public class Exasol4DatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals(" WHERE ROWNUM <= 15", nativeMeta.getLimitClause(15));
     assertEquals(
         "SELECT /*+FIRST_ROWS*/ * FROM FOO WHERE 1=0", nativeMeta.getSqlQueryFields("FOO"));

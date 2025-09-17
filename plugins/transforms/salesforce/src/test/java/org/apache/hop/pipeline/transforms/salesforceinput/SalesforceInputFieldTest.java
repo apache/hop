@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class SalesforceInputFieldTest {
+class SalesforceInputFieldTest {
 
   @Test
-  public void testLookups() {
+  void testLookups() {
     assertEquals(0, SalesforceInputField.getTrimTypeByCode(null));
     assertTrue(SalesforceInputField.trimTypeCode.length > 2);
     assertEquals(0, SalesforceInputField.getTrimTypeByCode("none"));

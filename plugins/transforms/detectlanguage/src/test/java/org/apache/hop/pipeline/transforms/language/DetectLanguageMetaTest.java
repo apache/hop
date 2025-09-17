@@ -24,12 +24,12 @@ import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class DetectLanguageMetaTest {
+class DetectLanguageMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testLoadSave() throws HopException {
+  void testLoadSave() throws HopException {
     List<String> attributes = List.of("corpusField", "parallelism");
 
     LoadSaveTester<DetectLanguageMeta> loadSaveTester =

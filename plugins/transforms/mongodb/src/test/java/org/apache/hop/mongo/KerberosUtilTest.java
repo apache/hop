@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
-public class KerberosUtilTest {
+class KerberosUtilTest {
 
   @Test
-  public void testJaasAuthenticationMode() throws MongoDbException {
+  void testJaasAuthenticationMode() throws MongoDbException {
     assertEquals(
         KerberosUtil.JaasAuthenticationMode.EXTERNAL,
         KerberosUtil.JaasAuthenticationMode.byName("EXTERNAL"));

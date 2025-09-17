@@ -36,7 +36,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class PGBulkLoaderMetaTest {
+class PGBulkLoaderMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -48,13 +48,13 @@ public class PGBulkLoaderMetaTest {
   Class<PGBulkLoaderMeta> testMetaClass = PGBulkLoaderMeta.class;
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     LoadSaveTester<PGBulkLoaderMeta> tester = new LoadSaveTester<>(PGBulkLoaderMeta.class);
     IFieldLoadSaveValidatorFactory factory = tester.getFieldLoadSaveValidatorFactory();
     factory.registerValidator(
@@ -64,13 +64,13 @@ public class PGBulkLoaderMetaTest {
   }
 
   @BeforeAll
-  public static void setUpBeforeClass() throws Exception {
+  static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.init();
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("loader");
 

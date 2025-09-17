@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class CreditCardVerifierTest {
+class CreditCardVerifierTest {
 
   @Test
-  public void testStatics() {
+  void testStatics() {
     int totalCardNames = -1;
     int totalNotValidCardNames = -1;
     for (int i = 0; i < 50; i++) {
@@ -50,7 +50,7 @@ public class CreditCardVerifierTest {
   }
 
   @Test
-  public void testIsNumber() {
+  void testIsNumber() {
     assertFalse(CreditCardVerifier.isNumber(""));
     assertFalse(CreditCardVerifier.isNumber("a"));
     assertTrue(CreditCardVerifier.isNumber("1"));

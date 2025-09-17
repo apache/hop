@@ -25,12 +25,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTestJunit5<SortRowsMeta> {
+class SortRowsMetaInjectionTest extends BaseMetadataInjectionTestJunit5<SortRowsMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     SortRowsMeta sortRowsMeta = new SortRowsMeta();
     SortRowsField sortRowsField = new SortRowsField();
     List<SortRowsField> sortRowsFields = new ArrayList<>();
@@ -39,7 +39,7 @@ public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTestJunit5<S
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("SORT_DIRECTORY", () -> meta.getDirectory());
     check("SORT_FILE_PREFIX", () -> meta.getPrefix());
     check("SORT_SIZE_ROWS", () -> meta.getSortSize());

@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SwitchCaseMetaTest {
+class SwitchCaseMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 

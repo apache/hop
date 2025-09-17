@@ -55,7 +55,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-public class OracleDatabaseMetaTest {
+class OracleDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private final String sequenceName = "sequence_name";
@@ -80,7 +80,7 @@ public class OracleDatabaseMetaTest {
   }
 
   @Test
-  public void testOverriddenSettings() throws Exception {
+  void testOverriddenSettings() throws Exception {
     // Tests the settings of the Oracle Database Meta
     // according to the features of the DB as we know them
 
@@ -242,7 +242,7 @@ public class OracleDatabaseMetaTest {
   }
 
   @Test
-  public void testOverriddenSqlStatements() {
+  void testOverriddenSqlStatements() {
     assertEquals(" WHERE ROWNUM <= 5", nativeMeta.getLimitClause(5));
     String reusedFieldsQuery = "SELECT * FROM FOO WHERE 1=0";
     assertEquals(reusedFieldsQuery, nativeMeta.getSqlQueryFields("FOO"));
@@ -390,7 +390,7 @@ public class OracleDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO DATE",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));
@@ -470,7 +470,7 @@ public class OracleDatabaseMetaTest {
   private String[] row2 = new String[] {"ROW2COL1", "ROW2COL2"};
 
   @Test
-  public void testCheckIndexExists() throws Exception {
+  void testCheckIndexExists() throws Exception {
     String expectedSql = "SELECT * FROM USER_IND_COLUMNS WHERE TABLE_NAME = 'FOO'";
     Database db = Mockito.mock(Database.class);
     IRowMeta rm = Mockito.mock(IRowMeta.class);
@@ -503,12 +503,12 @@ public class OracleDatabaseMetaTest {
   }
 
   @Test
-  public void testSupportsSavepoint() {
+  void testSupportsSavepoint() {
     assertFalse(nativeMeta.isReleaseSavepoint());
   }
 
   @Test
-  public void testSupportsSequence() {
+  void testSupportsSequence() {
     String dbType = nativeMeta.getClass().getSimpleName();
     assertTrue(dbType, nativeMeta.isSupportsSequences());
     assertFalse(dbType + ": List of Sequences", Utils.isEmpty(nativeMeta.getSqlListOfSequences()));
@@ -528,7 +528,7 @@ public class OracleDatabaseMetaTest {
   }
 
   @Test
-  public void testSupportsTimestampDataTypeIsTrue() {
+  void testSupportsTimestampDataTypeIsTrue() {
     nativeMeta.setSupportsTimestampDataType(true);
     assertEquals(
         "TIMESTAMP",

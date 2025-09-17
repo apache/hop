@@ -32,14 +32,14 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class HttpPostMetaTest {
+class HttpPostMetaTest {
   @BeforeEach
-  public void testLoadSaveRoundTrip() throws HopException {
+  void testLoadSaveRoundTrip() throws HopException {
     HopEnvironment.init();
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     LoadSaveTester<HttpPostMeta> tester = new LoadSaveTester<>(HttpPostMeta.class);
     IFieldLoadSaveValidatorFactory factory = tester.getFieldLoadSaveValidatorFactory();
     factory.registerValidator(
@@ -53,7 +53,7 @@ public class HttpPostMetaTest {
   }
 
   @Test
-  public void setDefault() {
+  void setDefault() {
     HttpPostMeta meta = new HttpPostMeta();
     assertNull(meta.getEncoding());
 

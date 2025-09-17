@@ -27,12 +27,12 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidat
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ExecInfoMetaTest {
+class ExecInfoMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testRoundTrip() throws HopException {
+  void testRoundTrip() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "location",

@@ -33,7 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SetValueFieldMetaTest implements IInitializer<SetValueFieldMeta> {
+class SetValueFieldMetaTest implements IInitializer<SetValueFieldMeta> {
   LoadSaveTester<SetValueFieldMeta> loadSaveTester;
   Class<SetValueFieldMeta> testMetaClass = SetValueFieldMeta.class;
 
@@ -41,7 +41,7 @@ public class SetValueFieldMetaTest implements IInitializer<SetValueFieldMeta> {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes = Arrays.asList("fields");
@@ -65,7 +65,7 @@ public class SetValueFieldMetaTest implements IInitializer<SetValueFieldMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

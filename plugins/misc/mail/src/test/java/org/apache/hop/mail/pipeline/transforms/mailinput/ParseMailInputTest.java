@@ -50,7 +50,7 @@ import org.junit.Test;
 import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
 
-public class ParseMailInputTest {
+class ParseMailInputTest {
 
   // mock is existed per-class instance loaded by junit loader
   private static TransformMockHelper<MailInputMeta, ITransformData> transformMockHelper;

@@ -40,7 +40,7 @@ class ExcelInputContentParsingTest extends BaseExcelParsingTest {
 
   @Override
   @BeforeEach
-  public void before() {
+  void before() {
     super.before();
 
     System.clearProperty(Const.HOP_ZIP_MAX_ENTRY_SIZE);

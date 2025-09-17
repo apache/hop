@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ActionTelnetTest {
+class ActionTelnetTest {
 
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionTelnet action;
@@ -50,7 +50,7 @@ public class ActionTelnetTest {
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init();
     ActionTelnet action =
         ActionSerializationTestUtil.testSerialization("/telnet-action.xml", ActionTelnet.class);

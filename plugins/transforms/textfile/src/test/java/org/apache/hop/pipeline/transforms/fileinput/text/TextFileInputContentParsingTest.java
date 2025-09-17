@@ -23,12 +23,12 @@ import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TextFileInputContentParsingTest extends BaseTextParsingTest {
+class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testDefaultOptions() throws Exception {
+  void testDefaultOptions() throws Exception {
 
     meta.content.fileFormat = "unix";
 
@@ -45,7 +45,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testSeparator() throws Exception {
+  void testSeparator() throws Exception {
 
     meta.content.separator = ",";
     meta.content.fileFormat = "unix";
@@ -67,7 +67,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testEscape() throws Exception {
+  void testEscape() throws Exception {
 
     meta.content.escapeCharacter = "\\";
     meta.content.fileFormat = "unix";
@@ -88,7 +88,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testHeader() throws Exception {
+  void testHeader() throws Exception {
 
     meta.content.header = false;
     meta.content.fileFormat = "unix";
@@ -112,7 +112,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testGzipCompression() throws Exception {
+  void testGzipCompression() throws Exception {
 
     meta.content.fileCompression = "GZip";
     initByFile("default.csv.gz");
@@ -128,7 +128,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testVfsGzipCompression() throws Exception {
+  void testVfsGzipCompression() throws Exception {
 
     meta.content.fileCompression = "None";
     String url = "gz:" + this.getClass().getResource(inPrefix + "default.csv.gz");
@@ -145,7 +145,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testVfsBzip2Compression() throws Exception {
+  void testVfsBzip2Compression() throws Exception {
 
     meta.content.fileCompression = "None";
     String url = "bz2:" + this.getClass().getResource(inPrefix + "default.csv.bz2");
@@ -162,7 +162,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testFixedWidth() throws Exception {
+  void testFixedWidth() throws Exception {
 
     meta.content.fileType = "Fixed";
     meta.content.fileFormat = "unix";
@@ -185,7 +185,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testFixedWidthBytes() throws Exception {
+  void testFixedWidthBytes() throws Exception {
 
     meta.content.header = false;
     meta.content.fileType = "Fixed";
@@ -206,7 +206,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testFixedWidthCharacters() throws Exception {
+  void testFixedWidthCharacters() throws Exception {
     meta.content.header = false;
     meta.content.fileType = "Fixed";
     meta.content.fileFormat = "DOS";
@@ -227,7 +227,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testFilterEmptyBacklog5381() throws Exception {
+  void testFilterEmptyBacklog5381() throws Exception {
 
     meta.content.header = false;
     meta.content.fileType = "Fixed";
@@ -250,7 +250,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testFilterVariables() throws Exception {
+  void testFilterVariables() throws Exception {
 
     meta.content.fileFormat = "unix";
 
@@ -272,7 +272,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testBOM_UTF8() throws Exception {
+  void testBOM_UTF8() throws Exception {
 
     meta.content.encoding = "UTF-32LE";
     meta.content.header = false;
@@ -286,7 +286,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   }
 
   @Test
-  public void testBOM_UTF16BE() throws Exception {
+  void testBOM_UTF16BE() throws Exception {
 
     meta.content.encoding = "UTF-32LE";
     meta.content.header = false;

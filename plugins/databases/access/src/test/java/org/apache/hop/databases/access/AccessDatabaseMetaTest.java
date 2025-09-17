@@ -36,7 +36,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class AccessDatabaseMetaTest {
+class AccessDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   AccessDatabaseMeta nativeMeta;
@@ -49,7 +49,7 @@ public class AccessDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
     assertEquals("net.ucanaccess.jdbc.UcanaccessDriver", nativeMeta.getDriverClass());
@@ -147,7 +147,7 @@ public class AccessDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("DELETE FROM FOO", nativeMeta.getTruncateTableStatement("FOO"));
     assertEquals(
         "ALTER TABLE FOO ADD BAR TEXT",
@@ -161,7 +161,7 @@ public class AccessDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO DATETIME",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));

@@ -85,7 +85,7 @@ class HttpMetaLoadSaveTest {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 }

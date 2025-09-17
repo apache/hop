@@ -22,32 +22,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class UnnamedFieldsMappingTest {
+class UnnamedFieldsMappingTest {
 
   private UnnamedFieldsMapping fieldsMapping;
 
   @BeforeEach
-  public void before() {
+  void before() {
     fieldsMapping = new UnnamedFieldsMapping(2);
   }
 
   @Test
-  public void fieldMetaIndex() {
+  void fieldMetaIndex() {
     assertEquals(1, fieldsMapping.fieldMetaIndex(1));
   }
 
   @Test
-  public void fieldMetaIndexWithUnexistingField() {
+  void fieldMetaIndexWithUnexistingField() {
     assertEquals(IFieldsMapping.FIELD_DOES_NOT_EXIST, fieldsMapping.fieldMetaIndex(2));
   }
 
   @Test
-  public void size() {
+  void size() {
     assertEquals(2, fieldsMapping.size());
   }
 
   @Test
-  public void mapping() {
+  void mapping() {
     UnnamedFieldsMapping mapping = UnnamedFieldsMapping.mapping(2);
     assertEquals(1, mapping.fieldMetaIndex(1));
   }

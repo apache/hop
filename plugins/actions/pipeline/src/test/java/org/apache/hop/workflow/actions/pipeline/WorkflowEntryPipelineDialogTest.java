@@ -24,14 +24,14 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 
-public class WorkflowEntryPipelineDialogTest {
+class WorkflowEntryPipelineDialogTest {
 
   private static final String FILE_NAME = "TestPipeline.hpl";
 
   ActionPipelineDialog dialog;
 
   @Test
-  public void testEntryName() {
+  void testEntryName() {
     dialog = mock(ActionPipelineDialog.class);
     doCallRealMethod().when(dialog).getEntryName(any());
     assertEquals(dialog.getEntryName(FILE_NAME), "${Internal.Entry.Current.Folder}/" + FILE_NAME);

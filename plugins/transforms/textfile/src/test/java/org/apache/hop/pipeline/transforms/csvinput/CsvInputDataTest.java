@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class CsvInputDataTest {
+class CsvInputDataTest {
   @Test
-  public void testRemoveEscapedEnclosuresWithOneEscapedInMiddle() {
+  void testRemoveEscapedEnclosuresWithOneEscapedInMiddle() {
     CsvInputData csvInputData = new CsvInputData();
     csvInputData.enclosure = "\"".getBytes();
     String result =
@@ -32,7 +32,7 @@ public class CsvInputDataTest {
   }
 
   @Test
-  public void testRemoveEscapedEnclosuresWithTwoEscapedInMiddle() {
+  void testRemoveEscapedEnclosuresWithTwoEscapedInMiddle() {
     CsvInputData csvInputData = new CsvInputData();
     csvInputData.enclosure = "\"".getBytes();
     String result =
@@ -41,7 +41,7 @@ public class CsvInputDataTest {
   }
 
   @Test
-  public void testRemoveEscapedEnclosuresWithOneByItself() {
+  void testRemoveEscapedEnclosuresWithOneByItself() {
     CsvInputData csvInputData = new CsvInputData();
     csvInputData.enclosure = "\"".getBytes();
     String result = new String(csvInputData.removeEscapedEnclosures("\"\"".getBytes(), 1));
@@ -49,7 +49,7 @@ public class CsvInputDataTest {
   }
 
   @Test
-  public void testRemoveEscapedEnclosuresWithTwoByThemselves() {
+  void testRemoveEscapedEnclosuresWithTwoByThemselves() {
     CsvInputData csvInputData = new CsvInputData();
     csvInputData.enclosure = "\"".getBytes();
     String result = new String(csvInputData.removeEscapedEnclosures("\"\"\"\"".getBytes(), 2));
@@ -57,7 +57,7 @@ public class CsvInputDataTest {
   }
 
   @Test
-  public void testRemoveEscapedEnclosuresWithCharacterInTheMiddleOfThem() {
+  void testRemoveEscapedEnclosuresWithCharacterInTheMiddleOfThem() {
     CsvInputData csvInputData = new CsvInputData();
     csvInputData.enclosure = "\"".getBytes();
     String result =

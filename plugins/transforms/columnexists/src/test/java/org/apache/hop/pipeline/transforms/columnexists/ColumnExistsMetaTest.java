@@ -27,18 +27,18 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ColumnExistsMetaTest {
+class ColumnExistsMetaTest {
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
   @Test
-  public void testLoadSave() throws HopException {
+  void testLoadSave() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "tableName",

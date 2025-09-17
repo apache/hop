@@ -24,9 +24,9 @@ import org.apache.hop.core.file.EncodingType;
 import org.junit.jupiter.api.Test;
 
 /** User: Dzmitry Stsiapanau Date: 3/11/14 Time: 11:44 AM */
-public class EncodingTypeTest {
+class EncodingTypeTest {
   @Test
-  public void testIsReturn() {
+  void testIsReturn() {
     int lineFeed = '\n';
     int carriageReturn = '\r';
     assertTrue(EncodingType.SINGLE.isLinefeed(lineFeed), "SINGLE.isLineFeed is not line feed");

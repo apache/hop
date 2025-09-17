@@ -38,7 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ConcatFieldsTest {
+class ConcatFieldsTest {
 
   private TransformMockHelper<ConcatFieldsMeta, ConcatFieldsData> tmh;
 
@@ -46,7 +46,7 @@ public class ConcatFieldsTest {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     tmh = new TransformMockHelper<>("ConcatFields", ConcatFieldsMeta.class, ConcatFieldsData.class);
     when(tmh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(tmh.iLogChannel);
@@ -54,12 +54,12 @@ public class ConcatFieldsTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     tmh.cleanUp();
   }
 
   @Test
-  public void testMissingTrimType() {
+  void testMissingTrimType() {
 
     // Create input rowset
     RowMeta inputRowMeta = new RowMeta();

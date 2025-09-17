@@ -27,7 +27,7 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class MsSqlServerSequenceAndReleaseSavePointTest {
+class MsSqlServerSequenceAndReleaseSavePointTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   final String sequenceName = "sequence_name";
@@ -38,7 +38,7 @@ public class MsSqlServerSequenceAndReleaseSavePointTest {
   Boolean savepointSupport = true;
 
   @Test
-  public void testSequenceSupport() {
+  void testSequenceSupport() {
     assertSupports(db, sequenceSupport);
     assertEquals("SELECT NEXT VALUE FOR sequence_name", db.getSqlNextSequenceValue(sequenceName));
     assertEquals(
@@ -51,7 +51,7 @@ public class MsSqlServerSequenceAndReleaseSavePointTest {
   }
 
   @Test
-  public void testSavepointSuport() {
+  void testSavepointSuport() {
     if (savepointSupport) {
       assertTrue(db.isReleaseSavepoint());
     } else {

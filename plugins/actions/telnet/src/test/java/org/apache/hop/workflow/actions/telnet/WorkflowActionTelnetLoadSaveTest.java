@@ -24,8 +24,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionTelnetLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionTelnet> {
+class WorkflowActionTelnetLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionTelnet> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override

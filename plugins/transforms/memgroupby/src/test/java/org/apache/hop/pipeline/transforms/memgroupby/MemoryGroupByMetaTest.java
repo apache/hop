@@ -57,16 +57,16 @@ import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MemoryGroupByMetaTest {
+class MemoryGroupByMetaTest {
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     MemoryGroupByMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/memory-group-by-transform.xml", MemoryGroupByMeta.class);
@@ -93,7 +93,7 @@ public class MemoryGroupByMetaTest {
   }
 
   @Test
-  public void testGetFields() {
+  void testGetFields() {
     final String transformName = "this transform name";
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
     meta.setDefault();

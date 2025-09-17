@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class H2DatabaseMetaTest {
+class H2DatabaseMetaTest {
   H2DatabaseMeta nativeMeta;
 
   @Before
@@ -44,7 +44,7 @@ public class H2DatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertEquals(8082, nativeMeta.getDefaultDatabasePort());
     assertEquals("org.h2.Driver", nativeMeta.getDriverClass());
 
@@ -106,7 +106,7 @@ public class H2DatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("TRUNCATE TABLE FOO", nativeMeta.getTruncateTableStatement("FOO"));
     assertEquals("SELECT * FROM FOO", nativeMeta.getSqlQueryFields("FOO"));
     assertEquals("SELECT 1 FROM FOO", nativeMeta.getSqlTableExists("FOO"));

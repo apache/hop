@@ -38,7 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
+class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -49,7 +49,7 @@ public class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
   private Class<RowGeneratorMeta> testMetaClass = RowGeneratorMeta.class;
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
@@ -113,7 +113,7 @@ public class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

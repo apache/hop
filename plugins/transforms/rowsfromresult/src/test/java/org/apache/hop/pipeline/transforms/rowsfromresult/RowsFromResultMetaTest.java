@@ -36,7 +36,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class RowsFromResultMetaTest implements IInitializer<ITransformMeta> {
+class RowsFromResultMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<RowsFromResultMeta> testMetaClass = RowsFromResultMeta.class;
 
@@ -44,7 +44,7 @@ public class RowsFromResultMetaTest implements IInitializer<ITransformMeta> {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes = Arrays.asList("fieldname", "type", "length", "precision");
@@ -86,7 +86,7 @@ public class RowsFromResultMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 }

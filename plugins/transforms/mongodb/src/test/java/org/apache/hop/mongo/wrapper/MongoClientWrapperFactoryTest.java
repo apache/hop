@@ -27,19 +27,19 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class MongoClientWrapperFactoryTest {
+class MongoClientWrapperFactoryTest {
 
   @Mock DefaultMongoClientFactory mongoClientFactory;
   @Mock MongoUtilLogger logger;
 
   @BeforeEach
-  public void before() {
+  void before() {
     MockitoAnnotations.openMocks(this);
     NoAuthMongoClientWrapper.clientFactory = mongoClientFactory;
   }
 
   @Test
-  public void testCreateMongoClientWrapper() throws Exception {
+  void testCreateMongoClientWrapper() throws Exception {
     MongoClientWrapper wrapper =
         MongoClientWrapperFactory.createMongoClientWrapper(
             new MongoProperties.Builder()

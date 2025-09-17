@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Disabled;
 
 /** Base class for all tests for BaseFileInput transforms. */
 @Disabled("No tests in abstract base class")
-public abstract class BaseParsingTest<
+abstract class BaseParsingTest<
     Meta extends ITransformMeta, Data extends ITransformData, Transform extends BaseTransform> {
 
   protected ILogChannel log = new LogChannel("junit");
@@ -67,7 +67,7 @@ public abstract class BaseParsingTest<
 
   /** Initialize transform info. Method is final against redefine in descendants. */
   @BeforeEach
-  public final void beforeCommon() throws Exception {
+  final void beforeCommon() throws Exception {
     HopEnvironment.init();
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();

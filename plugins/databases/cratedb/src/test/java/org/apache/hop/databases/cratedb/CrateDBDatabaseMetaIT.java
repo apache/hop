@@ -55,7 +55,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void testSimpleSelect() throws Exception {
+  void testSimpleSelect() throws Exception {
     Statement statement = connection.createStatement();
     ResultSet resultSet = statement.executeQuery("SELECT 1");
     assertTrue(resultSet.next());
@@ -63,7 +63,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void doNotSupportSequences() {
+  void doNotSupportSequences() {
     assertFalse(nativeMeta.isSupportsSequences());
     assertThrows(
         UnsupportedOperationException.class,
@@ -80,7 +80,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void sqlStatements() throws Exception {
+  void sqlStatements() throws Exception {
     executeUpdate(
         "INSERT INTO foo (id, name, description) VALUES (1, 'Alice', 'test_description');");
     executeUpdate("REFRESH TABLE foo;");
@@ -119,7 +119,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addTimestampColumn() throws Exception {
+  void addTimestampColumn() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaDate("BAR"), "", false, "", false));
     executeUpdate(
@@ -130,7 +130,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addNumberColumn() throws Exception {
+  void addNumberColumn() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 3), "", false, "", false));
@@ -143,7 +143,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addBigNumber() throws Exception {
+  void addBigNumber() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 21, 4), "", false, "", false));
@@ -156,7 +156,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addStringColumnWithLength() throws Exception {
+  void addStringColumnWithLength() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", false));
@@ -170,7 +170,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addLongTextColumn() throws Exception {
+  void addLongTextColumn() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement(
             "FOO",
@@ -183,7 +183,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void doesNotSupportLockTables() {
+  void doesNotSupportLockTables() {
     assertThrows(
         UnsupportedOperationException.class,
         () -> executeUpdate(nativeMeta.getSqlLockTables(new String[] {"FOO", "BAR"})));

@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class MemoryGroupByNewAggregateTest {
+class MemoryGroupByNewAggregateTest {
 
   static TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData> mockHelper;
   static List<GroupType> strings;
@@ -51,7 +51,7 @@ public class MemoryGroupByNewAggregateTest {
   MemoryGroupByData data;
 
   @BeforeAll
-  public static void setUpBeforeClass() throws Exception {
+  static void setUpBeforeClass() throws Exception {
     mockHelper =
         new TransformMockHelper<>(
             "Memory Group By", MemoryGroupByMeta.class, MemoryGroupByData.class);
@@ -71,12 +71,12 @@ public class MemoryGroupByNewAggregateTest {
   }
 
   @AfterAll
-  public static void cleanUp() {
+  static void cleanUp() {
     mockHelper.cleanUp();
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     data = new MemoryGroupByData();
 
     List<GAggregate> aggregates = new ArrayList<>();

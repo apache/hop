@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.w3c.dom.Node;
 
-public class ZipFileMetaTest {
+class ZipFileMetaTest {
 
   private static final String SOURCE_FILENAME = "Files";
   private static final String TARGET_FILENAME = "ZipFile";
@@ -58,7 +58,7 @@ public class ZipFileMetaTest {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testGettersSetters() {
+  void testGettersSetters() {
     ZipFileMeta zipFileMeta = new ZipFileMeta();
     zipFileMeta.setSourceFilenameField(SOURCE_FILENAME);
     zipFileMeta.setTargetFilenameField(TARGET_FILENAME);
@@ -87,7 +87,7 @@ public class ZipFileMetaTest {
   }
 
   @Test
-  public void testLoadAndGetXml() throws Exception {
+  void testLoadAndGetXml() throws Exception {
     ZipFileMeta zipFileMeta = new ZipFileMeta();
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
@@ -100,7 +100,7 @@ public class ZipFileMetaTest {
   }
 
   @Test
-  public void testCheck() {
+  void testCheck() {
     ZipFileMeta zipFileMeta = new ZipFileMeta();
     zipFileMeta.setDefault();
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
@@ -143,7 +143,7 @@ public class ZipFileMetaTest {
   }
 
   @Test
-  public void testGetTransform() {
+  void testGetTransform() {
     TransformMeta transformMeta = mock(TransformMeta.class);
     when(transformMeta.getName()).thenReturn("Zip Transform Name");
     ZipFileData transformData = mock(ZipFileData.class);
@@ -162,7 +162,7 @@ public class ZipFileMetaTest {
   }
 
   @Test
-  public void testOperationType() {
+  void testOperationType() {
     assertEquals(0, ZipFileMeta.getOperationTypeByDesc(null));
     assertEquals(1, ZipFileMeta.getOperationTypeByDesc("Move source file"));
     assertEquals(1, ZipFileMeta.getOperationTypeByDesc("move"));

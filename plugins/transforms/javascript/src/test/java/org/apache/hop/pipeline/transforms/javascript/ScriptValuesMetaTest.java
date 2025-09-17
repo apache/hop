@@ -43,7 +43,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
+class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -51,7 +51,7 @@ public class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
   Class<ScriptValuesMeta> testMetaClass = ScriptValuesMeta.class;
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
@@ -157,7 +157,7 @@ public class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testExtend() {
+  void testExtend() {
     ScriptValuesMeta meta = new ScriptValuesMeta();
     int size = 1;
     meta.extend(size);

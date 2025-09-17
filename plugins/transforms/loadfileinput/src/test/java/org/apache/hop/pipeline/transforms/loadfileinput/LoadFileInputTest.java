@@ -60,7 +60,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
-public class LoadFileInputTest {
+class LoadFileInputTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -80,7 +80,7 @@ public class LoadFileInputTest {
   private static String wasEncoding;
 
   @BeforeAll
-  public static void setupBeforeClass() throws HopException {
+  static void setupBeforeClass() throws HopException {
     if (Const.isWindows()) {
       wasEncoding = System.getProperty("file.encoding");
       fiddleWithDefaultCharset("utf8");
@@ -89,7 +89,7 @@ public class LoadFileInputTest {
   }
 
   @AfterAll
-  public static void teardownAfterClass() {
+  static void teardownAfterClass() {
     if (wasEncoding != null) {
       fiddleWithDefaultCharset(wasEncoding);
     }
@@ -109,7 +109,7 @@ public class LoadFileInputTest {
   }
 
   @BeforeEach
-  public void setup() throws FileSystemException {
+  void setup() throws FileSystemException {
     fs = VFS.getManager();
     filesPath = '/' + this.getClass().getPackage().getName().replace('.', '/') + "/files/";
 
@@ -156,21 +156,21 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_noFiles() {
+  void testOpenNextFile_noFiles() {
     assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
     assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
-  public void testOpenNextFile_noFiles_ignoreEmpty() {
+  void testOpenNextFile_noFiles_ignoreEmpty() {
     loadFileInputMeta.setIgnoreEmptyFile(true);
 
     assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
-  public void testOpenNextFile_0() {
+  void testOpenNextFile_0() {
     assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
     fileInputList.addFile(getFile("input0.txt"));
@@ -180,7 +180,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_0_ignoreEmpty() {
+  void testOpenNextFile_0_ignoreEmpty() {
     loadFileInputMeta.setIgnoreEmptyFile(true);
 
     fileInputList.addFile(getFile("input0.txt"));
@@ -189,7 +189,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_000() {
+  void testOpenNextFile_000() {
     assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
     fileInputList.addFile(getFile("input0.txt"));
@@ -203,7 +203,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_000_ignoreEmpty() {
+  void testOpenNextFile_000_ignoreEmpty() {
     loadFileInputMeta.setIgnoreEmptyFile(true);
 
     fileInputList.addFile(getFile("input0.txt"));
@@ -214,7 +214,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_10() {
+  void testOpenNextFile_10() {
     assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
     fileInputList.addFile(getFile("input1.txt"));
@@ -226,7 +226,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_10_ignoreEmpty() {
+  void testOpenNextFile_10_ignoreEmpty() {
     loadFileInputMeta.setIgnoreEmptyFile(true);
 
     fileInputList.addFile(getFile("input1.txt"));
@@ -237,7 +237,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_01() {
+  void testOpenNextFile_01() {
     assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
     fileInputList.addFile(getFile("input0.txt"));
@@ -249,7 +249,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_01_ignoreEmpty() {
+  void testOpenNextFile_01_ignoreEmpty() {
     loadFileInputMeta.setIgnoreEmptyFile(true);
 
     fileInputList.addFile(getFile("input0.txt"));
@@ -260,7 +260,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_010() {
+  void testOpenNextFile_010() {
     assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
     fileInputList.addFile(getFile("input0.txt"));
@@ -274,7 +274,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testOpenNextFile_010_ignoreEmpty() {
+  void testOpenNextFile_010_ignoreEmpty() {
     loadFileInputMeta.setIgnoreEmptyFile(true);
 
     fileInputList.addFile(getFile("input0.txt"));
@@ -286,7 +286,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testGetOneRow() throws Exception {
+  void testGetOneRow() throws Exception {
     // string without specified encoding
     fileInputList.addFile(getFile("input1.txt"));
 
@@ -295,7 +295,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testUTF8Encoding() throws HopException, FileSystemException {
+  void testUTF8Encoding() throws HopException, FileSystemException {
     loadFileInputMeta.setIncludeFilename(true);
     loadFileInputMeta.setFilenameField("filename");
     loadFileInputMeta.setIncludeRowNumber(true);
@@ -322,7 +322,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testUTF8TrimLeft() throws HopException {
+  void testUTF8TrimLeft() throws HopException {
     loadFileInputMeta.setEncoding("UTF-8");
     loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_LEFT);
     fileInputList.addFile(getFile("UTF-8.txt"));
@@ -330,7 +330,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testUTF8TrimRight() throws HopException {
+  void testUTF8TrimRight() throws HopException {
     loadFileInputMeta.setEncoding("UTF-8");
     loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_RIGHT);
     fileInputList.addFile(getFile("UTF-8.txt"));
@@ -338,7 +338,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testUTF8Trim() throws HopException {
+  void testUTF8Trim() throws HopException {
     loadFileInputMeta.setEncoding("UTF-8");
     loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
     fileInputList.addFile(getFile("UTF-8.txt"));
@@ -346,7 +346,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testWindowsEncoding() throws HopException {
+  void testWindowsEncoding() throws HopException {
     loadFileInputMeta.setEncoding("Windows-1252");
     loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_NONE);
     fileInputList.addFile(getFile("Windows-1252.txt"));
@@ -354,7 +354,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testWithNoEncoding() throws HopException, UnsupportedEncodingException {
+  void testWithNoEncoding() throws HopException, UnsupportedEncodingException {
     // string with Windows-1252 encoding but with no encoding set
     loadFileInputMeta.setEncoding(null);
     fileInputList.addFile(getFile("Windows-1252.txt"));
@@ -365,7 +365,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testByteArray() throws Exception {
+  void testByteArray() throws Exception {
     IRowMeta mockedRowMetaInterface = mock(IRowMeta.class);
     loadFileInput.getData().outputRowMeta = mockedRowMetaInterface;
     loadFileInput.getData().convertRowMeta = mockedRowMetaInterface;
@@ -386,7 +386,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testCopyOrCloneArrayFromLoadFileWithSmallerSizedReadRowArray() {
+  void testCopyOrCloneArrayFromLoadFileWithSmallerSizedReadRowArray() {
     int size = 5;
     Object[] rowData = new Object[size];
     Object[] readrow = new Object[size - 1];
@@ -398,7 +398,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testCopyOrCloneArrayFromLoadFileWithBiggerSizedReadRowArray() {
+  void testCopyOrCloneArrayFromLoadFileWithBiggerSizedReadRowArray() {
     int size = 5;
     Object[] rowData = new Object[size];
     Object[] readrow = new Object[size + 1];
@@ -410,7 +410,7 @@ public class LoadFileInputTest {
   }
 
   @Test
-  public void testCopyOrCloneArrayFromLoadFileWithSameSizedReadRowArray() {
+  void testCopyOrCloneArrayFromLoadFileWithSameSizedReadRowArray() {
     int size = 5;
     Object[] rowData = new Object[size];
     Object[] readrow = new Object[size];

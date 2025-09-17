@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SybaseIQDatabaseMetaTest {
+class SybaseIQDatabaseMetaTest {
   private SybaseIQDatabaseMeta nativeMeta;
 
   @Before
@@ -44,7 +44,7 @@ public class SybaseIQDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(2638, nativeMeta.getDefaultDatabasePort());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
@@ -64,7 +64,7 @@ public class SybaseIQDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals(
         "ALTER TABLE FOO ADD BAR VARCHAR(15) NULL",
         nativeMeta.getAddColumnStatement(
@@ -81,7 +81,7 @@ public class SybaseIQDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO DATETIME NULL",
         nativeMeta.getFieldDefinition(new ValueMetaTimestamp("FOO"), "", "", false, true, false));

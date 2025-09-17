@@ -52,19 +52,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.w3c.dom.Node;
 
-public class XmlOutputMetaTest {
+class XmlOutputMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUp() throws Exception {
+  static void setUp() throws Exception {
     if (!HopClientEnvironment.isInitialized()) {
       HopClientEnvironment.init();
     }
   }
 
   @Test
-  public void testLoadAndGetXml() throws Exception {
+  void testLoadAndGetXml() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
@@ -324,7 +324,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetNewline() {
+  void testGetNewline() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     assertEquals("\r\n", xmlOutputMeta.getNewLine("DOS"));
     assertEquals("\n", xmlOutputMeta.getNewLine("UNIX"));
@@ -332,7 +332,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
@@ -344,7 +344,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testSetDefault() {
+  void testSetDefault() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     assertEquals("", xmlOutputMeta.getFileName());
@@ -366,7 +366,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetFiles() {
+  void testGetFiles() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     xmlOutputMeta.setTransformNrInFilename(true);
@@ -394,7 +394,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetFields() {
+  void testGetFields() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     XmlField xmlField = new XmlField();
@@ -414,7 +414,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testLoadXmlException() {
+  void testLoadXmlException() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
@@ -428,7 +428,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetRequiredFields() throws Exception {
+  void testGetRequiredFields() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     XmlField xmlField = new XmlField();
@@ -458,7 +458,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testExportResources() throws Exception {
+  void testExportResources() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     xmlOutputMeta.setFileName("file");
@@ -472,7 +472,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testCheck() {
+  void testCheck() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);

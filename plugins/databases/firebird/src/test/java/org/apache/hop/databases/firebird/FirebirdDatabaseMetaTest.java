@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FirebirdDatabaseMetaTest {
+class FirebirdDatabaseMetaTest {
 
   private FirebirdDatabaseMeta nativeMeta;
 
@@ -45,7 +45,7 @@ public class FirebirdDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(3050, nativeMeta.getDefaultDatabasePort());
 
@@ -753,7 +753,7 @@ public class FirebirdDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals(
         "ALTER TABLE FOO ADD BAR TIMESTAMP",
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaDate("BAR"), "", false, "", false));
@@ -767,7 +767,7 @@ public class FirebirdDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO VARCHAR(15)",
         nativeMeta.getFieldDefinition(

@@ -23,18 +23,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class StandardizePhoneNumberMetaInjectionTest
+class StandardizePhoneNumberMetaInjectionTest
     extends BaseMetadataInjectionTestJunit5<StandardizePhoneNumberMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new StandardizePhoneNumberMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("input", () -> meta.getFields().get(0).getInputField());
     check("output", () -> meta.getFields().get(0).getOutputField());
     check("format", () -> meta.getFields().get(0).getNumberFormat());

@@ -22,9 +22,9 @@ import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CypherScriptTest {
+class CypherScriptTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     CypherScript action =
         ActionSerializationTestUtil.testSerialization(
             "/cypher-script-action.xml", CypherScript.class);

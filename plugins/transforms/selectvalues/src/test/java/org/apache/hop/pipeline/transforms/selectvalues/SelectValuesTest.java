@@ -52,7 +52,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SelectValuesTest {
+class SelectValuesTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -64,12 +64,12 @@ public class SelectValuesTest {
   private TransformMockHelper<SelectValuesMeta, SelectValuesData> helper;
 
   @BeforeAll
-  public static void initHop() throws Exception {
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     helper =
         TransformMockUtil.getTransformMockHelper(
             SelectValuesMeta.class, SelectValuesData.class, "SelectValuesTest");
@@ -97,12 +97,12 @@ public class SelectValuesTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     helper.cleanUp();
   }
 
   @Test
-  public void testPDI16368() throws Exception {
+  void testPDI16368() throws Exception {
     SelectValuesHandler transform2 = null;
     Object[] inputRow2 = null;
     RowMeta inputRowMeta = null;
@@ -284,7 +284,7 @@ public class SelectValuesTest {
   }
 
   @Test
-  public void errorRowSetObtainsFieldName() throws Exception {
+  void errorRowSetObtainsFieldName() throws Exception {
     SelectValuesMeta transformMeta = new SelectValuesMeta();
     SelectField field = new SelectField();
     field.setName(SELECTED_FIELD);

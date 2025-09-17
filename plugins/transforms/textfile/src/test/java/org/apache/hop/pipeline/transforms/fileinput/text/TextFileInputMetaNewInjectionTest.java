@@ -27,18 +27,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TextFileInputMetaNewInjectionTest
-    extends BaseMetadataInjectionTestJunit5<TextFileInputMeta> {
+class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTestJunit5<TextFileInputMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new TextFileInputMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FILE_TYPE", () -> meta.content.fileType);
 
     check("SEPARATOR", () -> meta.content.separator);

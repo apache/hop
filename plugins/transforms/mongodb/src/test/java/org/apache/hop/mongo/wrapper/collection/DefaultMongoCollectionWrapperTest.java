@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class DefaultMongoCollectionWrapperTest {
+class DefaultMongoCollectionWrapperTest {
 
   private DefaultMongoCollectionWrapper defaultMongoCollectionWrapper;
   @Mock private DBCollection mockDBCollection;
@@ -49,19 +49,19 @@ public class DefaultMongoCollectionWrapperTest {
   private DBObject[] dbObjectArray = new DBObject[0];
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     MockitoAnnotations.openMocks(this);
     defaultMongoCollectionWrapper = new DefaultMongoCollectionWrapper(mockDBCollection);
   }
 
   @Test
-  public void testRemove() throws Exception {
+  void testRemove() throws Exception {
     defaultMongoCollectionWrapper.remove();
     verify(mockDBCollection, times(1)).remove(new BasicDBObject());
   }
 
   @Test
-  public void testCreateIndex() throws Exception {
+  void testCreateIndex() throws Exception {
     BasicDBObject index = mock(BasicDBObject.class);
     BasicDBObject options = mock(BasicDBObject.class);
     defaultMongoCollectionWrapper.createIndex(index, options);
@@ -69,7 +69,7 @@ public class DefaultMongoCollectionWrapperTest {
   }
 
   @Test
-  public void testPassThroughMethods() throws MongoDbException {
+  void testPassThroughMethods() throws MongoDbException {
     // Setup aggregate to use MongoDB Cursor method instead
     AggregationOptions options = AggregationOptions.builder().build();
     List<DBObject> pipeline = new ArrayList<>(); // can be empty
@@ -95,7 +95,7 @@ public class DefaultMongoCollectionWrapperTest {
   }
 
   @Test
-  public void testAggregate() {
+  void testAggregate() {
     Cursor mockCursor = mock(Cursor.class);
     when(mockDBCollection.aggregate(anyList(), any(AggregationOptions.class)))
         .thenReturn(mockCursor);
@@ -104,7 +104,7 @@ public class DefaultMongoCollectionWrapperTest {
   }
 
   @Test
-  public void testFindWrapsCursor() throws MongoDbException {
+  void testFindWrapsCursor() throws MongoDbException {
     assertTrue(defaultMongoCollectionWrapper.find() instanceof MongoCursorWrapper);
     verify(mockDBCollection).find();
     assertTrue(

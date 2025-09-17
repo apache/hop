@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class H2BaseDatabaseMetaTest {
+class H2BaseDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   BaseDatabaseMeta nativeMeta;
 
@@ -37,7 +37,7 @@ public class H2BaseDatabaseMetaTest {
   }
 
   @Test
-  public void testShowIsTreatedAsAResultsQuery() {
+  void testShowIsTreatedAsAResultsQuery() {
     List<SqlScriptStatement> sqlScriptStatements =
         new H2DatabaseMeta().getSqlScriptStatements("show annotations from service");
     assertTrue(sqlScriptStatements.get(0).isQuery());

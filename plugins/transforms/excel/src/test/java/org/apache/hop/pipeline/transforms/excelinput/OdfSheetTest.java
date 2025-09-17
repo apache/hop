@@ -27,13 +27,13 @@ import org.apache.hop.pipeline.transforms.excelinput.ods.OdfSheet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class OdfSheetTest {
+class OdfSheetTest {
 
   private IKWorkbook ods341;
   private IKWorkbook ods24;
 
   @BeforeEach
-  public void init() throws HopException {
+  void init() throws HopException {
     ods341 =
         WorkbookFactory.getWorkbook(
             SpreadSheetType.ODS,
@@ -49,7 +49,7 @@ public class OdfSheetTest {
   }
 
   @Test
-  public void testRowColumnsCount() {
+  void testRowColumnsCount() {
 
     String sameRowWidthSheet = "SameRowWidth";
     String diffRowWidthSheet = "DifferentRowWidth";

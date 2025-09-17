@@ -35,7 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class WorkflowActionMoveFilesLocalTest {
+class WorkflowActionMoveFilesLocalTest {
 
   @Rule public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -57,7 +57,7 @@ public class WorkflowActionMoveFilesLocalTest {
   }
 
   @Test
-  public void testBasicFileMoveOperation() throws IOException, HopException {
+  void testBasicFileMoveOperation() throws IOException, HopException {
     Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
     Path destFile = destinationFolder.toPath().resolve("test.txt");
 
@@ -76,7 +76,7 @@ public class WorkflowActionMoveFilesLocalTest {
   }
 
   @Test
-  public void testMoveWithWildcard() throws IOException, HopException {
+  void testMoveWithWildcard() throws IOException, HopException {
     createTestFilePath(sourceFolder, "test1.txt");
     createTestFilePath(sourceFolder, "test2.txt");
     createTestFilePath(sourceFolder, "other.txt");
@@ -96,7 +96,7 @@ public class WorkflowActionMoveFilesLocalTest {
   }
 
   @Test
-  public void testMoveToExistingFile() throws IOException, HopException {
+  void testMoveToExistingFile() throws IOException, HopException {
     Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
     Path destFile = destinationFolder.toPath().resolve("test.txt");
     String originalContent = "original content";
@@ -116,7 +116,7 @@ public class WorkflowActionMoveFilesLocalTest {
   }
 
   @Test
-  public void testMoveWithOverwrite() throws IOException, HopException {
+  void testMoveWithOverwrite() throws IOException, HopException {
     Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
     Path destFile = createTestFilePath(destinationFolder, "test.txt");
 
@@ -136,7 +136,7 @@ public class WorkflowActionMoveFilesLocalTest {
   }
 
   @Test
-  public void testCreateDestinationFolder() throws IOException, HopException {
+  void testCreateDestinationFolder() throws IOException, HopException {
     Files.deleteIfExists(destinationFolder.toPath());
 
     Path sourceFile = createTestFilePath(sourceFolder, "test.txt");

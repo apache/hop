@@ -41,11 +41,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @see InsertUpdate
  */
-public class InsertUpdateTestLazyConversionTest {
+class InsertUpdateTestLazyConversionTest {
   TransformMockHelper<InsertUpdateMeta, InsertUpdateData> smh;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     smh = new TransformMockHelper<>("insertUpdate", InsertUpdateMeta.class, InsertUpdateData.class);
     when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
@@ -53,12 +53,12 @@ public class InsertUpdateTestLazyConversionTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testDateLazyConversion() throws HopException {
+  void testDateLazyConversion() throws HopException {
 
     Database db = mock(Database.class);
 

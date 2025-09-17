@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class WorkflowActionShellTest {
+class WorkflowActionShellTest {
 
   @Mock private ActionShell jobEntryShellMock;
 
@@ -37,7 +37,7 @@ public class WorkflowActionShellTest {
 
   /** tests if Windows's EOL characters is replaced. */
   @Test
-  public void replaceWinEOLtest() {
+  void replaceWinEOLtest() {
     // string is shell content
     String content =
         "#!/bin/bash\r\n" + "\r\n" + "echo `date` > /home/project-hop/test_output/output.txt";

@@ -34,12 +34,12 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class NormaliserTest {
+class NormaliserTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void before() throws HopException {
+  static void before() throws HopException {
     HopEnvironment.init();
   }
 
@@ -150,7 +150,7 @@ public class NormaliserTest {
   }
 
   // @Test
-  public void testNormaliserProcessRowsWikiData() throws Exception {
+  void testNormaliserProcessRowsWikiData() throws Exception {
     // We should have 1 row as input to the normaliser and 3 rows as output to the normaliser with
     // the data
     //

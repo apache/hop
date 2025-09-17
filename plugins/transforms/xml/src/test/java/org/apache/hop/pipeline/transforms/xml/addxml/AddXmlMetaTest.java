@@ -27,10 +27,10 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValida
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.jupiter.api.Test;
 
-public class AddXmlMetaTest {
+class AddXmlMetaTest {
 
   @Test
-  public void loadSaveTest() throws HopException {
+  void loadSaveTest() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "omitXMLheader", "omitNullValues", "encoding", "valueName", "rootNode", "outputFields");

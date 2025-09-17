@@ -20,9 +20,9 @@ package org.apache.hop.pipeline.transforms.cassandraoutput;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CassandraOutputMetaTest {
+class CassandraOutputMetaTest {
   @Test
-  public void validateConvertToSecondsWithNONETTLUnits() {
+  void validateConvertToSecondsWithNONETTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.NONE;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
@@ -31,7 +31,7 @@ public class CassandraOutputMetaTest {
   }
 
   @Test
-  public void validateConvertToSecondsWithSecondsTTLUnits() {
+  void validateConvertToSecondsWithSecondsTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.SECONDS;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
@@ -40,7 +40,7 @@ public class CassandraOutputMetaTest {
   }
 
   @Test
-  public void validateConvertToSecondsWithMinutesTTLUnits() {
+  void validateConvertToSecondsWithMinutesTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.MINUTES;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
@@ -49,7 +49,7 @@ public class CassandraOutputMetaTest {
   }
 
   @Test
-  public void validateConvertToSecondsWithHOURSTTLUnits() {
+  void validateConvertToSecondsWithHOURSTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.HOURS;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
@@ -58,7 +58,7 @@ public class CassandraOutputMetaTest {
   }
 
   @Test
-  public void validateConvertToSecondsWithDAYSTTLUnits() {
+  void validateConvertToSecondsWithDAYSTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.DAYS;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);

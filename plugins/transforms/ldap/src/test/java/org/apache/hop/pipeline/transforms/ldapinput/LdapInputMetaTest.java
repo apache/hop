@@ -34,7 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
+class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
   LoadSaveTester<LdapInputMeta> loadSaveTester;
   Class<LdapInputMeta> testMetaClass = LdapInputMeta.class;
 
@@ -42,7 +42,7 @@ public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     List<String> attributes =
         Arrays.asList(
             "useAuthentication",
@@ -102,7 +102,7 @@ public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

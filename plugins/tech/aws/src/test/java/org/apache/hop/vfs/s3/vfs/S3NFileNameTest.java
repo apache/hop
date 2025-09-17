@@ -24,7 +24,7 @@ import org.apache.hop.vfs.s3.s3n.vfs.S3NFileName;
 import org.junit.Before;
 import org.junit.Test;
 
-public class S3NFileNameTest {
+class S3NFileNameTest {
 
   private S3NFileName fileName = null;
 
@@ -38,19 +38,19 @@ public class S3NFileNameTest {
   }
 
   @Test
-  public void testGetURI() {
+  void testGetURI() {
     String expected = buildS3URL("/");
     assertEquals(expected, fileName.getURI());
   }
 
   @Test
-  public void testCreateName() {
+  void testCreateName() {
     assertEquals(
         "s3n:///path/to/my/file", fileName.createName("/path/to/my/file", FileType.FILE).getURI());
   }
 
   @Test
-  public void testAppendRootUriWithNonDefaultPort() {
+  void testAppendRootUriWithNonDefaultPort() {
     fileName = new S3NFileName(SCHEME, "", "FooFolder", FileType.FOLDER);
     String expectedUri = SCHEME + "://" + "FooFolder";
     assertEquals(expectedUri, fileName.getURI());

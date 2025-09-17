@@ -30,17 +30,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ExcelWriterTransformMetaTest {
+class ExcelWriterTransformMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
   @Test
-  public void testRoundTrip() throws Exception {
+  void testRoundTrip() throws Exception {
 
     LoadSaveTester<ExcelWriterTransformMeta> tester =
         new LoadSaveTester<>(ExcelWriterTransformMeta.class);

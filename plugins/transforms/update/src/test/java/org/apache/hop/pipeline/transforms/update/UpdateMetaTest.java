@@ -221,24 +221,24 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     mockHelper.cleanUp();
   }
 
   @Test
-  public void testCommitCountFixed() {
+  void testCommitCountFixed() {
     umi.setCommitSize("100");
     assertEquals(100, umi.getCommitSize(upd));
   }
 
   @Test
-  public void testCommitCountVar() {
+  void testCommitCountVar() {
     umi.setCommitSize("${max.sz}");
     assertEquals(10, umi.getCommitSize(upd));
   }
 
   @Test
-  public void testCommitCountMissedVar() {
+  void testCommitCountMissedVar() {
     umi.setCommitSize("missed-var");
     try {
       umi.getCommitSize(upd);
@@ -274,7 +274,7 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

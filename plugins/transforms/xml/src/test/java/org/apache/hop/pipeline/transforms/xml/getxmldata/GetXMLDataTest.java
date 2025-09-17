@@ -190,7 +190,7 @@ class GetXMLDataTest {
    * @throws Exception Upon any exception
    */
   @Test
-  public void testGetXMLDataSimple1() throws Exception {
+  void testGetXMLDataSimple1() throws Exception {
     HopEnvironment.init();
 
     //

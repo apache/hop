@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class CrateDBDatabaseMetaTest {
+class CrateDBDatabaseMetaTest {
   CrateDBDatabaseMeta nativeMeta;
 
   private static final String SEQUENCES_NOT_SUPPORTED = "CrateDB doesn't support sequences";
@@ -46,7 +46,7 @@ public class CrateDBDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
     assertEquals("?", nativeMeta.getExtraOptionIndicator());
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
@@ -174,7 +174,7 @@ public class CrateDBDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("SELECT * FROM FOO limit 1", nativeMeta.getSqlQueryFields("FOO"));
     assertEquals("SELECT * FROM FOO limit 1", nativeMeta.getSqlTableExists("FOO"));
     assertEquals("SELECT FOO FROM BAR limit 1", nativeMeta.getSqlColumnExists("FOO", "BAR"));
@@ -330,7 +330,7 @@ public class CrateDBDatabaseMetaTest {
   }
 
   @Test
-  public void doesNotSupportSequences() {
+  void doesNotSupportSequences() {
     assertThrows(
         SEQUENCES_NOT_SUPPORTED,
         UnsupportedOperationException.class,

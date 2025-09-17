@@ -42,7 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class MetaInjectMetaTest {
+class MetaInjectMetaTest {
 
   private static final String SOURCE_TRANSFORM_NAME = "SOURCE_TRANSFORM_NAME";
 
@@ -62,7 +62,7 @@ public class MetaInjectMetaTest {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void SetUp() throws Exception {
+  static void SetUp() throws Exception {
     if (!HopClientEnvironment.isInitialized()) {
       HopClientEnvironment.init();
     }
@@ -70,12 +70,12 @@ public class MetaInjectMetaTest {
   }
 
   @BeforeEach
-  public void before() {
+  void before() {
     metaInjectMeta = new MetaInjectMeta();
   }
 
   @Test
-  public void getResourceDependencies() {
+  void getResourceDependencies() {
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = mock(TransformMeta.class);
 
@@ -87,7 +87,7 @@ public class MetaInjectMetaTest {
   }
 
   @Test
-  public void getResourceDependencies_with_defined_fileName() {
+  void getResourceDependencies_with_defined_fileName() {
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = mock(TransformMeta.class);
     metaInjectMeta.setFileName("FILE_NAME");
@@ -101,7 +101,7 @@ public class MetaInjectMetaTest {
   }
 
   @Test
-  public void exportResources() throws HopException {
+  void exportResources() throws HopException {
     IVariables variables = mock(IVariables.class);
     IResourceNaming resourceNamingInterface = mock(IResourceNaming.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
@@ -124,7 +124,7 @@ public class MetaInjectMetaTest {
   }
 
   @Test
-  public void convertToMap() {
+  void convertToMap() {
     MetaInjectMapping metaInjectMapping = new MetaInjectMapping();
     metaInjectMapping.setSourceTransform(SOURCE_TRANSFORM_NAME);
     metaInjectMapping.setSourceField(SOURCE_FIELD_NAME);

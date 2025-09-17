@@ -25,7 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class WorkflowEntryTest {
+class WorkflowEntryTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -34,26 +34,26 @@ public class WorkflowEntryTest {
   }
 
   @Test
-  public void testJobEntrymailPasswordFixed() {
+  void testJobEntrymailPasswordFixed() {
     ActionMail jem = new ActionMail();
     assertEquals("asdf", jem.getPassword("asdf"));
   }
 
   @Test
-  public void testJobEntrymailPasswordEcr() {
+  void testJobEntrymailPasswordEcr() {
     ActionMail jem = new ActionMail();
     assertEquals("asdf", jem.getPassword("Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc"));
   }
 
   @Test
-  public void testJobEntrymailPasswordVar() {
+  void testJobEntrymailPasswordVar() {
     ActionMail jem = new ActionMail();
     jem.setVariable("my_pass", "asdf");
     assertEquals("asdf", jem.getPassword("${my_pass}"));
   }
 
   @Test
-  public void testJobEntrymailPasswordEncrVar() {
+  void testJobEntrymailPasswordEncrVar() {
     ActionMail jem = new ActionMail();
     jem.setVariable("my_pass", "Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc");
     assertEquals("asdf", jem.getPassword("${my_pass}"));

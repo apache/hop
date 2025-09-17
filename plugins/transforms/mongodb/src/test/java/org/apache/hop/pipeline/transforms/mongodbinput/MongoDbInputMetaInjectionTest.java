@@ -25,25 +25,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** MDI test for MongoDbInput. */
-public class MongoDbInputMetaInjectionTest
-    extends BaseMetadataInjectionTestJunit5<MongoDbInputMeta> {
+class MongoDbInputMetaInjectionTest extends BaseMetadataInjectionTestJunit5<MongoDbInputMeta> {
 
   private ILogChannelFactory oldLogChannelInterfaceFactory;
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     oldLogChannelInterfaceFactory = HopLogStore.getLogChannelFactory();
     MongoDbOutputMetaInjectionTest.setHopLogFactoryWithMock();
     setup(new MongoDbInputMeta());
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     HopLogStore.setLogChannelFactory(oldLogChannelInterfaceFactory);
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("CONNECTION", () -> meta.getConnectionName());
     check("JSON_FIELD", () -> meta.getFieldsName());
     check("JSON_QUERY", () -> meta.getJsonQuery());

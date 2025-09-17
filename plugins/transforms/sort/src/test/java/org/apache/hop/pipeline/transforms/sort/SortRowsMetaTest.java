@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
-public class SortRowsMetaTest {
+class SortRowsMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -48,7 +48,7 @@ public class SortRowsMetaTest {
    * @throws HopException
    */
   @Test
-  public void testRoundTrips() throws Exception {
+  void testRoundTrips() throws Exception {
     List<String> attributes =
         Arrays.asList(
             "Directory",
@@ -117,7 +117,7 @@ public class SortRowsMetaTest {
   }
 
   @Test
-  public void testGetDefaultStrength() {
+  void testGetDefaultStrength() {
     SortRowsMeta srm = new SortRowsMeta();
     int usStrength = srm.getDefaultCollationStrength(Locale.US);
     assertEquals(Collator.TERTIARY, usStrength);
@@ -125,7 +125,7 @@ public class SortRowsMetaTest {
   }
 
   @Test
-  public void testPDI16559() throws Exception {
+  void testPDI16559() throws Exception {
     SortRowsMeta sortRowsReal = new SortRowsMeta();
     SortRowsMeta sortRows = Mockito.spy(sortRowsReal);
     sortRows.setDirectory("/tmp");

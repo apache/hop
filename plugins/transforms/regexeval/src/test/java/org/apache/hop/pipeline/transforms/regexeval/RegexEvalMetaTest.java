@@ -51,7 +51,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 
-public class RegexEvalMetaTest implements IInitializer<ITransform> {
+class RegexEvalMetaTest implements IInitializer<ITransform> {
   IRowMeta mockInputRowMeta;
   IVariables mockVariableSpace;
   LoadSaveTester loadSaveTester;
@@ -61,18 +61,18 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setupClass() throws HopException {
+  static void setupClass() throws HopException {
     ValueMetaPluginType.getInstance().searchPlugins();
   }
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     mockInputRowMeta = mock(IRowMeta.class);
     mockVariableSpace = mock(IVariables.class);
   }
 
   @Test
-  public void testGetFieldsReplacesResultFieldIfItExists() throws HopTransformException {
+  void testGetFieldsReplacesResultFieldIfItExists() throws HopTransformException {
     RegexEvalMeta regexEvalMeta = new RegexEvalMeta();
     String name = "TEST_NAME";
     String resultField = "result";
@@ -90,7 +90,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void testGetFieldsAddsResultFieldIfDoesntExist() throws HopTransformException {
+  void testGetFieldsAddsResultFieldIfDoesntExist() throws HopTransformException {
     RegexEvalMeta regexEvalMeta = new RegexEvalMeta();
     String name = "TEST_NAME";
     String resultField = "result";
@@ -108,7 +108,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void testGetFieldsReplacesFieldIfItExists() throws HopTransformException {
+  void testGetFieldsReplacesFieldIfItExists() throws HopTransformException {
     RegexEvalMeta regexEvalMeta = new RegexEvalMeta();
     String name = "TEST_NAME";
     regexEvalMeta.allocate(1);
@@ -129,7 +129,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void testGetFieldsAddsFieldIfDoesntExist() throws HopTransformException {
+  void testGetFieldsAddsFieldIfDoesntExist() throws HopTransformException {
     RegexEvalMeta regexEvalMeta = new RegexEvalMeta();
     String name = "TEST_NAME";
     regexEvalMeta.allocate(1);
@@ -149,7 +149,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
   }
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =

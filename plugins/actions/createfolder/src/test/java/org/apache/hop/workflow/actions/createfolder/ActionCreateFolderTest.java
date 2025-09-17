@@ -22,10 +22,10 @@ import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ActionCreateFolderTest {
+class ActionCreateFolderTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     ActionCreateFolder action =
         ActionSerializationTestUtil.testSerialization(
             "/create-folder-action.xml", ActionCreateFolder.class);

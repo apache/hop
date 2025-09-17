@@ -29,13 +29,12 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SelectValuesMetaInjectionTest
-    extends BaseMetadataInjectionTestJunit5<SelectValuesMeta> {
+class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTestJunit5<SelectValuesMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     SelectValuesMeta selectValuesMeta = new SelectValuesMeta();
     selectValuesMeta
         .getSelectOption()
@@ -98,7 +97,7 @@ public class SelectValuesMetaInjectionTest
 
   // test default values length and precision after injection
   @Test
-  public void testDefaultValue() throws Exception {
+  void testDefaultValue() throws Exception {
     IValueMeta valueMeta = new ValueMetaString("f");
     injector.setProperty(meta, "FIELD_NAME", setValue(valueMeta, "testValue"), "f");
     nonTestedProperties.clear(); // we don't need to test other properties

@@ -53,7 +53,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Tests for applying Format and Style from cell (from a template) when writing fields */
-public class ExcelWriterTransform_StyleFormatTest {
+class ExcelWriterTransform_StyleFormatTest {
 
   private TransformMockHelper<ExcelWriterTransformMeta, ExcelWriterTransformData>
       transformMockHelper;

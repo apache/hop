@@ -32,7 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class GuptaDatabaseMetaTest {
+class GuptaDatabaseMetaTest {
 
   private GuptaDatabaseMeta nativeMeta;
 
@@ -43,7 +43,7 @@ public class GuptaDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(2155, nativeMeta.getDefaultDatabasePort());
     assertFalse(nativeMeta.isSupportsAutoInc());
@@ -68,7 +68,7 @@ public class GuptaDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals(
         "ALTER TABLE FOO ADD BAR VARCHAR(15)",
         nativeMeta.getAddColumnStatement(
@@ -88,7 +88,7 @@ public class GuptaDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO DATETIME NULL",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));

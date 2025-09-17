@@ -26,20 +26,20 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class HopMongoUtilLoggerTest {
+class HopMongoUtilLoggerTest {
 
   @Mock ILogChannel logChannelInterface;
   @Mock Exception exception;
   HopMongoUtilLogger logger;
 
   @BeforeEach
-  public void before() {
+  void before() {
     MockitoAnnotations.openMocks(this);
     logger = new HopMongoUtilLogger(logChannelInterface);
   }
 
   @Test
-  public void testLoggingDelegates() throws Exception {
+  void testLoggingDelegates() throws Exception {
     logger.debug("log");
     verify(logChannelInterface).logDebug("log");
     logger.info("log");

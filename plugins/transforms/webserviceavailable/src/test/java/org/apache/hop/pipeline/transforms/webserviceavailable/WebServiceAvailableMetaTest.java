@@ -25,12 +25,12 @@ import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class WebServiceAvailableMetaTest {
+class WebServiceAvailableMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testLoadSave() throws HopException {
+  void testLoadSave() throws HopException {
     List<String> attributes =
         Arrays.asList("UrlField", "ConnectTimeOut", "ReadTimeOut", "ResultFieldName");
 

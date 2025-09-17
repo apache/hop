@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DerbyDatabaseMetaTest {
+class DerbyDatabaseMetaTest {
   private DerbyDatabaseMeta nativeMeta;
 
   @Before
@@ -44,7 +44,7 @@ public class DerbyDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(0, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
@@ -278,7 +278,7 @@ public class DerbyDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("DELETE FROM FOO", nativeMeta.getTruncateTableStatement("FOO"));
 
     assertEquals(

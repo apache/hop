@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ActionSNMPTrapTest {
+class ActionSNMPTrapTest {
 
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionSNMPTrap action;
@@ -50,7 +50,7 @@ public class ActionSNMPTrapTest {
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init();
 
     ActionSNMPTrap action =

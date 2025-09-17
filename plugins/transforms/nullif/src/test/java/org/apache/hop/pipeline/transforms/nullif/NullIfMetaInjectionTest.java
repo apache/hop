@@ -23,17 +23,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class NullIfMetaInjectionTest extends BaseMetadataInjectionTestJunit5<NullIfMeta> {
+class NullIfMetaInjectionTest extends BaseMetadataInjectionTestJunit5<NullIfMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new NullIfMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FIELDNAME", () -> meta.getFields().get(0).getName());
     check("FIELDVALUE", () -> meta.getFields().get(0).getValue());
   }

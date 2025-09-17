@@ -28,12 +28,12 @@ import org.apache.hop.pipeline.transforms.metainput.MetadataInputMeta;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class MetadataInputMetaTest {
+class MetadataInputMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testTransformMeta() throws HopException {
+  void testTransformMeta() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "providerFieldName",

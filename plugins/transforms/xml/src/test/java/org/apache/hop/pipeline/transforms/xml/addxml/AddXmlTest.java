@@ -39,7 +39,7 @@ class AddXmlTest {
   private TransformMockHelper<AddXmlMeta, AddXmlData> transformMockHelper;
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     HopEnvironment.init();
     XmlField field = mock(XmlField.class);
     when(field.getElementName()).thenReturn("ADDXML_TEST");
@@ -57,7 +57,7 @@ class AddXmlTest {
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 

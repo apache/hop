@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class KerberosMongoClientWrapperTest {
+class KerberosMongoClientWrapperTest {
   @Test
-  public void testWrapProperlyWrapsCollection() throws MongoDbException, PrivilegedActionException {
+  void testWrapProperlyWrapsCollection() throws MongoDbException, PrivilegedActionException {
     MongoClient client = mock(MongoClient.class);
     AuthContext authContext = mock(AuthContext.class);
     MongoUtilLogger log = mock(MongoUtilLogger.class);

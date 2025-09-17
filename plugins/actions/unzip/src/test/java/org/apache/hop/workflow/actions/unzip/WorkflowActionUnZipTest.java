@@ -27,7 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUnZip> {
+class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUnZip> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -41,7 +41,7 @@ public class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<A
   }
 
   @Test
-  public void unzipPostProcessingTest() throws Exception {
+  void unzipPostProcessingTest() throws Exception {
 
     ActionUnZip jobEntryUnZip = new ActionUnZip();
 

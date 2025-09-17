@@ -34,12 +34,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CloneRowTest {
+class CloneRowTest {
 
   private TransformMockHelper<CloneRowMeta, CloneRowData> transformMockHelper;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     transformMockHelper =
         new TransformMockHelper<>("Test CloneRow", CloneRowMeta.class, CloneRowData.class);
     when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -48,12 +48,12 @@ public class CloneRowTest {
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void nullNrCloneField() throws HopValueException {
+  void nullNrCloneField() throws HopValueException {
     CloneRow transform =
         new CloneRow(
             transformMockHelper.transformMeta,

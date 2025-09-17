@@ -28,10 +28,10 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import org.junit.jupiter.api.Test;
 
-public class AuthContextTest {
+class AuthContextTest {
 
   @Test
-  public void testDoPrivalegedActionAsCurrentUser() {
+  void testDoPrivalegedActionAsCurrentUser() {
     PrivilegedAction<Object> privAction = mock(PrivilegedAction.class);
     AuthContext authContext = new AuthContext(null);
     authContext.doAs(privAction);
@@ -39,7 +39,7 @@ public class AuthContextTest {
   }
 
   @Test
-  public void testDoPrivalegedActionExceptionAsCurrentUser() throws Exception {
+  void testDoPrivalegedActionExceptionAsCurrentUser() throws Exception {
     PrivilegedExceptionAction<Object> privExcAction = mock(PrivilegedExceptionAction.class);
     AuthContext authContext = new AuthContext(null);
     authContext.doAs(privExcAction);
@@ -47,7 +47,7 @@ public class AuthContextTest {
   }
 
   @Test
-  public void testDoPrivalegedActionExceptionThrowsAsCurrentUser() throws Exception {
+  void testDoPrivalegedActionExceptionThrowsAsCurrentUser() throws Exception {
     PrivilegedExceptionAction<Object> privExcAction = mock(PrivilegedExceptionAction.class);
     Exception mock = mock(RuntimeException.class);
     doThrow(mock).when(privExcAction).run();

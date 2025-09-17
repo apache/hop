@@ -25,12 +25,12 @@ import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class PropertyOutputMetaTest {
+class PropertyOutputMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "KeyField",

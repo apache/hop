@@ -32,7 +32,7 @@ public abstract class BaseCsvParsingTest
     extends BaseParsingTest<CsvInputMeta, CsvInputData, CsvInput> {
   /** Initialize transform info. */
   @BeforeEach
-  public void before() {
+  void before() {
     meta = new CsvInputMeta();
     meta.setDefault();
 

@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class SnowflakeDatabaseMetaTest {
+class SnowflakeDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   SnowflakeDatabaseMeta nativeMeta;
@@ -46,13 +46,13 @@ public class SnowflakeDatabaseMetaTest {
   }
 
   @Test
-  public void testAccessType() {
+  void testAccessType() {
     int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
   }
 
   @Test
-  public void testUrl() {
+  void testUrl() {
     assertEquals("net.snowflake.client.jdbc.SnowflakeDriver", nativeMeta.getDriverClass());
 
     assertEquals(
@@ -92,7 +92,7 @@ public class SnowflakeDatabaseMetaTest {
   }
 
   @Test
-  public void testSupport() {
+  void testSupport() {
     assertTrue(nativeMeta.isSupportsSchemas());
     assertTrue(nativeMeta.isSupportsViews());
     assertTrue(nativeMeta.isSupportsSequences());

@@ -49,14 +49,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class NullIfTest {
+class NullIfTest {
   TransformMockHelper<NullIfMeta, NullIfData> smh;
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     smh = new TransformMockHelper<>("Field NullIf processor", NullIfMeta.class, NullIfData.class);
     when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
@@ -64,7 +64,7 @@ public class NullIfTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     smh.cleanUp();
   }
 
@@ -99,7 +99,7 @@ public class NullIfTest {
   }
 
   @Test
-  public void test() throws HopException {
+  void test() throws HopException {
     HopEnvironment.init();
 
     NullIf transform =
@@ -183,7 +183,7 @@ public class NullIfTest {
   }
 
   @Test
-  public void testDateWithFormat() throws HopException {
+  void testDateWithFormat() throws HopException {
     HopEnvironment.init();
 
     NullIf transform =

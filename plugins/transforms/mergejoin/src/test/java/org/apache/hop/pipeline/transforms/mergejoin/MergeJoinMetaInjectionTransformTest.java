@@ -29,10 +29,10 @@ import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.jupiter.api.Test;
 
-public class MergeJoinMetaInjectionTransformTest {
+class MergeJoinMetaInjectionTransformTest {
 
   @Test
-  public void testInjection() throws Exception {
+  void testInjection() throws Exception {
     BeanInjectionInfo<MergeJoinMeta> injectionInfo = new BeanInjectionInfo<>(MergeJoinMeta.class);
     BeanInjector<MergeJoinMeta> injector =
         new BeanInjector<>(injectionInfo, new MemoryMetadataProvider());

@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Disabled;
 
 /** Base class for all CSV input transform tests. */
 @Disabled("No tests in abstract base class")
-public class BaseXmlInputStreamParsingTest
+class BaseXmlInputStreamParsingTest
     extends BaseParsingTest<XmlInputStreamMeta, XmlInputStreamData, XmlInputStream> {
   /** Initialize transform info. */
   @BeforeEach
-  public void before() {
+  void before() {
     meta = new XmlInputStreamMeta();
     meta.setDefault();
 

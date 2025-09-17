@@ -59,7 +59,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class S3NFileObjectTest {
+class S3NFileObjectTest {
 
   public static final String HOST = "S3";
   public static final String SCHEME = "s3n";
@@ -153,7 +153,7 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testGetS3Object() throws Exception {
+  void testGetS3Object() throws Exception {
     when(s3ServiceMock.getObject(anyString(), anyString())).thenReturn(new S3Object());
     S3NFileObject s3FileObject = new S3NFileObject(filename, fileSystemSpy);
     S3Object s3Object = s3FileObject.getS3Object();
@@ -161,17 +161,17 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testDoGetInputStream() throws Exception {
+  void testDoGetInputStream() throws Exception {
     assertNotNull(s3FileObjectBucketSpy.getInputStream());
   }
 
   @Test
-  public void testDoGetTypeImaginary() throws Exception {
+  void testDoGetTypeImaginary() throws Exception {
     assertEquals(FileType.IMAGINARY, s3FileObjectFileSpy.getType());
   }
 
   @Test
-  public void testDoGetTypeFolder() throws Exception {
+  void testDoGetTypeFolder() throws Exception {
     FileName mockFile = mock(FileName.class);
     when(s3FileObjectBucketSpy.getName()).thenReturn(mockFile);
     when(mockFile.getPath()).thenReturn(S3NFileObject.DELIMITER);
@@ -179,7 +179,7 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testDoCreateFolder() throws Exception {
+  void testDoCreateFolder() throws Exception {
     S3NFileObject notRootBucket =
         spy(
             new S3NFileObject(
@@ -195,7 +195,7 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testCanRenameTo() throws Exception {
+  void testCanRenameTo() throws Exception {
     FileObject newFile = mock(FileObject.class);
     assertFalse(s3FileObjectBucketSpy.canRenameTo(newFile));
     when(s3FileObjectBucketSpy.getType()).thenReturn(FileType.FOLDER);
@@ -209,7 +209,7 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testDoRename() throws Exception {
+  void testDoRename() throws Exception {
     String someNewBucketName = "someNewBucketName";
     String someNewKey = "some/newKey";
     S3NFileName newFileName =
@@ -230,13 +230,13 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testDoGetLastModifiedTime() throws Exception {
+  void testDoGetLastModifiedTime() throws Exception {
     s3FileObjectFileSpy.doAttach();
     assertEquals(testDate.getTime(), s3FileObjectFileSpy.doGetLastModifiedTime());
   }
 
   @Test
-  public void testListChildrenNotRoot() throws FileSystemException {
+  void testListChildrenNotRoot() throws FileSystemException {
     fileSystemSpy.init();
     FileObject[] children = s3FileObjectBucketSpy.getChildren();
     assertEquals(6, children.length);
@@ -248,7 +248,7 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testListChildrenRoot() throws FileSystemException {
+  void testListChildrenRoot() throws FileSystemException {
     fileSystemSpy.init();
     FileObject[] children = s3FileObjectSpyRoot.getChildren();
     assertEquals(4, children.length);
@@ -260,7 +260,7 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testHandleAttachException() throws FileSystemException {
+  void testHandleAttachException() throws FileSystemException {
     AmazonS3Exception exception = new AmazonS3Exception("NoSuchKey");
     exception.setErrorCode("NoSuchKey");
     // test the case where the folder exists and contains things; no exception should be thrown
@@ -274,7 +274,7 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testHandleAttachExceptionEmptyFolder() throws FileSystemException {
+  void testHandleAttachExceptionEmptyFolder() throws FileSystemException {
     AmazonS3Exception exception = new AmazonS3Exception("NoSuchKey");
     exception.setErrorCode("NoSuchKey");
 
@@ -294,7 +294,7 @@ public class S3NFileObjectTest {
   }
 
   @Test
-  public void testHandleAttachExceptionFileNotFound() throws FileSystemException {
+  void testHandleAttachExceptionFileNotFound() throws FileSystemException {
     AmazonS3Exception notFoundException = new AmazonS3Exception("404 Not Found");
     notFoundException.setErrorCode("404 Not Found");
     AmazonS3Exception noSuchKeyException = new AmazonS3Exception("NoSuchKey");

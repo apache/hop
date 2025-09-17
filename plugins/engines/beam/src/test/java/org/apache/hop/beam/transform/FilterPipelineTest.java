@@ -21,10 +21,10 @@ import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Test;
 
-public class FilterPipelineTest extends PipelineTestBase {
+class FilterPipelineTest extends PipelineTestBase {
 
   @Test
-  public void testFilterRowsPipeline() throws Exception {
+  void testFilterRowsPipeline() throws Exception {
 
     PipelineMeta pipelineMeta =
         BeamPipelineMetaUtil.generateFilterRowsPipelineMeta(

@@ -29,10 +29,10 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.junit.Test;
 
-public class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
+class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
 
   @Test
-  public void testFlinkPipelineEngine() throws Exception {
+  void testFlinkPipelineEngine() throws Exception {
 
     IPipelineEngineRunConfiguration configuration =
         new BeamFlinkPipelineRunConfiguration("[local]", "6");

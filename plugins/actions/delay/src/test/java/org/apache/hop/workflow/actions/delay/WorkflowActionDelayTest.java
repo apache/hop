@@ -23,10 +23,10 @@ import static org.junit.Assert.assertTrue;
 import org.apache.hop.core.util.Utils;
 import org.junit.Test;
 
-public class WorkflowActionDelayTest {
+class WorkflowActionDelayTest {
 
   @Test
-  public void testGetRealMaximumTimeout() {
+  void testGetRealMaximumTimeout() {
     ActionDelay entry = new ActionDelay();
     assertTrue(Utils.isEmpty(entry.getRealMaximumTimeout()));
 

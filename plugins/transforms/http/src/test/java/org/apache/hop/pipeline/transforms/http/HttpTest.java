@@ -61,7 +61,7 @@ class HttpTest {
           + " Ê, Â&lt;/p&gt;. UTF-8 handles this well.";
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     HttpClientManager.HttpClientBuilderFacade builder =
         mock(HttpClientManager.HttpClientBuilderFacade.class);
 

@@ -30,7 +30,7 @@ import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
-public class WorkflowActionSNMPTrapTest extends WorkflowActionLoadSaveTestSupport<ActionSNMPTrap> {
+class WorkflowActionSNMPTrapTest extends WorkflowActionLoadSaveTestSupport<ActionSNMPTrap> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass

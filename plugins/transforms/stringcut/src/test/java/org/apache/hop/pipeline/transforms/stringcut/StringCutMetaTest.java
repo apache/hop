@@ -37,7 +37,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class StringCutMetaTest implements IInitializer<ITransformMeta> {
+class StringCutMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<StringCutMeta> testMetaClass = StringCutMeta.class;
 
@@ -45,7 +45,7 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
 
@@ -87,7 +87,7 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

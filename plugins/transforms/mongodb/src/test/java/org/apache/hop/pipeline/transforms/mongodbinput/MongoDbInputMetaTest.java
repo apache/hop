@@ -36,9 +36,9 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class MongoDbInputMetaTest {
+class MongoDbInputMetaTest {
   @BeforeAll
-  public static void beforeClass() throws HopException {
+  static void beforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -47,7 +47,7 @@ public class MongoDbInputMetaTest {
   }
 
   @Test
-  public void testRoundTrips() throws HopException, SecurityException {
+  void testRoundTrips() throws HopException, SecurityException {
     Map<String, String> getterMap = new HashMap<>();
     getterMap.put("execute_for_each_row", "getExecuteForEachIncomingRow");
     getterMap.put("mongo_fields", "getMongoFields");

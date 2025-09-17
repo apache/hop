@@ -57,10 +57,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 @Disabled("This test needs to be reviewed")
-public class CheckSumTest {
+class CheckSumTest {
   // calculations are different in Linux and Windows for files (due to CRLF vs LF)
   @BeforeEach
-  public void notOnWindows() {
+  void notOnWindows() {
     Assumptions.assumeFalse(SystemUtils.IS_OS_WINDOWS);
   }
 
@@ -70,7 +70,7 @@ public class CheckSumTest {
   private static Object previousHopDefaultNumberFormat;
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     System.setProperty("file.encoding", "UTF-8");
     previousHopDefaultNumberFormat =
         System.getProperties().put(Const.HOP_DEFAULT_NUMBER_FORMAT, "0.0;-0.0");
@@ -80,7 +80,7 @@ public class CheckSumTest {
   }
 
   @AfterAll
-  public static void tearDownAfterClass() {
+  static void tearDownAfterClass() {
     if (previousHopDefaultNumberFormat == null) {
       System.getProperties().remove(Const.HOP_DEFAULT_NUMBER_FORMAT);
     } else {
@@ -199,7 +199,7 @@ public class CheckSumTest {
   }
 
   @Test
-  public void testHexOutput_md5() throws Exception {
+  void testHexOutput_md5() throws Exception {
     MockRowListener results =
         executeHexTest(CheckSumMeta.CheckSumType.MD5, "xyz", new ValueMetaString("test"));
     assertEquals(1, results.getWritten().size());
@@ -220,7 +220,7 @@ public class CheckSumTest {
   }
 
   @Test
-  public void testHexOutput_sha1() throws Exception {
+  void testHexOutput_sha1() throws Exception {
     MockRowListener results =
         executeHexTest(CheckSumMeta.CheckSumType.SHA1, "xyz", new ValueMetaString("test"));
     assertEquals(1, results.getWritten().size());
@@ -241,7 +241,7 @@ public class CheckSumTest {
   }
 
   @Test
-  public void testHexOutput_sha256() throws Exception {
+  void testHexOutput_sha256() throws Exception {
     MockRowListener results =
         executeHexTest(CheckSumMeta.CheckSumType.SHA256, "xyz", new ValueMetaString("test"));
     assertEquals(1, results.getWritten().size());
@@ -274,7 +274,7 @@ public class CheckSumTest {
   }
 
   @Test
-  public void testHexOutput_sha384() throws Exception {
+  void testHexOutput_sha384() throws Exception {
     MockRowListener results =
         executeHexTest(CheckSumMeta.CheckSumType.SHA384, "xyz", new ValueMetaString("test"));
     assertEquals(1, results.getWritten().size());
@@ -303,7 +303,7 @@ public class CheckSumTest {
   }
 
   @Test
-  public void testHexOutput_sha512() throws Exception {
+  void testHexOutput_sha512() throws Exception {
     MockRowListener results =
         executeHexTest(CheckSumMeta.CheckSumType.SHA512, "xyz", new ValueMetaString("test"));
     assertEquals(1, results.getWritten().size());
@@ -332,7 +332,7 @@ public class CheckSumTest {
   }
 
   @Test
-  public void testHexOutput_adler32() throws Exception {
+  void testHexOutput_adler32() throws Exception {
     MockRowListener results =
         executeHexTest(CheckSumMeta.CheckSumType.ADLER32, "xyz", new ValueMetaString("test"));
     assertEquals(1, results.getWritten().size());
@@ -353,7 +353,7 @@ public class CheckSumTest {
   }
 
   @Test
-  public void testHexOutputCrc32() throws Exception {
+  void testHexOutputCrc32() throws Exception {
     MockRowListener results =
         executeHexTest(CheckSumMeta.CheckSumType.CRC32, "xyz", new ValueMetaString("test"));
     assertEquals(1, results.getWritten().size());

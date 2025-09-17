@@ -22,10 +22,10 @@ import static org.junit.Assert.assertEquals;
 import java.util.Map;
 import org.junit.Test;
 
-public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
+class AbstractSSTableWriterTest extends AbstractSSTableWriter {
 
   @Test
-  public void testGetDirectory() {
+  void testGetDirectory() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(System.getProperty("java.io.tmpdir"), writer.getDirectory());
     writer.setDirectory("some_dir");
@@ -33,7 +33,7 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Test
-  public void testGetKeyspace() {
+  void testGetKeyspace() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(null, writer.getKeyspace());
     writer.setKeyspace("some_keyspace");
@@ -41,7 +41,7 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Test
-  public void testGetTable() {
+  void testGetTable() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(null, writer.getTable());
     writer.setTable("some_table");
@@ -49,7 +49,7 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Test
-  public void testGetBufferSize() {
+  void testGetBufferSize() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(16, writer.getBufferSize());
     writer.setBufferSize(10);
@@ -57,7 +57,7 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Test
-  public void testGetKeyField() {
+  void testGetKeyField() {
     AbstractSSTableWriter writer = new AbstractSSTableWriterTest();
     assertEquals(null, writer.getPrimaryKey());
     writer.setPrimaryKey("some_keyField");

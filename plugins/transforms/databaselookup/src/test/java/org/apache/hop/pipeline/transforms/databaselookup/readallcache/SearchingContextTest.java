@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.BitSet;
 import org.junit.jupiter.api.Test;
 
-public class SearchingContextTest {
+class SearchingContextTest {
 
   @Test
-  public void returnsClearWorkingSet() {
+  void returnsClearWorkingSet() {
     SearchingContext ctx = new SearchingContext();
     ctx.init(4);
     ctx.getWorkingSet().set(1);
@@ -35,7 +35,7 @@ public class SearchingContextTest {
   }
 
   @Test
-  public void intersectionDetectsBecomingEmpty() {
+  void intersectionDetectsBecomingEmpty() {
 
     SearchingContext ctx = new SearchingContext();
     ctx.init(4);

@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class CassandraOutputTest {
+class CassandraOutputTest {
 
   CassandraOutput co;
   CassandraOutputMeta meta;
@@ -47,7 +47,7 @@ public class CassandraOutputTest {
   }
 
   @Test
-  public void validateInvalidTtlFieldTest() {
+  void validateInvalidTtlFieldTest() {
     DriverCqlRowHandler handler = mock(DriverCqlRowHandler.class);
     CassandraOutput co = mock(CassandraOutput.class);
 
@@ -63,7 +63,7 @@ public class CassandraOutputTest {
   }
 
   @Test
-  public void validateEmptyTtlFieldTest() {
+  void validateEmptyTtlFieldTest() {
     DriverCqlRowHandler handler = mock(DriverCqlRowHandler.class);
     CassandraOutput co = mock(CassandraOutput.class);
 
@@ -79,7 +79,7 @@ public class CassandraOutputTest {
   }
 
   @Test
-  public void validateCorrectTtlFieldTest() {
+  void validateCorrectTtlFieldTest() {
     DriverCqlRowHandler handler = mock(DriverCqlRowHandler.class);
 
     doCallRealMethod().when(co).validateTtlField(any(), any());
@@ -95,7 +95,7 @@ public class CassandraOutputTest {
 
   @Ignore("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionNone() {
+  void validateSetTTLIfSpecifiedTestWithOptionNone() {
     String ttlResolveValue = "1"; // none option, this value is ignored default will be -1
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.NONE;
     int expectedValue = -1;
@@ -112,7 +112,7 @@ public class CassandraOutputTest {
 
   @Ignore("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionSeconds() {
+  void validateSetTTLIfSpecifiedTestWithOptionSeconds() {
     String ttlResolveValue = "1"; // 1 second
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.SECONDS;
 
@@ -130,7 +130,7 @@ public class CassandraOutputTest {
 
   @Ignore("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionMinutes() {
+  void validateSetTTLIfSpecifiedTestWithOptionMinutes() {
     String ttlResolveValue = "1"; // 1 minute
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.MINUTES;
 
@@ -148,7 +148,7 @@ public class CassandraOutputTest {
 
   @Ignore("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionHours() {
+  void validateSetTTLIfSpecifiedTestWithOptionHours() {
     String ttlResolveValue = "1"; // 1 hour
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.HOURS;
 
@@ -166,7 +166,7 @@ public class CassandraOutputTest {
 
   @Ignore("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionDays() {
+  void validateSetTTLIfSpecifiedTestWithOptionDays() {
     String ttlResolveValue = "1"; // 1 day
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.DAYS;
 

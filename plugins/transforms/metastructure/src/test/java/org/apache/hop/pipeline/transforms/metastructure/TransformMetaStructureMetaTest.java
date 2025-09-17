@@ -27,12 +27,12 @@ import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TransformMetaStructureMetaTest {
+class TransformMetaStructureMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testTransformMeta() throws HopException {
+  void testTransformMeta() throws HopException {
     List<String> attributes = Arrays.asList("outputRowcount", "rowcountField");
     // At present, none of the other fields in TransformMetaStructureMeta are being persisted or
     // read

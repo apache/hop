@@ -33,14 +33,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class RowGeneratorUnitTest {
+class RowGeneratorUnitTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private TransformMockHelper<RowGeneratorMeta, RowGeneratorData> transformMockHelper;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     transformMockHelper =
         new TransformMockHelper(
             "RowGenerator TEST", RowGeneratorMeta.class, RowGeneratorData.class);
@@ -50,17 +50,17 @@ public class RowGeneratorUnitTest {
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
   @BeforeAll
-  public static void initEnvironment() throws Exception {
+  static void initEnvironment() throws Exception {
     HopEnvironment.init();
   }
 
   @Test
-  public void testReadRowLimitAsPipelineVar() throws HopException {
+  void testReadRowLimitAsPipelineVar() throws HopException {
     RowGenerator rowGenerator =
         new RowGenerator(
             transformMockHelper.transformMeta,

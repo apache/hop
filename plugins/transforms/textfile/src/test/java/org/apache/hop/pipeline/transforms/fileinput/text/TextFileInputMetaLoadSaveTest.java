@@ -34,14 +34,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TextFileInputMetaLoadSaveTest {
+class TextFileInputMetaLoadSaveTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private LoadSaveTester tester;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     List<String> attributes =
         Arrays.asList("errorCountField", "errorFieldsField", "errorTextField", "length");
 
@@ -96,7 +96,7 @@ public class TextFileInputMetaLoadSaveTest {
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     tester.testSerialization();
   }
 

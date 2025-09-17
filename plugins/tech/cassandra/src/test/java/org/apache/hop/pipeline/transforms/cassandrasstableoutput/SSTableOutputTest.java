@@ -29,7 +29,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class SSTableOutputTest {
+class SSTableOutputTest {
   private static TransformMockHelper<SSTableOutputMeta, SSTableOutputData> helper;
   private static final SecurityManager sm = System.getSecurityManager();
 

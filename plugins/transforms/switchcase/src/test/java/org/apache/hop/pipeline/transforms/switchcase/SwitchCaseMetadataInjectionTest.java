@@ -23,18 +23,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SwitchCaseMetadataInjectionTest
-    extends BaseMetadataInjectionTestJunit5<SwitchCaseMeta> {
+class SwitchCaseMetadataInjectionTest extends BaseMetadataInjectionTestJunit5<SwitchCaseMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     super.setup(new SwitchCaseMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FIELD_NAME", () -> meta.getFieldName());
     check("VALUE_TYPE", () -> meta.getCaseValueType());
     check("VALUE_DECIMAL", () -> meta.getCaseValueDecimal());

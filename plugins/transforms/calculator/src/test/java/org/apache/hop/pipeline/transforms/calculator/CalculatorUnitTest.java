@@ -75,7 +75,7 @@ class CalculatorUnitTest {
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     smh = new TransformMockHelper<>("Calculator", CalculatorMeta.class, CalculatorData.class);
     when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
@@ -83,12 +83,12 @@ class CalculatorUnitTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testMissingFile() throws HopException {
+  void testMissingFile() throws HopException {
     RowMeta inputRowMeta = new RowMeta();
     ValueMetaString pathMeta = new ValueMetaString("Path");
     inputRowMeta.addValueMeta(pathMeta);

@@ -29,12 +29,12 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidato
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ProcessFilesMetaTest {
+class ProcessFilesMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "SourceFilenameField",

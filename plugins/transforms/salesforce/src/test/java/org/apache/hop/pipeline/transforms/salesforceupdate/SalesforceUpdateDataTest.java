@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class SalesforceUpdateDataTest {
+class SalesforceUpdateDataTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     SalesforceUpdateData data = new SalesforceUpdateData();
     assertNull(data.inputRowMeta);
     assertNull(data.outputRowMeta);

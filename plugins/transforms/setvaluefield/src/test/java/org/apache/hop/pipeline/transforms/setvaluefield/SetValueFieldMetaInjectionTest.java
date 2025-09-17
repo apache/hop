@@ -23,18 +23,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SetValueFieldMetaInjectionTest
-    extends BaseMetadataInjectionTestJunit5<SetValueFieldMeta> {
+class SetValueFieldMetaInjectionTest extends BaseMetadataInjectionTestJunit5<SetValueFieldMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new SetValueFieldMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FIELD_NAME", () -> meta.getFields().get(0).getFieldName());
     check("REPLACE_BY_FIELD_VALUE", () -> meta.getFields().get(0).getReplaceByField());
   }

@@ -23,10 +23,10 @@ import static org.junit.Assert.assertNull;
 import org.apache.hop.databases.cassandra.util.CqlFunctions;
 import org.junit.Test;
 
-public class CqlFunctionsTest {
+class CqlFunctionsTest {
 
   @Test
-  public void testGetFunctionsFromString() {
+  void testGetFunctionsFromString() {
     String[] fString =
         new String[] {"TOKEN", "COUNT", "WRITETIME", "TTL", "DATEOF", "UNIXTIMESTAMPOF"};
     for (int i = 0; i < CqlFunctions.values().length; i++) {
@@ -36,7 +36,7 @@ public class CqlFunctionsTest {
   }
 
   @Test
-  public void testGetFunctionsValidators() {
+  void testGetFunctionsValidators() {
     String[] expectedValidators =
         new String[] {
           "org.apache.cassandra.db.marshal.LongType",
@@ -56,13 +56,13 @@ public class CqlFunctionsTest {
   }
 
   @Test
-  public void testGetNull_IfInputIsUnknownFunction() {
+  void testGetNull_IfInputIsUnknownFunction() {
     CqlFunctions actualP = CqlFunctions.getFromString("UnknownFunction");
     assertNull(actualP);
   }
 
   @Test
-  public void testGetNull_IfInputIsNull() {
+  void testGetNull_IfInputIsNull() {
     CqlFunctions actualP = CqlFunctions.getFromString(null);
     assertNull(actualP);
   }

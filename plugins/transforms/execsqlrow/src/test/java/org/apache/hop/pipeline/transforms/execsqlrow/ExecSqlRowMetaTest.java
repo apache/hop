@@ -29,7 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ExecSqlRowMetaTest {
+class ExecSqlRowMetaTest {
   LoadSaveTester loadSaveTester;
   Class<ExecSqlRowMeta> testMetaClass = ExecSqlRowMeta.class;
 
@@ -37,7 +37,7 @@ public class ExecSqlRowMetaTest {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
@@ -59,7 +59,7 @@ public class ExecSqlRowMetaTest {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 }

@@ -35,7 +35,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ExcelWriterTransform_FormulaRecalculationTest {
+class ExcelWriterTransform_FormulaRecalculationTest {
 
   private ExcelWriterTransform transform;
   private ExcelWriterTransformMeta meta;
@@ -43,7 +43,7 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
   private TransformMockHelper<ExcelWriterTransformMeta, ExcelWriterTransformData> mockHelper;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     mockHelper =
         TransformMockUtil.getTransformMockHelper(
             ExcelWriterTransformMeta.class,
@@ -75,22 +75,22 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     mockHelper.cleanUp();
   }
 
   @Test
-  public void forcesToRecalculate_Sxssf_PropertyIsSet() throws Exception {
+  void forcesToRecalculate_Sxssf_PropertyIsSet() throws Exception {
     forcesToRecalculate_Sxssf("Y", true);
   }
 
   @Test
-  public void forcesToRecalculate_Sxssf_PropertyIsCleared() throws Exception {
+  void forcesToRecalculate_Sxssf_PropertyIsCleared() throws Exception {
     forcesToRecalculate_Sxssf("N", false);
   }
 
   @Test
-  public void forcesToRecalculate_Sxssf_PropertyIsNotSet() throws Exception {
+  void forcesToRecalculate_Sxssf_PropertyIsNotSet() throws Exception {
     forcesToRecalculate_Sxssf(null, false);
   }
 
@@ -110,7 +110,7 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
   }
 
   @Test
-  public void forcesToRecalculate_Hssf() throws Exception {
+  void forcesToRecalculate_Hssf() throws Exception {
     data.currentWorkbookDefinition.setWorkbook(new HSSFWorkbook());
     data.currentWorkbookDefinition.getWorkbook().createSheet("sheet1");
     data.currentWorkbookDefinition.getWorkbook().createSheet("sheet2");

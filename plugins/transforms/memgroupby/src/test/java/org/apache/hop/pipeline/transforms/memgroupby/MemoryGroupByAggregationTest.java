@@ -64,7 +64,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-public class MemoryGroupByAggregationTest {
+class MemoryGroupByAggregationTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -91,12 +91,12 @@ public class MemoryGroupByAggregationTest {
   private TreeBasedTable<Integer, Integer, Optional<Object>> data;
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     HopClientEnvironment.init();
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     rowMeta = new RowMeta();
     data = TreeBasedTable.create();
     variables = new Variables();
@@ -105,7 +105,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testDefault() throws Exception {
+  void testDefault() throws Exception {
     addColumn(new ValueMetaInteger("intg"), 0L, 1L, 1L, 10L);
     addColumn(new ValueMetaInteger("nul"));
     addColumn(new ValueMetaInteger("mix1"), -1L, 2L);
@@ -165,7 +165,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testNullMin() throws Exception {
+  void testNullMin() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "Y");
 
     addColumn(new ValueMetaInteger("intg"), null, 0L, 1L, -1L);
@@ -183,7 +183,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testNullsAreZeroCompatible() throws Exception {
+  void testNullsAreZeroCompatible() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y");
 
     addColumn(new ValueMetaInteger("nul"));
@@ -209,7 +209,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testNullsAreZeroDefault() throws Exception {
+  void testNullsAreZeroDefault() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y");
 
     addColumn(new ValueMetaInteger("nul"));
@@ -244,7 +244,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testSqlCompatible() throws Exception {
+  void testSqlCompatible() throws Exception {
     addColumn(new ValueMetaInteger("value"), null, -2L, null, 0L, null, 10L, null, null, 0L, null);
 
     RowMetaAndData output = runTransform();

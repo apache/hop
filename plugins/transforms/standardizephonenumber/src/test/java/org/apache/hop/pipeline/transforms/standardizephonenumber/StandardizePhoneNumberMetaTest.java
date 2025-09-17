@@ -27,7 +27,7 @@ import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class StandardizePhoneNumberMetaTest {
+class StandardizePhoneNumberMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 

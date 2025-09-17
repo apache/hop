@@ -23,18 +23,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class AnalyticQueryMetaInjectionTest
-    extends BaseMetadataInjectionTestJunit5<AnalyticQueryMeta> {
+class AnalyticQueryMetaInjectionTest extends BaseMetadataInjectionTestJunit5<AnalyticQueryMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new AnalyticQueryMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("GROUP_FIELDS", () -> meta.getGroupFields().get(0).getFieldName());
     check("OUTPUT.AGGREGATE_FIELD", () -> meta.getQueryFields().get(0).getAggregateField());
     check("OUTPUT.SUBJECT_FIELD", () -> meta.getQueryFields().get(0).getSubjectField());

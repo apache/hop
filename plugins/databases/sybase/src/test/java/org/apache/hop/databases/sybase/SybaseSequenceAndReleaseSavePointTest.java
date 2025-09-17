@@ -27,7 +27,7 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class SybaseSequenceAndReleaseSavePointTest {
+class SybaseSequenceAndReleaseSavePointTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   final String sequenceName = "sequence_name";
@@ -38,14 +38,14 @@ public class SybaseSequenceAndReleaseSavePointTest {
   Boolean savepointSupport = true;
 
   @Test
-  public void testSequenceSupport() {
+  void testSequenceSupport() {
     assertSupports(db, sequenceSupport);
     assertEquals("", db.getSqlNextSequenceValue(sequenceName));
     assertEquals("", db.getSqlCurrentSequenceValue(sequenceName));
   }
 
   @Test
-  public void testSavepointSuport() {
+  void testSavepointSuport() {
     if (savepointSupport) {
       assertTrue(db.isReleaseSavepoint());
     } else {

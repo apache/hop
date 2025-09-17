@@ -23,17 +23,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class NormaliserMetaInjectionTest extends BaseMetadataInjectionTestJunit5<NormaliserMeta> {
+class NormaliserMetaInjectionTest extends BaseMetadataInjectionTestJunit5<NormaliserMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new NormaliserMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("TYPEFIELD", () -> meta.getTypeField());
     check("NAME", () -> meta.getNormaliserFields().get(0).getName());
     check("VALUE", () -> meta.getNormaliserFields().get(0).getValue());

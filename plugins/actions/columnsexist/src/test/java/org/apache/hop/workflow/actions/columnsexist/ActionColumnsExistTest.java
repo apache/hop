@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for column exist action. */
-public class ActionColumnsExistTest {
+class ActionColumnsExistTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init();
     DatabaseMeta databaseMeta = new DatabaseMeta();
     databaseMeta.setName("unit-test-db");

@@ -51,7 +51,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SalesforceUpdateTest {
+class SalesforceUpdateTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -61,7 +61,7 @@ public class SalesforceUpdateTest {
   private TransformMockHelper<SalesforceUpdateMeta, SalesforceUpdateData> smh;
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -70,7 +70,7 @@ public class SalesforceUpdateTest {
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     smh =
         new TransformMockHelper<>(
             "SalesforceUpsert", SalesforceUpdateMeta.class, SalesforceUpdateData.class);
@@ -79,12 +79,12 @@ public class SalesforceUpdateTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testWriteToSalesForceForNullExtIdField_WithExtIdNO() throws Exception {
+  void testWriteToSalesForceForNullExtIdField_WithExtIdNO() throws Exception {
     SalesforceUpdateMeta meta =
         generateSalesforceUpdateMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpdateData data = generateSalesforceUpdateData();
@@ -104,7 +104,7 @@ public class SalesforceUpdateTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNullExtIdField_WithExtIdYES() throws Exception {
+  void testWriteToSalesForceForNullExtIdField_WithExtIdYES() throws Exception {
     SalesforceUpdateMeta meta =
         generateSalesforceUpdateMeta(
             new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
@@ -125,7 +125,7 @@ public class SalesforceUpdateTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNotNullExtIdField_WithExtIdNO() throws Exception {
+  void testWriteToSalesForceForNotNullExtIdField_WithExtIdNO() throws Exception {
     SalesforceUpdateMeta meta =
         generateSalesforceUpdateMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpdateData data = generateSalesforceUpdateData();
@@ -152,7 +152,7 @@ public class SalesforceUpdateTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNotNullExtIdField_WithExtIdYES() throws Exception {
+  void testWriteToSalesForceForNotNullExtIdField_WithExtIdYES() throws Exception {
     SalesforceUpdateMeta meta =
         generateSalesforceUpdateMeta(
             new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
@@ -180,7 +180,7 @@ public class SalesforceUpdateTest {
   }
 
   @Test
-  public void testLogMessageInDetailedModeFotWriteToSalesForce() throws HopException {
+  void testLogMessageInDetailedModeFotWriteToSalesForce() throws HopException {
     SalesforceUpdateMeta meta =
         generateSalesforceUpdateMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpdateData data = generateSalesforceUpdateData();

@@ -32,7 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CsvInputMultiCharDelimiterTest extends CsvInputUnitTestBase {
+class CsvInputMultiCharDelimiterTest extends CsvInputUnitTestBase {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -40,44 +40,44 @@ public class CsvInputMultiCharDelimiterTest extends CsvInputUnitTestBase {
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvInputMultiCharDelimiterTest");
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void multiChar_hasEnclosures_HasNewLine() throws Exception {
+  void multiChar_hasEnclosures_HasNewLine() throws Exception {
     doTest("\"value1\"delimiter\"value2\"delimiter\"value3\"\n");
   }
 
   @Test
-  public void multiChar_hasEnclosures_HasNewLineDoubleEnd() throws Exception {
+  void multiChar_hasEnclosures_HasNewLineDoubleEnd() throws Exception {
     doTest("\"value1\"delimiter\"value2\"delimiter\"value3\"\r\n");
   }
 
   @Test
-  public void multiChar_hasEnclosures_HasNotNewLine() throws Exception {
+  void multiChar_hasEnclosures_HasNotNewLine() throws Exception {
     doTest("\"value1\"delimiter\"value2\"delimiter\"value3\"");
   }
 
   @Test
-  public void multiChar_hasNotEnclosures_HasNewLine() throws Exception {
+  void multiChar_hasNotEnclosures_HasNewLine() throws Exception {
     doTest("value1delimitervalue2delimitervalue3\n");
   }
 
   @Test
-  public void multiChar_hasNotEnclosures_HasNewLineDoubleEnd() throws Exception {
+  void multiChar_hasNotEnclosures_HasNewLineDoubleEnd() throws Exception {
     doTest("value1delimitervalue2delimitervalue3\r\n");
   }
 
   @Test
-  public void multiChar_hasNotEnclosures_HasNotNewLine() throws Exception {
+  void multiChar_hasNotEnclosures_HasNotNewLine() throws Exception {
     doTest("value1delimitervalue2delimitervalue3");
   }
 

@@ -52,7 +52,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SalesforceUpsertTest {
+class SalesforceUpsertTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -63,7 +63,7 @@ public class SalesforceUpsertTest {
   private TransformMockHelper<SalesforceUpsertMeta, SalesforceUpsertData> smh;
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -72,7 +72,7 @@ public class SalesforceUpsertTest {
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     smh =
         new TransformMockHelper<>(
             "SalesforceUpsert", SalesforceUpsertMeta.class, SalesforceUpsertData.class);
@@ -81,12 +81,12 @@ public class SalesforceUpsertTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testWriteToSalesForceForNullExtIdField_WithExtIdNO() throws Exception {
+  void testWriteToSalesForceForNullExtIdField_WithExtIdNO() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpsertData data = generateSalesforceUpsertData();
@@ -106,7 +106,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNullExtIdField_WithExtIdYES() throws Exception {
+  void testWriteToSalesForceForNullExtIdField_WithExtIdYES() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(
             new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
@@ -127,7 +127,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNotNullExtIdField_WithExtIdNO() throws Exception {
+  void testWriteToSalesForceForNotNullExtIdField_WithExtIdNO() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpsertData data = generateSalesforceUpsertData();
@@ -154,7 +154,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNotNullExtIdField_WithExtIdYES() throws Exception {
+  void testWriteToSalesForceForNotNullExtIdField_WithExtIdYES() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(
             new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
@@ -186,7 +186,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testLogMessageInDetailedModeFotWriteToSalesForce() throws HopException {
+  void testLogMessageInDetailedModeFotWriteToSalesForce() throws HopException {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpsertData data = generateSalesforceUpsertData();
@@ -229,7 +229,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceHopIntegerValue() throws Exception {
+  void testWriteToSalesForceHopIntegerValue() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpsertData data = generateSalesforceUpsertData();
@@ -248,7 +248,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testSetFieldInSObjectForeignKey() {
+  void testSetFieldInSObjectForeignKey() {
     SalesforceUpsert salesforceUpsert =
         new SalesforceUpsert(
             smh.transformMeta,

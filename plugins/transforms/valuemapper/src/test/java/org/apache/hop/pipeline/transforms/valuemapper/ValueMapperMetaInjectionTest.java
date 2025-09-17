@@ -23,17 +23,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ValueMapperMetaInjectionTest extends BaseMetadataInjectionTestJunit5<ValueMapperMeta> {
+class ValueMapperMetaInjectionTest extends BaseMetadataInjectionTestJunit5<ValueMapperMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new ValueMapperMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FIELDNAME", () -> meta.getFieldToUse());
     check("TARGET_FIELDNAME", () -> meta.getTargetField());
     check("NON_MATCH_DEFAULT", () -> meta.getNonMatchDefault());

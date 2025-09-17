@@ -29,19 +29,19 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class XmlJoinMetaGetFieldsTest {
+class XmlJoinMetaGetFieldsTest {
 
   XmlJoinMeta xmlJoinMeta;
   PipelineMeta pipelineMeta;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     xmlJoinMeta = new XmlJoinMeta();
     pipelineMeta = mock(PipelineMeta.class);
   }
 
   @Test
-  public void testGetFieldsReturnTargetTransformFieldsPlusResultXmlField() throws Exception {
+  void testGetFieldsReturnTargetTransformFieldsPlusResultXmlField() throws Exception {
     String sourceXmlTransform = "source xml transform name";
     String sourceTransformField = "source field test name";
     String targetTransformField = "target field test name";
@@ -79,7 +79,7 @@ public class XmlJoinMetaGetFieldsTest {
   }
 
   @Test
-  public void testGetFieldsReturnTargetTransformFieldsWithDuplicates() throws Exception {
+  void testGetFieldsReturnTargetTransformFieldsWithDuplicates() throws Exception {
     // Source Transform
     String sourceXmlTransform = "source xml transform name";
     String sourceTransformField1 = "a";

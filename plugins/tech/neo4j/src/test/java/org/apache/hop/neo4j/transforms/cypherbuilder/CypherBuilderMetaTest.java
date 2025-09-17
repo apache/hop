@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
 import org.junit.Test;
 
-public class CypherBuilderMetaTest {
+class CypherBuilderMetaTest {
 
   private IVariables variables;
 
@@ -49,7 +49,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testMergeNode1() throws Exception {
+  void testMergeNode1() throws Exception {
     CypherBuilderMeta meta = createCypherBuilderMeta();
 
     MergeOperation merge = new MergeOperation();
@@ -69,7 +69,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testMergeNodeUnwind1() throws Exception {
+  void testMergeNodeUnwind1() throws Exception {
     CypherBuilderMeta meta = createCypherBuilderMeta(true);
 
     MergeOperation merge = new MergeOperation();
@@ -90,7 +90,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testCreateNode1() throws Exception {
+  void testCreateNode1() throws Exception {
     CypherBuilderMeta meta = createCypherBuilderMeta();
 
     CreateOperation create = new CreateOperation();
@@ -108,7 +108,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testCreateNodeUnwind1() throws Exception {
+  void testCreateNodeUnwind1() throws Exception {
     CypherBuilderMeta meta = createCypherBuilderMeta(true);
 
     CreateOperation create = new CreateOperation();
@@ -129,7 +129,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testMatchNode1() throws Exception {
+  void testMatchNode1() throws Exception {
     CypherBuilderMeta meta = new CypherBuilderMeta();
     meta.setParameters(createCustomerParameters());
 
@@ -144,7 +144,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testMatchNodeUnwind1() throws Exception {
+  void testMatchNodeUnwind1() throws Exception {
     CypherBuilderMeta meta = new CypherBuilderMeta();
     meta.setParameters(createCustomerParameters());
     meta.setUnwindAlias("row");
@@ -162,7 +162,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testMatchReturnNode1() throws Exception {
+  void testMatchReturnNode1() throws Exception {
     CypherBuilderMeta meta = new CypherBuilderMeta();
     meta.setParameters(createCustomerParameters());
 
@@ -189,7 +189,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testMatchEdge1() throws Exception {
+  void testMatchEdge1() throws Exception {
     CypherBuilderMeta meta = new CypherBuilderMeta();
     meta.setParameters(createCustomerParameters());
 
@@ -220,7 +220,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testCreateEdge1() throws Exception {
+  void testCreateEdge1() throws Exception {
     CypherBuilderMeta meta = new CypherBuilderMeta();
     meta.setParameters(createCustomerParameters());
 
@@ -251,7 +251,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testMergeEdge1() throws Exception {
+  void testMergeEdge1() throws Exception {
     CypherBuilderMeta meta = new CypherBuilderMeta();
     meta.setParameters(createCustomerParameters());
 
@@ -282,7 +282,7 @@ public class CypherBuilderMetaTest {
   }
 
   @Test
-  public void testMatchEdgeReturn1() throws Exception {
+  void testMatchEdgeReturn1() throws Exception {
     CypherBuilderMeta meta = new CypherBuilderMeta();
     meta.setParameters(createCustomerParameters());
 

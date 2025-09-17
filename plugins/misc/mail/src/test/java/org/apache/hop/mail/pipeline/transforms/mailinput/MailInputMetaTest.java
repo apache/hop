@@ -44,7 +44,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class MailInputMetaTest implements IInitializer<ITransformMeta> {
+class MailInputMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<MailInputMeta> testMetaClass = MailInputMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -126,7 +126,7 @@ public class MailInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

@@ -45,7 +45,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class WorkflowEntryGetPOPTest {
+class WorkflowEntryGetPOPTest {
 
   @Mock MailConnection mailConn;
   @Mock IWorkflowEngine<WorkflowMeta> parentWorkflow;
@@ -98,7 +98,7 @@ public class WorkflowEntryGetPOPTest {
    * @throws MessagingException
    */
   @Test
-  public void testFetchOneFolderModePop3() throws HopException, MessagingException {
+  void testFetchOneFolderModePop3() throws HopException, MessagingException {
     entry.fetchOneFolder(
         true,
         "junitImapFolder",
@@ -122,7 +122,7 @@ public class WorkflowEntryGetPOPTest {
    * @throws MessagingException
    */
   @Test
-  public void testFetchOneFolderModeIMAPWithNonDefFolder() throws HopException, MessagingException {
+  void testFetchOneFolderModeIMAPWithNonDefFolder() throws HopException, MessagingException {
     entry.fetchOneFolder(
         false,
         "junitImapFolder",
@@ -146,7 +146,7 @@ public class WorkflowEntryGetPOPTest {
    * @throws MessagingException
    */
   @Test
-  public void testFetchOneFolderModeIMAPWithIsDefFolder() throws HopException, MessagingException {
+  void testFetchOneFolderModeIMAPWithIsDefFolder() throws HopException, MessagingException {
     entry.fetchOneFolder(
         false,
         null,
@@ -169,7 +169,7 @@ public class WorkflowEntryGetPOPTest {
    * @throws IOException
    */
   @Test
-  public void testCreateSameAttachmentsFolder() throws IOException {
+  void testCreateSameAttachmentsFolder() throws IOException {
     File attachmentsDir = new File(TestUtils.createTempDir());
     attachmentsDir.deleteOnExit();
 
@@ -202,7 +202,7 @@ public class WorkflowEntryGetPOPTest {
    * @throws IOException
    */
   @Test
-  public void testCreateDifferentAttachmentsFolder() throws IOException {
+  void testCreateDifferentAttachmentsFolder() throws IOException {
     File outputDir = new File(TestUtils.createTempDir());
     File attachmentsDir = new File(TestUtils.createTempDir());
 
@@ -236,7 +236,7 @@ public class WorkflowEntryGetPOPTest {
    * @throws IOException
    */
   @Test
-  public void testFolderIsNotCreatedWhenCreateFolderSettingIsDisabled() throws IOException {
+  void testFolderIsNotCreatedWhenCreateFolderSettingIsDisabled() throws IOException {
     File outputDir = new File(TestUtils.createTempDir());
     File attachmentsDir = new File(TestUtils.createTempDir());
     // The folders already exist from TestUtils.  Delete them so they don't exist during the test
@@ -290,7 +290,7 @@ public class WorkflowEntryGetPOPTest {
    * attachment folders
    */
   @Test
-  public void testEnvVariablesAreSubstitutedForFolders() {
+  void testEnvVariablesAreSubstitutedForFolders() {
     // create variables and add them to the variable variables
     String outputVariableName = "myOutputVar";
     String outputVariableValue = "myOutputFolder";

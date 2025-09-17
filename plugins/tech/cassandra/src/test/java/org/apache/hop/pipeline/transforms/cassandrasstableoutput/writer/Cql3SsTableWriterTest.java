@@ -42,7 +42,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class Cql3SsTableWriterTest {
+class Cql3SsTableWriterTest {
   @Before
   public void notOnWindows() {
     org.junit.Assume.assumeFalse(SystemUtils.IS_OS_WINDOWS);
@@ -100,7 +100,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testInit() throws Exception {
+  void testInit() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
   }
@@ -127,7 +127,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testProcessRow() throws Exception {
+  void testProcessRow() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
     Map<String, Object> input = new HashMap<>();
@@ -139,7 +139,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testClose() throws Exception {
+  void testClose() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
     checker.set(true);
@@ -148,7 +148,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testBuildCreateTableCQLStatement() throws Exception {
+  void testBuildCreateTableCQLStatement() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
     assertEquals(
@@ -158,7 +158,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testBuildInsertCQLStatement() throws Exception {
+  void testBuildInsertCQLStatement() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
     assertEquals(
