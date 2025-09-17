@@ -44,7 +44,7 @@ import org.apache.hop.core.row.value.ValueMetaPlugin;
     id = "32", // the number of digits in a UUID
     name = "UUID",
     description = "Universally Unique Identifier",
-    image = "images/inet.svg")
+    image = "")
 public class ValueMetaUuid extends ValueMetaBase {
 
   public static final int TYPE_UUID = 32;
