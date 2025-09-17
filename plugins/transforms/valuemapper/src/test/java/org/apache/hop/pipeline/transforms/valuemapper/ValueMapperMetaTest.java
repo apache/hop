@@ -25,16 +25,16 @@ import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ValueMapperMetaTest {
+class ValueMapperMetaTest {
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     ValueMapperMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/value-mapper-transform.xml", ValueMapperMeta.class);

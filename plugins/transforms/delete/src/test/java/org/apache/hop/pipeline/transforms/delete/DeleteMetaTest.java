@@ -49,7 +49,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class DeleteMetaTest implements IInitializer<ITransformMeta> {
+class DeleteMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<DeleteMeta> testMetaClass = DeleteMeta.class;
 
@@ -57,7 +57,7 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     PluginRegistry.init();
     List<String> attributes = Arrays.asList("commit", "connection", "lookup");
 
@@ -138,7 +138,7 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 
@@ -148,12 +148,12 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
   private DeleteMeta meta;
 
   @BeforeAll
-  public static void initEnvironment() throws Exception {
+  static void initEnvironment() throws Exception {
     HopEnvironment.init();
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("delete1");
 
@@ -175,19 +175,19 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testCommitCountFixed() {
+  void testCommitCountFixed() {
     meta.setCommitSize("100");
     assertEquals(100, meta.getCommitSize(del));
   }
 
   @Test
-  public void testCommitCountVar() {
+  void testCommitCountVar() {
     meta.setCommitSize("${max.sz}");
     assertEquals(10, meta.getCommitSize(del));
   }
 
   @Test
-  public void testCommitCountMissedVar() {
+  void testCommitCountMissedVar() {
     meta.setCommitSize("missed-var");
     try {
       meta.getCommitSize(del);

@@ -38,7 +38,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /** Unit tests for S3FileSystem */
-public class S3FileSystemTest {
+class S3FileSystemTest {
 
   S3FileSystem fileSystem;
   S3FileName fileName;
@@ -55,14 +55,14 @@ public class S3FileSystemTest {
   }
 
   @Test
-  public void testCreateFile() throws Exception {
+  void testCreateFile() throws Exception {
     assertNotNull(
         fileSystem.createFile(
             new S3FileName("s3", "bucketName", "/bucketName/key", FileType.FILE)));
   }
 
   @Test
-  public void testGetS3Service() {
+  void testGetS3Service() {
     assertNotNull(fileSystem.getS3Client());
 
     FileSystemOptions options = new FileSystemOptions();
@@ -79,7 +79,7 @@ public class S3FileSystemTest {
   }
 
   @Test
-  public void getPartSize() throws Exception {
+  void getPartSize() throws Exception {
 
     S3FileSystem s3FileSystem = getTestInstance();
     s3FileSystem.storageUnitConverter = new StorageUnitConverter();
@@ -96,7 +96,7 @@ public class S3FileSystemTest {
   }
 
   @Test
-  public void testParsePartSize() throws Exception {
+  void testParsePartSize() throws Exception {
     S3FileSystem s3FileSystem = getTestInstance();
     s3FileSystem.storageUnitConverter = new StorageUnitConverter();
     long _5MBLong = 5L * 1024L * 1024L;
@@ -123,7 +123,7 @@ public class S3FileSystemTest {
   }
 
   @Test
-  public void testConvertToInt() throws Exception {
+  void testConvertToInt() throws Exception {
     S3FileSystem s3FileSystem = getTestInstance();
 
     // TEST 1: below int max
@@ -137,7 +137,7 @@ public class S3FileSystemTest {
   }
 
   @Test
-  public void testConvertToLong() throws Exception {
+  void testConvertToLong() throws Exception {
     S3FileSystem s3FileSystem = getTestInstance();
     long _10MBLong = 10L * 1024L * 1024L;
     s3FileSystem.storageUnitConverter = new StorageUnitConverter();

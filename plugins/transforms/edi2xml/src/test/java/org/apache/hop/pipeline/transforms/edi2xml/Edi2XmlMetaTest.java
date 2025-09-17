@@ -23,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
-public class Edi2XmlMetaTest {
+class Edi2XmlMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     Edi2XmlMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/edi-to-xml-transform.xml", Edi2XmlMeta.class);

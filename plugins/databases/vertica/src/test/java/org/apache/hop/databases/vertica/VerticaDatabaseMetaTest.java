@@ -56,7 +56,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Spy;
 
-public class VerticaDatabaseMetaTest {
+class VerticaDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private VerticaDatabaseMeta nativeMeta;
@@ -97,7 +97,7 @@ public class VerticaDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(5433, nativeMeta.getDefaultDatabasePort());
     assertEquals("com.vertica.Driver", nativeMeta.getDriverClass());
@@ -485,7 +485,7 @@ public class VerticaDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals(" LIMIT 5", nativeMeta.getLimitClause(5));
     assertEquals(
         "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE FOO ADD BAR VARCHAR(15)",
@@ -509,7 +509,7 @@ public class VerticaDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO TIMESTAMP",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));

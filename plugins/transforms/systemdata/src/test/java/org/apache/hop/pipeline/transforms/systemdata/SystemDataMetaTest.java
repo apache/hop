@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 /** User: Dzmitry Stsiapanau Date: 1/20/14 Time: 3:04 PM */
-public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
+class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -64,7 +64,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
           + "      </fields>\n";
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     expectedSystemDataMeta = new SystemDataMeta();
     expectedSystemDataMeta.allocate(2);
     String[] names = expectedSystemDataMeta.getFieldName();
@@ -80,7 +80,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   }
 
   @Test
-  public void testLoadXml() throws Exception {
+  void testLoadXml() throws Exception {
     SystemDataMeta systemDataMeta = new SystemDataMeta();
     DocumentBuilderFactory documentBuilderFactory =
         XmlParserFactoryProducer.createSecureDocBuilderFactory();
@@ -91,7 +91,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   }
 
   @Test
-  public void testGetXml() throws Exception {
+  void testGetXml() throws Exception {
     String generatedXML = expectedSystemDataMeta.getXml();
     assertEquals(
         expectedXML.replaceAll("\n", "").replaceAll("\r", ""),
@@ -99,7 +99,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   }
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes = Arrays.asList("fieldName", "fieldType");
@@ -150,7 +150,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

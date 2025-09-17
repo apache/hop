@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-public class MailConnectionTest {
+class MailConnectionTest {
 
   private Mconn conn;
 
@@ -51,7 +51,7 @@ public class MailConnectionTest {
    * @throws MessagingException
    */
   @Test
-  public void openFolderTest() throws HopException {
+  void openFolderTest() throws HopException {
     conn.openFolder("a/b", false, false);
     Folder folder = conn.getFolder();
     Assert.assertEquals("Folder B is opened", "B", folder.getFullName());
@@ -64,7 +64,7 @@ public class MailConnectionTest {
    * @throws MessagingException
    */
   @Test
-  public void setDestinationFolderTest() throws HopException {
+  void setDestinationFolderTest() throws HopException {
     conn.setDestinationFolder("a/b/c", true);
     Assert.assertTrue("Folder C created", conn.cCreated);
     Assert.assertEquals(
@@ -78,7 +78,7 @@ public class MailConnectionTest {
    * the java.io.tmpdir folder.
    */
   @Test
-  public void findValidTargetTest() throws IOException, HopException {
+  void findValidTargetTest() throws IOException, HopException {
     File aFile = null;
     String tmpFileLocation = System.getProperty("java.io.tmpdir");
     String aBaseFile = "pdi17713-.junk";
@@ -158,7 +158,7 @@ public class MailConnectionTest {
 
   /** Test {@link MailConnection#folderExists(String)} method. */
   @Test
-  public void folderExistsTest() {
+  void folderExistsTest() {
     boolean actual = conn.folderExists("a/b");
     Assert.assertTrue("Folder B exists", actual);
   }

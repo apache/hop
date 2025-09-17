@@ -23,38 +23,38 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.mozilla.javascript.EvaluatorException;
 
-public class ScriptValueAddFunctions_GetVariableScopeTest {
+class ScriptValueAddFunctions_GetVariableScopeTest {
 
   @Test
-  public void getSystemVariableScope() {
+  void getSystemVariableScope() {
     assertEquals(
         ScriptValuesAddedFunctions.VariableScope.SYSTEM,
         ScriptValuesAddedFunctions.getVariableScope("s"));
   }
 
   @Test
-  public void getRootVariableScope() {
+  void getRootVariableScope() {
     assertEquals(
         ScriptValuesAddedFunctions.VariableScope.ROOT,
         ScriptValuesAddedFunctions.getVariableScope("r"));
   }
 
   @Test
-  public void getParentVariableScope() {
+  void getParentVariableScope() {
     assertEquals(
         ScriptValuesAddedFunctions.VariableScope.PARENT,
         ScriptValuesAddedFunctions.getVariableScope("p"));
   }
 
   @Test
-  public void getGrandParentVariableScope() {
+  void getGrandParentVariableScope() {
     assertEquals(
         ScriptValuesAddedFunctions.VariableScope.GRAND_PARENT,
         ScriptValuesAddedFunctions.getVariableScope("g"));
   }
 
   @Test
-  public void getNonExistingVariableScope() {
+  void getNonExistingVariableScope() {
     assertThrows(
         EvaluatorException.class, () -> ScriptValuesAddedFunctions.getVariableScope("dummy"));
   }

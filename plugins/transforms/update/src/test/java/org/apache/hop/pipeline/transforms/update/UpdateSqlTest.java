@@ -27,10 +27,10 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 import org.junit.jupiter.api.Test;
 
-public class UpdateSqlTest {
+class UpdateSqlTest {
 
   @Test
-  public void testRowsTransform() {
+  void testRowsTransform() {
 
     String[] keyLookup = new String[] {"Name"};
     String[] keyStream = new String[] {"FirstName"};

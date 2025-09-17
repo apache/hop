@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class ActionTruncateTablesLoadSaveTest
+class ActionTruncateTablesLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionTruncateTables> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

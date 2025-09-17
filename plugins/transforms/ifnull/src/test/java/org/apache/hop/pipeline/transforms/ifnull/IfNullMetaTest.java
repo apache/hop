@@ -29,18 +29,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class IfNullMetaTest {
+class IfNullMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
 
   @Test
-  public void testLoadSaveValueType() throws Exception {
+  void testLoadSaveValueType() throws Exception {
     IfNullMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/if-null-transform-value-type.xml", IfNullMeta.class);
@@ -62,7 +62,7 @@ public class IfNullMetaTest {
   }
 
   @Test
-  public void testLoadSaveField() throws Exception {
+  void testLoadSaveField() throws Exception {
     IfNullMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/if-null-transform-field.xml", IfNullMeta.class);
@@ -85,7 +85,7 @@ public class IfNullMetaTest {
   }
 
   @Test
-  public void testSetDefault() throws Exception {
+  void testSetDefault() throws Exception {
     IfNullMeta meta = new IfNullMeta();
     meta.setDefault();
     assertTrue((meta.getValueTypes() != null) && (meta.getValueTypes().isEmpty()));

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.hop.core.database.IDatabase;
 import org.junit.Test;
 
-public class ReleaseSavePointTest {
+class ReleaseSavePointTest {
 
   IDatabase[] support =
       new IDatabase[] {
@@ -30,7 +30,7 @@ public class ReleaseSavePointTest {
       };
 
   @Test
-  public void testReleaseSavePointBooleans() {
+  void testReleaseSavePointBooleans() {
     try {
       for (IDatabase db : support) {
         assertTrue(db.isReleaseSavepoint());

@@ -58,7 +58,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class HiveDatabaseMetaTest {
+class HiveDatabaseMetaTest {
   HiveDatabaseMeta nativeMeta;
 
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -77,7 +77,7 @@ public class HiveDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(10000, nativeMeta.getDefaultDatabasePort());
     assertTrue(nativeMeta.isSupportsAutoInc());
@@ -246,7 +246,7 @@ public class HiveDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals(" LIMIT 15", nativeMeta.getLimitClause(15));
     assertEquals("SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlQueryFields("FOO"));
     assertEquals("SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlTableExists("FOO"));
@@ -462,12 +462,12 @@ public class HiveDatabaseMetaTest {
   }
 
   @Test
-  public void testReleaseSavepoint() {
+  void testReleaseSavepoint() {
     assertFalse(nativeMeta.isReleaseSavepoint());
   }
 
   @Test
-  public void testSupportsSequence() {
+  void testSupportsSequence() {
     String dbType = nativeMeta.getClass().getSimpleName();
     assertFalse(dbType, nativeMeta.isSupportsSequences());
     assertTrue(Utils.isEmpty(nativeMeta.getSqlListOfSequences()));
@@ -483,7 +483,7 @@ public class HiveDatabaseMetaTest {
   }
 
   @Test
-  public void testVarBinaryIsConvertedToStringType() throws Exception {
+  void testVarBinaryIsConvertedToStringType() throws Exception {
     ILoggingObject log = mock(ILoggingObject.class);
     PreparedStatement ps = mock(PreparedStatement.class);
     DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);

@@ -27,7 +27,7 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class MonetDBSequenceAndReleaseSavePointTest {
+class MonetDBSequenceAndReleaseSavePointTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   final String sequenceName = "sequence_name";
@@ -38,7 +38,7 @@ public class MonetDBSequenceAndReleaseSavePointTest {
   Boolean savepointSupport = true;
 
   @Test
-  public void testSequenceSupport() {
+  void testSequenceSupport() {
     assertSupports(db, sequenceSupport);
     assertEquals(
         "SELECT next_value_for( 'sys', 'sequence_name' )",
@@ -53,7 +53,7 @@ public class MonetDBSequenceAndReleaseSavePointTest {
   }
 
   @Test
-  public void testSavepointSuport() {
+  void testSavepointSuport() {
     if (savepointSupport) {
       assertTrue(db.isReleaseSavepoint());
     } else {

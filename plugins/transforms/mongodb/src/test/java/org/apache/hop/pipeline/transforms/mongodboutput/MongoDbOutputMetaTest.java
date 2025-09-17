@@ -36,9 +36,9 @@ import org.apache.hop.pipeline.transforms.mongodboutput.MongoDbOutputMeta.MongoI
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class MongoDbOutputMetaTest {
+class MongoDbOutputMetaTest {
   @BeforeAll
-  public static void beforeClass() throws HopException {
+  static void beforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -47,7 +47,7 @@ public class MongoDbOutputMetaTest {
   }
 
   @Test
-  public void testRoundTrips() throws HopException {
+  void testRoundTrips() throws HopException {
     List<String> commonFields =
         Arrays.asList(
             "mongo_collection",

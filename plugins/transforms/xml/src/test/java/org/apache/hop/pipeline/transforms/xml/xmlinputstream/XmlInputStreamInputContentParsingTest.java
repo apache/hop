@@ -21,12 +21,12 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class XmlInputStreamInputContentParsingTest extends BaseXmlInputStreamParsingTest {
+class XmlInputStreamInputContentParsingTest extends BaseXmlInputStreamParsingTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testDefaultOptions() throws Exception {
+  void testDefaultOptions() throws Exception {
     init("default.xml");
 
     process();

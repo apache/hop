@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TextFileInputMetaTest {
+class TextFileInputMetaTest {
   private static final String FILE_NAME_NULL = null;
   private static final String FILE_NAME_EMPTY = StringUtil.EMPTY_STRING;
   private static final String FILE_NAME_VALID_PATH = "path/to/file";
@@ -43,7 +43,7 @@ public class TextFileInputMetaTest {
   private IVariables variables;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
 
     PipelineMeta parentPipelineMeta = mock(PipelineMeta.class);
 
@@ -62,7 +62,7 @@ public class TextFileInputMetaTest {
   }
 
   @Test
-  public void testGetXmlWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
+  void testGetXmlWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
     inputMeta.inputFiles = new BaseFileInputFiles();
     inputMeta.inputFiles.fileName = new String[] {FILE_NAME_VALID_PATH};
 
@@ -76,7 +76,7 @@ public class TextFileInputMetaTest {
   }
 
   @Test
-  public void testClonelWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
+  void testClonelWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
     inputMeta.inputFiles = new BaseFileInputFiles();
     inputMeta.inputFiles.fileName = new String[] {FILE_NAME_VALID_PATH};
 

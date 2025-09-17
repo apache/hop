@@ -32,7 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class MemoryGroupByDataTest {
+class MemoryGroupByDataTest {
 
   private MemoryGroupByData data = new MemoryGroupByData();
 
@@ -40,7 +40,7 @@ public class MemoryGroupByDataTest {
   @Mock private IValueMeta valueMeta;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     data.groupMeta = groupMeta;
     when(groupMeta.size()).thenReturn(1);
     when(groupMeta.getValueMeta(anyInt())).thenReturn(valueMeta);
@@ -53,7 +53,7 @@ public class MemoryGroupByDataTest {
   }
 
   @Test
-  public void hashEntryTest() {
+  void hashEntryTest() {
     HashMap<MemoryGroupByData.HashEntry, String> map = new HashMap<>();
 
     byte[] byteValue1 = "key".getBytes();

@@ -54,13 +54,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class SwitchCaseTest {
+class SwitchCaseTest {
 
   private TransformMockHelper<SwitchCaseMeta, SwitchCaseData> mockHelper;
   private static final Boolean EMPTY_STRING_AND_NULL_ARE_DIFFERENT = false;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     mockHelper =
         new TransformMockHelper<>("Switch Case", SwitchCaseMeta.class, SwitchCaseData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -69,7 +69,7 @@ public class SwitchCaseTest {
   }
 
   @AfterEach
-  public void tearDown() throws Exception {
+  void tearDown() throws Exception {
     mockHelper.cleanUp();
   }
 
@@ -96,19 +96,19 @@ public class SwitchCaseTest {
   }
 
   @Test
-  public void prepareObjectTypeBinaryTest_Equals() {
+  void prepareObjectTypeBinaryTest_Equals() {
     assertEquals(
         Arrays.hashCode(new byte[] {1, 2, 3}), SwitchCase.prepareObjectType(new byte[] {1, 2, 3}));
   }
 
   @Test
-  public void prepareObjectTypeBinaryTest_NotEquals() {
+  void prepareObjectTypeBinaryTest_NotEquals() {
     assertNotEquals(
         Arrays.hashCode(new byte[] {1, 2, 4}), SwitchCase.prepareObjectType(new byte[] {1, 2, 3}));
   }
 
   @Test
-  public void prepareObjectTypeBinaryTest_Null() {
+  void prepareObjectTypeBinaryTest_Null() {
     byte[] given = null;
     byte[] expected = null;
 
@@ -116,17 +116,17 @@ public class SwitchCaseTest {
   }
 
   @Test
-  public void prepareObjectTypeTest_Equals() {
+  void prepareObjectTypeTest_Equals() {
     assertEquals("2", SwitchCase.prepareObjectType("2"));
   }
 
   @Test
-  public void prepareObjectTypeTest_NotEquals() {
+  void prepareObjectTypeTest_NotEquals() {
     assertNotEquals("2", SwitchCase.prepareObjectType("1"));
   }
 
   @Test
-  public void prepareObjectTypeTest_Null() {
+  void prepareObjectTypeTest_Null() {
     assertNull(SwitchCase.prepareObjectType(null));
   }
 

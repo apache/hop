@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.xml.RowTransformCollector;
 import org.junit.jupiter.api.Test;
 
-public class XsltTest {
+class XsltTest {
 
   private static final String TEST1_XML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?><message>Yep, it worked!</message>";
@@ -194,7 +194,7 @@ public class XsltTest {
    * @throws Exception Upon any exception
    */
   @Test
-  public void testXslt1() throws Exception {
+  void testXslt1() throws Exception {
 
     String fileName = writeInputFile();
     runTestWithParams("XML", "result", true, true, "filename", fileName, "JAXP");
@@ -206,7 +206,7 @@ public class XsltTest {
    * @throws Exception Upon any exception
    */
   @Test
-  public void testXslt2() throws Exception {
+  void testXslt2() throws Exception {
 
     String fileName = writeInputFile();
     runTestWithParams("XML", "result", true, true, "filename", fileName, "SAXON");
@@ -218,7 +218,7 @@ public class XsltTest {
    * @throws Exception Upon any exception
    */
   @Test
-  public void testXslt3() throws Exception {
+  void testXslt3() throws Exception {
     runTestWithParams("XML", "result", true, false, "XSL", "", "JAXP");
   }
 
@@ -228,7 +228,7 @@ public class XsltTest {
    * @throws Exception Upon any exception
    */
   @Test
-  public void testXslt4() throws Exception {
+  void testXslt4() throws Exception {
     runTestWithParams("XML", "result", true, false, "XSL", "", "SAXON");
   }
 
@@ -238,7 +238,7 @@ public class XsltTest {
    * @throws Exception Upon any exception
    */
   @Test
-  public void testXslt5() throws Exception {
+  void testXslt5() throws Exception {
     String fileName = writeInputFile();
     runTestWithParams("XML", "result", false, false, "filename", fileName, "JAXP");
   }
@@ -249,7 +249,7 @@ public class XsltTest {
    * @throws Exception Upon any exception
    */
   @Test
-  public void testXslt6() throws Exception {
+  void testXslt6() throws Exception {
     String fileName = writeInputFile();
     runTestWithParams("XML", "result", false, false, "filename", fileName, "SAXON");
   }

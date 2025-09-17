@@ -23,17 +23,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class AppendMetaInjectionTest extends BaseMetadataInjectionTestJunit5<AppendMeta> {
+class AppendMetaInjectionTest extends BaseMetadataInjectionTestJunit5<AppendMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new AppendMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("HEAD_TRANSFORM", () -> meta.headTransformName);
     check("TAIL_TRANSFORM", () -> meta.tailTransformName);
   }

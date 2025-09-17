@@ -39,7 +39,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
  *
  * @see CsvInput
  */
-public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
+class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -52,7 +52,7 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
   private static TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
   @BeforeAll
-  public static void setUp() throws HopException {
+  static void setUp() throws HopException {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvInputDoubleLineEndTest");
@@ -62,27 +62,27 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
   }
 
   @AfterAll
-  public static void cleanUp() {
+  static void cleanUp() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testASCII() throws Exception {
+  void testASCII() throws Exception {
     doTest(ASCII, ASCII, TEST_DATA);
   }
 
   @Test
-  public void testUTF16LE() throws Exception {
+  void testUTF16LE() throws Exception {
     doTest(UTF16LE, UTF16LE, TEST_DATA);
   }
 
   @Test
-  public void testUTF16BE() throws Exception {
+  void testUTF16BE() throws Exception {
     doTest(UTF16BE, UTF16BE, TEST_DATA);
   }
 
   @Test
-  public void testUTF8() throws Exception {
+  void testUTF8() throws Exception {
     doTest(UTF8, UTF8, TEST_DATA);
   }
 

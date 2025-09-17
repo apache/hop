@@ -39,7 +39,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ConstantMetaTest implements IInitializer<ConstantMeta> {
+class ConstantMetaTest implements IInitializer<ConstantMeta> {
   LoadSaveTester<ConstantMeta> loadSaveTester;
   Class<ConstantMeta> testMetaClass = ConstantMeta.class;
 
@@ -47,7 +47,7 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes = new ArrayList<>();
@@ -137,7 +137,7 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

@@ -22,10 +22,10 @@ import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CypherMetaTest {
+class CypherMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     CypherMeta meta =
         TransformSerializationTestUtil.testSerialization("/cypher-transform.xml", CypherMeta.class);
 
@@ -34,7 +34,7 @@ public class CypherMetaTest {
   }
 
   @Test
-  public void testSerialization2() throws Exception {
+  void testSerialization2() throws Exception {
     CypherMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/cypher-transform2.xml", CypherMeta.class);

@@ -33,7 +33,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NetezzaDatabaseMetaTest {
+class NetezzaDatabaseMetaTest {
   private NetezzaDatabaseMeta nativeMeta;
 
   @Before
@@ -43,7 +43,7 @@ public class NetezzaDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
     assertEquals("?", nativeMeta.getExtraOptionIndicator());
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
@@ -542,7 +542,7 @@ public class NetezzaDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals(" limit 15", nativeMeta.getLimitClause(15));
     assertEquals("SELECT * FROM FOO limit 1", nativeMeta.getSqlQueryFields("FOO"));
     assertEquals("SELECT * FROM FOO limit 1", nativeMeta.getSqlTableExists("FOO"));
@@ -574,7 +574,7 @@ public class NetezzaDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO date",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), null, null, false, true, false));

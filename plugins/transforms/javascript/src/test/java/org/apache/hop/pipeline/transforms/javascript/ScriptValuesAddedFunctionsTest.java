@@ -24,10 +24,10 @@ import java.util.Calendar;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
 
-public class ScriptValuesAddedFunctionsTest {
+class ScriptValuesAddedFunctionsTest {
 
   @Test
-  public void testTruncDate() {
+  void testTruncDate() {
     Date dateBase = new Date(118, Calendar.FEBRUARY, 15, 11, 11, 11); // 2018-02-15 11:11:11
     Calendar c = Calendar.getInstance();
     c.set(2011, Calendar.NOVEMBER, 11, 11, 11, 11); // 2011-11-11 11:11:11

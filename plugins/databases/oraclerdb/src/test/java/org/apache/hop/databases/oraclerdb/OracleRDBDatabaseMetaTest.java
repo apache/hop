@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class OracleRDBDatabaseMetaTest {
+class OracleRDBDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   private OracleRDBDatabaseMeta nativeMeta;
 
@@ -40,7 +40,7 @@ public class OracleRDBDatabaseMetaTest {
   }
 
   @Test
-  public void testOverriddenSettings() throws Exception {
+  void testOverriddenSettings() throws Exception {
     // Tests the settings of the Oracle Database Meta
     // according to the features of the DB as we know them
 

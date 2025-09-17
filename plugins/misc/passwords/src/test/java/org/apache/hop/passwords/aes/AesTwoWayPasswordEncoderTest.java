@@ -36,7 +36,7 @@ import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AesTwoWayPasswordEncoderTest {
+class AesTwoWayPasswordEncoderTest {
 
   private ITwoWayPasswordEncoder encoder;
 
@@ -54,14 +54,14 @@ public class AesTwoWayPasswordEncoderTest {
   }
 
   @Test
-  public void testInit() {
+  void testInit() {
     // See if we've picked up the plugin
     //
     assertEquals(AesTwoWayPasswordEncoder.class, encoder.getClass());
   }
 
   @Test
-  public void testEncodeDecode() {
+  void testEncodeDecode() {
 
     for (String password : TEST_PASSWORDS) {
       String encoded = Encr.encryptPassword(password);
@@ -71,7 +71,7 @@ public class AesTwoWayPasswordEncoderTest {
   }
 
   @Test
-  public void testEncodeDecodeWithPrefixes() {
+  void testEncodeDecodeWithPrefixes() {
     for (String password : TEST_PASSWORDS) {
       // This is used in Hop
       //
@@ -94,7 +94,7 @@ public class AesTwoWayPasswordEncoderTest {
   }
 
   @Test
-  public void testEncodingInMetadata() throws HopException {
+  void testEncodingInMetadata() throws HopException {
 
     MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
     ITwoWayPasswordEncoder twoWayPasswordEncoder = metadataProvider.getTwoWayPasswordEncoder();
@@ -125,7 +125,7 @@ public class AesTwoWayPasswordEncoderTest {
   }
 
   @Test
-  public void testDifferentKeyDifferentEncoding() throws Exception {
+  void testDifferentKeyDifferentEncoding() throws Exception {
     String password = "My Password";
 
     String encoded1 = Encr.encryptPasswordIfNotUsingVariables(password);

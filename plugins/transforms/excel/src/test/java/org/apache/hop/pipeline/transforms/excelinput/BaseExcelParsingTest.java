@@ -27,11 +27,10 @@ import org.junit.jupiter.api.Disabled;
 
 /** Base class for all Fixed input transform tests. */
 @Disabled("No tests in abstract base class")
-public class BaseExcelParsingTest
-    extends BaseParsingTest<ExcelInputMeta, ExcelInputData, ExcelInput> {
+class BaseExcelParsingTest extends BaseParsingTest<ExcelInputMeta, ExcelInputData, ExcelInput> {
   /** Initialize transform info. */
   @BeforeEach
-  public void before() {
+  void before() {
     inPrefix = '/' + this.getClass().getPackage().getName().replace('.', '/') + "/files/";
 
     meta = new ExcelInputMeta();
@@ -42,7 +41,7 @@ public class BaseExcelParsingTest
   }
 
   @AfterEach
-  public void after() {
+  void after() {
     if (transform != null) {
       transform.dispose();
       transform = null;

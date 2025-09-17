@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class MailInputTest {
+class MailInputTest {
 
   private TransformMockHelper<MailInputMeta, MailInputData> mockHelper;
 

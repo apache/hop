@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ActionMailValidatorTest {
+class ActionMailValidatorTest {
 
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionMailValidator action;
@@ -52,7 +52,7 @@ public class ActionMailValidatorTest {
   }
 
   @Test
-  public void testExecute() {
+  void testExecute() {
     HopLogStore.init();
     Result previousResult = new Result();
     ActionMailValidator validator = new ActionMailValidator();
@@ -61,7 +61,7 @@ public class ActionMailValidatorTest {
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init();
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
 

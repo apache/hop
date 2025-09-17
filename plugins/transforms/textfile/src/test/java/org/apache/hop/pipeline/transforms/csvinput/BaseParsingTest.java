@@ -67,7 +67,7 @@ public abstract class BaseParsingTest<
 
   /** Initialize transform info. Method is final against redefine in descendants. */
   @BeforeEach
-  public final void beforeCommon() throws Exception {
+  final void beforeCommon() throws Exception {
     HopEnvironment.init();
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();

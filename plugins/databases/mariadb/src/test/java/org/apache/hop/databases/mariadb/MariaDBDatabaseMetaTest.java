@@ -35,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class MariaDBDatabaseMetaTest {
+class MariaDBDatabaseMetaTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -81,7 +81,7 @@ public class MariaDBDatabaseMetaTest {
   }
 
   @Test
-  public void testGetLegacyColumnNameFieldNumber() throws Exception {
+  void testGetLegacyColumnNameFieldNumber() throws Exception {
     assertEquals(
         "NUMBER",
         new MariaDBDatabaseMeta()
@@ -89,7 +89,7 @@ public class MariaDBDatabaseMetaTest {
   }
 
   @Test
-  public void testGetLegacyColumnNameFieldName() throws Exception {
+  void testGetLegacyColumnNameFieldName() throws Exception {
     assertEquals(
         "NAME",
         new MariaDBDatabaseMeta()
@@ -97,7 +97,7 @@ public class MariaDBDatabaseMetaTest {
   }
 
   @Test
-  public void testGetLegacyColumnNameFieldLastName() throws Exception {
+  void testGetLegacyColumnNameFieldLastName() throws Exception {
     assertEquals(
         "LAST_NAME",
         new MariaDBDatabaseMeta()
@@ -105,7 +105,7 @@ public class MariaDBDatabaseMetaTest {
   }
 
   @Test
-  public void testGetLegacyColumnNameFieldFirstName() throws Exception {
+  void testGetLegacyColumnNameFieldFirstName() throws Exception {
     assertEquals(
         "FIRST_NAME",
         new MariaDBDatabaseMeta()
@@ -113,7 +113,7 @@ public class MariaDBDatabaseMetaTest {
   }
 
   @Test
-  public void testGetLegacyColumnNameFieldDB() throws Exception {
+  void testGetLegacyColumnNameFieldDB() throws Exception {
     assertEquals(
         "DB",
         new MariaDBDatabaseMeta()
@@ -121,7 +121,7 @@ public class MariaDBDatabaseMetaTest {
   }
 
   @Test
-  public void testGetLegacyColumnNameNoAliasText() throws Exception {
+  void testGetLegacyColumnNameNoAliasText() throws Exception {
     assertEquals(
         "NoAliasText",
         new MariaDBDatabaseMeta()
@@ -145,7 +145,7 @@ public class MariaDBDatabaseMetaTest {
   }
 
   @Test
-  public void testMysqlOverrides() {
+  void testMysqlOverrides() {
     MariaDBDatabaseMeta nativeMeta = new MariaDBDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
@@ -159,7 +159,7 @@ public class MariaDBDatabaseMetaTest {
   }
 
   @Test
-  public void testAddOptionsMariaDB() {
+  void testAddOptionsMariaDB() {
     DatabaseMeta databaseMeta =
         new DatabaseMeta("", "MariaDB", "JDBC", null, "stub:stub", null, null, null);
     Map<String, String> options = databaseMeta.getExtraOptions();

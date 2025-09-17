@@ -48,7 +48,7 @@ import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MongoDbInputDataTest {
+class MongoDbInputDataTest {
   private IHopMetadataProvider metadataProvider;
 
   protected static String sTestData =
@@ -62,13 +62,13 @@ public class MongoDbInputDataTest {
           + "\"name\" : \"george\", \"aNumber\" : \"Forty two\" }";
 
   @BeforeEach
-  public void setUp() throws HopException {
+  void setUp() throws HopException {
     HopClientEnvironment.init();
     metadataProvider = mock(IHopMetadataProvider.class);
   }
 
   @Test
-  public void testDiscoverFieldsThrowsException() throws Exception {
+  void testDiscoverFieldsThrowsException() throws Exception {
     String dbName = "testDb";
     String collection = "testCollection";
     String query = "testQuery";
@@ -112,7 +112,7 @@ public class MongoDbInputDataTest {
   }
 
   @Test
-  public void testDiscoverFieldsWithoutCallbackThrowsHopException() throws Exception {
+  void testDiscoverFieldsWithoutCallbackThrowsHopException() throws Exception {
     String dbName = "testDb";
     String collection = "testCollection";
     String query = "testQuery";
@@ -153,7 +153,7 @@ public class MongoDbInputDataTest {
   }
 
   @Test
-  public void testDiscoverFieldsWithoutCallbackThrowsException() throws Exception {
+  void testDiscoverFieldsWithoutCallbackThrowsException() throws Exception {
     String dbName = "testDb";
     String collection = "testCollection";
     String query = "testQuery";
@@ -194,7 +194,7 @@ public class MongoDbInputDataTest {
   }
 
   @Test
-  public void testGetNonExistentField() throws HopException {
+  void testGetNonExistentField() throws HopException {
     Object mongoO = BasicDBObject.parse(sTestData);
     assertTrue(mongoO instanceof DBObject);
 
@@ -225,7 +225,7 @@ public class MongoDbInputDataTest {
   }
 
   @Test
-  public void testArrayUnwindArrayFieldsOnly() throws HopException {
+  void testArrayUnwindArrayFieldsOnly() throws HopException {
     Object mongoO = BasicDBObject.parse(sTestData2);
     assertTrue(mongoO instanceof DBObject);
 
@@ -263,7 +263,7 @@ public class MongoDbInputDataTest {
   }
 
   @Test
-  public void testArrayUnwindOneArrayExpandFieldAndOneNormalField() throws HopException {
+  void testArrayUnwindOneArrayExpandFieldAndOneNormalField() throws HopException {
     Object mongoO = BasicDBObject.parse(sTestData2);
     assertTrue(mongoO instanceof DBObject);
 
@@ -314,7 +314,7 @@ public class MongoDbInputDataTest {
   }
 
   @Test
-  public void testArrayUnwindWithOneExistingAndOneNonExistingField() throws HopException {
+  void testArrayUnwindWithOneExistingAndOneNonExistingField() throws HopException {
     Object mongoO = BasicDBObject.parse(sTestData2);
     assertTrue(mongoO instanceof DBObject);
 
@@ -365,7 +365,7 @@ public class MongoDbInputDataTest {
   }
 
   @Test
-  public void testCleansePath() {
+  void testCleansePath() {
     // param at end of path
     assertEquals(
         "my.path.with.${a_dot_param}", MongoDbInputData.cleansePath("my.path.with.${a.dot.param}"));

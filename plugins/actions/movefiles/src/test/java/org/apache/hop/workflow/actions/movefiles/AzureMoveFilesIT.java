@@ -136,7 +136,7 @@ public class AzureMoveFilesIT {
   }
 
   @Test
-  public void whenTargetFileDoesNotExist_thenRenameFile() throws HopException {
+  void whenTargetFileDoesNotExist_thenRenameFile() throws HopException {
 
     ActionMoveFiles action = defaultAction();
 
@@ -151,7 +151,7 @@ public class AzureMoveFilesIT {
   }
 
   @Test
-  public void whenTargetFileAlreadyExists_thenDoNotRename() throws HopException {
+  void whenTargetFileAlreadyExists_thenDoNotRename() throws HopException {
     ActionMoveFiles action = defaultAction();
     IWorkflowEngine<WorkflowMeta> parentWorkflow = new LocalWorkflowEngine();
 
@@ -165,7 +165,7 @@ public class AzureMoveFilesIT {
   }
 
   @Test
-  public void whenTargetFileAlreadyExistsAndExplicitlySettingDoNothing_thenDoNotRename()
+  void whenTargetFileAlreadyExistsAndExplicitlySettingDoNothing_thenDoNotRename()
       throws HopException {
 
     ActionMoveFiles action = defaultAction();
@@ -181,7 +181,7 @@ public class AzureMoveFilesIT {
   }
 
   @Test
-  public void whenTargetFileAlreadyExistsAndOverwriteIsChosen_thenDoRename() throws HopException {
+  void whenTargetFileAlreadyExistsAndOverwriteIsChosen_thenDoRename() throws HopException {
 
     ActionMoveFiles action = defaultAction();
     action.sourceFileFolder[0] = getFilePath("artists3.csv");
@@ -195,7 +195,7 @@ public class AzureMoveFilesIT {
   }
 
   @Test
-  public void whenDestinationIsFileIsNotFlaggedAndFileSpecifiedAsDestination_shouldNotMove()
+  void whenDestinationIsFileIsNotFlaggedAndFileSpecifiedAsDestination_shouldNotMove()
       throws HopException {
     ActionMoveFiles action = defaultAction();
     action.sourceFileFolder[0] = getFilePath("artists3.csv");
@@ -209,7 +209,7 @@ public class AzureMoveFilesIT {
   }
 
   @Test
-  public void whenCreateDestinationFolderNotFlagged_shouldNotMoveFile() throws HopException {
+  void whenCreateDestinationFolderNotFlagged_shouldNotMoveFile() throws HopException {
     ActionMoveFiles action = defaultAction();
     action.sourceFileFolder[0] = getFilePath("artists3.csv");
     action.destinationFileFolder[0] = getFilePath("fakecontainer", "artists-do-not-create-folder");
@@ -222,7 +222,7 @@ public class AzureMoveFilesIT {
   }
 
   @Test
-  public void whenUseWildCards_thenMoveFiles() throws HopException {
+  void whenUseWildCards_thenMoveFiles() throws HopException {
     ActionMoveFiles action = defaultAction();
     action.sourceFileFolder[0] = getFolderPath(CONTAINER_NAME);
     action.destinationFileFolder[0] = getFolderPath(ANOTHER_CONTAINER_NAME);

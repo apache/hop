@@ -37,12 +37,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.w3c.dom.Node;
 
-public class SshMetaTest {
+class SshMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void beforeClass() throws HopException {
+  static void beforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -51,7 +51,7 @@ public class SshMetaTest {
   }
 
   @Test
-  public void testEncryptedPasswords() throws HopException {
+  void testEncryptedPasswords() throws HopException {
     String plaintextPassword = "MyEncryptedPassword";
     String plaintextPassphrase = "MyEncryptedPassPhrase";
     String plaintextProxyPassword = "MyEncryptedProxyPassword";
@@ -81,7 +81,7 @@ public class SshMetaTest {
   }
 
   @Test
-  public void testRoundTrips() throws HopException {
+  void testRoundTrips() throws HopException {
     List<String> commonFields =
         Arrays.<String>asList(
             "dynamicCommandField",

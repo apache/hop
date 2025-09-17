@@ -62,7 +62,7 @@ import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.json.simple.JSONObject;
 
-public class JsonOutputTest {
+class JsonOutputTest {
 
   private static final String EXPECTED_JSON =
       "{\"data\":[{\"id\":1,\"state\":\"Florida\",\"city\":\"Orlando\"},"

@@ -23,17 +23,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SortedMergeMetaInjectionTest extends BaseMetadataInjectionTestJunit5<SortedMergeMeta> {
+class SortedMergeMetaInjectionTest extends BaseMetadataInjectionTestJunit5<SortedMergeMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new SortedMergeMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FIELD_NAME", () -> meta.getFieldName()[0]);
     check("ASCENDING", () -> meta.getAscending()[0]);
   }

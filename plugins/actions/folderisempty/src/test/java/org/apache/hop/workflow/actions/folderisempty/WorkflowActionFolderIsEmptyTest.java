@@ -35,7 +35,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class WorkflowActionFolderIsEmptyTest {
+class WorkflowActionFolderIsEmptyTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionFolderIsEmpty action;
 
@@ -72,7 +72,7 @@ public class WorkflowActionFolderIsEmptyTest {
   }
 
   @Test
-  public void testSetNrErrorsSuccess() {
+  void testSetNrErrorsSuccess() {
     action.setFolderName(emptyDir);
 
     Result result = action.execute(new Result(), 0);
@@ -82,7 +82,7 @@ public class WorkflowActionFolderIsEmptyTest {
   }
 
   @Test
-  public void testSetNrErrorsFail() {
+  void testSetNrErrorsFail() {
     action.setFolderName(nonEmptyDir);
 
     Result result = action.execute(new Result(), 0);

@@ -54,7 +54,7 @@ import org.mockito.stubbing.Answer;
  * Action: Evaluate rows number in a table:
  * Apache Hop Server logs with error from Quartz even though the workflow finishes successfully.
  */
-public class WorkflowActionEvalTableContentTest {
+class WorkflowActionEvalTableContentTest {
   private static final Map<Class<?>, String> dbMap = new HashMap<>();
   private ActionEvalTableContent action;
   private static IPlugin mockDbPlugin;
@@ -172,7 +172,7 @@ public class WorkflowActionEvalTableContentTest {
   }
 
   @Test
-  public void testNrErrorsFailure() {
+  void testNrErrorsFailure() {
     action.setLimit("1");
     action.setSuccessCondition(
         ActionEvalTableContent.getSuccessConditionCode(
@@ -189,7 +189,7 @@ public class WorkflowActionEvalTableContentTest {
   }
 
   @Test
-  public void testNrErrorsSuccess() {
+  void testNrErrorsSuccess() {
     action.setLimit("5");
     action.setSuccessCondition(
         ActionEvalTableContent.getSuccessConditionCode(
@@ -203,7 +203,7 @@ public class WorkflowActionEvalTableContentTest {
   }
 
   @Test
-  public void testNrErrorsNoCustomSql() {
+  void testNrErrorsNoCustomSql() {
     action.setLimit("5");
     action.setSuccessCondition(
         ActionEvalTableContent.getSuccessConditionCode(

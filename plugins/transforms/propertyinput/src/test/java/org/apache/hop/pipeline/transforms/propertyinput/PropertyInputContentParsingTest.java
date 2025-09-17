@@ -22,12 +22,12 @@ import org.apache.hop.pipeline.transforms.propertyinput.PropertyInputMeta.PIFiel
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class PropertyInputContentParsingTest extends BasePropertyParsingTest {
+class PropertyInputContentParsingTest extends BasePropertyParsingTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testDefaultOptions() throws Exception {
+  void testDefaultOptions() throws Exception {
     init("default.properties");
 
     PIField f1 = new PIField("f1");

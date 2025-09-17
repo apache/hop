@@ -44,7 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-public class MemoryGroupByMetaGetFieldsTest {
+class MemoryGroupByMetaGetFieldsTest {
 
   private static MockedStatic<ValueMetaFactory> mockedValueMetaFactory;
 
@@ -59,7 +59,7 @@ public class MemoryGroupByMetaGetFieldsTest {
   // Static mock is now managed at method level in @BeforeEach/@AfterEach
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     // Create static mock first
     mockedValueMetaFactory = mockStatic(ValueMetaFactory.class);
 
@@ -97,7 +97,7 @@ public class MemoryGroupByMetaGetFieldsTest {
   }
 
   @Test
-  public void getFieldsWithSubject_WithFormat() {
+  void getFieldsWithSubject_WithFormat() {
     ValueMetaDate valueMeta = new ValueMetaDate();
     valueMeta.setConversionMask("yyyy-MM-dd");
     valueMeta.setName("date");
@@ -122,7 +122,7 @@ public class MemoryGroupByMetaGetFieldsTest {
   }
 
   @Test
-  public void getFieldsWithSubject_NoFormat() {
+  void getFieldsWithSubject_NoFormat() {
     ValueMetaDate valueMeta = new ValueMetaDate();
     valueMeta.setName("date");
 
@@ -140,7 +140,7 @@ public class MemoryGroupByMetaGetFieldsTest {
   }
 
   @Test
-  public void getFieldsWithoutSubject() {
+  void getFieldsWithoutSubject() {
     ValueMetaDate valueMeta = new ValueMetaDate();
     valueMeta.setName("date");
 

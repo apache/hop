@@ -24,7 +24,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionSendNagiosPassiveCheckTest
+class WorkflowActionSendNagiosPassiveCheckTest
     extends WorkflowActionLoadSaveTestSupport<ActionSendNagiosPassiveCheck> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

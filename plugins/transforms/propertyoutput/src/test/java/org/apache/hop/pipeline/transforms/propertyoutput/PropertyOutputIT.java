@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 public class PropertyOutputIT {
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     HopClientEnvironment.init();
     PluginRegistry.addPluginType(TransformPluginType.getInstance());
     PluginRegistry.init();

@@ -29,7 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SampleRowsMetaTest {
+class SampleRowsMetaTest {
   LoadSaveTester loadSaveTester;
   Class<SampleRowsMeta> testMetaClass = SampleRowsMeta.class;
 
@@ -37,7 +37,7 @@ public class SampleRowsMetaTest {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes = Arrays.asList("linesRange", "lineNumberField");
@@ -48,7 +48,7 @@ public class SampleRowsMetaTest {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 }

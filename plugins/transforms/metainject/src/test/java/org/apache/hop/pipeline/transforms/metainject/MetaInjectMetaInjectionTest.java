@@ -24,19 +24,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTestJunit5<MetaInjectMeta> {
+class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTestJunit5<MetaInjectMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String TEST_ID = "TEST_ID";
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new MetaInjectMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FILE_NAME", () -> meta.getFileName());
     check("SOURCE_TRANSFORM_NAME", () -> meta.getSourceTransformName());
     check("TARGET_FILE", () -> meta.getTargetFile());

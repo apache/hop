@@ -36,7 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.verification.VerificationMode;
 
-public class WorkflowActionWriteToLogTest {
+class WorkflowActionWriteToLogTest {
 
   private IWorkflowEngine<WorkflowMeta> parentWorkflow;
   private ActionWriteToLog action;
@@ -56,17 +56,17 @@ public class WorkflowActionWriteToLogTest {
   }
 
   @Test
-  public void errorMessageIsNotLoggedWhenParentJobLogLevelIsNothing() {
+  void errorMessageIsNotLoggedWhenParentJobLogLevelIsNothing() {
     verifyErrorMessageForParentJobLogLevel(LogLevel.NOTHING, never());
   }
 
   @Test
-  public void errorMessageIsLoggedWhenParentJobLogLevelIsError() {
+  void errorMessageIsLoggedWhenParentJobLogLevelIsError() {
     verifyErrorMessageForParentJobLogLevel(LogLevel.ERROR, times(1));
   }
 
   @Test
-  public void errorMessageIsLoggedWhenParentJobLogLevelIsMinimal() {
+  void errorMessageIsLoggedWhenParentJobLogLevelIsMinimal() {
     verifyErrorMessageForParentJobLogLevel(LogLevel.MINIMAL, times(1));
   }
 

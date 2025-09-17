@@ -24,7 +24,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionPingTest extends WorkflowActionLoadSaveTestSupport<ActionPing> {
+class WorkflowActionPingTest extends WorkflowActionLoadSaveTestSupport<ActionPing> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override

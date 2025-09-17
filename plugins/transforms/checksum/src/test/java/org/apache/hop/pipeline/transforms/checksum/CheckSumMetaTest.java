@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
+class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -45,7 +45,7 @@ public class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
   }
 
   @Test
-  public void testConstants() {
+  void testConstants() {
     assertEquals("CRC32", CheckSumMeta.CheckSumType.CRC32.getCode());
     assertEquals("ADLER32", CheckSumMeta.CheckSumType.ADLER32.getCode());
     assertEquals("MD5", CheckSumMeta.CheckSumType.MD5.getCode());
@@ -56,7 +56,7 @@ public class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     List<String> attributes =
         Arrays.asList("fields", "resultFieldName", "checkSumType", "resultType");
 

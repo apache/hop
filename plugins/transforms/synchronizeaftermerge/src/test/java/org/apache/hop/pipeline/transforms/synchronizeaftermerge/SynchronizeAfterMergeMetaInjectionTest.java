@@ -27,18 +27,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SynchronizeAfterMergeMetaInjectionTest
+class SynchronizeAfterMergeMetaInjectionTest
     extends BaseMetadataInjectionTestJunit5<SynchronizeAfterMergeMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     super.setup(new SynchronizeAfterMergeMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check(
         "SHEMA_NAME",
         new IStringGetter() {
@@ -197,7 +197,7 @@ public class SynchronizeAfterMergeMetaInjectionTest
   }
 
   @Test
-  public void getXml() throws HopException {
+  void getXml() throws HopException {
     skipProperties(
         "CONNECTION_NAME",
         "TABLE_NAME",

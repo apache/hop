@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /** Unit tests for S3FileSystem */
-public class S3NFileSystemTest {
+class S3NFileSystemTest {
 
   S3NFileSystem fileSystem;
   S3NFileName fileName;
@@ -45,14 +45,14 @@ public class S3NFileSystemTest {
   }
 
   @Test
-  public void testCreateFile() throws Exception {
+  void testCreateFile() throws Exception {
     assertNotNull(
         fileSystem.createFile(
             new S3FileName("s3n", "bucketName", "/bucketName/key", FileType.FILE)));
   }
 
   @Test
-  public void testGetS3Service() {
+  void testGetS3Service() {
     assertNotNull(fileSystem.getS3Client());
 
     FileSystemOptions options = new FileSystemOptions();

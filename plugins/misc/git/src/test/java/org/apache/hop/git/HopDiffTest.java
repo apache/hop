@@ -42,7 +42,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.Before;
 import org.junit.Test;
 
-public class HopDiffTest {
+class HopDiffTest {
 
   IHopMetadataProvider metadataProvider;
 
@@ -54,7 +54,7 @@ public class HopDiffTest {
   }
 
   @Test
-  public void diffPipelineTest() throws Exception {
+  void diffPipelineTest() throws Exception {
     File file = new File("src/test/resources/r1.hpl");
     InputStream xmlStream = new FileInputStream(file);
     PipelineMeta pipelineMeta =
@@ -76,7 +76,7 @@ public class HopDiffTest {
   }
 
   @Test
-  public void diffWorkflowTest() throws Exception {
+  void diffWorkflowTest() throws Exception {
     File file = new File("src/test/resources/r1.hwf");
     InputStream xmlStream = new FileInputStream(file);
     WorkflowMeta jobMeta = new WorkflowMeta(xmlStream, metadataProvider, new Variables());

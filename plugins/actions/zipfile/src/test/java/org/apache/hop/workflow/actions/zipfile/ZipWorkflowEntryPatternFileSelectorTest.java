@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ZipWorkflowEntryPatternFileSelectorTest {
+class ZipWorkflowEntryPatternFileSelectorTest {
 
   private FileSelector fileSelector;
   private FileSelectInfo fileSelectInfoMock;
@@ -57,7 +57,7 @@ public class ZipWorkflowEntryPatternFileSelectorTest {
   }
 
   @Test
-  public void testPatternNull() throws Exception {
+  void testPatternNull() throws Exception {
     fileSelector =
         new ActionZipFile.ZipJobEntryPatternFileSelector(null, Pattern.compile(EXCLUDE_PATTERN));
     boolean includeFile = fileSelector.includeFile(fileSelectInfoMock);
@@ -69,7 +69,7 @@ public class ZipWorkflowEntryPatternFileSelectorTest {
   }
 
   @Test
-  public void testExcludePatternNull() throws Exception {
+  void testExcludePatternNull() throws Exception {
     fileSelector = new ActionZipFile.ZipJobEntryPatternFileSelector(Pattern.compile(PATTERN), null);
     boolean includeFile = fileSelector.includeFile(fileSelectInfoMock);
     Assert.assertTrue(includeFile);
@@ -80,7 +80,7 @@ public class ZipWorkflowEntryPatternFileSelectorTest {
   }
 
   @Test
-  public void testPatternAndExcludePatternNull() throws Exception {
+  void testPatternAndExcludePatternNull() throws Exception {
     fileSelector = new ActionZipFile.ZipJobEntryPatternFileSelector(null, null);
     boolean includeFile = fileSelector.includeFile(fileSelectInfoMock);
     Assert.assertTrue(includeFile);
@@ -91,20 +91,20 @@ public class ZipWorkflowEntryPatternFileSelectorTest {
   }
 
   @Test
-  public void testMatchesPattern() throws Exception {
+  void testMatchesPattern() throws Exception {
     boolean includeFile = fileSelector.includeFile(fileSelectInfoMock);
     Assert.assertTrue(includeFile);
   }
 
   @Test
-  public void testMatchesExcludePattern() throws Exception {
+  void testMatchesExcludePattern() throws Exception {
     Mockito.when(fileNameMock.getBaseName()).thenReturn(EXCLUDE_PATTERN_FILE_NAME);
     boolean includeFile = fileSelector.includeFile(fileSelectInfoMock);
     Assert.assertFalse(includeFile);
   }
 
   @Test
-  public void testMatchesPatternAndExcludePattern() throws Exception {
+  void testMatchesPatternAndExcludePattern() throws Exception {
     fileSelector =
         new ActionZipFile.ZipJobEntryPatternFileSelector(
             Pattern.compile(PATTERN), Pattern.compile(PATTERN));
@@ -113,7 +113,7 @@ public class ZipWorkflowEntryPatternFileSelectorTest {
   }
 
   @Test
-  public void testDifferentFileType() throws Exception {
+  void testDifferentFileType() throws Exception {
     Mockito.when(fileObjectMock.getType()).thenReturn(FileType.IMAGINARY);
     boolean includeFile = fileSelector.includeFile(fileSelectInfoMock);
     Assert.assertFalse(includeFile);

@@ -51,7 +51,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class HiveValueMetaBaseTest {
+class HiveValueMetaBaseTest {
   protected static final String TEST_NAME = "TEST_NAME";
   protected static final String LOG_FIELD = "LOG_FIELD";
 
@@ -87,7 +87,7 @@ public class HiveValueMetaBaseTest {
   }
 
   @Test
-  public void testGetValueFromSqlTypeBinaryHive() throws Exception {
+  void testGetValueFromSqlTypeBinaryHive() throws Exception {
 
     final int binaryColumnIndex = 1;
     ValueMetaBase valueMetaBase = new ValueMetaBase();
@@ -108,7 +108,7 @@ public class HiveValueMetaBaseTest {
   }
 
   @Test
-  public void testMetaDataPreviewSqlVarBinaryToHopBinaryUsingHiveVariant()
+  void testMetaDataPreviewSqlVarBinaryToHopBinaryUsingHiveVariant()
       throws SQLException, HopDatabaseException {
     doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
     doReturn(16).when(resultSet).getInt("COLUMN_SIZE");

@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionWriteToLogLoadSaveTest
+class WorkflowActionWriteToLogLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionWriteToLog> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

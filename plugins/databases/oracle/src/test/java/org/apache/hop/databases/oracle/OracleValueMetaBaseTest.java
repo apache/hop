@@ -43,7 +43,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class OracleValueMetaBaseTest {
+class OracleValueMetaBaseTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private DatabaseMeta databaseMeta;
@@ -68,7 +68,7 @@ public class OracleValueMetaBaseTest {
   }
 
   @Test
-  public void testMetadataPreviewSqlVarBinaryToString() throws SQLException, HopDatabaseException {
+  void testMetadataPreviewSqlVarBinaryToString() throws SQLException, HopDatabaseException {
     when(resultSet.getInt("DATA_TYPE")).thenReturn(Types.VARBINARY);
     when(resultSet.getInt("COLUMN_SIZE")).thenReturn(16);
 
@@ -78,8 +78,7 @@ public class OracleValueMetaBaseTest {
   }
 
   @Test
-  public void testMetadataPreviewSqlLongVarBinaryToString()
-      throws SQLException, HopDatabaseException {
+  void testMetadataPreviewSqlLongVarBinaryToString() throws SQLException, HopDatabaseException {
     when(resultSet.getInt("DATA_TYPE")).thenReturn(Types.LONGVARBINARY);
 
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, databaseMeta, resultSet);
@@ -87,7 +86,7 @@ public class OracleValueMetaBaseTest {
   }
 
   @Test
-  public void testMetadataPreviewSqlNumericWithStrictBigNumberInterpretation()
+  void testMetadataPreviewSqlNumericWithStrictBigNumberInterpretation()
       throws SQLException, HopDatabaseException {
 
     when(resultSet.getInt("DATA_TYPE")).thenReturn(Types.NUMERIC);
@@ -100,7 +99,7 @@ public class OracleValueMetaBaseTest {
   }
 
   @Test
-  public void testMetadataPreviewSqlNumericWithoutStrictBigNumberInterpretation()
+  void testMetadataPreviewSqlNumericWithoutStrictBigNumberInterpretation()
       throws SQLException, HopDatabaseException {
     when(resultSet.getInt("DATA_TYPE")).thenReturn(Types.NUMERIC);
     when(resultSet.getInt("COLUMN_SIZE")).thenReturn(38);
@@ -112,7 +111,7 @@ public class OracleValueMetaBaseTest {
   }
 
   @Test
-  public void testMetadataPreviewSqlTimestampToDate() throws SQLException, HopDatabaseException {
+  void testMetadataPreviewSqlTimestampToDate() throws SQLException, HopDatabaseException {
     when(resultSet.getInt("DATA_TYPE")).thenReturn(Types.TIMESTAMP);
     when(resultSet.getInt("DECIMAL_DIGITS")).thenReturn(19);
     when(resultSet.getObject("DECIMAL_DIGITS")).thenReturn(mock(Object.class));
@@ -125,7 +124,7 @@ public class OracleValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDoubleWithTooBigLengthAndPrecision()
+  void testMetdataPreviewSqlDoubleWithTooBigLengthAndPrecision()
       throws SQLException, HopDatabaseException {
     doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
     doReturn(128).when(resultSet).getInt("COLUMN_SIZE");

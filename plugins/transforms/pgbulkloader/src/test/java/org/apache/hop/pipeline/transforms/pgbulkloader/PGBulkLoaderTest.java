@@ -49,7 +49,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class PGBulkLoaderTest {
+class PGBulkLoaderTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -66,12 +66,12 @@ public class PGBulkLoaderTest {
   private static final String DB_NAME_EMPTY = "";
 
   @BeforeAll
-  public static void setupBeforeClass() throws HopException {
+  static void setupBeforeClass() throws HopException {
     HopClientEnvironment.init();
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
 
     PluginRegistry.getInstance()
         .registerPluginClass(
@@ -97,12 +97,12 @@ public class PGBulkLoaderTest {
   }
 
   @AfterEach
-  public void tearDown() throws Exception {
+  void tearDown() throws Exception {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testCreateCommandLine() throws Exception {
+  void testCreateCommandLine() throws Exception {
     PGBulkLoaderMeta meta = mock(PGBulkLoaderMeta.class);
 
     when(transformMockHelper.pipelineMeta.findDatabase(any(), any()))
@@ -132,7 +132,7 @@ public class PGBulkLoaderTest {
   }
 
   @Test
-  public void testDBNameOverridden_IfDbNameOverrideSetUp() throws Exception {
+  void testDBNameOverridden_IfDbNameOverrideSetUp() throws Exception {
     // Db Name Override is set up
     PGBulkLoaderMeta pgBulkLoaderMock = getPgBulkLoaderMock(DB_NAME_OVVERRIDE);
     when(transformMockHelper.pipelineMeta.findDatabase(any(), any()))
@@ -150,7 +150,7 @@ public class PGBulkLoaderTest {
   }
 
   @Test
-  public void testDBNameNOTOverridden_IfDbNameOverrideEmpty() throws Exception {
+  void testDBNameNOTOverridden_IfDbNameOverrideEmpty() throws Exception {
     // Db Name Override is empty
     PGBulkLoaderMeta pgBulkLoaderMock = getPgBulkLoaderMock(DB_NAME_EMPTY);
     DatabaseMeta databaseMeta = getDatabaseMetaSpy();
@@ -168,7 +168,7 @@ public class PGBulkLoaderTest {
   }
 
   @Test
-  public void testDBNameNOTOverridden_IfDbNameOverrideNull() throws Exception {
+  void testDBNameNOTOverridden_IfDbNameOverrideNull() throws Exception {
     // Db Name Override is null
     PGBulkLoaderMeta pgBulkLoaderMock = getPgBulkLoaderMock(null);
     DatabaseMeta databaseMeta = getDatabaseMetaSpy();
@@ -186,7 +186,7 @@ public class PGBulkLoaderTest {
   }
 
   @Test
-  public void testProcessRow_StreamIsNull() throws Exception {
+  void testProcessRow_StreamIsNull() throws Exception {
     PGBulkLoader pgBulkLoaderStreamIsNull = mock(PGBulkLoader.class);
     doReturn(null).when(pgBulkLoaderStreamIsNull).getRow();
     PGBulkLoaderMeta meta = mock(PGBulkLoaderMeta.class);
@@ -199,7 +199,7 @@ public class PGBulkLoaderTest {
    * appropriate reason to the user by throwing a HopException.
    */
   @Test
-  public void testNoDatabaseConnection() {
+  void testNoDatabaseConnection() {
     try {
       doReturn(null).when(transformMockHelper.iTransformMeta).getConnection();
       assertFalse(pgBulkLoader.init());

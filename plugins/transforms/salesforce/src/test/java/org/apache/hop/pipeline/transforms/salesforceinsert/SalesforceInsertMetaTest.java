@@ -50,12 +50,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SalesforceInsertMetaTest {
+class SalesforceInsertMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
@@ -65,13 +65,13 @@ public class SalesforceInsertMetaTest {
   }
 
   @Test
-  public void testErrorHandling() {
+  void testErrorHandling() {
     SalesforceTransformMeta meta = new SalesforceInsertMeta();
     assertTrue(meta.supportsErrorHandling());
   }
 
   @Test
-  public void testBatchSize() {
+  void testBatchSize() {
     SalesforceInsertMeta meta = new SalesforceInsertMeta();
     meta.setBatchSize("20");
     assertEquals("20", meta.getBatchSize());
@@ -84,7 +84,7 @@ public class SalesforceInsertMetaTest {
   }
 
   @Test
-  public void testCheck() {
+  void testCheck() {
     SalesforceInsertMeta meta = new SalesforceInsertMeta();
     meta.setDefault();
     List<ICheckResult> remarks = new ArrayList<>();
@@ -116,7 +116,7 @@ public class SalesforceInsertMetaTest {
   }
 
   @Test
-  public void testGetFields() throws HopTransformException {
+  void testGetFields() throws HopTransformException {
     SalesforceInsertMeta meta = new SalesforceInsertMeta();
     meta.setDefault();
     IRowMeta r = new RowMeta();
@@ -132,7 +132,7 @@ public class SalesforceInsertMetaTest {
   }
 
   @Test
-  public void testSalesforceInsertMeta() throws HopException {
+  void testSalesforceInsertMeta() throws HopException {
     List<String> attributes = new ArrayList<>();
     attributes.addAll(SalesforceMetaTest.getDefaultAttributes());
     attributes.addAll(

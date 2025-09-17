@@ -41,7 +41,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 @ExtendWith(MockitoExtension.class)
-public class JsonInputMetaTest {
+class JsonInputMetaTest {
   public static final String DATA = "data";
   public static final String NAME = "name";
   private static final Pattern CLEAN_NODES =

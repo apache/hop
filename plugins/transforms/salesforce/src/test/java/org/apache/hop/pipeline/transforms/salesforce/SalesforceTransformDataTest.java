@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class SalesforceTransformDataTest {
+class SalesforceTransformDataTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     SalesforceTransformData data = new SalesforceTransformData();
     assertNull(data.connection);
   }

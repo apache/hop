@@ -27,8 +27,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidato
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionSftpPutLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionSftpPut> {
+class WorkflowActionSftpPutLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionSftpPut> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override

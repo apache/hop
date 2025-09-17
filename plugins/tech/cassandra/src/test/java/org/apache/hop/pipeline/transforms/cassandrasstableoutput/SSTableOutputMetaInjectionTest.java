@@ -21,7 +21,7 @@ import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SSTableOutputMeta> {
+class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SSTableOutputMeta> {
 
   @Before
   public void setup() throws Exception {
@@ -29,7 +29,7 @@ public class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SS
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("YAML_FILE_PATH", () -> meta.getYamlPath());
     check("DIRECTORY", () -> meta.getDirectory());
     check("CASSANDRA_KEYSPACE", () -> meta.getCassandraKeyspace());

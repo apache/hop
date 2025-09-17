@@ -22,12 +22,12 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class UpdateMetaInjectionTest extends BaseMetadataInjectionTestJunit5<UpdateMeta> {
+class UpdateMetaInjectionTest extends BaseMetadataInjectionTestJunit5<UpdateMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new UpdateMeta());
   }
 }

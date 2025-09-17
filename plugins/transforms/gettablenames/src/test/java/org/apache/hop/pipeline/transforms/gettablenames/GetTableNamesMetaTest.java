@@ -20,9 +20,9 @@ package org.apache.hop.pipeline.transforms.gettablenames;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
-public class GetTableNamesMetaTest {
+class GetTableNamesMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     TransformSerializationTestUtil.testSerialization(
         "/get-table-names-transform.xml", GetTableNamesMeta.class);
   }

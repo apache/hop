@@ -45,7 +45,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 /** User: Dzmitry Stsiapanau Date: 12/17/13 Time: 3:11 PM */
-public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
+class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -92,7 +92,7 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testGetXml() throws Exception {
+  void testGetXml() throws Exception {
     LoadFileInputMeta testMeta = createMeta();
     String xml = testMeta.getXml();
     assertEquals(
@@ -101,7 +101,7 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testLoadXml() throws Exception {
+  void testLoadXml() throws Exception {
     LoadFileInputMeta origMeta = createMeta();
     LoadFileInputMeta testMeta = new LoadFileInputMeta();
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -114,7 +114,7 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     List<String> attributes =
         Arrays.asList(
             "includeFilename",
@@ -241,7 +241,7 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

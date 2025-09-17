@@ -23,18 +23,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SetValueConstantMetaInjectionTest
+class SetValueConstantMetaInjectionTest
     extends BaseMetadataInjectionTestJunit5<SetValueConstantMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new SetValueConstantMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FIELD_NAME", () -> meta.getField(0).getFieldName());
     check("REPLACE_VALUE", () -> meta.getField(0).getReplaceValue());
     check("REPLACE_MASK", () -> meta.getField(0).getReplaceMask());

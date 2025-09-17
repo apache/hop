@@ -37,7 +37,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class AS400DatabaseMetaTest {
+class AS400DatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   AS400DatabaseMeta nativeMeta;
@@ -50,7 +50,7 @@ public class AS400DatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
     assertEquals("com.ibm.as400.access.AS400JDBCDriver", nativeMeta.getDriverClass());
@@ -390,7 +390,7 @@ public class AS400DatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("DELETE FROM FOO", nativeMeta.getTruncateTableStatement("FOO"));
     assertEquals(
         "ALTER TABLE FOO ADD BAR VARCHAR(100)",
@@ -415,7 +415,7 @@ public class AS400DatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO TIMESTAMP",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));

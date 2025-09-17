@@ -39,31 +39,31 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class RegexEval_EmptyStringVsNull_Test {
+class RegexEval_EmptyStringVsNull_Test {
   private TransformMockHelper<RegexEvalMeta, ITransformData> helper;
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void initHop() throws Exception {
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     helper =
         TransformMockUtil.getTransformMockHelper(
             RegexEvalMeta.class, "RegexEval_EmptyStringVsNull_Test");
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     helper.cleanUp();
   }
 
   @Test
-  public void emptyAndNullsAreNotDifferent() throws Exception {
+  void emptyAndNullsAreNotDifferent() throws Exception {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
     List<Object[]> expected =
         Arrays.asList(
@@ -72,7 +72,7 @@ public class RegexEval_EmptyStringVsNull_Test {
   }
 
   @Test
-  public void emptyAndNullsAreDifferent() throws Exception {
+  void emptyAndNullsAreDifferent() throws Exception {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
     List<Object[]> expected =
         Arrays.asList(

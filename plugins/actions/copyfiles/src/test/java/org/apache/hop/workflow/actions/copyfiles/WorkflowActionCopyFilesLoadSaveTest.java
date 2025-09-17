@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 
-public class WorkflowActionCopyFilesLoadSaveTest
+class WorkflowActionCopyFilesLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionCopyFiles> {
 
   @Override

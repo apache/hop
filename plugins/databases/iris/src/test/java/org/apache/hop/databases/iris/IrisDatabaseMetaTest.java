@@ -33,7 +33,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IrisDatabaseMetaTest {
+class IrisDatabaseMetaTest {
   private IrisDatabaseMeta cdm;
 
   @Before
@@ -43,7 +43,7 @@ public class IrisDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
 
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, cdm.getAccessTypeList());
     assertEquals(1972, cdm.getDefaultDatabasePort());
@@ -57,7 +57,7 @@ public class IrisDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals(
         "ALTER TABLE FOO ADD COLUMN ( BAR VARCHAR(15) ) ",
         cdm.getAddColumnStatement("FOO", new ValueMetaString("BAR", 15, 0), "", false, "", false));

@@ -30,17 +30,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SplitFieldToRowsMetaTest {
+class SplitFieldToRowsMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
   @Test
-  public void loadSaveTest() throws HopException {
+  void loadSaveTest() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "splitField",

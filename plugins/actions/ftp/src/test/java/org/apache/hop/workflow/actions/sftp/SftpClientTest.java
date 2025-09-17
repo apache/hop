@@ -37,7 +37,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class SftpClientTest {
+class SftpClientTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private int port = 22;
@@ -69,7 +69,7 @@ public class SftpClientTest {
    * API Authentication.
    */
   @Test
-  public void shouldExcludeGssapiFromPreferredAuthenticationsByDefault() throws Exception {
+  void shouldExcludeGssapiFromPreferredAuthenticationsByDefault() throws Exception {
     new SftpClient(server, port, username) {
       @Override
       JSch createJSch() {
@@ -88,7 +88,7 @@ public class SftpClientTest {
    * Authentication as the last one.
    */
   @Test
-  public void shouldIncludeGssapiToPreferredAuthenticationsIfSpecified() throws Exception {
+  void shouldIncludeGssapiToPreferredAuthenticationsIfSpecified() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "true");
 
     new SftpClient(server, port, username) {
@@ -110,8 +110,7 @@ public class SftpClientTest {
    * API Authentication.
    */
   @Test
-  public void shouldIncludeGssapiToPreferredAuthenticationsIfOnlySpecifiedCorrectly()
-      throws Exception {
+  void shouldIncludeGssapiToPreferredAuthenticationsIfOnlySpecifiedCorrectly() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
 
     new SftpClient(server, port, username) {
@@ -143,7 +142,7 @@ public class SftpClientTest {
 
   /** Create a folder under the current user's home. */
   @Test
-  public void folderCreation_Relative_Simple() throws Exception {
+  void folderCreation_Relative_Simple() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(
@@ -165,7 +164,7 @@ public class SftpClientTest {
 
   /** Create a folder with nested folders under the current user's home. */
   @Test
-  public void folderCreation_Relative_Nested() throws Exception {
+  void folderCreation_Relative_Nested() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(
@@ -189,7 +188,7 @@ public class SftpClientTest {
 
   /** Create a folder under an existing folder given an absolute path. */
   @Test
-  public void folderCreation_Absolute_Simple() throws Exception {
+  void folderCreation_Absolute_Simple() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(
@@ -215,7 +214,7 @@ public class SftpClientTest {
    * a slash.
    */
   @Test
-  public void folderCreation_Absolute_TrailingSlash() throws Exception {
+  void folderCreation_Absolute_TrailingSlash() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(
@@ -238,7 +237,7 @@ public class SftpClientTest {
 
   /** Create a folder with nested folders under an existing folder given an absolute path. */
   @Test
-  public void folderCreation_Absolute_Nested() throws Exception {
+  void folderCreation_Absolute_Nested() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(

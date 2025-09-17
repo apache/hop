@@ -33,11 +33,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class AbortTest {
+class AbortTest {
   private TransformMockHelper<AbortMeta, AbortData> transformMockHelper;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     transformMockHelper = new TransformMockHelper("ABORT TEST", AbortMeta.class, AbortData.class);
     when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(transformMockHelper.iLogChannel);
@@ -45,12 +45,12 @@ public class AbortTest {
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testAbortDoesntAbortWithoutInputRow() throws HopException {
+  void testAbortDoesntAbortWithoutInputRow() throws HopException {
     Abort abort =
         new Abort(
             transformMockHelper.transformMeta,
@@ -68,7 +68,7 @@ public class AbortTest {
   }
 
   @Test
-  public void testAbortAbortsWithInputRow() throws HopException {
+  void testAbortAbortsWithInputRow() throws HopException {
     Abort abort =
         new Abort(
             transformMockHelper.transformMeta,
@@ -86,7 +86,7 @@ public class AbortTest {
   }
 
   @Test
-  public void testAbortWithError() throws HopException {
+  void testAbortWithError() throws HopException {
     Abort abort =
         new Abort(
             transformMockHelper.transformMeta,

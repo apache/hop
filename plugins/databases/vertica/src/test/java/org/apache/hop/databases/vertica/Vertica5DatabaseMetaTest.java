@@ -61,7 +61,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 
-public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
+class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static final String TEST_NAME = "TEST_NAME";
@@ -101,7 +101,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   }
 
   @Test
-  public void testOverridesToVerticaDatabaseMeta() throws Exception {
+  void testOverridesToVerticaDatabaseMeta() throws Exception {
     Vertica5DatabaseMeta nativeMeta = new Vertica5DatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
@@ -146,7 +146,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   }
 
   @Test
-  public void testGetBinaryWithLength_WhenBinarySqlTypesOfVertica() throws Exception {
+  void testGetBinaryWithLength_WhenBinarySqlTypesOfVertica() throws Exception {
     final int binaryColumnIndex = 1;
     final int varbinaryColumnIndex = 2;
     final int expectedBinarylength = 1;
@@ -191,7 +191,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   }
 
   @Test
-  public void testVerticaTimeType() throws Exception {
+  void testVerticaTimeType() throws Exception {
     ResultSetMetaData metaData = mock(ResultSetMetaData.class);
     IValueMeta iValueMeta = mock(ValueMetaInternetAddress.class);
 

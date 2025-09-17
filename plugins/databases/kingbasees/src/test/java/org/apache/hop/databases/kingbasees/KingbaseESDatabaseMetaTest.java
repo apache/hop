@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class KingbaseESDatabaseMetaTest {
+class KingbaseESDatabaseMetaTest {
 
   private KingbaseESDatabaseMeta nativeMeta;
 
@@ -45,7 +45,7 @@ public class KingbaseESDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(54321, nativeMeta.getDefaultDatabasePort());
     assertEquals(0, nativeMeta.getNotFoundTK(true));
@@ -704,7 +704,7 @@ public class KingbaseESDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("SELECT currval('FOO')", nativeMeta.getSqlCurrentSequenceValue("FOO"));
     assertEquals("SELECT nextval('FOO')", nativeMeta.getSqlNextSequenceValue("FOO"));
     assertEquals(
@@ -744,7 +744,7 @@ public class KingbaseESDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO TIMESTAMP",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));

@@ -40,14 +40,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
+class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   LoadSaveTester loadSaveTester;
 
   @BeforeEach
-  public void setUp() throws HopException {
+  void setUp() throws HopException {
     HopEnvironment.init();
     PluginRegistry.init();
 
@@ -167,7 +167,7 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

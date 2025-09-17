@@ -21,10 +21,10 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.Test;
 
-public class BlockUntilTransformsFinishMetaTest {
+class BlockUntilTransformsFinishMetaTest {
 
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     BlockUntilTransformsFinishMeta meta = new BlockUntilTransformsFinishMeta();
     meta.getBlockingTransforms().add(new BlockingTransform("A", "0"));
     meta.getBlockingTransforms().add(new BlockingTransform("B", "1"));

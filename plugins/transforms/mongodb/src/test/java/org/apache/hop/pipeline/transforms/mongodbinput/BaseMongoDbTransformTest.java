@@ -45,7 +45,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /** Common mock setup for MongoDbOutputTest and MongoDbInput */
-public class BaseMongoDbTransformTest {
+class BaseMongoDbTransformTest {
 
   @Mock protected TransformMeta transformMeta;
   @Mock protected PipelineMeta pipelineMeta;
@@ -64,7 +64,7 @@ public class BaseMongoDbTransformTest {
   protected Object[] rowData;
 
   @BeforeEach
-  public void before() throws Exception {
+  void before() throws Exception {
     MockitoAnnotations.openMocks(this);
     when(mongoClientWrapperFactory.createMongoClientWrapper(
             any(MongoProperties.class), any(MongoUtilLogger.class)))

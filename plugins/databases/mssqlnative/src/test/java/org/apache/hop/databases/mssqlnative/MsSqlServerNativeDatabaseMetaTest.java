@@ -26,11 +26,11 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class MsSqlServerNativeDatabaseMetaTest {
+class MsSqlServerNativeDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
-  public void testMsSqlOverrides() {
+  void testMsSqlOverrides() {
     MsSqlServerNativeDatabaseMeta localNativeMeta = new MsSqlServerNativeDatabaseMeta();
     localNativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
@@ -61,7 +61,7 @@ public class MsSqlServerNativeDatabaseMetaTest {
   }
 
   @Test
-  public void setSqlServerInstanceTest() {
+  void setSqlServerInstanceTest() {
     DatabaseMeta dbmeta = new DatabaseMeta();
     IDatabase mssqlServerDatabaseMeta = new MsSqlServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId("MSSQL");
@@ -80,15 +80,15 @@ public class MsSqlServerNativeDatabaseMetaTest {
   }
 
   /*  @Ignore("This test needs to be reviewed")
-  @Test
-  public void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_2LevelHierarchy() {
-    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    IDatabase mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
-    mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
+   @Test
+  void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_2LevelHierarchy() {
+     IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
+     IDatabase mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
+     mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
 
-    assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta,
-      mssqlServerNativeDatabaseMeta ) );
-  }*/
+     assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta,
+       mssqlServerNativeDatabaseMeta ) );
+   }*/
 
 }

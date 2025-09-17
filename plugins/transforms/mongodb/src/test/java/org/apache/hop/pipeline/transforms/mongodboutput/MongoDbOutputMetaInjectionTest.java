@@ -34,7 +34,7 @@ public class MongoDbOutputMetaInjectionTest
   private ILogChannelFactory oldLogChannelInterfaceFactory;
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     oldLogChannelInterfaceFactory = HopLogStore.getLogChannelFactory();
     setHopLogFactoryWithMock();
     setup(new MongoDbOutputMeta());
@@ -48,12 +48,12 @@ public class MongoDbOutputMetaInjectionTest
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     HopLogStore.setLogChannelFactory(oldLogChannelInterfaceFactory);
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check(
         "TRUNCATE",
         new IBooleanGetter() {

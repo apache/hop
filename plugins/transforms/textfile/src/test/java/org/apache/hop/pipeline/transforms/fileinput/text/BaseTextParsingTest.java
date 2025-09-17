@@ -30,7 +30,7 @@ public abstract class BaseTextParsingTest
     extends BaseParsingTest<TextFileInputMeta, TextFileInputData, TextFileInput> {
   /** Initialize transform info. */
   @BeforeEach
-  public void before() {
+  void before() {
     meta = new TextFileInputMeta();
     meta.setDefault();
     transformMeta.setTransform(meta);

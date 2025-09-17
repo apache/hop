@@ -54,7 +54,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-public class ActionSetVariablesTest {
+class ActionSetVariablesTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionSetVariables action;
 
@@ -73,7 +73,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init();
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
 
@@ -108,7 +108,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testASCIIText() throws Exception {
+  void testASCIIText() throws Exception {
     // properties file with native2ascii
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/ASCIIText.properties");
@@ -121,7 +121,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testUTF8Text() throws Exception {
+  void testUTF8Text() throws Exception {
     // properties files without native2ascii
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/UTF8Text.properties");
@@ -134,7 +134,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testInputStreamClosed() throws Exception {
+  void testInputStreamClosed() throws Exception {
     // properties files without native2ascii
     String propertiesFilename =
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/UTF8Text.properties";
@@ -158,7 +158,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testParentJobVariablesExecutingFilePropertiesThatChangesVariablesAndParameters()
+  void testParentJobVariablesExecutingFilePropertiesThatChangesVariablesAndParameters()
       throws Exception {
     action.setReplaceVars(true);
     action.setFileVariableType(VariableType.CURRENT_WORKFLOW);
@@ -209,7 +209,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_NullVariable() throws Exception {
+  void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_NullVariable() throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(getEntryNode("nullVariable", null, "JVM"), metadataProvider, new Variables());
     Result result = action.execute(new Result(), 0);
@@ -218,8 +218,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_NullVariable()
-      throws Exception {
+  void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_NullVariable() throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(
         getEntryNode("nullVariable", null, "CURRENT_WORKFLOW"), metadataProvider, new Variables());
@@ -229,7 +228,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testSetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
+  void testSetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(
         getEntryNode("variableNotNull", "someValue", "JVM"), metadataProvider, new Variables());
@@ -240,8 +239,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_VariableNotNull()
-      throws Exception {
+  void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_VariableNotNull() throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(
         getEntryNode("variableNotNull", "someValue", "CURRENT_WORKFLOW"),

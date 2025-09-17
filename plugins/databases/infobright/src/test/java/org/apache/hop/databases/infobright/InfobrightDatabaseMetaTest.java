@@ -36,7 +36,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class InfobrightDatabaseMetaTest {
+class InfobrightDatabaseMetaTest {
 
   @Before
   public void setup() throws HopException {
@@ -45,14 +45,14 @@ public class InfobrightDatabaseMetaTest {
   }
 
   @Test
-  public void mysqlTestOverrides() {
+  void mysqlTestOverrides() {
     InfobrightDatabaseMeta idm = new InfobrightDatabaseMeta();
     idm.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
     assertEquals(5029, idm.getDefaultDatabasePort());
   }
 
   @Test
-  public void testAddOptionsInfobright() {
+  void testAddOptionsInfobright() {
     DatabaseMeta databaseMeta =
         new DatabaseMeta("", "Infobright", "JDBC", null, "stub:stub", null, null, null);
     Map<String, String> options = databaseMeta.getExtraOptions();
@@ -62,7 +62,7 @@ public class InfobrightDatabaseMetaTest {
   }
 
   @Test
-  public void testAttributesVariable() throws HopDatabaseException {
+  void testAttributesVariable() throws HopDatabaseException {
     IVariables variables = new Variables();
     DatabaseMeta databaseMeta =
         new DatabaseMeta("", "Infobright", "JDBC", null, "stub:stub", null, null, null);
@@ -75,7 +75,7 @@ public class InfobrightDatabaseMetaTest {
   }
 
   @Test
-  public void testfindDatabase() {
+  void testfindDatabase() {
     List<DatabaseMeta> databases = new ArrayList<>();
     databases.add(
         new DatabaseMeta("  1", "Infobright", "JDBC", null, "stub:stub", null, null, null));

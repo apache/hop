@@ -22,8 +22,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionDelayLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionDelay> {
+class WorkflowActionDelayLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionDelay> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override

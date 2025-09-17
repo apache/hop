@@ -38,12 +38,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TextFileOutputMetaTest {
+class TextFileOutputMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
@@ -161,7 +161,7 @@ public class TextFileOutputMetaTest {
   }
 
   @Test
-  public void testRoundTrip() throws HopException {
+  void testRoundTrip() throws HopException {
     LoadSaveTester<TextFileOutputMeta> loadSaveTester =
         new LoadSaveTester<>(
             TextFileOutputMeta.class,
@@ -175,7 +175,7 @@ public class TextFileOutputMetaTest {
   }
 
   @Test
-  public void testVarReplaceSplit() {
+  void testVarReplaceSplit() {
     TextFileOutputMeta meta = new TextFileOutputMeta();
     meta.setDefault();
     meta.setSplitEveryRows("${splitVar}");

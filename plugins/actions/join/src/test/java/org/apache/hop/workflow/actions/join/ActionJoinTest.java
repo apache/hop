@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.Test;
 
-public class ActionJoinTest {
+class ActionJoinTest {
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     ActionJoin action = new ActionJoin();
     assertTrue(action.isJoin());
   }

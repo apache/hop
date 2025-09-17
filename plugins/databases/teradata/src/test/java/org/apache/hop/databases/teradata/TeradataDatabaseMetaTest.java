@@ -36,7 +36,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class TeradataDatabaseMetaTest {
+class TeradataDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private TeradataDatabaseMeta nativeMeta;
@@ -48,7 +48,7 @@ public class TeradataDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(1025, nativeMeta.getDefaultDatabasePort());
     assertEquals("com.teradata.jdbc.TeraDriver", nativeMeta.getDriverClass());
@@ -531,7 +531,7 @@ public class TeradataDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("show table FOO", nativeMeta.getSqlTableExists("FOO"));
     assertEquals(
         "SELECT * FROM DBC.columns WHERE tablename =BAR AND columnname =FOO",
@@ -549,7 +549,7 @@ public class TeradataDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO TIMESTAMP",
         nativeMeta.getFieldDefinition(new ValueMetaTimestamp("FOO"), "", "", false, true, false));

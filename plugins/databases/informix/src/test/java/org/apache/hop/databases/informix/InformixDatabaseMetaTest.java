@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
 
-public class InformixDatabaseMetaTest {
+class InformixDatabaseMetaTest {
 
   private InformixDatabaseMeta nativeMeta;
 
@@ -45,7 +45,7 @@ public class InformixDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(1526, nativeMeta.getDefaultDatabasePort());
     assertTrue(nativeMeta.isSupportsAutoInc());
@@ -66,7 +66,7 @@ public class InformixDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("SELECT FIRST 1 * FROM FOO", nativeMeta.getSqlQueryFields("FOO"));
     assertEquals("SELECT FIRST 1 * FROM FOO", nativeMeta.getSqlTableExists("FOO"));
     assertEquals("SELECT FIRST 1 FOO FROM BAR", nativeMeta.getSqlQueryColumnFields("FOO", "BAR"));
@@ -96,7 +96,7 @@ public class InformixDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO DATETIME YEAR to FRACTION",
         nativeMeta.getFieldDefinition(new ValueMetaDate("FOO"), "", "", false, true, false));

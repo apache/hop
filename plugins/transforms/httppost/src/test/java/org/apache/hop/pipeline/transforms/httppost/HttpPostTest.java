@@ -28,10 +28,10 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.Test;
 
-public class HttpPostTest {
+class HttpPostTest {
 
   @Test
-  public void getRequestBodyParametersAsStringWithNullEncoding() throws HopException {
+  void getRequestBodyParametersAsStringWithNullEncoding() throws HopException {
     HttpPost http = mock(HttpPost.class);
     doCallRealMethod()
         .when(http)

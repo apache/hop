@@ -27,7 +27,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
+class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   private MsSqlServerDatabaseMeta dbMeta;
 
   private static final String DEFAULT_TABLE_NAME = "table";
@@ -45,7 +45,7 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   }
 
   @Test
-  public void numberType_ZeroLength_ZeroPrecision() {
+  void numberType_ZeroLength_ZeroPrecision() {
     IValueMeta valueMeta =
         new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(0).precision(0).build();
 
@@ -53,7 +53,7 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   }
 
   @Test
-  public void numberType_LessThanNineLength_ZeroPrecision() {
+  void numberType_LessThanNineLength_ZeroPrecision() {
     IValueMeta valueMeta =
         new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(5).precision(0).build();
 
@@ -61,7 +61,7 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   }
 
   @Test
-  public void numberType_MoreThanNineLessThanEighteenLength_ZeroPrecision() {
+  void numberType_MoreThanNineLessThanEighteenLength_ZeroPrecision() {
     IValueMeta valueMeta =
         new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(17).precision(0).build();
 
@@ -70,7 +70,7 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   }
 
   @Test
-  public void numberType_MoreThanEighteenLength_ZeroPrecision() {
+  void numberType_MoreThanEighteenLength_ZeroPrecision() {
     IValueMeta valueMeta =
         new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(19).precision(0).build();
 
@@ -81,7 +81,7 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   }
 
   @Test
-  public void numberType_NonZeroLength_NonZeroPrecision() {
+  void numberType_NonZeroLength_NonZeroPrecision() {
     IValueMeta valueMeta =
         new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(5).precision(5).build();
 
@@ -92,7 +92,7 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   }
 
   @Test
-  public void numberType_ZeroLength_NonZeroPrecision() {
+  void numberType_ZeroLength_NonZeroPrecision() {
     IValueMeta valueMeta =
         new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(0).precision(5).build();
 
@@ -104,7 +104,7 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   }
 
   @Test
-  public void stringType_ZeroLength() {
+  void stringType_ZeroLength() {
     IValueMeta valueMeta = new MetaInterfaceBuilder(IValueMeta.TYPE_STRING).length(0).build();
 
     final String definition = dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false);
@@ -115,7 +115,7 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   }
 
   @Test
-  public void stringType_NonZeroLength() {
+  void stringType_NonZeroLength() {
     IValueMeta valueMeta = new MetaInterfaceBuilder(IValueMeta.TYPE_STRING).length(50).build();
 
     final String expected = STRING_VARCHAR + "(" + valueMeta.getLength() + ")";
@@ -124,7 +124,7 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   }
 
   @Test
-  public void stringType_TenThousandLength() {
+  void stringType_TenThousandLength() {
     IValueMeta valueMeta = new MetaInterfaceBuilder(IValueMeta.TYPE_STRING).length(10_000).build();
 
     assertEquals(

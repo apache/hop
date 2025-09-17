@@ -35,7 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SasInputMetaTest {
+class SasInputMetaTest {
   LoadSaveTester loadSaveTester;
   Class<SasInputMeta> testMetaClass = SasInputMeta.class;
 
@@ -43,7 +43,7 @@ public class SasInputMetaTest {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes = Arrays.asList("acceptingField", "outputFields");
@@ -62,7 +62,7 @@ public class SasInputMetaTest {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

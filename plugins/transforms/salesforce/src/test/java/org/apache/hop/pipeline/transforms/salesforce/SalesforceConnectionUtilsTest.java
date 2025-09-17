@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class SalesforceConnectionUtilsTest {
+class SalesforceConnectionUtilsTest {
 
   @Test
-  public void testLookups() {
+  void testLookups() {
     assertEquals(
         SalesforceConnectionUtils.recordsFilterCode.length,
         SalesforceConnectionUtils.recordsFilterDesc.length);

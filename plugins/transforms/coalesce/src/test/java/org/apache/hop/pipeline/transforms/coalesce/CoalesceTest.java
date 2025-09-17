@@ -30,17 +30,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CoalesceTest {
+class CoalesceTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
   @Test
-  public void testLoadSave() throws Exception {
+  void testLoadSave() throws Exception {
 
     LoadSaveTester<CoalesceMeta> loadSaveTester = new LoadSaveTester<>(CoalesceMeta.class);
 

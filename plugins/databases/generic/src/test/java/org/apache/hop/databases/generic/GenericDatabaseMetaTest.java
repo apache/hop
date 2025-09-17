@@ -40,7 +40,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public class GenericDatabaseMetaTest {
+class GenericDatabaseMetaTest {
   GenericDatabaseMeta nativeMeta;
 
   @Mock GenericDatabaseMeta mockedMeta;
@@ -52,7 +52,7 @@ public class GenericDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
@@ -68,7 +68,7 @@ public class GenericDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("DELETE FROM FOO", nativeMeta.getTruncateTableStatement("FOO"));
     assertEquals("SELECT * FROM FOO", nativeMeta.getSqlQueryFields("FOO"));
     assertEquals("SELECT 1 FROM FOO", nativeMeta.getSqlTableExists("FOO"));
@@ -233,7 +233,7 @@ public class GenericDatabaseMetaTest {
 
   @Ignore("This test needs to be reviewed")
   @Test
-  public void testSettingDialect() {
+  void testSettingDialect() {
     String dialect = "testDialect";
     IDatabase[] dbInterfaces = new IDatabase[] {mockedMeta};
     Mockito.when(DatabaseMeta.getDatabaseInterfaces()).thenReturn(dbInterfaces);
@@ -242,7 +242,7 @@ public class GenericDatabaseMetaTest {
   }
 
   @Test
-  public void testSequence() {
+  void testSequence() {
     final String sequenceName = "sequence_name";
 
     IDatabase iDatabase = new GenericDatabaseMeta();
@@ -251,7 +251,7 @@ public class GenericDatabaseMetaTest {
   }
 
   @Test
-  public void testReleaseSavepoint() {
+  void testReleaseSavepoint() {
     assertTrue(nativeMeta.isReleaseSavepoint());
   }
 }

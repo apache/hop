@@ -33,7 +33,7 @@ public abstract class CsvInputUnitTestBase {
   static final String DELIMITER = ",";
 
   @BeforeAll
-  public static void initHop() throws Exception {
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 

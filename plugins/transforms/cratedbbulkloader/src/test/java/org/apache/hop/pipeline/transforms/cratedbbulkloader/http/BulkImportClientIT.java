@@ -47,7 +47,7 @@ class BulkImportClientIT {
   private static final String SKIP_TEST_CONTAINERS = System.getProperty("SkipTestContainers");
 
   @BeforeAll
-  public static void setupAll() throws SQLException {
+  static void setupAll() throws SQLException {
     if (SKIP_TEST_CONTAINERS == null) {
       crateDBContainer =
           new CrateDBContainer("crate")
@@ -78,7 +78,7 @@ class BulkImportClientIT {
   }
 
   @AfterAll
-  public static void teardownAll() {
+  static void teardownAll() {
     if (SKIP_TEST_CONTAINERS == null) {
       crateDBContainer.stop();
     }

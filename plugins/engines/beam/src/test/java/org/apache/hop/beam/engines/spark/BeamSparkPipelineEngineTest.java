@@ -28,11 +28,11 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.junit.Test;
 
-public class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
+class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
 
   // Disabled because of log4j library dependency problems with Spark
   @Test
-  public void testSparkPipelineEngine() throws Exception {
+  void testSparkPipelineEngine() throws Exception {
 
     BeamSparkPipelineRunConfiguration configuration = new BeamSparkPipelineRunConfiguration();
     configuration.setSparkMaster("local");

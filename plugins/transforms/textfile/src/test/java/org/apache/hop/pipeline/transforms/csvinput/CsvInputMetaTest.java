@@ -41,7 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
+class CsvInputMetaTest implements IInitializer<ITransformMeta> {
   TransformLoadSaveTester<CsvInputMeta> transformLoadSaveTester;
   Class<CsvInputMeta> testMetaClass = CsvInputMeta.class;
 
@@ -73,7 +73,7 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
@@ -131,12 +131,12 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     transformLoadSaveTester.testSerialization();
   }
 
   @Test
-  public void testClone() {
+  void testClone() {
     final CsvInputMeta original = new CsvInputMeta();
     original.setDelimiter(";");
     original.setEnclosure("'");

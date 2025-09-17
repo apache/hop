@@ -33,12 +33,12 @@ import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class DetectLastRowMetaTest {
+class DetectLastRowMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testTransformMeta() throws HopException {
+  void testTransformMeta() throws HopException {
     List<String> attributes = Arrays.asList("ResultFieldName");
 
     LoadSaveTester<DetectLastRowMeta> loadSaveTester =
@@ -47,20 +47,20 @@ public class DetectLastRowMetaTest {
   }
 
   @Test
-  public void testDefault() {
+  void testDefault() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     meta.setDefault();
     assertEquals("result", meta.getResultFieldName());
   }
 
   @Test
-  public void testGetData() {
+  void testGetData() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     assertTrue(meta.createTransformData() instanceof DetectLastRowData);
   }
 
   @Test
-  public void testGetFields() throws HopTransformException {
+  void testGetFields() throws HopTransformException {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     meta.setDefault();
     meta.setResultFieldName("The Result");
@@ -73,7 +73,7 @@ public class DetectLastRowMetaTest {
   }
 
   @Test
-  public void testSupportedPipelineTypes() {
+  void testSupportedPipelineTypes() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     assertEquals(1, meta.getSupportedPipelineTypes().length);
     assertEquals(PipelineType.Normal, meta.getSupportedPipelineTypes()[0]);

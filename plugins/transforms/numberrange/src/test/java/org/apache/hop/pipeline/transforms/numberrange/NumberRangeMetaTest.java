@@ -31,12 +31,12 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class NumberRangeMetaTest {
+class NumberRangeMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testTransformMeta() throws HopException {
+  void testTransformMeta() throws HopException {
     List<String> attributes = Arrays.asList("inputField", "outputField", "fallBackValue", "rules");
 
     Map<String, String> getterMap = new HashMap<>();

@@ -30,7 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
-public class BatchFolderIteratorNameTest {
+class BatchFolderIteratorNameTest {
 
   static Folder folder = null;
 
@@ -50,7 +50,7 @@ public class BatchFolderIteratorNameTest {
   }
 
   @Test
-  public void testBatchSize2() {
+  void testBatchSize2() {
     BatchFolderIterator bfi = new BatchFolderIterator(folder, 2, 1, 2);
     assertTrue(bfi.hasNext());
     bfi.next();
@@ -60,7 +60,7 @@ public class BatchFolderIteratorNameTest {
   }
 
   @Test
-  public void testBatchSize1x2() {
+  void testBatchSize1x2() {
     BatchFolderIterator bfi = new BatchFolderIterator(folder, 1, 1, 2);
     assertTrue(bfi.hasNext());
     bfi.next();
@@ -70,7 +70,7 @@ public class BatchFolderIteratorNameTest {
   }
 
   @Test
-  public void testBatchSize1() {
+  void testBatchSize1() {
     BatchFolderIterator bfi = new BatchFolderIterator(folder, 1, 1, 1);
     assertTrue(bfi.hasNext());
     bfi.next();
@@ -78,7 +78,7 @@ public class BatchFolderIteratorNameTest {
   }
 
   @Test
-  public void testBatchSize2x2() {
+  void testBatchSize2x2() {
     BatchFolderIterator bfi = new BatchFolderIterator(folder, 2, 1, 4);
     assertTrue(bfi.hasNext());
     bfi.next();
@@ -92,7 +92,7 @@ public class BatchFolderIteratorNameTest {
   }
 
   @Test
-  public void testBatchSize2x3() {
+  void testBatchSize2x3() {
     BatchFolderIterator bfi = new BatchFolderIterator(folder, 2, 1, 5);
     assertTrue(bfi.hasNext());
     bfi.next();

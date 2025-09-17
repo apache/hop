@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValid
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class MergeJoinMetaTest {
+class MergeJoinMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -109,12 +109,12 @@ public class MergeJoinMetaTest {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 
   @Test
-  public void testGetFieldsEmptyInput() throws Exception {
+  void testGetFieldsEmptyInput() throws Exception {
     RowMeta outputRowMeta = new RowMeta();
     MergeJoinMeta meta = new MergeJoinMeta();
 
@@ -176,7 +176,7 @@ public class MergeJoinMetaTest {
   }
 
   @Test
-  public void cloneTest() throws Exception {
+  void cloneTest() throws Exception {
     MergeJoinMeta meta = new MergeJoinMeta();
     meta.setKeyFields1(Arrays.asList("kf1-1", "kf1-2"));
     meta.setKeyFields2(Arrays.asList("kf2-1", "kf2-2", "kf2-3"));
@@ -201,7 +201,7 @@ public class MergeJoinMetaTest {
   }
 
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     MergeJoinMeta meta = new MergeJoinMeta();
     meta.setKeyFields1(Arrays.asList("id1"));
     meta.setKeyFields2(Arrays.asList("id2"));
@@ -220,7 +220,7 @@ public class MergeJoinMetaTest {
   }
 
   @Test
-  public void testGetFields() throws Exception {
+  void testGetFields() throws Exception {
     MergeJoinMeta meta = new MergeJoinMeta();
     meta.setKeyFields1(Arrays.asList("id1"));
     meta.setKeyFields2(Arrays.asList("id2"));

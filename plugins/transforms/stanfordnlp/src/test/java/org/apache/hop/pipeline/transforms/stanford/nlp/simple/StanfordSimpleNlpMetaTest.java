@@ -25,12 +25,12 @@ import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class StanfordSimpleNlpMetaTest {
+class StanfordSimpleNlpMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testLoadSave() throws HopException {
+  void testLoadSave() throws HopException {
     List<String> attributes = Arrays.asList("CorpusField", "IncludePartOfSpeech");
 
     LoadSaveTester<StanfordSimpleNlpMeta> loadSaveTester =

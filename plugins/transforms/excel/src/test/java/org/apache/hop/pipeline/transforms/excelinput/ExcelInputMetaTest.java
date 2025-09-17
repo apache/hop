@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
-public class ExcelInputMetaTest {
+class ExcelInputMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     ExcelInputMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/excel-input-transform.xml", ExcelInputMeta.class);
@@ -37,7 +37,7 @@ public class ExcelInputMetaTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     ExcelInputMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/excel-input-transform.xml", ExcelInputMeta.class);

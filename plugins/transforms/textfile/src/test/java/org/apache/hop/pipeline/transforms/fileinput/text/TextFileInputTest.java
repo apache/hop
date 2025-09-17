@@ -127,7 +127,7 @@ class TextFileInputTest {
   }
 
   @Test
-  public void DOSWithNoBreaksAndEnclosures() throws HopFileException, UnsupportedEncodingException {
+  void DOSWithNoBreaksAndEnclosures() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\r\ndata1\tdata2\tdata3\r\n";
     String expected = "col1\tcol2\tcol3";
     String output = getInputStreamReader(input, TextFileLineUtil.FILE_FORMAT_DOS, "", "", false);
@@ -136,8 +136,7 @@ class TextFileInputTest {
   }
 
   @Test
-  public void mixedWithNoBreaksAndEnclosures()
-      throws HopFileException, UnsupportedEncodingException {
+  void mixedWithNoBreaksAndEnclosures() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\r\ndata1\tdata2\tdata3\r";
     String expected = "col1\tcol2\tcol3";
     String output = getInputStreamReader(input, TextFileLineUtil.FILE_FORMAT_MIXED, "", "", false);

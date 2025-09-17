@@ -81,8 +81,7 @@ class TextFileOutputTest {
     PluginRegistry.init();
   }
 
-  public class TextFileOutputTestHandler
-      extends TextFileOutput<TextFileOutputMeta, TextFileOutputData> {
+  class TextFileOutputTestHandler extends TextFileOutput<TextFileOutputMeta, TextFileOutputData> {
     public List<Throwable> errors = new ArrayList<>();
     private Object[] row;
 

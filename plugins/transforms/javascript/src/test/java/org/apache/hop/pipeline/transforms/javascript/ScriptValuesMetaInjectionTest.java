@@ -30,19 +30,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ScriptValuesMetaInjectionTest
-    extends BaseMetadataInjectionTestJunit5<ScriptValuesMeta> {
+class ScriptValuesMetaInjectionTest extends BaseMetadataInjectionTestJunit5<ScriptValuesMeta> {
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new ScriptValuesMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("OPTIMIZATION_LEVEL", () -> meta.getOptimizationLevel());
     check("FIELD_NAME", () -> meta.getFieldname()[0]);
     check("FIELD_RENAME_TO", () -> meta.getRename()[0]);

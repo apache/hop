@@ -48,7 +48,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Spy;
 
-public class NettezaValueMetaBaseTest {
+class NettezaValueMetaBaseTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static final String TEST_NAME = "TEST_NAME";
@@ -110,7 +110,7 @@ public class NettezaValueMetaBaseTest {
    * @throws Exception
    */
   @Test
-  public void testGetValueFromSqlTypeNetezza() throws Exception {
+  void testGetValueFromSqlTypeNetezza() throws Exception {
     ValueMetaBase obj = new ValueMetaBase();
     IDatabase iDatabase = new NetezzaDatabaseMeta();
 

@@ -31,13 +31,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class SynchronizeAfterMergeTest {
+class SynchronizeAfterMergeTest {
 
   private static final String TRANSFORM_NAME = "Sync";
 
   @Disabled("This test needs to be reviewed")
   @Test
-  public void initWithCommitSizeVariable() {
+  void initWithCommitSizeVariable() {
     TransformMeta transformMeta = mock(TransformMeta.class);
     doReturn(TRANSFORM_NAME).when(transformMeta).getName();
     doReturn(1).when(transformMeta).getCopies(any(IVariables.class));

@@ -32,7 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
+class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -62,82 +62,82 @@ public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
   }
 
   @Test
-  public void oneSeparator_nix2dos() throws Exception {
+  void oneSeparator_nix2dos() throws Exception {
     doTest("\n", false, "\r\n");
   }
 
   @Test
-  public void oneSeparator_nix2nix() throws Exception {
+  void oneSeparator_nix2nix() throws Exception {
     doTest("\n", true, "\n");
   }
 
   @Test
-  public void oneSeparator_dos2nix() throws Exception {
+  void oneSeparator_dos2nix() throws Exception {
     doTest("\r\n", true, "\n");
   }
 
   @Test
-  public void oneSeparator_dos2dos() throws Exception {
+  void oneSeparator_dos2dos() throws Exception {
     doTest("\r\n", false, "\r\n");
   }
 
   @Test
-  public void charNewLineChar_nix2dos() throws Exception {
+  void charNewLineChar_nix2dos() throws Exception {
     doTest("a\nb", false, "a\r\nb");
   }
 
   @Test
-  public void charNewLineChar_nix2nix() throws Exception {
+  void charNewLineChar_nix2nix() throws Exception {
     doTest("a\nb", true, "a\nb");
   }
 
   @Test
-  public void charNewLineChar_dos2nix() throws Exception {
+  void charNewLineChar_dos2nix() throws Exception {
     doTest("a\r\nb", true, "a\nb");
   }
 
   @Test
-  public void charNewLineChar_dos2dos() throws Exception {
+  void charNewLineChar_dos2dos() throws Exception {
     doTest("a\r\nb", false, "a\r\nb");
   }
 
   @Test
-  public void twoCrOneLf_2nix() throws Exception {
+  void twoCrOneLf_2nix() throws Exception {
     doTest("\r\r\n", true, "\r\n");
   }
 
   @Test
-  public void twoCrOneLf_2dos() throws Exception {
+  void twoCrOneLf_2dos() throws Exception {
     doTest("\r\r\n", false, "\r\r\n");
   }
 
   @Test
-  public void crCharCrLf_2nix() throws Exception {
+  void crCharCrLf_2nix() throws Exception {
     doTest("\ra\r\n", true, "\ra\n");
   }
 
   @Test
-  public void crCharCrLf_2dos() throws Exception {
+  void crCharCrLf_2dos() throws Exception {
     doTest("\ra\r\n", false, "\ra\r\n");
   }
 
   @Test
-  public void oneSeparator_nix2dos_hugeInput() throws Exception {
+  void oneSeparator_nix2dos_hugeInput() throws Exception {
     doTestForSignificantInput("\n", false, "\r\n");
   }
 
   @Test
-  public void oneSeparator_nix2nix_hugeInput() throws Exception {
+  void oneSeparator_nix2nix_hugeInput() throws Exception {
     doTestForSignificantInput("\n", true, "\n");
   }
 
   @Test
-  public void oneSeparator_dos2nix_hugeInput() throws Exception {
+  void oneSeparator_dos2nix_hugeInput() throws Exception {
     doTestForSignificantInput("\r\n", true, "\n");
   }
 
   @Test
-  public void oneSeparator_dos2dos_hugeInput() throws Exception {
+  void oneSeparator_dos2dos_hugeInput() throws Exception {
     doTestForSignificantInput("\r\n", false, "\r\n");
   }
 

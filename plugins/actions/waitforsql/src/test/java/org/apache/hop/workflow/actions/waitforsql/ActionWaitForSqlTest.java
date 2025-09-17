@@ -29,10 +29,10 @@ import org.apache.hop.workflow.actions.waitforsql.ActionWaitForSql.SuccessCondit
 import org.junit.Test;
 
 /** Unit tests for wait for sql action. */
-public class ActionWaitForSqlTest {
+class ActionWaitForSqlTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init();
     DatabaseMeta databaseMeta = new DatabaseMeta();
     databaseMeta.setName("unit-test-db");

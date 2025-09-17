@@ -43,7 +43,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class ActionHttp_PDI208_Test {
+class ActionHttp_PDI208_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   public static final String HTTP_HOST = "localhost";
@@ -64,7 +64,7 @@ public class ActionHttp_PDI208_Test {
   }
 
   @Test
-  public void testHttpResultDefaultRows() throws IOException {
+  void testHttpResultDefaultRows() throws IOException {
     File localFileForUpload = getInputFile("existingFile1", ".tmp");
     File tempFileForDownload = File.createTempFile("downloadedFile1", ".tmp");
     localFileForUpload.deleteOnExit();
@@ -94,7 +94,7 @@ public class ActionHttp_PDI208_Test {
   }
 
   @Test
-  public void testHttpResultCustomRows() throws IOException {
+  void testHttpResultCustomRows() throws IOException {
     File localFileForUpload = getInputFile("existingFile2", ".tmp");
     File tempFileForDownload = File.createTempFile("downloadedFile2", ".tmp");
     localFileForUpload.deleteOnExit();

@@ -23,7 +23,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.Before;
 
-public class WorkflowActionAddResultFilenamesLoadSaveTest
+class WorkflowActionAddResultFilenamesLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionAddResultFilenames> {
 
   @Override

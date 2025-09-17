@@ -35,7 +35,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class WebServiceTest {
+class WebServiceTest {
 
   private static final String LOCATION_HEADER = "Location";
 
@@ -48,7 +48,7 @@ public class WebServiceTest {
   private WebService webServiceTransform;
 
   @BeforeEach
-  public void setUpBefore() {
+  void setUpBefore() {
     mockHelper =
         new TransformMockHelper<>("WebService", WebServiceMeta.class, WebServiceData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -67,17 +67,17 @@ public class WebServiceTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     mockHelper.cleanUp();
   }
 
   @Test
-  public void newHttpMethodWithInvalidUrl() {
+  void newHttpMethodWithInvalidUrl() {
     assertThrows(URISyntaxException.class, () -> webServiceTransform.getHttpMethod(NOT_VALID_URL));
   }
 
   @Test
-  public void getLocationFrom() {
+  void getLocationFrom() {
     HttpPost postMethod = mock(HttpPost.class);
     Header locationHeader = new BasicHeader(LOCATION_HEADER, TEST_URL);
     doReturn(locationHeader).when(postMethod).getFirstHeader(LOCATION_HEADER);

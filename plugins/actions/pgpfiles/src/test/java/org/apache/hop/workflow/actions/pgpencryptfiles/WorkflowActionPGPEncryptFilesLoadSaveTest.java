@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValid
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionPGPEncryptFilesLoadSaveTest
+class WorkflowActionPGPEncryptFilesLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionPGPEncryptFiles> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

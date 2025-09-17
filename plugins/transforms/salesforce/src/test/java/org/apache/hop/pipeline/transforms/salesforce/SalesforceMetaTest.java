@@ -43,7 +43,7 @@ public class SalesforceMetaTest {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
@@ -57,7 +57,7 @@ public class SalesforceMetaTest {
   }
 
   @Test
-  public void testBaseCheck() {
+  void testBaseCheck() {
     SalesforceTransformMeta meta = mock(SalesforceTransformMeta.class, Mockito.CALLS_REAL_METHODS);
     meta.setDefault();
     List<ICheckResult> remarks = new ArrayList<>();

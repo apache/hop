@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 
-public class ActionAs400CommandLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionAs400Command> {
+class ActionAs400CommandLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionAs400Command> {
 
   @Override
   protected Class<ActionAs400Command> getActionClass() {

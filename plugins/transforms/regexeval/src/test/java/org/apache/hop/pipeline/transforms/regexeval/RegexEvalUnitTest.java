@@ -32,11 +32,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RegexEvalUnitTest {
+class RegexEvalUnitTest {
   private TransformMockHelper<RegexEvalMeta, RegexEvalData> transformMockHelper;
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     transformMockHelper =
         new TransformMockHelper<>("REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class);
     when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -45,13 +45,12 @@ public class RegexEvalUnitTest {
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testOutputIsMuchBiggerThanInputDoesntThrowArrayIndexOutOfBounds()
-      throws HopException {
+  void testOutputIsMuchBiggerThanInputDoesntThrowArrayIndexOutOfBounds() throws HopException {
     RegexEval regexEval =
         new RegexEval(
             transformMockHelper.transformMeta,

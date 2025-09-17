@@ -37,7 +37,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated(since = "2.10")
-public class PDI_2875_Test {
+class PDI_2875_Test {
   private static TransformMockHelper<TextFileInputMeta, TextFileInputData> smh;
   private static final String VAR_NAME = "VAR";
   private static final String EXPRESSION = "${" + VAR_NAME + "}";
@@ -46,7 +46,7 @@ public class PDI_2875_Test {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUp() throws HopException {
+  static void setUp() throws HopException {
     HopEnvironment.init();
     smh =
         new TransformMockHelper<>("CsvInputTest", TextFileInputMeta.class, TextFileInputData.class);
@@ -56,7 +56,7 @@ public class PDI_2875_Test {
   }
 
   @AfterAll
-  public static void cleanUp() {
+  static void cleanUp() {
     smh.cleanUp();
   }
 

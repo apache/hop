@@ -25,10 +25,10 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Assert;
 import org.junit.jupiter.api.Test;
 
-public class DimensionCacheTest {
+class DimensionCacheTest {
 
   @Test
-  public void testCompareDateInterval() {
+  void testCompareDateInterval() {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaTimestamp("DATE_FROM"));
     rowMeta.addValueMeta(new ValueMetaTimestamp("DATE_TO"));

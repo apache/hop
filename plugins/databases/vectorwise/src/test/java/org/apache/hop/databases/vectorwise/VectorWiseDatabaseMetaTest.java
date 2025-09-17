@@ -30,10 +30,10 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Test;
 
-public class VectorWiseDatabaseMetaTest {
+class VectorWiseDatabaseMetaTest {
 
   @Test
-  public void testIngresOverrides() {
+  void testIngresOverrides() {
     VectorWiseDatabaseMeta nativeMeta;
     nativeMeta = new VectorWiseDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
@@ -70,7 +70,7 @@ public class VectorWiseDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     VectorWiseDatabaseMeta nativeMeta;
     nativeMeta = new VectorWiseDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);

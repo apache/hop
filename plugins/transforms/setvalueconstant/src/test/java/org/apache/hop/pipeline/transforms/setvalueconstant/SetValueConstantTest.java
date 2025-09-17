@@ -38,11 +38,11 @@ import org.junit.jupiter.api.Test;
  *
  * @see SetValueConstant
  */
-public class SetValueConstantTest {
+class SetValueConstantTest {
   private TransformMockHelper<SetValueConstantMeta, SetValueConstantData> smh;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     smh =
         new TransformMockHelper<>(
             "SetValueConstant", SetValueConstantMeta.class, SetValueConstantData.class);
@@ -51,12 +51,12 @@ public class SetValueConstantTest {
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testUpdateField() throws Exception {
+  void testUpdateField() throws Exception {
     SetValueConstant transform =
         new SetValueConstant(
             smh.transformMeta,

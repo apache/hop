@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 
-public class WorkflowActionAbortLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionAbort> {
+class WorkflowActionAbortLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionAbort> {
 
   @Override
   protected Class<ActionAbort> getActionClass() {

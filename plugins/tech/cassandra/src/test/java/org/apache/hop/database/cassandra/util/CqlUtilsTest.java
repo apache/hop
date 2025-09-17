@@ -26,7 +26,7 @@ import org.apache.hop.databases.cassandra.util.CqlUtils;
 import org.apache.hop.databases.cassandra.util.Selector;
 import org.junit.Test;
 
-public class CqlUtilsTest {
+class CqlUtilsTest {
 
   /** */
   private static final String ALIAS_IS_INCORRECT = "Alias is incorrect:";
@@ -45,7 +45,7 @@ public class CqlUtilsTest {
   private Selector[] expectedSelectors;
 
   @Test
-  public void testCleanQoutesMixed() {
+  void testCleanQoutesMixed() {
     cqlExpression = "one_more as \"\"ALIAS\", field(a, b) as '\"aaaaa'";
     expected = "one_more as ALIAS, field(a, b) as aaaaa";
     result = CqlUtils.cleanQuotes(cqlExpression);
@@ -53,7 +53,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testCleanDoubleQoutes_IfAtTheBeginAndEnd() {
+  void testCleanDoubleQoutes_IfAtTheBeginAndEnd() {
     cqlExpression = "\"Test\"";
     expected = "Test";
     result = CqlUtils.cleanQuotes(cqlExpression);
@@ -61,7 +61,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testCleanQoutes_IfAtTheBeginAndEnd() {
+  void testCleanQoutes_IfAtTheBeginAndEnd() {
     cqlExpression = "'Test'";
     expected = "Test";
     result = CqlUtils.cleanQuotes(cqlExpression);
@@ -69,14 +69,14 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testCleanQoutes_IfInputNull() {
+  void testCleanQoutes_IfInputNull() {
     cqlExpression = null;
     result = CqlUtils.cleanQuotes(cqlExpression);
     assertNull(result);
   }
 
   @Test
-  public void testCleanMultipleWhitespaces() {
+  void testCleanMultipleWhitespaces() {
     cqlExpression = "     Test Test  Test   Test      Test    ";
     expected = "Test Test Test Test Test";
     result = CqlUtils.clean(cqlExpression);
@@ -84,7 +84,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testCleanUnnecessaryWhitespacesInFunctions() {
+  void testCleanUnnecessaryWhitespacesInFunctions() {
     cqlExpression = "function      (     arg1     ,      arg2     ,    arg3    )   as alias";
     expected = "function(arg1, arg2, arg3) as alias";
     result = CqlUtils.clean(cqlExpression);
@@ -92,7 +92,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testAddWhitespaceAfterComma() {
+  void testAddWhitespaceAfterComma() {
     cqlExpression = "selector1,selector2,selector3,function(a,b)";
     expected = "selector1, selector2, selector3, function(a, b)";
     result = CqlUtils.clean(cqlExpression);
@@ -100,14 +100,14 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testClean_IfInputNull() {
+  void testClean_IfInputNull() {
     cqlExpression = null;
     result = CqlUtils.clean(cqlExpression);
     assertNull(result);
   }
 
   @Test
-  public void testGetSelectExpression_SelectClauseMixedWithUpperCase() {
+  void testGetSelectExpression_SelectClauseMixedWithUpperCase() {
     cqlExpression =
         "SELECT FIRST 25 DISTINCT selector1, selector2, selector3, f(a,b), selector4 as alias4 from cf where";
     expected = "selector1, selector2, selector3, f(a, b), selector4 as alias4";
@@ -116,7 +116,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testGetSelectExpression_SelectClauseWithFirstAndCorrectNumber() {
+  void testGetSelectExpression_SelectClauseWithFirstAndCorrectNumber() {
     cqlExpression =
         "select first    5054678   selector1, selector2, selector3, f(a,b), selector4 as alias4 from cf where";
     expected = "selector1, selector2, selector3, f(a, b), selector4 as alias4";
@@ -125,7 +125,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testGetSelectExpression_SelectClauseWithFirstAndWithoutNumber() {
+  void testGetSelectExpression_SelectClauseWithFirstAndWithoutNumber() {
     cqlExpression =
         "select first selector1, selector2, selector3, f(a,b), selector4 as alias4 from cf where";
     expected = "selector1, selector2, selector3, f(a, b), selector4 as alias4";
@@ -134,7 +134,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testGetSelectExpression_SelectClauseWithDistinct() {
+  void testGetSelectExpression_SelectClauseWithDistinct() {
     cqlExpression =
         "select distinct selector1, selector2, selector3, f(a,b), selector4 as alias4 from cf where";
     expected = "selector1, selector2, selector3, f(a, b), selector4 as alias4";
@@ -143,21 +143,21 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testGetSelectExpression_IfInputNull() {
+  void testGetSelectExpression_IfInputNull() {
     cqlExpression = null;
     result = CqlUtils.getSelectExpression(cqlExpression);
     assertNull(result);
   }
 
   @Test
-  public void testGetSelectExpression_IfInputIsNotSelectClause() {
+  void testGetSelectExpression_IfInputIsNotSelectClause() {
     cqlExpression = "test input, not select clause";
     result = CqlUtils.getSelectExpression(cqlExpression);
     assertNull(result);
   }
 
   @Test
-  public void testSelectorForCQL3ColumnWithouAlias_NameShouldBeInLowerCase() {
+  void testSelectorForCQL3ColumnWithouAlias_NameShouldBeInLowerCase() {
     selectorExpression = "User";
     expectedSelector = new Selector("user");
     isCql3 = true;
@@ -170,7 +170,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSelectorForCQL3ColumnWithouAlias_NameShouldBeInOriginCase() {
+  void testSelectorForCQL3ColumnWithouAlias_NameShouldBeInOriginCase() {
     selectorExpression = "\"User\"";
     expectedSelector = new Selector("User");
     isCql3 = true;
@@ -183,7 +183,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSelectorForCQLColumnWithouAlias_NameShouldNotBeInLowerCase() {
+  void testSelectorForCQLColumnWithouAlias_NameShouldNotBeInLowerCase() {
     selectorExpression = "User";
     expectedSelector = new Selector("User");
     isCql3 = false;
@@ -196,7 +196,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSelectorForCQL3ColumnWithAlias_AliasShouldBeInLowerCase() {
+  void testSelectorForCQL3ColumnWithAlias_AliasShouldBeInLowerCase() {
     selectorExpression = "User as Alias";
     expectedSelector = new Selector("user", "alias");
     isCql3 = true;
@@ -209,7 +209,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSelectorForCQL3ColumnWithAlias_AliasShouldBeInOriginCase() {
+  void testSelectorForCQL3ColumnWithAlias_AliasShouldBeInOriginCase() {
     selectorExpression = "User as \"Alias\"";
     expectedSelector = new Selector("user", "Alias");
     isCql3 = true;
@@ -222,7 +222,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSelectorForCQLColumnWithAlias_AliasShouldNotBeInLowerCase() {
+  void testSelectorForCQLColumnWithAlias_AliasShouldNotBeInLowerCase() {
     selectorExpression = "User as Alias";
     expectedSelector = new Selector("User", "Alias");
     isCql3 = false;
@@ -235,7 +235,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSelectorForCQL3FunctionWithAlias() {
+  void testSelectorForCQL3FunctionWithAlias() {
     selectorExpression = "token(a, b) as \"Alias\"";
     expectedSelector = new Selector("token(a, b)", "Alias", "TOKEN");
     isCql3 = true;
@@ -248,7 +248,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSelectorForCQL3FunctionWithoutAlias() {
+  void testSelectorForCQL3FunctionWithoutAlias() {
     selectorExpression = "token(a, b)";
     expectedSelector = new Selector("token(a, b)", null, "TOKEN");
     isCql3 = true;
@@ -261,7 +261,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSelectorForCQL3FunctionName_ShouldBeInOriginCase() {
+  void testSelectorForCQL3FunctionName_ShouldBeInOriginCase() {
     selectorExpression = "TOKEN(a, b)";
     expectedSelector = new Selector("TOKEN(a, b)", null, "TOKEN");
     isCql3 = false;
@@ -274,7 +274,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testOneFunctionWithoutAliasInSelectorList_CQL3TurnedOn() {
+  void testOneFunctionWithoutAliasInSelectorList_CQL3TurnedOn() {
     cqlExpression = "token(a,b)";
     expectedSelector = new Selector("token(a, b)", null, "TOKEN");
     isCql3 = true;
@@ -292,7 +292,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testOneFunctionWithoutAliasInSelectorList_CQL3TurnedOFF() {
+  void testOneFunctionWithoutAliasInSelectorList_CQL3TurnedOFF() {
     cqlExpression = "token(a,b)";
     expectedSelector = new Selector("token(a, b)", null, "TOKEN");
     isCql3 = false;
@@ -310,7 +310,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testOneColumnWithoutAliasInSelectorList_CQL3TurnedOn() {
+  void testOneColumnWithoutAliasInSelectorList_CQL3TurnedOn() {
     cqlExpression = "Column";
     expectedSelector = new Selector("column");
     isCql3 = true;
@@ -328,7 +328,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testOneColumnWithoutAliasInSelectorList_CQL3TurnedOFF() {
+  void testOneColumnWithoutAliasInSelectorList_CQL3TurnedOFF() {
     cqlExpression = "Column";
     expectedSelector = new Selector("Column");
     isCql3 = false;
@@ -346,7 +346,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testMixedColumnsAndFunctionsWithoutAliasInSelectorList_CQL3TurnedOn() {
+  void testMixedColumnsAndFunctionsWithoutAliasInSelectorList_CQL3TurnedOn() {
     cqlExpression = "\"Column\", token(id,cust_id), id, cust_id, dateOf(time), User_name";
     expectedSelectors =
         new Selector[] {
@@ -365,7 +365,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testMixedColumnsAndFunctionsWithoutAliasInSelectorList_CQL3TurnedOFF() {
+  void testMixedColumnsAndFunctionsWithoutAliasInSelectorList_CQL3TurnedOFF() {
     cqlExpression = "'Column', token(id,cust_id), id, cust_id, dateOf(time), User_name";
     expectedSelectors =
         new Selector[] {
@@ -384,7 +384,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testMixedColumnsAndFunctionsWithAliasInSelectorList_CQL3TurnedOn() {
+  void testMixedColumnsAndFunctionsWithAliasInSelectorList_CQL3TurnedOn() {
     cqlExpression =
         "\"Column\" as alias, token(id,cust_id) as \"Alias For Token\", id, cust_id as Customer, dateOf(time), User_name";
     expectedSelectors =
@@ -404,7 +404,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSpecificNameForCountFunctionWithArgumentAsterisk() {
+  void testSpecificNameForCountFunctionWithArgumentAsterisk() {
     cqlExpression = "count(*)";
     expectedSelectors = new Selector[] {new Selector("COUNT", null, "COUNT")};
     isCql3 = true;
@@ -415,7 +415,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testSpecificNameForCountFunctionWithArgumentOne() {
+  void testSpecificNameForCountFunctionWithArgumentOne() {
     cqlExpression = "count(1)";
     expectedSelectors = new Selector[] {new Selector("COUNT", null, "COUNT")};
     isCql3 = true;
@@ -426,7 +426,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testColumnsInSelect_IfSelectExpressionNull() {
+  void testColumnsInSelect_IfSelectExpressionNull() {
     cqlExpression = null;
     isCql3 = true;
 
@@ -435,7 +435,7 @@ public class CqlUtilsTest {
   }
 
   @Test
-  public void testColumnsInSelect_IfSelectExpressionEmpty() {
+  void testColumnsInSelect_IfSelectExpressionEmpty() {
     cqlExpression = "";
     isCql3 = true;
 

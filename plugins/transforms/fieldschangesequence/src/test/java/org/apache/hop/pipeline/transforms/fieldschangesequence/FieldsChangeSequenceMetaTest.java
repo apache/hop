@@ -28,17 +28,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class FieldsChangeSequenceMetaTest {
+class FieldsChangeSequenceMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws HopException {
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
   @Test
-  public void testTransformMeta() throws Exception {
+  void testTransformMeta() throws Exception {
     LoadSaveTester<FieldsChangeSequenceMeta> tester =
         new LoadSaveTester<>(FieldsChangeSequenceMeta.class);
 

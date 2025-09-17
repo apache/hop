@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 /** User: Dzmitry Stsiapanau Date: 2/3/14 Time: 5:41 PM */
-public class StringOperationsMetaTest implements IInitializer<ITransformMeta> {
+class StringOperationsMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<StringOperationsMeta> testMetaClass = StringOperationsMeta.class;
 
@@ -54,7 +54,7 @@ public class StringOperationsMetaTest implements IInitializer<ITransformMeta> {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
@@ -128,12 +128,12 @@ public class StringOperationsMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 
   @Test
-  public void testGetFields() throws Exception {
+  void testGetFields() throws Exception {
     StringOperationsMeta meta = new StringOperationsMeta();
     meta.allocate(1);
     meta.setFieldInStream(new String[] {"field1"});

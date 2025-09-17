@@ -30,7 +30,7 @@ import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-public class LdapConnectionTest {
+class LdapConnectionTest {
 
   private ILogChannel logChannelInterface;
 
@@ -39,18 +39,18 @@ public class LdapConnectionTest {
   private LdapInputMeta meta;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     logChannelInterface = Mockito.mock(ILogChannel.class);
     variables = Mockito.mock(IVariables.class);
   }
 
   @Test
-  public void testFake() {
+  void testFake() {
     assertTrue(true, "To Keep ExtendWith annotation");
   }
 
   // @Test
-  public void testLdapConnect() {
+  void testLdapConnect() {
     meta = new LdapInputMeta();
     meta.setProtocol("LDAP");
     meta.setHost("localhost");
@@ -69,7 +69,7 @@ public class LdapConnectionTest {
   }
 
   // @Test
-  public void testLdapConnectBadCredential() throws HopException {
+  void testLdapConnectBadCredential() throws HopException {
     meta = new LdapInputMeta();
     meta.setProtocol("LDAP");
     meta.setHost("localhost");

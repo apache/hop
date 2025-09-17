@@ -23,16 +23,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class MultiMergeJoinMetaInjectionTest extends BaseMetadataInjectionTestJunit5<MultiMergeJoinMeta> {
+ class MultiMergeJoinMetaInjectionTest extends BaseMetadataInjectionTestJunit5<MultiMergeJoinMeta> {
   @RegisterExtension static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+ void setup() throws Exception {
     setup(new MultiMergeJoinMeta());
   }
 
   @Test
-  public void test() throws Exception {
+ void test() throws Exception {
     check("JOIN_TYPE", () -> meta.getJoinType());
     check("KEY_FIELDS", () -> meta.getKeyFields()[0]);
     check("INPUT_TRANSFORMS", () -> meta.getInputTransforms()[0]);

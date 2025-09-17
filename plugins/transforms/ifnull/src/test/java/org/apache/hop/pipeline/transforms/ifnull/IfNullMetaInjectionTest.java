@@ -23,17 +23,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class IfNullMetaInjectionTest extends BaseMetadataInjectionTestJunit5<IfNullMeta> {
+class IfNullMetaInjectionTest extends BaseMetadataInjectionTestJunit5<IfNullMeta> {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new IfNullMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FIELD_NAME", () -> meta.getFields().get(0).getName());
     check("REPLACE_VALUE", () -> meta.getFields().get(0).getValue());
     check("REPLACE_MASK", () -> meta.getFields().get(0).getMask());

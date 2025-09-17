@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class MetaInjectMigrationTest {
+class MetaInjectMigrationTest {
   @Test
-  public void test70() {
+  void test70() {
     Map<TargetTransformAttribute, SourceTransformField> targetSourceMapping = new HashMap<>();
     TargetTransformAttribute target =
         new TargetTransformAttribute("transform", "SCHENAMENAMEFIELD", true);

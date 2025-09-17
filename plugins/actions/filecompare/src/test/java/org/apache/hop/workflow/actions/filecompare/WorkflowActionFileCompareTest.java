@@ -23,8 +23,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionFileCompareTest
-    extends WorkflowActionLoadSaveTestSupport<ActionFileCompare> {
+class WorkflowActionFileCompareTest extends WorkflowActionLoadSaveTestSupport<ActionFileCompare> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override

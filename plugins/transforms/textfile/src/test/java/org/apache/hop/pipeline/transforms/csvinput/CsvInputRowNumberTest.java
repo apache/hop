@@ -29,7 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CsvInputRowNumberTest extends CsvInputUnitTestBase {
+class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -37,19 +37,19 @@ public class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvInputRowNumberTest");
   }
 
   @AfterEach
-  public void cleanUp() {
+  void cleanUp() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void hasNotEnclosures_HasNotNewLine() throws Exception {
+  void hasNotEnclosures_HasNotNewLine() throws Exception {
     File tmp = createTestFile("utf-8", "a,b\na,");
     try {
       doTest(tmp);

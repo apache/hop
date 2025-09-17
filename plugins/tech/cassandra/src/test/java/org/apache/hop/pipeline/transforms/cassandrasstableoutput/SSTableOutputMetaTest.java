@@ -21,10 +21,10 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class SSTableOutputMetaTest {
+class SSTableOutputMetaTest {
 
   @Test
-  public void testGetXmlKeyField() throws Exception {
+  void testGetXmlKeyField() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setKeyField("some_key");
@@ -34,7 +34,7 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testGetXmlTableName() throws Exception {
+  void testGetXmlTableName() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setTable("someTableName");
@@ -44,7 +44,7 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testGetBufferSize() throws Exception {
+  void testGetBufferSize() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setBufferSize("some_buffer_size");
@@ -54,7 +54,7 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testGetXmlCassandraKeyspace() throws Exception {
+  void testGetXmlCassandraKeyspace() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setCassandraKeyspace("someCassandraKeyspace");
@@ -66,7 +66,7 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testGetXmlYamlPath() throws Exception {
+  void testGetXmlYamlPath() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setYamlPath("some_YamlPath");
@@ -76,7 +76,7 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testGetXmlDirectory() throws Exception {
+  void testGetXmlDirectory() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setDirectory("someDirectory");
@@ -86,7 +86,7 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testGetXmlDefault() throws Exception {
+  void testGetXmlDefault() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     String xml = ssTableOutputMeta.getXml();

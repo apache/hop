@@ -21,14 +21,14 @@ import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CoalesceMetaInjectionTest extends BaseMetadataInjectionTestJunit5<CoalesceMeta> {
+class CoalesceMetaInjectionTest extends BaseMetadataInjectionTestJunit5<CoalesceMeta> {
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     setup(new CoalesceMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("EMPTY_STRING_AS_NULLS", () -> meta.isTreatEmptyStringsAsNulls());
     check("NAME", () -> meta.getFields().get(0).getName());
     // check( "TYPE", () -> meta.getOperations().get(0).getType() );

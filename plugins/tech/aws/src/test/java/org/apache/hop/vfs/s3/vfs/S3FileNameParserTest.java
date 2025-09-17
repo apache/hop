@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /** Unit tests for S3FileNameParser */
-public class S3FileNameParserTest {
+class S3FileNameParserTest {
 
   FileNameParser parser;
 
@@ -39,7 +39,7 @@ public class S3FileNameParserTest {
   }
 
   @Test
-  public void testParseUri() throws Exception {
+  void testParseUri() throws Exception {
     VfsComponentContext context = mock(VfsComponentContext.class);
     FileName fileName = mock(FileName.class);
     String uri = "s3://bucket/file";

@@ -49,7 +49,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class NoAuthMongoClientWrapperTest {
+class NoAuthMongoClientWrapperTest {
 
   public static final String REP_SET_CONFIG =
       "{\"_id\" : \"foo\", \"version\" : 1, "
@@ -106,7 +106,7 @@ public class NoAuthMongoClientWrapperTest {
   private static final Class<?> PKG = NoAuthMongoClientWrapper.class;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     MockitoAnnotations.openMocks(this);
     Mockito.when(
             mongoClientFactory.getMongoClient(
@@ -121,7 +121,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testPerform() throws Exception {
+  void testPerform() throws Exception {
     MongoDBAction mockMongoDBAction = Mockito.mock(MongoDBAction.class);
     noAuthMongoClientWrapper.perform("Test", mockMongoDBAction);
     Mockito.verify(mockMongoDBAction, Mockito.times(1))
@@ -129,7 +129,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetLastErrorMode() throws MongoDbException {
+  void testGetLastErrorMode() throws MongoDbException {
     DBObject config = (DBObject) BasicDBObject.parse(REP_SET_CONFIG);
     DBCollection dbCollection = Mockito.mock(DBCollection.class);
     Mockito.when(dbCollection.findOne()).thenReturn(config);
@@ -141,7 +141,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetAllReplicaSetMemberRecords() {
+  void testGetAllReplicaSetMemberRecords() {
     DBObject config = (DBObject) BasicDBObject.parse(REP_SET_CONFIG);
     Object members = config.get(NoAuthMongoClientWrapper.REPL_SET_MEMBERS);
 
@@ -151,7 +151,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testSetupAllTags() {
+  void testSetupAllTags() {
     DBObject config = (DBObject) BasicDBObject.parse(REP_SET_CONFIG);
     Object members = config.get(NoAuthMongoClientWrapper.REPL_SET_MEMBERS);
 
@@ -161,7 +161,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetReplicaSetMembersThatSatisfyTagSets() throws MongoDbException {
+  void testGetReplicaSetMembersThatSatisfyTagSets() throws MongoDbException {
     setupMockedReplSet();
 
     List<DBObject> tagSets = new ArrayList<>(); // tags to satisfy
@@ -177,7 +177,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetReplicaSetMembersBadInput() {
+  void testGetReplicaSetMembersBadInput() {
     setupMockedReplSet();
     try {
       noAuthMongoClientWrapper.getReplicaSetMembersThatSatisfyTagSets(null);
@@ -188,7 +188,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetReplicaSetMembersDoesntSatisfyTagSets() throws MongoDbException {
+  void testGetReplicaSetMembersDoesntSatisfyTagSets() throws MongoDbException {
     setupMockedReplSet();
     List<DBObject> tagSets = new ArrayList<>(); // tags to satisfy
     DBObject tSet = (DBObject) BasicDBObject.parse(TAG_SET2);
@@ -199,7 +199,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetReplicaSetMembersThatSatisfyTagSetsThrowsOnDbError() {
+  void testGetReplicaSetMembersThatSatisfyTagSetsThrowsOnDbError() {
     setupMockedReplSet();
     List<DBObject> tagSets = new ArrayList<>(); // tags to satisfy
     DBObject tSet = (DBObject) BasicDBObject.parse(TAG_SET);
@@ -216,7 +216,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetClientStandalone() throws MongoDbException {
+  void testGetClientStandalone() throws MongoDbException {
     ServerAddress address = new ServerAddress("fakehost", 1010);
     Mockito.when(mongoProperties.get(MongoProp.HOST)).thenReturn(address.getHost());
     Mockito.when(mongoProperties.get(MongoProp.PORT)).thenReturn("1010");
@@ -236,7 +236,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetClientRepSet() throws MongoDbException {
+  void testGetClientRepSet() throws MongoDbException {
     Mockito.when(mongoProperties.get(MongoProp.HOST))
         .thenReturn("host1:1010,host2:2020,host3:3030");
     Mockito.when(mongoProperties.useAllReplicaSetMembers()).thenReturn(true);
@@ -258,7 +258,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testBadHostsAndPorts() {
+  void testBadHostsAndPorts() {
     Mockito.when(mongoProperties.get(MongoProp.HOST)).thenReturn("host1:1010:2020");
     try {
       noAuthMongoClientWrapper.getClient(mongoClientOptions);
@@ -293,7 +293,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testConstructorInitializesClientWithProps() throws MongoDbException {
+  void testConstructorInitializesClientWithProps() throws MongoDbException {
     final AtomicBoolean clientCalled = new AtomicBoolean(false);
     final MongoClientOptions options = Mockito.mock(MongoClientOptions.class);
     Mockito.when(mongoProperties.buildMongoClientOptions(mockMongoUtilLogger)).thenReturn(options);
@@ -310,7 +310,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void operationsDelegateToMongoClient() throws MongoDbException {
+  void operationsDelegateToMongoClient() throws MongoDbException {
     noAuthMongoClientWrapper.getDatabaseNames();
     Mockito.verify(mockMongoClient).getDatabaseNames();
 
@@ -323,7 +323,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void mongoExceptionsPropogate() {
+  void mongoExceptionsPropogate() {
     Mockito.doThrow(runtimeException).when(mockMongoClient).getDatabaseNames();
     try {
       noAuthMongoClientWrapper.getDatabaseNames();
@@ -341,7 +341,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void mongoGetCollNamesExceptionPropgates() {
+  void mongoGetCollNamesExceptionPropgates() {
     Mockito.when(mockMongoClient.getDB("foo")).thenReturn(mockDB);
     Mockito.doThrow(runtimeException).when(mockDB).getCollectionNames();
     try {
@@ -353,7 +353,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetIndex() throws MongoDbException {
+  void testGetIndex() throws MongoDbException {
     Mockito.when(mockMongoClient.getDB("fakeDb")).thenReturn(mockDB);
     Mockito.when(mockDB.collectionExists("collection")).thenReturn(true);
     collection = Mockito.mock(DBCollection.class);
@@ -368,7 +368,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetIndexCollectionDoesntExist() throws MongoDbException {
+  void testGetIndexCollectionDoesntExist() throws MongoDbException {
     Mockito.when(mockMongoClient.getDB("fakeDb")).thenReturn(mockDB);
     Mockito.when(mockDB.collectionExists("collection")).thenReturn(false);
     collection = Mockito.mock(DBCollection.class);
@@ -383,7 +383,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetIndexCollectionNotSpecified() throws MongoDbException {
+  void testGetIndexCollectionNotSpecified() throws MongoDbException {
     Mockito.when(mockMongoClient.getDB("fakeDb")).thenReturn(mockDB);
     try {
       noAuthMongoClientWrapper.getIndexInfo("fakeDb", "");
@@ -394,7 +394,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void getIndexInfoErrorConditions() {
+  void getIndexInfoErrorConditions() {
     try {
       noAuthMongoClientWrapper.getIndexInfo("fakeDb", "collection");
       fail("expected exception since DB is null");
@@ -425,7 +425,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetIndexNoIndexThrows() {
+  void testGetIndexNoIndexThrows() {
     initFakeDb();
     try {
       noAuthMongoClientWrapper.getIndexInfo("fakeDb", "collection");
@@ -449,7 +449,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetAllTagsNoDB() throws MongoDbException {
+  void testGetAllTagsNoDB() throws MongoDbException {
     List<String> tags = noAuthMongoClientWrapper.getAllTags();
     Mockito.verify(mockMongoUtilLogger)
         .info(
@@ -458,7 +458,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetAllTagsNoRepSet() throws MongoDbException {
+  void testGetAllTagsNoRepSet() throws MongoDbException {
     Mockito.when(mockMongoClient.getDB(NoAuthMongoClientWrapper.LOCAL_DB)).thenReturn(mockDB);
     List<String> tags = noAuthMongoClientWrapper.getAllTags();
     Mockito.verify(mockMongoUtilLogger)
@@ -469,7 +469,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetAllTagsRepSetEmtpy() throws MongoDbException {
+  void testGetAllTagsRepSetEmtpy() throws MongoDbException {
     Mockito.when(mockMongoClient.getDB(NoAuthMongoClientWrapper.LOCAL_DB)).thenReturn(mockDB);
     Mockito.when(mockDB.getCollection(NoAuthMongoClientWrapper.REPL_SET_COLLECTION))
         .thenReturn(collection);
@@ -486,7 +486,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetAllTagsRepSetNull() throws MongoDbException {
+  void testGetAllTagsRepSetNull() throws MongoDbException {
     Mockito.when(mockMongoClient.getDB(NoAuthMongoClientWrapper.LOCAL_DB)).thenReturn(mockDB);
     Mockito.when(mockDB.getCollection(NoAuthMongoClientWrapper.REPL_SET_COLLECTION))
         .thenReturn(collection);
@@ -500,7 +500,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetAllTagsRepSetUnexpectedType() throws MongoDbException {
+  void testGetAllTagsRepSetUnexpectedType() throws MongoDbException {
     Mockito.when(mockMongoClient.getDB(NoAuthMongoClientWrapper.LOCAL_DB)).thenReturn(mockDB);
     Mockito.when(mockDB.getCollection(NoAuthMongoClientWrapper.REPL_SET_COLLECTION))
         .thenReturn(collection);
@@ -515,7 +515,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetAllTags() throws MongoDbException {
+  void testGetAllTags() throws MongoDbException {
     setupMockedReplSet();
     List<String> tags = noAuthMongoClientWrapper.getAllTags();
     Collections.sort(tags, String.CASE_INSENSITIVE_ORDER);
@@ -529,7 +529,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testGetCreateCollection() throws MongoDbException {
+  void testGetCreateCollection() throws MongoDbException {
     initFakeDb();
     noAuthMongoClientWrapper.getCollection("fakeDb", "collection");
     Mockito.verify(mockDB).getCollection("collection");
@@ -538,7 +538,7 @@ public class NoAuthMongoClientWrapperTest {
   }
 
   @Test
-  public void testClientDelegation() {
+  void testClientDelegation() {
     noAuthMongoClientWrapper.dispose();
     Mockito.verify(mockMongoClient).close();
     noAuthMongoClientWrapper.getReplicaSetStatus();

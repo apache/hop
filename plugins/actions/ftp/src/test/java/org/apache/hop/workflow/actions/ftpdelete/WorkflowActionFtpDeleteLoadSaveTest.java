@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionFtpDeleteLoadSaveTest
+class WorkflowActionFtpDeleteLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionFtpDelete> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

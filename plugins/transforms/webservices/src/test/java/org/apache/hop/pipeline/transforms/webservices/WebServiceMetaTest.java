@@ -49,17 +49,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.w3c.dom.Node;
 
-public class WebServiceMetaTest {
+class WebServiceMetaTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUpBeforeClass() throws Exception {
+  static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testLoadXml() throws Exception {
+  void testLoadXml() throws Exception {
     Node node = getTestNode();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
@@ -104,7 +104,7 @@ public class WebServiceMetaTest {
   }
 
   @Test
-  public void testGetFields() throws Exception {
+  void testGetFields() throws Exception {
     WebServiceMeta webServiceMeta = new WebServiceMeta();
     webServiceMeta.setDefault();
     IRowMeta rmi = mock(IRowMeta.class);
@@ -146,7 +146,7 @@ public class WebServiceMetaTest {
   }
 
   @Test
-  public void testCheck() {
+  void testCheck() {
     WebServiceMeta webServiceMeta = new WebServiceMeta();
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = mock(TransformMeta.class);
@@ -189,7 +189,7 @@ public class WebServiceMetaTest {
   }
 
   @Test
-  public void testGetFieldOut() throws Exception {
+  void testGetFieldOut() throws Exception {
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     WebServiceMeta webServiceMeta = new WebServiceMeta(getTestNode(), metadataProvider);

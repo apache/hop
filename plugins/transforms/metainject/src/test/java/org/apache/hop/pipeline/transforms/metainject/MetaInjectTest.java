@@ -45,7 +45,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class MetaInjectTest {
+class MetaInjectTest {
 
   private static final String INJECTOR_TRANSFORM_NAME = "TEST_TRANSFORM_FOR_INJECTION";
 
@@ -84,7 +84,7 @@ public class MetaInjectTest {
   private IHopMetadataProvider metadataProvider;
 
   @BeforeEach
-  public void before() throws Exception {
+  void before() throws Exception {
     pipelineMeta = Mockito.spy(new PipelineMeta());
     meta = new MetaInjectMeta();
     data = new MetaInjectData();
@@ -114,7 +114,7 @@ public class MetaInjectTest {
   }
 
   @Test
-  public void getUnavailableSourceTransforms() {
+  void getUnavailableSourceTransforms() {
     TargetTransformAttribute targetTransform =
         new TargetTransformAttribute(TEST_TARGET_TRANSFORM_NAME, TEST_ATTR_VALUE, false);
     SourceTransformField unavailableSourceTransform =
@@ -133,7 +133,7 @@ public class MetaInjectTest {
   }
 
   @Test
-  public void getUnavailableTargetTransforms() {
+  void getUnavailableTargetTransforms() {
     TargetTransformAttribute unavailableTargetTransform =
         new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false);
     SourceTransformField sourceTransform =
@@ -149,7 +149,7 @@ public class MetaInjectTest {
   }
 
   @Test
-  public void removeUnavailableTransformsFromMapping_unavailable_source_transform() {
+  void removeUnavailableTransformsFromMapping_unavailable_source_transform() {
     TargetTransformAttribute unavailableTargetTransform =
         new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false);
     SourceTransformField unavailableSourceTransform =
@@ -165,7 +165,7 @@ public class MetaInjectTest {
   }
 
   @Test
-  public void removeUnavailableTransformsFromMapping_unavailable_target_transform() {
+  void removeUnavailableTransformsFromMapping_unavailable_target_transform() {
     TargetTransformAttribute unavailableTargetTransform =
         new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false);
     SourceTransformField unavailableSourceTransform =
@@ -181,7 +181,7 @@ public class MetaInjectTest {
   }
 
   @Test
-  public void removeUnavailableTransformsFromMapping_unavailable_source_target_transform() {
+  void removeUnavailableTransformsFromMapping_unavailable_source_target_transform() {
     TargetTransformAttribute unavailableTargetTransform =
         new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false);
     SourceTransformField unavailableSourceTransform =
@@ -199,14 +199,14 @@ public class MetaInjectTest {
   }
 
   @Test
-  public void convertToUpperCaseSet_null_array() {
+  void convertToUpperCaseSet_null_array() {
     Set<String> actualResult = MetaInject.convertToUpperCaseSet(null);
     assertNotNull(actualResult);
     assertTrue(actualResult.isEmpty());
   }
 
   @Test
-  public void convertToUpperCaseSet() {
+  void convertToUpperCaseSet() {
     String[] input = new String[] {"Test_Transform", "test_transform1"};
     Set<String> actualResult = MetaInject.convertToUpperCaseSet(input);
     Set<String> expectedResult = new HashSet<>();
@@ -216,7 +216,7 @@ public class MetaInjectTest {
   }
 
   @Test
-  public void testGetUnavailableTargetKeys() throws Exception {
+  void testGetUnavailableTargetKeys() throws Exception {
     final String targetTransformName = "injectable transform name";
     TargetTransformAttribute unavailableTargetAttr =
         new TargetTransformAttribute(targetTransformName, "NOT_THERE", false);
@@ -238,7 +238,7 @@ public class MetaInjectTest {
   }
 
   @Test
-  public void testTransformChangeListener() throws Exception {
+  void testTransformChangeListener() throws Exception {
     MetaInjectMeta mim = new MetaInjectMeta();
     TransformMeta sm = new TransformMeta("testTransform", mim);
     try {

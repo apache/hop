@@ -29,7 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class ActionHttpTest {
+class ActionHttpTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private ActionHttp actionHttp = new ActionHttp();
@@ -44,7 +44,7 @@ public class ActionHttpTest {
   }
 
   @Test
-  public void testDeprecatedTargetFilenameExtension() {
+  void testDeprecatedTargetFilenameExtension() {
     actionHttp.setTargetFilenameExtension("txt");
     assertEquals("txt", actionHttp.getTargetFilenameExtension());
     actionHttp.setTargetFilenameExtension("zip");

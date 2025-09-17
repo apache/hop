@@ -22,7 +22,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionDeleteFileLoadSaveTest
+class WorkflowActionDeleteFileLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionDeleteFile> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

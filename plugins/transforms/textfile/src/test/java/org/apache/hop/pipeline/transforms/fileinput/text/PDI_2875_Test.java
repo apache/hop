@@ -34,7 +34,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class PDI_2875_Test {
+class PDI_2875_Test {
   private static TransformMockHelper<TextFileInputMeta, TextFileInputData> smh;
   private static final String VAR_NAME = "VAR";
   private static final String EXPRESSION = "${" + VAR_NAME + "}";
@@ -43,7 +43,7 @@ public class PDI_2875_Test {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeAll
-  public static void setUp() throws Exception {
+  static void setUp() throws Exception {
     HopEnvironment.init();
     smh =
         new TransformMockHelper<>("CsvInputTest", TextFileInputMeta.class, TextFileInputData.class);
@@ -53,7 +53,7 @@ public class PDI_2875_Test {
   }
 
   @AfterAll
-  public static void cleanUp() {
+  static void cleanUp() {
     smh.cleanUp();
   }
 
@@ -73,7 +73,7 @@ public class PDI_2875_Test {
   }
 
   @Test
-  public void testVariableSubstitution() {
+  void testVariableSubstitution() {
     doReturn(new Date()).when(smh.pipeline).getExecutionStartDate();
     TextFileInputData data = new TextFileInputData();
     TextFileInputMeta meta = getMeta();

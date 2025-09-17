@@ -39,14 +39,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
+ class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<MultiMergeJoinMeta> testMetaClass = MultiMergeJoinMeta.class;
   private MultiMergeJoinMeta multiMergeMeta;
   @RegisterExtension static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+ void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     multiMergeMeta = new MultiMergeJoinMeta();
@@ -87,12 +87,12 @@ public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+ void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 
   @Test
-  public void testSetGetInputTransforms() {
+ void testSetGetInputTransforms() {
     assertNull(multiMergeMeta.getInputTransforms());
     String[] inputTransforms = new String[] {"Transform1", "Transform2"};
     multiMergeMeta.setInputTransforms(inputTransforms);
@@ -100,7 +100,7 @@ public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void testGetXml() {
+ void testGetXml() {
     String[] inputTransforms = new String[] {"Transform1", "Transform2"};
     multiMergeMeta.setInputTransforms(inputTransforms);
     multiMergeMeta.setKeyFields(new String[] {"Key1", "Key2"});
@@ -110,7 +110,7 @@ public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void cloneTest() throws Exception {
+ void cloneTest() throws Exception {
     MultiMergeJoinMeta meta = new MultiMergeJoinMeta();
     meta.allocateKeys(2);
     meta.allocateInputTransforms(3);

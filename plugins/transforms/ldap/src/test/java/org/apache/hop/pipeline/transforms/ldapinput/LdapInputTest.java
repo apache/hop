@@ -30,11 +30,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /** Tests LDAP Input Transform */
-public class LdapInputTest {
+class LdapInputTest {
   private static TransformMockHelper<LdapInputMeta, LdapInputData> mockHelper;
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     mockHelper =
         new TransformMockHelper<>("LDAP INPUT TEST", LdapInputMeta.class, LdapInputData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -43,12 +43,12 @@ public class LdapInputTest {
   }
 
   @AfterAll
-  public static void tearDown() {
+  static void tearDown() {
     mockHelper.cleanUp();
   }
 
   @Test
-  public void testRowProcessing() throws Exception {
+  void testRowProcessing() throws Exception {
 
     // Setup transform
     LdapInputMeta meta = mock(LdapInputMeta.class);

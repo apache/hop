@@ -33,7 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class MetaInjectMetaLoadSaveTest {
+class MetaInjectMetaLoadSaveTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
@@ -41,7 +41,7 @@ public class MetaInjectMetaLoadSaveTest {
   Class<MetaInjectMeta> testMetaClass = MetaInjectMeta.class;
 
   @BeforeEach
-  public void setUpLoadSave() throws Exception {
+  void setUpLoadSave() throws Exception {
     List<String> attributes =
         Arrays.asList(
             "fileName",
@@ -79,7 +79,7 @@ public class MetaInjectMetaLoadSaveTest {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

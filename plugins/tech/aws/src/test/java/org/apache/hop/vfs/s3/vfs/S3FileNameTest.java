@@ -24,7 +24,7 @@ import org.apache.hop.vfs.s3.s3.vfs.S3FileName;
 import org.junit.Before;
 import org.junit.Test;
 
-public class S3FileNameTest {
+class S3FileNameTest {
 
   private S3FileName fileName = null;
 
@@ -39,19 +39,19 @@ public class S3FileNameTest {
   }
 
   @Test
-  public void testGetURI() {
+  void testGetURI() {
     String expected = buildS3URL("/");
     assertEquals(expected, fileName.getURI());
   }
 
   @Test
-  public void testCreateName() {
+  void testCreateName() {
     assertEquals(
         "s3:///path/to/my/file", fileName.createName("/path/to/my/file", FileType.FILE).getURI());
   }
 
   @Test
-  public void testAppendRootUriWithNonDefaultPort() {
+  void testAppendRootUriWithNonDefaultPort() {
     String fooFolder = "FooFolder";
     String fooBucket = "FooBucket";
     fileName = new S3FileName(SCHEME, DELIMITER, fooFolder, FileType.FOLDER);

@@ -57,7 +57,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class MongodbInputDiscoverFieldsImplTest {
+class MongodbInputDiscoverFieldsImplTest {
 
   private IVariables variables;
   @Mock private MongoDbConnection connection;
@@ -75,7 +75,7 @@ public class MongodbInputDiscoverFieldsImplTest {
   private static final int NUM_DOCS_TO_SAMPLE = 2;
 
   @BeforeEach
-  public void before() throws MongoDbException, HopPluginException {
+  void before() throws MongoDbException, HopPluginException {
     variables = new Variables();
     MockitoAnnotations.openMocks(this);
     when(clientFactory.createMongoClientWrapper(
@@ -138,7 +138,7 @@ public class MongodbInputDiscoverFieldsImplTest {
   }
 
   @Test
-  public void testSetMinArrayIndexesNoArraysPresent() {
+  void testSetMinArrayIndexesNoArraysPresent() {
     MongoField m = new MongoField();
     m.fieldName = "bob.fred.george";
     m.fieldPath = "bob.fred.george";
@@ -149,7 +149,7 @@ public class MongodbInputDiscoverFieldsImplTest {
   }
 
   @Test
-  public void testSetMinArrayIndexesOneArray() {
+  void testSetMinArrayIndexesOneArray() {
     MongoField m = new MongoField();
     m.fieldName = "bob.fred[2:10].george";
     m.fieldPath = "bob.fred[-].george";
@@ -159,7 +159,7 @@ public class MongodbInputDiscoverFieldsImplTest {
   }
 
   @Test
-  public void testSetMinArrayIndexesTwoArrays() {
+  void testSetMinArrayIndexesTwoArrays() {
     MongoField m = new MongoField();
     m.fieldName = "bob[5:5].fred[2:10].george";
     m.fieldPath = "bob[-].fred[-].george";
@@ -169,7 +169,7 @@ public class MongodbInputDiscoverFieldsImplTest {
   }
 
   @Test
-  public void testUpdateMinMaxArrayIndexes() {
+  void testUpdateMinMaxArrayIndexes() {
 
     MongoField m = new MongoField();
     m.fieldName = "bob.fred[2:4].george";
@@ -183,7 +183,7 @@ public class MongodbInputDiscoverFieldsImplTest {
   }
 
   @Test
-  public void testPostProcessPaths() {
+  void testPostProcessPaths() {
     Map<String, MongoField> fieldMap = new LinkedHashMap<>();
     List<MongoField> discovered = new ArrayList<>();
 
@@ -215,7 +215,7 @@ public class MongodbInputDiscoverFieldsImplTest {
   }
 
   @Test
-  public void testDocToFields() {
+  void testDocToFields() {
     Map<String, MongoField> fieldMap = new LinkedHashMap<>();
     DBObject doc =
         (DBObject) BasicDBObject.parse("{\"fred\" : {\"george\" : 1}, \"bob\" : [1 , 2]}");
