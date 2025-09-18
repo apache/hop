@@ -17,10 +17,10 @@
 
 package org.apache.hop.databases.hypersonic;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -33,7 +33,7 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** User: Dzmitry Stsiapanau Date: 1/14/14 Time: 5:08 PM */
 class HypersonicDatabaseMetaTest {
@@ -639,14 +639,14 @@ class HypersonicDatabaseMetaTest {
     IValueMeta vm = new ValueMetaString();
     String sql = hypersonicDatabaseMeta.getFieldDefinition(vm, null, null, false, false, false);
     String expectedSql = "VARCHAR()";
-    assertEquals("Check Apache Hop string without length", expectedSql, sql);
+    assertEquals(expectedSql, sql, "Check Apache Hop string without length");
     vm.setLength(DatabaseMeta.CLOB_LENGTH - 1);
     sql = hypersonicDatabaseMeta.getFieldDefinition(vm, null, null, false, false, false);
     expectedSql = "VARCHAR(" + (DatabaseMeta.CLOB_LENGTH - 1) + ")";
-    assertEquals("Check Apache Hop string with length", expectedSql, sql);
+    assertEquals(expectedSql, sql, "Check Apache Hop string with length");
     vm.setLength(DatabaseMeta.CLOB_LENGTH);
     sql = hypersonicDatabaseMeta.getFieldDefinition(vm, null, null, false, false, false);
     expectedSql = "LONGVARCHAR";
-    assertEquals("Check Apache Hop string with clob/text length", expectedSql, sql);
+    assertEquals(expectedSql, sql, "Check Apache Hop string with clob/text length");
   }
 }

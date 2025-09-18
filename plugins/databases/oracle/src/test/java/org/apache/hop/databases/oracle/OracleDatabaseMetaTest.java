@@ -17,11 +17,11 @@
 
 package org.apache.hop.databases.oracle;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -47,32 +47,33 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
 class OracleDatabaseMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private final String sequenceName = "sequence_name";
 
   private OracleDatabaseMeta nativeMeta;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
     HopLogStore.init();
   }
 
-  @Before
-  public void setupOnce() throws Exception {
+  @BeforeEach
+  void setupOnce() throws Exception {
     nativeMeta = new OracleDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
     HopClientEnvironment.init();
@@ -510,15 +511,15 @@ class OracleDatabaseMetaTest {
   @Test
   void testSupportsSequence() {
     String dbType = nativeMeta.getClass().getSimpleName();
-    assertTrue(dbType, nativeMeta.isSupportsSequences());
-    assertFalse(dbType + ": List of Sequences", Utils.isEmpty(nativeMeta.getSqlListOfSequences()));
+    assertTrue(nativeMeta.isSupportsSequences(), dbType);
+    assertFalse(Utils.isEmpty(nativeMeta.getSqlListOfSequences()), dbType + ": List of Sequences");
     assertFalse(
-        dbType + ": Sequence Exists", Utils.isEmpty(nativeMeta.getSqlSequenceExists("testSeq")));
+        Utils.isEmpty(nativeMeta.getSqlSequenceExists("testSeq")), dbType + ": Sequence Exists");
     assertFalse(
-        dbType + ": Current Value",
-        Utils.isEmpty(nativeMeta.getSqlCurrentSequenceValue("testSeq")));
+        Utils.isEmpty(nativeMeta.getSqlCurrentSequenceValue("testSeq")),
+        dbType + ": Current Value");
     assertFalse(
-        dbType + ": Next Value", Utils.isEmpty(nativeMeta.getSqlNextSequenceValue("testSeq")));
+        Utils.isEmpty(nativeMeta.getSqlNextSequenceValue("testSeq")), dbType + ": Next Value");
 
     assertEquals(
         "SELECT sequence_name.nextval FROM DUAL", nativeMeta.getSqlNextSequenceValue(sequenceName));

@@ -17,10 +17,10 @@
 
 package org.apache.hop.databases.mssql;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -46,32 +46,34 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
 class MsSqlServerDatabaseMetaTest {
   MsSqlServerDatabaseMeta nativeMeta;
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private DatabaseMeta databaseMeta;
   private IDatabase iDatabase;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpOnce() throws HopException {
+  @BeforeAll
+  static void setUpOnce() throws HopException {
     // Register Natives to create a default DatabaseMeta
     DatabasePluginType.getInstance().searchPlugins();
     ValueMetaPluginType.getInstance().searchPlugins();
     HopClientEnvironment.init();
   }
 
-  @Before
-  public void setupOnce() {
+  @BeforeEach
+  void setupOnce() {
     nativeMeta = new MsSqlServerDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
     databaseMeta = new DatabaseMeta();

@@ -17,9 +17,9 @@
 
 package org.apache.hop.workflow.actions.folderisempty;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
@@ -31,9 +31,9 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class WorkflowActionFolderIsEmptyTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
@@ -42,13 +42,13 @@ class WorkflowActionFolderIsEmptyTest {
   private String emptyDir;
   private String nonEmptyDir;
 
-  @BeforeClass
-  public static void setUpBeforeClass() {
+  @BeforeAll
+  static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionFolderIsEmpty();
 
@@ -77,8 +77,8 @@ class WorkflowActionFolderIsEmptyTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue("For empty folder result should be true", result.getResult());
-    assertEquals("There should be no errors", 0, result.getNrErrors());
+    assertTrue(result.getResult(), "For empty folder result should be true");
+    assertEquals(0, result.getNrErrors(), "There should be no errors");
   }
 
   @Test
@@ -87,7 +87,7 @@ class WorkflowActionFolderIsEmptyTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse("For non-empty folder result should be false", result.getResult());
-    assertEquals("There should be still no errors", 0, result.getNrErrors());
+    assertFalse(result.getResult(), "For non-empty folder result should be false");
+    assertEquals(0, result.getNrErrors(), "There should be still no errors");
   }
 }

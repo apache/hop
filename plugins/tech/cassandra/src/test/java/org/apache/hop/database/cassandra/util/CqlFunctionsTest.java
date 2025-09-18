@@ -17,11 +17,11 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.hop.databases.cassandra.util.CqlFunctions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class CqlFunctionsTest {
 
@@ -49,9 +49,9 @@ class CqlFunctionsTest {
     assertEquals(expectedValidators.length, CqlFunctions.values().length);
     for (int i = 0; i < expectedValidators.length; i++) {
       assertEquals(
-          "Incorrect validator for the function: " + CqlFunctions.values()[i].name(),
           expectedValidators[i],
-          CqlFunctions.values()[i].getValidator());
+          CqlFunctions.values()[i].getValidator(),
+          "Incorrect validator for the function: " + CqlFunctions.values()[i].name());
     }
   }
 

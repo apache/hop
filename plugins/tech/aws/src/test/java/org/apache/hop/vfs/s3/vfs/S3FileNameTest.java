@@ -17,12 +17,12 @@
 
 package org.apache.hop.vfs.s3.vfs;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileName;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class S3FileNameTest {
 
@@ -33,8 +33,8 @@ class S3FileNameTest {
 
   public static final String SCHEME = "s3";
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     fileName = new S3FileName(SCHEME, DELIMITER, "", FileType.FOLDER);
   }
 

@@ -17,14 +17,14 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.hop.databases.cassandra.util.CqlUtils;
 import org.apache.hop.databases.cassandra.util.Selector;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class CqlUtilsTest {
 
@@ -163,7 +163,7 @@ class CqlUtilsTest {
     isCql3 = true;
     selector = CqlUtils.buildSelector(selectorExpression, isCql3);
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selector.getColumnName());
+        expectedSelector.getColumnName(), selector.getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertNull(selector.getAlias());
     assertNull(selector.getFunction());
     assertFalse(selector.isFunction());
@@ -176,7 +176,7 @@ class CqlUtilsTest {
     isCql3 = true;
     selector = CqlUtils.buildSelector(selectorExpression, isCql3);
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selector.getColumnName());
+        expectedSelector.getColumnName(), selector.getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertNull(selector.getAlias());
     assertNull(selector.getFunction());
     assertFalse(selector.isFunction());
@@ -189,7 +189,7 @@ class CqlUtilsTest {
     isCql3 = false;
     selector = CqlUtils.buildSelector(selectorExpression, isCql3);
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selector.getColumnName());
+        expectedSelector.getColumnName(), selector.getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertNull(selector.getAlias());
     assertNull(selector.getFunction());
     assertFalse(selector.isFunction());
@@ -202,7 +202,7 @@ class CqlUtilsTest {
     isCql3 = true;
     selector = CqlUtils.buildSelector(selectorExpression, isCql3);
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selector.getColumnName());
+        expectedSelector.getColumnName(), selector.getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertEquals(expectedSelector.getAlias(), selector.getAlias());
     assertNull(selector.getFunction());
     assertFalse(selector.isFunction());
@@ -215,7 +215,7 @@ class CqlUtilsTest {
     isCql3 = true;
     selector = CqlUtils.buildSelector(selectorExpression, isCql3);
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selector.getColumnName());
+        expectedSelector.getColumnName(), selector.getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertEquals(expectedSelector.getAlias(), selector.getAlias());
     assertNull(selector.getFunction());
     assertFalse(selector.isFunction());
@@ -228,7 +228,7 @@ class CqlUtilsTest {
     isCql3 = false;
     selector = CqlUtils.buildSelector(selectorExpression, isCql3);
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selector.getColumnName());
+        expectedSelector.getColumnName(), selector.getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertEquals(expectedSelector.getAlias(), selector.getAlias());
     assertNull(selector.getFunction());
     assertFalse(selector.isFunction());
@@ -241,7 +241,7 @@ class CqlUtilsTest {
     isCql3 = true;
     selector = CqlUtils.buildSelector(selectorExpression, isCql3);
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selector.getColumnName());
+        expectedSelector.getColumnName(), selector.getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertEquals(expectedSelector.getAlias(), selector.getAlias());
     assertEquals(expectedSelector.getFunction(), selector.getFunction());
     assertEquals(expectedSelector.isFunction(), selector.isFunction());
@@ -254,7 +254,7 @@ class CqlUtilsTest {
     isCql3 = true;
     selector = CqlUtils.buildSelector(selectorExpression, isCql3);
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selector.getColumnName());
+        expectedSelector.getColumnName(), selector.getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertNull(selector.getAlias());
     assertEquals(expectedSelector.getFunction(), selector.getFunction());
     assertEquals(expectedSelector.isFunction(), selector.isFunction());
@@ -267,7 +267,7 @@ class CqlUtilsTest {
     isCql3 = false;
     selector = CqlUtils.buildSelector(selectorExpression, isCql3);
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selector.getColumnName());
+        expectedSelector.getColumnName(), selector.getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertNull(selector.getAlias());
     assertEquals(expectedSelector.getFunction(), selector.getFunction());
     assertEquals(expectedSelector.isFunction(), selector.isFunction());
@@ -285,7 +285,7 @@ class CqlUtilsTest {
     assertEquals(1, selectors.length);
     // check selector
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selectors[0].getColumnName());
+        expectedSelector.getColumnName(), selectors[0].getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertNull(selectors[0].getAlias());
     assertEquals(expectedSelector.getFunction(), selectors[0].getFunction());
     assertEquals(expectedSelector.isFunction(), selectors[0].isFunction());
@@ -303,7 +303,7 @@ class CqlUtilsTest {
     assertEquals(1, selectors.length);
     // check selector
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selectors[0].getColumnName());
+        expectedSelector.getColumnName(), selectors[0].getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertNull(selectors[0].getAlias());
     assertEquals(expectedSelector.getFunction(), selectors[0].getFunction());
     assertEquals(expectedSelector.isFunction(), selectors[0].isFunction());
@@ -321,7 +321,7 @@ class CqlUtilsTest {
     assertEquals(1, selectors.length);
     // check selector
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selectors[0].getColumnName());
+        expectedSelector.getColumnName(), selectors[0].getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertNull(selectors[0].getAlias());
     assertNull(selectors[0].getFunction());
     assertFalse(selectors[0].isFunction());
@@ -339,7 +339,7 @@ class CqlUtilsTest {
     assertEquals(1, selectors.length);
     // check selector
     assertEquals(
-        COLUMN_NAME_IS_INCORRECT, expectedSelector.getColumnName(), selectors[0].getColumnName());
+        expectedSelector.getColumnName(), selectors[0].getColumnName(), COLUMN_NAME_IS_INCORRECT);
     assertNull(selectors[0].getAlias());
     assertNull(selectors[0].getFunction());
     assertFalse(selectors[0].isFunction());
@@ -449,9 +449,9 @@ class CqlUtilsTest {
     // check selectors
     for (int i = 0; i < expected.length; i++) {
       assertEquals(
-          COLUMN_NAME_IS_INCORRECT, expected[i].getColumnName(), actual[i].getColumnName());
+          expected[i].getColumnName(), actual[i].getColumnName(), COLUMN_NAME_IS_INCORRECT);
       if (expected[i].getAlias() != null) {
-        assertEquals(ALIAS_IS_INCORRECT, expected[i].getAlias(), actual[i].getAlias());
+        assertEquals(expected[i].getAlias(), actual[i].getAlias(), ALIAS_IS_INCORRECT);
       } else {
         assertNull(actual[i].getAlias());
       }

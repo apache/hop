@@ -18,14 +18,14 @@
 
 package org.apache.hop.workflow.actions.zipfile;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class ActioZipFileTest {
 

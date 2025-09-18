@@ -17,8 +17,8 @@
  */
 package org.apache.hop.pipeline.transforms.cassandraoutput;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class CassandraOutputMetaTest {
   @Test
@@ -27,7 +27,7 @@ class CassandraOutputMetaTest {
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(-1, value);
+    Assertions.assertEquals(-1, value);
   }
 
   @Test
@@ -36,7 +36,7 @@ class CassandraOutputMetaTest {
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(1, value);
+    Assertions.assertEquals(1, value);
   }
 
   @Test
@@ -45,7 +45,7 @@ class CassandraOutputMetaTest {
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(60, value);
+    Assertions.assertEquals(60, value);
   }
 
   @Test
@@ -54,7 +54,7 @@ class CassandraOutputMetaTest {
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(3600, value);
+    Assertions.assertEquals(3600, value);
   }
 
   @Test
@@ -63,6 +63,6 @@ class CassandraOutputMetaTest {
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(86400, value);
+    Assertions.assertEquals(86400, value);
   }
 }

@@ -16,8 +16,8 @@
  */
 package org.apache.hop.mail.workflow.actions.mailvalidator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
@@ -28,22 +28,22 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class ActionMailValidatorTest {
 
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionMailValidator action;
 
-  @BeforeClass
-  public static void setUpBeforeClass() {
+  @BeforeAll
+  static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionMailValidator();
     workflow.getWorkflowMeta().addAction(new ActionMeta(action));

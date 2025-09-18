@@ -16,13 +16,13 @@
  */
 package org.apache.hop.workflow.actions.shell;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -30,8 +30,8 @@ class WorkflowActionShellTest {
 
   @Mock private ActionShell jobEntryShellMock;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     MockitoAnnotations.openMocks(this);
   }
 
@@ -46,7 +46,7 @@ class WorkflowActionShellTest {
     verify(jobEntryShellMock).replaceWinEOL(anyString());
     String assertionFailedMessage = "Windows EOL character is detected";
     // shouldn't contains CR and CR+LF characters
-    assertFalse(assertionFailedMessage, content.contains("\r\n"));
-    assertFalse(assertionFailedMessage, content.contains("\r"));
+    assertFalse(content.contains("\r\n"), assertionFailedMessage);
+    assertFalse(content.contains("\r"), assertionFailedMessage);
   }
 }

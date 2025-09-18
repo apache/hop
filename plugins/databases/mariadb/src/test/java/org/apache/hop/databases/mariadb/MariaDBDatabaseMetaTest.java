@@ -16,8 +16,9 @@
  */
 package org.apache.hop.databases.mariadb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.doReturn;
 import static org.mockito.BDDMockito.doThrow;
 import static org.mockito.BDDMockito.mock;
@@ -32,13 +33,13 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 class MariaDBDatabaseMetaTest {
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
@@ -128,20 +129,28 @@ class MariaDBDatabaseMetaTest {
             .getLegacyColumnName(mock(DatabaseMetaData.class), getResultSetMetaData(), 6));
   }
 
-  @Test(expected = HopDatabaseException.class)
-  public void testGetLegacyColumnNameNullDBMetaDataException() throws Exception {
-    new MariaDBDatabaseMeta().getLegacyColumnName(null, getResultSetMetaData(), 1);
+  @Test
+  void testGetLegacyColumnNameNullDBMetaDataException() {
+    assertThrows(
+        HopDatabaseException.class,
+        () -> new MariaDBDatabaseMeta().getLegacyColumnName(null, getResultSetMetaData(), 1));
   }
 
-  @Test(expected = HopDatabaseException.class)
-  public void testGetLegacyColumnNameNullRSMetaDataException() throws Exception {
-    new MariaDBDatabaseMeta().getLegacyColumnName(mock(DatabaseMetaData.class), null, 1);
+  @Test
+  void testGetLegacyColumnNameNullRSMetaDataException() {
+    assertThrows(
+        HopDatabaseException.class,
+        () -> new MariaDBDatabaseMeta().getLegacyColumnName(mock(DatabaseMetaData.class), null, 1));
   }
 
-  @Test(expected = HopDatabaseException.class)
-  public void testGetLegacyColumnNameDatabaseException() throws Exception {
-    new MariaDBDatabaseMeta()
-        .getLegacyColumnName(mock(DatabaseMetaData.class), getResultSetMetaDataException(), 1);
+  @Test
+  void testGetLegacyColumnNameDatabaseException() {
+    assertThrows(
+        HopDatabaseException.class,
+        () ->
+            new MariaDBDatabaseMeta()
+                .getLegacyColumnName(
+                    mock(DatabaseMetaData.class), getResultSetMetaDataException(), 1));
   }
 
   @Test

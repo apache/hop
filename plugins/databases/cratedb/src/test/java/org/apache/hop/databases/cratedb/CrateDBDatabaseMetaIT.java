@@ -17,10 +17,10 @@
 
 package org.apache.hop.databases.cratedb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -28,28 +28,30 @@ import java.sql.Statement;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.postgresql.util.PSQLException;
 import org.testcontainers.cratedb.CrateDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-public class CrateDBDatabaseMetaIT {
+@Testcontainers
+class CrateDBDatabaseMetaIT {
 
-  @ClassRule public static CrateDBContainer crateDBContainer = new CrateDBContainer("crate");
+  @Container static CrateDBContainer crateDBContainer = new CrateDBContainer("crate");
 
   private static Connection connection;
 
   private CrateDBDatabaseMeta nativeMeta = new CrateDBDatabaseMeta();
 
-  @BeforeClass
-  public static void setup() throws Exception {
+  @BeforeAll
+  static void setup() throws Exception {
     connection = crateDBContainer.createConnection("");
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     executeUpdate("DROP TABLE IF EXISTS foo;");
     executeUpdate("CREATE TABLE foo (id INT PRIMARY KEY, name VARCHAR(100), description TEXT);");
   }

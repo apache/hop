@@ -16,10 +16,11 @@
  */
 package org.apache.hop.vfs.s3.vfs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -55,8 +56,8 @@ import org.apache.commons.vfs2.provider.VfsComponentContext;
 import org.apache.hop.vfs.s3.s3n.vfs.S3NFileName;
 import org.apache.hop.vfs.s3.s3n.vfs.S3NFileObject;
 import org.apache.hop.vfs.s3.s3n.vfs.S3NFileSystem;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 class S3NFileObjectTest {
@@ -86,8 +87,8 @@ class S3NFileObjectTest {
   private final String origKey = "some/key";
   private final Date testDate = new Date();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     s3ServiceMock = mock(AmazonS3.class);
     S3Object s3Object = new S3Object();
@@ -153,7 +154,7 @@ class S3NFileObjectTest {
   }
 
   @Test
-  void testGetS3Object() throws Exception {
+  void testGetS3Object() {
     when(s3ServiceMock.getObject(anyString(), anyString())).thenReturn(new S3Object());
     S3NFileObject s3FileObject = new S3NFileObject(filename, fileSystemSpy);
     S3Object s3Object = s3FileObject.getS3Object();
@@ -202,10 +203,10 @@ class S3NFileObjectTest {
     assertFalse(s3FileObjectBucketSpy.canRenameTo(newFile));
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testCanRenameToNullFile() {
+  @Test
+  void testCanRenameToNullFile() {
     // This is a bug / weakness in VFS itself
-    s3FileObjectBucketSpy.canRenameTo(null);
+    assertThrows(NullPointerException.class, () -> s3FileObjectBucketSpy.canRenameTo(null));
   }
 
   @Test

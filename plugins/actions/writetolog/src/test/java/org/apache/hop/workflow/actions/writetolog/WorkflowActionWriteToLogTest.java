@@ -31,9 +31,9 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.verification.VerificationMode;
 
 class WorkflowActionWriteToLogTest {
@@ -41,13 +41,13 @@ class WorkflowActionWriteToLogTest {
   private IWorkflowEngine<WorkflowMeta> parentWorkflow;
   private ActionWriteToLog action;
 
-  @BeforeClass
-  public static void setUpBeforeClass() {
+  @BeforeAll
+  static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     parentWorkflow = mock(Workflow.class);
     doReturn(false).when(parentWorkflow).isStopped();
 

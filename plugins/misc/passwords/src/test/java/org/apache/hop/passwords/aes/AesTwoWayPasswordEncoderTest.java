@@ -18,10 +18,10 @@
 
 package org.apache.hop.passwords.aes;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -33,8 +33,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class AesTwoWayPasswordEncoderTest {
 
@@ -44,8 +44,8 @@ class AesTwoWayPasswordEncoderTest {
     "MySillyButGoodPassword!", "", null, "abcd", "${DB_PASSWORD}"
   };
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     System.setProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN, "AES");
     System.setProperty(
         AesTwoWayPasswordEncoder.VARIABLE_HOP_AES_ENCODER_KEY, "<TheKeyForTheseTestsHere!!>");

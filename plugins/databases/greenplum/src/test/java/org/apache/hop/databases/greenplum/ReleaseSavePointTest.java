@@ -17,10 +17,10 @@
 
 package org.apache.hop.databases.greenplum;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.database.IDatabase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class ReleaseSavePointTest {
 

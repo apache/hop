@@ -18,7 +18,7 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -36,15 +36,15 @@ import org.apache.hop.neo4j.transforms.cypherbuilder.operation.MatchOperation;
 import org.apache.hop.neo4j.transforms.cypherbuilder.operation.MergeOperation;
 import org.apache.hop.neo4j.transforms.cypherbuilder.operation.ReturnOperation;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class CypherBuilderMetaTest {
 
   private IVariables variables;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     variables = Variables.getADefaultVariableSpace();
   }
 
