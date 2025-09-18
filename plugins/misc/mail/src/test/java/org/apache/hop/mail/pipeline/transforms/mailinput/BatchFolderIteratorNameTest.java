@@ -26,16 +26,16 @@ import static org.mockito.Mockito.when;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
 class BatchFolderIteratorNameTest {
 
   static Folder folder = null;
 
-  @BeforeClass
-  public static void setUp() throws MessagingException {
+  @BeforeAll
+  static void setUp() throws MessagingException {
     folder = mock(Folder.class);
     when(folder.getName()).thenReturn("INBOX");
     when(folder.getMessages(anyInt(), anyInt()))

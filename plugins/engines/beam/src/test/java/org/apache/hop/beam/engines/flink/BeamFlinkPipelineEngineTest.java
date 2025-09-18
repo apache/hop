@@ -17,7 +17,7 @@
 
 package org.apache.hop.beam.engines.flink;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import org.apache.hop.beam.engines.BeamBasePipelineEngineTest;
@@ -27,7 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
 

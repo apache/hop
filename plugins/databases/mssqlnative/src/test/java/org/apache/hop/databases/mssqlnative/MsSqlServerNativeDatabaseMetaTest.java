@@ -17,17 +17,18 @@
 
 package org.apache.hop.databases.mssqlnative;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.databases.mssql.MsSqlServerDatabaseMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class MsSqlServerNativeDatabaseMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
   void testMsSqlOverrides() {

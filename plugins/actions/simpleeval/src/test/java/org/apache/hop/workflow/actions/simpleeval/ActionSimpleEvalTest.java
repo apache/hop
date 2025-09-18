@@ -17,8 +17,8 @@
 
 package org.apache.hop.workflow.actions.simpleeval;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -29,7 +29,7 @@ import org.apache.hop.workflow.actions.simpleeval.ActionSimpleEval.SuccessBoolea
 import org.apache.hop.workflow.actions.simpleeval.ActionSimpleEval.SuccessNumberCondition;
 import org.apache.hop.workflow.actions.simpleeval.ActionSimpleEval.SuccessStringCondition;
 import org.apache.hop.workflow.actions.simpleeval.ActionSimpleEval.ValueType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for Simple Eval action. */
 class ActionSimpleEvalTest {

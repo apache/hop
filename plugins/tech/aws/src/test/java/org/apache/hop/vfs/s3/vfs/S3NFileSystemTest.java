@@ -16,7 +16,7 @@
  */
 package org.apache.hop.vfs.s3.vfs;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,8 +29,8 @@ import org.apache.hop.vfs.s3.s3.vfs.S3FileName;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileProvider;
 import org.apache.hop.vfs.s3.s3n.vfs.S3NFileName;
 import org.apache.hop.vfs.s3.s3n.vfs.S3NFileSystem;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for S3FileSystem */
 class S3NFileSystemTest {
@@ -38,8 +38,8 @@ class S3NFileSystemTest {
   S3NFileSystem fileSystem;
   S3NFileName fileName;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     fileName = new S3NFileName(S3FileNameTest.SCHEME, "/", "", FileType.FOLDER);
     fileSystem = new S3NFileSystem(fileName, new FileSystemOptions());
   }

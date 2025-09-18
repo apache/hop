@@ -17,10 +17,10 @@
 
 package org.apache.hop.databases.vertica;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -49,15 +49,16 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Spy;
 
 class VerticaDatabaseMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private VerticaDatabaseMeta nativeMeta;
 
@@ -71,16 +72,16 @@ class VerticaDatabaseMetaTest {
   private DatabaseMeta dbMeta;
   private IValueMeta valueMetaBase;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() throws HopPluginException {
+  @BeforeEach
+  void setUp() throws HopPluginException {
     listener = new VerticaDatabaseMetaTest.StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener(listener);
 
@@ -90,8 +91,8 @@ class VerticaDatabaseMetaTest {
     resultSet = mock(ResultSet.class);
   }
 
-  @Before
-  public void setupBefore() {
+  @BeforeEach
+  void setupBefore() {
     nativeMeta = new VerticaDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
   }

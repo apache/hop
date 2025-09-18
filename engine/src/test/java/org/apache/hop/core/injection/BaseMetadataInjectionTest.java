@@ -17,9 +17,9 @@
 
 package org.apache.hop.core.injection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,11 +39,9 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.junit.After;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
 
 /** Base class for test metadata injection. */
-@Ignore("This test needs to be reviewed")
 public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta> {
   protected BeanInjectionInfo<Meta> info;
   protected BeanInjector<Meta> injector;
@@ -67,10 +65,10 @@ public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta> {
     }
   }
 
-  @After
-  public void after() {
+  @AfterEach
+  void after() {
     assertTrue(
-        "Some properties where not tested: " + nonTestedProperties, nonTestedProperties.isEmpty());
+        nonTestedProperties.isEmpty(), "Some properties where not tested: " + nonTestedProperties);
   }
 
   protected List<RowMetaAndData> setValue(IValueMeta valueMeta, Object... values) {

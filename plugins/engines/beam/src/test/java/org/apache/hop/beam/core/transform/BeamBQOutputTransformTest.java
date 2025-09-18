@@ -20,7 +20,7 @@ package org.apache.hop.beam.core.transform;
 import static org.apache.hop.beam.core.transform.BeamBQOutputTransform.validateBQFieldName;
 
 import org.apache.hop.core.exception.HopException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class BeamBQOutputTransformTest {
 
@@ -53,7 +53,7 @@ class BeamBQOutputTransformTest {
         "no Exception thrown: BQ field name only contain letters, digits or underscore");
   }
 
-  public void needsException(String fieldName, String exceptionDescription) throws HopException {
+  public void needsException(String fieldName, String exceptionDescription) {
     try {
       validateBQFieldName(fieldName);
       throw new HopException(exceptionDescription);

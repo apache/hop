@@ -20,16 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class WorkflowEntryTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void setupBeforeClass() throws HopException {
+  @BeforeAll
+  static void setupBeforeClass() throws HopException {
     HopClientEnvironment.init();
   }
 

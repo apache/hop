@@ -17,9 +17,9 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class SSTableOutputMetaTest {
 
@@ -29,8 +29,8 @@ class SSTableOutputMetaTest {
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setKeyField("some_key");
     assertTrue(
-        "getXml() does not cover setKeyField() ",
-        ssTableOutputMeta.getXml().contains("<key_field>some_key</key_field>"));
+        ssTableOutputMeta.getXml().contains("<key_field>some_key</key_field>"),
+        "getXml() does not cover setKeyField() ");
   }
 
   @Test
@@ -39,8 +39,8 @@ class SSTableOutputMetaTest {
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setTable("someTableName");
     assertTrue(
-        "getXml() does not cover setTableName() ",
-        ssTableOutputMeta.getXml().contains("<table>someTableName</table>"));
+        ssTableOutputMeta.getXml().contains("<table>someTableName</table>"),
+        "getXml() does not cover setTableName() ");
   }
 
   @Test
@@ -49,8 +49,8 @@ class SSTableOutputMetaTest {
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setBufferSize("some_buffer_size");
     assertTrue(
-        "getXml() does not cover setBufferSize() ",
-        ssTableOutputMeta.getXml().contains("<buffer_size_mb>some_buffer_size</buffer_size_mb>"));
+        ssTableOutputMeta.getXml().contains("<buffer_size_mb>some_buffer_size</buffer_size_mb>"),
+        "getXml() does not cover setBufferSize() ");
   }
 
   @Test
@@ -59,10 +59,10 @@ class SSTableOutputMetaTest {
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setCassandraKeyspace("someCassandraKeyspace");
     assertTrue(
-        "getXml() does not cover setCassandraKeyspace() ",
         ssTableOutputMeta
             .getXml()
-            .contains("<cassandra_keyspace>someCassandraKeyspace</cassandra_keyspace>"));
+            .contains("<cassandra_keyspace>someCassandraKeyspace</cassandra_keyspace>"),
+        "getXml() does not cover setCassandraKeyspace() ");
   }
 
   @Test
@@ -71,8 +71,8 @@ class SSTableOutputMetaTest {
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setYamlPath("some_YamlPath");
     assertTrue(
-        "getXml() does not cover setYamlPath() ",
-        ssTableOutputMeta.getXml().contains("<yaml_path>some_YamlPath</yaml_path>"));
+        ssTableOutputMeta.getXml().contains("<yaml_path>some_YamlPath</yaml_path>"),
+        "getXml() does not cover setYamlPath() ");
   }
 
   @Test
@@ -81,8 +81,8 @@ class SSTableOutputMetaTest {
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setDirectory("someDirectory");
     assertTrue(
-        "getXml() does not cover setDirectory() ",
-        ssTableOutputMeta.getXml().contains("<output_directory>someDirectory</output_directory>"));
+        ssTableOutputMeta.getXml().contains("<output_directory>someDirectory</output_directory>"),
+        "getXml() does not cover setDirectory() ");
   }
 
   @Test
@@ -91,7 +91,7 @@ class SSTableOutputMetaTest {
     ssTableOutputMeta.setDefault();
     String xml = ssTableOutputMeta.getXml();
     assertTrue(
-        "getXml() does not cover defaults ", xml.contains("<buffer_size_mb>16</buffer_size_mb>"));
+        xml.contains("<buffer_size_mb>16</buffer_size_mb>"), "getXml() does not cover defaults ");
     String defDirectory =
         "<output_directory>" + System.getProperty("java.io.tmpdir") + "</output_directory>";
     //  ( "<output_directory>" + System.getProperty( "java.io.tmpdir" ) + "</output_directory>"
@@ -99,6 +99,6 @@ class SSTableOutputMetaTest {
     //    .replace( "\\", "&#x5c;" );
     // assertTrue( defDirectory,
     //    xml.contains( defDirectory ) );
-    assertTrue("getXml() does not cover defaults ", xml.contains(defDirectory));
+    assertTrue(xml.contains(defDirectory), "getXml() does not cover defaults ");
   }
 }

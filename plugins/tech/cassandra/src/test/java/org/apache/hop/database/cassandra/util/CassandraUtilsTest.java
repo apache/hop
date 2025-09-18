@@ -17,9 +17,9 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,7 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.databases.cassandra.datastax.TableMetaData;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class CassandraUtilsTest {
 

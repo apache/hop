@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.sftp;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -31,14 +32,15 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import java.net.InetAddress;
 import org.apache.hop.core.exception.HopWorkflowException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class SftpClientTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private int port = 22;
   private String username = "admin";
@@ -48,8 +50,8 @@ class SftpClientTest {
   private InetAddress server = mock(InetAddress.class);
   private JSch jSch = mock(JSch.class);
 
-  @Before
-  public void setUp() throws JSchException {
+  @BeforeEach
+  void setUp() throws JSchException {
     System.clearProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI);
 
     when(server.getHostAddress()).thenReturn("localhost");
@@ -57,8 +59,8 @@ class SftpClientTest {
     when(session.openChannel("sftp")).thenReturn(channel);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     System.clearProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI);
   }
 
@@ -125,8 +127,8 @@ class SftpClientTest {
   }
 
   /** Can't create root folder. An exception is expected. */
-  @Test(expected = HopWorkflowException.class)
-  public void folderCreationEmptyTest() throws Exception {
+  @Test
+  void folderCreationEmptyTest() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         new SftpClient(server, port, username) {
@@ -137,7 +139,7 @@ class SftpClientTest {
         };
 
     client.login(password);
-    client.createFolder("//");
+    assertThrows(HopWorkflowException.class, () -> client.createFolder("//"));
   }
 
   /** Create a folder under the current user's home. */

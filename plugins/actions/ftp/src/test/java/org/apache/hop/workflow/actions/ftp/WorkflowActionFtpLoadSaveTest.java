@@ -19,12 +19,13 @@ package org.apache.hop.workflow.actions.ftp;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class WorkflowActionFtpLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionFtp> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Override
   protected Class<ActionFtp> getActionClass() {

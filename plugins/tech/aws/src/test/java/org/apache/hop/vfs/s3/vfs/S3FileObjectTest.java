@@ -17,10 +17,11 @@
 package org.apache.hop.vfs.s3.vfs;
 
 import static java.util.AbstractMap.SimpleEntry;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atMost;
@@ -65,9 +66,9 @@ import org.apache.hop.vfs.s3.s3.vfs.S3FileName;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileObject;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileSystem;
 import org.apache.hop.vfs.s3.s3common.S3HopProperty;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 class S3FileObjectTest {
@@ -95,13 +96,13 @@ class S3FileObjectTest {
   private final String origKey = "some/key";
   private final Date testDate = new Date();
 
-  @BeforeClass
-  public static void initHop() throws Exception {
+  @BeforeAll
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     s3ServiceMock = mock(AmazonS3.class);
     S3Object s3Object = new S3Object();
@@ -248,10 +249,10 @@ class S3FileObjectTest {
     assertFalse(s3FileObjectBucketSpy.canRenameTo(newFile));
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testCanRenameToNullFile() {
+  @Test
+  void testCanRenameToNullFile() {
     // This is a bug / weakness in VFS itself
-    s3FileObjectBucketSpy.canRenameTo(null);
+    assertThrows(NullPointerException.class, () -> s3FileObjectBucketSpy.canRenameTo(null));
   }
 
   @Test

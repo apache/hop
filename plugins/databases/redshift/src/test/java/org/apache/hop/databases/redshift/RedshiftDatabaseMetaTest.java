@@ -17,22 +17,22 @@
 
 package org.apache.hop.databases.redshift;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Map;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for RedshiftDatabaseMeta */
 class RedshiftDatabaseMetaTest {
 
   private RedshiftDatabaseMeta dbMeta;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     dbMeta = new RedshiftDatabaseMeta();
     dbMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
   }

@@ -21,7 +21,7 @@ import java.util.UUID;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 class WorkflowActionAddResultFilenamesLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionAddResultFilenames> {
@@ -31,8 +31,8 @@ class WorkflowActionAddResultFilenamesLoadSaveTest
     return ActionAddResultFilenames.class;
   }
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     tester
         .getFieldLoadSaveValidatorFactory()
         .registerValidator(

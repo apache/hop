@@ -18,9 +18,11 @@
 
 package org.apache.hop.workflow.actions.createfolder;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class ActionCreateFolderTest {
 
@@ -30,7 +32,7 @@ class ActionCreateFolderTest {
         ActionSerializationTestUtil.testSerialization(
             "/create-folder-action.xml", ActionCreateFolder.class);
 
-    Assert.assertEquals("${TEST_FOLDER}/one", action.getFolderName());
-    Assert.assertTrue(action.isFailIfFolderExists());
+    assertEquals("${TEST_FOLDER}/one", action.getFolderName());
+    assertTrue(action.isFailIfFolderExists());
   }
 }

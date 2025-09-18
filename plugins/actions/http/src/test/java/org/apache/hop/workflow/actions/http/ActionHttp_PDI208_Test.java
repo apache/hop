@@ -17,7 +17,7 @@
 
 package org.apache.hop.workflow.actions.http;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
@@ -36,15 +36,16 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class ActionHttp_PDI208_Test {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   public static final String HTTP_HOST = "localhost";
   public static final int HTTP_PORT = 9998;
@@ -52,14 +53,14 @@ class ActionHttp_PDI208_Test {
 
   private static HttpServer httpServer;
 
-  @BeforeClass
-  public static void setupBeforeClass() throws HopException, IOException {
+  @BeforeAll
+  static void setupBeforeClass() throws HopException, IOException {
     HopClientEnvironment.init();
     ActionHttp_PDI208_Test.startHttpServer();
   }
 
-  @AfterClass
-  public static void tearDown() {
+  @AfterAll
+  static void tearDown() {
     ActionHttp_PDI208_Test.stopHttpServer();
   }
 

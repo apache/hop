@@ -17,17 +17,17 @@
 
 package org.apache.hop.workflow.action;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.start.ActionStart;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class WorkflowActionMetaTest {
+class WorkflowActionMetaTest {
 
   private static final String ATTRIBUTE_GROUP = "aGroupName";
   private static final String ATTRIBUTE_KEY = "someKey";
@@ -36,8 +36,8 @@ public class WorkflowActionMetaTest {
   private ActionMeta copyActionMeta;
   private IAction originAction;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     originActionMeta = new ActionMeta();
     copyActionMeta = new ActionMeta();
 
@@ -49,44 +49,44 @@ public class WorkflowActionMetaTest {
   }
 
   @Test
-  public void testReplaceMetaCloneEntryOfOrigin() {
+  void testReplaceMetaCloneEntryOfOrigin() {
 
     copyActionMeta.replaceMeta(originActionMeta);
     assertNotSame(
-        "Entry of origin and copy Action should be different objects: ",
         copyActionMeta.getAction(),
-        originActionMeta.getAction());
+        originActionMeta.getAction(),
+        "Entry of origin and copy Action should be different objects: ");
   }
 
   @Test
-  public void testReplaceMetaDoesNotChangeEntryOfOrigin() {
+  void testReplaceMetaDoesNotChangeEntryOfOrigin() {
 
     copyActionMeta.replaceMeta(originActionMeta);
     assertEquals(
-        "hasChanged in Entry of origin Action should not be changed. ",
         false,
-        originActionMeta.getAction().hasChanged());
+        originActionMeta.getAction().hasChanged(),
+        "hasChanged in Entry of origin Action should not be changed. ");
   }
 
   @Test
-  public void testReplaceMetaChangesEntryOfCopy() {
+  void testReplaceMetaChangesEntryOfCopy() {
 
     copyActionMeta.replaceMeta(originActionMeta);
     assertEquals(
-        "hasChanged in Entry of copy Action should be changed. ",
         true,
-        copyActionMeta.getAction().hasChanged());
+        copyActionMeta.getAction().hasChanged(),
+        "hasChanged in Entry of copy Action should be changed. ");
   }
 
   @Test
-  public void testSetParentMeta() {
+  void testSetParentMeta() {
     WorkflowMeta meta = Mockito.mock(WorkflowMeta.class);
     originActionMeta.setParentWorkflowMeta(meta);
     assertEquals(meta, originAction.getParentWorkflowMeta());
   }
 
   @Test
-  public void testCloneClonesAttributesMap() {
+  void testCloneClonesAttributesMap() {
 
     ActionMeta clonedActionMeta = (ActionMeta) originActionMeta.clone();
     assertNotNull(clonedActionMeta.getAttributesMap());
@@ -96,7 +96,7 @@ public class WorkflowActionMetaTest {
   }
 
   @Test
-  public void testDeepCloneClonesAttributesMap() {
+  void testDeepCloneClonesAttributesMap() {
 
     ActionMeta deepClonedActionMeta = (ActionMeta) originActionMeta.cloneDeep();
     assertNotNull(deepClonedActionMeta.getAttributesMap());

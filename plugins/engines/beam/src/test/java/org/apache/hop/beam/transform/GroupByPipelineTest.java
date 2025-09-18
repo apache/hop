@@ -19,7 +19,7 @@ package org.apache.hop.beam.transform;
 
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class GroupByPipelineTest extends PipelineTestBase {
 

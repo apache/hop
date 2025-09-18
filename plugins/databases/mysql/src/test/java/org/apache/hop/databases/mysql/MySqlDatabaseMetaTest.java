@@ -16,11 +16,12 @@
  */
 package org.apache.hop.databases.mysql;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -54,26 +55,27 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class MySqlDatabaseMetaTest {
   MySqlDatabaseMeta nativeMeta;
 
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
   }
 
-  @Before
-  public void setupBefore() {
+  @BeforeEach
+  void setupBefore() {
     nativeMeta = new MySqlDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
   }
@@ -675,32 +677,42 @@ class MySqlDatabaseMetaTest {
         new MySqlDatabaseMeta().getLegacyColumnName(databaseMetaData, getResultSetMetaData(), 6));
   }
 
-  @Test(expected = HopDatabaseException.class)
-  public void testGetLegacyColumnNameNullDBMetaDataException() throws Exception {
-    new MySqlDatabaseMeta().getLegacyColumnName(null, getResultSetMetaData(), 1);
+  @Test
+  void testGetLegacyColumnNameNullDBMetaDataException() {
+    assertThrows(
+        HopDatabaseException.class,
+        () -> new MySqlDatabaseMeta().getLegacyColumnName(null, getResultSetMetaData(), 1));
   }
 
-  @Test(expected = HopDatabaseException.class)
-  public void testGetLegacyColumnNameNullRSMetaDataException() throws Exception {
-    new MySqlDatabaseMeta().getLegacyColumnName(mock(DatabaseMetaData.class), null, 1);
+  @Test
+  void testGetLegacyColumnNameNullRSMetaDataException() {
+    assertThrows(
+        HopDatabaseException.class,
+        () -> new MySqlDatabaseMeta().getLegacyColumnName(mock(DatabaseMetaData.class), null, 1));
   }
 
-  @Test(expected = HopDatabaseException.class)
-  public void testGetLegacyColumnNameDriverGreaterThanThreeException() throws Exception {
+  @Test
+  void testGetLegacyColumnNameDriverGreaterThanThreeException() {
     DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
     when(databaseMetaData.getDriverMajorVersion()).thenReturn(5);
 
-    new MySqlDatabaseMeta()
-        .getLegacyColumnName(databaseMetaData, getResultSetMetaDataException(), 1);
+    assertThrows(
+        HopDatabaseException.class,
+        () ->
+            new MySqlDatabaseMeta()
+                .getLegacyColumnName(databaseMetaData, getResultSetMetaDataException(), 1));
   }
 
-  @Test(expected = HopDatabaseException.class)
-  public void testGetLegacyColumnNameDriverLessOrEqualToThreeException() throws Exception {
+  @Test
+  void testGetLegacyColumnNameDriverLessOrEqualToThreeException() {
     DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
     when(databaseMetaData.getDriverMajorVersion()).thenReturn(3);
 
-    new MySqlDatabaseMeta()
-        .getLegacyColumnName(databaseMetaData, getResultSetMetaDataException(), 1);
+    assertThrows(
+        HopDatabaseException.class,
+        () ->
+            new MySqlDatabaseMeta()
+                .getLegacyColumnName(databaseMetaData, getResultSetMetaDataException(), 1));
   }
 
   @Test
@@ -711,7 +723,7 @@ class MySqlDatabaseMetaTest {
   @Test
   void testSupportsSequence() {
     String dbType = nativeMeta.getClass().getSimpleName();
-    assertFalse(dbType, nativeMeta.isSupportsSequences());
+    assertFalse(nativeMeta.isSupportsSequences(), dbType);
     assertTrue(Utils.isEmpty(nativeMeta.getSqlListOfSequences()));
     assertEquals("", nativeMeta.getSqlSequenceExists("testSeq"));
     assertEquals("", nativeMeta.getSqlNextSequenceValue("testSeq"));

@@ -17,7 +17,7 @@
 
 package org.apache.hop.workflow.actions.dostounix;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,18 +25,19 @@ import java.io.OutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void init() throws Exception {
+  @BeforeAll
+  static void init() throws Exception {
     HopEnvironment.init();
   }
 
@@ -44,15 +45,15 @@ class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
   private String tmpFilePath;
   private ActionDosToUnix entry;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     tmpFile = File.createTempFile("pdi-14161-", null);
     tmpFilePath = tmpFile.toURI().toString();
     entry = new ActionDosToUnix();
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     if (tmpFile != null) {
       tmpFile.delete();
       tmpFile = null;

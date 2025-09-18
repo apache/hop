@@ -29,17 +29,17 @@ import static org.mockito.Mockito.when;
 import java.util.Map;
 import org.apache.hop.databases.cassandra.datastax.DriverCqlRowHandler;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 class CassandraOutputTest {
 
   CassandraOutput co;
   CassandraOutputMeta meta;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     co = mock(CassandraOutput.class);
     meta = mock(CassandraOutputMeta.class);
     co.options = mock(Map.class);
@@ -93,7 +93,7 @@ class CassandraOutputTest {
     verify(co, times(0)).logDebug(any());
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
   void validateSetTTLIfSpecifiedTestWithOptionNone() {
     String ttlResolveValue = "1"; // none option, this value is ignored default will be -1
@@ -110,7 +110,7 @@ class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
   void validateSetTTLIfSpecifiedTestWithOptionSeconds() {
     String ttlResolveValue = "1"; // 1 second
@@ -128,7 +128,7 @@ class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
   void validateSetTTLIfSpecifiedTestWithOptionMinutes() {
     String ttlResolveValue = "1"; // 1 minute
@@ -146,7 +146,7 @@ class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
   void validateSetTTLIfSpecifiedTestWithOptionHours() {
     String ttlResolveValue = "1"; // 1 hour
@@ -164,7 +164,7 @@ class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
   void validateSetTTLIfSpecifiedTestWithOptionDays() {
     String ttlResolveValue = "1"; // 1 day

@@ -17,9 +17,9 @@
 
 package org.apache.hop.databases.postgresql;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -52,16 +52,17 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Spy;
 
 class PostgreSqlValueMetaBaseTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String TEST_NAME = "TEST_NAME";
   private static final String LOG_FIELD = "LOG_FIELD";
@@ -78,16 +79,16 @@ class PostgreSqlValueMetaBaseTest {
   private IValueMeta valueMetaBase;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() throws HopPluginException {
+  @BeforeEach
+  void setUp() throws HopPluginException {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener(listener);
 
@@ -98,8 +99,8 @@ class PostgreSqlValueMetaBaseTest {
     variables = spy(new Variables());
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     HopLogStore.getAppender().removeLoggingEventListener(listener);
     listener = new StoreLoggingEventListener();
   }

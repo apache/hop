@@ -19,26 +19,27 @@
 
 package org.apache.hop.databases.snowflake;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class SnowflakeDatabaseMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   SnowflakeDatabaseMeta nativeMeta;
 
-  @Before
-  public void setupOnce() throws Exception {
+  @BeforeEach
+  void setupOnce() throws Exception {
     nativeMeta = new SnowflakeDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 

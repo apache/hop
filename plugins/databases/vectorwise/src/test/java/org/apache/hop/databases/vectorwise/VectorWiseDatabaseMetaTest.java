@@ -16,8 +16,8 @@
  */
 package org.apache.hop.databases.vectorwise;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -28,7 +28,7 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class VectorWiseDatabaseMetaTest {
 

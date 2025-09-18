@@ -17,15 +17,15 @@
 
 package org.apache.hop.databases.mssql;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   private MsSqlServerDatabaseMeta dbMeta;
@@ -39,8 +39,8 @@ class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   private static final String STRING_VARCHAR = "VARCHAR";
   private static final String STRING_TEXT = "TEXT";
 
-  @Before
-  public void init() {
+  @BeforeEach
+  void init() {
     dbMeta = new MsSqlServerDatabaseMeta();
   }
 

@@ -17,7 +17,7 @@
 
 package org.apache.hop.workflow.actions.telnet;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.logging.HopLogStore;
@@ -26,22 +26,22 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class ActionTelnetTest {
 
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionTelnet action;
 
-  @BeforeClass
-  public static void setUpBeforeClass() {
+  @BeforeAll
+  static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionTelnet();
     workflow.getWorkflowMeta().addAction(new ActionMeta(action));

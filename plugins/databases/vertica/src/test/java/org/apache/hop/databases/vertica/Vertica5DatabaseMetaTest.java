@@ -17,10 +17,10 @@
 
 package org.apache.hop.databases.vertica;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -53,16 +53,17 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 
 class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String TEST_NAME = "TEST_NAME";
   private static final String LOG_FIELD = "LOG_FIELD";
@@ -79,8 +80,8 @@ class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   private IValueMeta valueMetaBase;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
@@ -88,8 +89,8 @@ class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   }
 
   @Override
-  @Before
-  public void setUp() throws HopPluginException {
+  @BeforeEach
+  void setUp() throws HopPluginException {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener(listener);
     variables = spy(new Variables());

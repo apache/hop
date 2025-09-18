@@ -19,8 +19,8 @@
 package org.apache.hop.neo4j.actions.cypherscript;
 
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class CypherScriptTest {
   @Test
@@ -29,8 +29,8 @@ class CypherScriptTest {
         ActionSerializationTestUtil.testSerialization(
             "/cypher-script-action.xml", CypherScript.class);
 
-    Assert.assertEquals("Test", action.getConnectionName());
-    Assert.assertEquals("A Cypher statement", action.getScript());
-    Assert.assertFalse(action.isReplacingVariables());
+    Assertions.assertEquals("Test", action.getConnectionName());
+    Assertions.assertEquals("A Cypher statement", action.getScript());
+    Assertions.assertFalse(action.isReplacingVariables());
   }
 }

@@ -19,13 +19,14 @@ package org.apache.hop.workflow.actions.folderscompare;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class WorkflowActionFoldersCompareTest
     extends WorkflowActionLoadSaveTestSupport<ActionFoldersCompare> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Override
   protected Class<ActionFoldersCompare> getActionClass() {

@@ -18,13 +18,13 @@
 package org.apache.hop.pipeline.transforms.cassandrainput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class CassandraInputMetaInjectionTest extends BaseMetadataInjectionTest<CassandraInputMeta> {
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     setup(new CassandraInputMeta());
   }
 

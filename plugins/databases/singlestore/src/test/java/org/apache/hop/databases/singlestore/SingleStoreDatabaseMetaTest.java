@@ -16,11 +16,11 @@
  */
 package org.apache.hop.databases.singlestore;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,26 +52,27 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class SingleStoreDatabaseMetaTest {
   SingleStoreDatabaseMeta nativeMeta;
 
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
   }
 
-  @Before
-  public void setupBefore() {
+  @BeforeEach
+  void setupBefore() {
     nativeMeta = new SingleStoreDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
   }
@@ -517,7 +518,7 @@ class SingleStoreDatabaseMetaTest {
   @Test
   void testSupportsSequence() {
     String dbType = nativeMeta.getClass().getSimpleName();
-    assertFalse(dbType, nativeMeta.isSupportsSequences());
+    assertFalse(nativeMeta.isSupportsSequences(), dbType);
     assertTrue(Utils.isEmpty(nativeMeta.getSqlListOfSequences()));
     assertEquals("", nativeMeta.getSqlSequenceExists("testSeq"));
     assertEquals("", nativeMeta.getSqlNextSequenceValue("testSeq"));

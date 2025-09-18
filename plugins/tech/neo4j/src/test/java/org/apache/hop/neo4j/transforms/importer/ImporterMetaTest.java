@@ -20,7 +20,7 @@ package org.apache.hop.neo4j.transforms.importer;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.TransformLoadSaveTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class ImporterMetaTest {
 
