@@ -19,6 +19,7 @@ package org.apache.hop.mongo;
 
 import com.mongodb.MongoClientOptions;
 import javax.net.ssl.SSLSocketFactory;
+import org.bson.UuidRepresentation;
 
 /**
  * Enumeration of the available properties that can be used when configuring a MongoDB client via a
@@ -217,7 +218,18 @@ public enum MongoProp {
   /** Specifies the write timeout in millis for the WriteConcern. */
   wTimeout,
   /** MongoDB 3.0 changed the default authentication mechanism from MONGODB-CR to SCRAM-SHA-1 */
-  AUTH_MECHA;
+  AUTH_MECHA,
+  /** Specifies how Mongo stores UUIDs * */
+  // TODO add a way for the user to specify the uuidRepresentation
+  uuidRepresentation {
+    @Override
+    public void setOption(
+        MongoClientOptions.Builder builder,
+        org.apache.hop.mongo.MongoProperties props,
+        MongoPropToOption propToOption) {
+      builder.uuidRepresentation(UuidRepresentation.STANDARD);
+    }
+  };
 
   public void setOption(
       MongoClientOptions.Builder builder,

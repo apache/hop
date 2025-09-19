@@ -113,6 +113,11 @@ class MongoFieldTest {
     initField("String");
     assertEquals("foo", field.getHopValue("foo"));
     assertEquals("123", field.getHopValue(123));
+
+    initField("UUID");
+    java.util.UUID uuid = java.util.UUID.fromString("4d0e4aee-d845-4f5e-8c7d-9d5cff1c2a4d");
+    assertEquals(uuid, field.getHopValue(uuid));
+    assertEquals(uuid, field.getHopValue("4d0e4aee-d845-4f5e-8c7d-9d5cff1c2a4d"));
   }
 
   @Test
