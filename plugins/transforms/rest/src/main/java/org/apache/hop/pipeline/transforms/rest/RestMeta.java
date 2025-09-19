@@ -19,10 +19,11 @@ package org.apache.hop.pipeline.transforms.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -40,6 +41,8 @@ import org.apache.hop.pipeline.transforms.rest.fields.MatrixParameterField;
 import org.apache.hop.pipeline.transforms.rest.fields.ParameterField;
 import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
 
+@Setter
+@Getter
 @Transform(
     id = "Rest",
     image = "rest.svg",
@@ -80,10 +83,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
         APPLICATION_TYPE_SVG_XML,
         APPLICATION_TYPE_TEXT_XML
       };
-  public static final String CONST_RESULT = "result";
-  public static final String CONST_SPACES_LONG = "        ";
-  public static final String CONST_SPACES = "      ";
-  public static final String CONST_FIELD = "field";
 
   @HopMetadataProperty(key = "applicationType", injectionKey = "APPLICATION_TYPE")
   private String applicationType;
@@ -108,7 +107,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @HopMetadataProperty(key = "connection_name", injectionKey = "CONNECTION_NAME")
   private String connectionName;
 
-  /** URL / service to be called */
   @HopMetadataProperty(key = "url", injectionKey = "URL")
   private String url;
 
@@ -118,7 +116,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @HopMetadataProperty(key = "urlField", injectionKey = "URL_IN_FIELD")
   private String urlField;
 
-  /** proxy */
   @HopMetadataProperty(key = "proxyHost", injectionKey = "PROXY_HOST")
   private String proxyHost;
 
@@ -134,11 +131,9 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @HopMetadataProperty(key = "preemptive", injectionKey = "PREEMPTIVE")
   private boolean preemptive;
 
-  /** Body fieldname */
   @HopMetadataProperty(key = "bodyField", injectionKey = "BODY_FIELD")
   private String bodyField;
 
-  /** HTTP Method */
   @HopMetadataProperty(key = "method", injectionKey = "METHOD")
   private String method;
 
@@ -148,7 +143,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @HopMetadataProperty(key = "methodFieldName", injectionKey = "METHOD_FIELD_NAME")
   private String methodFieldName;
 
-  /** Trust store */
   @HopMetadataProperty(key = "trustStoreFile", injectionKey = "TRUSTSTORE_FILE")
   private String trustStoreFile;
 
@@ -167,7 +161,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @HopMetadataProperty(key = "ignoreSsl", injectionKey = "IGNORE_SSL")
   private boolean ignoreSsl;
 
-  /** headers name */
   @HopMetadataProperty(
       key = "header",
       groupKey = "headers",
@@ -198,159 +191,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     parameterFields = new ArrayList<>();
     matrixParameterFields = new ArrayList<>();
     resultField = new ResultField();
-  }
-
-  /**
-   * @return Returns the method.
-   */
-  public String getMethod() {
-    return method;
-  }
-
-  /**
-   * @param value The method to set.
-   */
-  public void setMethod(String value) {
-    this.method = value;
-  }
-
-  /**
-   * @return Returns the bodyField.
-   */
-  public String getBodyField() {
-    return bodyField;
-  }
-
-  /**
-   * @param value The bodyField to set.
-   */
-  public void setBodyField(String value) {
-    this.bodyField = value;
-  }
-
-  /**
-   * @return Returns the parameterField.
-   */
-  public List<ParameterField> getParameterFields() {
-    return parameterFields;
-  }
-
-  public void setParameterFields(List<ParameterField> value) {
-    this.parameterFields = value;
-  }
-
-  public List<MatrixParameterField> getMatrixParameterFields() {
-    return matrixParameterFields;
-  }
-
-  public void setMatrixParameterFields(List<MatrixParameterField> value) {
-    this.matrixParameterFields = value;
-  }
-
-  /**
-   * @return Returns the headerField.
-   */
-  public List<HeaderField> getHeaderFields() {
-    return headerFields;
-  }
-
-  /**
-   * @param value The headerField to set.
-   */
-  public void setHeaderFields(List<HeaderField> value) {
-    this.headerFields = value;
-  }
-
-  /**
-   * @return Returns the procedure.
-   */
-  public String getUrl() {
-    return url;
-  }
-
-  /**
-   * @param procedure The procedure to set.
-   */
-  public void setUrl(String procedure) {
-    this.url = procedure;
-  }
-
-  /**
-   * @return Is the url coded in a field?
-   */
-  public boolean isUrlInField() {
-    return urlInField;
-  }
-
-  /**
-   * @param urlInField Is the url coded in a field?
-   */
-  public void setUrlInField(boolean urlInField) {
-    this.urlInField = urlInField;
-  }
-
-  /**
-   * @return Is preemptive?
-   */
-  public boolean isPreemptive() {
-    return preemptive;
-  }
-
-  /**
-   * @param preemptive Ispreemptive?
-   */
-  public void setPreemptive(boolean preemptive) {
-    this.preemptive = preemptive;
-  }
-
-  /**
-   * @return Is the method defined in a field?
-   */
-  public boolean isDynamicMethod() {
-    return dynamicMethod;
-  }
-
-  /**
-   * @param dynamicMethod If the method is defined in a field?
-   */
-  public void setDynamicMethod(boolean dynamicMethod) {
-    this.dynamicMethod = dynamicMethod;
-  }
-
-  /**
-   * @return methodFieldName
-   */
-  public String getMethodFieldName() {
-    return methodFieldName;
-  }
-
-  /**
-   * @param methodFieldName
-   */
-  public void setMethodFieldName(String methodFieldName) {
-    this.methodFieldName = methodFieldName;
-  }
-
-  /**
-   * @return The field name that contains the url.
-   */
-  public String getUrlField() {
-    return urlField;
-  }
-
-  /**
-   * @param urlField name of the field that contains the url
-   */
-  public void setUrlField(String urlField) {
-    this.urlField = urlField;
-  }
-
-  public boolean isIgnoreSsl() {
-    return ignoreSsl;
-  }
-
-  public void setIgnoreSsl(boolean ignoreSsl) {
-    this.ignoreSsl = ignoreSsl;
   }
 
   @Override
@@ -385,8 +225,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
+      IHopMetadataProvider metadataProvider) {
     if (!Utils.isEmpty(resultField.getFieldName())) {
       IValueMeta v = new ValueMetaString(variables.resolve(resultField.getFieldName()));
       v.setOrigin(name);
@@ -512,141 +351,14 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     return true;
   }
 
-  /**
-   * Setter
-   *
-   * @param proxyHost
-   */
-  public void setProxyHost(String proxyHost) {
-    this.proxyHost = proxyHost;
-  }
-
-  /**
-   * Getter
-   *
-   * @return
-   */
-  public String getProxyHost() {
-    return proxyHost;
-  }
-
-  /**
-   * Setter
-   *
-   * @param proxyPort
-   */
-  public void setProxyPort(String proxyPort) {
-    this.proxyPort = proxyPort;
-  }
-
-  /**
-   * Getter
-   *
-   * @return
-   */
-  public String getProxyPort() {
-    return this.proxyPort;
-  }
-
-  /**
-   * Setter
-   *
-   * @param applicationType
-   */
-  public void setApplicationType(String applicationType) {
-    this.applicationType = applicationType;
-  }
-
-  /**
-   * Getter
-   *
-   * @return
-   */
-  public String getApplicationType() {
-    return applicationType;
-  }
-
-  /**
-   * Setter
-   *
-   * @param httpLogin
-   */
-  public void setHttpLogin(String httpLogin) {
-    this.httpLogin = httpLogin;
-  }
-
-  /**
-   * Getter
-   *
-   * @return
-   */
-  public String getHttpLogin() {
-    return httpLogin;
-  }
-
-  /**
-   * Setter
-   *
-   * @param httpPassword
-   */
-  public void setHttpPassword(String httpPassword) {
-    this.httpPassword = httpPassword;
-  }
-
-  /**
-   * @return
-   */
-  public String getHttpPassword() {
-    return httpPassword;
-  }
-
-  /**
-   * Setter
-   *
-   * @param trustStoreFile
-   */
-  public void setTrustStoreFile(String trustStoreFile) {
-    this.trustStoreFile = trustStoreFile;
-  }
-
-  /**
-   * @return trustStoreFile
-   */
-  public String getTrustStoreFile() {
-    return trustStoreFile;
-  }
-
-  /**
-   * Setter
-   *
-   * @param trustStorePassword
-   */
-  public void setTrustStorePassword(String trustStorePassword) {
-    this.trustStorePassword = trustStorePassword;
-  }
-
-  /**
-   * @return trustStorePassword
-   */
-  public String getTrustStorePassword() {
-    return trustStorePassword;
-  }
-
-  public ResultField getResultField() {
-    return resultField;
-  }
-
-  public void setResultField(ResultField resultField) {
-    this.resultField = resultField;
-  }
-
   public static boolean isActiveBody(String method) {
     if (Utils.isEmpty(method)) {
       return false;
     }
     return (method.equals(HTTP_METHOD_POST)
         || method.equals(HTTP_METHOD_PUT)
-        || method.equals(HTTP_METHOD_PATCH));
+        || method.equals(HTTP_METHOD_PATCH)
+        || method.equals(HTTP_METHOD_DELETE));
   }
 
   public static boolean isActiveParameters(String method) {
@@ -658,49 +370,5 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
         || method.equals(HTTP_METHOD_PUT)
         || method.equals(HTTP_METHOD_PATCH)
         || method.equals(HTTP_METHOD_DELETE));
-  }
-
-  /**
-   * Returns the connection timeout until a connection is established (milliseconds).
-   *
-   * @return
-   */
-  public String getConnectionTimeout() {
-    return connectionTimeout;
-  }
-
-  /**
-   * Define the connection timeout until a connection is established (milliseconds).
-   *
-   * @param timeout The connection timeout to set.
-   */
-  public void setConnectionTimeout(String timeout) {
-    this.connectionTimeout = timeout;
-  }
-
-  /**
-   * Returns the timeout for waiting for reading data (milliseconds).
-   *
-   * @return
-   */
-  public String getReadTimeout() {
-    return readTimeout;
-  }
-
-  /**
-   * Define the timeout for waiting for reading data (milliseconds).
-   *
-   * @param timeout The read timeout to set.
-   */
-  public void setReadTimeout(String timeout) {
-    this.readTimeout = timeout;
-  }
-
-  public String getConnectionName() {
-    return connectionName;
-  }
-
-  public void setConnectionName(String connectionName) {
-    this.connectionName = connectionName;
   }
 }

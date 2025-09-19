@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
@@ -98,18 +97,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
             "headerFields",
             "parameterFields",
             "matrixParameterFields",
-            "resultField"
-            //            "headerField",
-            //            "headerName",
-            //            "parameterField",
-            //            "parameterName",
-            //            "matrixParameterField",
-            //            "matrixParameterName",
-            //            "fieldName",
-            //            "resultCodeFieldName",
-            //            "responseTimeFieldName",
-            //            "responseHeaderFieldName"
-            );
+            "resultField");
 
     Map<String, String> getterMap = new HashMap<>();
     getterMap.put("applicationType", "getApplicationType");
@@ -181,7 +169,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
             validatorFactory,
             ResultField.class,
             Arrays.asList("fieldName", "code", "responseTime", "responseHeader"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("fieldname", "getFieldName");
                 put("code", "getCode");
@@ -189,7 +177,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
                 put("responseHeader", "getResponseHeader");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("fieldname", "setFieldName");
                 put("code", "setCode");
@@ -204,13 +192,13 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
             validatorFactory,
             HeaderField.class,
             Arrays.asList("name", "headerField"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "getName");
                 put("headerField", "getHeaderField");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("bame", "setName");
                 put("headerField", "setHeaderField");
@@ -223,13 +211,13 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
             validatorFactory,
             ParameterField.class,
             Arrays.asList("name", "headerField"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "getName");
                 put("headerField", "getHeaderField");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("bame", "setName");
                 put("headerField", "setHeaderField");
@@ -242,44 +230,18 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
             validatorFactory,
             MatrixParameterField.class,
             Arrays.asList("name", "headerField"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "getName");
                 put("headerField", "getHeaderField");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("bame", "setName");
                 put("headerField", "setHeaderField");
               }
             }));
-
-    //    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new
-    // HashMap<>();
-    //
-    //    // Arrays need to be consistent length
-    //    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-    //        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
-    //    fieldLoadSaveValidatorAttributeMap.put("headerField", stringArrayLoadSaveValidator);
-    //    fieldLoadSaveValidatorAttributeMap.put("headerName", stringArrayLoadSaveValidator);
-    //    fieldLoadSaveValidatorAttributeMap.put("parameterField", stringArrayLoadSaveValidator);
-    //    fieldLoadSaveValidatorAttributeMap.put("parameterName", stringArrayLoadSaveValidator);
-    //    fieldLoadSaveValidatorAttributeMap.put("matrixParameterField",
-    // stringArrayLoadSaveValidator);
-    //    fieldLoadSaveValidatorAttributeMap.put("matrixParameterName",
-    // stringArrayLoadSaveValidator);
-    //
-    //    LoadSaveTester<RestMeta> loadSaveTester =
-    //        new LoadSaveTester<>(
-    //            RestMeta.class,
-    //            attributes,
-    //            new HashMap<>(),
-    //            new HashMap<>(),
-    //            fieldLoadSaveValidatorAttributeMap,
-    //            new HashMap<>());
-
-    //    loadSaveTester.testSerialization();
   }
 
   @Test
@@ -316,10 +278,8 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
   }
 
   private static int getCheckResultErrorCount(List<ICheckResult> remarks) {
-    return remarks.stream()
-        .filter(p -> p.getType() == ICheckResult.TYPE_RESULT_ERROR)
-        .collect(Collectors.toList())
-        .size();
+    return (int)
+        remarks.stream().filter(p -> p.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
   }
 
   @Test
@@ -327,9 +287,9 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_POST));
     assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_PUT));
     assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_PATCH));
+    assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_DELETE));
 
     assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_GET));
-    assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_DELETE));
     assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_HEAD));
     assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_OPTIONS));
   }
