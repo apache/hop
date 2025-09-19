@@ -307,6 +307,10 @@ public abstract class TransformClassBase {
     return parent.initImpl();
   }
 
+  public void dispose() {
+    parent.disposeImpl();
+  }
+
   public void initBeforeStart() throws HopTransformException {
     parent.initBeforeStartImpl();
   }
