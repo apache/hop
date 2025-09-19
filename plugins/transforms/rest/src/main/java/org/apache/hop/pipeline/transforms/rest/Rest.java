@@ -235,7 +235,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             response = invocationBuilder.put(Entity.entity(entityString, data.mediaType));
           }
         } else if (data.method.equals(RestMeta.HTTP_METHOD_DELETE)) {
-          response = invocationBuilder.delete();
+          Invocation invocation =
+              invocationBuilder.build("DELETE", Entity.entity(entityString, data.mediaType));
+          response = invocation.invoke();
         } else if (data.method.equals(RestMeta.HTTP_METHOD_HEAD)) {
           response = invocationBuilder.head();
         } else if (data.method.equals(RestMeta.HTTP_METHOD_OPTIONS)) {
@@ -337,6 +339,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.config.connectorProvider(new ApacheConnectorProvider());
       data.config.property(
           ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+      data.config.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
 
       data.config.property(ClientProperties.READ_TIMEOUT, data.realReadTimeout);
       data.config.property(ClientProperties.CONNECT_TIMEOUT, data.realConnectionTimeout);
