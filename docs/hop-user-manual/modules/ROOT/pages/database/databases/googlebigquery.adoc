@@ -34,6 +34,8 @@ under the License.
 |Driver folder | <Hop Installation>/lib/jdbc
 |===
 
+== Driver Installation
+
 The Simba driver is packaged as a .zip containing many jars. Only a subset of the jars included with the Driver are necessary to use Bigquery JDBC with Apache Hop. Furthermore, some of the jars may conflict with those packaged with Hop and *must* be excluded.
 
 **SIMBA DRIVER JARS TO EXCLUDE (THESE JARS ARE INCLUDED IN THE SIMBA DRIVER, BUT CONFLICT WITH HOP LIBRARIES AND MUST BE EXCLUDED**
@@ -61,3 +63,82 @@ The Simba driver is packaged as a .zip containing many jars. Only a subset of th
  threetenbp-<VERSION>.jar
 
 pass:[*] Tested with Hop 2.5.0 and Simba 1.3.3.1004. Not all authentication methods tested either, so this list may not be exhaustive
+
+== Connection Configuration
+
+=== Basic Connection Settings
+
+When creating a Google BigQuery connection in Apache Hop, configure the following basic settings:
+
+[cols="2*",options="header"]
+|===
+| Setting | Value
+| Connection name | Your preferred connection name (e.g., "BQ")
+| Connection type | Google BigQuery
+| Access | Native (JDBC)
+| Server host name | https://www.googleapis.com/bigquery/v2
+| Database name | Your Google Cloud Project ID
+| Port number | 443
+|===
+
+=== Authentication Options
+
+Google BigQuery connections in Apache Hop support multiple authentication methods. The most common and recommended approach is using Service Account authentication with a JSON key file.
+
+In the *Options* tab of the connection dialog, configure the following parameters:
+
+[cols="3*",options="header"]
+|===
+| Parameter | Value | Description
+| OAuthType | 0 | Service Account authentication
+| ProjectId | your-project-id | Your Google Cloud Project ID
+| OAuthServiceAcctEmail | service-account@your-project.iam.gserviceaccount.com | Service account email address
+| OAuthPvtKeyPath | /path/to/service-account-key.json | Path to the service account JSON key file
+| TimeOut | 3600 | Connection timeout in seconds (optional)
+|===
+
+=== Example Configuration
+
+Here's a complete example of a working BigQuery connection configuration:
+
+* **Connection name**: BQ
+* **Server host name**: https://www.googleapis.com/bigquery/v2
+* **Database name**: your-project-id
+* **Port number**: 443
+
+**Options tab parameters**:
+
+* **OAuthType**: 0
+* **ProjectId**: your-project-id
+* **OAuthServiceAcctEmail**: your-service-account@your-project-id.iam.gserviceaccount.com
+* **OAuthPvtKeyPath**: /path/to/your-service-account-key.json
+* **TimeOut**: 3600
+
+include::../../snippets/gcp-service-account-setup.adoc[]
+
+== Testing the Connection
+
+After configuring your connection:
+
+1. Click the "Test" button in the connection dialog
+2. If successful, you should see a confirmation message
+3. If the test fails, verify:
+   - Your service account has the necessary BigQuery permissions
+   - The JSON key file path is correct and accessible
+   - Your project ID matches the one in the service account
+   - Network connectivity to Google APIs is available
+
+== Troubleshooting
+
+=== Common Issues
+
+* **Authentication errors**: Verify that your service account has the required BigQuery roles and that the JSON key file path is correct
+* **Project not found**: Ensure the ProjectId parameter matches your actual Google Cloud Project ID
+* **Connection timeout**: Increase the TimeOut value if you're experiencing slow connections
+* **Driver conflicts**: Ensure you've excluded the conflicting GRPC jars as listed in the driver installation section
+
+=== Performance Considerations
+
+* Use appropriate timeouts for large query operations
+* Consider using BigQuery's standard SQL dialect for better performance
+* Implement proper error handling in your workflows when working with large datasets
