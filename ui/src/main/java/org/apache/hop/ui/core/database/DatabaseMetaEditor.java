@@ -417,8 +417,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         null,
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
-        null,
-        excludedElementIds);
+        null);
 
     // Add listener to detect change
     guiCompositeWidgets.setWidgetsListener(
@@ -532,8 +531,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         null,
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
-        null,
-        excludedElementIds);
+        null);
     guiCompositeWidgets.setWidgetsListener(
         new GuiCompositeWidgetsAdapter() {
           @Override

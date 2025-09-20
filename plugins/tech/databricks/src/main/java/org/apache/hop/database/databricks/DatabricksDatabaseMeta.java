@@ -45,6 +45,42 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 
   public static final Class<?> PKG = DatabricksDatabaseMeta.class;
 
+  // Override base class elements - show hostname with custom label, hide port and databaseName
+  @GuiWidgetElement(
+      id = "hostname",
+      order = "01",
+      label = "Databricks Workspace URL",
+      type = GuiElementType.TEXT,
+      variables = true,
+      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @HopMetadataProperty
+  private String hostname;
+
+  @GuiWidgetElement(
+      id = "port",
+      ignored = true,
+      type = GuiElementType.TEXT,
+      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @HopMetadataProperty
+  private String port;
+
+  @GuiWidgetElement(
+      id = "databaseName",
+      ignored = true,
+      type = GuiElementType.TEXT,
+      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @HopMetadataProperty
+  private String databaseName;
+
+  // Constructor to set default values for ignored fields
+  public DatabricksDatabaseMeta() {
+    super();
+    // Set default values for fields that are ignored in the UI
+    // but still needed for URL construction
+    this.port = "443"; // Default Databricks port
+    this.databaseName = ""; // Not used for Databricks
+  }
+
   @GuiWidgetElement(
       id = "ucHttpPath",
       order = "10",
@@ -160,17 +196,17 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   /**
-   * Returns a list of UI element IDs that should be excluded from the database editor. Databricks
-   * doesn't need database name or manual URL fields.
+   * Returns a list of UI element IDs that should be excluded from the database editor. Only for
+   * elements created directly in DatabaseMetaEditor (not @GuiWidgetElement). Databricks doesn't
+   * need manual URL field.
    *
    * @return List of element IDs to exclude
    */
   @Override
   public List<String> getRemoveItems() {
     return Arrays.asList(
-        BaseDatabaseMeta.ELEMENT_ID_DATABASE_NAME, // We don't use database name for Databricks
-        BaseDatabaseMeta.ELEMENT_ID_MANUAL_URL, // We construct the URL automatically
-        "port");
+        BaseDatabaseMeta.ELEMENT_ID_MANUAL_URL // We construct the URL automatically
+        );
   }
 
   /**
