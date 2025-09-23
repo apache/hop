@@ -90,7 +90,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
   private static final String CONST_SPACE = "          ";
   private static final String CONST_SPACE_SHORT = "      ";
-  private static final String CONST_DASH = " ------ ";
   private static final String CONST_FILE_COPIED = "ActionCopyFiles.Log.FileCopied";
   private static final String CONST_COPY_PROCESS = "ActionCopyFiles.Error.Exception.CopyProcess";
   private static final String CONST_FILE_EXISTS = "ActionCopyFiles.Log.FileExists";
@@ -524,7 +523,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 // Remove ONLY Files
                 if (removeFile.getType() == FileType.FILE) {
                   boolean deletefile = removeFile.delete();
-                  logBasic(CONST_DASH);
                   if (!deletefile) {
                     logError(
                         CONST_SPACE_SHORT
@@ -578,7 +576,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                           toString());
                   result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
                   if (isDetailed()) {
-                    logDetailed(CONST_DASH);
                     logDetailed(
                         CONST_SPACE_SHORT
                             + BaseMessages.getString(
@@ -843,7 +840,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 if (includeSubFolders && copyEmptyFolders && Utils.isEmpty(fileWildcard)) {
                   if ((filename == null) || (!filename.exists())) {
                     if (isDetailed()) {
-                      logDetailed(CONST_DASH);
                       logDetailed(
                           CONST_SPACE_SHORT
                               + BaseMessages.getString(
@@ -855,7 +851,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                     returncode = true;
                   } else {
                     if (isDetailed()) {
-                      logDetailed(CONST_DASH);
                       logDetailed(
                           CONST_SPACE_SHORT
                               + BaseMessages.getString(
@@ -883,7 +878,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                   // Check if the file exists
                   if ((filename == null) || (!filename.exists())) {
                     if (isDetailed()) {
-                      logDetailed(CONST_DASH);
                       logDetailed(
                           CONST_SPACE_SHORT
                               + BaseMessages.getString(
@@ -895,7 +889,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                     returncode = true;
                   } else {
                     if (isDetailed()) {
-                      logDetailed(CONST_DASH);
                       logDetailed(
                           CONST_SPACE_SHORT
                               + BaseMessages.getString(
@@ -925,7 +918,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               if (includeSubFolders && copyEmptyFolders && Utils.isEmpty(fileWildcard)) {
                 if ((filename == null) || (!filename.exists())) {
                   if (isDetailed()) {
-                    logDetailed("", CONST_DASH);
                     logDetailed(
                         CONST_SPACE_SHORT
                             + BaseMessages.getString(
@@ -938,7 +930,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                   returncode = true;
                 } else {
                   if (isDetailed()) {
-                    logDetailed(CONST_DASH);
                     logDetailed(
                         CONST_SPACE_SHORT
                             + BaseMessages.getString(
@@ -970,7 +961,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               if (getFileWildcard(shortFilename)) {
                 if ((filename == null) || (!filename.exists())) {
                   if (isDetailed()) {
-                    logDetailed(CONST_DASH);
                     logDetailed(
                         CONST_SPACE_SHORT
                             + BaseMessages.getString(
@@ -983,7 +973,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
                 } else {
                   if (isDetailed()) {
-                    logDetailed(CONST_DASH);
                     logDetailed(
                         CONST_SPACE_SHORT
                             + BaseMessages.getString(
