@@ -20,6 +20,8 @@ package org.apache.hop.parquet.transforms.input;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IValueMeta;
@@ -58,6 +60,25 @@ public class ParquetValueConverter extends PrimitiveConverter {
           object = binaryToDecimal(value, valueMeta.getLength(), valueMeta.getPrecision());
         }
         break;
+      case IValueMeta.TYPE_TIMESTAMP:
+        if (value.length() == 12) {
+          // This is a binary form of an int96 (12-byte) Timestamp with nanosecond precision.
+          // The first 8 bytes are the nanoseconds in a day.
+          // The next 4 bytes are the Julian day.
+          // Note: Little Endian.
+          //
+          ByteBuffer bb = ByteBuffer.wrap(value.getBytes()).order(ByteOrder.LITTLE_ENDIAN);
+          long nsDay = bb.getLong();
+          long julianDay = bb.getInt() & 0x00000000ffffffffL;
+
+          long ns = (julianDay - 2440588L) * (86400L * 1000 * 1000 * 1000) + nsDay;
+          long ms = ns / 1000000;
+          Timestamp timestamp = new Timestamp(ms);
+          timestamp.setNanos((int) (ns % 1000000000));
+          object = timestamp;
+          break;
+        }
+
       default:
         throw new RuntimeException(
             "Unable to convert Binary source data to type " + valueMeta.getTypeDesc());
