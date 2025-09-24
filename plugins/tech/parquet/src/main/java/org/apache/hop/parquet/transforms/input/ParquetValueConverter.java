@@ -71,10 +71,18 @@ public class ParquetValueConverter extends PrimitiveConverter {
           long nsDay = bb.getLong();
           long julianDay = bb.getInt() & 0x00000000ffffffffL;
 
-          long ns = (julianDay - 2440588L) * (86400L * 1000 * 1000 * 1000) + nsDay;
-          long ms = ns / 1000000;
+          // We need a big integer to prevent a long overflow resulting in negative values
+          // for: nanoseconds since 1970/01/01 00:00:00
+          //
+          BigInteger bns =
+              BigInteger.valueOf(julianDay - 2440588L)
+                  .multiply(BigInteger.valueOf(86400L * 1000 * 1000 * 1000))
+                  .add(BigInteger.valueOf(nsDay));
+          BigInteger bms = bns.divide(BigInteger.valueOf(1000000));
+          long ms = bms.longValue();
+          int nanos = (int) (ms % 1000000000);
           Timestamp timestamp = new Timestamp(ms);
-          timestamp.setNanos((int) (ns % 1000000000));
+          timestamp.setNanos(nanos);
           object = timestamp;
           break;
         }
