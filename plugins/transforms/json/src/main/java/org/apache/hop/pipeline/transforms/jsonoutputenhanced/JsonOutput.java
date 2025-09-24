@@ -104,23 +104,30 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
     Object[] r = getRow(); // This also waits for a row to be finished.
     if (r == null) {
-      // no more input to be expected...
-      // Let's output the remaining unsafe data
-      outputRow(prevRow);
       // only attempt writing to file when the first row is not empty
       if (data.isWriteToFile && !first && meta.getSplitOutputAfter() == 0) {
+        // no more input to be expected...
+        // Let's output the remaining unsafe data
+        outputRow(prevRow);
+        writeJsonFile();
+      }
+
+      // Process the leftover data only when a split file size is defined
+      // and there are still items pending.
+      if (meta.getSplitOutputAfter() > 0 && !data.jsonItems.isEmpty()) {
+        serializeJson(data.jsonItems);
         writeJsonFile();
       }
       setOutputDone();
       return false;
     }
 
-    if (first && onFirstRecord(r)) return false;
+    if (first && onFirstRecord(r)) {
+      return false;
+    }
 
     data.rowsAreSafe = false;
-
     manageRowItems(r);
-
     return true;
   }
 
