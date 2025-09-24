@@ -20,8 +20,6 @@ package org.apache.hop.parquet.transforms.input;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IValueMeta;
