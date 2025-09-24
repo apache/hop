@@ -1,0 +1,83 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "filename",
+          "data_set_field": "filename"
+        },
+        {
+          "transform_field": "short_filename",
+          "data_set_field": "short_filename"
+        },
+        {
+          "transform_field": "path",
+          "data_set_field": "path"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "exists",
+          "data_set_field": "exists"
+        },
+        {
+          "transform_field": "ishidden",
+          "data_set_field": "ishidden"
+        },
+        {
+          "transform_field": "isreadable",
+          "data_set_field": "isreadable"
+        },
+        {
+          "transform_field": "iswriteable",
+          "data_set_field": "iswriteable"
+        },
+        {
+          "transform_field": "size",
+          "data_set_field": "size"
+        },
+        {
+          "transform_field": "extension",
+          "data_set_field": "extension"
+        },
+        {
+          "transform_field": "uri",
+          "data_set_field": "uri"
+        },
+        {
+          "transform_field": "rooturi",
+          "data_set_field": "rooturi"
+        }
+      ],
+      "field_order": [
+        "filename",
+        "short_filename",
+        "path",
+        "type",
+        "exists",
+        "ishidden",
+        "isreadable",
+        "iswriteable",
+        "size",
+        "extension",
+        "uri",
+        "rooturi"
+      ],
+      "data_set_name": "golden-minio-validate-files",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0001-minio-validate-files UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0001-minio-validate-files.hpl"
+}

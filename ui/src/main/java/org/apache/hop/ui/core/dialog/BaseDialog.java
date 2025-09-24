@@ -415,7 +415,7 @@ public abstract class BaseDialog extends Dialog {
 
     String filename = null;
     if (!doIt.get() || dialog.open() != null) {
-      filename = FilenameUtils.concat(dialog.getFilterPath(), dialog.getFileName());
+      filename = buildFilename(dialog.getFilterPath(), dialog.getFileName());
       try {
         HopGuiFileOpenedExtension openedExtension =
             new HopGuiFileOpenedExtension(dialog, variables, filename);
@@ -436,6 +436,23 @@ public abstract class BaseDialog extends Dialog {
       }
     }
     return filename;
+  }
+
+  private static String buildFilename(String filterPath, String fileName) {
+    if (StringUtils.isEmpty(filterPath)) {
+      return fileName;
+    }
+    // Is this reading from a VFS URL?
+    //
+    if (filterPath.contains("://") || filterPath.contains(":///")) {
+      if (filterPath.endsWith("/")) {
+        return filterPath + fileName;
+      } else {
+        return filterPath + "/" + fileName;
+      }
+    } else {
+      return FilenameUtils.concat(filterPath, fileName);
+    }
   }
 
   public static String presentDirectoryDialog(Shell shell) {
