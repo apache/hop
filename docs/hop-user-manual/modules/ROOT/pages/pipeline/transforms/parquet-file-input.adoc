@@ -63,6 +63,11 @@ Make sure to allocate enough memory to allow this.
 Use a transform like Get File Names to obtain file names.
 Any supported file location is fine.
 
+|Metadata filename
+|If you specify a filename here, you can leave the fields section empty and Hop will automatically determine
+the output fields.  It prevents you from having to define all the fields when this metadata is already in
+a parquet file schema.
+
 |Fields
 |In this table you can specify all the fields you want to obtain from the parquet files as well as their desired Hop output type.
 
