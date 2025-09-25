@@ -148,6 +148,15 @@ public class UserDefinedJavaClass
     return super.decrementLinesWritten();
   }
 
+  @Override
+  public void dispose() {
+    if (child == null) {
+      disposeImpl();
+    } else {
+      child.dispose();
+    }
+  }
+
   public void disposeImpl() {
     super.dispose();
   }
