@@ -56,6 +56,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
 
     if (meta.isCounterUsed()) {
       next = data.counter.getAndNext();
+      logDetailed("count name: {0}, next: {1}", data.getLookup(), next);
     } else if (meta.isDatabaseUsed()) {
       try {
         next =
@@ -90,8 +91,8 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
 
   @Override
   public boolean processRow() throws HopException {
-
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
+    // Get row from input rowset & set row busy!
+    Object[] r = getRow();
     if (r == null) {
       // no more input to be expected...
       setOutputDone();
@@ -216,9 +217,9 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
 
         String realCounterName = resolve(meta.getCounterName());
         if (!Utils.isEmpty(realCounterName)) {
-          data.setLookup("@@sequence:" + realCounterName);
+          data.setLookup(lookupCounterName(realCounterName));
         } else {
-          data.setLookup("@@sequence:" + meta.getValueName());
+          data.setLookup(lookupCounterName(meta.getValueName()));
         }
 
         // We need to synchronize over the whole pipeline to make sure that we always get the same
@@ -226,6 +227,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         // regardless of the number of transform copies asking for it.
         //
         synchronized (getPipeline()) {
+          logBasic("init counter name: {0}", data.getLookup());
           data.counter =
               Counters.getInstance()
                   .getOrUpdateCounter(
@@ -263,5 +265,17 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
   @Override
   public void cleanup() {
     super.cleanup();
+  }
+
+  /**
+   * Build a unique identifier, eg: seq_sequence_value_1_1_999999999_tId
+   *
+   * @param counterName counter name
+   * @return unique key
+   */
+  private String lookupCounterName(String counterName) {
+    return String.format(
+        "seq_%s_%d_%d_%d_%d",
+        counterName, data.start, data.increment, data.maximum, Thread.currentThread().getId());
   }
 }
