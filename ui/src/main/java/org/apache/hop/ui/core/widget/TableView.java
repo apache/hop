@@ -1397,7 +1397,7 @@ public class TableView extends Composite {
           OsHelper.customizeMenuitemText(
               BaseMessages.getString(PKG, "TableView.menu.CopyToClipboard")));
       miCopy.setImage(GuiResource.getInstance().getImageCopy());
-      miCopy.addListener(SWT.Selection, e -> copyToAll());
+      miCopy.addListener(SWT.Selection, e -> clipSelected());
       miCopy.setEnabled(!readonly);
     }
 
@@ -2282,7 +2282,7 @@ public class TableView extends Composite {
 
         for (int i = 1; i < lines.length; i++) {
           grid[i - 1] = lines[i].split("\t");
-          idx[i - 1] = rowNr + i;
+          idx[i - 1] = rowNr + i - 1;
           addItem(idx[i - 1], grid[i - 1]);
         }
 

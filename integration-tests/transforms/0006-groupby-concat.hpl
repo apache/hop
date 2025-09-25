@@ -54,13 +54,18 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Memory group by</from>
+      <from>Group by</from>
+      <to>Merge Streams</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Merge Streams</from>
       <to>Sort rows result</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Group by</from>
-      <to>Sort rows result</to>
+      <from>Memory group by</from>
+      <to>Merge Streams</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -305,23 +310,20 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <directory>${java.io.tmpdir}</directory>
-    <prefix>out</prefix>
-    <sort_size>1000000</sort_size>
-    <free_memory/>
     <compress>N</compress>
-    <compress_variable/>
-    <unique_rows>N</unique_rows>
+    <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
-        <name>KEY1</name>
         <ascending>Y</ascending>
         <case_sensitive>N</case_sensitive>
         <collator_enabled>N</collator_enabled>
         <collator_strength>0</collator_strength>
+        <name>KEY1</name>
         <presorted>N</presorted>
       </field>
     </fields>
+    <sort_size>1000000</sort_size>
+    <unique_rows>N</unique_rows>
     <attributes/>
     <GUI>
       <xloc>128</xloc>
@@ -339,23 +341,45 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <directory>${java.io.tmpdir}</directory>
-    <prefix>out</prefix>
-    <sort_size>1000000</sort_size>
-    <free_memory/>
     <compress>N</compress>
-    <compress_variable/>
-    <unique_rows>N</unique_rows>
+    <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
-        <name>KEY1</name>
         <ascending>Y</ascending>
         <case_sensitive>N</case_sensitive>
         <collator_enabled>N</collator_enabled>
         <collator_strength>0</collator_strength>
+        <name>KEY1</name>
         <presorted>N</presorted>
       </field>
     </fields>
+    <sort_size>1000000</sort_size>
+    <unique_rows>N</unique_rows>
+    <attributes/>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Merge Streams</name>
+    <type>StreamSchema</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <transforms>
+      <transform>
+        <name>Group by</name>
+      </transform>
+      <transform>
+        <name>Memory group by</name>
+      </transform>
+    </transforms>
     <attributes/>
     <GUI>
       <xloc>384</xloc>
