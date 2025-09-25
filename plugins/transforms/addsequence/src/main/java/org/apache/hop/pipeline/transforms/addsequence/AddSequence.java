@@ -268,14 +268,18 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
   }
 
   /**
-   * Build a unique identifier, eg: seq_sequence_value_1_1_999999999_tId
+   * Build a unique identifier for this pipeline run.
    *
    * @param counterName counter name
    * @return unique key
    */
   private String lookupCounterName(String counterName) {
-    return String.format(
-        "seq_%s_%d_%d_%d_%d",
-        counterName, data.start, data.increment, data.maximum, Thread.currentThread().getId());
+    // unique per run
+    String scope = getPipeline().getContainerId();
+    if (Utils.isEmpty(scope)) {
+      // fallback: unique per run as well
+      scope = getPipeline().getLogChannelId();
+    }
+    return "@@sequence:" + scope + ":" + counterName;
   }
 }
