@@ -40,6 +40,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -407,8 +408,21 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
               }
               break;
             default:
-              throw new HopException(
-                  "PGBulkLoader doesn't handle the type " + valueMeta.getTypeDesc());
+
+              // UUID supports
+              if (valueMeta.getType() == ValueMetaFactory.getIdForValueMeta("UUID")) {
+                if (valueMeta.isStorageBinaryString()) {
+                  pgCopyOut.write((byte[]) valueData);
+                } else {
+                  String s = valueMeta.getString(valueData);
+                  if (s != null) {
+                    pgCopyOut.write(s.getBytes(clientEncoding));
+                  }
+                }
+              } else {
+                throw new HopException(
+                    "PGBulkLoader doesn't handle the type " + valueMeta.getTypeDesc());
+              }
           }
         }
       }

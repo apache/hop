@@ -344,7 +344,13 @@ public interface IValueMeta extends Cloneable {
     try {
       return typeCodes[type];
     } catch (Exception e) {
-      return "unknown/illegal";
+      // consult plugin registry
+      try {
+        String pluginType = ValueMetaFactory.getValueMetaName(type);
+        return pluginType.equals("-") ? "unknown/illegal" : pluginType;
+      } catch (Exception ignore) {
+        return "unknown/illegal";
+      }
     }
   }
 
