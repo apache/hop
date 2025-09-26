@@ -63,7 +63,7 @@ public class ValueMetaUuid extends ValueMetaBase {
 
   @Override
   public ValueMetaUuid clone() {
-    return new ValueMetaUuid(this);
+    return (ValueMetaUuid) super.clone();
   }
 
   @Override
