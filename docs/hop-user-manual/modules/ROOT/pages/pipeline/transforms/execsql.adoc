@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Execute SQL Script transform runs a SQL script either once, during the initialization phase of the pipeline, or once for every input-row that the transform receives.
+:description: The Execute SQL Script transform runs a SQL script either once, during the initialization phase of the pipeline, or once for every input-row that the transform receives and inbound fields are passed on to its output.
 
 :openvar: ${
 :closevar: }
@@ -31,6 +31,7 @@ under the License.
 The Execute SQL Script transform runs a SQL script either once, during the initialization phase of the pipeline, or once for every input-row that the transform receives.
 
 When used for every input row, parameters can be passed to the SQL scripts specified in the transform.
+Only in this mode, input fields are passed on to the next hop.
 
 |
 == Supported Engines
@@ -53,8 +54,9 @@ When used for every input row, parameters can be passed to the SQL scripts speci
 |SQL script to execute|Specify the SQL to execute.
 Separate statements by ; and use question marks as place holders for parameter.
 |Execute for each row?|Select this option to execute the SQL for each incoming row.
-In this case paramters can be used.
-When this option is unchecked, the SQL statement is executed at the transform initialization phase.
+In this case input fileds can be used as parameters and are passed on to the output.
+
+When this option is unchecked, the SQL statement is executed at the transform initialization phase and inputs fields are not processed.
 |Execute as a single statement|This option does not split the statements by ; and will send the whole SQL to the database.
 |Variable substitution|In case you want to use variables in the SQL, e.g. {openvar}table_name{closevar}, this option needs to be checked. If you are using Parameter fields, they are only used in conjunction with "question marks" in the SQL (see below).
 |Bind parameters?|Check this option to bind parameters using prepared statements, otherwise this transform will perform a literal string replacement of the parameters.
