@@ -833,19 +833,26 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   }
 
   private void explore() {
-    DatabaseMeta meta = new DatabaseMeta();
-    getWidgetsContent(meta);
-    try {
-      DatabaseExplorerDialog dialog =
-          new DatabaseExplorerDialog(
-              getShell(),
-              SWT.NONE,
-              manager.getVariables(),
-              meta,
-              manager.getSerializer().loadAll());
-      dialog.open();
-    } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error exploring database", e);
+    if (!getMetadata().isExploringDisabled()) {
+      DatabaseMeta meta = new DatabaseMeta();
+      getWidgetsContent(meta);
+      try {
+        DatabaseExplorerDialog dialog =
+            new DatabaseExplorerDialog(
+                getShell(),
+                SWT.NONE,
+                manager.getVariables(),
+                meta,
+                manager.getSerializer().loadAll());
+        dialog.open();
+      } catch (Exception e) {
+        new ErrorDialog(getShell(), "Error", "Error exploring database", e);
+      }
+    } else {
+      MessageBox mb = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.title"));
+      mb.setMessage(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.description"));
+      mb.open();
     }
   }
 
@@ -997,46 +1004,55 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
    */
   public static final void testConnection(
       Shell shell, IVariables variables, DatabaseMeta databaseMeta, boolean hideUrl) {
-    String[] remarks = databaseMeta.checkParameters();
-    if (remarks.length == 0) {
-      // Get a "test" report from this database
-      DatabaseTestResults databaseTestResults = databaseMeta.testConnectionSuccess(variables);
-      String message = databaseTestResults.getMessage();
+    if (databaseMeta.isTestable()) {
+      String[] remarks = databaseMeta.checkParameters();
+      if (remarks.length == 0) {
+        // Get a "test" report from this database
+        DatabaseTestResults databaseTestResults = databaseMeta.testConnectionSuccess(variables);
+        String message = databaseTestResults.getMessage();
 
-      // Hide URL information if requested
-      if (hideUrl && message != null) {
-        message = hideUrlInMessage(message, databaseMeta, variables);
+        // Hide URL information if requested
+        if (hideUrl && message != null) {
+          message = hideUrlInMessage(message, databaseMeta, variables);
+        }
+        boolean success = databaseTestResults.isSuccess();
+        String title =
+            success
+                ? BaseMessages.getString(PKG, "DatabaseDialog.DatabaseConnectionTestSuccess.title")
+                : BaseMessages.getString(PKG, "DatabaseDialog.DatabaseConnectionTest.title");
+        if (success && message.contains(Const.CR)) {
+          message =
+              message.substring(0, message.indexOf(Const.CR))
+                  + Const.CR
+                  + message.substring(message.indexOf(Const.CR));
+          message = message.substring(0, message.lastIndexOf(Const.CR));
+        }
+        ShowMessageDialog msgDialog =
+            new ShowMessageDialog(
+                shell, SWT.ICON_INFORMATION | SWT.OK, title, message, message.length() > 300);
+        msgDialog.setType(
+            success
+                ? Const.SHOW_MESSAGE_DIALOG_DB_TEST_SUCCESS
+                : Const.SHOW_MESSAGE_DIALOG_DB_TEST_DEFAULT);
+        msgDialog.open();
+      } else {
+        String message = "";
+        for (int i = 0; i < remarks.length; i++) {
+          message += "    * " + remarks[i] + Const.CR;
+        }
+
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.ErrorParameters2.title"));
+        mb.setMessage(
+            BaseMessages.getString(PKG, "DatabaseDialog.ErrorParameters2.description", message));
+        mb.open();
       }
-      boolean success = databaseTestResults.isSuccess();
-      String title =
-          success
-              ? BaseMessages.getString(PKG, "DatabaseDialog.DatabaseConnectionTestSuccess.title")
-              : BaseMessages.getString(PKG, "DatabaseDialog.DatabaseConnectionTest.title");
-      if (success && message.contains(Const.CR)) {
-        message =
-            message.substring(0, message.indexOf(Const.CR))
-                + Const.CR
-                + message.substring(message.indexOf(Const.CR));
-        message = message.substring(0, message.lastIndexOf(Const.CR));
-      }
-      ShowMessageDialog msgDialog =
-          new ShowMessageDialog(
-              shell, SWT.ICON_INFORMATION | SWT.OK, title, message, message.length() > 300);
-      msgDialog.setType(
-          success
-              ? Const.SHOW_MESSAGE_DIALOG_DB_TEST_SUCCESS
-              : Const.SHOW_MESSAGE_DIALOG_DB_TEST_DEFAULT);
-      msgDialog.open();
     } else {
-      String message = "";
-      for (int i = 0; i < remarks.length; i++) {
-        message += "    * " + remarks[i] + Const.CR;
-      }
-
+      String message = databaseMeta.getPluginName();
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.ErrorParameters2.title"));
+      mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.Testing.Disabled.title"));
       mb.setMessage(
-          BaseMessages.getString(PKG, "DatabaseDialog.ErrorParameters2.description", message));
+          BaseMessages.getString(PKG, "DatabaseDialog.Testing.Disabled.description", message));
       mb.open();
     }
   }

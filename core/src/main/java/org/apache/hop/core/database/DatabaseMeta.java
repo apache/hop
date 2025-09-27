@@ -2213,6 +2213,20 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   /**
+   * @return true if this is a relational database for which the connection can be tested.
+   */
+  public boolean isTestable() {
+    return iDatabase.isTestable();
+  }
+
+  /**
+   * @return true if this is a relational database for which exploring is allowed
+   */
+  public boolean isExploringDisabled() {
+    return iDatabase.isExploringDisabled();
+  }
+
+  /**
    * @return The SQL on this database to get a list of sequences.
    */
   public String getSqlListOfSequences() {

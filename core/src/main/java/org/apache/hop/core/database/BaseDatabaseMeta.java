@@ -1397,6 +1397,22 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   /**
+   * @return true if this is a relational database you can explore. Return false for SAP, PALO, etc.
+   */
+  @Override
+  public boolean isTestable() {
+    return true;
+  }
+
+  /**
+   * @return true if this is a relational database for which exploring is disabled
+   */
+  @Override
+  public boolean isExploringDisabled() {
+    return false;
+  }
+
+  /**
    * @param string
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete,
    *     etc)

@@ -830,6 +830,16 @@ public interface IDatabase extends Cloneable {
   boolean isExplorable();
 
   /**
+   * @return true if this is a relational database for which the connection can be tested.
+   */
+  boolean isTestable();
+
+  /**
+   * @return true if this is a relational database for which exploring is disabled
+   */
+  boolean isExploringDisabled();
+
+  /**
    * @return The SQL on this database to get a list of sequences.
    */
   String getSqlListOfSequences();
