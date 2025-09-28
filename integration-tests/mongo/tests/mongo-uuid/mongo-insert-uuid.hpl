@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>mongo-insert-uuid</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/09/27 16:33:35.504</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/09/27 16:33:35.504</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Data grid</from>
+      <to>insert</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Data grid</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>ad5305ff-fc53-480b-8d0b-d8dfdf93e32e</item>
+        <item>e5703a5d-9384-476c-a673-d9bc347134f2</item>
+        <item>1</item>
+      </line>
+      <line>
+        <item>45528287-0cf6-4c9c-9228-ca90a182c2c7</item>
+        <item>d3956c05-1251-4f90-b730-1aee603d1499</item>
+        <item>2</item>
+      </line>
+      <line>
+        <item>ab6ce49a-5004-4582-b2c4-07e39738cebb</item>
+        <item>883a0ba5-8b11-474a-91f2-312fdb60dd9c</item>
+        <item>3</item>
+      </line>
+      <line>
+        <item>80132062-d0db-4146-a6d8-b634a7acd044</item>
+        <item>91045c8c-cf81-4a38-b429-40efdf128848</item>
+        <item>4</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>id1</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>UUID</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>id2</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>UUID</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>amount</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>Integer</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>insert</name>
+    <type>MongoDbOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>mongo</connection>
+    <mongo_collection>uuid_insert</mongo_collection>
+    <batch_insert_size>5</batch_insert_size>
+    <truncate>Y</truncate>
+    <update>N</update>
+    <upsert>N</upsert>
+    <multi>N</multi>
+    <modifier_update>N</modifier_update>
+    <write_retries>5</write_retries>
+    <write_retry_delay>10</write_retry_delay>
+    <mongo_fields>
+      <mongo_field>
+        <incoming_field_name>id1</incoming_field_name>
+        <mongo_doc_path>ids[0]</mongo_doc_path>
+        <use_incoming_field_name_as_mongo_field_name>N</use_incoming_field_name_as_mongo_field_name>
+        <update_match_field>N</update_match_field>
+        <modifier_update_operation>N/A</modifier_update_operation>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
+        <json_field>N</json_field>
+        <allow_null>N</allow_null>
+      </mongo_field>
+      <mongo_field>
+        <incoming_field_name>id2</incoming_field_name>
+        <mongo_doc_path>ids[1]</mongo_doc_path>
+        <use_incoming_field_name_as_mongo_field_name>N</use_incoming_field_name_as_mongo_field_name>
+        <update_match_field>N</update_match_field>
+        <modifier_update_operation>N/A</modifier_update_operation>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
+        <json_field>N</json_field>
+        <allow_null>N</allow_null>
+      </mongo_field>
+      <mongo_field>
+        <incoming_field_name>amount</incoming_field_name>
+        <mongo_doc_path>amount</mongo_doc_path>
+        <use_incoming_field_name_as_mongo_field_name>N</use_incoming_field_name_as_mongo_field_name>
+        <update_match_field>N</update_match_field>
+        <modifier_update_operation>N/A</modifier_update_operation>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
+        <json_field>N</json_field>
+        <allow_null>N</allow_null>
+      </mongo_field>
+    </mongo_fields>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

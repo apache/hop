@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>mongo-read-uuid</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/09/27 16:54:15.987</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/09/27 16:54:15.987</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Segoe UI</fontname>
+      <fontsize>9</fontsize>
+      <height>42</height>
+      <xloc>176</xloc>
+      <yloc>64</yloc>
+      <note>If mongo-insert-uuid and mongo-delete-uuid successfully executed, uuid_insert will have 2 rows.
+If this fails, also check the prev transforms.</note>
+      <width>522</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>MongoDB input</from>
+      <to>Data validator</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>MongoDB input</from>
+      <to>Group by</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Group by</from>
+      <to>Filter rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Abort</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>720</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Data validator</name>
+    <type>Validator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <concat_errors>N</concat_errors>
+    <concat_separator/>
+    <validate_all>N</validate_all>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <conversion_mask/>
+      <data_type>UUID</data_type>
+      <data_type_verified>Y</data_type_verified>
+      <decimal_symbol/>
+      <end_string/>
+      <end_string_not_allowed/>
+      <error_code/>
+      <error_description/>
+      <grouping_symbol/>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <max_value/>
+      <min_length/>
+      <min_value/>
+      <name>id1</name>
+      <null_allowed>N</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <regular_expression/>
+      <regular_expression_not_allowed/>
+      <sourcing_field/>
+      <sourcing_transform/>
+      <start_string/>
+      <start_string_not_allowed/>
+      <validation_name>uuid_type_id1</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <conversion_mask/>
+      <data_type>UUID</data_type>
+      <data_type_verified>Y</data_type_verified>
+      <decimal_symbol/>
+      <end_string/>
+      <end_string_not_allowed/>
+      <error_code/>
+      <error_description/>
+      <grouping_symbol/>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <max_value/>
+      <min_length/>
+      <min_value/>
+      <name>id2</name>
+      <null_allowed>N</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <regular_expression/>
+      <regular_expression_not_allowed/>
+      <sourcing_field/>
+      <sourcing_transform/>
+      <start_string/>
+      <start_string_not_allowed/>
+      <validation_name>uuid_type_id2</validation_name>
+    </validator_field>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter rows</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>=</function>
+        <leftvalue>rows_count</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <mask>####0;-####0</mask>
+          <name>constant</name>
+          <precision>0</precision>
+          <text>2</text>
+          <type>Integer</type>
+        </value>
+      </condition>
+    </compare>
+    <send_false_to>Abort</send_false_to>
+    <attributes/>
+    <GUI>
+      <xloc>560</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Group by</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <add_linenr>N</add_linenr>
+    <all_rows>N</all_rows>
+    <directory>${java.io.tmpdir}</directory>
+    <fields>
+      <field>
+        <aggregate>rows_count</aggregate>
+        <subject>id1</subject>
+        <type>COUNT_ALL</type>
+      </field>
+    </fields>
+    <give_back_row>Y</give_back_row>
+    <group>
+</group>
+    <ignore_aggregate>N</ignore_aggregate>
+    <prefix>grp</prefix>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>MongoDB input</name>
+    <type>MongoDbInput</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>mongo</connection>
+    <fields_name/>
+    <collection>uuid_insert</collection>
+    <json_field_name>json</json_field_name>
+    <json_query/>
+    <output_json>N</output_json>
+    <query_is_pipeline>N</query_is_pipeline>
+    <execute_for_each_row>N</execute_for_each_row>
+    <mongo_fields>
+      <mongo_field>
+        <field_name>id1</field_name>
+        <field_path>ids[0]</field_path>
+        <field_type>UUID</field_type>
+      </mongo_field>
+      <mongo_field>
+        <field_name>id2</field_name>
+        <field_path>ids[1]</field_path>
+        <field_type>UUID</field_type>
+      </mongo_field>
+      <mongo_field>
+        <field_name>amount</field_name>
+        <field_path>amount</field_path>
+        <field_type>Integer</field_type>
+      </mongo_field>
+    </mongo_fields>
+    <attributes/>
+    <GUI>
+      <xloc>176</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
