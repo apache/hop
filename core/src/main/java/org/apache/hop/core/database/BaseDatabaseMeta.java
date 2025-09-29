@@ -33,10 +33,12 @@ import java.util.TreeSet;
 import java.util.stream.Stream;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -1913,6 +1915,28 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public IValueMeta customizeValueFromSqlType(
       IValueMeta v, java.sql.ResultSetMetaData rm, int index) throws SQLException {
+    if (v == null || rm == null) {
+      return null;
+    }
+
+    String typeName = rm.getColumnTypeName(index);
+    // Most dbs expose uuid as "UUID", sql server (native) as "UNIQUEIDENTIFIER"
+    if ("uuid".equalsIgnoreCase(typeName) || "uniqueidentifier".equalsIgnoreCase(typeName)) {
+      try {
+
+        int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+
+        // Keep any existing metadata
+        IValueMeta u = ValueMetaFactory.cloneValueMeta(v, uuidTypeId);
+
+        u.setLength(-1);
+        u.setPrecision(-1);
+
+        return u;
+      } catch (HopPluginException ignore) {
+        // UUID plugin not present
+      }
+    }
     return null;
   }
 

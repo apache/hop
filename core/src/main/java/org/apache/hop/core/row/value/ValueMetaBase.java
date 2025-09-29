@@ -4638,7 +4638,12 @@ public class ValueMetaBase implements IValueMeta {
       case TYPE_JSON:
         return getJson(data);
       default:
-        throw new HopValueException(this + CONST_CANNOT_CONVERT + conversionMetadata.getType());
+        // Generic plugin-aware path
+        try {
+          return conversionMetadata.convertData(this, data);
+        } catch (Exception e) {
+          throw new HopValueException(this + CONST_CANNOT_CONVERT + conversionMetadata.getType());
+        }
     }
   }
 

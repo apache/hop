@@ -42,6 +42,9 @@ services:
       timeout: 10s
       retries: 6
       start_period: 120s
+    volumes:
+      # init scripts run automatically on first cluster init (read only)
+      - ./unit-test-db-startup.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest

@@ -28,12 +28,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -920,6 +922,17 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       byte[] val = hopType.getBinary(hopValue);
       mongoObject.put(lookup.toString(), val);
       return true;
+    }
+    // UUID
+    try {
+      int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+      if (hopType.getType() == uuidTypeId) {
+        UUID val = (UUID) hopType.convertData(hopType, hopValue);
+        mongoObject.put(lookup.toString(), val);
+        return true;
+      }
+    } catch (Exception ignore) {
+      // UUID plugin not present, fall through
     }
     if (hopType.isSerializableType()) {
       throw new HopValueException(
