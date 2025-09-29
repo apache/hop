@@ -729,7 +729,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             return;
           } else if (e.button == 1 && startHopTransform != null && endHopTransform == null) {
             candidate = new PipelineHopMeta(startHopTransform, currentTransform);
-            addCandidateAsHop(e.x, e.y);
           } else if (e.button == 2 || (e.button == 1 && shift)) {
             // SHIFT CLICK is start of drag to create a new hop
             //
