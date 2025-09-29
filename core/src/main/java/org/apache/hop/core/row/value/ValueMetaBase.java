@@ -4642,8 +4642,7 @@ public class ValueMetaBase implements IValueMeta {
         try {
           return conversionMetadata.convertData(this, data);
         } catch (Exception e) {
-          throw new HopValueException(
-              this + CONST_CANNOT_CONVERT + conversionMetadata.getType());
+          throw new HopValueException(this + CONST_CANNOT_CONVERT + conversionMetadata.getType());
         }
     }
   }

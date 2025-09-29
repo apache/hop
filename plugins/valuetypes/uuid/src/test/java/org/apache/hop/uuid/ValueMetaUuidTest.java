@@ -17,11 +17,12 @@
 
 package org.apache.hop.uuid;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,17 +37,18 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
-public class ValueMetaUuidTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+class ValueMetaUuidTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setupOnce() throws Exception {
+  @BeforeAll
+  static void setupOnce() throws Exception {
     HopClientEnvironment.init();
   }
 
@@ -55,18 +57,18 @@ public class ValueMetaUuidTest {
   }
 
   @Test
-  public void testUuidTypeDescription() throws Exception {
+  void testUuidTypeDescription() {
     int uuidId = ValueMetaFactory.getIdForValueMeta("UUID");
     assertEquals("UUID", IValueMeta.getTypeDescription(uuidId));
   }
 
   @Test
-  public void testNativeClassIsUuid() {
+  void testNativeClassIsUuid() {
     assertEquals(UUID.class, vm("id").getNativeDataTypeClass());
   }
 
   @Test
-  public void testConvertToUuid() throws Exception {
+  void testConvertToUuid() throws Exception {
     ValueMetaUuid dst = vm("id");
     // UUID is converted to UUID (kept the sa,e)
     UUID u = UUID.randomUUID();
@@ -76,7 +78,7 @@ public class ValueMetaUuidTest {
     IValueMeta src = new ValueMetaString("id");
     u = UUID.randomUUID();
     Object out = dst.convertData(src, u.toString());
-    assertTrue(out instanceof UUID);
+    assertInstanceOf(UUID.class, out);
     assertEquals(u, out);
 
     // UUID conversion is storage type is indexed
@@ -85,7 +87,7 @@ public class ValueMetaUuidTest {
     UUID u2 = UUID.randomUUID();
     indexSrc.setIndex(new Object[] {u.toString(), u2.toString()});
     out = dst.convertData(indexSrc, Integer.valueOf(1));
-    assertTrue(out instanceof UUID);
+    assertInstanceOf(UUID.class, out);
     assertEquals(u2, out);
 
     // string with BINARY_STRING storage (lazy conversion)
@@ -105,12 +107,12 @@ public class ValueMetaUuidTest {
     byte[] lazyBytes = u3.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
 
     out = binDst.convertData(binSrc, lazyBytes);
-    assertTrue(out instanceof UUID);
+    assertInstanceOf(UUID.class, out);
     assertEquals(u3, out);
   }
 
   @Test
-  public void testConvertInvalidThrows() {
+  void testConvertInvalidThrows() {
     ValueMetaUuid dst = vm("id");
     IValueMeta src = new ValueMetaString("id");
     try {
@@ -122,7 +124,7 @@ public class ValueMetaUuidTest {
   }
 
   @Test
-  public void testHashCode() throws Exception {
+  void testHashCode() throws Exception {
     ValueMetaUuid dst = vm("id");
     UUID u = UUID.randomUUID();
     int h1 = dst.hashCode(u);
@@ -133,14 +135,14 @@ public class ValueMetaUuidTest {
   }
 
   @Test
-  public void testCloneValueData() throws Exception {
+  void testCloneValueData() throws Exception {
     ValueMetaUuid dst = vm("id");
     UUID u = UUID.randomUUID();
     assertSame(u, dst.cloneValueData(u));
   }
 
   @Test
-  public void testCompare() throws Exception {
+  void testCompare() throws Exception {
     ValueMetaUuid dst = vm("id");
     UUID u = UUID.randomUUID();
 
@@ -168,7 +170,7 @@ public class ValueMetaUuidTest {
   }
 
   @Test
-  public void testWriteDataNormalStorage() throws Exception {
+  void testWriteDataNormalStorage() throws Exception {
     ValueMetaUuid dst = vm("id");
     UUID u = UUID.randomUUID();
 
@@ -191,7 +193,7 @@ public class ValueMetaUuidTest {
   }
 
   @Test
-  public void testGetValueFromResultSetReadsString() throws Exception {
+  void testGetValueFromResultSetReadsString() throws Exception {
     ValueMetaUuid dst = vm("id");
     ResultSet rs = Mockito.mock(ResultSet.class);
     Mockito.when(rs.getObject(1)).thenReturn("123e4567-e89b-12d3-a456-426655440000");
@@ -202,7 +204,7 @@ public class ValueMetaUuidTest {
   }
 
   @Test
-  public void testGetValueFromResultSetReadsUuid() throws Exception {
+  void testGetValueFromResultSetReadsUuid() throws Exception {
     ValueMetaUuid dst = vm("id");
     ResultSet rs = Mockito.mock(ResultSet.class);
     UUID u = UUID.randomUUID();
