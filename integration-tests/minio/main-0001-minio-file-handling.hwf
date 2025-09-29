@@ -526,6 +526,26 @@ limitations under the License.
 if it doesn't exist</note>
       <width>98</width>
     </notepad>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Cantarell</fontname>
+      <fontsize>11</fontsize>
+      <height>23</height>
+      <xloc>944</xloc>
+      <yloc>288</yloc>
+      <note>Thes folders should not exist.</note>
+      <width>127</width>
+    </notepad>
   </notepads>
   <attributes/>
 </workflow>

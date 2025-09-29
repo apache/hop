@@ -1,0 +1,58 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: This is used to register one or more S3 endpoints
+
+= Minio Connection
+
+== Description
+
+This metadata type can be used to add a new S3 endpoint to your project.
+You can define multiple S3 endpoints in the same project.
+Using a Minio client to connect to an S3 endpoint allows you to specify the name in the path.
+For example, if your Minio Connection is named `sss` (Simple Storage Service), you can specify a path to a bucket
+as **sss:///bucketName**.
+
+**Note**: If you create a folder in the root (`sss://` in our example) it results in the creation of a bucket.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name| Name of the file system, this will be used in file paths: `name://`
+|Description| Description field for additional information
+|Access key| The access key used to connect to the S3 service
+|Secret key| The secret key used to connect to the S3 service
+|Endpoint hostname| The hostname of the end point to connect to
+|Endpoint port| The port of the end point to connect to (default 9000)
+|Endpoint secure| Check this option if you want to communicate over `https://`
+|Region| The region to use
+|Object part size| The object part size in bytes
+|===
+
+== Tips
+
+* To test a connection you can use the Hop GUI File dialog (File - Open) and type `ChosenName://` to see
+the bucket list of the S3 service.
+* Give logical and simple names to these Minio metadata connection elements.
+* Take a functional name instead of a technical one.
+* Avoid dashes and the like.
+* Don't use the name of existing VFS drivers, either
+https://commons.apache.org/proper/commons-vfs/filesystems.html[built-in] (like file, ftp, http, ...) or added
+through other VFS plugins (like s3, azure, gs, ...).

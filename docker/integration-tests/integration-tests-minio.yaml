@@ -20,15 +20,6 @@ services:
     extends:
       file: integration-tests-base.yaml
       service: integration_test
-    environment:
-      HOP_MINIO_ENDPOINT_HOSTNAME: "minio"
-      HOP_MINIO_ENDPOINT_PORT: "9000"
-      HOP_MINIO_ENDPOINT_SECURE: "false"
-      HOP_MINIO_ACCESS_KEY: "ApacheHopAccessKey"
-      HOP_MINIO_SECRET_KEY: "ApacheHopSecretKey"
-      HOP_MINIO_REGION: "local"
-      HOP_MINIO_PART_SIZE: "50000000"
-      HOP_CONFIG_OPTIONS: "--minio-access-key=ApacheHopAccessKey --minio-secret-key=ApacheHopSecretKey --minio-endpoint-host=minio --minio-part-size=50000000 --minio-region=local --minio-endpoint-port=9000 --minio-endpoint-secure=false"
     depends_on:
       minio:
         condition: service_healthy

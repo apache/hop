@@ -46,6 +46,7 @@ By default, Hop contains the following metadata types:
 * xref:metadata-types/hop-server.adoc[Hop Server]: Defines a Hop Server
 * xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]: Describes a MongoDB connection
 * xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]: Describes a mail server connection
+* xref:metadata-types/minio-connection.adoc[Minio (S3) Connection]: Connect to one or more S3 endpoints using a Minio client
 * xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]: A shared connection to a Neo4j server
 * xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: Description of the nodes, relationships, indexes, ... of a Neo4j graph
 * xref:metadata-types/partition-schema.adoc[Partition Schema]: Describes a partition schema

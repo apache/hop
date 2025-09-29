@@ -1,3 +1,27 @@
 {
-  "variables" : [ ]
+  "variables" : [ {
+    "name" : "MINIO_ENDPOINT_HOSTNAME",
+    "value" : "localhost",
+    "description" : "The endpoint hostname"
+  }, {
+    "name" : "MINIO_ENDPOINT_PORT",
+    "value" : "9000",
+    "description" : "The endpoint port"
+  }, {
+    "name" : "MINIO_ACCESS_KEY",
+    "value" : "ApacheHopAccessKey",
+    "description" : "The access key"
+  }, {
+    "name" : "MINIO_SECRET_KEY",
+    "value" : "ApacheHopSecretKey",
+    "description" : "The secret key"
+  }, {
+    "name" : "MINIO_REGION",
+    "value" : "local",
+    "description" : "The region"
+  }, {
+    "name" : "MINIO_PART_SIZE",
+    "value" : "5242880",
+    "description" : "The part size (5MB)"
+  } ]
 }

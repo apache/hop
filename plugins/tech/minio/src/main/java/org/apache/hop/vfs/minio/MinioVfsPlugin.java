@@ -18,17 +18,23 @@
 
 package org.apache.hop.vfs.minio;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.vfs.minio.metadata.MinioMeta;
 
 @VfsPlugin(type = "minio", typeDescription = "S3 VFS plugin", classLoaderGroup = "vfs-s3")
 public class MinioVfsPlugin implements IVfs {
   @Override
   public String[] getUrlSchemes() {
-    return new String[] {"minio"};
+    // Not used for Minio.  The URL schemes are derived from metadata.
+    return new String[] {};
   }
 
   @Override
@@ -38,6 +44,17 @@ public class MinioVfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
-    return null;
+    Map<String, FileProvider> providers = new HashMap<>();
+    try {
+      IHopMetadataProvider metadataProvider =
+          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+      List<MinioMeta> minioMetaTypes = metadataProvider.getSerializer(MinioMeta.class).loadAll();
+      for (MinioMeta minioMeta : minioMetaTypes) {
+        providers.put(minioMeta.getName(), new MinioFileProvider(variables, minioMeta));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return providers;
   }
 }
