@@ -423,6 +423,13 @@ public interface ITransformMeta {
    */
   void convertIOMetaToTransformNames();
 
+  /**
+   * Define the method for setting changes based on parameters
+   *
+   * @param ch changed
+   */
+  default void setChanged(boolean ch) {}
+
   void setChanged();
 
   boolean hasChanged();

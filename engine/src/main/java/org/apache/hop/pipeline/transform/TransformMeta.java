@@ -388,8 +388,8 @@ public class TransformMeta
   public synchronized void setChanged(boolean ch) {
     // Propagate to inner metadata
     ITransformMeta meta = this.getTransform();
-    if (meta != null && ch) {
-      meta.setChanged();
+    if (meta != null) {
+      meta.setChanged(ch);
     }
   }
 
