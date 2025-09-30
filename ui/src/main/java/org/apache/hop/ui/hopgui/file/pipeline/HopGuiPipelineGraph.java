@@ -4802,8 +4802,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (pipelineMeta.hasChanged()) {
       if (StringUtils.isNotEmpty(pipelineMeta.getFilename()) && hopGui.getProps().getAutoSave()) {
         save();
-        // After saving the pipeline, clean up the changed files
-        pipelineMeta.clearChanged();
       } else {
         MessageDialogWithToggle md =
             new MessageDialogWithToggle(
