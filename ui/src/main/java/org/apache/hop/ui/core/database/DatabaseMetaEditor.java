@@ -142,31 +142,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     metaMap.put(databaseMeta.getIDatabase().getClass(), databaseMeta.getIDatabase());
   }
 
-  //  /** Check if a database type wants to hide URL information in test connections */
-  //  private static boolean shouldHideUrlForDatabase(DatabaseMeta databaseMeta) {
-  //    return databaseMeta.isHideUrlInTestConnection();
-  //  }
-
-  //  /**
-  //   * Get default excluded elements for a database type by checking if it has a
-  // getExcludedElements
-  //   * method
-  //   */
-  //  private static List<String> getDefaultExcludedElements(DatabaseMeta databaseMeta) {
-  //    try {
-  //      Class<?> databaseClass = databaseMeta.getIDatabase().getClass();
-  //      java.lang.reflect.Method method = databaseClass.getMethod("getExcludedElements");
-  //      if (method != null && java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
-  //        @SuppressWarnings("unchecked")
-  //        List<String> result = (List<String>) method.invoke(null);
-  //        return result != null ? result : new ArrayList<>();
-  //      }
-  //    } catch (Exception e) {
-  //      // Method doesn't exist or other reflection issue, return empty list
-  //    }
-  //    return new ArrayList<>();
-  //  }
-
   private Map<Class<? extends IDatabase>, IDatabase> populateMetaMap() {
     metaMap = new HashMap<>();
     List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins(DatabasePluginType.class);
