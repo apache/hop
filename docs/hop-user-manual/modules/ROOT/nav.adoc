@@ -373,6 +373,7 @@ under the License.
 ** xref:vfs/dropbox-vfs.adoc[Dropbox]
 ** xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage]
 ** xref:vfs/google-drive-vfs.adoc[Google Drive]
+** xref:vfs/minio-vfs.adoc[MinIO]
 * xref:database/databases.adoc[Relational Database Connections]
 //::=START AUTO GENERATED LINKS DATABASES
 ** xref:database/databases/derby.adoc[Apache Derby]
@@ -434,6 +435,7 @@ under the License.
 ** xref:metadata-types/google-storage-authentication.adoc[Google Storage Authentication]
 ** xref:metadata-types/hop-server.adoc[Hop Server]
 ** xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]
+** xref:metadata-types/minio-connection.adoc[Minio (S3) Connection]
 ** xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]
 ** xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]
 ** xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]
