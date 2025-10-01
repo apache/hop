@@ -56,7 +56,9 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
 
     if (meta.isCounterUsed()) {
       next = data.counter.getAndNext();
-      logDetailed("count name: {0}, next: {1}", data.getLookup(), next);
+      if (isDetailed()) {
+        logDetailed("count name: {0}, next: {1}", data.getLookup(), next);
+      }
     } else if (meta.isDatabaseUsed()) {
       try {
         next =

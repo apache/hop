@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>00100-add-sequence-copies</name>
+    <name>0001-add-sequence-copies</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -40,8 +40,6 @@ limitations under the License.
     <created_date>2020/12/16 12:25:44.129</created_date>
     <modified_user>-</modified_user>
     <modified_date>2020/12/16 12:25:44.129</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -84,12 +82,12 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <fields>
-    </fields>
+</fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
     <limit>${COUNT}</limit>
     <never_ending>N</never_ending>
-    <interval_in_ms>5000</interval_in_ms>
     <row_time_field>now</row_time_field>
-    <last_time_field>FiveSecondsAgo</last_time_field>
     <attributes/>
     <GUI>
       <xloc>128</xloc>
@@ -107,10 +105,10 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <row_threshold>0</row_threshold>
-    <message>Transform Add Sequence didn't generate the expected IDs running in a multiple copies</message>
-    <always_log_rows>Y</always_log_rows>
     <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>Transform Add Sequence didn't generate the expected IDs running in a multiple copies</message>
+    <row_threshold>0</row_threshold>
     <attributes/>
     <GUI>
       <xloc>736</xloc>
@@ -128,24 +126,21 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <all_rows>N</all_rows>
-    <ignore_aggregate>N</ignore_aggregate>
-    <field_ignore/>
-    <directory>${java.io.tmpdir}</directory>
-    <prefix>grp</prefix>
     <add_linenr>N</add_linenr>
-    <linenr_fieldname/>
-    <give_back_row>N</give_back_row>
-    <group>
-      </group>
+    <all_rows>N</all_rows>
+    <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
         <aggregate>count</aggregate>
         <subject>id</subject>
         <type>COUNT_DISTINCT</type>
-        <valuefield/>
       </field>
     </fields>
+    <give_back_row>N</give_back_row>
+    <group>
+</group>
+    <ignore_aggregate>N</ignore_aggregate>
+    <prefix>grp</prefix>
     <attributes/>
     <GUI>
       <xloc>400</xloc>
@@ -165,16 +160,12 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <name>expectedCount</name>
-        <variable>${COUNT}</variable>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
         <length>-1</length>
+        <name>expectedCount</name>
         <precision>-1</precision>
         <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>${COUNT}</variable>
       </field>
     </fields>
     <attributes/>
@@ -194,16 +185,13 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <valuename>id</valuename>
-    <use_database>N</use_database>
-    <connection/>
-    <schema/>
-    <seqname>SEQ_</seqname>
-    <use_counter>Y</use_counter>
-    <counter_name/>
-    <start_at>1</start_at>
     <increment_by>1</increment_by>
     <max_value>999999999</max_value>
+    <seqname>SEQ_</seqname>
+    <start_at>1</start_at>
+    <use_counter>Y</use_counter>
+    <use_database>N</use_database>
+    <valuename>id</valuename>
     <attributes/>
     <GUI>
       <xloc>256</xloc>
@@ -221,13 +209,14 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to/>
-    <send_false_to/>
     <compare>
       <condition>
-        <negated>N</negated>
-        <leftvalue>count</leftvalue>
+        <conditions>
+</conditions>
         <function>&lt;></function>
+        <leftvalue>count</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
         <rightvalue>expectedCount</rightvalue>
       </condition>
     </compare>

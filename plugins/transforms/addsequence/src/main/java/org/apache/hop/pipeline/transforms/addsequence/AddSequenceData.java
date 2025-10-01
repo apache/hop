@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.addsequence;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Counter;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
@@ -25,8 +27,9 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 @SuppressWarnings("java:S1104")
 public class AddSequenceData extends BaseTransformData implements ITransformData {
-  private Database db;
-  private String lookup;
+  @Setter @Getter private Database db;
+
+  @Setter @Getter private String lookup;
   public IRowMeta outputRowMeta;
   public Counter counter;
 
@@ -38,40 +41,11 @@ public class AddSequenceData extends BaseTransformData implements ITransformData
   public String realSchemaName;
   public String realSequenceName;
 
-  /** */
   public AddSequenceData() {
     super();
 
     db = null;
     realSchemaName = null;
     realSequenceName = null;
-  }
-
-  /**
-   * @return Returns the db.
-   */
-  public Database getDb() {
-    return db;
-  }
-
-  /**
-   * @param db The db to set.
-   */
-  public void setDb(Database db) {
-    this.db = db;
-  }
-
-  /**
-   * @return Returns the lookup string usually "@@"+the name of the sequence.
-   */
-  public String getLookup() {
-    return lookup;
-  }
-
-  /**
-   * @param lookup the lookup string usually "@@"+the name of the sequence.
-   */
-  public void setLookup(String lookup) {
-    this.lookup = lookup;
   }
 }
