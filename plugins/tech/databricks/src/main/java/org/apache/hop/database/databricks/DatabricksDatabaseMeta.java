@@ -46,14 +46,6 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   public static final Class<?> PKG = DatabricksDatabaseMeta.class;
 
   @GuiWidgetElement(
-      id = "hostname",
-      type = GuiElementType.TEXT,
-      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      ignored = true)
-  @HopMetadataProperty
-  private String hostname;
-
-  @GuiWidgetElement(
       id = "port",
       ignored = true,
       type = GuiElementType.TEXT,
