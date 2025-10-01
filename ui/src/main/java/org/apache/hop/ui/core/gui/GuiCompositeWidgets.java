@@ -693,6 +693,7 @@ public class GuiCompositeWidgets {
     if (guiElements.isIgnored()) {
       return;
     }
+
     // No data to set for a button widget
     if (guiElements.getType() == GuiElementType.BUTTON) {
       return;
@@ -803,6 +804,7 @@ public class GuiCompositeWidgets {
     if (guiElements.isIgnored()) {
       return;
     }
+
     // No data to retrieve from a button widget
     if (guiElements.getType() == GuiElementType.BUTTON) {
       return;

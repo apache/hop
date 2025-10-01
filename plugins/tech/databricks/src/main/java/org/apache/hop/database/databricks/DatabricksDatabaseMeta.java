@@ -18,6 +18,8 @@
 
 package org.apache.hop.database.databricks;
 
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +44,31 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   public static final Class<?> PKG = DatabricksDatabaseMeta.class;
+
+  @GuiWidgetElement(
+      id = "port",
+      ignored = true,
+      type = GuiElementType.TEXT,
+      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @HopMetadataProperty
+  private String port;
+
+  @GuiWidgetElement(
+      id = "databaseName",
+      ignored = true,
+      type = GuiElementType.TEXT,
+      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @HopMetadataProperty
+  private String databaseName;
+
+  // Constructor to set default values for ignored fields
+  public DatabricksDatabaseMeta() {
+    super();
+    // Set default values for fields that are ignored in the UI
+    // but still needed for URL construction
+    this.port = "443"; // Default Databricks port
+    this.databaseName = ""; // Not used for Databricks
+  }
 
   @GuiWidgetElement(
       id = "ucHttpPath",
@@ -155,5 +182,24 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       "UNION",
       "USING"
     };
+  }
+
+  /**
+   * Returns a list of UI element IDs that should be excluded from the database editor. Only for
+   * elements created directly in DatabaseMetaEditor (not @GuiWidgetElement). Databricks doesn't
+   * need manual URL field.
+   *
+   * @return List of element IDs to exclude
+   */
+  @Override
+  public List<String> getRemoveItems() {
+    return Arrays.asList(
+        BaseDatabaseMeta.ELEMENT_ID_MANUAL_URL // We construct the URL automatically
+        );
+  }
+
+  @Override
+  public boolean isRequiresName() {
+    return false;
   }
 }

@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -48,6 +50,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
  * This class contains the basic information on a database connection. It is not intended to be used
  * other than the inheriting classes such as OracleDatabaseInfo, ...
  */
+@Getter
+@Setter
 public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /** The SQL to execute at connect time (right after connecting) */
@@ -107,6 +111,12 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   public static final String ID_PASSWORD_LABEL = "password-label";
   public static final String ID_PASSWORD_WIDGET = "password-widget";
+
+  // Standard UI element IDs that can be excluded from database editors
+  public static final String ELEMENT_ID_DATABASE_NAME = "databaseName";
+  public static final String ELEMENT_ID_MANUAL_URL = "manualUrl";
+  public static final String ELEMENT_ID_USERNAME = "username";
+  public static final String ELEMENT_ID_PASSWORD = "password";
 
   /**
    * Boolean to indicate if savepoints can be released Most databases do, so we set it to true.
@@ -1387,6 +1397,22 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   /**
+   * @return true if this is a relational database you can explore. Return false for SAP, PALO, etc.
+   */
+  @Override
+  public boolean isTestable() {
+    return true;
+  }
+
+  /**
+   * @return true if this is a relational database for which exploring is disabled
+   */
+  @Override
+  public boolean isExploringDisabled() {
+    return false;
+  }
+
+  /**
    * @param string
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete,
    *     etc)
@@ -1998,5 +2024,27 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
       }
     }
     return identifier;
+  }
+
+  /**
+   * Returns a list of UI element IDs that should be excluded from the database editor. Databricks
+   * doesn't need database name or manual URL fields.
+   *
+   * @return List of element IDs to exclude
+   */
+  @Override
+  public List<String> getRemoveItems() {
+    return new ArrayList<>();
+  }
+
+  /**
+   * Returns whether URL information should be hidden in test connection dialogs. Databricks URLs
+   * may contain sensitive authentication tokens.
+   *
+   * @return true to hide URL information in test connection results
+   */
+  @Override
+  public boolean isHideUrlInTestConnection() {
+    return false; // don't hide URLs by default, set to true if the url may contain sensitive tokens
   }
 }
