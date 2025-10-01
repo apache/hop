@@ -45,14 +45,11 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 
   public static final Class<?> PKG = DatabricksDatabaseMeta.class;
 
-  // Override base class elements - show hostname with custom label, hide port and databaseName
   @GuiWidgetElement(
       id = "hostname",
-      order = "01",
-      label = "Databricks Workspace URL",
       type = GuiElementType.TEXT,
-      variables = true,
-      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+      parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      ignored = true)
   @HopMetadataProperty
   private String hostname;
 
@@ -207,17 +204,6 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return Arrays.asList(
         BaseDatabaseMeta.ELEMENT_ID_MANUAL_URL // We construct the URL automatically
         );
-  }
-
-  /**
-   * Returns whether URL information should be hidden in test connection dialogs. Databricks URLs
-   * may contain sensitive authentication tokens.
-   *
-   * @return true to hide URL information in test connection results
-   */
-  @Override
-  public boolean isHideUrlInTestConnection() {
-    return true; // Hide URLs as they may contain sensitive tokens
   }
 
   @Override
