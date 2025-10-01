@@ -1,7 +1,7 @@
 {
   "variables" : [ {
     "name" : "MINIO_ENDPOINT_HOSTNAME",
-    "value" : "localhost",
+    "value" : "minio",
     "description" : "The endpoint hostname"
   }, {
     "name" : "MINIO_ENDPOINT_PORT",

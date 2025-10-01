@@ -214,7 +214,7 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
     }
   }
 
-  public void closeMinio() throws FileSystemException {
+  public void closeMinio() {
     try {
       if (outputStream != null) {
         outputStream.close();

@@ -524,7 +524,7 @@ limitations under the License.
       <yloc>32</yloc>
       <note>This creates a bucket
 if it doesn't exist</note>
-      <width>98</width>
+      <width>123</width>
     </notepad>
     <notepad>
       <backgroundcolorblue>251</backgroundcolorblue>
@@ -544,7 +544,7 @@ if it doesn't exist</note>
       <xloc>944</xloc>
       <yloc>288</yloc>
       <note>Thes folders should not exist.</note>
-      <width>127</width>
+      <width>165</width>
     </notepad>
   </notepads>
   <attributes/>

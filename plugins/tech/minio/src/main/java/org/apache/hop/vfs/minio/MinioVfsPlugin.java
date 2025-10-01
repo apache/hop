@@ -53,7 +53,7 @@ public class MinioVfsPlugin implements IVfs {
         providers.put(minioMeta.getName(), new MinioFileProvider(variables, minioMeta));
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      // Ignore errors
     }
     return providers;
   }

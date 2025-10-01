@@ -33,7 +33,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.vfs.minio.metadata.MinioMeta;
 
 public class MinioFileProvider extends AbstractOriginatingFileProvider {
-  public final long DEFAULT_PART_SIZE = 5 * 1024 * 1024;
+  public static final long DEFAULT_PART_SIZE = 5L * 1024 * 1024;
 
   private static final FileSystemOptions defaultOptions = new FileSystemOptions();
 

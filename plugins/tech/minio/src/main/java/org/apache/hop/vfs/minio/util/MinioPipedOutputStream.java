@@ -78,8 +78,8 @@ public class MinioPipedOutputStream extends PipedOutputStream {
   }
 
   @Override
-  public synchronized void flush() throws IOException {
-    // super.flush();
+  public synchronized void flush() {
+    // no flush
   }
 
   @Override
