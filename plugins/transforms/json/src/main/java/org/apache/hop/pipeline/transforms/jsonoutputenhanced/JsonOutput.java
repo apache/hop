@@ -101,8 +101,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   @Override
   public boolean processRow() throws HopException {
-
-    Object[] r = getRow(); // This also waits for a row to be finished.
+    // This also waits for a row to be finished.
+    Object[] r = getRow();
     if (r == null) {
       // only attempt writing to file when the first row is not empty
       if (data.isWriteToFile && !first && meta.getSplitOutputAfter() == 0) {
@@ -110,6 +110,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         // Let's output the remaining unsafe data
         outputRow(prevRow);
         writeJsonFile();
+        setOutputDone();
+        return false;
       }
 
       // Process the leftover data only when a split file size is defined
@@ -117,7 +119,11 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       if (meta.getSplitOutputAfter() > 0 && !data.jsonItems.isEmpty()) {
         serializeJson(data.jsonItems);
         writeJsonFile();
+        setOutputDone();
+        return false;
       }
+
+      outputRow(prevRow);
       setOutputDone();
       return false;
     }

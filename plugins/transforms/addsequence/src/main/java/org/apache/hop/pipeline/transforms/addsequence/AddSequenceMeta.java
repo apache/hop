@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.addsequence;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -46,6 +48,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/addsequence.html",
     keywords = "i18n::AddSequenceMeta.keyword")
+@Getter
+@Setter
 public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceData> {
 
   private static final Class<?> PKG = AddSequenceMeta.class;
@@ -100,33 +104,11 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
       injectionKeyDescription = "AddSequenceMeta.Injection.MaxValue")
   private String maxValue;
 
-  public String getConnection() {
-    return connection;
-  }
-
-  public void setConnection(String connection) {
-    this.connection = connection;
-  }
-
   /**
-   * @return Returns the incrementBy.
+   * @param maxValue The maxValue to set.
    */
-  public String getIncrementBy() {
-    return incrementBy;
-  }
-
-  /**
-   * @param incrementBy The incrementBy to set.
-   */
-  public void setIncrementBy(String incrementBy) {
-    this.incrementBy = incrementBy;
-  }
-
-  /**
-   * @return Returns the maxValue.
-   */
-  public String getMaxValue() {
-    return maxValue;
+  public void setMaxValue(long maxValue) {
+    this.maxValue = Long.toString(maxValue);
   }
 
   /**
@@ -134,27 +116,6 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
    */
   public void setMaxValue(String maxValue) {
     this.maxValue = maxValue;
-  }
-
-  /**
-   * @return Returns the sequenceName.
-   */
-  public String getSequenceName() {
-    return sequenceName;
-  }
-
-  /**
-   * @param sequenceName The sequenceName to set.
-   */
-  public void setSequenceName(String sequenceName) {
-    this.sequenceName = sequenceName;
-  }
-
-  /**
-   * @param maxValue The maxValue to set.
-   */
-  public void setMaxValue(long maxValue) {
-    this.maxValue = Long.toString(maxValue);
   }
 
   /**
@@ -172,10 +133,10 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
   }
 
   /**
-   * @return Returns the start of the sequence.
+   * @param incrementBy The incrementBy to set.
    */
-  public String getStartAt() {
-    return startAt;
+  public void setIncrementBy(String incrementBy) {
+    this.incrementBy = incrementBy;
   }
 
   /**
@@ -183,48 +144,6 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
    */
   public void setStartAt(String startAt) {
     this.startAt = startAt;
-  }
-
-  /**
-   * @return Returns the useCounter.
-   */
-  public boolean isCounterUsed() {
-    return counterUsed;
-  }
-
-  /**
-   * @param counterUsed The useCounter to set.
-   */
-  public void setCounterUsed(boolean counterUsed) {
-    this.counterUsed = counterUsed;
-  }
-
-  /**
-   * @return Returns the useDatabase.
-   */
-  public boolean isDatabaseUsed() {
-    return databaseUsed;
-  }
-
-  /**
-   * @param databaseUsed The useDatabase to set.
-   */
-  public void setDatabaseUsed(boolean databaseUsed) {
-    this.databaseUsed = databaseUsed;
-  }
-
-  /**
-   * @return Returns the valuename.
-   */
-  public String getValueName() {
-    return valueName;
-  }
-
-  /**
-   * @param valueName The valuename to set.
-   */
-  public void setValueName(String valueName) {
-    this.valueName = valueName;
   }
 
   @Override
@@ -376,33 +295,5 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
     }
 
     return retval;
-  }
-
-  /**
-   * @return the counterName
-   */
-  public String getCounterName() {
-    return counterName;
-  }
-
-  /**
-   * @param counterName the counterName to set
-   */
-  public void setCounterName(String counterName) {
-    this.counterName = counterName;
-  }
-
-  /**
-   * @return the schemaName
-   */
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  /**
-   * @param schemaName the schemaName to set
-   */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
   }
 }
