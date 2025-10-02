@@ -64,7 +64,7 @@ public class MessageBox extends Dialog {
 
   public int open() {
     Shell parent = getParent();
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | style);
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHop());
     shell.setText(Const.NVL(text, ""));

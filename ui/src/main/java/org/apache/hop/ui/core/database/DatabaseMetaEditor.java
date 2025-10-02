@@ -964,8 +964,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   }
 
   /** Test the database connection */
-  public static final void testConnection(
-      Shell shell, IVariables variables, DatabaseMeta databaseMeta) {
+  public static void testConnection(Shell shell, IVariables variables, DatabaseMeta databaseMeta) {
     testConnection(shell, variables, databaseMeta, false);
   }
 
@@ -977,7 +976,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
    * @param databaseMeta The database metadata
    * @param hideUrl Whether to hide URL information from the test results
    */
-  public static final void testConnection(
+  public static void testConnection(
       Shell shell, IVariables variables, DatabaseMeta databaseMeta, boolean hideUrl) {
     if (databaseMeta.isTestable()) {
       String[] remarks = databaseMeta.checkParameters();
@@ -1004,19 +1003,19 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         }
         ShowMessageDialog msgDialog =
             new ShowMessageDialog(
-                shell, SWT.ICON_INFORMATION | SWT.OK, title, message, message.length() > 300);
-        msgDialog.setType(
-            success
-                ? Const.SHOW_MESSAGE_DIALOG_DB_TEST_SUCCESS
-                : Const.SHOW_MESSAGE_DIALOG_DB_TEST_DEFAULT);
+                shell,
+                (success ? SWT.ICON_INFORMATION : SWT.ICON_ERROR) | SWT.OK | SWT.APPLICATION_MODAL,
+                title,
+                message,
+                message.length() > 300);
         msgDialog.open();
       } else {
         String message = "";
-        for (int i = 0; i < remarks.length; i++) {
-          message += "    * " + remarks[i] + Const.CR;
+        for (String remark : remarks) {
+          message += "    * " + remark + Const.CR;
         }
 
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR | SWT.APPLICATION_MODAL);
         mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.ErrorParameters2.title"));
         mb.setMessage(
             BaseMessages.getString(PKG, "DatabaseDialog.ErrorParameters2.description", message));
@@ -1024,7 +1023,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
       }
     } else {
       String message = databaseMeta.getPluginName();
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR | SWT.APPLICATION_MODAL);
       mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.Testing.Disabled.title"));
       mb.setMessage(
           BaseMessages.getString(PKG, "DatabaseDialog.Testing.Disabled.description", message));
