@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.http;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -47,6 +49,8 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::HttpMeta.keyword",
     documentationUrl = "/pipeline/transforms/http.html")
+@Getter
+@Setter
 public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
   private static final Class<?> PKG = HttpMeta.class;
 
@@ -106,162 +110,6 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
 
   public HttpMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  /**
-   * @return Returns the connectionTimeout.
-   */
-  public String getConnectionTimeout() {
-    return connectionTimeout;
-  }
-
-  /**
-   * @param connectionTimeout The connectionTimeout to set.
-   */
-  public void setConnectionTimeout(String connectionTimeout) {
-    this.connectionTimeout = connectionTimeout;
-  }
-
-  /**
-   * @return Returns the closeIdleConnectionsTime.
-   */
-  public String getCloseIdleConnectionsTime() {
-    return closeIdleConnectionsTime;
-  }
-
-  /**
-   * @param closeIdleConnectionsTime The connectionTimeout to set.
-   */
-  public void setCloseIdleConnectionsTime(String closeIdleConnectionsTime) {
-    this.closeIdleConnectionsTime = closeIdleConnectionsTime;
-  }
-
-  /**
-   * @return Returns the socketTimeout.
-   */
-  public String getSocketTimeout() {
-    return socketTimeout;
-  }
-
-  /**
-   * @param socketTimeout The socketTimeout to set.
-   */
-  public void setSocketTimeout(String socketTimeout) {
-    this.socketTimeout = socketTimeout;
-  }
-
-  /**
-   * @return Returns the argument.
-   */
-  public String[] getArgumentField() {
-    return argumentField;
-  }
-
-  /**
-   * @param argument The argument to set.
-   */
-  public void setArgumentField(String[] argument) {
-    this.argumentField = argument;
-  }
-
-  /**
-   * @return Returns the headerFields.
-   */
-  public String[] getHeaderField() {
-
-    return headerField;
-  }
-
-  /**
-   * @param headerField The headerField to set.
-   */
-  public void setHeaderField(String[] headerField) {
-
-    this.headerField = headerField;
-  }
-
-  /**
-   * @return Returns the argumentDirection.
-   */
-  public String[] getArgumentParameter() {
-    return argumentParameter;
-  }
-
-  /**
-   * @param argumentDirection The argumentDirection to set.
-   */
-  public void setArgumentParameter(String[] argumentDirection) {
-    this.argumentParameter = argumentDirection;
-  }
-
-  /**
-   * @return Returns the headerParameter.
-   */
-  public String[] getHeaderParameter() {
-    return headerParameter;
-  }
-
-  /**
-   * @param headerParameter The headerParameter to set.
-   */
-  public void setHeaderParameter(String[] headerParameter) {
-    this.headerParameter = headerParameter;
-  }
-
-  /**
-   * @return Returns the procedure.
-   */
-  public String getUrl() {
-    return url;
-  }
-
-  /**
-   * @param procedure The procedure to set.
-   */
-  public void setUrl(String procedure) {
-    this.url = procedure;
-  }
-
-  /**
-   * @return Returns the resultName.
-   */
-  public String getFieldName() {
-    return fieldName;
-  }
-
-  /**
-   * @param resultName The resultName to set.
-   */
-  public void setFieldName(String resultName) {
-    this.fieldName = resultName;
-  }
-
-  /**
-   * @return Is the url coded in a field?
-   */
-  public boolean isUrlInField() {
-    return urlInField;
-  }
-
-  /**
-   * @param urlInField Is the url coded in a field?
-   */
-  public void setUrlInField(boolean urlInField) {
-    this.urlInField = urlInField;
-  }
-
-  /**
-   * @return The field name that contains the url.
-   */
-  public String getUrlField() {
-    return urlField;
-  }
-
-  /**
-   * @param urlField name of the field that contains the url
-   */
-  public void setUrlField(String urlField) {
-    this.urlField = urlField;
   }
 
   @Override
@@ -526,127 +374,5 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  /**
-   * @return the encoding
-   */
-  public String getEncoding() {
-    return encoding;
-  }
-
-  /**
-   * @param encoding the encoding to set
-   */
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
-
-  /**
-   * ISetter
-   *
-   * @param proxyHost
-   */
-  public void setProxyHost(String proxyHost) {
-    this.proxyHost = proxyHost;
-  }
-
-  /**
-   * IGetter
-   *
-   * @return
-   */
-  public String getProxyHost() {
-    return proxyHost;
-  }
-
-  /**
-   * ISetter
-   *
-   * @param proxyPort
-   */
-  public void setProxyPort(String proxyPort) {
-    this.proxyPort = proxyPort;
-  }
-
-  /**
-   * IGetter
-   *
-   * @return
-   */
-  public String getProxyPort() {
-    return this.proxyPort;
-  }
-
-  /**
-   * ISetter
-   *
-   * @param httpLogin
-   */
-  public void setHttpLogin(String httpLogin) {
-    this.httpLogin = httpLogin;
-  }
-
-  /**
-   * IGetter
-   *
-   * @return
-   */
-  public String getHttpLogin() {
-    return httpLogin;
-  }
-
-  /**
-   * ISetter
-   *
-   * @param httpPassword
-   */
-  public void setHttpPassword(String httpPassword) {
-    this.httpPassword = httpPassword;
-  }
-
-  /**
-   * @return
-   */
-  public String getHttpPassword() {
-    return httpPassword;
-  }
-
-  /**
-   * @return the resultCodeFieldName
-   */
-  public String getResultCodeFieldName() {
-    return resultCodeFieldName;
-  }
-
-  /**
-   * @param resultCodeFieldName the resultCodeFieldName to set
-   */
-  public void setResultCodeFieldName(String resultCodeFieldName) {
-    this.resultCodeFieldName = resultCodeFieldName;
-  }
-
-  public String getResponseTimeFieldName() {
-    return responseTimeFieldName;
-  }
-
-  public void setResponseTimeFieldName(String responseTimeFieldName) {
-    this.responseTimeFieldName = responseTimeFieldName;
-  }
-
-  public String getResponseHeaderFieldName() {
-    return responseHeaderFieldName;
-  }
-
-  public void setResponseHeaderFieldName(String responseHeaderFieldName) {
-    this.responseHeaderFieldName = responseHeaderFieldName;
-  }
-
-  public boolean isIgnoreSsl() {
-    return ignoreSsl;
-  }
-
-  public void setIgnoreSsl(boolean ignoreSsl) {
-    this.ignoreSsl = ignoreSsl;
   }
 }

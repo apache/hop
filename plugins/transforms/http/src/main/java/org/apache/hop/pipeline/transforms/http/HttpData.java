@@ -33,7 +33,7 @@ public class HttpData extends BaseTransformData implements ITransformData {
   public int realProxyPort;
   public String realHttpLogin;
   public String realHttpPassword;
-  public int[] header_parameters_nrs;
+  public int[] headerParametersNrs;
   public boolean useHeaderParameters;
   public NameValuePair[] headerParameters;
 

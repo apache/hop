@@ -126,17 +126,17 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
       // Add Custom Http headers
       if (data.useHeaderParameters) {
-        for (int i = 0; i < data.header_parameters_nrs.length; i++) {
+        for (int i = 0; i < data.headerParametersNrs.length; i++) {
           method.addHeader(
               data.headerParameters[i].getName(),
-              data.inputRowMeta.getString(rowData, data.header_parameters_nrs[i]));
+              data.inputRowMeta.getString(rowData, data.headerParametersNrs[i]));
           if (isDebug()) {
             logDebug(
                 BaseMessages.getString(
                     PKG,
                     "HTTPDialog.Log.HeaderValue",
                     data.headerParameters[i].getName(),
-                    data.inputRowMeta.getString(rowData, data.header_parameters_nrs[i])));
+                    data.inputRowMeta.getString(rowData, data.headerParametersNrs[i])));
           }
         }
       }
@@ -271,13 +271,12 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       }
 
       uriBuilder = new URIBuilder(baseUrl); // the base URL with variable substitution
-      List<NameValuePair> queryParams = uriBuilder.getQueryParams();
 
       for (int i = 0; i < data.argnrs.length; i++) {
         String key = meta.getArgumentParameter()[i];
         String value = outputRowMeta.getString(row, data.argnrs[i]);
-        if (!key.isEmpty() && !value.isEmpty()) {
-          uriBuilder.addParameter(key, value);
+        if (!key.isEmpty()) {
+          uriBuilder.addParameter(key, Const.NVL(value, ""));
         }
       }
     } catch (Exception e) {
@@ -337,7 +336,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         data.useHeaderParameters = true;
       }
 
-      data.header_parameters_nrs = new int[nrHeaders];
+      data.headerParametersNrs = new int[nrHeaders];
       data.headerParameters = new NameValuePair[nrHeaders];
 
       // get the headers
@@ -353,11 +352,11 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
                   PKG, CONST_HTTP_EXCEPTION_ERROR_FINDING_FIELD, meta.getHeaderField()[i]));
         }
 
-        data.header_parameters_nrs[i] = fieldIndex;
+        data.headerParametersNrs[i] = fieldIndex;
         data.headerParameters[i] =
             new BasicNameValuePair(
                 resolve(meta.getHeaderParameter()[i]),
-                data.outputRowMeta.getString(r, data.header_parameters_nrs[i]));
+                data.outputRowMeta.getString(r, data.headerParametersNrs[i]));
       }
     } // end if first
 
