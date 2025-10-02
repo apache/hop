@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0002-http-client-test-parameters</name>
+    <name>0002-http-client-test-empty-parameters</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -105,6 +105,20 @@ limitations under the License.
         <set_empty_string>N</set_empty_string>
         <type>String</type>
       </field>
+      <field>
+        <length>-1</length>
+        <name>empty_string</name>
+        <precision>-1</precision>
+        <set_empty_string>Y</set_empty_string>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>null_string</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+      </field>
     </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
@@ -144,6 +158,14 @@ limitations under the License.
       <arg>
         <name>parameter</name>
         <parameter>parameter</parameter>
+      </arg>
+      <arg>
+        <name>empty_string</name>
+        <parameter>empty_parameter</parameter>
+      </arg>
+      <arg>
+        <name>null_string</name>
+        <parameter>null_parameter</parameter>
       </arg>
     </lookup>
     <result>
@@ -261,9 +283,10 @@ limitations under the License.
             <value>
               <isnull>N</isnull>
               <length>-1</length>
+              <mask/>
               <name>constant</name>
               <precision>-1</precision>
-              <text>{"parameter":"parametervalue"}</text>
+              <text>{"empty_parameter":"","null_parameter":"","parameter":"parametervalue"}</text>
               <type>String</type>
             </value>
           </condition>
