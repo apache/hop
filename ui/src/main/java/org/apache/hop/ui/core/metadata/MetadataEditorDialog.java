@@ -52,8 +52,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
   public String open() {
 
     Shell parent = getParent();
-    shell =
-        new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL);
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.PRIMARY_MODAL);
     shell.setText(editor.getTitle());
     shell.setImage(editor.getTitleImage());
     FormLayout formLayout = new FormLayout();
