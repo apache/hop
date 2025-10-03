@@ -75,6 +75,14 @@ public class SalesforceConnection {
   private PartnerConnection binding;
   private LoginResult loginResult;
   private GetUserInfoResult userInfo;
+
+  // OAuth fields
+  private String authenticationType = "USERNAME_PASSWORD"; // Default for backward compatibility
+  private String oauthClientId;
+  private String oauthClientSecret;
+  private String oauthAccessToken;
+  private String oauthRefreshToken;
+  private String oauthInstanceUrl;
   private String sql;
   private Date serverTimestamp;
   private QueryResult qr;
@@ -92,7 +100,7 @@ public class SalesforceConnection {
 
   private ILogChannel log;
 
-  /** Construct a new Salesforce Connection */
+  /** Construct a new Salesforce Connection with username/password authentication */
   public SalesforceConnection(
       ILogChannel logInterface, String url, String username, String password) throws HopException {
     if (logInterface == null) {
@@ -136,6 +144,60 @@ public class SalesforceConnection {
     if (log.isDetailed()) {
       logInterface.logDetailed(
           BaseMessages.getString(PKG, "SalesforceConnection.Log.NewConnection"));
+    }
+  }
+
+  /** Construct a new Salesforce Connection with OAuth authentication */
+  public SalesforceConnection(
+      ILogChannel logInterface,
+      String oauthClientId,
+      String oauthClientSecret,
+      String oauthAccessToken,
+      String oauthInstanceUrl)
+      throws HopException {
+    if (logInterface == null) {
+      this.log = HopLogStore.getLogChannelFactory().create(this);
+    } else {
+      this.log = logInterface;
+    }
+
+    this.authenticationType = "OAUTH";
+    this.oauthClientId = oauthClientId;
+    this.oauthClientSecret = oauthClientSecret;
+    this.oauthAccessToken = oauthAccessToken;
+    this.oauthInstanceUrl = oauthInstanceUrl;
+    setTimeOut(0);
+
+    this.binding = null;
+    this.loginResult = null;
+    this.userInfo = null;
+    this.sql = null;
+    this.serverTimestamp = null;
+    this.qr = null;
+    this.startDate = null;
+    this.endDate = null;
+    this.sObjects = null;
+    this.recordsFilter = SalesforceConnectionUtils.RECORDS_FILTER_ALL;
+    this.fieldsList = null;
+    this.queryResultSize = 0;
+    this.recordsCount = 0;
+    setUsingCompression(false);
+    setRollbackAllChangesOnError(false);
+
+    // check OAuth parameters
+    if (Utils.isEmpty(getOauthClientId())) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "SalesforceConnection.OAuthClientIdMissing.Error"));
+    }
+
+    if (Utils.isEmpty(getOauthAccessToken())) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "SalesforceConnection.OAuthAccessTokenMissing.Error"));
+    }
+
+    if (log.isDetailed()) {
+      logInterface.logDetailed(
+          BaseMessages.getString(PKG, "SalesforceConnection.Log.NewOAuthConnection"));
     }
   }
 
@@ -252,7 +314,71 @@ public class SalesforceConnection {
     this.password = value;
   }
 
+  public String getAuthenticationType() {
+    return authenticationType;
+  }
+
+  public void setAuthenticationType(String authenticationType) {
+    this.authenticationType = authenticationType;
+  }
+
+  public String getOauthClientId() {
+    return oauthClientId;
+  }
+
+  public void setOauthClientId(String oauthClientId) {
+    this.oauthClientId = oauthClientId;
+  }
+
+  public String getOauthClientSecret() {
+    return oauthClientSecret;
+  }
+
+  public void setOauthClientSecret(String oauthClientSecret) {
+    this.oauthClientSecret = oauthClientSecret;
+  }
+
+  public String getOauthAccessToken() {
+    return oauthAccessToken;
+  }
+
+  public void setOauthAccessToken(String oauthAccessToken) {
+    this.oauthAccessToken = oauthAccessToken;
+  }
+
+  public String getOauthRefreshToken() {
+    return oauthRefreshToken;
+  }
+
+  public void setOauthRefreshToken(String oauthRefreshToken) {
+    this.oauthRefreshToken = oauthRefreshToken;
+  }
+
+  public String getOauthInstanceUrl() {
+    return oauthInstanceUrl;
+  }
+
+  public void setOauthInstanceUrl(String oauthInstanceUrl) {
+    this.oauthInstanceUrl = oauthInstanceUrl;
+  }
+
+  public boolean isOAuthAuthentication() {
+    return "OAUTH".equalsIgnoreCase(authenticationType);
+  }
+
+  public boolean isUsernamePasswordAuthentication() {
+    return "USERNAME_PASSWORD".equalsIgnoreCase(authenticationType);
+  }
+
   public void connect() throws HopException {
+    if (isOAuthAuthentication()) {
+      connectWithOAuth();
+    } else {
+      connectWithUsernamePassword();
+    }
+  }
+
+  private void connectWithUsernamePassword() throws HopException {
     ConnectorConfig config = new ConnectorConfig();
     config.setAuthEndpoint(getURL());
     config.setServiceEndpoint(getURL());
@@ -392,6 +518,170 @@ public class SalesforceConnection {
       throw new HopException(
           BaseMessages.getString(PKG, "SalesforceConnection.Error.Connection"), e);
     }
+  }
+
+  private void connectWithOAuth() throws HopException {
+    try {
+      // For OAuth, we use the access token directly
+      // The Salesforce SOAP API doesn't directly support OAuth tokens,
+      // so we'll need to use the REST API or implement a custom approach
+
+      if (log.isDetailed()) {
+        log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.OAuthLoginNow"));
+        log.logDetailed("----------------------------------------->");
+        log.logDetailed(
+            BaseMessages.getString(
+                PKG, "SalesforceConnection.Log.OAuthInstanceURL", getOauthInstanceUrl()));
+        log.logDetailed("<-----------------------------------------");
+      }
+
+      // For OAuth, we need to use the REST API instead of SOAP
+      // The access token is used for REST API calls
+      // We'll set up the connection to use REST API endpoints
+
+      // Validate OAuth parameters
+      if (Utils.isEmpty(getOauthClientId())) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.OAuthClientIdMissing.Error"));
+      }
+
+      if (Utils.isEmpty(getOauthInstanceUrl())) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.OAuthInstanceUrlMissing.Error"));
+      }
+
+      // Check if we have a valid access token, if not try to refresh it
+      String accessToken = getOauthAccessToken();
+      if (Utils.isEmpty(accessToken) && !Utils.isEmpty(getOauthRefreshToken())) {
+        // Try to refresh the access token using the refresh token
+        accessToken = refreshAccessToken();
+        if (accessToken != null) {
+          setOauthAccessToken(accessToken);
+        }
+      }
+
+      if (Utils.isEmpty(accessToken)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.OAuthAccessTokenMissing.Error"));
+      }
+
+      // For OAuth, we'll use the REST API
+      // Set the instance URL as the base URL for REST calls
+      this.url = getOauthInstanceUrl();
+
+      // Mark as connected (OAuth tokens are pre-authorized)
+      // For OAuth, we don't have a traditional LoginResult, so we'll set it to null
+      // and handle OAuth authentication differently in the API calls
+      this.loginResult = null;
+
+      // For OAuth, we need to create a proper SOAP binding with OAuth authentication
+      ConnectorConfig config = new ConnectorConfig();
+      config.setAuthEndpoint(getOauthInstanceUrl() + "/services/Soap/u/58.0");
+      config.setServiceEndpoint(getOauthInstanceUrl() + "/services/Soap/u/58.0");
+      config.setManualLogin(true);
+
+      // Set OAuth session ID (access token) for authentication
+      config.setSessionId(getOauthAccessToken());
+
+      this.binding = new PartnerConnection(config);
+
+      if (log.isDetailed()) {
+        log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.OAuthConnected"));
+      }
+
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "SalesforceConnection.Error.OAuthConnection"), e);
+    }
+  }
+
+  private String refreshAccessToken() throws HopException {
+    try {
+      if (Utils.isEmpty(getOauthRefreshToken())) {
+        throw new HopException("No refresh token available for token refresh");
+      }
+
+      // Build token endpoint URL
+      String tokenUrl = getOauthInstanceUrl();
+      if (!tokenUrl.endsWith("/")) {
+        tokenUrl += "/";
+      }
+      tokenUrl += "services/oauth2/token";
+
+      // Prepare the request
+      java.net.URL url = new java.net.URL(tokenUrl);
+      java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+      connection.setRequestMethod("POST");
+      connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+      connection.setDoOutput(true);
+
+      // Build the request body
+      StringBuilder requestBody = new StringBuilder();
+      requestBody.append("grant_type=refresh_token&");
+      requestBody
+          .append("client_id=")
+          .append(java.net.URLEncoder.encode(getOauthClientId(), "UTF-8"))
+          .append("&");
+      requestBody
+          .append("client_secret=")
+          .append(java.net.URLEncoder.encode(getOauthClientSecret(), "UTF-8"))
+          .append("&");
+      requestBody
+          .append("refresh_token=")
+          .append(java.net.URLEncoder.encode(getOauthRefreshToken(), "UTF-8"));
+
+      // Send the request
+      try (java.io.OutputStream os = connection.getOutputStream()) {
+        byte[] input = requestBody.toString().getBytes("UTF-8");
+        os.write(input, 0, input.length);
+      }
+
+      // Read the response
+      int responseCode = connection.getResponseCode();
+      java.io.BufferedReader reader;
+      if (responseCode >= 200 && responseCode < 300) {
+        reader =
+            new java.io.BufferedReader(new java.io.InputStreamReader(connection.getInputStream()));
+      } else {
+        reader =
+            new java.io.BufferedReader(new java.io.InputStreamReader(connection.getErrorStream()));
+      }
+
+      StringBuilder response = new StringBuilder();
+      String line;
+      while ((line = reader.readLine()) != null) {
+        response.append(line);
+      }
+      reader.close();
+
+      if (responseCode >= 200 && responseCode < 300) {
+        // Parse the JSON response to extract the new access token
+        String responseStr = response.toString();
+        String newAccessToken = extractJsonValue(responseStr, "access_token");
+
+        if (log.isDetailed()) {
+          log.logDetailed("Successfully refreshed OAuth access token");
+        }
+
+        return newAccessToken;
+      } else {
+        throw new HopException(
+            "Token refresh failed with response code " + responseCode + ": " + response.toString());
+      }
+
+    } catch (Exception e) {
+      throw new HopException("Failed to refresh OAuth access token: " + e.getMessage(), e);
+    }
+  }
+
+  private String extractJsonValue(String json, String key) {
+    String pattern = "\"" + key + "\"\\s*:\\s*\"([^\"]+)\"";
+    java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
+    java.util.regex.Matcher m = p.matcher(json);
+    if (m.find()) {
+      return m.group(1);
+    }
+    return null;
   }
 
   public void query(boolean specifyQuery) throws HopException {
