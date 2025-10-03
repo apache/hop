@@ -22,6 +22,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
@@ -144,6 +145,34 @@ public class SalesforceInputMeta
   @Injection(name = "QUERY_ALL")
   private boolean queryAll;
 
+  /** Authentication type: USERNAME_PASSWORD or OAUTH */
+  @Injection(name = "AUTHENTICATION_TYPE")
+  private String authenticationType = "USERNAME_PASSWORD"; // Default for backward compatibility
+
+  /** OAuth Client ID */
+  @Injection(name = "OAUTH_CLIENT_ID")
+  private String oauthClientId;
+
+  /** OAuth Client Secret */
+  @Injection(name = "OAUTH_CLIENT_SECRET")
+  private String oauthClientSecret;
+
+  /** OAuth Redirect URI */
+  @Injection(name = "OAUTH_REDIRECT_URI")
+  private String oauthRedirectUri;
+
+  /** OAuth Access Token */
+  @Injection(name = "OAUTH_ACCESS_TOKEN")
+  private String oauthAccessToken;
+
+  /** OAuth Refresh Token */
+  @Injection(name = "OAUTH_REFRESH_TOKEN")
+  private String oauthRefreshToken;
+
+  /** OAuth Instance URL */
+  @Injection(name = "OAUTH_INSTANCE_URL")
+  private String oauthInstanceUrl;
+
   public SalesforceInputMeta() {
     super(); // allocate BaseTransformMeta
   }
@@ -202,6 +231,118 @@ public class SalesforceInputMeta
    */
   public void setQueryAll(boolean queryAll) {
     this.queryAll = queryAll;
+  }
+
+  /**
+   * @return Returns the authentication type.
+   */
+  public String getAuthenticationType() {
+    return authenticationType;
+  }
+
+  /**
+   * @param authenticationType The authentication type to set.
+   */
+  public void setAuthenticationType(String authenticationType) {
+    this.authenticationType = authenticationType;
+  }
+
+  /**
+   * @return Returns true if OAuth authentication is selected.
+   */
+  public boolean isOAuthAuthentication() {
+    return "OAUTH".equalsIgnoreCase(authenticationType);
+  }
+
+  /**
+   * @return Returns true if username/password authentication is selected.
+   */
+  public boolean isUsernamePasswordAuthentication() {
+    return "USERNAME_PASSWORD".equalsIgnoreCase(authenticationType);
+  }
+
+  /**
+   * @return Returns the OAuth Client ID.
+   */
+  public String getOauthClientId() {
+    return oauthClientId;
+  }
+
+  /**
+   * @param oauthClientId The OAuth Client ID to set.
+   */
+  public void setOauthClientId(String oauthClientId) {
+    this.oauthClientId = oauthClientId;
+  }
+
+  /**
+   * @return Returns the OAuth Client Secret.
+   */
+  public String getOauthClientSecret() {
+    return oauthClientSecret;
+  }
+
+  /**
+   * @param oauthClientSecret The OAuth Client Secret to set.
+   */
+  public void setOauthClientSecret(String oauthClientSecret) {
+    this.oauthClientSecret = oauthClientSecret;
+  }
+
+  /**
+   * @return Returns the OAuth Redirect URI.
+   */
+  public String getOauthRedirectUri() {
+    return oauthRedirectUri;
+  }
+
+  /**
+   * @param oauthRedirectUri The OAuth Redirect URI to set.
+   */
+  public void setOauthRedirectUri(String oauthRedirectUri) {
+    this.oauthRedirectUri = oauthRedirectUri;
+  }
+
+  /**
+   * @return Returns the OAuth Access Token.
+   */
+  public String getOauthAccessToken() {
+    return oauthAccessToken;
+  }
+
+  /**
+   * @param oauthAccessToken The OAuth Access Token to set.
+   */
+  public void setOauthAccessToken(String oauthAccessToken) {
+    this.oauthAccessToken = oauthAccessToken;
+  }
+
+  /**
+   * @return Returns the OAuth Refresh Token.
+   */
+  public String getOauthRefreshToken() {
+    return oauthRefreshToken;
+  }
+
+  /**
+   * @param oauthRefreshToken The OAuth Refresh Token to set.
+   */
+  public void setOauthRefreshToken(String oauthRefreshToken) {
+    this.oauthRefreshToken = oauthRefreshToken;
+  }
+
+  /**
+   * @return Returns the OAuth Instance URL.
+   */
+  public String getOauthInstanceUrl() {
+    return oauthInstanceUrl;
+  }
+
+  /**
+   * @param oauthInstanceUrl The OAuth Instance URL to set.
+   */
+  public void setOauthInstanceUrl(String oauthInstanceUrl) {
+    this.oauthInstanceUrl = oauthInstanceUrl;
   }
 
   /**
@@ -497,6 +638,34 @@ public class SalesforceInputMeta
                 "records_filter",
                 SalesforceConnectionUtils.getRecordsFilterCode(getRecordsFilter())));
     retval.append("    ").append(XmlHandler.addTagValue("queryAll", isQueryAll()));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("authentication_type", getAuthenticationType()));
+    retval.append("    ").append(XmlHandler.addTagValue("oauth_client_id", getOauthClientId()));
+    retval
+        .append("    ")
+        .append(
+            XmlHandler.addTagValue(
+                "oauth_client_secret",
+                Encr.encryptPasswordIfNotUsingVariables(getOauthClientSecret())));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("oauth_redirect_uri", getOauthRedirectUri()));
+    retval
+        .append("    ")
+        .append(
+            XmlHandler.addTagValue(
+                "oauth_access_token",
+                Encr.encryptPasswordIfNotUsingVariables(getOauthAccessToken())));
+    retval
+        .append("    ")
+        .append(
+            XmlHandler.addTagValue(
+                "oauth_refresh_token",
+                Encr.encryptPasswordIfNotUsingVariables(getOauthRefreshToken())));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("oauth_instance_url", getOauthInstanceUrl()));
 
     retval.append("    ").append(XmlHandler.openTag(CONST_FIELDS)).append(Const.CR);
     for (SalesforceInputField field : inputFields) {
@@ -537,6 +706,22 @@ public class SalesforceInputMeta
           SalesforceConnectionUtils.getRecordsFilterByCode(
               Const.NVL(XmlHandler.getTagValue(transformNode, "records_filter"), "")));
       setQueryAll("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "queryAll")));
+
+      // Load OAuth fields with backward compatibility
+      String authType = XmlHandler.getTagValue(transformNode, "authentication_type");
+      setAuthenticationType(Utils.isEmpty(authType) ? "USERNAME_PASSWORD" : authType);
+      setOauthClientId(XmlHandler.getTagValue(transformNode, "oauth_client_id"));
+      setOauthClientSecret(
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(transformNode, "oauth_client_secret")));
+      setOauthRedirectUri(XmlHandler.getTagValue(transformNode, "oauth_redirect_uri"));
+      setOauthAccessToken(
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(transformNode, "oauth_access_token")));
+      setOauthRefreshToken(
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(transformNode, "oauth_refresh_token")));
+      setOauthInstanceUrl(XmlHandler.getTagValue(transformNode, "oauth_instance_url"));
 
       Node fields = XmlHandler.getSubNode(transformNode, CONST_FIELDS);
       int nrFields = XmlHandler.countNodes(fields, "field");
@@ -588,6 +773,15 @@ public class SalesforceInputMeta
     allocate(0);
 
     setRowLimit("0");
+
+    // OAuth defaults
+    setAuthenticationType("USERNAME_PASSWORD"); // Default for backward compatibility
+    setOauthClientId("");
+    setOauthClientSecret("");
+    setOauthRedirectUri("http://localhost:8080/callback");
+    setOauthAccessToken("");
+    setOauthRefreshToken("");
+    setOauthInstanceUrl("");
   }
 
   @Override
@@ -767,5 +961,15 @@ public class SalesforceInputMeta
               transformMeta);
       remarks.add(cr);
     }
+  }
+
+  public SalesforceInputDialog getDialog(
+      org.eclipse.swt.widgets.Shell shell,
+      IVariables variables,
+      org.apache.hop.pipeline.transform.ITransformMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String transformName) {
+    return new SalesforceInputDialog(
+        shell, variables, (SalesforceInputMeta) transformMeta, pipelineMeta);
   }
 }
