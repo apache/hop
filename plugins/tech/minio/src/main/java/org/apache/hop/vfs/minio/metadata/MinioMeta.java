@@ -35,7 +35,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     key = "MinioConnectionDefinition",
     name = "i18n::MinioMeta.Name",
     description = "i18n::MinioMeta.Description",
-    image = "ui/images/authentication.svg",
+    image = "minio.svg",
     documentationUrl = "/metadata-types/minio-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_AZURE_CONNECTION)
 public class MinioMeta extends HopMetadataBase implements Serializable, IHopMetadata {
