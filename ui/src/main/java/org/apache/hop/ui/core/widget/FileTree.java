@@ -36,17 +36,16 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -69,34 +68,27 @@ public class FileTree extends Composite {
     this.fileObjects = new LinkedHashSet<>();
     this.findDependencies = new AtomicBoolean(true);
 
-    GridLayout layout = new GridLayout();
-    layout.marginLeft = 0;
-    layout.marginRight = 0;
-    layout.marginTop = 0;
-    layout.marginBottom = 0;
-
-    layout.numColumns = 2;
-    this.setLayout(layout);
+    this.setLayout(new FormLayout());
     PropsUi.setLook(this);
 
-    tree = new Tree(this, SWT.CHECK | SWT.MULTI);
-    GridData gd = new GridData(GridData.FILL_BOTH | SWT.V_SCROLL);
-    gd.horizontalSpan = 2;
-    tree.setLayoutData(gd);
-
     Button btnFindDependencies = new Button(this, SWT.CHECK);
+    PropsUi.setLook(btnFindDependencies);
+    btnFindDependencies.setText(
+        BaseMessages.getString(PKG, "FileTreeWidget.IncludeDependencies.Label"));
     btnFindDependencies.setSelection(true);
     btnFindDependencies.addListener(
         SWT.Selection, event -> findDependencies.set(btnFindDependencies.getSelection()));
-    GridData gdBtnFindDependencies = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-    gdBtnFindDependencies.verticalIndent = 10;
-    btnFindDependencies.setLayoutData(gdBtnFindDependencies);
-    Label lblFindDependencies = new Label(this, SWT.NONE);
-    lblFindDependencies.setText(
-        BaseMessages.getString(PKG, "FileTreeWidget.IncludeDependencies.Label"));
-    GridData gdLblFindDependencies = new GridData(GridData.FILL_HORIZONTAL);
-    gdLblFindDependencies.verticalIndent = 10;
-    lblFindDependencies.setLayoutData(gdLblFindDependencies);
+    btnFindDependencies.setLayoutData(new FormDataBuilder().left().fullWidth().bottom().result());
+
+    tree = new Tree(this, SWT.CHECK | SWT.MULTI | SWT.BORDER);
+    PropsUi.setLook(tree);
+    tree.setLayoutData(
+        new FormDataBuilder()
+            .top()
+            .left()
+            .right()
+            .bottom(btnFindDependencies, -PropsUi.getMargin())
+            .result());
 
     TreeItem rootItem = new TreeItem(tree, SWT.NONE);
     rootItem.setText(rootFolderName);
