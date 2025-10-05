@@ -28,7 +28,7 @@ public class HopCommandPluginType extends BasePluginType<HopCommand> {
   private static HopCommandPluginType pluginType;
 
   private HopCommandPluginType() {
-    super(HopCommand.class, "HOP_SUB_COMMAND", "Hop Sub Command");
+    super(HopCommand.class, "HOP_COMMAND", "Hop Command");
   }
 
   public static HopCommandPluginType getInstance() {
