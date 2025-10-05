@@ -17,12 +17,12 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 REM
 
-setlocal enableDelayedExpansion
+setlocal EnableDelayedExpansion
 
 REM switch to script directory
 cd /D %~dp0
 
-REM Option to change the Characterset of the Windows Shell to show foreign caracters
+REM Option to change the character set of the Windows Shell to show foreign characters
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 
 set LIBSPATH=lib\core;lib\beam
@@ -46,7 +46,7 @@ if "%HOP_OPTIONS%"=="" set HOP_OPTIONS="-Xmx2048m"
 
 REM See if we need to enable some remote debugging options for our developers.
 REM
-FOR %%a in ("%*") DO (
+FOR %%a in (%*) DO (
   if "%%~a" == "--dev-debug" (
     set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5010
   )
