@@ -180,6 +180,10 @@ public class HopGuiWorkflowCheckDelegate {
     try {
       final List<ICheckResult> remarks = new ArrayList<>();
 
+      // Activate folder tab
+      //
+      workflowGraph.extraViewTabFolder.setSelection(workflowCheckTab);
+
       // Run the check in a progress dialog with a monitor...
       //
       ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(hopGui.getShell());
