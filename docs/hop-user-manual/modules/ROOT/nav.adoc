@@ -313,7 +313,6 @@ under the License.
 *** xref:workflow/actions/deleteresultfilenames.adoc[Delete filenames from result]
 *** xref:workflow/actions/deletefiles.adoc[Delete files]
 *** xref:workflow/actions/deletefolders.adoc[Delete folders]
-*** xref:workflow/actions/msgboxinfo.adoc[Display Msgbox info]
 *** xref:workflow/actions/dtdvalidator.adoc[DTD validator]
 *** xref:workflow/actions/dummy.adoc[Dummy]
 *** xref:workflow/actions/pgpencryptfiles.adoc[Encrypt files with PGP]
