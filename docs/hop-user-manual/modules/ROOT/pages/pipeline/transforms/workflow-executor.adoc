@@ -18,7 +18,7 @@ under the License.
 :language: en_US
 :description: The Workflow Executor transform execute a Hop workflow from within a pipeline.
 
-= image:transforms/icons/workflow.svg[Workflow Executor transform Icon, role="image-doc-icon"] Workflow Executor
+= image:transforms/icons/workflowexecutor.svg[Workflow Executor transform Icon, role="image-doc-icon"] Workflow Executor
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
