@@ -48,7 +48,8 @@ import org.w3c.dom.Node;
     image = "XOU.svg",
     name = "i18n::XSDValidator.name",
     description = "i18n::XSDValidator.description",
-    categoryDescription = "i18n::XSDValidator.category",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Validation",
     keywords = "i18n::XsdValidatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/xsdvalidator.html")
 public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidatorData> {

@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "dbproc.svg",
     name = "i18n::CallDBProcedure.Name",
     description = "i18n::CallDBProcedure.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::DBProcMeta.keyword",
     documentationUrl = "/pipeline/transforms/calldbproc.html",
     actionTransformTypes = ActionTransformType.RDBMS)

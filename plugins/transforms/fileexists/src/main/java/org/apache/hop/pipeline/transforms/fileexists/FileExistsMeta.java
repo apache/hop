@@ -40,7 +40,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "fileexists.svg",
     name = "i18n::FileExists.Name",
     description = "i18n::FileExists.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Validation",
     keywords = "i18n::FileExistsMeta.keyword",
     documentationUrl = "/pipeline/transforms/fileexists.html")
 public class FileExistsMeta extends BaseTransformMeta<FileExists, FileExistsData> {
