@@ -179,6 +179,10 @@ public class HopGuiPipelineCheckDelegate {
     try {
       final List<ICheckResult> remarks = new ArrayList<>();
 
+      // Activate folder tab
+      //
+      pipelineGraph.extraViewTabFolder.setSelection(pipelineCheckTab);
+
       PipelineMeta pipelineMeta = pipelineGraph.getPipelineMeta();
 
       // Run the check in a progress dialog with a monitor...
