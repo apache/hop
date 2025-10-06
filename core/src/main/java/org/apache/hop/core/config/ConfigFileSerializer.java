@@ -18,6 +18,8 @@
 package org.apache.hop.core.config;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,7 +36,12 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
   public void writeToFile(String filename, Map<String, Object> configMap) throws HopException {
     try {
       ObjectMapper objectMapper = HopJson.newMapper();
-      String niceJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(configMap);
+
+      // Add option to indent arrays in the pretty printer
+      DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+      prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+
+      String niceJson = objectMapper.writer(prettyPrinter).writeValueAsString(configMap);
 
       // Write to a new new file...
       //
