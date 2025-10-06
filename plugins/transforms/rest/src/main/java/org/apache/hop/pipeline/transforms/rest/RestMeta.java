@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
     image = "rest.svg",
     name = "i18n::Rest.Name",
     description = "i18n::Rest.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::RestMeta.keyword",
     documentationUrl = "/pipeline/transforms/rest.html")
 public class RestMeta extends BaseTransformMeta<Rest, RestData> {

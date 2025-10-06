@@ -40,7 +40,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "creditcardvalidator.svg",
     name = "i18n::CreditCardValidator.Name",
     description = "i18n::CreditCardValidator.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Validation",
     keywords = "i18n::CreditCardValidatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/creditcardvalidator.html")
 public class CreditCardValidatorMeta
