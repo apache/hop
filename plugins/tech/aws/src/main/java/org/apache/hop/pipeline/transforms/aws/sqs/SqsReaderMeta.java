@@ -42,10 +42,10 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
   @HopMetadataProperty(key = "AwsCredChain", injectionKey = "AWS_CRED_CHAIN")
   private String awsCredChain;
 
-  @HopMetadataProperty(key = "aws_key", injectionKey = "AWS_KEY")
+  @HopMetadataProperty(key = "aws_key", injectionKey = "AWS_KEY", password = true)
   private String awsKey;
 
-  @HopMetadataProperty(key = "aws_key_secret", injectionKey = "AWS_KEY_SECRET")
+  @HopMetadataProperty(key = "aws_key_secret", injectionKey = "AWS_KEY_SECRET", password = true)
   private String awsKeySecret;
 
   @HopMetadataProperty(key = "aws_region", injectionKey = "AWS_REGION")
