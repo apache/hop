@@ -17,10 +17,13 @@
 
 package org.apache.hop.www;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -122,12 +125,29 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       String contentType = variables.resolve(webService.getContentType());
       String statusCodeField = variables.resolve(webService.getStatusCode());
       String bodyContentVariable = variables.resolve(webService.getBodyContentVariable());
+      String headerContentVariable = variables.resolve(webService.getHeaderContentVariable());
 
       String bodyContent = "";
       if (StringUtils.isNotEmpty(bodyContentVariable)) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         IOUtils.copy(request.getInputStream(), out);
         bodyContent = out.toString(StandardCharsets.UTF_8);
+      }
+
+      String headerContent = "";
+      if (StringUtils.isNotEmpty(headerContentVariable)) {
+        // Create JSON object containing all request headers
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode headersJson = objectMapper.createObjectNode();
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+          String headerName = headerNames.nextElement();
+          String headerValue = request.getHeader(headerName);
+          headersJson.put(headerName, headerValue);
+        }
+
+        headerContent = objectMapper.writeValueAsString(headersJson);
       }
 
       if (StringUtils.isEmpty(contentType)) {
@@ -158,6 +178,10 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
 
       if (StringUtils.isNotEmpty(bodyContentVariable)) {
         pipeline.setVariable(bodyContentVariable, Const.NVL(bodyContent, ""));
+      }
+
+      if (StringUtils.isNotEmpty(headerContentVariable)) {
+        pipeline.setVariable(headerContentVariable, Const.NVL(headerContent, ""));
       }
 
       // Set all the other parameters as variables/parameters...

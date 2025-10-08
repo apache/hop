@@ -71,6 +71,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
   private ComboVar wContentType;
   private Button wListStatus;
   private TextVar wBodyContentVariable;
+  private TextVar wHeaderContentVariable;
 
   public WebServiceEditor(HopGui hopGui, MetadataManager<WebService> manager, WebService metadata) {
     super(hopGui, manager, metadata);
@@ -323,6 +324,31 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wBodyContentVariable.setLayoutData(fdBodyContentVariable);
     lastControl = wlBodyContentVariable;
 
+    // HeaderContentVariable to read from
+    //
+    Label wlHeaderContentVariable = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlHeaderContentVariable);
+    wlHeaderContentVariable.setText(
+        BaseMessages.getString(PKG, "WebServiceEditor.HeaderContentVariable.Label"));
+    wlHeaderContentVariable.setToolTipText(
+        BaseMessages.getString(PKG, "WebServiceEditor.HeaderContentVariable.Tooltip"));
+    FormData fdlHeaderContentVariable = new FormData();
+    fdlHeaderContentVariable.left = new FormAttachment(0, 0);
+    fdlHeaderContentVariable.right = new FormAttachment(middle, -margin);
+    fdlHeaderContentVariable.top = new FormAttachment(lastControl, 2 * margin);
+    wlHeaderContentVariable.setLayoutData(fdlHeaderContentVariable);
+    wHeaderContentVariable =
+        new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHeaderContentVariable.setToolTipText(
+        BaseMessages.getString(PKG, "WebServiceEditor.HeaderContentVariable.Tooltip"));
+    PropsUi.setLook(wHeaderContentVariable);
+    FormData fdHeaderContentVariable = new FormData();
+    fdHeaderContentVariable.left = new FormAttachment(middle, 0);
+    fdHeaderContentVariable.right = new FormAttachment(100, 0);
+    fdHeaderContentVariable.top = new FormAttachment(wlHeaderContentVariable, 0, SWT.CENTER);
+    wHeaderContentVariable.setLayoutData(fdHeaderContentVariable);
+    lastControl = wlHeaderContentVariable;
+
     setWidgetsContent();
 
     // Add listener to detect change after loading data
@@ -336,6 +362,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wContentType.addListener(SWT.Modify, modifyListener);
     wListStatus.addListener(SWT.Selection, modifyListener);
     wBodyContentVariable.addListener(SWT.Modify, modifyListener);
+    wHeaderContentVariable.addListener(SWT.Modify, modifyListener);
     wRunConfiguration.addListener(SWT.Selection, modifyListener);
   }
 
@@ -441,6 +468,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wContentType.setText(Const.NVL(ws.getContentType(), ""));
     wListStatus.setSelection(ws.isListingStatus());
     wBodyContentVariable.setText(Const.NVL(ws.getBodyContentVariable(), ""));
+    wHeaderContentVariable.setText(Const.NVL(ws.getHeaderContentVariable(), ""));
     try {
       wRunConfiguration.fillItems();
       wRunConfiguration.setText(Const.NVL(ws.getRunConfigurationName(), ""));
@@ -460,6 +488,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     ws.setContentType(wContentType.getText());
     ws.setListingStatus(wListStatus.getSelection());
     ws.setBodyContentVariable(wBodyContentVariable.getText());
+    ws.setHeaderContentVariable(wHeaderContentVariable.getText());
     ws.setRunConfigurationName(wRunConfiguration.getText());
   }
 

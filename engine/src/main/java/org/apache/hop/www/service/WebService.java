@@ -46,6 +46,7 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty private boolean listingStatus;
   @HopMetadataProperty private String bodyContentVariable;
   @HopMetadataProperty private String runConfigurationName;
+  @HopMetadataProperty private String headerContentVariable;
 
   public WebService() {}
 
@@ -56,17 +57,21 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
       String transformName,
       String fieldName,
       String contentType,
+      String statusCode,
       boolean listingStatus,
       String bodyContentVariable,
-      String runConfigurationName) {
+      String runConfigurationName,
+      String headerContentVariable) {
     super(name);
     this.enabled = enabled;
     this.filename = filename;
     this.transformName = transformName;
     this.fieldName = fieldName;
     this.contentType = contentType;
+    this.statusCode = statusCode;
     this.listingStatus = listingStatus;
     this.bodyContentVariable = bodyContentVariable;
     this.runConfigurationName = runConfigurationName;
+    this.headerContentVariable = headerContentVariable;
   }
 }
