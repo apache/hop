@@ -39,6 +39,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -230,9 +231,31 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
             public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                 throws HopTransformException {
               try {
-                String outputString = rowMeta.getString(row, fieldName, "");
                 response.setStatus(rowMeta.getInteger(row, statusCodeField, 200L).intValue());
-                outputStream.write(outputString.getBytes(StandardCharsets.UTF_8));
+
+                // Get the field index and metadata to detect field type
+                int fieldIndex = rowMeta.indexOfValue(fieldName);
+                if (fieldIndex < 0) {
+                  throw new HopTransformException("Field '" + fieldName + "' not found in row");
+                }
+
+                IValueMeta valueMeta = rowMeta.getValueMeta(fieldIndex);
+
+                // Check if field is binary type and handle accordingly
+                byte[] outputData;
+                if (valueMeta.getType() == IValueMeta.TYPE_BINARY) {
+                  // Binary output - get raw bytes without encoding conversion
+                  outputData = rowMeta.getBinary(row, fieldIndex);
+                  if (outputData == null) {
+                    outputData = new byte[0];
+                  }
+                } else {
+                  // Text output - convert to string and encode as UTF-8
+                  String outputString = rowMeta.getString(row, fieldName, "");
+                  outputData = outputString.getBytes(StandardCharsets.UTF_8);
+                }
+
+                outputStream.write(outputData);
                 outputStream.flush();
               } catch (HopValueException e) {
                 throw new HopTransformException(
