@@ -1,0 +1,45 @@
+filePath,name,ppu,batters,item_id,batter_name,batter_id
+${PROJECT_HOME}/files/itemlist.xml,Cake,0.55,"<batters>
+            <batter id=""1001"">Regular</batter>
+            <batter id=""1002"">Chocolate</batter>
+            <batter id=""1003"">Blueberry</batter>
+            <batter id=""1003"">Devil's Food</batter>
+        </batters>",0001,Regular,1001
+${PROJECT_HOME}/files/itemlist.xml,Cake,0.55,"<batters>
+            <batter id=""1001"">Regular</batter>
+            <batter id=""1002"">Chocolate</batter>
+            <batter id=""1003"">Blueberry</batter>
+            <batter id=""1003"">Devil's Food</batter>
+        </batters>",0001,Chocolate,1002
+${PROJECT_HOME}/files/itemlist.xml,Cake,0.55,"<batters>
+            <batter id=""1001"">Regular</batter>
+            <batter id=""1002"">Chocolate</batter>
+            <batter id=""1003"">Blueberry</batter>
+            <batter id=""1003"">Devil's Food</batter>
+        </batters>",0001,Blueberry,1003
+${PROJECT_HOME}/files/itemlist.xml,Cake,0.55,"<batters>
+            <batter id=""1001"">Regular</batter>
+            <batter id=""1002"">Chocolate</batter>
+            <batter id=""1003"">Blueberry</batter>
+            <batter id=""1003"">Devil's Food</batter>
+        </batters>",0001,Devil's Food,1003
+${PROJECT_HOME}/files/itemlist.xml,Raised,0.55,"<batters>
+            <batter id=""1001"">Regular</batter>
+        </batters>",0002,Regular,1001
+${PROJECT_HOME}/files/itemlist.xml,Buttermilk,0.55,"<batters>
+            <batter id=""1001"">Regular</batter>
+            <batter id=""1002"">Chocolate</batter>
+        </batters>",0003,Regular,1001
+${PROJECT_HOME}/files/itemlist.xml,Buttermilk,0.55,"<batters>
+            <batter id=""1001"">Regular</batter>
+            <batter id=""1002"">Chocolate</batter>
+        </batters>",0003,Chocolate,1002
+${PROJECT_HOME}/files/itemlist.xml,Bar,0.75,"<batters>
+            <batter id=""1001"">Regular</batter>
+        </batters>",0004,Regular,1001
+${PROJECT_HOME}/files/itemlist.xml,Twist,0.65,"<batters>
+            <batter id=""1001"">Regular</batter>
+        </batters>",0005,Regular,1001
+${PROJECT_HOME}/files/itemlist.xml,Filled,0.75,"<batters>
+            <batter id=""1001"">Regular</batter>
+        </batters>",0006,Regular,1001

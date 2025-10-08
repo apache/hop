@@ -89,7 +89,7 @@ public class XmlInputFieldsImportProgressDialog {
     this.option = option;
     this.loopXPath = loopXPath;
 
-    if (option.isXmlSourceIsFile()) {
+    if (option.isXmlSourceFile()) {
       this.filename = xmlSource;
       this.xml = null;
       this.url = null;

@@ -71,7 +71,7 @@ public class LoopNodesImportProgressDialog {
     this.option = option;
     this.xpaths = null;
 
-    if (option.isXmlSourceIsFile()) {
+    if (option.isXmlSourceFile()) {
       this.filename = xmlSource;
       this.xml = null;
       this.url = null;
