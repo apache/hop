@@ -67,6 +67,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
   private MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
   private TextVar wTransform;
   private TextVar wField;
+  private TextVar wStatusCode;
   private ComboVar wContentType;
   private Button wListStatus;
   private TextVar wBodyContentVariable;
@@ -236,6 +237,25 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wField.setLayoutData(fdField);
     lastControl = wlField;
 
+    // Status code field
+    //
+    Label wlStatuscode = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlField);
+    wlStatuscode.setText(BaseMessages.getString(PKG, "WebServiceEditor.StatusCodeField.Label"));
+    FormData fdlStatusCode = new FormData();
+    fdlStatusCode.left = new FormAttachment(0, 0);
+    fdlStatusCode.right = new FormAttachment(middle, -margin);
+    fdlStatusCode.top = new FormAttachment(lastControl, 2 * margin);
+    wlStatuscode.setLayoutData(fdlStatusCode);
+    wStatusCode = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wStatusCode);
+    FormData fdStatuscode = new FormData();
+    fdStatuscode.left = new FormAttachment(middle, 0);
+    fdStatuscode.right = new FormAttachment(100, 0);
+    fdStatuscode.top = new FormAttachment(wlStatuscode, 0, SWT.CENTER);
+    wStatusCode.setLayoutData(fdStatuscode);
+    lastControl = wlStatuscode;
+
     // Content type
     //
     Label wlContentType = new Label(parent, SWT.RIGHT);
@@ -312,6 +332,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wFilename.addListener(SWT.Modify, modifyListener);
     wTransform.addListener(SWT.Modify, modifyListener);
     wField.addListener(SWT.Modify, modifyListener);
+    wStatusCode.addListener(SWT.Modify, modifyListener);
     wContentType.addListener(SWT.Modify, modifyListener);
     wListStatus.addListener(SWT.Selection, modifyListener);
     wBodyContentVariable.addListener(SWT.Modify, modifyListener);
@@ -416,6 +437,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wFilename.setText(Const.NVL(ws.getFilename(), ""));
     wTransform.setText(Const.NVL(ws.getTransformName(), ""));
     wField.setText(Const.NVL(ws.getFieldName(), ""));
+    wStatusCode.setText(Const.NVL(ws.getStatusCode(), ""));
     wContentType.setText(Const.NVL(ws.getContentType(), ""));
     wListStatus.setSelection(ws.isListingStatus());
     wBodyContentVariable.setText(Const.NVL(ws.getBodyContentVariable(), ""));
@@ -434,6 +456,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     ws.setFilename(wFilename.getText());
     ws.setTransformName(wTransform.getText());
     ws.setFieldName(wField.getText());
+    ws.setStatusCode(wStatusCode.getText());
     ws.setContentType(wContentType.getText());
     ws.setListingStatus(wListStatus.getSelection());
     ws.setBodyContentVariable(wBodyContentVariable.getText());

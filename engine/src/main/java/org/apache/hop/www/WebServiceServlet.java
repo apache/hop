@@ -120,6 +120,7 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       String transformName = variables.resolve(webService.getTransformName());
       String fieldName = variables.resolve(webService.getFieldName());
       String contentType = variables.resolve(webService.getContentType());
+      String statusCodeField = variables.resolve(webService.getStatusCode());
       String bodyContentVariable = variables.resolve(webService.getBodyContentVariable());
 
       String bodyContent = "";
@@ -206,6 +207,7 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
                 throws HopTransformException {
               try {
                 String outputString = rowMeta.getString(row, fieldName, "");
+                response.setStatus(rowMeta.getInteger(row, statusCodeField, 200L).intValue());
                 outputStream.write(outputString.getBytes(StandardCharsets.UTF_8));
                 outputStream.flush();
               } catch (HopValueException e) {
@@ -223,8 +225,6 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
 
       pipeline.startThreads();
       pipeline.waitUntilFinished();
-
-      response.setStatus(HttpServletResponse.SC_OK);
 
     } catch (Exception e) {
       throw new ServletException("Error producing web service output", e);
