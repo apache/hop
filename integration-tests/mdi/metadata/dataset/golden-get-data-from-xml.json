@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-get-data-from-xml.csv",
+  "name": "golden-get-data-from-xml",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "Data grid",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "xmlData",
+      "field_format": ""
+    },
+    {
+      "field_comment": "Get data from XML",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "Get data from XML",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "ppu",
+      "field_format": "#,##0.###"
+    },
+    {
+      "field_comment": "Get data from XML",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "batters",
+      "field_format": ""
+    },
+    {
+      "field_comment": "Get data from XML",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "item_id",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class PdOption {
   private boolean isValidating;
   private boolean useUrl;
@@ -34,49 +39,9 @@ public class PdOption {
     loopXPath = "";
   }
 
-  public void setValidating(boolean validating) {
-    isValidating = validating;
-  }
-
-  public void setUseUrl(boolean useUrl) {
-    this.useUrl = useUrl;
-  }
-
-  public void setUseSnippet(boolean useSnippet) {
-    this.useSnippet = useSnippet;
-  }
-
   // if the encoding is not null, the source must be a file
   public void setEncoding(String encoding) {
     this.encoding = encoding;
     this.isXmlSourceFile = true;
-  }
-
-  public boolean isValidating() {
-    return isValidating;
-  }
-
-  public boolean isUseUrl() {
-    return useUrl;
-  }
-
-  public boolean isUseSnippet() {
-    return useSnippet;
-  }
-
-  public String getEncoding() {
-    return encoding;
-  }
-
-  public boolean isXmlSourceIsFile() {
-    return isXmlSourceFile;
-  }
-
-  public String getLoopXPath() {
-    return loopXPath;
-  }
-
-  public void setLoopXPath(String loopXPath) {
-    this.loopXPath = loopXPath;
   }
 }
