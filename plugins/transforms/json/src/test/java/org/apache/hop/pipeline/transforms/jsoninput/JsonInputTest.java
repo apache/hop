@@ -46,6 +46,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -53,6 +54,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -725,6 +727,29 @@ class JsonInputTest {
   }
 
   @Test
+  void testSingleObjPred_withJsonNodeInput() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    helper.redirectLog(out, LogLevel.ERROR);
+
+    JsonInputField bic = new JsonInputField("color");
+    bic.setPath("$.store.bicycle[?(@.price)].color");
+    bic.setType(IValueMeta.TYPE_STRING); // expect plain text (no quotes) in output
+
+    JsonInputMeta meta = createSimpleMeta("json", bic);
+    meta.setRemoveSourceField(true);
+
+    JsonNode node = getBasicTestJsonNode();
+    JsonInput jsonInput = createJsonInputWithJsonNode("json", meta, new Object[] {node});
+
+    RowComparatorListener rowComparator = new RowComparatorListener(new Object[] {"red"});
+    jsonInput.addRowListener(rowComparator);
+
+    processRows(jsonInput, 2);
+    assertEquals(0, jsonInput.getErrors(), out.toString());
+    assertEquals(1, jsonInput.getLinesWritten(), "rows written");
+  }
+
+  @Test
   void testArrayOut() throws Exception {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     helper.redirectLog(out, LogLevel.ERROR);
@@ -754,6 +779,37 @@ class JsonInputTest {
   }
 
   @Test
+  void testArrayOut_withJsonNodeInput() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    helper.redirectLog(out, LogLevel.ERROR);
+
+    JsonInputField byc = new JsonInputField("books (array)");
+    byc.setPath("$.store.book");
+    byc.setType(IValueMeta.TYPE_STRING);
+
+    JsonInputMeta meta = createSimpleMeta("json", byc);
+    meta.setRemoveSourceField(true);
+
+    JsonNode node = getBasicTestJsonNode();
+    JsonInput jsonInput = createJsonInputWithJsonNode("json", meta, new Object[] {node});
+
+    RowComparatorListener rowComparator =
+        new RowComparatorListener(
+            new Object[] {
+              "[{\"category\":\"reference\",\"author\":\"Nigel Rees\",\"title\":\"Sayings of the Century\",\"price\":8.95},"
+                  + "{\"category\":\"fiction\",\"author\":\"Evelyn Waugh\",\"title\":\"Sword of Honour\",\"price\":12.99},"
+                  + "{\"category\":\"fiction\",\"author\":\"Herman Melville\",\"title\":\"Moby Dick\","
+                  + "\"isbn\":\"0-553-21311-3\",\"price\":8.99},{\"category\":\"fiction\",\"author\":\"J. R. R. Tolkien\","
+                  + "\"title\":\"The Lord of the Rings\",\"isbn\":\"0-395-19395-8\",\"price\":22.99}]"
+            });
+    jsonInput.addRowListener(rowComparator);
+
+    processRows(jsonInput, 2);
+    assertEquals(0, jsonInput.getErrors(), out.toString());
+    assertEquals(1, jsonInput.getLinesWritten(), "rows written");
+  }
+
+  @Test
   void testObjectOut() throws Exception {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     helper.redirectLog(out, LogLevel.ERROR);
@@ -766,6 +822,30 @@ class JsonInputTest {
     meta.setRemoveSourceField(true);
 
     JsonInput jsonInput = createJsonInput("json", meta, new Object[] {getBasicTestJson()});
+    RowComparatorListener rowComparator =
+        new RowComparatorListener(new Object[] {"{\"color\":\"red\",\"price\":19.95}"});
+    jsonInput.addRowListener(rowComparator);
+
+    processRows(jsonInput, 2);
+    assertEquals(0, jsonInput.getErrors(), out.toString());
+    assertEquals(1, jsonInput.getLinesWritten(), "rows written");
+  }
+
+  @Test
+  void testObjectOut_withJsonNodeInput() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    helper.redirectLog(out, LogLevel.ERROR);
+
+    JsonInputField bic = new JsonInputField("the bicycle (obj)");
+    bic.setPath("$.store.bicycle");
+    bic.setType(IValueMeta.TYPE_STRING);
+
+    JsonInputMeta meta = createSimpleMeta("json", bic);
+    meta.setRemoveSourceField(true);
+
+    JsonNode node = getBasicTestJsonNode();
+    JsonInput jsonInput = createJsonInputWithJsonNode("json", meta, new Object[] {node});
+
     RowComparatorListener rowComparator =
         new RowComparatorListener(new Object[] {"{\"color\":\"red\",\"price\":19.95}"});
     jsonInput.addRowListener(rowComparator);
@@ -1142,7 +1222,7 @@ class JsonInputTest {
   }
 
   @Test
-  void testJsonInputPathResolutionSuccess() {
+  void testJsonInputPathResolutionSuccess() throws Exception {
     JsonInputField inputField = new JsonInputField("value");
     final String PATH = "${PARAM_PATH}.price";
     inputField.setPath(PATH);
@@ -1242,7 +1322,8 @@ class JsonInputTest {
   }
 
   protected JsonInput createBasicTestJsonInput(
-      String jsonPath, IValueMeta outputMeta, final String inCol, Object[]... inputRows) {
+      String jsonPath, IValueMeta outputMeta, final String inCol, Object[]... inputRows)
+      throws HopPluginException {
     JsonInputField jpath = new JsonInputField(outputMeta.getName());
     jpath.setPath(jsonPath);
     jpath.setType(outputMeta.getType());
@@ -1251,17 +1332,29 @@ class JsonInputTest {
     return createJsonInput(inCol, meta, inputRows);
   }
 
-  protected JsonInput createJsonInput(
-      final String inCol, JsonInputMeta meta, Object[]... inputRows) {
+  protected JsonInput createJsonInput(final String inCol, JsonInputMeta meta, Object[]... inputRows)
+      throws HopPluginException {
     return createJsonInput(inCol, meta, null, inputRows);
   }
 
   protected JsonInput createJsonInput(
-      final String inCol, JsonInputMeta meta, IVariables variables, Object[]... inputRows) {
+      final String inCol, JsonInputMeta meta, IVariables variables, Object[]... inputRows)
+      throws HopPluginException {
+    return createJsonInput(inCol, IValueMeta.TYPE_STRING, meta, variables, inputRows);
+  }
+
+  protected JsonInput createJsonInput(
+      final String inCol,
+      int hopType,
+      JsonInputMeta meta,
+      IVariables variables,
+      Object[]... inputRows)
+      throws HopPluginException {
     JsonInputData data = new JsonInputData();
 
     IRowSet input = helper.getMockInputRowSet(inputRows);
-    IRowMeta rowMeta = createRowMeta(new ValueMetaString(inCol));
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(ValueMetaFactory.createValueMeta(inCol, hopType));
     input.setRowMeta(rowMeta);
 
     JsonInput jsonInput =
@@ -1273,6 +1366,20 @@ class JsonInputTest {
 
     jsonInput.init();
     return jsonInput;
+  }
+
+  protected static JsonNode getBasicTestJsonNode() throws Exception {
+    String json = getBasicTestJson();
+    return new ObjectMapper().readTree(json);
+  }
+
+  protected JsonInput createJsonInputWithJsonNode(
+      String fieldName, JsonInputMeta meta, Object[]... inputRows) throws HopPluginException {
+
+    meta.setInFields(true);
+    meta.setFieldValue(fieldName);
+
+    return createJsonInput(fieldName, IValueMeta.TYPE_JSON, meta, null, inputRows);
   }
 
   protected static class RowComparatorListener extends RowAdapter {

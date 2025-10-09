@@ -1946,22 +1946,33 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     }
 
     String typeName = rm.getColumnTypeName(index);
-    // Most dbs expose uuid as "UUID", sql server (native) as "UNIQUEIDENTIFIER"
-    if ("uuid".equalsIgnoreCase(typeName) || "uniqueidentifier".equalsIgnoreCase(typeName)) {
-      try {
+    if (typeName == null) {
+      return null;
+    }
 
-        int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+    typeName = typeName.toLowerCase();
+    try {
+      switch (typeName) {
+          // Most dbs expose uuid as "UUID", sql server (native) as "UNIQUEIDENTIFIER"
+        case "uniqueidentifier":
+        case "uuid":
+          {
+            int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
 
-        // Keep any existing metadata
-        IValueMeta u = ValueMetaFactory.cloneValueMeta(v, uuidTypeId);
+            // Keep any existing metadata
+            IValueMeta u = ValueMetaFactory.cloneValueMeta(v, uuidTypeId);
 
-        u.setLength(-1);
-        u.setPrecision(-1);
+            u.setLength(-1);
+            u.setPrecision(-1);
 
-        return u;
-      } catch (HopPluginException ignore) {
-        // UUID plugin not present
+            return u;
+          }
+        case "json":
+        case "jsonb":
+          return ValueMetaFactory.cloneValueMeta(v, IValueMeta.TYPE_JSON);
       }
+    } catch (HopPluginException ignore) {
+      // UUID plugin not present
     }
     return null;
   }
