@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import static org.apache.hop.core.Const.NVL;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -214,7 +216,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       String entityString = null;
       if (data.useBody) {
         // Set Http request entity
-        entityString = Const.NVL(data.inputRowMeta.getString(rowData, data.indexOfBodyField), null);
+        entityString = NVL(data.inputRowMeta.getString(rowData, data.indexOfBodyField), null);
         if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entityString));
         }
@@ -442,7 +444,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       } else {
         // Static URL
         if (!Utils.isEmpty(data.connectionName)) {
-          data.realUrl = baseUrl + resolve(meta.getUrl());
+          data.realUrl = baseUrl + NVL(resolve(meta.getUrl()), "");
         } else {
           data.realUrl = resolve(meta.getUrl());
         }
@@ -610,7 +612,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.trustStoreFile = resolve(meta.getTrustStoreFile());
       data.trustStorePassword = resolve(meta.getTrustStorePassword());
 
-      String applicationType = Const.NVL(meta.getApplicationType(), "");
+      String applicationType = NVL(meta.getApplicationType(), "");
       if (applicationType.equals(RestMeta.APPLICATION_TYPE_XML)) {
         data.mediaType = MediaType.APPLICATION_XML_TYPE;
       } else if (applicationType.equals(RestMeta.APPLICATION_TYPE_JSON)) {

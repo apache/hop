@@ -17,7 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -57,7 +60,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 class RestMetaTest implements IInitializer<ITransformMeta> {
 
-  LoadSaveTester loadSaveTester;
+  LoadSaveTester<RestMeta> loadSaveTester;
   Class<RestMeta> testMetaClass = RestMeta.class;
 
   @RegisterExtension
@@ -73,6 +76,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
   void testLoadSaveRoundTrip() throws HopException {
     List<String> attributes =
         Arrays.asList(
@@ -292,6 +296,190 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_GET));
     assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_HEAD));
     assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_OPTIONS));
+  }
+
+  @Test
+  void testIsActiveBodyWithEmptyMethod() {
+    assertFalse(RestMeta.isActiveBody(""));
+    assertFalse(RestMeta.isActiveBody(null));
+  }
+
+  @Test
+  void testIsActiveParametersForAllMethods() {
+    assertTrue(RestMeta.isActiveParameters(RestMeta.HTTP_METHOD_GET));
+    assertTrue(RestMeta.isActiveParameters(RestMeta.HTTP_METHOD_POST));
+    assertTrue(RestMeta.isActiveParameters(RestMeta.HTTP_METHOD_PUT));
+    assertTrue(RestMeta.isActiveParameters(RestMeta.HTTP_METHOD_PATCH));
+    assertTrue(RestMeta.isActiveParameters(RestMeta.HTTP_METHOD_DELETE));
+
+    assertFalse(RestMeta.isActiveParameters(RestMeta.HTTP_METHOD_HEAD));
+    assertFalse(RestMeta.isActiveParameters(RestMeta.HTTP_METHOD_OPTIONS));
+  }
+
+  @Test
+  void testIsActiveParametersWithEmptyMethod() {
+    assertFalse(RestMeta.isActiveParameters(""));
+    assertFalse(RestMeta.isActiveParameters(null));
+  }
+
+  @Test
+  void testClone() {
+    RestMeta meta = new RestMeta();
+    meta.setUrl("http://example.com");
+    meta.setMethod(RestMeta.HTTP_METHOD_POST);
+    meta.setApplicationType(RestMeta.APPLICATION_TYPE_JSON);
+    meta.setConnectionTimeout("5000");
+    meta.setReadTimeout("10000");
+
+    RestMeta cloned = (RestMeta) meta.clone();
+    assertNotNull(cloned);
+    assertEquals(meta.getUrl(), cloned.getUrl());
+    assertEquals(meta.getMethod(), cloned.getMethod());
+    assertEquals(meta.getApplicationType(), cloned.getApplicationType());
+    assertEquals(meta.getConnectionTimeout(), cloned.getConnectionTimeout());
+    assertEquals(meta.getReadTimeout(), cloned.getReadTimeout());
+  }
+
+  @Test
+  void testSetDefault() {
+    RestMeta meta = new RestMeta();
+    meta.setDefault();
+
+    assertNotNull(meta.getHeaderFields());
+    assertNotNull(meta.getParameterFields());
+    assertNotNull(meta.getMatrixParameterFields());
+    assertNotNull(meta.getResultField());
+    assertEquals(RestMeta.HTTP_METHOD_GET, meta.getMethod());
+    assertFalse(meta.isDynamicMethod());
+    assertNull(meta.getMethodFieldName());
+    assertFalse(meta.isPreemptive());
+    assertNull(meta.getTrustStoreFile());
+    assertNull(meta.getTrustStorePassword());
+    assertEquals(RestMeta.APPLICATION_TYPE_TEXT_PLAIN, meta.getApplicationType());
+    assertEquals(String.valueOf(RestMeta.DEFAULT_READ_TIMEOUT), meta.getReadTimeout());
+    assertEquals(String.valueOf(RestMeta.DEFAULT_CONNECTION_TIMEOUT), meta.getConnectionTimeout());
+  }
+
+  @Test
+  void testSupportsErrorHandling() {
+    RestMeta meta = new RestMeta();
+    assertTrue(meta.supportsErrorHandling());
+  }
+
+  @Test
+  void testGetFields() {
+    RestMeta meta = new RestMeta();
+    meta.getResultField().setFieldName("result");
+    meta.getResultField().setCode("statusCode");
+    meta.getResultField().setResponseTime("responseTime");
+    meta.getResultField().setResponseHeader("headers");
+
+    IRowMeta inputRowMeta = new RowMeta();
+    IVariables variables = new Variables();
+
+    meta.getFields(inputRowMeta, "testTransform", null, null, variables, null);
+
+    assertEquals(4, inputRowMeta.size());
+    assertNotNull(inputRowMeta.searchValueMeta("result"));
+    assertNotNull(inputRowMeta.searchValueMeta("statusCode"));
+    assertNotNull(inputRowMeta.searchValueMeta("responseTime"));
+    assertNotNull(inputRowMeta.searchValueMeta("headers"));
+  }
+
+  @Test
+  void testGetFieldsWithEmptyResultField() {
+    RestMeta meta = new RestMeta();
+    // Don't set any result field names
+
+    IRowMeta inputRowMeta = new RowMeta();
+    IVariables variables = new Variables();
+
+    meta.getFields(inputRowMeta, "testTransform", null, null, variables, null);
+
+    assertEquals(0, inputRowMeta.size());
+  }
+
+  @Test
+  void testApplicationTypes() {
+    String[] types = RestMeta.APPLICATION_TYPES;
+    assertEquals(9, types.length);
+    assertEquals(RestMeta.APPLICATION_TYPE_TEXT_PLAIN, types[0]);
+    assertEquals(RestMeta.APPLICATION_TYPE_XML, types[1]);
+    assertEquals(RestMeta.APPLICATION_TYPE_JSON, types[2]);
+    assertEquals(RestMeta.APPLICATION_TYPE_OCTET_STREAM, types[3]);
+    assertEquals(RestMeta.APPLICATION_TYPE_XHTML, types[4]);
+    assertEquals(RestMeta.APPLICATION_TYPE_FORM_URLENCODED, types[5]);
+    assertEquals(RestMeta.APPLICATION_TYPE_ATOM_XML, types[6]);
+    assertEquals(RestMeta.APPLICATION_TYPE_SVG_XML, types[7]);
+    assertEquals(RestMeta.APPLICATION_TYPE_TEXT_XML, types[8]);
+  }
+
+  @Test
+  void testHttpMethods() {
+    String[] methods = RestMeta.HTTP_METHODS;
+    assertEquals(7, methods.length);
+    assertEquals(RestMeta.HTTP_METHOD_GET, methods[0]);
+    assertEquals(RestMeta.HTTP_METHOD_POST, methods[1]);
+    assertEquals(RestMeta.HTTP_METHOD_PUT, methods[2]);
+    assertEquals(RestMeta.HTTP_METHOD_DELETE, methods[3]);
+    assertEquals(RestMeta.HTTP_METHOD_HEAD, methods[4]);
+    assertEquals(RestMeta.HTTP_METHOD_OPTIONS, methods[5]);
+    assertEquals(RestMeta.HTTP_METHOD_PATCH, methods[6]);
+  }
+
+  @Test
+  void testDefaultTimeouts() {
+    assertEquals(10000, RestMeta.DEFAULT_CONNECTION_TIMEOUT);
+    assertEquals(10000, RestMeta.DEFAULT_READ_TIMEOUT);
+  }
+
+  @Test
+  void testCheckWithStaticUrl() {
+    RestMeta meta = new RestMeta();
+    meta.setUrlInField(false);
+    meta.setUrl("http://example.com");
+    meta.setMethod(RestMeta.HTTP_METHOD_GET);
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta transform = new TransformMeta();
+    IRowMeta prev = new RowMeta();
+    IRowMeta info = new RowMeta();
+    String[] input = new String[] {"previous"};
+    String[] output = new String[0];
+    IVariables variables = new Variables();
+
+    meta.check(remarks, pipelineMeta, transform, prev, input, output, info, variables, null);
+
+    // Should have fewer errors now
+    long errorCount =
+        remarks.stream().filter(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
+    // Expect 0 errors with valid configuration
+    assertEquals(0, errorCount);
+  }
+
+  @Test
+  void testCheckWithDynamicMethod() {
+    RestMeta meta = new RestMeta();
+    meta.setUrlInField(false);
+    meta.setUrl("http://example.com");
+    meta.setDynamicMethod(true);
+    meta.setMethodFieldName("methodField");
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta transform = new TransformMeta();
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("methodField"));
+    IRowMeta info = new RowMeta();
+    String[] input = new String[] {"previous"};
+    String[] output = new String[0];
+    IVariables variables = new Variables();
+
+    meta.check(remarks, pipelineMeta, transform, prev, input, output, info, variables, null);
+
+    // Check that there's a check result for the method field
+    assertFalse(remarks.isEmpty());
   }
 
   @Override
