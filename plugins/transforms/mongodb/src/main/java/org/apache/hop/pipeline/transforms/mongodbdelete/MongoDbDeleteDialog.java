@@ -870,6 +870,9 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
         case IValueMeta.TYPE_BINARY:
           val = "<binary val>";
           break;
+        case IValueMeta.TYPE_JSON:
+          val = "<JSON document>";
+          break;
         default:
           try {
             int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");

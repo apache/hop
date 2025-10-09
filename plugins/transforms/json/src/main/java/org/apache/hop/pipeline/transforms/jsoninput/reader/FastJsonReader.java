@@ -17,15 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ParseContext;
 import com.jayway.jsonpath.ReadContext;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.io.InputStream;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.RandomAccess;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.SingleRowRowSet;
@@ -44,7 +50,12 @@ public class FastJsonReader implements IJsonReader {
   private static final String JSON_CHARSET = "UTF-8";
 
   private ReadContext jsonReadContext;
+
+  /** used if the incoming value is a String */
   private Configuration jsonConfiguration;
+
+  /** used if the incoming value is a JsonNode */
+  private Configuration jsonNodeConfiguration;
 
   private boolean ignoreMissingPath;
   private boolean defaultPathLeafToNull;
@@ -61,6 +72,7 @@ public class FastJsonReader implements IJsonReader {
     this.ignoreMissingPath = false;
     this.defaultPathLeafToNull = true;
     this.jsonConfiguration = Configuration.defaultConfiguration().addOptions(DEFAULT_OPTIONS);
+    this.jsonNodeConfiguration = getJacksonNodeJsonPathConfig();
     this.log = log;
   }
 
@@ -83,6 +95,14 @@ public class FastJsonReader implements IJsonReader {
             deleteOptionFromConfiguration(this.jsonConfiguration, Option.DEFAULT_PATH_LEAF_TO_NULL);
       }
     }
+  }
+
+  private Configuration getJacksonNodeJsonPathConfig() {
+    return Configuration.builder()
+        .jsonProvider(new JacksonJsonNodeJsonProvider())
+        .mappingProvider(new JacksonMappingProvider())
+        .options(DEFAULT_OPTIONS)
+        .build();
   }
 
   public boolean isDefaultPathLeafToNull() {
@@ -121,8 +141,14 @@ public class FastJsonReader implements IJsonReader {
     this.ignoreMissingPath = value;
   }
 
+  // used if incoming value is String
   private ParseContext getParseContext() {
     return JsonPath.using(jsonConfiguration);
+  }
+
+  // used if incoming value is JsonNode
+  private ParseContext getJsonNodeParseContext() {
+    return JsonPath.using(jsonNodeConfiguration);
   }
 
   private ReadContext getReadContext() {
@@ -150,6 +176,13 @@ public class FastJsonReader implements IJsonReader {
     }
   }
 
+  protected void readInput(JsonNode node) throws HopException {
+    jsonReadContext = getJsonNodeParseContext().parse(node);
+    if (jsonReadContext == null) {
+      throw new HopException(BaseMessages.getString(PKG, "JsonReader.Error.ReadUrl.Null"));
+    }
+  }
+
   @Override
   public boolean isIgnoreMissingPath() {
     return this.ignoreMissingPath;
@@ -162,8 +195,18 @@ public class FastJsonReader implements IJsonReader {
   }
 
   @Override
-  public IRowSet parse(InputStream in) throws HopException {
+  public IRowSet parseStringValue(InputStream in) throws HopException {
     readInput(in);
+    return getRow();
+  }
+
+  @Override
+  public IRowSet parseJsonNodeValue(JsonNode node) throws HopException {
+    readInput(node);
+    return getRow();
+  }
+
+  private IRowSet getRow() throws HopException {
     List<List<?>> results = evalCombinedResult();
     int len = results.isEmpty() ? 0 : getMaxRowSize(results);
     if (log.isDetailed()) {
@@ -262,7 +305,8 @@ public class FastJsonReader implements IJsonReader {
     List<List<?>> results = new ArrayList<>(paths.length);
     int i = 0;
     for (JsonPath path : paths) {
-      List<Object> result = getReadContext().read(path);
+      Object raw = getReadContext().read(path);
+      List<Object> result = normalizeJsonPathResult(raw);
       if (result.size() != lastSize && lastSize > 0 && !result.isEmpty()) {
         throw new JsonInputException(
             BaseMessages.getString(
@@ -292,5 +336,43 @@ public class FastJsonReader implements IJsonReader {
       }
     }
     return true;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<Object> normalizeJsonPathResult(Object r) throws JsonInputException {
+    if (r instanceof List<?>) {
+      // Already a List
+      return (List<Object>) r;
+    }
+    if (r instanceof ArrayNode arr) {
+      // expose array elements as a List view,
+      // doesn't do conversion for performance
+      return new ArrayNodeListView(arr);
+    }
+
+    throw new JsonInputException(
+        "Unexpected JsonPath result type: "
+            + r.getClass().getName()
+            + ". Expected List<?> or ArrayNode.");
+  }
+
+  /** A List view over an ArrayNode's elements to use its nodes without doing conversion. */
+  private static final class ArrayNodeListView extends AbstractList<Object>
+      implements RandomAccess {
+    private final ArrayNode arr;
+
+    ArrayNodeListView(ArrayNode arr) {
+      this.arr = arr;
+    }
+
+    @Override
+    public Object get(int index) {
+      return arr.get(index);
+    } // returns JsonNode
+
+    @Override
+    public int size() {
+      return arr.size();
+    }
   }
 }
