@@ -30,7 +30,7 @@ public class HopJson {
   public static final ObjectMapper newMapper() {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
     return objectMapper;
   }
 }
