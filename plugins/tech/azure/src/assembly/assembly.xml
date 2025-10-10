@@ -59,6 +59,11 @@
                 <exclude>com.squareup.okio::jar</exclude>
                 <exclude>io.projectreactor:reactor-core:jar</exclude>
                 <exclude>org.reactivestreams:reactive-streams:jar</exclude>
+                <exclude>com.fasterxml.jackson.core:*</exclude>
+                <exclude>com.fasterxml.jackson.datatype:*</exclude>
+                <exclude>com.fasterxml.jackson.dataformat:*</exclude>
+                <exclude>com.fasterxml.jackson.module:*</exclude>
+                <exclude>org.slf4j:*</exclude>
             </excludes>
             <outputDirectory>plugins/tech/azure/lib</outputDirectory>
         </dependencySet>
@@ -75,6 +80,7 @@
                 <include>com.squareup.okhttp3:okhttp:jar</include>
                 <include>com.squareup.okio::jar</include>
                 <include>org.reactivestreams:reactive-streams:jar</include>
+                <include>com.azure:azure-security-keyvault-secrets</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
