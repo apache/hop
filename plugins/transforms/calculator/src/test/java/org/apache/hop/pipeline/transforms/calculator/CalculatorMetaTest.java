@@ -60,8 +60,8 @@ class CalculatorMetaTest {
   private static final Random rand = new Random();
 
   private static CalculatorMetaFunction generateTestFunction() {
-    CalculatorMetaFunction.CalculationType[] types =
-        CalculatorMetaFunction.CalculationType.values();
+    CalculationType[] types = CalculationType.values();
+
     String[] valueTypes = {"String", "Number", "Date", "Integer", "Boolean"};
 
     CalculatorMetaFunction rtn = new CalculatorMetaFunction();
