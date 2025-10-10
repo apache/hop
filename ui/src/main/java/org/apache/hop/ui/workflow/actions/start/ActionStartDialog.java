@@ -282,7 +282,7 @@ public class ActionStartDialog extends ActionDialog {
     } else {
       formDataLabel.top = new FormAttachment(0, 0);
     }
-    formDataLabel.right = new FormAttachment(middle, 0);
+    formDataLabel.right = new FormAttachment(middle, -margin);
     label.setLayoutData(formDataLabel);
 
     PropsUi.setLook(control);

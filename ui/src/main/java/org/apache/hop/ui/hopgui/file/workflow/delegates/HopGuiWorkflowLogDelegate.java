@@ -171,6 +171,11 @@ public class HopGuiWorkflowLogDelegate {
     toolbar.pack();
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ICON_CLEAR_LOG_VIEW,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.ClearLog",
+      image = "ui/images/delete.svg")
   public void clearLog() {
     if (workflowLogText != null && !workflowLogText.isDisposed()) {
       // add a CR to avoid fontStyle from getting lost on macos HOP-2583
