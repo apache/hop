@@ -41,6 +41,7 @@ class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTestJunit5<MetaIn
     check("SOURCE_TRANSFORM_NAME", () -> meta.getSourceTransformName());
     check("TARGET_FILE", () -> meta.getTargetFile());
     check("NO_EXECUTION", () -> meta.isNoExecution());
+    check("ALLOW_EMPTY_STREAM_ON_EXECUTION", () -> meta.isAllowEmptyStreamOnExecution());
     check("STREAMING_SOURCE_TRANSFORM", () -> meta.getStreamSourceTransformName());
     check("STREAMING_TARGET_TRANSFORM", () -> meta.getStreamTargetTransformName());
     check("SOURCE_OUTPUT_NAME", () -> meta.getSourceOutputFields().get(0).getName());

@@ -135,6 +135,10 @@ public class MetaInjectDialog extends BaseTransformDialog {
   //
   private Button wNoExecution;
 
+  // allow to run execution if previous stream data are empty
+  //
+  private Button wAllowEmptyStreamOnExecution;
+
   private CCombo wStreamingSourceTransform;
 
   // the streaming target transform
@@ -573,6 +577,16 @@ public class MetaInjectDialog extends BaseTransformDialog {
     fdNoExecution.top = new FormAttachment(wStreamingTargetTransform, 10);
     wNoExecution.setLayoutData(fdNoExecution);
 
+    wAllowEmptyStreamOnExecution = new Button(wOptionsComp, SWT.CHECK);
+    wAllowEmptyStreamOnExecution.setText(
+        BaseMessages.getString(PKG, "MetaInjectDialog.AllowEmptyStreamOnExecution.Label"));
+    PropsUi.setLook(wAllowEmptyStreamOnExecution);
+    FormData fdAllowEmptyStreamOnExecution = new FormData();
+    fdAllowEmptyStreamOnExecution.width = 350;
+    fdAllowEmptyStreamOnExecution.left = new FormAttachment(0, 0);
+    fdAllowEmptyStreamOnExecution.top = new FormAttachment(wNoExecution, 10);
+    wAllowEmptyStreamOnExecution.setLayoutData(fdAllowEmptyStreamOnExecution);
+
     FormData fdOptionsComp = new FormData();
     fdOptionsComp.left = new FormAttachment(0, 0);
     fdOptionsComp.top = new FormAttachment(0, 0);
@@ -912,6 +926,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
     wTargetFile.setText(Const.NVL(metaInjectMeta.getTargetFile(), ""));
     wCreateParentFolder.setSelection(metaInjectMeta.isCreateParentFolder());
     wNoExecution.setSelection(!metaInjectMeta.isNoExecution());
+    wAllowEmptyStreamOnExecution.setSelection(metaInjectMeta.isAllowEmptyStreamOnExecution());
 
     wStreamingSourceTransform.setText(
         Const.NVL(
@@ -1130,6 +1145,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
     meta.setTargetFile(wTargetFile.getText());
     meta.setCreateParentFolder(wCreateParentFolder.getSelection());
     meta.setNoExecution(!wNoExecution.getSelection());
+    meta.setAllowEmptyStreamOnExecution(wAllowEmptyStreamOnExecution.getSelection());
 
     final TransformMeta streamSourceTransform =
         pipelineMeta.findTransform(wStreamingSourceTransform.getText());

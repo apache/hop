@@ -79,6 +79,7 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
   private static final String TARGET_FILE = "target_file";
   private static final String CREATE_PARENT_FOLDER = "create_parent_folder";
   private static final String NO_EXECUTION = "no_execution";
+  private static final String ALLOW_EMPTY_STREAM_ON_EXECUTION = "allow_empty_stream_on_execution";
   private static final String SOURCE_TRANSFORM = "source_transform";
 
   private static final String STREAM_SOURCE_TRANSFORM = "stream_source_transform";
@@ -117,6 +118,9 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
 
   @Injection(name = "NO_EXECUTION")
   private boolean noExecution;
+
+  @Injection(name = "ALLOW_EMPTY_STREAM_ON_EXECUTION")
+  private boolean allowEmptyStreamOnExecution;
 
   @Injection(name = "STREAMING_SOURCE_TRANSFORM")
   private String streamSourceTransformName;
@@ -173,6 +177,10 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
     retval.append("    ").append(XmlHandler.addTagValue(TARGET_FILE, targetFile));
     retval.append("    ").append(XmlHandler.addTagValue(CREATE_PARENT_FOLDER, createParentFolder));
     retval.append("    ").append(XmlHandler.addTagValue(NO_EXECUTION, noExecution));
+    retval
+        .append("    ")
+        .append(
+            XmlHandler.addTagValue(ALLOW_EMPTY_STREAM_ON_EXECUTION, allowEmptyStreamOnExecution));
 
     if ((streamSourceTransformName == null) && (streamSourceTransform != null)) {
       streamSourceTransformName = streamSourceTransform.getName();
@@ -236,6 +244,10 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
       createParentFolder =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CREATE_PARENT_FOLDER));
       noExecution = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, NO_EXECUTION));
+      allowEmptyStreamOnExecution =
+          "Y"
+              .equalsIgnoreCase(
+                  XmlHandler.getTagValue(transformNode, ALLOW_EMPTY_STREAM_ON_EXECUTION));
 
       streamSourceTransformName = XmlHandler.getTagValue(transformNode, STREAM_SOURCE_TRANSFORM);
       streamTargetTransformName = XmlHandler.getTagValue(transformNode, STREAM_TARGET_TRANSFORM);
@@ -466,6 +478,20 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
    */
   public void setNoExecution(boolean noExecution) {
     this.noExecution = noExecution;
+  }
+
+  /**
+   * @return the allowEmptyStreamOnExecution
+   */
+  public boolean isAllowEmptyStreamOnExecution() {
+    return allowEmptyStreamOnExecution;
+  }
+
+  /**
+   * @param allowEmptyStreamOnExecution the allowEmptyStreamOnExecution to set
+   */
+  public void setAllowEmptyStreamOnExecution(boolean allowEmptyStreamOnExecution) {
+    this.allowEmptyStreamOnExecution = allowEmptyStreamOnExecution;
   }
 
   public String getRunConfigurationName() {
