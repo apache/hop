@@ -76,6 +76,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.JsonUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -3242,6 +3243,12 @@ public class ValueMetaBase implements IValueMeta {
     return type == TYPE_BOOLEAN;
   }
 
+  @Override
+  @JsonIgnore
+  public boolean isJson() {
+    return type == TYPE_JSON;
+  }
+
   /**
    * Checks whether or not this value is of type Serializable
    *
@@ -3533,9 +3540,7 @@ public class ValueMetaBase implements IValueMeta {
     if (jsonNode == null) {
       outputStream.writeInt(-1);
     } else {
-      ObjectMapper objectMapper = new ObjectMapper();
-      String string = objectMapper.writeValueAsString(jsonNode);
-      byte[] chars = string.getBytes(StandardCharsets.UTF_8);
+      byte[] chars = JsonUtil.mapJsonToBytes(jsonNode);
       outputStream.writeInt(chars.length);
       outputStream.write(chars);
     }
@@ -3575,8 +3580,7 @@ public class ValueMetaBase implements IValueMeta {
     byte[] chars = new byte[inputLength];
     inputStream.readFully(chars);
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    return objectMapper.readTree(chars, 0, inputLength);
+    return JsonUtil.jsonMapper().readTree(chars, 0, inputLength);
   }
 
   protected byte[] readBinaryString(DataInputStream inputStream) throws IOException {
@@ -4378,7 +4382,7 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  private int typeCompare(Object data1, Object data2) throws HopValueException {
+  protected int typeCompare(Object data1, Object data2) throws HopValueException {
     int cmp = 0;
     switch (getType()) {
       case TYPE_STRING:
@@ -5557,6 +5561,7 @@ public class ValueMetaBase implements IValueMeta {
 
       IValueMeta newV = null;
       try {
+        // JSON type is handled here because its type is 1111 (Object) when reading from SQL
         newV = databaseMeta.getIDatabase().customizeValueFromSqlType(v, rm, index);
       } catch (SQLException e) {
         throw new SQLException(e);

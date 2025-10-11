@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>mongo-delete-json</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/10/11 17:47:34.130</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/10/11 17:47:34.130</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Segoe UI</fontname>
+      <fontsize>9</fontsize>
+      <height>26</height>
+      <xloc>512</xloc>
+      <yloc>112</yloc>
+      <note>Deletes 2 of the rows inserted by mongo-insert-json in json_insert.</note>
+      <width>358</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Data grid</from>
+      <to>MongoDB Delete</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>MongoDB Delete</name>
+    <type>MongoDbDelete</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <collection>json_insert</collection>
+    <connection>mongo</connection>
+    <execute_for_each_row>N</execute_for_each_row>
+    <fields>
+      <field>
+        <comparator>=</comparator>
+        <doc_path>z_fighter</doc_path>
+        <incoming_field_1>z_fighter</incoming_field_1>
+        <incoming_field_2/>
+      </field>
+    </fields>
+    <json_query/>
+    <retries>5</retries>
+    <retry_delay>10</retry_delay>
+    <use_json_query>N</use_json_query>
+    <write_retries>5</write_retries>
+    <attributes/>
+    <GUI>
+      <xloc>720</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Data grid</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>{"name": "Goku", "moves": [{"power": 9500, "moveName": "Kamehameha"}, {"power": 12000, "moveName": "Spirit Bomb"}], "height": 175}</item>
+      </line>
+      <line>
+        <item>{"name": "Piccolo", "moves": [{"power": 10000, "moveName": "Special Beam Cannon"}, {"power": 9500, "moveName": "Hellzone Grenade"}], "height": 226}</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>z_fighter</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>JSON</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>528</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

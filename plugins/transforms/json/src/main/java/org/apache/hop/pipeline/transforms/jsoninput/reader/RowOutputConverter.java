@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Map;
 import net.minidev.json.JSONObject;
 import org.apache.hop.core.exception.HopException;
@@ -59,6 +60,9 @@ public class RowOutputConverter {
       if (jo instanceof Map) {
         Map<String, ?> asStrMap = (Map<String, ?>) jo;
         nodevalue = JSONObject.toJSONString(asStrMap);
+      } else if (jo instanceof TextNode jot) {
+        // this avoids returning string enclosed by "" if JsonNode
+        nodevalue = jot.asText();
       } else {
         nodevalue = jo.toString();
       }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -79,6 +80,11 @@ public class InputsReader implements Iterable<InputStream> {
         }
       };
     }
+  }
+
+  public Iterator<JsonNode> jsonFieldIterator() {
+    return new JsonFieldIterator(
+        new RowIterator(transform, data, errorHandler), data.indexSourceField);
   }
 
   protected StringFieldIterator getFieldIterator() {
@@ -215,7 +221,49 @@ public class InputsReader implements Iterable<InputStream> {
     @Override
     public String next() {
       Object[] row = rowIter.next();
-      return (row == null || row.length <= idx) ? null : (String) row[idx];
+      if (row == null || row.length <= idx) return null;
+      Object v = row[idx];
+      if (v == null) return null;
+
+      if (v instanceof String vString) return vString;
+
+      throw new ClassCastException(
+          "Field at index " + idx + " is " + v.getClass().getName() + ", expected String.");
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException(CONST_REMOVE);
+    }
+  }
+
+  protected class JsonFieldIterator implements Iterator<JsonNode> {
+    private final RowIterator rowIter;
+    private final int idx;
+
+    public JsonFieldIterator(RowIterator rowIter, int idx) {
+      this.rowIter = rowIter;
+      this.idx = idx;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return rowIter.hasNext();
+    }
+
+    @Override
+    public JsonNode next() {
+      Object[] row = rowIter.next();
+      if (row == null || row.length <= idx) return null;
+      Object v = row[idx];
+      if (v == null) return null;
+
+      if (v instanceof JsonNode node) {
+        return node;
+      }
+
+      throw new ClassCastException(
+          "Field at index " + idx + " is " + v.getClass().getName() + ", expected JsonNode.");
     }
 
     @Override

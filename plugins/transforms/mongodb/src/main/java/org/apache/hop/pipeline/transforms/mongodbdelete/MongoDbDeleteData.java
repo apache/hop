@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
+import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -313,59 +315,80 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
       return false; // don't insert nulls!
     }
 
-    if (valueMeta.isString()) {
-      String val = valueMeta.getString(objectValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    if (valueMeta.isBoolean()) {
-      Boolean val = valueMeta.getBoolean(objectValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    if (valueMeta.isInteger()) {
-      Long val = valueMeta.getInteger(objectValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    if (valueMeta.isDate()) {
-      Date val = valueMeta.getDate(objectValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    if (valueMeta.isNumber()) {
-      Double val = valueMeta.getNumber(objectValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    if (valueMeta.isBigNumber()) {
-      // use string value - user can use Hop to convert back
-      String val = valueMeta.getString(objectValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    if (valueMeta.isBinary()) {
-      byte[] val = valueMeta.getBinary(objectValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    // UUID
-    try {
-      int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
-      if (valueMeta.getType() == uuidTypeId) {
-        UUID val = (UUID) valueMeta.convertData(valueMeta, objectValue);
-        mongoObject.put(lookup.toString(), val);
-        return true;
-      }
-    } catch (Exception ignore) {
-      // UUID plugin not present, fall through
-    }
-    if (valueMeta.isSerializableType()) {
-      throw new HopValueException(
-          BaseMessages.getString(PKG, "MongoDbDelete.ErrorMessage.CantStoreHopSerializableVals"));
-    }
+    switch (valueMeta.getType()) {
+      case IValueMeta.TYPE_STRING:
+        {
+          String val = valueMeta.getString(objectValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_BOOLEAN:
+        {
+          Boolean val = valueMeta.getBoolean(objectValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_INTEGER:
+        {
+          Long val = valueMeta.getInteger(objectValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_DATE:
+        {
+          Date val = valueMeta.getDate(objectValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_NUMBER:
+        {
+          Double val = valueMeta.getNumber(objectValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_BIGNUMBER:
+        {
+          // use string value - user can use Hop to convert back
+          String val = valueMeta.getString(objectValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_BINARY:
+        {
+          byte[] val = valueMeta.getBinary(objectValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_SERIALIZABLE:
+        {
+          throw new HopValueException(
+              BaseMessages.getString(
+                  PKG, "MongoDbDelete.ErrorMessage.CantStoreHopSerializableVals"));
+        }
+      case IValueMeta.TYPE_JSON:
+        {
+          JsonNode node = valueMeta.getJson(objectValue);
+          Object bson = MongoField.toBsonFromJsonNode(node);
+          mongoObject.put(lookup.toString(), bson);
+          return true;
+        }
+      default:
+        {
+          // UUID
+          try {
+            int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+            if (valueMeta.getType() == uuidTypeId) {
+              UUID val = (UUID) valueMeta.convertData(valueMeta, objectValue);
+              mongoObject.put(lookup.toString(), val);
+              return true;
+            }
+          } catch (Exception ignore) {
+            // UUID plugin not present, fall through
+          }
 
-    return false;
+          return false;
+        }
+    }
   }
 
   /**

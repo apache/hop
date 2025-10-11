@@ -141,39 +141,6 @@ public class ValueMetaUuid extends ValueMetaBase {
   }
 
   @Override
-  public int compare(Object data1, Object data2) throws HopValueException {
-    boolean n1 = isNull(data1);
-    boolean n2 = isNull(data2);
-
-    if (n1 && !n2) {
-      if (isSortedDescending()) {
-        return 1;
-      } else {
-        return -1;
-      }
-    }
-    if (!n1 && n2) {
-      if (isSortedDescending()) {
-        return -1;
-      } else {
-        return 1;
-      }
-    }
-    if (n1 && n2) {
-      return 0;
-    }
-
-    int cmp = 0;
-
-    cmp = typeCompare(data1, data2);
-
-    if (isSortedDescending()) {
-      return -cmp;
-    } else {
-      return cmp;
-    }
-  }
-
   protected int typeCompare(Object object1, Object object2) throws HopValueException {
     if (object1 instanceof UUID u1 && object2 instanceof UUID u2) {
       return u1.compareTo(u2);
@@ -213,7 +180,9 @@ public class ValueMetaUuid extends ValueMetaBase {
       // generic fallback to String
       preparedStatement.setString(index, u.toString());
     } catch (Exception e) {
-      throw new HopDatabaseException("Unable to set UUID parameter", e);
+      throw new HopDatabaseException(
+          "Error setting UUID value #" + index + " [" + toStringMeta() + "] on prepared statement",
+          e);
     }
   }
 
@@ -225,7 +194,10 @@ public class ValueMetaUuid extends ValueMetaBase {
       return convertData(this, o);
     } catch (SQLException e) {
       throw new HopDatabaseException(
-          "Unable to get value '" + toStringMeta() + "' from database resultset, index " + index,
+          "Unable to get UUID value '"
+              + toStringMeta()
+              + "' from database resultset, index "
+              + index,
           e);
     } catch (Exception e) {
       throw new HopDatabaseException("Unable to read UUID value", e);

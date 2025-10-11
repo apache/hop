@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.mongodboutput;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -44,6 +45,7 @@ import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
+import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -710,6 +712,8 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
           IValueMeta vm = inputMeta.getValueMeta(index);
           if (!vm.isNull(row[index])) {
             String jsonDoc = vm.getString(row[index]);
+            // TODO: change JSON.parse into Document.parse and adjust all the returned
+            //  types since the mongoObject.put() accepts a Document and JSON is deprecated
             return (DBObject) JSON.parse(jsonDoc);
           } else {
             return null;
@@ -882,65 +886,84 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       }
     }
 
-    if (hopType.isString()) {
-      String val = hopType.getString(hopValue);
-      if (hopValueIsJSON) {
-        Object mongoO = JSON.parse(val);
-        mongoObject.put(lookup.toString(), mongoO);
-      } else {
-        mongoObject.put(lookup.toString(), val);
-      }
-      return true;
-    }
-    if (hopType.isBoolean()) {
-      Boolean val = hopType.getBoolean(hopValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    if (hopType.isInteger()) {
-      Long val = hopType.getInteger(hopValue);
-      mongoObject.put(lookup.toString(), val.longValue());
-      return true;
-    }
-    if (hopType.isDate()) {
-      Date val = hopType.getDate(hopValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    if (hopType.isNumber()) {
-      Double val = hopType.getNumber(hopValue);
-      mongoObject.put(lookup.toString(), val.doubleValue());
-      return true;
-    }
-    if (hopType.isBigNumber()) {
-      // use string value - user can use Hop to convert back
-      String val = hopType.getString(hopValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    if (hopType.isBinary()) {
-      byte[] val = hopType.getBinary(hopValue);
-      mongoObject.put(lookup.toString(), val);
-      return true;
-    }
-    // UUID
-    try {
-      int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
-      if (hopType.getType() == uuidTypeId) {
-        UUID val = (UUID) hopType.convertData(hopType, hopValue);
-        mongoObject.put(lookup.toString(), val);
-        return true;
-      }
-    } catch (Exception ignore) {
-      // UUID plugin not present, fall through
-    }
-    if (hopType.isSerializableType()) {
-      throw new HopValueException(
-          BaseMessages.getString(
-              PKG, "MongoDbOutput.Messages.Error.CantStoreHopSerializableVals")); //
-    }
+    switch (hopType.getType()) {
+      case IValueMeta.TYPE_STRING:
+        {
+          String val = hopType.getString(hopValue);
+          if (hopValueIsJSON) {
+            Object mongoO = JSON.parse(val);
+            mongoObject.put(lookup.toString(), mongoO);
+          } else {
+            mongoObject.put(lookup.toString(), val);
+          }
+          return true;
+        }
+      case IValueMeta.TYPE_BOOLEAN:
+        {
+          Boolean val = hopType.getBoolean(hopValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_INTEGER:
+        {
+          Long val = hopType.getInteger(hopValue);
+          mongoObject.put(lookup.toString(), val.longValue());
+          return true;
+        }
+      case IValueMeta.TYPE_DATE:
+        {
+          Date val = hopType.getDate(hopValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_NUMBER:
+        {
+          Double val = hopType.getNumber(hopValue);
+          mongoObject.put(lookup.toString(), val.doubleValue());
+          return true;
+        }
+      case IValueMeta.TYPE_BIGNUMBER:
+        {
+          // use string value - user can use Hop to convert back
+          String val = hopType.getString(hopValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_BINARY:
+        {
+          byte[] val = hopType.getBinary(hopValue);
+          mongoObject.put(lookup.toString(), val);
+          return true;
+        }
+      case IValueMeta.TYPE_JSON:
+        {
+          JsonNode node = hopType.getJson(hopValue);
+          Object bson = MongoField.toBsonFromJsonNode(node);
+          mongoObject.put(lookup.toString(), bson);
+          return true;
+        }
+      default:
+        {
+          // UUID
+          try {
+            int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+            if (hopType.getType() == uuidTypeId) {
+              UUID val = (UUID) hopType.convertData(hopType, hopValue);
+              mongoObject.put(lookup.toString(), val);
+              return true;
+            }
+          } catch (Exception ignore) {
+            // UUID plugin not present, fall through
+          }
+          if (hopType.isSerializableType()) {
+            throw new HopValueException(
+                BaseMessages.getString(
+                    PKG, "MongoDbOutput.Messages.Error.CantStoreHopSerializableVals")); //
+          }
 
-    return false;
+          return false;
+        }
+    }
   }
 
   private static Object getPathElementName(

@@ -17,9 +17,11 @@
 
 package org.apache.hop.core.row.value;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Comparator;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.JsonUtil;
 
 @ValueMetaPlugin(id = "2", name = "String", description = "String", image = "images/string.svg")
 public class ValueMetaString extends ValueMetaBase {
@@ -38,6 +40,33 @@ public class ValueMetaString extends ValueMetaBase {
 
   public ValueMetaString(String name, int length, int precision) {
     super(name, IValueMeta.TYPE_STRING, length, precision);
+  }
+
+  @Override
+  // For backward compatibility Hop often reads JSON as String, this optimizes String/byte[] into
+  // JsonNode
+  public JsonNode getJson(Object object) throws HopValueException {
+    if (object == null) {
+      return null;
+    }
+
+    try {
+      if (type == TYPE_STRING) {
+        switch (storageType) {
+          case STORAGE_TYPE_INDEXED:
+            // Resolve the value, then fall through to NORMAL handling
+            object = index[(Integer) object];
+          case STORAGE_TYPE_NORMAL:
+            // JsonUtil handles both NORMAL and BINARY_STRING cases
+          case STORAGE_TYPE_BINARY_STRING:
+            return JsonUtil.parseTextValue(object);
+        }
+      }
+    } catch (Exception e) {
+      throw new HopValueException("Error converting value to JSON (" + object + ")", e);
+    }
+    // delegate
+    return super.getJson(object);
   }
 
   @Override

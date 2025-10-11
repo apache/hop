@@ -998,6 +998,13 @@ public interface IValueMeta extends Cloneable {
   boolean isNumeric();
 
   /**
+   * Checks whether this Value is Json
+   *
+   * @return true if the value is Json
+   */
+  boolean isJson();
+
+  /**
    * Return the type of a value in a textual form: "String", "Number", "Integer", "Boolean", "Date",
    * ...
    *
