@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -50,6 +52,8 @@ import org.apache.hop.resource.ResourceDefinition;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::ExcelWriterTransformMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelwriter.html")
+@Getter
+@Setter
 public class ExcelWriterTransformMeta
     extends BaseTransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
   private static final Class<?> PKG = ExcelWriterTransformMeta.class;
@@ -85,6 +89,9 @@ public class ExcelWriterTransformMeta
       injectionKeyDescription = "ExcelWriterMeta.Injection.SchemaDefinition.Field",
       hopMetadataPropertyType = HopMetadataPropertyType.STATIC_SCHEMA_DEFINITION)
   private String schemaDefinition;
+
+  @HopMetadataProperty(key = "ignore_fields", injectionKeyDescription = "Ignore manual fields")
+  private boolean ignoreFields;
 
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendOmitHeader.Field")
   private boolean appendOmitHeader = false;
@@ -143,162 +150,8 @@ public class ExcelWriterTransformMeta
     outputFields = new ArrayList<>();
   }
 
-  public String getSchemaDefinition() {
-    return schemaDefinition;
-  }
-
-  public void setSchemaDefinition(String schemaDefinition) {
-    this.schemaDefinition = schemaDefinition;
-  }
-
-  public ExcelWriterFileField getFile() {
-    return file;
-  }
-
-  public void setFile(ExcelWriterFileField file) {
-    this.file = file;
-  }
-
-  public ExcelWriterTemplateField getTemplate() {
-    return template;
-  }
-
-  public void setTemplate(ExcelWriterTemplateField template) {
-    this.template = template;
-  }
-
-  public int getAppendOffset() {
-    return appendOffset;
-  }
-
-  public void setAppendOffset(int appendOffset) {
-    this.appendOffset = appendOffset;
-  }
-
-  public int getAppendEmpty() {
-    return appendEmpty;
-  }
-
   public void setAppendEmpty(int appendEmpty) {
-    this.appendEmpty = appendEmpty >= 0 ? appendEmpty : 0;
-  }
-
-  public boolean isAppendOmitHeader() {
-    return appendOmitHeader;
-  }
-
-  public void setAppendOmitHeader(boolean appendOmitHeader) {
-    this.appendOmitHeader = appendOmitHeader;
-  }
-
-  public String getStartingCell() {
-    return startingCell;
-  }
-
-  public void setStartingCell(String startingCell) {
-    this.startingCell = startingCell;
-  }
-
-  public String getRowWritingMethod() {
-    return rowWritingMethod;
-  }
-
-  public void setRowWritingMethod(String rowWritingMethod) {
-    this.rowWritingMethod = rowWritingMethod;
-  }
-
-  /**
-   * @return Returns the footer.
-   */
-  public boolean isFooterEnabled() {
-    return footerEnabled;
-  }
-
-  /**
-   * @param footer The footer to set.
-   */
-  public void setFooterEnabled(boolean footer) {
-    this.footerEnabled = footer;
-  }
-
-  /**
-   * @return Returns the header.
-   */
-  public boolean isHeaderEnabled() {
-    return headerEnabled;
-  }
-
-  /**
-   * @param header The header to set.
-   */
-  public void setHeaderEnabled(boolean header) {
-    this.headerEnabled = header;
-  }
-
-  /**
-   * @return Returns the add to result filesname.
-   */
-  public boolean isAddToResultFilenames() {
-    return addToResultFilenames;
-  }
-
-  /**
-   * @param addtoresultfilenames The addtoresultfilenames to set.
-   */
-  public void setAddToResultFilenames(boolean addtoresultfilenames) {
-    this.addToResultFilenames = addtoresultfilenames;
-  }
-
-  /**
-   * @return Returns the outputFields.
-   */
-  public List<ExcelWriterOutputField> getOutputFields() {
-    return outputFields;
-  }
-
-  /**
-   * @param outputFields The outputFields to set.
-   */
-  public void setOutputFields(List<ExcelWriterOutputField> outputFields) {
-    this.outputFields = outputFields;
-  }
-
-  /**
-   * @return Returns the appendLines.
-   */
-  public boolean isAppendLines() {
-    return appendLines;
-  }
-
-  /**
-   * @param append The appendLines to set.
-   */
-  public void setAppendLines(boolean append) {
-    this.appendLines = append;
-  }
-
-  public void setMakeSheetActive(boolean makeSheetActive) {
-    this.makeSheetActive = makeSheetActive;
-  }
-
-  public boolean isMakeSheetActive() {
-    return makeSheetActive;
-  }
-
-  public boolean isForceFormulaRecalculation() {
-    return forceFormulaRecalculation;
-  }
-
-  public void setForceFormulaRecalculation(boolean forceFormulaRecalculation) {
-    this.forceFormulaRecalculation = forceFormulaRecalculation;
-  }
-
-  public boolean isLeaveExistingStylesUnchanged() {
-    return leaveExistingStylesUnchanged;
-  }
-
-  public void setLeaveExistingStylesUnchanged(boolean leaveExistingStylesUnchanged) {
-    this.leaveExistingStylesUnchanged = leaveExistingStylesUnchanged;
+    this.appendEmpty = Math.max(appendEmpty, 0);
   }
 
   @Override

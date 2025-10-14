@@ -164,6 +164,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
 
+  private Button wIgnoreFields;
+
   private Button wSkipErrorLines;
 
   // New entries for intelligent error handling AKA replay functionality
@@ -791,6 +793,26 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wSchemaDefinition.addSelectionListener(lsSelection);
 
+    // Ignore manual schema
+    //
+    Label wlIgnoreFields = new Label(wFieldsComp, SWT.RIGHT);
+    PropsUi.setLook(wlIgnoreFields);
+    wlIgnoreFields.setText(
+        BaseMessages.getString(PKG, "ExcelInputDialog.IgnoreTransformFields.Label"));
+    FormData fdlIgnoreFields = new FormData();
+    fdlIgnoreFields.left = new FormAttachment(0, 0);
+    fdlIgnoreFields.right = new FormAttachment(middle, -margin);
+    fdlIgnoreFields.top = new FormAttachment(wSchemaDefinition, margin);
+    wlIgnoreFields.setLayoutData(fdlIgnoreFields);
+    wIgnoreFields = new Button(wFieldsComp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wIgnoreFields);
+    FormData fdIgnoreFields = new FormData();
+    fdIgnoreFields.left = new FormAttachment(middle, 0);
+    fdIgnoreFields.right = new FormAttachment(100, 0);
+    fdIgnoreFields.top = new FormAttachment(wlIgnoreFields, 0, SWT.CENTER);
+    wIgnoreFields.setLayoutData(fdIgnoreFields);
+    wIgnoreFields.addListener(SWT.Selection, e -> setFlags());
+
     Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wManualSchemaDefinition);
     wManualSchemaDefinition.setText(
@@ -885,7 +907,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     FormData fdManualSchemaDefinitionComp = new FormData();
     fdManualSchemaDefinitionComp.left = new FormAttachment(0, 0);
-    fdManualSchemaDefinitionComp.top = new FormAttachment(wSchemaDefinition, 0);
+    fdManualSchemaDefinitionComp.top = new FormAttachment(wIgnoreFields, 0);
     fdManualSchemaDefinitionComp.right = new FormAttachment(100, 0);
     fdManualSchemaDefinitionComp.bottom = new FormAttachment(100, 0);
     wManualSchemaDefinition.setLayoutData(fdManualSchemaDefinitionComp);
@@ -1018,6 +1040,9 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wLineNrExt.setEnabled(wErrorIgnored.getSelection());
     wbbLineNrDestDir.setEnabled(wErrorIgnored.getSelection());
     wbvLineNrDestDir.setEnabled(wErrorIgnored.getSelection());
+
+    wFields.setEnabled(!wIgnoreFields.getSelection());
+    wbGetFields.setEnabled(!wIgnoreFields.getSelection());
   }
 
   // Listen to the browse "..." button
@@ -1085,6 +1110,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wAccFilenames.setSelection(meta.isAcceptingFilenames());
     wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
+    wIgnoreFields.setSelection(meta.isIgnoreFields());
     if (meta.getAcceptingField() != null && !meta.getAcceptingField().isEmpty()) {
       wAccField.select(wAccField.indexOf(meta.getAcceptingField()));
     }
@@ -1205,6 +1231,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     meta.setRowLimit(Const.toLong(wLimit.getText(), 0));
     meta.setEncoding(wEncoding.getText());
     meta.setSchemaDefinition(wSchemaDefinition.getText());
+    meta.setIgnoreFields(wIgnoreFields.getSelection());
     meta.setSpreadSheetType(SpreadSheetType.values()[wSpreadSheetType.getSelectionIndex()]);
     meta.setFileField(wInclFilenameField.getText());
     meta.setSheetField(wInclSheetNameField.getText());

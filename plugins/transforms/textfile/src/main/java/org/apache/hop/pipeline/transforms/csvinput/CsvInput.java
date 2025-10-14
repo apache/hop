@@ -383,7 +383,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       }
 
       // Add filename to result filenames ?
-      if (meta.isAddResultFile()) {
+      if (meta.isAddResult()) {
         ResultFile resultFile =
             new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL, fileObject, getPipelineMeta().getName(), toString());

@@ -77,7 +77,9 @@ class TextFileOutputMetaTest {
         "pad",
         "fast_dump",
         "splitevery",
-        "OutputFields");
+        "OutputFields",
+        "schemaDefinition",
+        "ignoreFields");
   }
 
   public static Map<String, String> getGetterMap() {
@@ -111,6 +113,8 @@ class TextFileOutputMetaTest {
     getterMap.put("fast_dump", "isFastDump");
     getterMap.put("splitevery", "getSplitEvery");
     getterMap.put("OutputFields", "getOutputFields");
+    getterMap.put("schemaDefinition", "getSchemaDefinition");
+    getterMap.put("ignoreFields", "isIgnoreFields");
     return getterMap;
   }
 
@@ -129,7 +133,7 @@ class TextFileOutputMetaTest {
     setterMap.put("fileNameInField", "setFileNameInField");
     setterMap.put("fileNameField", "setFileNameField");
     setterMap.put("create_parent_folder", "setCreateParentFolder");
-    setterMap.put("fileName", "setFilename");
+    setterMap.put("fileName", "setFileName");
     setterMap.put("servlet_output", "setServletOutput");
     setterMap.put("do_not_open_new_file_init", "setDoNotOpenNewFileInit");
     setterMap.put("extention", "setExtension");
@@ -145,6 +149,8 @@ class TextFileOutputMetaTest {
     setterMap.put("fast_dump", "setFastDump");
     setterMap.put("splitevery", "setSplitEvery");
     setterMap.put("OutputFields", "setOutputFields");
+    setterMap.put("schemaDefinition", "setSchemaDefinition");
+    setterMap.put("ignoreFields", "setIgnoreFields");
     return setterMap;
   }
 
