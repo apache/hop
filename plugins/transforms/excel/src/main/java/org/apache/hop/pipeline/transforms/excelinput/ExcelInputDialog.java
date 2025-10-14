@@ -92,9 +92,6 @@ import org.eclipse.swt.widgets.Text;
 public class ExcelInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExcelInputMeta.class;
 
-  /** Marker put on tab to indicate attention required */
-  private static final String TAB_FLAG = "!";
-
   private static final String CONST_COMBO_NO = "System.Combo.No";
   private static final String CONST_COMBO_YES = "System.Combo.Yes";
   private static final String CONST_ERROR_TITLE = "System.Dialog.Error.Title";
@@ -468,7 +465,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
         new TableView(
             variables,
             wFileComp,
-            SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER,
+            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             colinfo,
             input.getFiles().size(),
             null,
@@ -480,6 +477,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     fdFilenameList.top = new FormAttachment(wlFilenameList, margin);
     fdFilenameList.bottom = new FormAttachment(gAccepting, -margin);
     wFilenameList.setLayoutData(fdFilenameList);
+    wFilenameList.addModifyListener(event -> checkAlerts());
 
     FormData fdFileComp = new FormData();
     fdFileComp.left = new FormAttachment(0, 0);
@@ -559,8 +557,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     fdFilenameList.top = new FormAttachment(0, 0);
     fdFilenameList.bottom = new FormAttachment(wbGetSheets, -margin);
     wSheetNameList.setLayoutData(fdFilenameList);
-
-    wSheetNameList.addModifyListener(arg0 -> checkAlerts());
+    wSheetNameList.addModifyListener(event -> checkAlerts());
 
     FormData fdSheetComp = new FormData();
     fdSheetComp.left = new FormAttachment(0, 0);
@@ -865,7 +862,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
             null,
             props);
     wFields.setSize(fieldsWidth, fieldsHeight);
-    wFields.addModifyListener(arg0 -> checkAlerts());
+    wFields.addModifyListener(event -> checkAlerts());
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
@@ -1361,7 +1358,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     previous = wSkipErrorLines;
 
-    // Bad lines files directory + extention
+    // Bad lines files directory + extension
 
     // WarningDestDir line
     wlWarningDestDir = new Label(wErrorComp, SWT.RIGHT);
@@ -1907,6 +1904,11 @@ public class ExcelInputDialog extends BaseTransformDialog {
     final boolean filesOk =
         wFilenameList.nrNonEmpty() != 0
             || (wAccFilenames.getSelection() && !Utils.isEmpty(wAccField.getText()));
+
+    tagTab(!fieldsOk, wFieldsTab, BaseMessages.getString(PKG, "ExcelInputDialog.AddFields"));
+    tagTab(!sheetsOk, wSheetTab, BaseMessages.getString(PKG, "ExcelInputDialog.AddSheets"));
+    tagTab(!filesOk, wFileTab, BaseMessages.getString(PKG, "ExcelInputDialog.AddFilenames"));
+
     String msgText = ""; // Will clear status if no actions.
 
     // Assign the highest-priority action message.
@@ -1917,29 +1919,26 @@ public class ExcelInputDialog extends BaseTransformDialog {
     } else if (!filesOk) {
       msgText = (BaseMessages.getString(PKG, "ExcelInputDialog.AddFilenames"));
     }
-    tagTab(
-        !fieldsOk, wFieldsTab, BaseMessages.getString(PKG, "ExcelInputDialog.FieldsTab.TabTitle"));
-    tagTab(
-        !sheetsOk, wSheetTab, BaseMessages.getString(PKG, "ExcelInputDialog.SheetsTab.TabTitle"));
-    tagTab(!filesOk, wFileTab, BaseMessages.getString(PKG, "ExcelInputDialog.FileTab.TabTitle"));
+    wlStatusMessage.setText(msgText);
 
     wPreview.setEnabled(fieldsOk && sheetsOk && filesOk);
-
-    wlStatusMessage.setText(msgText);
   }
 
   /**
-   * Hilight (or not) tab to indicate if action is required.
+   * Highlight (or not) tab to indicate if action is required.
    *
-   * @param hilightMe <code>true</code> to highlight, <code>false</code> if not.
+   * @param highlight <code>true</code> to highlight, <code>false</code> if not.
    * @param tabItem Tab to highlight
-   * @param tabCaption Tab text (normally fetched from resource).
+   * @param toolTip Tab text to explain the warning
    */
-  private void tagTab(boolean hilightMe, CTabItem tabItem, String tabCaption) {
-    if (hilightMe) {
-      tabItem.setText(TAB_FLAG + tabCaption);
+  private void tagTab(boolean highlight, CTabItem tabItem, String toolTip) {
+    if (highlight) {
+      tabItem.setImage(GuiResource.getInstance().getImageWarning());
+      tabItem.setToolTipText(toolTip);
     } else {
-      tabItem.setText(tabCaption);
+      // Will clear the status if no warnings.
+      tabItem.setImage(null);
+      tabItem.setToolTipText(null);
     }
   }
 
