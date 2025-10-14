@@ -101,9 +101,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
     wCancel.addListener(SWT.Selection, (Event e) -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
-    // Filename line
+    // Action name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionCheckDbConnections.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
