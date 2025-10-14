@@ -19,6 +19,8 @@
 package org.apache.hop.reflection.workflow.transform;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -36,8 +38,9 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, WorkflowLoggingData> {
 
-  private IWorkflowEngine<WorkflowMeta> loggingWorkflow;
-  private String loggingPhase;
+  @Getter @Setter private IWorkflowEngine<WorkflowMeta> loggingWorkflow;
+
+  @Getter @Setter private String loggingPhase;
 
   public WorkflowLogging(
       TransformMeta transformMeta,
@@ -103,7 +106,7 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     Result result = loggingWorkflow.getResult();
 
     // Current number of errors in the workflow
-    pipelineRow[index++] = result == null ? null : (long) result.getNrErrors();
+    pipelineRow[index++] = result == null ? 0L : result.getNrErrors();
 
     // Workflow status description
     pipelineRow[index++] = loggingWorkflow.getStatusDescription();
@@ -164,7 +167,7 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
         transformRow[index++] = actionResult.getComment();
 
         // Action reason
-        transformRow[index++] = actionResult.getReason();
+        transformRow[index] = actionResult.getReason();
 
         // Send it on its way...
         //
@@ -179,37 +182,5 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     //
     setOutputDone();
     return false;
-  }
-
-  /**
-   * Gets loggingWorkflow
-   *
-   * @return value of loggingWorkflow
-   */
-  public IWorkflowEngine<WorkflowMeta> getLoggingWorkflow() {
-    return loggingWorkflow;
-  }
-
-  /**
-   * @param loggingWorkflow The loggingWorkflow to set
-   */
-  public void setLoggingWorkflow(IWorkflowEngine<WorkflowMeta> loggingWorkflow) {
-    this.loggingWorkflow = loggingWorkflow;
-  }
-
-  /**
-   * Gets loggingPhase
-   *
-   * @return value of loggingPhase
-   */
-  public String getLoggingPhase() {
-    return loggingPhase;
-  }
-
-  /**
-   * @param loggingPhase The loggingPhase to set
-   */
-  public void setLoggingPhase(String loggingPhase) {
-    this.loggingPhase = loggingPhase;
   }
 }
