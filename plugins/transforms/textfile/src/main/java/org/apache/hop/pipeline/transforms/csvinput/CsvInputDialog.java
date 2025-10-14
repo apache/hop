@@ -126,6 +126,7 @@ public class CsvInputDialog extends BaseTransformDialog
   private AtomicBoolean previewBusy;
 
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+  private Button wIgnoreFields;
 
   public CsvInputDialog(
       Shell parent, IVariables variables, CsvInputMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -539,6 +540,27 @@ public class CsvInputDialog extends BaseTransformDialog
     }
 
     wSchemaDefinition.addSelectionListener(lsSelection);
+    lastControl = wSchemaDefinition;
+
+    // Ignore manual schema
+    //
+    Label wlIgnoreFields = new Label(shell, SWT.RIGHT);
+    PropsUi.setLook(wlIgnoreFields);
+    wlIgnoreFields.setText(
+        BaseMessages.getString(PKG, "CsvInputDialog.IgnoreTransformFields.Label"));
+    FormData fdlIgnoreFields = new FormData();
+    fdlIgnoreFields.left = new FormAttachment(0, 0);
+    fdlIgnoreFields.right = new FormAttachment(middle, -margin);
+    fdlIgnoreFields.top = new FormAttachment(lastControl, margin);
+    wlIgnoreFields.setLayoutData(fdlIgnoreFields);
+    wIgnoreFields = new Button(shell, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wIgnoreFields);
+    FormData fdIgnoreFields = new FormData();
+    fdIgnoreFields.left = new FormAttachment(middle, 0);
+    fdIgnoreFields.right = new FormAttachment(100, 0);
+    fdIgnoreFields.top = new FormAttachment(wlIgnoreFields, 0, SWT.CENTER);
+    wIgnoreFields.setLayoutData(fdIgnoreFields);
+    lastControl = wIgnoreFields;
 
     // Some buttons first, so that the dialog scales nicely...
     //
@@ -646,6 +668,15 @@ public class CsvInputDialog extends BaseTransformDialog
                   },
                   false));
     }
+
+    SelectionAdapter lsFlags =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            setFlags();
+          }
+        };
+    wIgnoreFields.addSelectionListener(lsFlags);
 
     getData();
 
@@ -756,6 +787,8 @@ public class CsvInputDialog extends BaseTransformDialog
     if (!parallelPossible) {
       wRunningInParallel.setSelection(false);
     }
+    wFields.setEnabled(!wIgnoreFields.getSelection());
+    wGet.setEnabled(!wIgnoreFields.getSelection());
   }
 
   private void setEncodings() {
@@ -820,9 +853,10 @@ public class CsvInputDialog extends BaseTransformDialog
     wRunningInParallel.setSelection(inputMeta.isRunningInParallel());
     wNewlinePossible.setSelection(inputMeta.isNewlinePossibleInFields());
     wRowNumField.setText(Const.NVL(inputMeta.getRowNumField(), ""));
-    wAddResult.setSelection(inputMeta.isAddResultFile());
+    wAddResult.setSelection(inputMeta.isAddResult());
     wEncoding.setText(Const.NVL(inputMeta.getEncoding(), ""));
     wSchemaDefinition.setText(Const.NVL(inputMeta.getSchemaDefinition(), ""));
+    wIgnoreFields.setSelection(inputMeta.isIgnoreFields());
 
     final List<String> fieldName = newFieldNames == null ? new ArrayList() : newFieldNames;
     for (int i = 0; i < inputMeta.getInputFields().length; i++) {
@@ -875,11 +909,12 @@ public class CsvInputDialog extends BaseTransformDialog
     inputMeta.setLazyConversionActive(wLazyConversion.getSelection());
     inputMeta.setHeaderPresent(wHeaderPresent.getSelection());
     inputMeta.setRowNumField(wRowNumField.getText());
-    inputMeta.setAddResultFile(wAddResult.getSelection());
+    inputMeta.setAddResult(wAddResult.getSelection());
     inputMeta.setRunningInParallel(wRunningInParallel.getSelection());
     inputMeta.setNewlinePossibleInFields(wNewlinePossible.getSelection());
     inputMeta.setEncoding(wEncoding.getText());
     inputMeta.setSchemaDefinition(wSchemaDefinition.getText());
+    inputMeta.setIgnoreFields(wIgnoreFields.getSelection());
 
     int nrNonEmptyFields = wFields.nrNonEmpty();
     inputMeta.allocate(nrNonEmptyFields);

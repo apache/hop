@@ -18,6 +18,7 @@
 package org.apache.hop.core.injection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -94,18 +95,18 @@ public abstract class BaseMetadataInjectionTestJunit5<Meta extends ITransformMet
     IValueMeta valueMetaString = new ValueMetaString("f");
 
     injector.setProperty(meta, propertyName, setValue(valueMetaString, "Y"), "f");
-    assertEquals(true, getter.get());
+    assertTrue(getter.get());
 
     injector.setProperty(meta, propertyName, setValue(valueMetaString, "N"), "f");
-    assertEquals(false, getter.get());
+    assertFalse(getter.get());
 
     IValueMeta valueMetaBoolean = new ValueMetaBoolean("f");
 
     injector.setProperty(meta, propertyName, setValue(valueMetaBoolean, true), "f");
-    assertEquals(true, getter.get());
+    assertTrue(getter.get());
 
     injector.setProperty(meta, propertyName, setValue(valueMetaBoolean, false), "f");
-    assertEquals(false, getter.get());
+    assertFalse(getter.get());
 
     skipPropertyTest(propertyName);
   }

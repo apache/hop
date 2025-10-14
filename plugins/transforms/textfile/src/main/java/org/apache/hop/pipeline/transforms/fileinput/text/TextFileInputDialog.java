@@ -297,6 +297,8 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   private Text wBadFileMessageField;
 
+  private Button wIgnoreFields;
+
   public TextFileInputDialog(
       Shell parent,
       IVariables variables,
@@ -483,6 +485,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wWraps.addSelectionListener(lsFlags);
     wLayoutPaged.addSelectionListener(lsFlags);
     wAccFilenames.addSelectionListener(lsFlags);
+    wIgnoreFields.addSelectionListener(lsFlags);
 
     wbbFilename.addListener(
         SWT.Selection,
@@ -1984,6 +1987,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFieldsComp.setLayout(fieldsLayout);
     PropsUi.setLook(wFieldsComp);
 
+    // Schema definiton
     wSchemaDefinition =
         new MetaSelectionLine<>(
             variables,
@@ -2008,6 +2012,25 @@ public class TextFileInputDialog extends BaseTransformDialog
     }
 
     wSchemaDefinition.addSelectionListener(lsSelection);
+
+    // Ignore manual schema
+    //
+    Label wlIgnoreFields = new Label(wFieldsComp, SWT.RIGHT);
+    PropsUi.setLook(wlIgnoreFields);
+    wlIgnoreFields.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.IgnoreTransformFields.Label"));
+    FormData fdlIgnoreFields = new FormData();
+    fdlIgnoreFields.left = new FormAttachment(0, 0);
+    fdlIgnoreFields.right = new FormAttachment(middle, -margin);
+    fdlIgnoreFields.top = new FormAttachment(wSchemaDefinition, margin);
+    wlIgnoreFields.setLayoutData(fdlIgnoreFields);
+    wIgnoreFields = new Button(wFieldsComp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wIgnoreFields);
+    FormData fdIgnoreFields = new FormData();
+    fdIgnoreFields.left = new FormAttachment(middle, 0);
+    fdIgnoreFields.right = new FormAttachment(100, 0);
+    fdIgnoreFields.top = new FormAttachment(wlIgnoreFields, 0, SWT.CENTER);
+    wIgnoreFields.setLayoutData(fdIgnoreFields);
 
     Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wManualSchemaDefinition);
@@ -2123,7 +2146,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     FormData fdManualSchemaDefinitionComp = new FormData();
     fdManualSchemaDefinitionComp.left = new FormAttachment(0, 0);
-    fdManualSchemaDefinitionComp.top = new FormAttachment(wSchemaDefinition, 0);
+    fdManualSchemaDefinitionComp.top = new FormAttachment(wIgnoreFields, 0);
     fdManualSchemaDefinitionComp.right = new FormAttachment(100, 0);
     fdManualSchemaDefinitionComp.bottom = new FormAttachment(100, 0);
     wManualSchemaDefinition.setLayoutData(fdManualSchemaDefinitionComp);
@@ -2275,6 +2298,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     wNrLinesPerPage.setEnabled(wLayoutPaged.getSelection());
     wlNrLinesDocHeader.setEnabled(wLayoutPaged.getSelection());
     wNrLinesDocHeader.setEnabled(wLayoutPaged.getSelection());
+
+    wFields.setEnabled(!wIgnoreFields.getSelection());
+    wGet.setEnabled(!wIgnoreFields.getSelection());
+    wMinWidth.setEnabled(!wIgnoreFields.getSelection());
   }
 
   /**
@@ -2306,6 +2333,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     }
 
     wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
+    wIgnoreFields.setSelection(meta.ignoreFields);
 
     if (meta.getFileName() != null) {
       wFilenameList.removeAll();
@@ -2656,6 +2684,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     meta.setFileName(wFilenameList.getItems(0));
     meta.setSchemaDefinition(wSchemaDefinition.getText());
+    meta.setIgnoreFields(wIgnoreFields.getSelection());
     meta.inputFiles.fileMask = wFilenameList.getItems(1);
     meta.inputFiles.excludeFileMask = wFilenameList.getItems(2);
     meta.inputFiles_fileRequired(wFilenameList.getItems(3));
