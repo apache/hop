@@ -20,35 +20,36 @@ under the License.
 
 = image:transforms/icons/calculator.svg[Calculator transform Icon, role="image-doc-icon"] Calculator
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
+[%noheader,cols="3a,1a",role="table-no-borders" ]
 |===
 |
+
 == Description
 
 The Calculator transform provides you with predefined functions that can be executed on input field values.
 
 In addition to the arguments (Field A, Field B and Field C) you must also specify the return type of the function.
 
-You can choose to remove fields (with the `Remove` option) from the result (output) after all values are calculated. This is useful in cases where you use temporary values that don't need to end up in your pipeline fields.
+You can choose to remove fields (with the `Remove` option) from the result (output) after all values are calculated.
+This is useful in cases where you use temporary values that don't need to end up in your pipeline fields.
 
 TIP: The execution speed of the Calculator is far better than the speed provided by custom scripts (JavaScript).
 
+| == Supported Engines
 
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+[%noheader,cols="2,1a",frame=none,role="table-supported-engines"]
 !===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:check_mark.svg[Supported, 24]
-!Dataflow! image:check_mark.svg[Supported, 24]
+!Hop Engine! image:check_mark.svg[Supported,24]
+!Spark! image:check_mark.svg[Supported,24]
+!Flink! image:check_mark.svg[Supported,24]
+!Dataflow! image:check_mark.svg[Supported,24]
 !===
+
 |===
-
 
 == Options
 
-[%header, width="90%", cols="1,3"]
+[%header,width="90%",cols="1,3"]
 |===
 |Column|Description
 |New field|The output field for the calculation result. Set `Remove` to `Y` for temporary fields that are required to calculate later fields, but are not needed in the final result.
@@ -68,7 +69,7 @@ TIP: The execution speed of the Calculator is far better than the speed provided
 
 The table below lists the supported calculations in the `Calculator` transform:
 
-[options=header, width="90%', cols="2,3,1"]
+[options=header,width="90%', cols="2,3,1"]
 |===
 |Function (Hop GUI view)|Function (Metadata Injection view)|Description
 |Set field to constant A|CONSTANT|
@@ -118,6 +119,9 @@ If you need non-integer calculations, please add a second calculation with hours
 |Checksum of a file A using Adler-32|ADLER32|Calculate the checksum of a file using Adler-32.
 |Checksum of a file A using MD5|MD5|Calculate the checksum of a file using MD5.
 |Checksum of a file A using SHA-1|SHA1|Calculate the checksum of a file using SHA-1.
+|Checksum of a file A using SHA-256|SHA256|Calculate the checksum of a file using SHA-256.
+|Checksum of a file A using SHA-384|SHA384|Calculate the checksum of a file using SHA-384.
+|Checksum of a file A using SHA-512|SHA512|Calculate the checksum of a file using SHA-512.
 |Levenshtein Distance (Source A and Target B)|LEVENSHTEIN_DISTANCE|Calculates the Levenshtein Distance: http://en.wikipedia.org/wiki/Levenshtein_distance
 |Metaphone of A (Phonetics)|METAPHONE|Calculates the metaphone of A:  http://en.wikipedia.org/wiki/Metaphone
 |Double metaphone of A|DOUBLE_METAPHONE|Calculates the double metaphone of A: http://en.wikipedia.org/wiki/Double_Metaphone
@@ -127,7 +131,7 @@ So, there is one date in one year in these regions where this function will fail
 It is not an issue for Europe, the US and other regions where the time changes at 1:00 or 2:00 or 3:00 am.
 |Date A - Date B (in days)|DATE_DIFF|Calculates difference, in days, between A date field and B date field.
 |A + B + C|ADD3|A plus B plus C.
-|First letter of each word of a string A in capital|INITCAP|Transforms the first letter of each word within a string.
+|First letter of each word of a string A in capital|INIT_CAP|Transforms the first letter of each word within a string.
 |UpperCase of a string A|UPPER_CASE|Transforms a string to uppercase.
 |LowerCase of a string A|LOWER_CASE|Transforms a string to lowercase.
 |Mask XML content from string A|MASK_XML|Escape XML content; replace characters with &values.
@@ -189,11 +193,14 @@ TIP: Only integer values for B are supported. If you need non-integer calculatio
 |Base64 Encode|BASE64_ENCODE|Encode a string in Base64 encoding without padding at the end
 |Base64 Encode (padded)|BASE64_ENCODE_PADDED|Encode a string in Base64 encoding with padding at the end, cf. https://doi.org/10.17487/RFC4648[section 3.2 of RFC 4648]
 |Base64 Decode|BASE64_DECODE|Decode a Base64 encoded string. Supports both padded or non-padded input.
+|First day of month (A) date|FIRST_DAY_OF_MONTH|Set the day of field (A) to 1.
+|Last day of month (A) date|LAST_DAY_OF_MONTH|Set the day of field (A) to the last day of the given month.
 |===
 
 == Metadata Injection support
 
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
 
 Use the values in the column "Function (Metadata Injection view)" from the table above to specify the operation (Calculation type) applied to the fields.
 

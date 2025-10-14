@@ -50,7 +50,6 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -863,30 +862,23 @@ class CalculatorUnitTest {
 
   public void assertRound2(final Number expectedResult, final Number value, final long precision)
       throws HopException {
-    assertRoundEveryDataType(
-        expectedResult, CalculatorMetaFunction.CalculationType.ROUND_2, value, precision, null);
+    assertRoundEveryDataType(expectedResult, CalculationType.ROUND_2, value, precision, null);
   }
 
   public void assertRoundStd1(final Number expectedResult, final Number value) throws HopException {
-    assertRoundEveryDataType(
-        expectedResult, CalculatorMetaFunction.CalculationType.ROUND_STD_1, value, null, null);
+    assertRoundEveryDataType(expectedResult, CalculationType.ROUND_STD_1, value, null, null);
   }
 
   public void assertRoundStd2(final Number expectedResult, final Number value, final long precision)
       throws HopException {
-    assertRoundEveryDataType(
-        expectedResult, CalculatorMetaFunction.CalculationType.ROUND_STD_2, value, precision, null);
+    assertRoundEveryDataType(expectedResult, CalculationType.ROUND_STD_2, value, precision, null);
   }
 
   public void assertRoundCustom1(
       final Number expectedResult, final Number value, final long roundingMode)
       throws HopException {
     assertRoundEveryDataType(
-        expectedResult,
-        CalculatorMetaFunction.CalculationType.ROUND_CUSTOM_1,
-        value,
-        null,
-        roundingMode);
+        expectedResult, CalculationType.ROUND_CUSTOM_1, value, null, roundingMode);
   }
 
   public void assertRoundCustom2(
@@ -896,11 +888,7 @@ class CalculatorUnitTest {
       final long roundingMode)
       throws HopException {
     assertRoundEveryDataType(
-        expectedResult,
-        CalculatorMetaFunction.CalculationType.ROUND_CUSTOM_2,
-        value,
-        precision,
-        roundingMode);
+        expectedResult, CalculationType.ROUND_CUSTOM_2, value, precision, roundingMode);
   }
 
   /**
