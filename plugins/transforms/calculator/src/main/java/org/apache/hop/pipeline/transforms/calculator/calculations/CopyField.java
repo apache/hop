@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.calculator.calculations;
 
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.calculator.CalculationInput;
@@ -43,7 +44,12 @@ public class CopyField implements ICalculation {
   }
 
   @Override
-  public CalculationOutput calculate(CalculationInput in) {
+  public CalculationOutput calculate(CalculationInput in) throws HopValueException {
+    if (in.dataA instanceof byte[] && in.metaA != null) {
+      Object convertedData = in.metaA.convertBinaryStringToNativeType((byte[]) in.dataA);
+      return new CalculationOutput(in.metaA.getType(), convertedData);
+    }
+
     return new CalculationOutput(ICalculation.getResultType(in.metaA), in.dataA);
   }
 }
