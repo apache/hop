@@ -17,7 +17,6 @@
  */
 package org.apache.hop.pipeline.transforms.googlesheets;
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -36,6 +35,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -45,6 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, GoogleSheetsInputData> {
 
   public static final String CONST_IN_SPREADSHEET = " in spreadsheet :";
+  private NetHttpTransport httpTransport;
 
   public GoogleSheetsInput(
       TransformMeta transformMeta,
@@ -61,7 +62,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
   public boolean init() {
 
     List<TransformMeta> transform = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-    data.hasInput = transform != null && !transform.isEmpty();
+    data.hasInput = !Utils.isEmpty(transform);
 
     JsonFactory jsonFactory = null;
     NetHttpTransport httpTransport = null;
@@ -69,7 +70,8 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
 
     try {
       jsonFactory = JacksonFactory.getDefaultInstance();
-      httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+      httpTransport =
+          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
     } catch (Exception e) {
       logError("cannot initiate HTTP transport" + e.getMessage());
       return false;
@@ -103,7 +105,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
         } else {
           List<List<Object>> values = response.getValues();
           logBasic("Reading Sheet, found: " + values.size() + " rows");
-          if (values == null || values.isEmpty()) {
+          if (Utils.isEmpty(values)) {
             throw new HopTransformException(
                 "No response found for worksheet : "
                     + resolve(meta.getWorksheetId())

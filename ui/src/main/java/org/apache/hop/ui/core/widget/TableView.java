@@ -34,6 +34,7 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -45,6 +46,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.undo.ChangeAction;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
@@ -107,6 +109,19 @@ import org.eclipse.swt.widgets.ToolBar;
 public class TableView extends Composite {
 
   private static final Class<?> PKG = TableView.class;
+
+  private static final int EXTRA_COLUMN_WIDTH_MARGIN =
+      Const.toInt(HopConfig.readStringVariable(Const.HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN, ""), 0);
+
+  @Override
+  public void setEnabled(boolean enabled) {
+    super.setEnabled(enabled);
+
+    if (toolbar != null) {
+      toolbar.setEnabled(enabled);
+    }
+    this.table.setEnabled(enabled);
+  }
 
   public static final String ID_TOOLBAR = "TableView-Toolbar";
   public static final String ID_TOOLBAR_INSERT_ROW_BEFORE =
@@ -1382,7 +1397,7 @@ public class TableView extends Composite {
           OsHelper.customizeMenuitemText(
               BaseMessages.getString(PKG, "TableView.menu.CopyToClipboard")));
       miCopy.setImage(GuiResource.getInstance().getImageCopy());
-      miCopy.addListener(SWT.Selection, e -> copyToAll());
+      miCopy.addListener(SWT.Selection, e -> clipSelected());
       miCopy.setEnabled(!readonly);
     }
 
@@ -2267,7 +2282,7 @@ public class TableView extends Composite {
 
         for (int i = 1; i < lines.length; i++) {
           grid[i - 1] = lines[i].split("\t");
-          idx[i - 1] = rowNr + i;
+          idx[i - 1] = rowNr + i - 1;
           addItem(idx[i - 1], grid[i - 1]);
         }
 
@@ -2942,6 +2957,7 @@ public class TableView extends Composite {
     } else {
       extraForMargin = (int) (PropsUi.getNativeZoomFactor() * 5);
     }
+    extraForMargin += EXTRA_COLUMN_WIDTH_MARGIN;
 
     for (int c = 0; c < table.getColumnCount(); c++) {
       TableColumn tc = table.getColumn(c);
@@ -3074,14 +3090,14 @@ public class TableView extends Composite {
     if (item != null) {
       if (colNr >= 0) {
         String str = item.getText(colNr);
-        if (str == null || str.isEmpty()) {
+        if (Utils.isEmpty(str)) {
           empty = true;
         }
       } else {
         empty = true;
         for (int j = 1; j < table.getColumnCount(); j++) {
           String str = item.getText(j);
-          if (str != null && !str.isEmpty()) {
+          if (!Utils.isEmpty(str)) {
             empty = false;
           }
         }
@@ -3692,6 +3708,7 @@ public class TableView extends Composite {
     void delete(int[] items);
   }
 
+  @Setter
   private ITableViewModifyListener tableViewModifyListener =
       new ITableViewModifyListener() {
         @Override

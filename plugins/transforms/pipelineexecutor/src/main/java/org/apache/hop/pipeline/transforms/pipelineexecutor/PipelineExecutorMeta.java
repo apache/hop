@@ -59,7 +59,7 @@ import org.w3c.dom.Node;
 /** Meta-data for the Pipeline Executor transform. */
 @Transform(
     id = "PipelineExecutor",
-    image = "ui/images/pipelineexecutor.svg",
+    image = "pipelineexecutor.svg",
     name = "i18n::PipelineExecutor.Name",
     description = "i18n::PipelineExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
@@ -390,7 +390,7 @@ public class PipelineExecutorMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if (prev == null || prev.size() == 0) {
+    if (prev == null || prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_WARNING,

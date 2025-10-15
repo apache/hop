@@ -670,7 +670,7 @@ public class DatabaseExplorerDialog extends Dialog {
           if (schemaName.equalsIgnoreCase(STRING_TABLES)
               || schemaName.equalsIgnoreCase(STRING_VIEWS)
               || schemaName.equalsIgnoreCase(STRING_SYNONYMS)
-              || (schemaName != null && schemaName.length() == 0)) {
+              || (schemaName != null && schemaName.isEmpty())) {
             tab = tableName;
           } else {
             tab = dbMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);

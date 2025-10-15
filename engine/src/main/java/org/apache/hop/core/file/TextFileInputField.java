@@ -357,11 +357,11 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     int datenul = 0;
 
     for (int i = 0; i < samples.length; i++) {
-      if (samples[i].length() > 0 && samples[i].equalsIgnoreCase(nullString)) {
+      if (!samples[i].isEmpty() && samples[i].equalsIgnoreCase(nullString)) {
         datenul++;
       } else {
         for (int x = 0; x < dateFormats.length; x++) {
-          if (samples[i] == null || Const.onlySpaces(samples[i]) || samples[i].length() == 0) {
+          if (samples[i] == null || Const.onlySpaces(samples[i]) || samples[i].isEmpty()) {
             datefmt[x] = false;
             datefmtCnt--;
           }
@@ -430,7 +430,7 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
 
       String field = samples[i];
 
-      if (field.length() > 0 && field.equalsIgnoreCase(nullString)) {
+      if (!field.isEmpty() && field.equalsIgnoreCase(nullString)) {
         numnul++;
       } else {
         for (int x = 0; x < field.length() && isnumber; x++) {
@@ -594,7 +594,7 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     // If all the strings are empty
     stop = false;
     for (int i = 0; i < samples.length && !stop; i++) {
-      if (samples[i].length() > 0) {
+      if (!samples[i].isEmpty()) {
         stop = true;
       }
     }

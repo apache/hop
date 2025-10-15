@@ -29,17 +29,17 @@ import static org.mockito.Mockito.when;
 import java.util.Map;
 import org.apache.hop.databases.cassandra.datastax.DriverCqlRowHandler;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class CassandraOutputTest {
+class CassandraOutputTest {
 
   CassandraOutput co;
   CassandraOutputMeta meta;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     co = mock(CassandraOutput.class);
     meta = mock(CassandraOutputMeta.class);
     co.options = mock(Map.class);
@@ -47,7 +47,7 @@ public class CassandraOutputTest {
   }
 
   @Test
-  public void validateInvalidTtlFieldTest() {
+  void validateInvalidTtlFieldTest() {
     DriverCqlRowHandler handler = mock(DriverCqlRowHandler.class);
     CassandraOutput co = mock(CassandraOutput.class);
 
@@ -63,7 +63,7 @@ public class CassandraOutputTest {
   }
 
   @Test
-  public void validateEmptyTtlFieldTest() {
+  void validateEmptyTtlFieldTest() {
     DriverCqlRowHandler handler = mock(DriverCqlRowHandler.class);
     CassandraOutput co = mock(CassandraOutput.class);
 
@@ -79,7 +79,7 @@ public class CassandraOutputTest {
   }
 
   @Test
-  public void validateCorrectTtlFieldTest() {
+  void validateCorrectTtlFieldTest() {
     DriverCqlRowHandler handler = mock(DriverCqlRowHandler.class);
 
     doCallRealMethod().when(co).validateTtlField(any(), any());
@@ -93,9 +93,9 @@ public class CassandraOutputTest {
     verify(co, times(0)).logDebug(any());
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionNone() {
+  void validateSetTTLIfSpecifiedTestWithOptionNone() {
     String ttlResolveValue = "1"; // none option, this value is ignored default will be -1
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.NONE;
     int expectedValue = -1;
@@ -110,9 +110,9 @@ public class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionSeconds() {
+  void validateSetTTLIfSpecifiedTestWithOptionSeconds() {
     String ttlResolveValue = "1"; // 1 second
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.SECONDS;
 
@@ -128,9 +128,9 @@ public class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionMinutes() {
+  void validateSetTTLIfSpecifiedTestWithOptionMinutes() {
     String ttlResolveValue = "1"; // 1 minute
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.MINUTES;
 
@@ -146,9 +146,9 @@ public class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionHours() {
+  void validateSetTTLIfSpecifiedTestWithOptionHours() {
     String ttlResolveValue = "1"; // 1 hour
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.HOURS;
 
@@ -164,9 +164,9 @@ public class CassandraOutputTest {
     verify(co.options, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void validateSetTTLIfSpecifiedTestWithOptionDays() {
+  void validateSetTTLIfSpecifiedTestWithOptionDays() {
     String ttlResolveValue = "1"; // 1 day
     CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.DAYS;
 

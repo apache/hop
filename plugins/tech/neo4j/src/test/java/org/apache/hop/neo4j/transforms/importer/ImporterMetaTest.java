@@ -20,12 +20,12 @@ package org.apache.hop.neo4j.transforms.importer;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.TransformLoadSaveTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ImporterMetaTest {
+class ImporterMetaTest {
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
 
     TransformLoadSaveTester<ImporterMeta> tester =
         new TransformLoadSaveTester<>(ImporterMeta.class);

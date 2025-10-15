@@ -18,11 +18,11 @@ package org.apache.hop.pipeline.transforms.dbproc;
 
 import org.apache.hop.core.util.Assert;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DBProcMetaTest {
+class DBProcMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     DBProcMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/db-proc-transform.xml", DBProcMeta.class);

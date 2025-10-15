@@ -16,13 +16,15 @@
  */
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
@@ -30,18 +32,19 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValida
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
+class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<SynchronizeAfterMergeMeta> testMetaClass = SynchronizeAfterMergeMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Before
-  public void setUpLoadSave() throws Exception {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeEach
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes =
@@ -115,7 +118,7 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void testPDI16559() throws Exception {
+  void testPDI16559() throws Exception {
     SynchronizeAfterMergeMeta synchronizeAfterMerge = new SynchronizeAfterMergeMeta();
 
     synchronizeAfterMerge.setKeyStream(
@@ -135,12 +138,12 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
 
     int targetSz = synchronizeAfterMerge.getKeyStream().length;
 
-    Assert.assertEquals(targetSz, synchronizeAfterMerge.getKeyLookup().length);
-    Assert.assertEquals(targetSz, synchronizeAfterMerge.getKeyCondition().length);
-    Assert.assertEquals(targetSz, synchronizeAfterMerge.getKeyStream2().length);
+    assertEquals(targetSz, synchronizeAfterMerge.getKeyLookup().length);
+    assertEquals(targetSz, synchronizeAfterMerge.getKeyCondition().length);
+    assertEquals(targetSz, synchronizeAfterMerge.getKeyStream2().length);
 
     targetSz = synchronizeAfterMerge.getUpdateLookup().length;
-    Assert.assertEquals(targetSz, synchronizeAfterMerge.getUpdateStream().length);
-    Assert.assertEquals(targetSz, synchronizeAfterMerge.getUpdate().length);
+    assertEquals(targetSz, synchronizeAfterMerge.getUpdateStream().length);
+    assertEquals(targetSz, synchronizeAfterMerge.getUpdate().length);
   }
 }

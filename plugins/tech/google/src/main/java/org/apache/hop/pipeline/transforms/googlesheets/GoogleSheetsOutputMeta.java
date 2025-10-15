@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.googlesheets;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -29,6 +31,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@Getter
+@Setter
 @Transform(
     id = "GoogleSheetsOutput",
     image = "google-sheets-output.svg",
@@ -60,10 +64,10 @@ public class GoogleSheetsOutputMeta
   private String shareDomain;
 
   @HopMetadataProperty(key = "CREATE", injectionGroupKey = "SHEET")
-  private Boolean create;
+  private boolean create;
 
   @HopMetadataProperty(key = "APPEND", injectionGroupKey = "SHEET")
-  private Boolean append;
+  private boolean append;
 
   @HopMetadataProperty(key = "timeout", injectionGroupKey = "SHEET")
   private String timeout;
@@ -74,6 +78,13 @@ public class GoogleSheetsOutputMeta
   @HopMetadataProperty(key = "appName", injectionGroupKey = "SHEET")
   private String appName;
 
+  @HopMetadataProperty(key = "replace_sheet", injectionGroupKey = "SHEET")
+  private boolean replaceSheet;
+
+  @HopMetadataProperty private String proxyHost;
+
+  @HopMetadataProperty private String proxyPort;
+
   @Override
   public void setDefault() {
     this.jsonCredentialPath = "" + "client_secret.json";
@@ -83,89 +94,10 @@ public class GoogleSheetsOutputMeta
     this.shareEmail = "";
     this.create = true;
     this.append = false;
+    this.replaceSheet = false;
     this.impersonation = "";
     this.appName = "";
     this.timeout = "5";
-  }
-
-  public String getJsonCredentialPath() {
-    return this.jsonCredentialPath == null ? "" : this.jsonCredentialPath;
-  }
-
-  public void setJsonCredentialPath(String key) {
-    this.jsonCredentialPath = key;
-  }
-
-  public String getSpreadsheetKey() {
-    return this.spreadsheetKey == null ? "" : this.spreadsheetKey;
-  }
-
-  public void setSpreadsheetKey(String key) {
-    this.spreadsheetKey = key;
-  }
-
-  public String getShareEmail() {
-    return this.shareEmail == null ? "" : this.shareEmail;
-  }
-
-  public void setShareEmail(String shareEmail) {
-    this.shareEmail = shareEmail;
-  }
-
-  public String getShareDomain() {
-    return this.shareDomain == null ? "" : this.shareDomain;
-  }
-
-  public void setShareDomain(String shareDomain) {
-    this.shareDomain = shareDomain;
-  }
-
-  public Boolean isCreate() {
-    return this.create == null ? false : this.create;
-  }
-
-  public void setCreate(Boolean create) {
-    this.create = create;
-  }
-
-  public void setAppend(Boolean append) {
-    this.append = append;
-  }
-
-  public Boolean isAppend() {
-    return this.append == null ? false : this.append;
-  }
-
-  public String getWorksheetId() {
-    return this.worksheetId == null ? "" : this.worksheetId;
-  }
-
-  public void setWorksheetId(String id) {
-    this.worksheetId = id;
-  }
-
-  public String getTimeout() {
-    return timeout;
-  }
-
-  public void setTimeout(String timeout) {
-    this.timeout = timeout;
-  }
-
-  public String getImpersonation() {
-    return impersonation;
-  }
-
-  public void setImpersonation(String impersonation) {
-    this.impersonation = impersonation;
-  }
-
-  public String getAppName() {
-    return appName;
-  }
-
-  public void setAppName(String appName) {
-    this.appName = appName;
   }
 
   @Override
@@ -192,7 +124,7 @@ public class GoogleSheetsOutputMeta
       IRowMeta info,
       IVariables space,
       IHopMetadataProvider metadataProvider) {
-    if (prev == null || prev.size() == 0) {
+    if (prev == null || prev.isEmpty()) {
       remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

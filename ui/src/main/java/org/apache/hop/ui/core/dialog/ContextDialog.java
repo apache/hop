@@ -363,9 +363,17 @@ public class ContextDialog extends Dialog {
       }
       // Load or get from the image cache...
       //
-      Image image =
-          GuiResource.getInstance()
-              .getImage(action.getImage(), classLoader, correctedIconSize, correctedIconSize);
+      Image image;
+      try {
+        image =
+            GuiResource.getInstance()
+                .getImage(action.getImage(), classLoader, correctedIconSize, correctedIconSize);
+      } catch (Exception e) {
+        image =
+            GuiResource.getInstance()
+                .getSwtImageMissing()
+                .getAsBitmapForSize(display, correctedIconSize, correctedIconSize);
+      }
       items.add(new Item(action, image));
     }
 
@@ -727,6 +735,9 @@ public class ContextDialog extends Dialog {
   }
 
   private Button getCategoriesCheckBox() {
+    if (toolBarWidgets == null) {
+      return null;
+    }
     ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_ENABLE_CATEGORIES);
     if (checkboxItem == null) {
       return null;
@@ -735,6 +746,9 @@ public class ContextDialog extends Dialog {
   }
 
   private Button getFixedWidthCheckBox() {
+    if (toolBarWidgets == null) {
+      return null;
+    }
     ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FIXED_WIDTH);
     if (checkboxItem == null) {
       return null;

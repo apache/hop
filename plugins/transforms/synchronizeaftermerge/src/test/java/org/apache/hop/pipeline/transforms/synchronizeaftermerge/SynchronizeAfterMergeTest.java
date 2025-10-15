@@ -17,27 +17,27 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.NoneDatabaseMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class SynchronizeAfterMergeTest {
+class SynchronizeAfterMergeTest {
 
   private static final String TRANSFORM_NAME = "Sync";
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   @Test
-  public void initWithCommitSizeVariable() {
+  void initWithCommitSizeVariable() {
     TransformMeta transformMeta = mock(TransformMeta.class);
     doReturn(TRANSFORM_NAME).when(transformMeta).getName();
     doReturn(1).when(transformMeta).getCopies(any(IVariables.class));
@@ -49,16 +49,13 @@ public class SynchronizeAfterMergeTest {
     doReturn(mock(NoneDatabaseMeta.class)).when(dbMeta).getIDatabase();
 
     // doReturn(dbMeta).when(smi).getDatabaseMeta();
-    doReturn("${commit.size}").when(smi).getCommitSize();
+    doReturn("120").when(smi).getCommitSize();
 
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     doReturn(transformMeta).when(pipelineMeta).findTransform(TRANSFORM_NAME);
 
-    SynchronizeAfterMerge transform = mock(SynchronizeAfterMerge.class);
-    doCallRealMethod().when(transform).init();
-    doReturn(transformMeta).when(transform).getTransformMeta();
-    doReturn(pipelineMeta).when(transform).getPipelineMeta();
-    doReturn("120").when(transform).resolve("${commit.size}");
+    SynchronizeAfterMerge transform =
+        new SynchronizeAfterMerge(transformMeta, smi, sdi, 0, pipelineMeta, mock(Pipeline.class));
 
     transform.init();
 

@@ -41,6 +41,8 @@ image::hop-gui/perspective-explorer-toolbar-items.png[File explorer toolbar item
 
 * Open selected file: Use the right arrow or double-click to open a selected file. You can also open a file simply by double-clicking it. If this is a workflow or pipeline it will be opened in the xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestation] perspective. In all other cases the file will be opened in a new tab.
 * Create folder: Add a new folder.
+* Expand all folders: Display all nested folders in the directory tree.
+* Collapse all folders: Hide all nested folders in the directory tree.
 * Delete: Remove a selected file or folder.
 * Rename: Rename a file or folder.
 * Refresh: Refresh the file list.
@@ -74,6 +76,8 @@ Small information icons will be added to the various transforms, actions and hop
 The right-click menu in Apache Hop Git integration offers several useful options to help manage your files and Git operations directly from the interface. Here’s a breakdown of each option:
 
 * Create folder: Create a new folder within the selected directory. This is useful for organizing workflows, pipelines, and other project resources.
+* Expand all folders: Reveals all nested folders in the project directory tree. Useful for getting a full overview of your project structure without opening folders one by one.
+* Collapse all folders: Closes all expanded folders, showing only the top-level directory. Helps reset the view or reduce visual clutter.
 * Open: Opens the selected file or folder. For workflows and pipelines, it launches them in the Data Orchestration perspective, while other file types will open in a new tab.
 * Rename: Allows you to change the name of the selected file or folder, helping you keep your project files organized and clearly labeled.
 * Copy name: Copies the name of the selected file or folder to your clipboard, making it easy to paste and reference elsewhere.

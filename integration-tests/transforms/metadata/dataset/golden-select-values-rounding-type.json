@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-select-values-rounding.csv",
+  "name": "golden-select-values-rounding-type",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "id",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "valueHalfEven",
+      "field_format": "#.0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "valueUp",
+      "field_format": "#.0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "valueDown",
+      "field_format": "#.0"
+    }
+  ],
+  "folder_name": ""
+}

@@ -28,7 +28,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     key = "type-2",
     name = "type 2",
     description = "This is a simple test object type 2",
-    image = "ui/images/dummy.svg")
+    image = "org/apache/hop/images/dummy.svg")
 public class MetadataType2 extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private String description;

@@ -31,4 +31,6 @@ public @interface VfsPlugin {
   String type();
 
   String typeDescription();
+
+  String classLoaderGroup() default "";
 }

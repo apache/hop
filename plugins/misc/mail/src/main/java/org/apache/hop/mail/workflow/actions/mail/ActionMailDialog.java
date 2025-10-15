@@ -1303,7 +1303,7 @@ public class ActionMailDialog extends ActionDialog {
     int rows =
         action.embeddedimages == null
             ? 1
-            : (action.embeddedimages.size() == 0 ? 0 : action.embeddedimages.size());
+            : (action.embeddedimages.isEmpty() ? 0 : action.embeddedimages.size());
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -1500,12 +1500,14 @@ public class ActionMailDialog extends ActionDialog {
     wAddDate.setSelection(action.isIncludeDate());
     wIncludeFiles.setSelection(action.isIncludingFiles());
 
-    if (action.getFileTypes() != null && !action.getFileTypes().isEmpty()) {
-      java.util.List<ActionMailFileTypeField> types = action.getFileTypes();
+    if (!Utils.isEmpty(action.getFileTypes())) {
+      java.util.List<String> types = action.getFileTypes();
       String[] typenames = new String[types.size()];
       for (int i = 0; i < types.size(); i++) {
-        typenames[i] = types.get(i).getFileType();
+        int resultInt = ResultFile.getType(types.get(i));
+        typenames[i] = ResultFile.getTypeDesc(resultInt);
       }
+      wTypes.setSelection(typenames);
     }
 
     wZipFiles.setSelection(action.isZipFiles());
@@ -1636,20 +1638,18 @@ public class ActionMailDialog extends ActionDialog {
     action.setIncludeDate(wAddDate.getSelection());
     action.setIncludingFiles(wIncludeFiles.getSelection());
 
-    java.util.List<ActionMailFileTypeField> ft = new ArrayList<>();
+    java.util.List<String> ft = new ArrayList<>();
     String[] fileTypes = wTypes.getSelection();
     for (int i = 0; i < fileTypes.length; i++) {
       String[] allFileTypes = ResultFile.getAllTypeDesc();
       for (int j = 0; j < allFileTypes.length; j++) {
         if (allFileTypes[j].equals(fileTypes[i])) {
-          ActionMailFileTypeField f = new ActionMailFileTypeField();
-          f.setFileType(fileTypes[i]);
-          ft.add(f);
+          String typeCode = ResultFile.getTypeCode(ResultFile.getType(allFileTypes[j]));
+          ft.add(typeCode);
         }
       }
     }
     action.setFileTypes(ft);
-    //    action.setFileTypes(wTypes.getSelectionIndices());
 
     action.setZipFilename(wZipFilename.getText());
     action.setZipFiles(wZipFiles.getSelection());
@@ -1705,7 +1705,7 @@ public class ActionMailDialog extends ActionDialog {
     int nr = 0;
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
+      if (!Utils.isEmpty(arg)) {
         nr++;
       }
     }
@@ -1714,7 +1714,7 @@ public class ActionMailDialog extends ActionDialog {
     for (int i = 0; i < nrItems; i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
-      if (arg != null && arg.length() != 0) {
+      if (!Utils.isEmpty(arg)) {
         MailEmbeddedImageField image = new MailEmbeddedImageField();
         image.setEmbeddedimage(arg);
         image.setContentId(wild);

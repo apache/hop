@@ -16,9 +16,9 @@
  */
 package org.apache.hop.databases.sybase;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -30,20 +30,20 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SybaseDatabaseMetaTest {
+class SybaseDatabaseMetaTest {
   private SybaseDatabaseMeta nativeMeta;
 
-  @Before
-  public void setupBefore() {
+  @BeforeEach
+  void setupBefore() {
     nativeMeta = new SybaseDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(5001, nativeMeta.getDefaultDatabasePort());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
@@ -61,7 +61,7 @@ public class SybaseDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals(
         "ALTER TABLE FOO ADD BAR VARCHAR(15) NULL",
         nativeMeta.getAddColumnStatement(
@@ -76,7 +76,7 @@ public class SybaseDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "FOO DATETIME NULL",
         nativeMeta.getFieldDefinition(new ValueMetaTimestamp("FOO"), "", "", false, true, false));

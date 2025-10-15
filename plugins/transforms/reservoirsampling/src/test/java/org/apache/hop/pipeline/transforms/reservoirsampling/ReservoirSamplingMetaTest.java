@@ -18,19 +18,20 @@
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ReservoirSamplingMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class ReservoirSamplingMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     ReservoirSamplingMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/reservoir-sampling-transform.xml", ReservoirSamplingMeta.class);
 
-    Assert.assertEquals("5", meta.getSampleSize());
-    Assert.assertEquals("123456", meta.getSeed());
+    assertEquals("5", meta.getSampleSize());
+    assertEquals("123456", meta.getSeed());
   }
 }

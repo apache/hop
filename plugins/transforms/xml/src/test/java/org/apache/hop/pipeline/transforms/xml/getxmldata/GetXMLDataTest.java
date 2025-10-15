@@ -17,11 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.TestCase;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -29,7 +30,9 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -40,9 +43,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.xml.RowTransformCollector;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /** Test class for the "Get XML Data" transform. */
-public class GetXMLDataTest extends TestCase {
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class GetXMLDataTest {
+
   public IRowMeta createRowMetaInterface() {
     IRowMeta rm = new RowMeta();
 
@@ -186,10 +193,8 @@ public class GetXMLDataTest extends TestCase {
    *
    * @throws Exception Upon any exception
    */
-  public void testGetXMLDataSimple1() throws Exception {
-    HopEnvironment.init();
-
-    //
+  @Test
+  void testGetXMLDataSimple1() throws Exception {
     // Create a new pipeline...
     //
 
@@ -227,70 +232,70 @@ public class GetXMLDataTest extends TestCase {
 
     fields[0].setName("objectid");
     fields[0].setXPath("ObjectID");
-    fields[0].setElementType(GetXmlDataField.ELEMENT_TYPE_NODE);
-    fields[0].setType(IValueMeta.TYPE_STRING);
+    fields[0].setElementType(GetXmlDataField.getElementTypeCode(GetXmlDataField.ELEMENT_TYPE_NODE));
+    fields[0].setType(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_STRING));
     fields[0].setFormat("");
     fields[0].setLength(-1);
     fields[0].setPrecision(-1);
     fields[0].setCurrencySymbol("");
     fields[0].setDecimalSymbol("");
     fields[0].setGroupSymbol("");
-    fields[0].setTrimType(GetXmlDataField.TYPE_TRIM_NONE);
+    fields[0].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
     fields[1].setName("sapident");
     fields[1].setXPath("SAPIDENT");
-    fields[1].setElementType(GetXmlDataField.ELEMENT_TYPE_NODE);
-    fields[1].setType(IValueMeta.TYPE_STRING);
+    fields[1].setElementType(GetXmlDataField.getElementTypeCode(GetXmlDataField.ELEMENT_TYPE_NODE));
+    fields[1].setType(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_STRING));
     fields[1].setFormat("");
     fields[1].setLength(-1);
     fields[1].setPrecision(-1);
     fields[1].setCurrencySymbol("");
     fields[1].setDecimalSymbol("");
     fields[1].setGroupSymbol("");
-    fields[1].setTrimType(GetXmlDataField.TYPE_TRIM_NONE);
+    fields[1].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
     fields[2].setName("quantity");
     fields[2].setXPath("Quantity");
-    fields[2].setElementType(GetXmlDataField.ELEMENT_TYPE_NODE);
-    fields[2].setType(IValueMeta.TYPE_STRING);
+    fields[2].setElementType(GetXmlDataField.getElementTypeCode(GetXmlDataField.ELEMENT_TYPE_NODE));
+    fields[2].setType(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_STRING));
     fields[2].setFormat("");
     fields[2].setLength(-1);
     fields[2].setPrecision(-1);
     fields[2].setCurrencySymbol("");
     fields[2].setDecimalSymbol("");
     fields[2].setGroupSymbol("");
-    fields[2].setTrimType(GetXmlDataField.TYPE_TRIM_NONE);
+    fields[2].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
     fields[3].setName("merkmalname");
     fields[3].setXPath("Merkmalname");
-    fields[3].setElementType(GetXmlDataField.ELEMENT_TYPE_NODE);
-    fields[3].setType(IValueMeta.TYPE_STRING);
+    fields[3].setElementType(GetXmlDataField.getElementTypeCode(GetXmlDataField.ELEMENT_TYPE_NODE));
+    fields[3].setType(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_STRING));
     fields[3].setFormat("");
     fields[3].setLength(-1);
     fields[3].setPrecision(-1);
     fields[3].setCurrencySymbol("");
     fields[3].setDecimalSymbol("");
     fields[3].setGroupSymbol("");
-    fields[3].setTrimType(GetXmlDataField.TYPE_TRIM_NONE);
+    fields[3].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
     fields[4].setName("merkmalswert");
     fields[4].setXPath("Merkmalswert");
-    fields[4].setElementType(GetXmlDataField.ELEMENT_TYPE_NODE);
-    fields[4].setType(IValueMeta.TYPE_STRING);
+    fields[4].setElementType(GetXmlDataField.getElementTypeCode(GetXmlDataField.ELEMENT_TYPE_NODE));
+    fields[4].setType(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_STRING));
     fields[4].setFormat("");
     fields[4].setLength(-1);
     fields[4].setPrecision(-1);
     fields[4].setCurrencySymbol("");
     fields[4].setDecimalSymbol("");
     fields[4].setGroupSymbol("");
-    fields[4].setTrimType(GetXmlDataField.TYPE_TRIM_NONE);
+    fields[4].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
     gxdm.setEncoding("UTF-8");
-    gxdm.setIsAFile(false);
+    gxdm.setAFile(false);
     gxdm.setInFields(true);
     gxdm.setLoopXPath("Level1/Level2/Props");
-    gxdm.setXMLField("field1");
-    gxdm.setInputFields(fields);
+    gxdm.setXmlField("field1");
+    gxdm.setInputFields(java.util.Arrays.asList(fields));
 
     PipelineHopMeta hi = new PipelineHopMeta(injectorTransform, getXMLDataTransform);
     pipelineMeta.addPipelineHop(hi);
@@ -338,11 +343,8 @@ public class GetXMLDataTest extends TestCase {
     checkRows(goldenImageRows, resultRows);
   }
 
-  public void testInit() throws Exception {
-
-    HopEnvironment.init();
-
-    //
+  @Test
+  void testInit() throws Exception {
     // Create a new pipeline...
     //
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -379,22 +381,22 @@ public class GetXMLDataTest extends TestCase {
 
     fields[0].setName("objectid");
     fields[0].setXPath("${xml_path}");
-    fields[0].setElementType(GetXmlDataField.ELEMENT_TYPE_NODE);
-    fields[0].setType(IValueMeta.TYPE_STRING);
+    fields[0].setElementType(GetXmlDataField.getElementTypeCode(GetXmlDataField.ELEMENT_TYPE_NODE));
+    fields[0].setType(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_STRING));
     fields[0].setFormat("");
     fields[0].setLength(-1);
     fields[0].setPrecision(-1);
     fields[0].setCurrencySymbol("");
     fields[0].setDecimalSymbol("");
     fields[0].setGroupSymbol("");
-    fields[0].setTrimType(GetXmlDataField.TYPE_TRIM_NONE);
+    fields[0].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
     gxdm.setEncoding("UTF-8");
-    gxdm.setIsAFile(false);
+    gxdm.setAFile(false);
     gxdm.setInFields(true);
     gxdm.setLoopXPath("Level1/Level2/Props");
-    gxdm.setXMLField("field1");
-    gxdm.setInputFields(fields);
+    gxdm.setXmlField("field1");
+    gxdm.setInputFields(java.util.Arrays.asList(fields));
 
     PipelineHopMeta hi = new PipelineHopMeta(injectorTransform, getXMLDataTransform);
     pipelineMeta.addPipelineHop(hi);
@@ -442,7 +444,7 @@ public class GetXMLDataTest extends TestCase {
         new GetXmlData(dummyTransform1, gxdm, getXMLDataData, 0, pipelineMeta, pipeline);
     getXmlData.setVariable("xml_path", "data/owner");
     getXmlData.init();
-    assertEquals("${xml_path}", gxdm.getInputFields()[0].getXPath());
-    assertEquals("data/owner", gxdm.getInputFields()[0].getResolvedXPath());
+    assertEquals("${xml_path}", gxdm.getInputFields().get(0).getXPath());
+    assertEquals("data/owner", gxdm.getInputFields().get(0).getResolvedXPath());
   }
 }

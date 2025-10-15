@@ -17,7 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -30,11 +31,11 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicHeader;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class WebServiceTest {
+class WebServiceTest {
 
   private static final String LOCATION_HEADER = "Location";
 
@@ -46,8 +47,8 @@ public class WebServiceTest {
 
   private WebService webServiceTransform;
 
-  @Before
-  public void setUpBefore() {
+  @BeforeEach
+  void setUpBefore() {
     mockHelper =
         new TransformMockHelper<>("WebService", WebServiceMeta.class, WebServiceData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -65,18 +66,18 @@ public class WebServiceTest {
                 mockHelper.pipeline));
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     mockHelper.cleanUp();
   }
 
-  @Test(expected = URISyntaxException.class)
-  public void newHttpMethodWithInvalidUrl() throws URISyntaxException {
-    webServiceTransform.getHttpMethod(NOT_VALID_URL);
+  @Test
+  void newHttpMethodWithInvalidUrl() {
+    assertThrows(URISyntaxException.class, () -> webServiceTransform.getHttpMethod(NOT_VALID_URL));
   }
 
   @Test
-  public void getLocationFrom() {
+  void getLocationFrom() {
     HttpPost postMethod = mock(HttpPost.class);
     Header locationHeader = new BasicHeader(LOCATION_HEADER, TEST_URL);
     doReturn(locationHeader).when(postMethod).getFirstHeader(LOCATION_HEADER);

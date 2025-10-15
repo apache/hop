@@ -17,8 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,23 +47,23 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.utils.TestUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 /** User: Dzmitry Stsiapanau Date: 10/18/13 Time: 2:23 PM */
-public class TextFileOutputTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class TextFileOutputTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String EMPTY_FILE_NAME = "Empty File";
   private static final String EMPTY_STRING = "";
@@ -72,14 +75,13 @@ public class TextFileOutputTest {
       "\"some data\" \"another data\"\n" + "\"some data2\" \"another data2\"\n";
   private static final String TEST_PREVIOUS_DATA = "testPreviousData\n";
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();
   }
 
-  public class TextFileOutputTestHandler
-      extends TextFileOutput<TextFileOutputMeta, TextFileOutputData> {
+  class TextFileOutputTestHandler extends TextFileOutput<TextFileOutputMeta, TextFileOutputData> {
     public List<Throwable> errors = new ArrayList<>();
     private Object[] row;
 
@@ -199,8 +201,8 @@ public class TextFileOutputTest {
     contents.add(TEST_PREVIOUS_DATA + RESULT_ROWS + END_LINE);
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     transformMockHelper =
         new TransformMockHelper<>(
             "TEXT FILE OUTPUT TEST", TextFileOutputMeta.class, TextFileOutputData.class);
@@ -223,13 +225,13 @@ public class TextFileOutputTest {
 
   }
 
-  @After
-  public void tearDown() throws Exception {
+  @AfterEach
+  void tearDown() throws Exception {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testCloseFileDataOutIsNullCase() {
+  void testCloseFileDataOutIsNullCase() {
     textFileOutput =
         new TextFileOutput(
             transformMockHelper.transformMeta,
@@ -239,12 +241,14 @@ public class TextFileOutputTest {
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
 
-    Assert.assertNull(textFileOutput.getData().out);
+    assertNull(textFileOutput.getData().out);
     textFileOutput.closeFile();
   }
 
+  private void assertNull(CompressionOutputStream out) {}
+
   @Test
-  public void testCloseFileDataOutIsNotNullCase() {
+  void testCloseFileDataOutIsNotNullCase() {
     textFileOutput =
         new TextFileOutput(
             transformMockHelper.transformMeta,
@@ -256,7 +260,7 @@ public class TextFileOutputTest {
     textFileOutput.getData().out = Mockito.mock(CompressionOutputStream.class);
 
     textFileOutput.closeFile();
-    Assert.assertNull(textFileOutput.getData().out);
+    assertNull(textFileOutput.getData().out);
   }
 
   private FileObject createTemplateFile() {
@@ -284,7 +288,7 @@ public class TextFileOutputTest {
   }
 
   @Test
-  public void testsIterate() {
+  void testsIterate() {
     FileObject resultFile = null;
     FileObject contentFile;
     String content = null;
@@ -301,15 +305,15 @@ public class TextFileOutputTest {
                 content = (String) contents.toArray()[i++];
                 contentFile = createTemplateFile(content);
                 if (resultFile.exists()) {
-                  Assert.assertTrue(
+                  assertTrue(
                       IOUtils.contentEquals(
                           resultFile.getContent().getInputStream(),
                           contentFile.getContent().getInputStream()));
                 } else {
-                  Assert.assertFalse(contentFile.exists());
+                  assertFalse(contentFile.exists());
                 }
               } catch (Exception e) {
-                Assert.fail(
+                fail(
                     e.getMessage()
                         + "\n FileExists = "
                         + fileExists
@@ -339,7 +343,7 @@ public class TextFileOutputTest {
    * output file should be created.
    */
   @Test
-  public void testNoOpenFileCall_IfRule_1() throws Exception {
+  void testNoOpenFileCall_IfRule_1() throws Exception {
 
     TextFileField tfFieldMock = Mockito.mock(TextFileField.class);
     TextFileField[] textFileFields = {tfFieldMock};
@@ -432,7 +436,7 @@ public class TextFileOutputTest {
       for (Throwable thr : errors) {
         str.append(thr);
       }
-      Assert.fail(str.toString());
+      fail(str.toString());
     }
 
     return f;
@@ -518,19 +522,19 @@ public class TextFileOutputTest {
   }
 
   @Test
-  public void containsSeparatorOrEnclosureIsNotUnnecessaryInvoked_SomeFieldsFromMeta() {
+  void containsSeparatorOrEnclosureIsNotUnnecessaryInvoked_SomeFieldsFromMeta() {
     TextFileField field = new TextFileField();
     field.setName("name");
     assertNotInvokedTwice(field);
   }
 
   @Test
-  public void containsSeparatorOrEnclosureIsNotUnnecessaryInvoked_AllFieldsFromMeta() {
+  void containsSeparatorOrEnclosureIsNotUnnecessaryInvoked_AllFieldsFromMeta() {
     assertNotInvokedTwice(null);
   }
 
   @Test
-  public void testEndedLineVar() throws Exception {
+  void testEndedLineVar() throws Exception {
     TextFileOutputData data = new TextFileOutputData();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     data.writer = baos;
@@ -594,7 +598,7 @@ public class TextFileOutputTest {
    * top of file (this changed by the fix)
    */
   @Test
-  public void testProcessRule_2() throws Exception {
+  void testProcessRule_2() throws Exception {
     String filename = createTemplateFile().toString();
 
     TextFileField tfFieldMock = Mockito.mock(TextFileField.class);
@@ -667,7 +671,7 @@ public class TextFileOutputTest {
    * top of file (this changed by the fix) with file name in stream
    */
   @Test
-  public void testProcessRule_2FileNameInField() throws Exception {
+  void testProcessRule_2FileNameInField() throws Exception {
 
     String filename = createTemplateFile().toString();
 
@@ -737,7 +741,7 @@ public class TextFileOutputTest {
   }
 
   @Test
-  public void testFastDumpDisableStreamEncodeTest() throws Exception {
+  void testFastDumpDisableStreamEncodeTest() throws Exception {
 
     String testString = "ÖÜä";
     String inputEncode = "UTF-8";

@@ -96,4 +96,5 @@ public enum HopMetadataPropertyType {
 
   // VFS
   VFS_AZURE_CONNECTION,
+  VFS_MINIO_CONNECTION,
 }

@@ -40,8 +40,6 @@ limitations under the License.
     <created_date>2021/09/27 10:47:43.922</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/09/27 10:47:43.922</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -102,16 +100,16 @@ limitations under the License.
       <field>
         <length>-1</length>
         <name>parameter</name>
+        <nullif>parametervalue</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>
-        <nullif>parametervalue</nullif>
       </field>
     </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
-    <never_ending>N</never_ending>
     <limit>1</limit>
+    <never_ending>N</never_ending>
     <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>
@@ -132,6 +130,7 @@ limitations under the License.
     </partitioning>
     <url>http://${HOSTNAME}/get</url>
     <urlInField>N</urlInField>
+    <ignoreSsl>N</ignoreSsl>
     <urlField/>
     <encoding>UTF-8</encoding>
     <httpLogin/>
@@ -232,44 +231,46 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to/>
-    <send_false_to/>
     <compare>
       <condition>
-        <negated>N</negated>
         <conditions>
           <condition>
-            <negated>Y</negated>
-            <leftvalue>result_status</leftvalue>
+            <conditions>
+</conditions>
             <function>=</function>
-            <rightvalue/>
+            <leftvalue>result_status</leftvalue>
+            <negated>Y</negated>
+            <operator>-</operator>
             <value>
-              <name>constant</name>
-              <type>Integer</type>
-              <text>200</text>
-              <length>-1</length>
-              <precision>0</precision>
               <isnull>N</isnull>
+              <length>-1</length>
               <mask>#</mask>
+              <name>constant</name>
+              <precision>0</precision>
+              <text>200</text>
+              <type>Integer</type>
             </value>
           </condition>
           <condition>
-            <negated>Y</negated>
-            <operator>AND</operator>
-            <leftvalue>parameter_result</leftvalue>
+            <conditions>
+</conditions>
             <function>=</function>
-            <rightvalue/>
+            <leftvalue>parameter_result</leftvalue>
+            <negated>Y</negated>
+            <operator>OR</operator>
             <value>
-              <name>constant</name>
-              <type>String</type>
-              <text>{"parameter":"parametervalue"}</text>
-              <length>-1</length>
-              <precision>-1</precision>
               <isnull>N</isnull>
-              <mask/>
+              <length>-1</length>
+              <name>constant</name>
+              <precision>-1</precision>
+              <text>{"parameter":"parametervalue"}</text>
+              <type>String</type>
             </value>
           </condition>
         </conditions>
+        <function>=</function>
+        <negated>N</negated>
+        <operator>-</operator>
       </condition>
     </compare>
     <attributes/>

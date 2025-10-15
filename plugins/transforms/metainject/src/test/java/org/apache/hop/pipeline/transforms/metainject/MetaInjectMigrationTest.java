@@ -17,15 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class MetaInjectMigrationTest {
+class MetaInjectMigrationTest {
   @Test
-  public void test70() {
+  void test70() {
     Map<TargetTransformAttribute, SourceTransformField> targetSourceMapping = new HashMap<>();
     TargetTransformAttribute target =
         new TargetTransformAttribute("transform", "SCHENAMENAMEFIELD", true);

@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.googlesheets;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -33,6 +35,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@Getter
+@Setter
 @Transform(
     id = "GoogleSheetsInput",
     image = "google-sheets-input.svg",
@@ -78,6 +82,10 @@ public class GoogleSheetsInputMeta
   @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS")
   private List<GoogleSheetsInputField> inputFields;
 
+  @HopMetadataProperty private String proxyHost;
+
+  @HopMetadataProperty private String proxyPort;
+
   @Override
   public void setDefault() {
     this.spreadsheetKey = "";
@@ -96,73 +104,75 @@ public class GoogleSheetsInputMeta
     return this.jsonCredentialPath == null ? "" : this.jsonCredentialPath;
   }
 
-  public void setJsonCredentialPath(String jsonCredentialPath) {
-    this.jsonCredentialPath = jsonCredentialPath;
-  }
+  /*
+    public void setJsonCredentialPath(String jsonCredentialPath) {
+      this.jsonCredentialPath = jsonCredentialPath;
+    }
 
-  public List<GoogleSheetsInputField> getInputFields() {
-    return inputFields;
-  }
+    public List<GoogleSheetsInputField> getInputFields() {
+      return inputFields;
+    }
 
-  public void setInputFields(List<GoogleSheetsInputField> inputFields) {
-    this.inputFields = inputFields;
-  }
+    public void setInputFields(List<GoogleSheetsInputField> inputFields) {
+      this.inputFields = inputFields;
+    }
 
-  public String getSpreadsheetKey() {
-    return this.spreadsheetKey == null ? "" : this.spreadsheetKey;
-  }
+    public String getSpreadsheetKey() {
+      return this.spreadsheetKey == null ? "" : this.spreadsheetKey;
+    }
 
-  public void setSpreadsheetKey(String key) {
-    this.spreadsheetKey = key;
-  }
+    public void setSpreadsheetKey(String key) {
+      this.spreadsheetKey = key;
+    }
 
-  public String getWorksheetId() {
-    return this.worksheetId == null ? "" : this.worksheetId;
-  }
+    public String getWorksheetId() {
+      return this.worksheetId == null ? "" : this.worksheetId;
+    }
 
-  public void setWorksheetId(String id) {
-    this.worksheetId = id;
-  }
+    public void setWorksheetId(String id) {
+      this.worksheetId = id;
+    }
 
-  public int getSampleFields() {
-    return this.sampleFields == null ? 100 : this.sampleFields;
-  }
+    public int getSampleFields() {
+      return this.sampleFields == null ? 100 : this.sampleFields;
+    }
 
-  public void setSampleFields(Integer sampleFields) {
-    this.sampleFields = sampleFields;
-  }
+    public void setSampleFields(Integer sampleFields) {
+      this.sampleFields = sampleFields;
+    }
 
-  public String getTimeout() {
-    return timeout;
-  }
+    public String getTimeout() {
+      return timeout;
+    }
 
-  public void setTimeout(String timeout) {
-    this.timeout = timeout;
-  }
+    public void setTimeout(String timeout) {
+      this.timeout = timeout;
+    }
 
-  public String getImpersonation() {
-    return impersonation;
-  }
+    public String getImpersonation() {
+      return impersonation;
+    }
 
-  public void setImpersonation(String impersonation) {
-    this.impersonation = impersonation;
-  }
+    public void setImpersonation(String impersonation) {
+      this.impersonation = impersonation;
+    }
 
-  public String getAppName() {
-    return appName;
-  }
+    public String getAppName() {
+      return appName;
+    }
 
-  public void setAppName(String appName) {
-    this.appName = appName;
-  }
+    public void setAppName(String appName) {
+      this.appName = appName;
+    }
 
-  public String getOldJsonCredentialPath() {
-    return oldJsonCredentialPath;
-  }
+    public String getOldJsonCredentialPath() {
+      return oldJsonCredentialPath;
+    }
 
-  public void setOldJsonCredentialPath(String oldJsonCredentialPath) {
-    this.oldJsonCredentialPath = oldJsonCredentialPath;
-  }
+    public void setOldJsonCredentialPath(String oldJsonCredentialPath) {
+      this.oldJsonCredentialPath = oldJsonCredentialPath;
+    }
+  */
 
   @Override
   public void getFields(
@@ -216,7 +226,7 @@ public class GoogleSheetsInputMeta
       IRowMeta info,
       IVariables space,
       IHopMetadataProvider metadataProvider) {
-    if (prev == null || prev.size() == 0) {
+    if (prev == null || prev.isEmpty()) {
       remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.metadata.MongoDbConnection;
@@ -320,7 +321,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
 
   final void checkInputFieldsMatch(IRowMeta rmi, List<MongoDbDeleteField> mongoFields)
       throws HopException {
-    if (mongoFields == null || mongoFields.isEmpty()) {
+    if (Utils.isEmpty(mongoFields)) {
       throw new HopException(
           BaseMessages.getString(PKG, "MongoDbDeleteDialog.ErrorMessage.NoFieldPathsDefined"));
     }

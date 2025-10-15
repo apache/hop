@@ -17,52 +17,52 @@
  */
 package org.apache.hop.pipeline.transforms.cassandraoutput;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class CassandraOutputMetaTest {
+class CassandraOutputMetaTest {
   @Test
-  public void validateConvertToSecondsWithNONETTLUnits() {
+  void validateConvertToSecondsWithNONETTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.NONE;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(-1, value);
+    Assertions.assertEquals(-1, value);
   }
 
   @Test
-  public void validateConvertToSecondsWithSecondsTTLUnits() {
+  void validateConvertToSecondsWithSecondsTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.SECONDS;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(1, value);
+    Assertions.assertEquals(1, value);
   }
 
   @Test
-  public void validateConvertToSecondsWithMinutesTTLUnits() {
+  void validateConvertToSecondsWithMinutesTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.MINUTES;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(60, value);
+    Assertions.assertEquals(60, value);
   }
 
   @Test
-  public void validateConvertToSecondsWithHOURSTTLUnits() {
+  void validateConvertToSecondsWithHOURSTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.HOURS;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(3600, value);
+    Assertions.assertEquals(3600, value);
   }
 
   @Test
-  public void validateConvertToSecondsWithDAYSTTLUnits() {
+  void validateConvertToSecondsWithDAYSTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.DAYS;
     long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals(86400, value);
+    Assertions.assertEquals(86400, value);
   }
 }

@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.abort;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -29,28 +29,28 @@ import static org.mockito.Mockito.when;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class AbortTest {
+class AbortTest {
   private TransformMockHelper<AbortMeta, AbortData> transformMockHelper;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     transformMockHelper = new TransformMockHelper("ABORT TEST", AbortMeta.class, AbortData.class);
     when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(transformMockHelper.iLogChannel);
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testAbortDoesntAbortWithoutInputRow() throws HopException {
+  void testAbortDoesntAbortWithoutInputRow() throws HopException {
     Abort abort =
         new Abort(
             transformMockHelper.transformMeta,
@@ -68,7 +68,7 @@ public class AbortTest {
   }
 
   @Test
-  public void testAbortAbortsWithInputRow() throws HopException {
+  void testAbortAbortsWithInputRow() throws HopException {
     Abort abort =
         new Abort(
             transformMockHelper.transformMeta,
@@ -86,7 +86,7 @@ public class AbortTest {
   }
 
   @Test
-  public void testAbortWithError() throws HopException {
+  void testAbortWithError() throws HopException {
     Abort abort =
         new Abort(
             transformMockHelper.transformMeta,

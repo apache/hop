@@ -112,8 +112,7 @@ public class TransformMeta
 
   private Integer copiesCache = null;
 
-  // TODO: Find a way to implement this in the XML metadata serializer.
-  // Annotate as well
+  /** protected for easy access by subclasses */
   protected Map<String, Map<String, String>> attributesMap;
 
   /**
@@ -380,23 +379,22 @@ public class TransformMeta
     return toString().compareTo(o.toString());
   }
 
-  public boolean hasChanged() {
+  public synchronized boolean hasChanged() {
+    // Check both the wrapper level changed flag and the inner metadata
     ITransformMeta meta = this.getTransform();
     return meta != null && meta.hasChanged();
   }
 
-  public void setChanged(boolean ch) {
-    BaseTransformMeta<?, ?> meta = (BaseTransformMeta<?, ?>) this.getTransform();
+  public synchronized void setChanged(boolean ch) {
+    // Propagate to inner metadata
+    ITransformMeta meta = this.getTransform();
     if (meta != null) {
       meta.setChanged(ch);
     }
   }
 
-  public void setChanged() {
-    ITransformMeta meta = this.getTransform();
-    if (meta != null) {
-      meta.setChanged();
-    }
+  public synchronized void setChanged() {
+    setChanged(true);
   }
 
   public boolean chosesTargetTransforms() {
@@ -409,47 +407,38 @@ public class TransformMeta
 
   @Override
   public Object clone() {
-    TransformMeta transformMeta = new TransformMeta();
-    transformMeta.replaceMeta(this);
-    return transformMeta;
+    // Use the copy factory for improved cloning with proper state preservation
+    return org.apache.hop.pipeline.transform.copy.DefaultTransformMetaCopyFactory.getInstance()
+        .copy(this);
   }
 
-  public void replaceMeta(TransformMeta transformMeta) {
-    this.transformPluginId = transformMeta.transformPluginId; // --> TransformPlugin.id
-    this.name = transformMeta.name;
-    if (transformMeta.transform != null) {
-      setTransform((ITransformMeta) transformMeta.transform.clone());
-    } else {
-      this.transform = null;
-    }
-    this.selected = transformMeta.selected;
-    this.distributes = transformMeta.distributes;
-    this.setRowDistribution(transformMeta.getRowDistribution());
-    this.copiesString = transformMeta.copiesString;
+  public synchronized void replaceMeta(TransformMeta transformMeta) {
+    // Use the copy factory to replace metadata with proper state preservation
+    TransformMeta copy =
+        org.apache.hop.pipeline.transform.copy.DefaultTransformMetaCopyFactory.getInstance()
+            .copy(transformMeta, org.apache.hop.pipeline.transform.copy.CopyContext.SAME_PIPELINE);
+
+    // Copy all fields from the generated copy to this instance
+    this.transformPluginId = copy.transformPluginId;
+    this.name = copy.name;
+    this.transform = copy.transform;
+    this.selected = copy.selected;
+    this.distributes = copy.distributes;
+    this.setRowDistribution(copy.getRowDistribution());
+    this.copiesString = copy.copiesString;
     this.copiesCache = null; // force re-calculation
-    if (transformMeta.location != null) {
-      this.location = new Point(transformMeta.location.x, transformMeta.location.y);
-    } else {
-      this.location = null;
+    this.location = copy.location;
+    this.description = copy.description;
+    this.terminator = copy.terminator;
+    this.transformPartitioningMeta = copy.transformPartitioningMeta;
+    this.targetTransformPartitioningMeta = copy.targetTransformPartitioningMeta;
+    this.transformErrorMeta = copy.transformErrorMeta;
+    this.attributesMap = copy.attributesMap;
+
+    // Ensure parent references are maintained for this instance
+    if (this.transform != null) {
+      this.transform.setParentTransformMeta(this);
     }
-    this.description = transformMeta.description;
-    this.terminator = transformMeta.terminator;
-
-    if (transformMeta.transformPartitioningMeta != null) {
-      this.transformPartitioningMeta = transformMeta.transformPartitioningMeta.clone();
-    } else {
-      this.transformPartitioningMeta = null;
-    }
-
-    // The error handling needs to be done too...
-    //
-    if (transformMeta.transformErrorMeta != null) {
-      this.transformErrorMeta = transformMeta.transformErrorMeta.clone();
-    }
-
-    this.attributesMap = copyStringMap(transformMeta.attributesMap);
-
-    this.setChanged(true);
   }
 
   private static Map<String, Map<String, String>> copyStringMap(
@@ -801,7 +790,7 @@ public class TransformMeta
     if (rowDistribution != null) {
       setDistributes(true);
     }
-    setChanged(true);
+    setChanged();
   }
 
   /**

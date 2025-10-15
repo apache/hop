@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -52,20 +52,21 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-public class MemoryGroupByAggregationTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class MemoryGroupByAggregationTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private Variables variables;
   private Map<String, MemoryGroupByMeta.GroupType> aggregates;
@@ -89,13 +90,13 @@ public class MemoryGroupByAggregationTest {
   private RowMeta rowMeta;
   private TreeBasedTable<Integer, Integer, Optional<Object>> data;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     HopClientEnvironment.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     rowMeta = new RowMeta();
     data = TreeBasedTable.create();
     variables = new Variables();
@@ -104,7 +105,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testDefault() throws Exception {
+  void testDefault() throws Exception {
     addColumn(new ValueMetaInteger("intg"), 0L, 1L, 1L, 10L);
     addColumn(new ValueMetaInteger("nul"));
     addColumn(new ValueMetaInteger("mix1"), -1L, 2L);
@@ -164,7 +165,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testNullMin() throws Exception {
+  void testNullMin() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "Y");
 
     addColumn(new ValueMetaInteger("intg"), null, 0L, 1L, -1L);
@@ -182,7 +183,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testNullsAreZeroCompatible() throws Exception {
+  void testNullsAreZeroCompatible() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y");
 
     addColumn(new ValueMetaInteger("nul"));
@@ -208,7 +209,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testNullsAreZeroDefault() throws Exception {
+  void testNullsAreZeroDefault() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y");
 
     addColumn(new ValueMetaInteger("nul"));
@@ -243,7 +244,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testSqlCompatible() throws Exception {
+  void testSqlCompatible() throws Exception {
     addColumn(new ValueMetaInteger("value"), null, -2L, null, 0L, null, 10L, null, null, 0L, null);
 
     RowMetaAndData output = runTransform();

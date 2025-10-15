@@ -465,7 +465,8 @@ public class ValueMetaBase implements IValueMeta {
         && getPrecision() == that.getPrecision()
         && type == that.type
         && trimType == that.trimType
-        && roundingType == that.roundingType
+        && ((roundingType == null && that.roundingType == null)
+            || (roundingType != null && roundingType.equals(that.roundingType)))
         && storageType == that.storageType
         && collatorStrength == that.collatorStrength
         && caseInsensitive == that.caseInsensitive
@@ -4319,7 +4320,7 @@ public class ValueMetaBase implements IValueMeta {
 
       // If it's a string and the string is empty, it's a null value as well
       //
-      return isString() && value.toString().length() == 0;
+      return isString() && value.toString().isEmpty();
 
       // We tried everything else so we assume this value is not null.
       //
@@ -4432,7 +4433,7 @@ public class ValueMetaBase implements IValueMeta {
         byte[] b1 = (byte[]) data1;
         byte[] b2 = (byte[]) data2;
 
-        int byteLength = b1.length < b2.length ? b1.length : b2.length;
+        int byteLength = Math.min(b1.length, b2.length);
 
         cmp = b1.length - b2.length;
         if (cmp == 0) {
@@ -4637,7 +4638,12 @@ public class ValueMetaBase implements IValueMeta {
       case TYPE_JSON:
         return getJson(data);
       default:
-        throw new HopValueException(this + CONST_CANNOT_CONVERT + conversionMetadata.getType());
+        // Generic plugin-aware path
+        try {
+          return conversionMetadata.convertData(this, data);
+        } catch (Exception e) {
+          throw new HopValueException(this + CONST_CANNOT_CONVERT + conversionMetadata.getType());
+        }
     }
   }
 
@@ -4751,7 +4757,7 @@ public class ValueMetaBase implements IValueMeta {
     switch (trimType) {
       case IValueMeta.TRIM_TYPE_LEFT:
         strpol = new StringBuilder(pol);
-        while (strpol.length() > 0 && strpol.charAt(0) == ' ') {
+        while (!strpol.isEmpty() && strpol.charAt(0) == ' ') {
           strpol.deleteCharAt(0);
         }
         pol = strpol.toString();
@@ -4759,7 +4765,7 @@ public class ValueMetaBase implements IValueMeta {
         break;
       case IValueMeta.TRIM_TYPE_RIGHT:
         strpol = new StringBuilder(pol);
-        while (strpol.length() > 0 && strpol.charAt(strpol.length() - 1) == ' ') {
+        while (!strpol.isEmpty() && strpol.charAt(strpol.length() - 1) == ' ') {
           strpol.deleteCharAt(strpol.length() - 1);
         }
         pol = strpol.toString();
@@ -4767,10 +4773,10 @@ public class ValueMetaBase implements IValueMeta {
         break;
       case IValueMeta.TRIM_TYPE_BOTH:
         strpol = new StringBuilder(pol);
-        while (strpol.length() > 0 && strpol.charAt(0) == ' ') {
+        while (!strpol.isEmpty() && strpol.charAt(0) == ' ') {
           strpol.deleteCharAt(0);
         }
-        while (strpol.length() > 0 && strpol.charAt(strpol.length() - 1) == ' ') {
+        while (!strpol.isEmpty() && strpol.charAt(strpol.length() - 1) == ' ') {
           strpol.deleteCharAt(strpol.length() - 1);
         }
         pol = strpol.toString();

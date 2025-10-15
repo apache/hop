@@ -714,7 +714,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     Map<String, String> optionsMap = new HashMap<>();
 
     Map<String, String> map = getExtraOptions();
-    if (map.size() > 0) {
+    if (!map.isEmpty()) {
       Iterator<String> iterator = map.keySet().iterator();
       while (iterator.hasNext()) {
         String typedParameter = iterator.next();
@@ -1059,13 +1059,13 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadInterface"));
     }
 
-    if (getName() == null || getName().length() == 0) {
+    if (Utils.isEmpty(getName())) {
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadConnectionName"));
     }
 
     if (getIDatabase().isRequiresName()
         && getIDatabase().getManualUrl().isEmpty()
-        && (getDatabaseName() == null || getDatabaseName().length() == 0)) {
+        && (Utils.isEmpty(getDatabaseName()))) {
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadDatabaseName"));
     }
 
@@ -2049,7 +2049,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     // This is also covered/persisted by JDBC option MS SQL Server / instancename / <somevalue>
     // We want to return set <somevalue>
     // --> MSSQL.instancename
-    if ((instanceName != null) && (instanceName.length() > 0)) {
+    if ((instanceName != null) && (!instanceName.isEmpty())) {
       addExtraOption(getPluginId(), "instance", instanceName);
     }
   }
@@ -2213,6 +2213,20 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   /**
+   * @return true if this is a relational database for which the connection can be tested.
+   */
+  public boolean isTestable() {
+    return iDatabase.isTestable();
+  }
+
+  /**
+   * @return true if this is a relational database for which exploring is allowed
+   */
+  public boolean isExploringDisabled() {
+    return iDatabase.isExploringDisabled();
+  }
+
+  /**
    * @return The SQL on this database to get a list of sequences.
    */
   public String getSqlListOfSequences() {
@@ -2295,5 +2309,25 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   /** For testing */
   protected IDatabase getDbInterface(String typeCode) throws HopDatabaseException {
     return getIDatabase(typeCode);
+  }
+
+  /**
+   * Returns a list of UI element IDs that should be excluded from the database editor. Databricks
+   * doesn't need database name or manual URL fields.
+   *
+   * @return List of element IDs to exclude
+   */
+  public List<String> getRemoveItems() {
+    return iDatabase.getRemoveItems();
+  }
+
+  /**
+   * Returns whether URL information should be hidden in test connection dialogs. Databricks URLs
+   * may contain sensitive authentication tokens.
+   *
+   * @return true to hide URL information in test connection results
+   */
+  public boolean isHideUrlInTestConnection() {
+    return iDatabase.isHideUrlInTestConnection();
   }
 }

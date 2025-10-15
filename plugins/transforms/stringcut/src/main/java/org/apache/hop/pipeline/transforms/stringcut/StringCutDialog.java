@@ -125,8 +125,7 @@ public class StringCutDialog extends BaseTransformDialog {
     wlKey.setLayoutData(fdlKey);
 
     int nrFieldCols = 4;
-    int nrFieldRows =
-        (input.getFields() != null && !input.getFields().isEmpty() ? input.getFields().size() : 1);
+    int nrFieldRows = Utils.isEmpty(input.getFields()) ? 1 : input.getFields().size();
 
     ciKey = new ColumnInfo[nrFieldCols];
     ciKey[0] =
@@ -213,7 +212,7 @@ public class StringCutDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getFields() != null && !input.getFields().isEmpty()) {
+    if (!Utils.isEmpty(input.getFields())) {
       int i = 0;
       for (StringCutField scf : input.getFields()) {
         TableItem item = wFields.table.getItem(i);

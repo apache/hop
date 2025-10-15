@@ -17,22 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.setvaluefield;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SetValueFieldMetaInjectionTest extends BaseMetadataInjectionTest<SetValueFieldMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SetValueFieldMetaInjectionTest extends BaseMetadataInjectionTestJunit5<SetValueFieldMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     setup(new SetValueFieldMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FIELD_NAME", () -> meta.getFields().get(0).getFieldName());
     check("REPLACE_BY_FIELD_VALUE", () -> meta.getFields().get(0).getReplaceByField());
   }

@@ -24,33 +24,33 @@ import static org.mockito.Mockito.when;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.mail.workflow.actions.getpop.MailConnectionMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class MailInputTest {
+class MailInputTest {
 
   private TransformMockHelper<MailInputMeta, MailInputData> mockHelper;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     mockHelper = new TransformMockHelper<>("MailInput", MailInputMeta.class, MailInputData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel);
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     mockHelper.cleanUp();
   }
 
   /** Check that imap retrieve ... first will be applied. */
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testInitSetGetFirstForIMAP() {
+  @Disabled("This test needs to be reviewed")
+  void testInitSetGetFirstForIMAP() {
     MailInput transform =
         new MailInput(
             mockHelper.transformMeta,
@@ -68,13 +68,13 @@ public class MailInputTest {
 
     transform.init();
 
-    Assert.assertEquals("Row Limit is set up to 2 rows.", 2, data.rowlimit);
+    Assertions.assertEquals(2, data.rowlimit, "Row Limit is set up to 2 rows.");
   }
 
   /** Check that pop3 retrieve ... first will be applied. */
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testInitSetGetFirstForPOP3() {
+  @Disabled("This test needs to be reviewed")
+  void testInitSetGetFirstForPOP3() {
     MailInput transform =
         new MailInput(
             mockHelper.transformMeta,
@@ -92,13 +92,13 @@ public class MailInputTest {
 
     transform.init();
 
-    Assert.assertEquals("Row Limit is set up to 3 rows.", 3, data.rowlimit);
+    Assertions.assertEquals(3, data.rowlimit, "Row Limit is set up to 3 rows.");
   }
 
   /** Check that Limit value overrides retrieve ... first if any. */
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testInitSetGetFirstLimitOverride() {
+  @Disabled("This test needs to be reviewed")
+  void testInitSetGetFirstLimitOverride() {
     MailInput transform =
         new MailInput(
             mockHelper.transformMeta,
@@ -118,14 +118,14 @@ public class MailInputTest {
 
     transform.init();
 
-    Assert.assertEquals(
-        "Row Limit is set up to 5 rows as the Limit has priority.", 5, data.rowlimit);
+    Assertions.assertEquals(
+        5, data.rowlimit, "Row Limit is set up to 5 rows as the Limit has priority.");
   }
 
   /** We do not use any of retrieve ... first if protocol is MBOX */
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testInitSetGetFirstForMBOXIgnored() {
+  @Disabled("This test needs to be reviewed")
+  void testInitSetGetFirstForMBOXIgnored() {
     MailInput transform =
         new MailInput(
             mockHelper.transformMeta,
@@ -143,7 +143,7 @@ public class MailInputTest {
 
     transform.init();
 
-    Assert.assertEquals(
-        "Row Limit is set up to 0 rows as the Limit has priority.", 0, data.rowlimit);
+    Assertions.assertEquals(
+        0, data.rowlimit, "Row Limit is set up to 0 rows as the Limit has priority.");
   }
 }

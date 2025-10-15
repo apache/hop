@@ -18,26 +18,27 @@
 
 package org.apache.hop.databases.clickhouse;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ClickhouseDatabaseMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+class ClickhouseDatabaseMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   ClickhouseDatabaseMeta nativeMeta;
 
-  @Before
-  public void setupOnce() throws Exception {
+  @BeforeEach
+  void setupOnce() throws Exception {
     nativeMeta = new ClickhouseDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
@@ -45,13 +46,13 @@ public class ClickhouseDatabaseMetaTest {
   }
 
   @Test
-  public void testAccessType() {
+  void testAccessType() {
     int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
   }
 
   @Test
-  public void testUrl() {
+  void testUrl() {
     assertEquals("com.clickhouse.jdbc.ClickHouseDriver", nativeMeta.getDriverClass());
 
     assertEquals(
@@ -67,7 +68,7 @@ public class ClickhouseDatabaseMetaTest {
   }
 
   @Test
-  public void testSupport() {
+  void testSupport() {
     assertFalse(nativeMeta.isSupportsSchemas());
     assertTrue(nativeMeta.isSupportsViews());
     assertFalse(nativeMeta.isSupportsSequences());

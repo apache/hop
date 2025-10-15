@@ -22,11 +22,13 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -38,6 +40,9 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -103,6 +108,28 @@ public class ExcelWriterTransform
       } else {
         data.outputRowMeta = getInputRowMeta().clone();
         data.inputRowMeta = getInputRowMeta().clone();
+      }
+
+      // If we are usign a schema and ingoring fields create the outputfields
+      if (meta.isIgnoreFields()) {
+        meta.setOutputFields(new ArrayList<>());
+        try {
+          SchemaDefinition loadedSchemaDefinition =
+              (new SchemaDefinitionUtil())
+                  .loadSchemaDefinition(metadataProvider, meta.getSchemaDefinition());
+          if (loadedSchemaDefinition != null) {
+            for (SchemaFieldDefinition schemaFieldDefinition :
+                loadedSchemaDefinition.getFieldDefinitions()) {
+              ExcelWriterOutputField excelOutputField = new ExcelWriterOutputField();
+              excelOutputField.setName(schemaFieldDefinition.getName());
+              excelOutputField.setFormat(schemaFieldDefinition.getFormatMask());
+              excelOutputField.setType(schemaFieldDefinition.getHopType());
+              meta.getOutputFields().add(excelOutputField);
+            }
+          }
+        } catch (HopTransformException e) {
+          // ignore any errors here.
+        }
       }
 
       // If we are supposed to create the file up front regardless of whether we receive input rows
@@ -317,7 +344,7 @@ public class ExcelWriterTransform
           sxssfSheet.trackAllColumnsForAutoSizing();
         }
 
-        if (meta.getOutputFields() == null || meta.getOutputFields().isEmpty()) {
+        if (Utils.isEmpty(meta.getOutputFields())) {
           for (int i = 0; i < data.inputRowMeta.size(); i++) {
             file.getSheet().autoSizeColumn(i + data.startingCol);
           }
@@ -400,7 +427,7 @@ public class ExcelWriterTransform
       }
 
       Object v = null;
-      if (meta.getOutputFields() == null || meta.getOutputFields().isEmpty()) {
+      if (Utils.isEmpty(meta.getOutputFields())) {
         //  Write all values in stream to text file.
         int nr = data.inputRowMeta.size();
         workbookDefinition.clearStyleCache(nr);
@@ -771,10 +798,7 @@ public class ExcelWriterTransform
       }
 
       // clear style cache
-      int numOfFields =
-          meta.getOutputFields() != null && !meta.getOutputFields().isEmpty()
-              ? meta.getOutputFields().size()
-              : 0;
+      int numOfFields = !Utils.isEmpty(meta.getOutputFields()) ? meta.getOutputFields().size() : 0;
       if (numOfFields == 0) {
         numOfFields = data.inputRowMeta != null ? data.inputRowMeta.size() : 0;
       }
@@ -1075,7 +1099,7 @@ public class ExcelWriterTransform
         xlsRow = sheet.createRow(posY);
       }
       // If we have fields specified: list them in this order!
-      if (meta.getOutputFields() != null && !meta.getOutputFields().isEmpty()) {
+      if (!Utils.isEmpty(meta.getOutputFields())) {
         for (int i = 0; i < meta.getOutputFields().size(); i++) {
           ExcelWriterOutputField field = meta.getOutputFields().get(i);
           String fieldName = !Utils.isEmpty(field.getTitle()) ? field.getTitle() : field.getName();

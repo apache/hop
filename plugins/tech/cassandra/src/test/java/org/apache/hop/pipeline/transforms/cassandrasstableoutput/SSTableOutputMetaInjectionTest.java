@@ -18,18 +18,18 @@
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SSTableOutputMeta> {
+class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SSTableOutputMeta> {
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     setup(new SSTableOutputMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("YAML_FILE_PATH", () -> meta.getYamlPath());
     check("DIRECTORY", () -> meta.getDirectory());
     check("CASSANDRA_KEYSPACE", () -> meta.getCassandraKeyspace());

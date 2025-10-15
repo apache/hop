@@ -26,7 +26,7 @@ import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.jupiter.api.Test;
 
-public class WorkflowActionMssqlBulkLoadLoadSaveTest
+class WorkflowActionMssqlBulkLoadLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionMssqlBulkLoad> {
 
   @Override

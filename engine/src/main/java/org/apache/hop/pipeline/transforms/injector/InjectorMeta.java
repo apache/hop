@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 @Transform(
     id = "Injector",
-    image = "ui/images/injector.svg",
+    image = "org/apache/hop/images/injector.svg",
     name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.Injector",
     description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Injector",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline",

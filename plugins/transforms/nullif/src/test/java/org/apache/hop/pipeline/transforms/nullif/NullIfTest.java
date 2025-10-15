@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.nullif;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -40,29 +40,31 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class NullIfTest {
+class NullIfTest {
   TransformMockHelper<NullIfMeta, NullIfData> smh;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Before
-  public void setUp() {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeEach
+  void setUp() {
     smh = new TransformMockHelper<>("Field NullIf processor", NullIfMeta.class, NullIfData.class);
     when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
@@ -97,7 +99,7 @@ public class NullIfTest {
   }
 
   @Test
-  public void test() throws HopException {
+  void test() throws HopException {
     HopEnvironment.init();
 
     NullIf transform =
@@ -123,12 +125,12 @@ public class NullIfTest {
     Object[] expectedRow = new Object[] {"value1", null, "value3"};
 
     assertEquals(
-        "Output row is of an unexpected length",
         expectedRow.length,
-        outputRowSet.getRowMeta().size());
+        outputRowSet.getRowMeta().size(),
+        "Output row is of an unexpected length");
 
     for (int i = 0; i < expectedRow.length; i++) {
-      assertEquals("Unexpected output value at index " + i, expectedRow[i], actualRow[i]);
+      assertEquals(expectedRow[i], actualRow[i], "Unexpected output value at index " + i);
     }
   }
 
@@ -181,7 +183,7 @@ public class NullIfTest {
   }
 
   @Test
-  public void testDateWithFormat() throws HopException {
+  void testDateWithFormat() throws HopException {
     HopEnvironment.init();
 
     NullIf transform =
@@ -220,12 +222,12 @@ public class NullIfTest {
     Object[] expectedRow = new Object[] {null, null, d3, d4};
 
     assertEquals(
-        "Output row is of an unexpected length",
         expectedRow.length,
-        outputRowSet.getRowMeta().size());
+        outputRowSet.getRowMeta().size(),
+        "Output row is of an unexpected length");
 
     for (int i = 0; i < expectedRow.length; i++) {
-      assertEquals("Unexpected output value at index " + i, expectedRow[i], actualRow[i]);
+      assertEquals(expectedRow[i], actualRow[i], "Unexpected output value at index " + i);
     }
   }
 }

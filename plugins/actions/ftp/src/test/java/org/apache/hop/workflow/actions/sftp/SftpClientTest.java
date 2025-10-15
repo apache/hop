@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.sftp;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -31,14 +32,15 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import java.net.InetAddress;
 import org.apache.hop.core.exception.HopWorkflowException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SftpClientTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SftpClientTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private int port = 22;
   private String username = "admin";
@@ -48,8 +50,8 @@ public class SftpClientTest {
   private InetAddress server = mock(InetAddress.class);
   private JSch jSch = mock(JSch.class);
 
-  @Before
-  public void setUp() throws JSchException {
+  @BeforeEach
+  void setUp() throws JSchException {
     System.clearProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI);
 
     when(server.getHostAddress()).thenReturn("localhost");
@@ -57,8 +59,8 @@ public class SftpClientTest {
     when(session.openChannel("sftp")).thenReturn(channel);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     System.clearProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI);
   }
 
@@ -69,7 +71,7 @@ public class SftpClientTest {
    * API Authentication.
    */
   @Test
-  public void shouldExcludeGssapiFromPreferredAuthenticationsByDefault() throws Exception {
+  void shouldExcludeGssapiFromPreferredAuthenticationsByDefault() throws Exception {
     new SftpClient(server, port, username) {
       @Override
       JSch createJSch() {
@@ -88,7 +90,7 @@ public class SftpClientTest {
    * Authentication as the last one.
    */
   @Test
-  public void shouldIncludeGssapiToPreferredAuthenticationsIfSpecified() throws Exception {
+  void shouldIncludeGssapiToPreferredAuthenticationsIfSpecified() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "true");
 
     new SftpClient(server, port, username) {
@@ -110,8 +112,7 @@ public class SftpClientTest {
    * API Authentication.
    */
   @Test
-  public void shouldIncludeGssapiToPreferredAuthenticationsIfOnlySpecifiedCorrectly()
-      throws Exception {
+  void shouldIncludeGssapiToPreferredAuthenticationsIfOnlySpecifiedCorrectly() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
 
     new SftpClient(server, port, username) {
@@ -126,8 +127,8 @@ public class SftpClientTest {
   }
 
   /** Can't create root folder. An exception is expected. */
-  @Test(expected = HopWorkflowException.class)
-  public void folderCreationEmptyTest() throws Exception {
+  @Test
+  void folderCreationEmptyTest() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         new SftpClient(server, port, username) {
@@ -138,12 +139,12 @@ public class SftpClientTest {
         };
 
     client.login(password);
-    client.createFolder("//");
+    assertThrows(HopWorkflowException.class, () -> client.createFolder("//"));
   }
 
   /** Create a folder under the current user's home. */
   @Test
-  public void folderCreation_Relative_Simple() throws Exception {
+  void folderCreation_Relative_Simple() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(
@@ -165,7 +166,7 @@ public class SftpClientTest {
 
   /** Create a folder with nested folders under the current user's home. */
   @Test
-  public void folderCreation_Relative_Nested() throws Exception {
+  void folderCreation_Relative_Nested() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(
@@ -189,7 +190,7 @@ public class SftpClientTest {
 
   /** Create a folder under an existing folder given an absolute path. */
   @Test
-  public void folderCreation_Absolute_Simple() throws Exception {
+  void folderCreation_Absolute_Simple() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(
@@ -215,7 +216,7 @@ public class SftpClientTest {
    * a slash.
    */
   @Test
-  public void folderCreation_Absolute_TrailingSlash() throws Exception {
+  void folderCreation_Absolute_TrailingSlash() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(
@@ -238,7 +239,7 @@ public class SftpClientTest {
 
   /** Create a folder with nested folders under an existing folder given an absolute path. */
   @Test
-  public void folderCreation_Absolute_Nested() throws Exception {
+  void folderCreation_Absolute_Nested() throws Exception {
     System.setProperty(SftpClient.ENV_PARAM_USERAUTH_GSSAPI, "yes");
     SftpClient client =
         spy(

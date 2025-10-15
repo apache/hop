@@ -17,19 +17,19 @@
 
 package org.apache.hop.mongo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
 import javax.net.ssl.SSLSocketFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class MongoPropertiesTest {
+class MongoPropertiesTest {
   @Test
-  public void testBuildsMongoClientOptions() throws Exception {
+  void testBuildsMongoClientOptions() throws Exception {
     MongoProperties props =
         new MongoProperties.Builder()
             .set(MongoProp.connectionsPerHost, "127")
@@ -74,7 +74,7 @@ public class MongoPropertiesTest {
   }
 
   @Test
-  public void testBuildsMongoClientOptionsDefaults() throws Exception {
+  void testBuildsMongoClientOptionsDefaults() throws Exception {
     MongoProperties props = new MongoProperties.Builder().build();
     MongoUtilLogger log = Mockito.mock(MongoUtilLogger.class);
     MongoClientOptions options = props.buildMongoClientOptions(log);

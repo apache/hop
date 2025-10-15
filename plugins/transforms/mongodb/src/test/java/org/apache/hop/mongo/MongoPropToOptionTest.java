@@ -17,26 +17,26 @@
 
 package org.apache.hop.mongo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.util.JSONParseException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class MongoPropToOptionTest {
+class MongoPropToOptionTest {
   @Mock private MongoUtilLogger log;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     MockitoAnnotations.openMocks(this);
   }
 
@@ -48,7 +48,7 @@ public class MongoPropToOptionTest {
           + "{ \"disk\": \"ssd\", \"use\": \"reporting\", \"mem\": \"r\"}";
 
   @Test
-  public void testGetTagSets() throws MongoDbException {
+  void testGetTagSets() throws MongoDbException {
     MongoProperties.Builder builder = new MongoProperties.Builder();
     builder.set(MongoProp.tagSet, TAG_SET);
     MongoUtilLogger logger = mock(MongoUtilLogger.class);
@@ -92,7 +92,7 @@ public class MongoPropToOptionTest {
   }
 
   @Test
-  public void testGetVals() {
+  void testGetVals() {
     assertEquals(123, new MongoPropToOption(log).intValue("invalid", 123));
     assertEquals(234, new MongoPropToOption(log).intValue("234", 123));
     assertEquals(123, new MongoPropToOption(log).longValue("invalid", 123l));
@@ -103,7 +103,7 @@ public class MongoPropToOptionTest {
   }
 
   @Test
-  public void testWriteConcernDefaultValue() throws MongoDbException {
+  void testWriteConcernDefaultValue() throws MongoDbException {
     MongoProperties props = new MongoProperties.Builder().set(MongoProp.writeConcern, "1").build();
     MongoPropToOption mongoPropToOption = new MongoPropToOption(log);
     WriteConcern writeConcern = mongoPropToOption.writeConcernValue(props);
@@ -111,7 +111,7 @@ public class MongoPropToOptionTest {
   }
 
   @Test
-  public void testWriteConcernWithWriteTimeout() throws MongoDbException {
+  void testWriteConcernWithWriteTimeout() throws MongoDbException {
     MongoProperties props =
         new MongoProperties.Builder()
             .set(MongoProp.writeConcern, "2")
@@ -125,7 +125,7 @@ public class MongoPropToOptionTest {
   }
 
   @Test
-  public void testWriteConcernWithInvalidWriteTimeout() throws MongoDbException {
+  void testWriteConcernWithInvalidWriteTimeout() throws MongoDbException {
     MongoProperties props =
         new MongoProperties.Builder()
             .set(MongoProp.writeConcern, "2")
@@ -143,7 +143,7 @@ public class MongoPropToOptionTest {
   }
 
   @Test
-  public void testNonNumericWriteConcernValue() throws MongoDbException {
+  void testNonNumericWriteConcernValue() throws MongoDbException {
     MongoProperties props =
         new MongoProperties.Builder()
             .set(MongoProp.writeConcern, "majority")
@@ -156,7 +156,7 @@ public class MongoPropToOptionTest {
   }
 
   @Test
-  public void getReadPrefUnset() throws MongoDbException {
+  void getReadPrefUnset() throws MongoDbException {
     MongoPropToOption mongoPropToOption = new MongoPropToOption(null);
     assertNull(
         mongoPropToOption.readPrefValue(

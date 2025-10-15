@@ -65,4 +65,7 @@ The following properties are used to define the mappings:
 |Field values table|Contains the mapping of source value to converted target value.
 |===
 
-TIP: If there is an empty source value defined, we map null or empty string to the target value. Only one empty mapping is allowed.
+=== Mapping NULL values
+If there is an empty source value defined, NULLs and empty strings are mapped to the corresponding target value. Only one empty mapping is allowed.
+
+If the input stream contains NULL values, and no mapping for NULLs is defined, NULL is returned (and not the default target)

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -92,9 +93,12 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.transport.http.apache.HttpClientConnectionFactory;
+import org.eclipse.jgit.transport.sshd.SshdSessionFactory;
+import org.eclipse.jgit.transport.sshd.SshdSessionFactoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
@@ -592,11 +596,26 @@ public class UIGit extends VCS {
     try {
       name = name == null ? null : getExpandedName(name, type);
 
-      PushCommand cmd = git.push();
-      cmd.setCredentialsProvider(credentialsProvider);
+      PushCommand cmd;
+
+      String url = git.getRepository().getConfig().getString("remote", "origin", "url");
+      if (!StringUtils.isEmpty(url) && (url.startsWith("https://") || url.startsWith("http://"))) {
+        cmd = git.push();
+        cmd.setCredentialsProvider(credentialsProvider);
+      } else {
+        SshdSessionFactory customFactory =
+            new SshdSessionFactoryBuilder()
+                .setHomeDirectory(new File(System.getProperty("user.home")))
+                .setSshDirectory(new File(System.getProperty("user.home"), ".ssh"))
+                .build(null);
+        SshSessionFactory.setInstance(customFactory);
+        cmd = git.push();
+      }
+
       if (name != null) {
         cmd.setRefSpecs(new RefSpec(name));
       }
+
       Iterable<PushResult> resultIterable = cmd.call();
       processPushResult(resultIterable);
       return true;
@@ -635,7 +654,7 @@ public class UIGit extends VCS {
                               + update.getStatus().toString()
                               + (update.getMessage() == null ? "" : "\n" + update.getMessage())
                               + "\n\n"));
-          if (sb.length() == 0) {
+          if (sb.isEmpty()) {
             showMessageBox(
                 BaseMessages.getString(PKG, "Dialog.Success"),
                 BaseMessages.getString(PKG, "Dialog.Success"));

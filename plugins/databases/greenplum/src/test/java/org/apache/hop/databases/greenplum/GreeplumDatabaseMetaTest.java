@@ -16,17 +16,17 @@
  */
 package org.apache.hop.databases.greenplum;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMetaTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class GreeplumDatabaseMetaTest extends PostgreSqlDatabaseMetaTest {
+class GreeplumDatabaseMetaTest extends PostgreSqlDatabaseMetaTest {
 
   @Test
-  public void testPostgresqlOverrides() {
+  void testPostgresqlOverrides() {
     PostgreSqlDatabaseMeta meta1 = new PostgreSqlDatabaseMeta();
     GreenplumDatabaseMeta meta2 = new GreenplumDatabaseMeta();
     String[] meta1Reserved = meta1.getReservedWords();

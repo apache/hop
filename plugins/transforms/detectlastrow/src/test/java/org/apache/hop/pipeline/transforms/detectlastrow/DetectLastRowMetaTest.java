@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.detectlastrow;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,17 +27,18 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class DetectLastRowMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class DetectLastRowMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testTransformMeta() throws HopException {
+  void testTransformMeta() throws HopException {
     List<String> attributes = Arrays.asList("ResultFieldName");
 
     LoadSaveTester<DetectLastRowMeta> loadSaveTester =
@@ -46,20 +47,20 @@ public class DetectLastRowMetaTest {
   }
 
   @Test
-  public void testDefault() {
+  void testDefault() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     meta.setDefault();
     assertEquals("result", meta.getResultFieldName());
   }
 
   @Test
-  public void testGetData() {
+  void testGetData() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     assertTrue(meta.createTransformData() instanceof DetectLastRowData);
   }
 
   @Test
-  public void testGetFields() throws HopTransformException {
+  void testGetFields() throws HopTransformException {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     meta.setDefault();
     meta.setResultFieldName("The Result");
@@ -72,7 +73,7 @@ public class DetectLastRowMetaTest {
   }
 
   @Test
-  public void testSupportedPipelineTypes() {
+  void testSupportedPipelineTypes() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     assertEquals(1, meta.getSupportedPipelineTypes().length);
     assertEquals(PipelineType.Normal, meta.getSupportedPipelineTypes()[0]);

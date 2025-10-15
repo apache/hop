@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>mongo-delete-uuid</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/09/27 16:48:50.463</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/09/27 16:48:50.463</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Segoe UI</fontname>
+      <fontsize>9</fontsize>
+      <height>42</height>
+      <xloc>224</xloc>
+      <yloc>64</yloc>
+      <note>Deletes 2 of the rows inserted by mongo-insert-uuid in uuid_insert.
+If this fails, also check the prev transform.</note>
+      <width>362</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Data grid</from>
+      <to>MongoDB Delete</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Data grid</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>45528287-0cf6-4c9c-9228-ca90a182c2c7</item>
+        <item>d3956c05-1251-4f90-b730-1aee603d1499</item>
+      </line>
+      <line>
+        <item>80132062-d0db-4146-a6d8-b634a7acd044</item>
+        <item>91045c8c-cf81-4a38-b429-40efdf128848</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>id1</name>
+        <type>UUID</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>id2</name>
+        <type>UUID</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>240</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>MongoDB Delete</name>
+    <type>MongoDbDelete</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <collection>uuid_insert</collection>
+    <connection>mongo</connection>
+    <execute_for_each_row>N</execute_for_each_row>
+    <fields>
+      <field>
+        <comparator>=</comparator>
+        <doc_path>ids[0]</doc_path>
+        <incoming_field_1>id1</incoming_field_1>
+        <incoming_field_2/>
+      </field>
+      <field>
+        <comparator>=</comparator>
+        <doc_path>ids[1]</doc_path>
+        <incoming_field_1>id2</incoming_field_1>
+        <incoming_field_2/>
+      </field>
+    </fields>
+    <json_query/>
+    <retries>5</retries>
+    <retry_delay>10</retry_delay>
+    <use_json_query>N</use_json_query>
+    <write_retries>5</write_retries>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

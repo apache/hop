@@ -186,7 +186,7 @@ public class ActionDeleteFiles extends ActionBase {
 
         pathToMaskMap.put(pathToFile, fileMask);
       }
-    } else if (fileItems != null && !fileItems.isEmpty()) {
+    } else if (!Utils.isEmpty(fileItems)) {
       for (FileItem item : fileItems) {
         if (isDetailed()) {
           logDetailed(

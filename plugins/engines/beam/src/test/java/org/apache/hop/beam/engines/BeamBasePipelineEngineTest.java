@@ -17,8 +17,8 @@
 
 package org.apache.hop.beam.engines;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 import org.apache.hop.beam.transform.PipelineTestBase;
@@ -44,13 +44,12 @@ public class BeamBasePipelineEngineTest extends PipelineTestBase {
     return engine;
   }
 
-  protected void validateInputOutputEngineMetrics(IPipelineEngine<PipelineMeta> engine)
-      throws Exception {
-    assertEquals("No errors expected", 0, engine.getErrors());
+  protected void validateInputOutputEngineMetrics(IPipelineEngine<PipelineMeta> engine) {
+    assertEquals(0, engine.getErrors(), "No errors expected");
     EngineMetrics engineMetrics = engine.getEngineMetrics();
-    assertNotNull("Engine metrics can't be null", engineMetrics);
+    assertNotNull(engineMetrics, "Engine metrics can't be null");
     List<IEngineComponent> components = engineMetrics.getComponents();
-    assertNotNull("Engine metrics needs to have a list of components", components);
+    assertNotNull(components, "Engine metrics needs to have a list of components");
 
     assertEquals(3, components.size());
     IEngineComponent inputComponent = engine.findComponent("INPUT", 0);

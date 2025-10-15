@@ -44,7 +44,8 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     description = "i18n::ValidatorDialog.Transform.Description",
     keywords = "i18n::ValidatorDialog.Transform.KeyWords",
     image = "validator.svg",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Validation",
     documentationUrl = "/pipeline/transforms/validator.html")
 public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
   private static final Class<?> PKG = ValidatorMeta.class;
@@ -104,7 +105,7 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if (prev == null || prev.size() == 0) {
+    if (prev == null || prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_WARNING,

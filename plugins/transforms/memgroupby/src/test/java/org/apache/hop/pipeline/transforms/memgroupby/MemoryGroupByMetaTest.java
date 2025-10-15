@@ -32,9 +32,9 @@ import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.Gr
 import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.Percentile;
 import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.StandardDeviation;
 import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.Sum;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,19 +54,19 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class MemoryGroupByMetaTest {
+class MemoryGroupByMetaTest {
 
-  @Before
-  public void setUpLoadSave() throws Exception {
+  @BeforeEach
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     MemoryGroupByMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/memory-group-by-transform.xml", MemoryGroupByMeta.class);
@@ -93,7 +93,7 @@ public class MemoryGroupByMetaTest {
   }
 
   @Test
-  public void testGetFields() {
+  void testGetFields() {
     final String transformName = "this transform name";
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
     meta.setDefault();

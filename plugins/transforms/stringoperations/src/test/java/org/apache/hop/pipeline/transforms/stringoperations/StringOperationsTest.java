@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.stringoperations;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -32,21 +32,21 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for StringOperations transform
  *
  * @see StringOperations
  */
-public class StringOperationsTest {
+class StringOperationsTest {
   private static TransformMockHelper<StringOperationsMeta, StringOperationsData> smh;
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     smh =
         new TransformMockHelper<>(
             "StringOperations", StringOperationsMeta.class, StringOperationsData.class);
@@ -55,8 +55,8 @@ public class StringOperationsTest {
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
@@ -116,8 +116,8 @@ public class StringOperationsTest {
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testProcessBinaryInput() throws HopException {
+  @Disabled("This test needs to be reviewed")
+  void testProcessBinaryInput() throws HopException {
     StringOperations transform =
         new StringOperations(
             smh.transformMeta,
@@ -144,6 +144,6 @@ public class StringOperationsTest {
 
     assertTrue(outputRowSet.isDone());
 
-    assertTrue("Unexpected output", verifyOutput(new Object[][] {{"Value"}}, outputRowSet));
+    assertTrue(verifyOutput(new Object[][] {{"Value"}}, outputRowSet), "Unexpected output");
   }
 }

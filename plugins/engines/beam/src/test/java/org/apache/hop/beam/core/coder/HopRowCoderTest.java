@@ -17,44 +17,40 @@
 
 package org.apache.hop.beam.core.coder;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
-import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.hop.beam.core.HopRow;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class HopRowCoderTest extends TestCase {
+class HopRowCoderTest {
 
   ByteArrayOutputStream outputStream;
   private HopRowCoder hopRowCoder;
 
-  @Override
-  protected void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     outputStream = new ByteArrayOutputStream(1000000);
     hopRowCoder = new HopRowCoder();
   }
 
   @Test
-  public void testEncodeDecodeBasic() throws IOException {
+  void testEncodeDecodeBasic() throws IOException {
 
     HopRow row1 =
         new HopRow(
-            new Object[] {
-              "AAA",
-              "BBB",
-              Long.valueOf(100),
-              Double.valueOf(1.234),
-              new Date(876876868),
-              new Timestamp(810311)
-            });
+            new Object[] {"AAA", "BBB", 100L, 1.234, new Date(876876868), new Timestamp(810311)});
 
     hopRowCoder.encode(row1, outputStream);
     outputStream.flush();
@@ -68,58 +64,59 @@ public class HopRowCoderTest extends TestCase {
   }
 
   @Test
-  public void testEncodeDecodeAvro() throws Exception {
+  void testEncodeDecodeAvro() throws Exception {
     String schemaJson =
-        "{\n"
-            + "  \"doc\": \"No documentation URL for now\",\n"
-            + "  \"fields\": [\n"
-            + "    {\n"
-            + "      \"name\": \"id\",\n"
-            + "      \"type\": [\n"
-            + "        \"long\",\n"
-            + "        \"null\"\n"
-            + "      ]\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"name\": \"sysdate\",\n"
-            + "      \"type\": [\n"
-            + "        \"string\",\n"
-            + "        \"null\"\n"
-            + "      ]\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"name\": \"num\",\n"
-            + "      \"type\": [\n"
-            + "        \"double\",\n"
-            + "        \"null\"\n"
-            + "      ]\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"name\": \"int\",\n"
-            + "      \"type\": [\n"
-            + "        \"long\",\n"
-            + "        \"null\"\n"
-            + "      ]\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"name\": \"str\",\n"
-            + "      \"type\": [\n"
-            + "        \"string\",\n"
-            + "        \"null\"\n"
-            + "      ]\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"name\": \"uuid\",\n"
-            + "      \"type\": [\n"
-            + "        \"string\",\n"
-            + "        \"null\"\n"
-            + "      ]\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"name\": \"all_values\",\n"
-            + "  \"namespace\": \"hop.apache.org\",\n"
-            + "  \"type\": \"record\"\n"
-            + "}";
+        """
+                    {
+                      "doc": "No documentation URL for now",
+                      "fields": [
+                        {
+                          "name": "id",
+                          "type": [
+                            "long",
+                            "null"
+                          ]
+                        },
+                        {
+                          "name": "sysdate",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        {
+                          "name": "num",
+                          "type": [
+                            "double",
+                            "null"
+                          ]
+                        },
+                        {
+                          "name": "int",
+                          "type": [
+                            "long",
+                            "null"
+                          ]
+                        },
+                        {
+                          "name": "str",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        {
+                          "name": "uuid",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      ],
+                      "name": "all_values",
+                      "namespace": "hop.apache.org",
+                      "type": "record"
+                    }""";
     Schema schema = new Schema.Parser().parse(schemaJson);
 
     GenericRecord genericRecord = new GenericData.Record(schema);

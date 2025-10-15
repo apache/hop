@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getElementTypeDesc;
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getResultTypeCode;
+
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -207,7 +210,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         }
       }
 
-      if (meta.isNamespaceAware()) {
+      if (meta.isNameSpaceAware()) {
         prepareNSMap(data.document.getRootElement());
       }
     } catch (Exception e) {
@@ -228,7 +231,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   private void processStreaming(Element row) throws HopException {
     data.document = row.getDocument();
 
-    if (meta.isNamespaceAware()) {
+    if (meta.isNameSpaceAware()) {
       prepareNSMap(data.document.getRootElement());
     }
     if (isDebug()) {
@@ -288,12 +291,12 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   public void prepareNSMap(Element l) {
     List<Namespace> namespacesList = l.declaredNamespaces();
     for (Namespace ns : namespacesList) {
-      if (ns.getPrefix().trim().length() == 0) {
+      if (ns.getPrefix().trim().isEmpty()) {
         data.NAMESPACE.put("pre" + data.NSPath.size(), ns.getURI());
         String path = "";
         Element element = l;
         while (element != null) {
-          if (element.getNamespacePrefix() != null && element.getNamespacePrefix().length() > 0) {
+          if (!Utils.isEmpty(element.getNamespacePrefix())) {
             path =
                 GetXmlDataMeta.N0DE_SEPARATOR
                     + element.getNamespacePrefix()
@@ -388,22 +391,22 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
 
         // Check is XML field is provided
-        if (Utils.isEmpty(meta.getXMLField())) {
+        if (Utils.isEmpty(meta.getXmlField())) {
           logError(BaseMessages.getString(PKG, "GetXMLData.Log.NoField"));
           throw new HopException(BaseMessages.getString(PKG, "GetXMLData.Log.NoField"));
         }
 
         // cache the position of the field
         if (data.indexOfXmlField < 0) {
-          data.indexOfXmlField = getInputRowMeta().indexOfValue(meta.getXMLField());
+          data.indexOfXmlField = getInputRowMeta().indexOfValue(meta.getXmlField());
           if (data.indexOfXmlField < 0) {
             // The field is unreachable !
             logError(
                 BaseMessages.getString(
-                    PKG, "GetXMLData.Log.ErrorFindingField", meta.getXMLField()));
+                    PKG, "GetXMLData.Log.ErrorFindingField", meta.getXmlField()));
             throw new HopException(
                 BaseMessages.getString(
-                    PKG, "GetXMLData.Exception.CouldnotFindField", meta.getXMLField()));
+                    PKG, "GetXMLData.Exception.CouldnotFindField", meta.getXmlField()));
           }
         }
       }
@@ -415,10 +418,10 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "GetXMLData.Log.XMLStream", meta.getXMLField(), fieldvalue));
+                  PKG, "GetXMLData.Log.XMLStream", meta.getXmlField(), fieldvalue));
         }
 
-        if (meta.getIsAFile()) {
+        if (meta.isAFile()) {
           FileObject file = null;
           try {
             // XML source is a file.
@@ -501,7 +504,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   }
 
   private void addFileToResultFilesname(FileObject file) {
-    if (meta.addResultFile()) {
+    if (meta.isAddResultFile()) {
       // Add this to the result file names...
       ResultFile resultFile =
           new ResultFile(
@@ -541,10 +544,10 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       String[] pathStrs = path.split(GetXmlDataMeta.N0DE_SEPARATOR);
       for (int i = 0; i < pathStrs.length; i++) {
         String tmp = pathStrs[i];
-        if (newPath.length() > 0) {
+        if (!newPath.isEmpty()) {
           newPath.append(GetXmlDataMeta.N0DE_SEPARATOR);
         }
-        if (tmp.length() > 0
+        if (!tmp.isEmpty()
             && !tmp.contains(":")
             && !tmp.contains(".")
             && !tmp.contains(GetXmlDataMeta.AT)) {
@@ -566,7 +569,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   private boolean applyXPath() {
     try {
       XPath xpath = data.document.createXPath(data.PathValue);
-      if (meta.isNamespaceAware()) {
+      if (meta.isNameSpaceAware()) {
         xpath = data.document.createXPath(addNSPrefix(data.PathValue, data.PathValue));
         xpath.setNamespaceURIs(data.NAMESPACE);
       }
@@ -595,26 +598,26 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       data.file = data.files.getFile(data.filenr);
       data.filename = HopVfs.getFilename(data.file);
       // Add additional fields?
-      if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
+      if (!Utils.isEmpty(meta.getShortFileFieldName())) {
         data.shortFilename = data.file.getName().getBaseName();
       }
-      if (meta.getPathField() != null && meta.getPathField().length() > 0) {
+      if (!Utils.isEmpty(meta.getPathFieldName())) {
         data.path = HopVfs.getFilename(data.file.getParent());
       }
-      if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
+      if (!Utils.isEmpty(meta.getHiddenFieldName())) {
         data.hidden = data.file.isHidden();
       }
-      if (meta.getExtensionField() != null && meta.getExtensionField().length() > 0) {
+      if (!Utils.isEmpty(meta.getExtensionFieldName())) {
         data.extension = data.file.getName().getExtension();
       }
-      if (meta.getLastModificationDateField() != null
-          && meta.getLastModificationDateField().length() > 0) {
+      if (meta.getLastModificationTimeFieldName() != null
+          && !meta.getLastModificationTimeFieldName().isEmpty()) {
         data.lastModificationDateTime = new Date(data.file.getContent().getLastModifiedTime());
       }
-      if (meta.getUriField() != null && meta.getUriField().length() > 0) {
+      if (!Utils.isEmpty(meta.getUriNameFieldName())) {
         data.uriName = data.file.getName().getURI();
       }
-      if (meta.getRootUriField() != null && meta.getRootUriField().length() > 0) {
+      if (!Utils.isEmpty(meta.getRootUriNameFieldName())) {
         data.rootUriName = data.file.getName().getRootURI();
       }
       // Check if file is empty
@@ -625,7 +628,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         fileSize = -1;
       }
 
-      if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
+      if (!Utils.isEmpty(meta.getSizeFieldName())) {
         data.size = fileSize;
       }
       // Move file pointer ahead!
@@ -694,7 +697,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
 
       data.files = meta.getFiles(this);
 
-      if (!meta.isdoNotFailIfNoFile() && data.files.nrOfFiles() == 0) {
+      if (!meta.isDoNotFailIfNoFile() && data.files.nrOfFiles() == 0) {
         throw new HopException(BaseMessages.getString(PKG, "GetXMLData.Log.NoFiles"));
       }
 
@@ -792,11 +795,11 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       // Read fields...
       for (int i = 0; i < data.nrInputFields; i++) {
         // Get field
-        GetXmlDataField xmlDataField = meta.getInputFields()[i];
+        GetXmlDataField xmlDataField = meta.getInputFields().get(i);
         // Get the Path to look for
         String xPathValue = xmlDataField.getResolvedXPath();
 
-        if (meta.isuseToken()) {
+        if (meta.isUseToken()) {
           // See if user use Token inside path field
           // The syntax is : @_Fieldname-
           // Apache Hop will search for Fieldname value and replace it
@@ -811,10 +814,12 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         String nodevalue;
 
         // Handle namespaces
-        if (meta.isNamespaceAware()) {
+        if (meta.isNameSpaceAware()) {
           XPath xpathField = node.createXPath(addNSPrefix(xPathValue, data.PathValue));
           xpathField.setNamespaceURIs(data.NAMESPACE);
-          if (xmlDataField.getResultType() == GetXmlDataField.RESULT_TYPE_VALUE_OF) {
+          if (xmlDataField
+              .getResultType()
+              .equals(getResultTypeCode(GetXmlDataField.RESULT_TYPE_VALUE_OF))) {
             nodevalue = xpathField.valueOf(node);
           } else {
             Node n = xpathField.selectSingleNode(node);
@@ -825,7 +830,9 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
             }
           }
         } else {
-          if (xmlDataField.getResultType() == GetXmlDataField.RESULT_TYPE_VALUE_OF) {
+          if (xmlDataField
+              .getResultType()
+              .equals(getResultTypeCode(GetXmlDataField.RESULT_TYPE_VALUE_OF))) {
             nodevalue = node.valueOf(xPathValue);
           } else {
             Node n = node.selectSingleNode(xPathValue);
@@ -839,13 +846,13 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
 
         // Do trimming
         switch (xmlDataField.getTrimType()) {
-          case GetXmlDataField.TYPE_TRIM_LEFT:
+          case "left":
             nodevalue = Const.ltrim(nodevalue);
             break;
-          case GetXmlDataField.TYPE_TRIM_RIGHT:
+          case "right":
             nodevalue = Const.rtrim(nodevalue);
             break;
-          case GetXmlDataField.TYPE_TRIM_BOTH:
+          case "both":
             nodevalue = Const.trim(nodevalue);
             break;
           default:
@@ -860,7 +867,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
             targetValueMeta.convertData(sourceValueMeta, nodevalue);
 
         // Do we need to repeat this field if it is null?
-        if (meta.getInputFields()[i].isRepeated()
+        if (meta.getInputFields().get(i).isRepeat()
             && data.previousRow != null
             && Utils.isEmpty(nodevalue)) {
           outputRowData[data.totalpreviousfields + i] =
@@ -871,44 +878,44 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       int rowIndex = data.totalpreviousfields + data.nrInputFields;
 
       // See if we need to add the filename to the row...
-      if (meta.includeFilename() && !Utils.isEmpty(meta.getFilenameField())) {
+      if (meta.isIncludeFilename() && !Utils.isEmpty(meta.getFilenameField())) {
         outputRowData[rowIndex++] = data.filename;
       }
       // See if we need to add the row number to the row...
-      if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
+      if (meta.isIncludeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
         outputRowData[rowIndex++] = data.rownr;
       }
       // Possibly add short filename...
-      if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
+      if (!Utils.isEmpty(meta.getShortFileFieldName())) {
         outputRowData[rowIndex++] = data.shortFilename;
       }
       // Add Extension
-      if (meta.getExtensionField() != null && meta.getExtensionField().length() > 0) {
+      if (!Utils.isEmpty(meta.getExtensionFieldName())) {
         outputRowData[rowIndex++] = data.extension;
       }
       // add path
-      if (meta.getPathField() != null && meta.getPathField().length() > 0) {
+      if (!Utils.isEmpty(meta.getPathFieldName())) {
         outputRowData[rowIndex++] = data.path;
       }
       // Add Size
-      if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
+      if (!Utils.isEmpty(meta.getSizeFieldName())) {
         outputRowData[rowIndex++] = data.size;
       }
       // add Hidden
-      if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
+      if (!Utils.isEmpty(meta.getHiddenFieldName())) {
         outputRowData[rowIndex++] = Boolean.valueOf(data.path);
       }
       // Add modification date
-      if (meta.getLastModificationDateField() != null
-          && meta.getLastModificationDateField().length() > 0) {
+      if (meta.getLastModificationTimeFieldName() != null
+          && !meta.getLastModificationTimeFieldName().isEmpty()) {
         outputRowData[rowIndex++] = data.lastModificationDateTime;
       }
       // Add Uri
-      if (meta.getUriField() != null && meta.getUriField().length() > 0) {
+      if (!Utils.isEmpty(meta.getUriNameFieldName())) {
         outputRowData[rowIndex++] = data.uriName;
       }
       // Add RootUri
-      if (meta.getRootUriField() != null && meta.getRootUriField().length() > 0) {
+      if (!Utils.isEmpty(meta.getRootUriNameFieldName())) {
         outputRowData[rowIndex] = data.rootUriName;
       }
 
@@ -956,7 +963,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         Object value = varName;
 
         for (int k = 0; k < data.nrInputFields; k++) {
-          GetXmlDataField tmpXmlInputField = meta.getInputFields()[k];
+          GetXmlDataField tmpXmlInputField = meta.getInputFields().get(k);
           if (tmpXmlInputField.getName().equalsIgnoreCase(varName)) {
             value = "'" + outputRowData[data.totalpreviousfields + k] + "'";
           }
@@ -981,22 +988,24 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
 
     if (super.init()) {
       data.rownr = 1L;
-      data.nrInputFields = meta.getInputFields().length;
+      data.nrInputFields = meta.getInputFields().size();
 
       // correct attribute path if needed
       // do it once
       for (int i = 0; i < data.nrInputFields; i++) {
-        GetXmlDataField xmlDataField = meta.getInputFields()[i];
+        GetXmlDataField xmlDataField = meta.getInputFields().get(i);
         // Resolve variable substitution
         String xPathValue = resolve(xmlDataField.getXPath());
-        if (xmlDataField.getElementType() == GetXmlDataField.ELEMENT_TYPE_ATTRIBUT) {
+        if (xmlDataField
+            .getElementType()
+            .equals(getElementTypeDesc(GetXmlDataField.ELEMENT_TYPE_ATTRIBUTE))) {
           // We have an attribute
           // do we need to add leading @?
           // Only put @ to the last element in path, not in front at all
           int last = xPathValue.lastIndexOf(GetXmlDataMeta.N0DE_SEPARATOR);
           if (last > -1) {
             last++;
-            String attribut = xPathValue.substring(last, xPathValue.length());
+            String attribut = xPathValue.substring(last);
             if (!attribut.startsWith(GetXmlDataMeta.AT)) {
               xPathValue = xPathValue.substring(0, last) + GetXmlDataMeta.AT + attribut;
             }

@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.salesforceupsert;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.TransformLoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
@@ -46,15 +46,16 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceMetaTest;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SalesforceUpsertMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SalesforceUpsertMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
@@ -64,13 +65,13 @@ public class SalesforceUpsertMetaTest {
   }
 
   @Test
-  public void testErrorHandling() {
+  void testErrorHandling() {
     SalesforceTransformMeta meta = new SalesforceUpsertMeta();
     assertTrue(meta.supportsErrorHandling());
   }
 
   @Test
-  public void testBatchSize() {
+  void testBatchSize() {
     SalesforceUpsertMeta meta = new SalesforceUpsertMeta();
     meta.setBatchSize("20");
     assertEquals("20", meta.getBatchSize());
@@ -83,7 +84,7 @@ public class SalesforceUpsertMetaTest {
   }
 
   @Test
-  public void testGetFields() throws HopTransformException {
+  void testGetFields() throws HopTransformException {
     SalesforceUpsertMeta meta = new SalesforceUpsertMeta();
     meta.setDefault();
     IRowMeta r = new RowMeta();
@@ -99,7 +100,7 @@ public class SalesforceUpsertMetaTest {
   }
 
   @Test
-  public void testCheck() {
+  void testCheck() {
     SalesforceUpsertMeta meta = new SalesforceUpsertMeta();
     meta.setDefault();
     List<ICheckResult> remarks = new ArrayList<>();
@@ -131,7 +132,7 @@ public class SalesforceUpsertMetaTest {
   }
 
   @Test
-  public void testSalesforceUpsertMeta() throws HopException {
+  void testSalesforceUpsertMeta() throws HopException {
     List<String> attributes = new ArrayList<>();
     attributes.addAll(SalesforceMetaTest.getDefaultAttributes());
     attributes.addAll(

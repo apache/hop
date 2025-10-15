@@ -17,7 +17,7 @@
 
 package org.apache.hop.workflow.actions.dostounix;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,18 +25,19 @@ import java.io.OutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void init() throws Exception {
+  @BeforeAll
+  static void init() throws Exception {
     HopEnvironment.init();
   }
 
@@ -44,15 +45,15 @@ public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
   private String tmpFilePath;
   private ActionDosToUnix entry;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     tmpFile = File.createTempFile("pdi-14161-", null);
     tmpFilePath = tmpFile.toURI().toString();
     entry = new ActionDosToUnix();
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     if (tmpFile != null) {
       tmpFile.delete();
       tmpFile = null;
@@ -62,82 +63,82 @@ public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
   }
 
   @Test
-  public void oneSeparator_nix2dos() throws Exception {
+  void oneSeparator_nix2dos() throws Exception {
     doTest("\n", false, "\r\n");
   }
 
   @Test
-  public void oneSeparator_nix2nix() throws Exception {
+  void oneSeparator_nix2nix() throws Exception {
     doTest("\n", true, "\n");
   }
 
   @Test
-  public void oneSeparator_dos2nix() throws Exception {
+  void oneSeparator_dos2nix() throws Exception {
     doTest("\r\n", true, "\n");
   }
 
   @Test
-  public void oneSeparator_dos2dos() throws Exception {
+  void oneSeparator_dos2dos() throws Exception {
     doTest("\r\n", false, "\r\n");
   }
 
   @Test
-  public void charNewLineChar_nix2dos() throws Exception {
+  void charNewLineChar_nix2dos() throws Exception {
     doTest("a\nb", false, "a\r\nb");
   }
 
   @Test
-  public void charNewLineChar_nix2nix() throws Exception {
+  void charNewLineChar_nix2nix() throws Exception {
     doTest("a\nb", true, "a\nb");
   }
 
   @Test
-  public void charNewLineChar_dos2nix() throws Exception {
+  void charNewLineChar_dos2nix() throws Exception {
     doTest("a\r\nb", true, "a\nb");
   }
 
   @Test
-  public void charNewLineChar_dos2dos() throws Exception {
+  void charNewLineChar_dos2dos() throws Exception {
     doTest("a\r\nb", false, "a\r\nb");
   }
 
   @Test
-  public void twoCrOneLf_2nix() throws Exception {
+  void twoCrOneLf_2nix() throws Exception {
     doTest("\r\r\n", true, "\r\n");
   }
 
   @Test
-  public void twoCrOneLf_2dos() throws Exception {
+  void twoCrOneLf_2dos() throws Exception {
     doTest("\r\r\n", false, "\r\r\n");
   }
 
   @Test
-  public void crCharCrLf_2nix() throws Exception {
+  void crCharCrLf_2nix() throws Exception {
     doTest("\ra\r\n", true, "\ra\n");
   }
 
   @Test
-  public void crCharCrLf_2dos() throws Exception {
+  void crCharCrLf_2dos() throws Exception {
     doTest("\ra\r\n", false, "\ra\r\n");
   }
 
   @Test
-  public void oneSeparator_nix2dos_hugeInput() throws Exception {
+  void oneSeparator_nix2dos_hugeInput() throws Exception {
     doTestForSignificantInput("\n", false, "\r\n");
   }
 
   @Test
-  public void oneSeparator_nix2nix_hugeInput() throws Exception {
+  void oneSeparator_nix2nix_hugeInput() throws Exception {
     doTestForSignificantInput("\n", true, "\n");
   }
 
   @Test
-  public void oneSeparator_dos2nix_hugeInput() throws Exception {
+  void oneSeparator_dos2nix_hugeInput() throws Exception {
     doTestForSignificantInput("\r\n", true, "\n");
   }
 
   @Test
-  public void oneSeparator_dos2dos_hugeInput() throws Exception {
+  void oneSeparator_dos2dos_hugeInput() throws Exception {
     doTestForSignificantInput("\r\n", false, "\r\n");
   }
 

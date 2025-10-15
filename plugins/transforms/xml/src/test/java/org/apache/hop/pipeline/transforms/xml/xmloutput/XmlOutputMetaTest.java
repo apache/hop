@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -42,28 +42,29 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.w3c.dom.Node;
 
-public class XmlOutputMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class XmlOutputMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void setUp() throws Exception {
+  @BeforeAll
+  static void setUp() throws Exception {
     if (!HopClientEnvironment.isInitialized()) {
       HopClientEnvironment.init();
     }
   }
 
   @Test
-  public void testLoadAndGetXml() throws Exception {
+  void testLoadAndGetXml() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
@@ -323,7 +324,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetNewline() {
+  void testGetNewline() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     assertEquals("\r\n", xmlOutputMeta.getNewLine("DOS"));
     assertEquals("\n", xmlOutputMeta.getNewLine("UNIX"));
@@ -331,7 +332,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testClone() throws Exception {
+  void testClone() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
@@ -343,7 +344,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testSetDefault() {
+  void testSetDefault() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     assertEquals("", xmlOutputMeta.getFileName());
@@ -365,7 +366,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetFiles() {
+  void testGetFiles() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     xmlOutputMeta.setTransformNrInFilename(true);
@@ -393,7 +394,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetFields() {
+  void testGetFields() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     XmlField xmlField = new XmlField();
@@ -413,7 +414,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testLoadXmlException() {
+  void testLoadXmlException() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
@@ -427,7 +428,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testGetRequiredFields() throws Exception {
+  void testGetRequiredFields() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     XmlField xmlField = new XmlField();
@@ -457,7 +458,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testExportResources() throws Exception {
+  void testExportResources() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     xmlOutputMeta.setFileName("file");
@@ -471,7 +472,7 @@ public class XmlOutputMetaTest {
   }
 
   @Test
-  public void testCheck() {
+  void testCheck() {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
@@ -479,6 +480,7 @@ public class XmlOutputMetaTest {
     IRowMeta prev = mock(IRowMeta.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     IRowMeta info = mock(IRowMeta.class);
+    when(prev.isEmpty()).thenReturn(true);
     ArrayList<ICheckResult> remarks = new ArrayList<>();
     xmlOutputMeta.check(
         remarks,
@@ -501,6 +503,7 @@ public class XmlOutputMetaTest {
     xmlField.setPrecision(3);
     xmlOutputMeta.setOutputFields(new XmlField[] {xmlField});
     when(prev.size()).thenReturn(1);
+    when(prev.isEmpty()).thenReturn(false);
     remarks.clear();
     xmlOutputMeta.check(
         remarks,

@@ -17,16 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.append;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class AppendMetaTest {
+class AppendMetaTest {
 
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     TransformMeta headTransform = new TransformMeta("headTransform", null);
     TransformMeta tailTransform = new TransformMeta("tailTransform", null);
 
@@ -37,7 +39,7 @@ public class AppendMetaTest {
 
     String xml = meta.getXml();
 
-    Assert.assertNotNull(xml);
+    assertNotNull(xml);
 
     // Re-inflate from XML
     //
@@ -48,9 +50,9 @@ public class AppendMetaTest {
     AppendMeta meta2 = new AppendMeta();
     meta2.loadXml(XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG), null);
 
-    Assert.assertEquals(meta.getHeadTransformName(), meta2.getHeadTransformName());
-    Assert.assertEquals(meta.getTailTransformName(), meta2.getTailTransformName());
-    Assert.assertEquals("headTransform", meta2.getHeadTransformName());
-    Assert.assertEquals("tailTransform", meta2.getTailTransformName());
+    assertEquals(meta.getHeadTransformName(), meta2.getHeadTransformName());
+    assertEquals(meta.getTailTransformName(), meta2.getTailTransformName());
+    assertEquals("headTransform", meta2.getHeadTransformName());
+    assertEquals("tailTransform", meta2.getTailTransformName());
   }
 }

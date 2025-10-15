@@ -104,6 +104,8 @@ This tab determines the text content of the email.
 |Subject|The email subject line.
 |Comment|The email body.
 See also the option "Attach content file".
+|Include message (eml) in output|Select this flag to store the generated IMF code (https://datatracker.ietf.org/doc/html/rfc5322[Internet Message Format - RFC 5322]) in a stream field. You can then create an EML file with this field by using a xref:pipeline/transforms/textfileoutput.adoc[Text file output] transform
+|Message (eml) output filename|If the above flag is enabled, specify the name of the field that contains the generated IMF code
 |===
 
 === Attached Files

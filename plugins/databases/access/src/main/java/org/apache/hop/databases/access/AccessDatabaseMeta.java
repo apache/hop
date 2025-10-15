@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "MSACCESS",
     typeDescription = "Microsoft Access database",
+    image = "microsoft-access.svg",
     documentationUrl = "/database/databases/access.html",
     classLoaderGroup = "access-db")
 @GuiPlugin(id = "GUI-MSAccessDatabaseMeta")

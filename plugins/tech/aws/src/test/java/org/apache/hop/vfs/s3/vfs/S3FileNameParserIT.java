@@ -17,17 +17,17 @@
 
 package org.apache.hop.vfs.s3.vfs;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.commons.vfs2.provider.FileNameParser;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileName;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileNameParser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class S3FileNameParserIT {
+class S3FileNameParserIT {
 
   @Test
-  public void testParseUri_withKeys() throws Exception {
+  void testParseUri_withKeys() throws Exception {
     FileNameParser parser = S3FileNameParser.getInstance();
     String origUri = "s3:///fooBucket/rcf-emr-staging";
     S3FileName filename = (S3FileName) parser.parseUri(null, null, origUri);

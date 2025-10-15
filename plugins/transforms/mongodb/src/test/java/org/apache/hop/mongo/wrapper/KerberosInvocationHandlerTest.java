@@ -27,13 +27,13 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import org.apache.hop.mongo.AuthContext;
 import org.apache.hop.mongo.MongoDbException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class KerberosInvocationHandlerTest {
+class KerberosInvocationHandlerTest {
   @Test
-  public void testInvocationHandlerCallsDoAsWhichCallsDelegate()
+  void testInvocationHandlerCallsDoAsWhichCallsDelegate()
       throws MongoDbException, PrivilegedActionException {
     final MongoClientWrapper wrapper = mock(MongoClientWrapper.class);
     AuthContext authContext = mock(AuthContext.class);

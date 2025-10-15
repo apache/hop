@@ -16,31 +16,32 @@
  */
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FuzzyMatchMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class FuzzyMatchMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     FuzzyMatchMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/fuzzy-match-transform.xml", FuzzyMatchMeta.class);
 
-    Assert.assertEquals("Data grid", meta.getLookupTransformName());
-    Assert.assertEquals("name", meta.getLookupField());
-    Assert.assertEquals("name", meta.getMainStreamField());
-    Assert.assertEquals("match", meta.getOutputMatchField());
-    Assert.assertEquals("measure value", meta.getOutputValueField());
-    Assert.assertEquals(false, meta.isCaseSensitive());
-    Assert.assertEquals(true, meta.isCloserValue());
-    Assert.assertEquals("0", meta.getMinimalValue());
-    Assert.assertEquals("1", meta.getMaximalValue());
-    Assert.assertEquals(",", meta.getSeparator());
-    Assert.assertEquals(FuzzyMatchMeta.Algorithm.SOUNDEX, meta.getAlgorithm());
-    Assert.assertEquals(1, meta.getLookupValues().size());
-    Assert.assertEquals("name", meta.getLookupValues().get(0).getName());
-    Assert.assertEquals("lookupName", meta.getLookupValues().get(0).getRename());
+    assertEquals("Data grid", meta.getLookupTransformName());
+    assertEquals("name", meta.getLookupField());
+    assertEquals("name", meta.getMainStreamField());
+    assertEquals("match", meta.getOutputMatchField());
+    assertEquals("measure value", meta.getOutputValueField());
+    assertEquals(false, meta.isCaseSensitive());
+    assertEquals(true, meta.isCloserValue());
+    assertEquals("0", meta.getMinimalValue());
+    assertEquals("1", meta.getMaximalValue());
+    assertEquals(",", meta.getSeparator());
+    assertEquals(FuzzyMatchMeta.Algorithm.SOUNDEX, meta.getAlgorithm());
+    assertEquals(1, meta.getLookupValues().size());
+    assertEquals("name", meta.getLookupValues().get(0).getName());
+    assertEquals("lookupName", meta.getLookupValues().get(0).getRename());
   }
 }

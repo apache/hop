@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.ssh;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,18 +30,19 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.w3c.dom.Node;
 
-public class SshMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SshMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void beforeClass() throws HopException {
+  @BeforeAll
+  static void beforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -50,7 +51,7 @@ public class SshMetaTest {
   }
 
   @Test
-  public void testEncryptedPasswords() throws HopException {
+  void testEncryptedPasswords() throws HopException {
     String plaintextPassword = "MyEncryptedPassword";
     String plaintextPassphrase = "MyEncryptedPassPhrase";
     String plaintextProxyPassword = "MyEncryptedProxyPassword";
@@ -80,7 +81,7 @@ public class SshMetaTest {
   }
 
   @Test
-  public void testRoundTrips() throws HopException {
+  void testRoundTrips() throws HopException {
     List<String> commonFields =
         Arrays.<String>asList(
             "dynamicCommandField",

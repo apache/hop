@@ -9,7 +9,7 @@
 #   http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
+# software distributed under the License is distributed on anv
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
@@ -47,6 +47,8 @@ ENV HOP_RUN_CONFIG=
 # parameters that should be passed on to the hop-run command
 # specify as comma separated list, e.g. PARAM_1=aaa,PARAM_2=bbb
 ENV HOP_RUN_PARAMETERS=
+# An optional startaction parameter
+ENV HOP_START_ACTION=
 # An optional export of metadata in JSON format
 ENV HOP_RUN_METADATA_EXPORT=
 # System properties that should be set
@@ -77,6 +79,8 @@ ENV HOP_SERVER_KEY_PASSWORD=
 ENV HOP_SERVER_MAX_LOG_LINES=
 ENV HOP_SERVER_MAX_LOG_TIMEOUT=
 ENV HOP_SERVER_MAX_OBJECT_TIMEOUT=
+# We want to run hop-config with these options:
+ENV HOP_CONFIG_OPTIONS=
 
 # Define en_US.
 # ENV LANGUAGE en_US.UTF-8

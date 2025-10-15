@@ -197,15 +197,15 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
     }
 
     StreamLoadProperty streamLoadProperty = new StreamLoadProperty();
-    streamLoadProperty.setFeHost(meta.getFeHost());
-    streamLoadProperty.setFeHttpPort(meta.getFeHttpPort());
-    streamLoadProperty.setDatabaseName(meta.getDatabaseName());
-    streamLoadProperty.setTableName(meta.getTableName());
-    streamLoadProperty.setLoginUser(meta.getLoginUser());
+    streamLoadProperty.setFeHost(resolve(meta.getFeHost()));
+    streamLoadProperty.setFeHttpPort(resolve(meta.getFeHttpPort()));
+    streamLoadProperty.setDatabaseName(resolve(meta.getDatabaseName()));
+    streamLoadProperty.setTableName(resolve(meta.getTableName()));
+    streamLoadProperty.setLoginUser(resolve(meta.getLoginUser()));
     Map<String, String> httpHeaders = new HashMap<>();
-    httpHeaders.put(LoadConstants.FORMAT_KEY, meta.getFormat());
-    httpHeaders.put(LoadConstants.LINE_DELIMITER_KEY, meta.getLineDelimiter());
-    httpHeaders.put(LoadConstants.FIELD_DELIMITER_KEY, meta.getColumnDelimiter());
+    httpHeaders.put(LoadConstants.FORMAT_KEY, resolve(meta.getFormat()));
+    httpHeaders.put(LoadConstants.LINE_DELIMITER_KEY, resolve(meta.getLineDelimiter()));
+    httpHeaders.put(LoadConstants.FIELD_DELIMITER_KEY, resolve(meta.getColumnDelimiter()));
     List<DorisHeader> headers = meta.getHeaders();
     for (int i = 0; i < headers.size(); i++) {
       DorisHeader header = headers.get(i);

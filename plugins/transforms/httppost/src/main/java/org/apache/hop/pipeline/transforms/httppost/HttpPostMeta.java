@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "httppost.svg",
     name = "i18n::HTTPPOST.Name",
     description = "i18n::HTTPPOST.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::HttpPostMeta.keyword",
     documentationUrl = "/pipeline/transforms/httppost.html")
 public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {

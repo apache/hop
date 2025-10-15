@@ -17,24 +17,26 @@
 
 package org.apache.hop.pipeline.transforms.getsubfolders;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GetSubFoldersMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class GetSubFoldersMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     GetSubFoldersMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/get-subfolder-names-transform.xml", GetSubFoldersMeta.class);
 
-    Assert.assertTrue(meta.isIncludeRowNumber());
-    Assert.assertEquals(1, meta.getFiles().size());
-    Assert.assertEquals("${PROJECT_HOME}", meta.getFiles().get(0).getName());
-    Assert.assertTrue(meta.getFiles().get(0).isRequired());
-    Assert.assertEquals("rowNumber", meta.getRowNumberField());
-    Assert.assertEquals(123L, meta.getRowLimit());
-    Assert.assertEquals("inputField", meta.getDynamicFolderNameField());
-    Assert.assertTrue(meta.isFolderNameDynamic());
+    assertTrue(meta.isIncludeRowNumber());
+    assertEquals(1, meta.getFiles().size());
+    assertEquals("${PROJECT_HOME}", meta.getFiles().get(0).getName());
+    assertTrue(meta.getFiles().get(0).isRequired());
+    assertEquals("rowNumber", meta.getRowNumberField());
+    assertEquals(123L, meta.getRowLimit());
+    assertEquals("inputField", meta.getDynamicFolderNameField());
+    assertTrue(meta.isFolderNameDynamic());
   }
 }

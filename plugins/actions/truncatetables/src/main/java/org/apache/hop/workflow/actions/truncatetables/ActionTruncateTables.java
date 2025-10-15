@@ -187,7 +187,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
             }
           }
 
-        } else if (this.items != null && !this.items.isEmpty()) {
+        } else if (!Utils.isEmpty(this.items)) {
 
           for (int i = 0;
               i < this.items.size() && !parentWorkflow.isStopped() && continueProcess;
@@ -245,7 +245,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (items != null && !items.isEmpty()) {
+    if (!Utils.isEmpty(items)) {
       ResourceReference reference = null;
       for (TruncateTableItem item : this.items) {
         String filename = resolve(item.getTableName());

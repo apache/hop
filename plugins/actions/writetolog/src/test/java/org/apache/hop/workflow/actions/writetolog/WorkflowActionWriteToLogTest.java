@@ -31,23 +31,23 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.verification.VerificationMode;
 
-public class WorkflowActionWriteToLogTest {
+class WorkflowActionWriteToLogTest {
 
   private IWorkflowEngine<WorkflowMeta> parentWorkflow;
   private ActionWriteToLog action;
 
-  @BeforeClass
-  public static void setUpBeforeClass() {
+  @BeforeAll
+  static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     parentWorkflow = mock(Workflow.class);
     doReturn(false).when(parentWorkflow).isStopped();
 
@@ -56,17 +56,17 @@ public class WorkflowActionWriteToLogTest {
   }
 
   @Test
-  public void errorMessageIsNotLoggedWhenParentJobLogLevelIsNothing() {
+  void errorMessageIsNotLoggedWhenParentJobLogLevelIsNothing() {
     verifyErrorMessageForParentJobLogLevel(LogLevel.NOTHING, never());
   }
 
   @Test
-  public void errorMessageIsLoggedWhenParentJobLogLevelIsError() {
+  void errorMessageIsLoggedWhenParentJobLogLevelIsError() {
     verifyErrorMessageForParentJobLogLevel(LogLevel.ERROR, times(1));
   }
 
   @Test
-  public void errorMessageIsLoggedWhenParentJobLogLevelIsMinimal() {
+  void errorMessageIsLoggedWhenParentJobLogLevelIsMinimal() {
     verifyErrorMessageForParentJobLogLevel(LogLevel.MINIMAL, times(1));
   }
 

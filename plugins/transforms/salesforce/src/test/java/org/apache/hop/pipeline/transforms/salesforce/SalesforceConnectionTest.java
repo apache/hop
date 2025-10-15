@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import com.sforce.soap.partner.Connector;
@@ -45,15 +45,15 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
-public class SalesforceConnectionTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SalesforceConnectionTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private ILogChannel logInterface = mock(ILogChannel.class);
   private String url = "url";
@@ -61,8 +61,8 @@ public class SalesforceConnectionTest {
   private String password = "password";
   private int recordsFilter = 0;
 
-  @BeforeClass
-  public static void setUpClass() throws HopException {
+  @BeforeAll
+  static void setUpClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -71,7 +71,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testConstructor_emptyUrl() throws HopException {
+  void testConstructor_emptyUrl() throws HopException {
     try {
       new SalesforceConnection(logInterface, null, username, password);
       fail();
@@ -81,7 +81,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testConstructor_emptyUserName() throws HopException {
+  void testConstructor_emptyUserName() throws HopException {
     try {
       new SalesforceConnection(logInterface, url, null, password);
       fail();
@@ -91,7 +91,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testSetCalendarStartNull() throws HopException {
+  void testSetCalendarStartNull() throws HopException {
     SalesforceConnection connection =
         new SalesforceConnection(logInterface, url, username, password);
     GregorianCalendar endDate = new GregorianCalendar(2000, 2, 10);
@@ -104,7 +104,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testSetCalendarEndNull() throws HopException {
+  void testSetCalendarEndNull() throws HopException {
     SalesforceConnection connection =
         new SalesforceConnection(logInterface, url, username, password);
     GregorianCalendar startDate = new GregorianCalendar(2000, 2, 10);
@@ -117,7 +117,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testSetCalendarStartDateTooOlder() throws HopException {
+  void testSetCalendarStartDateTooOlder() throws HopException {
     SalesforceConnection connection =
         new SalesforceConnection(logInterface, url, username, password);
     GregorianCalendar startDate = new GregorianCalendar(2000, 3, 20);
@@ -131,7 +131,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testSetCalendarDatesTooFarApart() throws HopException {
+  void testSetCalendarDatesTooFarApart() throws HopException {
     SalesforceConnection connection =
         new SalesforceConnection(logInterface, url, username, password);
     GregorianCalendar startDate = new GregorianCalendar(2000, 1, 1);
@@ -145,7 +145,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     SalesforceConnection conn;
 
     // Test all-invalid parameters
@@ -161,9 +161,9 @@ public class SalesforceConnectionTest {
     try {
       conn = null;
       conn = new SalesforceConnection(null, "http://localhost:1234", "anonymous", "mypwd");
-      assertTrue(conn.getURL().length() > 0);
-      assertTrue(conn.getUsername().length() > 0);
-      assertTrue(conn.getPassword().length() > 0);
+      assertFalse(conn.getURL().isEmpty());
+      assertFalse(conn.getUsername().isEmpty());
+      assertFalse(conn.getPassword().isEmpty());
     } catch (HopException e) {
       fail();
     }
@@ -174,9 +174,9 @@ public class SalesforceConnectionTest {
       conn =
           new SalesforceConnection(
               new LogChannel(this), "http://localhost:1234", "anonymous", "mypwd");
-      assertTrue(conn.getURL().length() > 0);
-      assertTrue(conn.getUsername().length() > 0);
-      assertTrue(conn.getPassword().length() > 0);
+      assertFalse(conn.getURL().isEmpty());
+      assertFalse(conn.getUsername().isEmpty());
+      assertFalse(conn.getPassword().isEmpty());
     } catch (HopException e) {
       fail();
     }
@@ -203,7 +203,7 @@ public class SalesforceConnectionTest {
     try {
       conn = null;
       conn = new SalesforceConnection(null, "http://localhost:1234", "anonymous", null);
-      assertTrue(conn.getURL().length() > 0);
+      assertFalse(conn.getURL().isEmpty());
       assertEquals("anonymous", conn.getUsername());
     } catch (HopException e) {
       fail();
@@ -211,7 +211,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testSetCalendar() {
+  void testSetCalendar() {
     SalesforceConnection conn = mock(SalesforceConnection.class, Mockito.CALLS_REAL_METHODS);
 
     // Test valid data
@@ -260,7 +260,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testMessageElements() throws Exception {
+  void testMessageElements() throws Exception {
     XmlObject me = SalesforceConnection.fromTemplateElement("myName", 123, false);
     assertNotNull(me);
     assertEquals("myName", me.getName().getLocalPart());
@@ -310,7 +310,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test
-  public void testCreateBinding() throws HopException, ConnectionException {
+  void testCreateBinding() throws HopException, ConnectionException {
     SalesforceConnection conn =
         new SalesforceConnection(null, "http://localhost:1234", "aUser", "aPass");
     ConnectorConfig config = new ConnectorConfig();
@@ -327,30 +327,30 @@ public class SalesforceConnectionTest {
   }
 
   @Test // Hop-15973
-  public void testGetRecordValue() throws Exception { // Hop-15973
+  void testGetRecordValue() throws Exception { // Hop-15973
     SalesforceConnection conn = mock(SalesforceConnection.class, Mockito.CALLS_REAL_METHODS);
     SObject sObject = new SObject();
     sObject.setName(new QName(Constants.PARTNER_SOBJECT_NS, "sObject"));
 
     SObject testObject = createObject("field", "value");
     sObject.addField("field", testObject);
-    assertEquals("Get value of simple record", "value", conn.getRecordValue(sObject, "field"));
+    assertEquals("value", conn.getRecordValue(sObject, "field"), "Get value of simple record");
 
     SObject parentObject = createObject("parentField", null);
     sObject.addField("parentField", parentObject);
     SObject childObject = createObject("subField", "subValue");
     parentObject.addField("subField", childObject);
     assertEquals(
-        "Get value of record with hierarchy",
         "subValue",
-        conn.getRecordValue(sObject, "parentField.subField"));
+        conn.getRecordValue(sObject, "parentField.subField"),
+        "Get value of record with hierarchy");
 
     XmlObject nullObject = new XmlObject(new QName("nullField"));
     sObject.addField("nullField", nullObject);
     assertEquals(
-        "Get null value when relational query id is null",
         null,
-        conn.getRecordValue(sObject, "nullField.childField"));
+        conn.getRecordValue(sObject, "nullField.childField"),
+        "Get null value when relational query id is null");
   }
 
   private SObject createObject(String fieldName, String value) {
@@ -361,7 +361,7 @@ public class SalesforceConnectionTest {
   }
 
   @Test // Hop-16459
-  public void getFieldsTest() throws HopException {
+  void getFieldsTest() throws HopException {
     String name = "name";
     SalesforceConnection conn =
         new SalesforceConnection(null, "http://localhost:1234", "aUser", "aPass");
@@ -371,6 +371,6 @@ public class SalesforceConnectionTest {
     field.setName(name);
     fields[0] = field;
     String[] names = conn.getFields(fields);
-    Assert.assertEquals(name, names[0]);
+    assertEquals(name, names[0]);
   }
 }

@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.tableinput;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -351,7 +352,7 @@ public class TableInputDialog extends BaseTransformDialog {
 
   private List<String> getSqlReservedWords() {
     // Do not search keywords when connection is empty
-    if (input.getConnection() == null || input.getConnection().isEmpty()) {
+    if (Utils.isEmpty(input.getConnection())) {
       return List.of();
     }
 
@@ -361,7 +362,11 @@ public class TableInputDialog extends BaseTransformDialog {
     }
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    return Arrays.stream(databaseMeta.getReservedWords()).toList();
+    if (databaseMeta != null) {
+      return Arrays.stream(databaseMeta.getReservedWords()).toList();
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   public void setPosition() {
@@ -552,10 +557,6 @@ public class TableInputDialog extends BaseTransformDialog {
     TableInputMeta oneMeta = new TableInputMeta();
     getInfo(oneMeta, true);
 
-    PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline(
-            pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
-
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
             shell,
@@ -564,6 +565,11 @@ public class TableInputDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "TableInputDialog.NumberOfRowsToPreview"));
     int previewSize = numberDialog.open();
     if (previewSize > 0) {
+      oneMeta.setRowLimit(Integer.toString(previewSize));
+      PipelineMeta previewMeta =
+          PipelinePreviewFactory.generatePreviewPipeline(
+              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
               shell,

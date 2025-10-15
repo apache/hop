@@ -1,0 +1,63 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "children",
+          "data_set_field": "children"
+        },
+        {
+          "transform_field": "limit",
+          "data_set_field": "limit"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "executionType",
+          "data_set_field": "executionType"
+        },
+        {
+          "transform_field": "runConfigurationName",
+          "data_set_field": "runConfigurationName"
+        },
+        {
+          "transform_field": "logLevel",
+          "data_set_field": "logLevel"
+        },
+        {
+          "transform_field": "failed",
+          "data_set_field": "failed"
+        },
+        {
+          "transform_field": "statusDescription",
+          "data_set_field": "statusDescription"
+        }
+      ],
+      "field_order": [
+        "children",
+        "limit",
+        "name",
+        "executionType",
+        "runConfigurationName",
+        "logLevel",
+        "failed",
+        "statusDescription"
+      ],
+      "data_set_name": "0001-golden-opensearch-execution-information",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0001-opensearch-validate-information UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0001-opensearch-validate-information.hpl"
+}

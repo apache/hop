@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.coalesce;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,12 +29,12 @@ import org.apache.hop.core.injection.bean.BeanLevelInfo;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CoalesceMetaTest {
+class CoalesceMetaTest {
 
   @Test
-  public void testInjectionMetadata() {
+  void testInjectionMetadata() {
 
     BeanInjectionInfo<CoalesceMeta> injectionInfo = new BeanInjectionInfo<>(CoalesceMeta.class);
 
@@ -51,7 +51,7 @@ public class CoalesceMetaTest {
   }
 
   @Test
-  public void testInjection() throws Exception {
+  void testInjection() throws Exception {
     BeanInjectionInfo<CoalesceMeta> injectionInfo = new BeanInjectionInfo<>(CoalesceMeta.class);
     BeanInjector<CoalesceMeta> injector =
         new BeanInjector<>(injectionInfo, new MemoryMetadataProvider());

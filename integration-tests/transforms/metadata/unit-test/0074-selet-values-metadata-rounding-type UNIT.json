@@ -1,0 +1,40 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "valueHalfEven",
+          "data_set_field": "valueHalfEven"
+        },
+        {
+          "transform_field": "valueUp",
+          "data_set_field": "valueUp"
+        },
+        {
+          "transform_field": "valueDown",
+          "data_set_field": "valueDown"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-select-values-rounding-type",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0074-selet-values-metadata-rounding-type UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0074-selet-values-metadata-rounding-type.hpl"
+}

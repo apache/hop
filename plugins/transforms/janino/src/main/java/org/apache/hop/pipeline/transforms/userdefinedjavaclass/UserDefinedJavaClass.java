@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
@@ -37,6 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class UserDefinedJavaClass
     extends BaseTransform<UserDefinedJavaClassMeta, UserDefinedJavaClassData> {
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class;
   private TransformClassBase child;
   public static final String HOP_DEFAULT_CLASS_CACHE_SIZE = "HOP_DEFAULT_CLASS_CACHE_SIZE";
 
@@ -144,6 +146,15 @@ public class UserDefinedJavaClass
 
   public long decrementLinesWrittenImpl() {
     return super.decrementLinesWritten();
+  }
+
+  @Override
+  public void dispose() {
+    if (child == null) {
+      disposeImpl();
+    } else {
+      child.dispose();
+    }
   }
 
   public void disposeImpl() {
@@ -908,7 +919,15 @@ public class UserDefinedJavaClass
     if (child == null) {
       return false;
     } else {
-      return child.processRow();
+      try {
+        return child.processRow();
+      } catch (Exception e) {
+        logError(BaseMessages.getString(PKG, "UserDefinedJavaClass.ErrorInTransformRunning"), e);
+        setErrors(1);
+        setOutputDone();
+        stopAll();
+        return false;
+      }
     }
   }
 

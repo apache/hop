@@ -17,8 +17,8 @@
 
 package org.apache.hop.databases.teradata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -42,23 +42,23 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Spy;
 
-public class TeradataValueMetaBaseTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+class TeradataValueMetaBaseTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   // Get PKG from class under test
-  private Class<?> PKG = ValueMetaBase.PKG;
 
-  private class StoreLoggingEventListener implements IHopLoggingEventListener {
+  private static class StoreLoggingEventListener implements IHopLoggingEventListener {
 
-    private List<HopLoggingEvent> events = new ArrayList<>();
+    private final List<HopLoggingEvent> events = new ArrayList<>();
 
     @Override
     public void eventAdded(HopLoggingEvent event) {
@@ -73,22 +73,22 @@ public class TeradataValueMetaBaseTest {
   private StoreLoggingEventListener listener;
 
   @Spy private DatabaseMeta databaseMetaSpy = spy(new DatabaseMeta());
-  private PreparedStatement preparedStatementMock = mock(PreparedStatement.class);
+  private final PreparedStatement preparedStatementMock = mock(PreparedStatement.class);
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
   private ValueMetaBase valueMetaBase;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener(listener);
 
@@ -99,15 +99,14 @@ public class TeradataValueMetaBaseTest {
     variables = spy(new Variables());
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     HopLogStore.getAppender().removeLoggingEventListener(listener);
     listener = new StoreLoggingEventListener();
   }
 
   @Test
-  public void testMetdataPreviewSqlDateToHopDateUsingTeradata()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlDateToHopDateUsingTeradata() throws SQLException, HopDatabaseException {
     doReturn(Types.DATE).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isDate());

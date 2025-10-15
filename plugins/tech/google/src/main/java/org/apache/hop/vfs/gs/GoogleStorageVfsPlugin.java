@@ -29,7 +29,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.vfs.gs.metadatatype.GoogleStorageMetadataType;
 
-@VfsPlugin(type = "gs", typeDescription = "Google Storage VFS")
+@VfsPlugin(type = "gs", typeDescription = "Google Storage VFS", classLoaderGroup = "vfs-google")
 public class GoogleStorageVfsPlugin implements IVfs {
   @Override
   public String[] getUrlSchemes() {

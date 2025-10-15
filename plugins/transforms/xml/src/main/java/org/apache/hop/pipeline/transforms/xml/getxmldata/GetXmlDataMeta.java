@@ -20,17 +20,18 @@ package org.apache.hop.pipeline.transforms.xml.getxmldata;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -38,15 +39,14 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
-import org.w3c.dom.Node;
 
 /** Store run-time data on the getXMLData transform. */
 @Transform(
@@ -57,6 +57,8 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n::GetXMLData.category",
     keywords = "i18n::GetXmlDataMeta.keyword",
     documentationUrl = "/pipeline/transforms/getdatafromxml.html")
+@Getter
+@Setter
 public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData> {
   private static final Class<?> PKG = GetXmlDataMeta.class;
 
@@ -74,626 +76,182 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
   public static final String CONST_SPACES = "      ";
   public static final String CONST_FIELD = "field";
 
-  /** Array of filenames */
-  private String[] fileName;
-
-  /** Wildcard or filemask (regular expression) */
-  private String[] fileMask;
-
-  /** Array of boolean values as string, indicating if a file is required. */
-  private String[] fileRequired;
-
-  /** Wildcard or filemask to exclude (regular expression) */
-  private String[] excludeFileMask;
+  @HopMetadataProperty(
+      key = "file",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.File.Label",
+      injectionGroupKey = "files",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.FileTab.Label",
+      inlineListTags = {
+        "name",
+        "filemask",
+        "exclude_filemask",
+        "file_required",
+        "include_subfolders"
+      })
+  private List<GetXmlFileItem> filesList;
 
   /** Flag indicating that we should include the filename in the output */
+  @HopMetadataProperty(
+      key = "include",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.IncludeFileName")
   private boolean includeFilename;
 
   /** The name of the field in the output containing the filename */
+  @HopMetadataProperty(
+      key = "include_field",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.FilenameField")
   private String filenameField;
 
   /** Flag indicating that a row number field should be included in the output */
+  @HopMetadataProperty(
+      key = "rownum",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.IncludeRowNumber")
   private boolean includeRowNumber;
 
   /** The name of the field in the output containing the row number */
+  @HopMetadataProperty(
+      key = "rownum_field",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.RowNumberField")
   private String rowNumberField;
 
   /** The maximum number or lines to read */
+  @HopMetadataProperty(key = "limit", injectionKeyDescription = "GetXmlDataMeta.Injection.RowLimit")
   private long rowLimit;
 
   /** The XPath location to loop over */
-  private String loopxpath;
+  @HopMetadataProperty(
+      key = "loopxpath",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.LoopXPath")
+  private String loopXPath;
 
-  /** The fields to import... */
-  private GetXmlDataField[] inputFields;
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.Fields.Label",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.Fields.Label")
+  private List<GetXmlDataField> inputFields;
 
   /** The encoding to use for reading: null or empty string means system default encoding */
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.Encoding")
   private String encoding;
 
   /** Is In fields */
+  @HopMetadataProperty(
+      key = "XmlField",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.XmlField")
   private String xmlField;
 
   /** Is In fields */
+  @HopMetadataProperty(
+      key = "IsInFields",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.InFields")
   private boolean inFields;
 
   /** Is a File */
-  private boolean isAFile;
+  @HopMetadataProperty(
+      key = "IsAFile",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.IsAFile")
+  private boolean aFile;
 
   /** Flag: add result filename * */
+  @HopMetadataProperty(
+      key = "addresultfile",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.AddResultFile")
   private boolean addResultFile;
 
   /** Flag: set Namespace aware * */
+  @HopMetadataProperty(
+      key = "namespaceaware",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.NameSpaceAware")
   private boolean nameSpaceAware;
 
   /** Flag: set XML Validating * */
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.Validating")
   private boolean validating;
 
   /** Flag : do we process use tokens? */
-  private boolean usetoken;
+  @HopMetadataProperty(
+      key = "usetoken",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.Usetoken")
+  private boolean useToken;
 
   /** Flag : do we ignore empty files */
-  private boolean isIgnoreEmptyFile;
-
-  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
-  private String[] includeSubFolders;
+  @HopMetadataProperty(
+      key = "IsIgnoreEmptyFile",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.IsIgnoreEmptyFile")
+  private boolean ignoreEmptyFile;
 
   /** Flag : do not fail if no file */
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.DoNotFailIfNoFile")
   private boolean doNotFailIfNoFile;
 
   /** Flag : ignore comments */
-  private boolean ignorecomments;
+  @HopMetadataProperty(
+      key = "ignorecomments",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.IgnoreComments")
+  private boolean ignoreComments;
 
   /** Flag : read url as source */
-  private boolean readurl;
+  @HopMetadataProperty(
+      key = "readurl",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.ReadUrl")
+  private boolean readUrl;
 
   // Given this path activates the streaming algorithm to process large files
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.PrunePath")
   private String prunePath;
 
   /** Additional fields * */
+  @HopMetadataProperty(
+      injectionKeyDescription = "GetXmlDataMeta.Injection.PrunePath",
+      injectionGroupKey = "AdditionalFields",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.Additional.Label")
   private String shortFileFieldName;
 
+  @HopMetadataProperty(
+      injectionKeyDescription = "GetXmlDataMeta.Injection.PathFieldName",
+      injectionGroupKey = "AdditionalFields",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.Additional.Label")
   private String pathFieldName;
+
+  @HopMetadataProperty(
+      injectionKeyDescription = "GetXmlDataMeta.Injection.HiddenFieldName",
+      injectionGroupKey = "AdditionalFields",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.Additional.Label")
   private String hiddenFieldName;
+
+  @HopMetadataProperty(
+      injectionKeyDescription = "GetXmlDataMeta.Injection.LastModificationTimeFieldName",
+      injectionGroupKey = "AdditionalFields",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.Additional.Label")
   private String lastModificationTimeFieldName;
+
+  @HopMetadataProperty(
+      injectionKeyDescription = "GetXmlDataMeta.Injection.UriNameFieldName",
+      injectionGroupKey = "AdditionalFields",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.Additional.Label")
   private String uriNameFieldName;
+
+  @HopMetadataProperty(
+      injectionKeyDescription = "GetXmlDataMeta.Injection.RootUriNameFieldName",
+      injectionGroupKey = "AdditionalFields",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.Additional.Label")
   private String rootUriNameFieldName;
+
+  @HopMetadataProperty(
+      injectionKeyDescription = "GetXmlDataMeta.Injection.ExtensionFieldName",
+      injectionGroupKey = "AdditionalFields",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.Additional.Label")
   private String extensionFieldName;
+
+  @HopMetadataProperty(
+      injectionKeyDescription = "GetXmlDataMeta.Injection.SizeFieldName",
+      injectionGroupKey = "AdditionalFields",
+      injectionGroupDescription = "GetXmlDataMeta.Injection.Group.Additional.Label")
   private String sizeFieldName;
 
   public GetXmlDataMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  /**
-   * @return Returns the shortFileFieldName.
-   */
-  public String getShortFileNameField() {
-    return shortFileFieldName;
-  }
-
-  /**
-   * @param field The shortFileFieldName to set.
-   */
-  public void setShortFileNameField(String field) {
-    shortFileFieldName = field;
-  }
-
-  /**
-   * @return Returns the pathFieldName.
-   */
-  public String getPathField() {
-    return pathFieldName;
-  }
-
-  /**
-   * @param field The pathFieldName to set.
-   */
-  public void setPathField(String field) {
-    this.pathFieldName = field;
-  }
-
-  /**
-   * @return Returns the hiddenFieldName.
-   */
-  public String isHiddenField() {
-    return hiddenFieldName;
-  }
-
-  /**
-   * @param field The hiddenFieldName to set.
-   */
-  public void setIsHiddenField(String field) {
-    hiddenFieldName = field;
-  }
-
-  /**
-   * @return Returns the lastModificationTimeFieldName.
-   */
-  public String getLastModificationDateField() {
-    return lastModificationTimeFieldName;
-  }
-
-  /**
-   * @param field The lastModificationTimeFieldName to set.
-   */
-  public void setLastModificationDateField(String field) {
-    lastModificationTimeFieldName = field;
-  }
-
-  /**
-   * @return Returns the uriNameFieldName.
-   */
-  public String getUriField() {
-    return uriNameFieldName;
-  }
-
-  /**
-   * @param field The uriNameFieldName to set.
-   */
-  public void setUriField(String field) {
-    uriNameFieldName = field;
-  }
-
-  /**
-   * @return Returns the uriNameFieldName.
-   */
-  public String getRootUriField() {
-    return rootUriNameFieldName;
-  }
-
-  /**
-   * @param field The rootUriNameFieldName to set.
-   */
-  public void setRootUriField(String field) {
-    rootUriNameFieldName = field;
-  }
-
-  /**
-   * @return Returns the extensionFieldName.
-   */
-  public String getExtensionField() {
-    return extensionFieldName;
-  }
-
-  /**
-   * @param field The extensionFieldName to set.
-   */
-  public void setExtensionField(String field) {
-    extensionFieldName = field;
-  }
-
-  /**
-   * @return Returns the sizeFieldName.
-   */
-  public String getSizeField() {
-    return sizeFieldName;
-  }
-
-  /**
-   * @param field The sizeFieldName to set.
-   */
-  public void setSizeField(String field) {
-    sizeFieldName = field;
-  }
-
-  /**
-   * @return the add result filesname flag
-   */
-  public boolean addResultFile() {
-    return addResultFile;
-  }
-
-  /**
-   * @return the validating flag
-   */
-  public boolean isValidating() {
-    return validating;
-  }
-
-  /**
-   * @param validating the validating flag to set
-   */
-  public void setValidating(boolean validating) {
-    this.validating = validating;
-  }
-
-  /**
-   * @return the readurl flag
-   */
-  public boolean isReadUrl() {
-    return readurl;
-  }
-
-  /**
-   * @param readurl the readurl flag to set
-   */
-  public void setReadUrl(boolean readurl) {
-    this.readurl = readurl;
-  }
-
-  public void setAddResultFile(boolean addResultFile) {
-    this.addResultFile = addResultFile;
-  }
-
-  /**
-   * @return Returns the input fields.
-   */
-  public GetXmlDataField[] getInputFields() {
-    return inputFields;
-  }
-
-  /**
-   * @param inputFields The input fields to set.
-   */
-  public void setInputFields(GetXmlDataField[] inputFields) {
-    this.inputFields = inputFields;
-  }
-
-  /**
-   * @return Returns the excludeFileMask.
-   */
-  public String[] getExludeFileMask() {
-    return excludeFileMask;
-  }
-
-  /**
-   * @param excludeFileMask The excludeFileMask to set.
-   */
-  public void setExcludeFileMask(String[] excludeFileMask) {
-    this.excludeFileMask = excludeFileMask;
-  }
-
-  /** Get XML field. */
-  public String getXMLField() {
-    return xmlField;
-  }
-
-  /** Set XML field. */
-  public void setXMLField(String xmlField) {
-    this.xmlField = xmlField;
-  }
-
-  /** Get the IsInFields. */
-  public boolean isInFields() {
-    return inFields;
-  }
-
-  /**
-   * @param inFields set the inFields.
-   */
-  public void setInFields(boolean inFields) {
-    this.inFields = inFields;
-  }
-
-  /**
-   * @return Returns the fileMask.
-   */
-  public String[] getFileMask() {
-    return fileMask;
-  }
-
-  /**
-   * @param fileMask The fileMask to set.
-   */
-  public void setFileMask(String[] fileMask) {
-    this.fileMask = fileMask;
-  }
-
-  public String[] getFileRequired() {
-    return fileRequired;
-  }
-
-  public void setFileRequired(String[] fileRequiredin) {
-    for (int i = 0; i < fileRequiredin.length; i++) {
-      this.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
-    }
-  }
-
-  public void setIncludeSubFolders(String[] includeSubFoldersin) {
-    for (int i = 0; i < includeSubFoldersin.length; i++) {
-      this.includeSubFolders[i] = getRequiredFilesCode(includeSubFoldersin[i]);
-    }
-  }
-
-  /**
-   * @return Returns the fileName.
-   */
-  public String[] getFileName() {
-    return fileName;
-  }
-
-  /**
-   * @param fileName The fileName to set.
-   */
-  public void setFileName(String[] fileName) {
-    this.fileName = fileName;
-  }
-
-  /**
-   * @return Returns the filenameField.
-   */
-  public String getFilenameField() {
-    return filenameField;
-  }
-
-  /**
-   * @param filenameField The filenameField to set.
-   */
-  public void setFilenameField(String filenameField) {
-    this.filenameField = filenameField;
-  }
-
-  /**
-   * @return Returns the includeFilename.
-   */
-  public boolean includeFilename() {
-    return includeFilename;
-  }
-
-  /**
-   * @param includeFilename The includeFilename to set.
-   */
-  public void setIncludeFilename(boolean includeFilename) {
-    this.includeFilename = includeFilename;
-  }
-
-  /**
-   * @return Returns the includeRowNumber.
-   */
-  public boolean includeRowNumber() {
-    return includeRowNumber;
-  }
-
-  /**
-   * @param includeRowNumber The includeRowNumber to set.
-   */
-  public void setIncludeRowNumber(boolean includeRowNumber) {
-    this.includeRowNumber = includeRowNumber;
-  }
-
-  /**
-   * @return Returns the rowLimit.
-   */
-  public long getRowLimit() {
-    return rowLimit;
-  }
-
-  /**
-   * @param rowLimit The rowLimit to set.
-   */
-  public void setRowLimit(long rowLimit) {
-    this.rowLimit = rowLimit;
-  }
-
-  /**
-   * @return Returns the LoopXPath
-   */
-  public String getLoopXPath() {
-    return loopxpath;
-  }
-
-  /**
-   * @param loopxpath The loopxpath to set.
-   */
-  public void setLoopXPath(String loopxpath) {
-    this.loopxpath = loopxpath;
-  }
-
-  /**
-   * @param usetoken the "use token" flag to set
-   */
-  public void setuseToken(boolean usetoken) {
-    this.usetoken = usetoken;
-  }
-
-  /**
-   * @return the use token flag
-   */
-  public boolean isuseToken() {
-    return usetoken;
-  }
-
-  /**
-   * @return the IsIgnoreEmptyFile flag
-   */
-  public boolean isIgnoreEmptyFile() {
-    return isIgnoreEmptyFile;
-  }
-
-  /**
-   * @param isIgnoreEmptyFile the isIgnoreEmptyFile to set
-   */
-  public void setIgnoreEmptyFile(boolean isIgnoreEmptyFile) {
-    this.isIgnoreEmptyFile = isIgnoreEmptyFile;
-  }
-
-  /**
-   * @return the doNotFailIfNoFile flag
-   */
-  public boolean isdoNotFailIfNoFile() {
-    return doNotFailIfNoFile;
-  }
-
-  /**
-   * @param doNotFailIfNoFile the doNotFailIfNoFile to set
-   */
-  public void setdoNotFailIfNoFile(boolean doNotFailIfNoFile) {
-    this.doNotFailIfNoFile = doNotFailIfNoFile;
-  }
-
-  /**
-   * @return the ignorecomments flag
-   */
-  public boolean isIgnoreComments() {
-    return ignorecomments;
-  }
-
-  /**
-   * @param ignorecomments the ignorecomments to set
-   */
-  public void setIgnoreComments(boolean ignorecomments) {
-    this.ignorecomments = ignorecomments;
-  }
-
-  /**
-   * @param nameSpaceAware the name variables aware flag to set
-   */
-  public void setNamespaceAware(boolean nameSpaceAware) {
-    this.nameSpaceAware = nameSpaceAware;
-  }
-
-  /**
-   * @return the name variables aware flag
-   */
-  public boolean isNamespaceAware() {
-    return nameSpaceAware;
-  }
-
-  /**
-   * @return Returns the rowNumberField.
-   */
-  public String getRowNumberField() {
-    return rowNumberField;
-  }
-
-  /**
-   * @param rowNumberField The rowNumberField to set.
-   */
-  public void setRowNumberField(String rowNumberField) {
-    this.rowNumberField = rowNumberField;
-  }
-
-  /**
-   * @return the encoding
-   */
-  public String getEncoding() {
-    return encoding;
-  }
-
-  /**
-   * @param encoding the encoding to set
-   */
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
-
-  public boolean getIsAFile() {
-    return isAFile;
-  }
-
-  public void setIsAFile(boolean isAFile) {
-    this.isAFile = isAFile;
-  }
-
-  /**
-   * @return the prunePath
-   */
-  public String getPrunePath() {
-    return prunePath;
-  }
-
-  public String[] getIncludeSubFolders() {
-    return includeSubFolders;
-  }
-
-  /**
-   * @param prunePath the prunePath to set
-   */
-  public void setPrunePath(String prunePath) {
-    this.prunePath = prunePath;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
-  public Object clone() {
-    GetXmlDataMeta retval = (GetXmlDataMeta) super.clone();
-
-    int nrFiles = fileName.length;
-    int nrFields = inputFields.length;
-
-    retval.allocate(nrFiles, nrFields);
-
-    for (int i = 0; i < nrFiles; i++) {
-      retval.fileName[i] = fileName[i];
-      retval.fileMask[i] = fileMask[i];
-      retval.excludeFileMask[i] = excludeFileMask[i];
-      retval.fileRequired[i] = fileRequired[i];
-      retval.includeSubFolders[i] = includeSubFolders[i];
-    }
-
-    for (int i = 0; i < nrFields; i++) {
-      if (inputFields[i] != null) {
-        retval.inputFields[i] = (GetXmlDataField) inputFields[i].clone();
-      }
-    }
-    return retval;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuffer retval = new StringBuffer(400);
-
-    retval.append("    ").append(XmlHandler.addTagValue("include", includeFilename));
-    retval.append("    ").append(XmlHandler.addTagValue("include_field", filenameField));
-    retval.append("    ").append(XmlHandler.addTagValue("rownum", includeRowNumber));
-    retval.append("    ").append(XmlHandler.addTagValue("addresultfile", addResultFile));
-    retval.append("    ").append(XmlHandler.addTagValue("namespaceaware", nameSpaceAware));
-    retval.append("    ").append(XmlHandler.addTagValue("ignorecomments", ignorecomments));
-    retval.append("    ").append(XmlHandler.addTagValue("readurl", readurl));
-    retval.append("    ").append(XmlHandler.addTagValue("validating", validating));
-    retval.append("    " + XmlHandler.addTagValue("usetoken", usetoken));
-    retval.append("    " + XmlHandler.addTagValue("IsIgnoreEmptyFile", isIgnoreEmptyFile));
-    retval.append("    " + XmlHandler.addTagValue("doNotFailIfNoFile", doNotFailIfNoFile));
-
-    retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumberField));
-    retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
-
-    retval.append("    <file>").append(Const.CR);
-    for (int i = 0; i < fileName.length; i++) {
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fileName[i]));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("filemask", fileMask[i]));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("exclude_filemask", excludeFileMask[i]));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("file_required", fileRequired[i]));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders[i]));
-    }
-    retval.append("    </file>").append(Const.CR);
-
-    retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < inputFields.length; i++) {
-      GetXmlDataField field = inputFields[i];
-      retval.append(field.getXml());
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    retval.append("    ").append(XmlHandler.addTagValue("limit", rowLimit));
-    retval.append("    ").append(XmlHandler.addTagValue("loopxpath", loopxpath));
-    retval.append("    ").append(XmlHandler.addTagValue("IsInFields", inFields));
-    retval.append("    ").append(XmlHandler.addTagValue("IsAFile", isAFile));
-    retval.append("    ").append(XmlHandler.addTagValue("XmlField", xmlField));
-    retval.append("    ").append(XmlHandler.addTagValue("prunePath", prunePath));
-    retval.append("    ").append(XmlHandler.addTagValue("shortFileFieldName", shortFileFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("pathFieldName", pathFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("hiddenFieldName", hiddenFieldName));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue("lastModificationTimeFieldName", lastModificationTimeFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("uriNameFieldName", uriNameFieldName));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("rootUriNameFieldName", rootUriNameFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("extensionFieldName", extensionFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("sizeFieldName", sizeFieldName));
-    return retval.toString();
   }
 
   public String getRequiredFilesDesc(String tt) {
@@ -718,94 +276,6 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     }
   }
 
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      includeFilename = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include"));
-      filenameField = XmlHandler.getTagValue(transformNode, "include_field");
-
-      addResultFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "addresultfile"));
-      nameSpaceAware =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "namespaceaware"));
-      ignorecomments =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignorecomments"));
-
-      readurl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "readurl"));
-      validating = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "validating"));
-      usetoken = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "usetoken"));
-      isIgnoreEmptyFile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsIgnoreEmptyFile"));
-      doNotFailIfNoFile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "doNotFailIfNoFile"));
-
-      includeRowNumber = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownum"));
-      rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      encoding = XmlHandler.getTagValue(transformNode, "encoding");
-
-      Node filenode = XmlHandler.getSubNode(transformNode, "file");
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFiles = XmlHandler.countNodes(filenode, "name");
-      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
-
-      allocate(nrFiles, nrFields);
-
-      for (int i = 0; i < nrFiles; i++) {
-        Node filenamenode = XmlHandler.getSubNodeByNr(filenode, "name", i);
-        Node filemasknode = XmlHandler.getSubNodeByNr(filenode, "filemask", i);
-        Node excludefilemasknode = XmlHandler.getSubNodeByNr(filenode, "exclude_filemask", i);
-        Node fileRequirednode = XmlHandler.getSubNodeByNr(filenode, "file_required", i);
-        Node includeSubFoldersnode = XmlHandler.getSubNodeByNr(filenode, "include_subfolders", i);
-        fileName[i] = XmlHandler.getNodeValue(filenamenode);
-        fileMask[i] = XmlHandler.getNodeValue(filemasknode);
-        excludeFileMask[i] = XmlHandler.getNodeValue(excludefilemasknode);
-        fileRequired[i] = XmlHandler.getNodeValue(fileRequirednode);
-        includeSubFolders[i] = XmlHandler.getNodeValue(includeSubFoldersnode);
-      }
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-        GetXmlDataField field = new GetXmlDataField(fnode);
-        inputFields[i] = field;
-      }
-
-      // Is there a limit on the number of rows we process?
-      rowLimit = Const.toLong(XmlHandler.getTagValue(transformNode, "limit"), 0L);
-      // Do we skip rows before starting to read
-      loopxpath = XmlHandler.getTagValue(transformNode, "loopxpath");
-
-      inFields = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsInFields"));
-      isAFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsAFile"));
-
-      xmlField = XmlHandler.getTagValue(transformNode, "XmlField");
-      prunePath = XmlHandler.getTagValue(transformNode, "prunePath");
-
-      shortFileFieldName = XmlHandler.getTagValue(transformNode, "shortFileFieldName");
-      pathFieldName = XmlHandler.getTagValue(transformNode, "pathFieldName");
-      hiddenFieldName = XmlHandler.getTagValue(transformNode, "hiddenFieldName");
-      lastModificationTimeFieldName =
-          XmlHandler.getTagValue(transformNode, "lastModificationTimeFieldName");
-      uriNameFieldName = XmlHandler.getTagValue(transformNode, "uriNameFieldName");
-      rootUriNameFieldName = XmlHandler.getTagValue(transformNode, "rootUriNameFieldName");
-      extensionFieldName = XmlHandler.getTagValue(transformNode, "extensionFieldName");
-      sizeFieldName = XmlHandler.getTagValue(transformNode, "sizeFieldName");
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "GetXMLDataMeta.Exception.ErrorLoadingXml", e.toString()));
-    }
-  }
-
-  public void allocate(int nrfiles, int nrFields) {
-    allocateFiles(nrfiles);
-    inputFields = new GetXmlDataField[nrFields];
-  }
-
-  public void allocateFiles(int nrfiles) {
-    fileName = new String[nrfiles];
-    fileMask = new String[nrfiles];
-    excludeFileMask = new String[nrfiles];
-    fileRequired = new String[nrfiles];
-    includeSubFolders = new String[nrfiles];
-  }
-
   @Override
   public void setDefault() {
     shortFileFieldName = null;
@@ -817,37 +287,23 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     extensionFieldName = null;
     sizeFieldName = null;
 
-    usetoken = false;
-    isIgnoreEmptyFile = false;
+    useToken = false;
+    ignoreEmptyFile = false;
     doNotFailIfNoFile = true;
     includeFilename = false;
     filenameField = "";
     includeRowNumber = false;
     rowNumberField = "";
-    isAFile = false;
+    aFile = false;
     addResultFile = false;
     nameSpaceAware = false;
-    ignorecomments = false;
-    readurl = false;
+    ignoreComments = false;
+    readUrl = false;
     validating = false;
+    loopXPath = "";
 
-    int nrFiles = 0;
-    int nrFields = 0;
-    loopxpath = "";
-
-    allocate(nrFiles, nrFields);
-
-    for (int i = 0; i < nrFiles; i++) {
-      fileName[i] = "filename" + (i + 1);
-      fileMask[i] = "";
-      excludeFileMask[i] = "";
-      fileRequired[i] = RequiredFilesCode[0];
-      includeSubFolders[i] = RequiredFilesCode[0];
-    }
-
-    for (int i = 0; i < nrFields; i++) {
-      inputFields[i] = new GetXmlDataField(CONST_FIELD + (i + 1));
-    }
+    filesList = new ArrayList<>();
+    inputFields = new ArrayList<>();
 
     rowLimit = 0;
 
@@ -866,10 +322,10 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     int i;
-    for (i = 0; i < inputFields.length; i++) {
-      GetXmlDataField field = inputFields[i];
+    for (i = 0; i < inputFields.size(); i++) {
+      GetXmlDataField field = inputFields.get(i);
 
-      int type = field.getType();
+      int type = ValueMetaBase.getType(field.getType());
       if (type == IValueMeta.TYPE_NONE) {
         type = IValueMeta.TYPE_STRING;
       }
@@ -904,68 +360,106 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     }
     // Add additional fields
 
-    if (getShortFileNameField() != null && getShortFileNameField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getShortFileNameField()));
+    if (!Utils.isEmpty(getShortFileFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getShortFileFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       r.addValueMeta(v);
     }
-    if (getExtensionField() != null && getExtensionField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getExtensionField()));
+    if (!Utils.isEmpty(getExtensionFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getExtensionFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       r.addValueMeta(v);
     }
-    if (getPathField() != null && getPathField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getPathField()));
+    if (!Utils.isEmpty(getPathFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getPathFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       r.addValueMeta(v);
     }
-    if (getSizeField() != null && getSizeField().length() > 0) {
-      IValueMeta v = new ValueMetaInteger(variables.resolve(getSizeField()));
+    if (!Utils.isEmpty(getSizeFieldName())) {
+      IValueMeta v = new ValueMetaInteger(variables.resolve(getSizeFieldName()));
       v.setOrigin(name);
       v.setLength(9);
       r.addValueMeta(v);
     }
-    if (isHiddenField() != null && isHiddenField().length() > 0) {
-      IValueMeta v = new ValueMetaBoolean(variables.resolve(isHiddenField()));
+    if (!Utils.isEmpty(getHiddenFieldName())) {
+      IValueMeta v = new ValueMetaBoolean(variables.resolve(getHiddenFieldName()));
       v.setOrigin(name);
       r.addValueMeta(v);
     }
 
-    if (getLastModificationDateField() != null && getLastModificationDateField().length() > 0) {
-      IValueMeta v = new ValueMetaDate(variables.resolve(getLastModificationDateField()));
+    if (!Utils.isEmpty(getLastModificationTimeFieldName())) {
+      IValueMeta v = new ValueMetaDate(variables.resolve(getLastModificationTimeFieldName()));
       v.setOrigin(name);
       r.addValueMeta(v);
     }
-    if (getUriField() != null && getUriField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getUriField()));
+    if (!Utils.isEmpty(getUriNameFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getUriNameFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       r.addValueMeta(v);
     }
 
-    if (getRootUriField() != null && getRootUriField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getRootUriField()));
+    if (!Utils.isEmpty(getRootUriNameFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getRootUriNameFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       r.addValueMeta(v);
     }
+  }
+
+  protected String[] buildFilenamesArray() {
+
+    String[] fileNames = new String[filesList.size()];
+    for (int i = 0; i < filesList.size(); i++) {
+      fileNames[i] = filesList.get(i).getFileName();
+    }
+    return fileNames;
+  }
+
+  protected String[] buildMasksArray() {
+
+    String[] fileMasks = new String[filesList.size()];
+    for (int i = 0; i < filesList.size(); i++) {
+      fileMasks[i] = filesList.get(i).getFileMask();
+    }
+    return fileMasks;
+  }
+
+  protected String[] buildExcludeMasksArray() {
+    String[] excludeMasks = new String[filesList.size()];
+    for (int i = 0; i < filesList.size(); i++) {
+      excludeMasks[i] = filesList.get(i).getExcludeFileMask();
+    }
+    return excludeMasks;
+  }
+
+  protected String[] buildFileRequiredArray() {
+    String[] required = new String[filesList.size()];
+    for (int i = 0; i < filesList.size(); i++) {
+      required[i] = filesList.get(i).getFileRequired();
+    }
+    return required;
+  }
+
+  private boolean[] includeSubFolderBoolean() {
+    boolean[] includeSubFolderBoolean = new boolean[filesList.size()];
+    for (int i = 0; i < filesList.size(); i++) {
+      includeSubFolderBoolean[i] = YES.equalsIgnoreCase(filesList.get(i).getIncludeSubFolders());
+    }
+    return includeSubFolderBoolean;
   }
 
   public FileInputList getFiles(IVariables variables) {
     return FileInputList.createFileList(
-        variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean());
-  }
-
-  private boolean[] includeSubFolderBoolean() {
-    int len = fileName.length;
-    boolean[] includeSubFolderBoolean = new boolean[len];
-    for (int i = 0; i < len; i++) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase(includeSubFolders[i]);
-    }
-    return includeSubFolderBoolean;
+        variables,
+        buildFilenamesArray(),
+        buildMasksArray(),
+        buildExcludeMasksArray(),
+        buildFileRequiredArray(),
+        includeSubFolderBoolean());
   }
 
   @Override
@@ -1007,7 +501,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
               transformMeta);
       remarks.add(cr);
     }
-    if (getInputFields().length <= 0) {
+    if (getInputFields().size() <= 0) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -1017,7 +511,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     }
 
     if (isInFields()) {
-      if (Utils.isEmpty(getXMLField())) {
+      if (Utils.isEmpty(getXmlField())) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
@@ -1100,15 +594,6 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
               //
               newFilenames.add(fileObject.getName().getPath());
             }
-          }
-
-          // Still here: set a new list of absolute filenames!
-          //
-          fileName = newFilenames.toArray(new String[newFilenames.size()]);
-          fileMask = new String[newFilenames.size()]; // all null since converted to absolute path.
-          fileRequired = new String[newFilenames.size()]; // all null, turn to "Y" :
-          for (int i = 0; i < newFilenames.size(); i++) {
-            fileRequired[i] = "Y";
           }
         }
       }

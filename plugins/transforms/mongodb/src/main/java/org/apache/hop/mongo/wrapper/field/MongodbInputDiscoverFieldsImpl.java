@@ -31,10 +31,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
@@ -249,8 +251,8 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
         String innerComp = tempComp.substring(tempComp.indexOf('[') + 1, tempComp.indexOf(']'));
 
         if (temp.indexOf(']') < temp.length() - 1) {
-          temp = temp.substring(temp.indexOf(']') + 1, temp.length());
-          tempComp = tempComp.substring(tempComp.indexOf(']') + 1, tempComp.length());
+          temp = temp.substring(temp.indexOf(']') + 1);
+          tempComp = tempComp.substring(tempComp.indexOf(']') + 1);
         } else {
           temp = "";
         }
@@ -261,7 +263,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       }
     }
 
-    if (temp.length() > 0) {
+    if (!temp.isEmpty()) {
       // append remaining part
       updated.append(temp);
     }
@@ -407,8 +409,8 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
         String innerComp = tempComp.substring(tempComp.indexOf('[') + 1, tempComp.indexOf(']'));
 
         if (temp.indexOf(']') < temp.length() - 1) {
-          temp = temp.substring(temp.indexOf(']') + 1, temp.length());
-          tempComp = tempComp.substring(tempComp.indexOf(']') + 1, tempComp.length());
+          temp = temp.substring(temp.indexOf(']') + 1);
+          tempComp = tempComp.substring(tempComp.indexOf(']') + 1);
         } else {
           temp = "";
         }
@@ -430,7 +432,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       }
     }
 
-    if (temp.length() > 0) {
+    if (!temp.isEmpty()) {
       // append remaining part
       updated.append(temp);
     }
@@ -464,6 +466,8 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       return IValueMeta.TYPE_BINARY;
     } else if (fieldValue instanceof BSONTimestamp) {
       return IValueMeta.TYPE_INTEGER;
+    } else if (fieldValue instanceof UUID) {
+      return ValueMetaFactory.getIdForValueMeta("UUID");
     }
 
     return IValueMeta.TYPE_STRING;

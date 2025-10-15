@@ -21,6 +21,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +33,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -61,6 +64,8 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import org.w3c.dom.Node;
 
@@ -75,6 +80,8 @@ import org.w3c.dom.Node;
 @InjectionSupported(
     localizationPrefix = "TextFileInput.Injection.",
     groups = {"FILENAME_LINES", "FIELDS", "FILTERS"})
+@Getter
+@Setter
 public class TextFileInputMeta
     extends BaseFileInputMeta<
         TextFileInput,
@@ -246,6 +253,10 @@ public class TextFileInputMeta
   @Injection(name = "SCHEMA_DEFINITION")
   public String schemaDefinition;
 
+  /** Reference to ignore fields tab */
+  @Injection(name = "IGNORE_FIELDS")
+  public boolean ignoreFields;
+
   /** The transform to accept filenames from */
   private TransformMeta acceptingTransform;
 
@@ -253,14 +264,6 @@ public class TextFileInputMeta
     additionalOutputFields = new BaseFileInputAdditionalField();
     inputFiles = new BaseFileInputFiles();
     inputFields = new BaseFileField[0];
-  }
-
-  public String getSchemaDefinition() {
-    return schemaDefinition;
-  }
-
-  public void setSchemaDefinition(String schemaDefinition) {
-    this.schemaDefinition = schemaDefinition;
   }
 
   /**
@@ -278,19 +281,12 @@ public class TextFileInputMeta
   }
 
   /**
-   * @return The array of filters for the metadata of this text file input transform.
+   * @deprecated
+   * @param transformNode node coming back from the pipeline XML
+   * @param metadataProvider metadata provider
+   * @throws HopXmlException
    */
-  public TextFileFilter[] getFilter() {
-    return filter;
-  }
-
-  /**
-   * @param filter The array of filters to use
-   */
-  public void setFilter(TextFileFilter[] filter) {
-    this.filter = filter;
-  }
-
+  @Deprecated(since = "2.16", forRemoval = true)
   @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
@@ -452,6 +448,7 @@ public class TextFileInputMeta
       errorFieldsField = XmlHandler.getTagValue(transformNode, "error_fields_field");
       errorTextField = XmlHandler.getTagValue(transformNode, "error_text_field");
       schemaDefinition = XmlHandler.getTagValue(transformNode, "schema_definition");
+      ignoreFields = YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignore_fields"));
       errorHandling.warningFilesDestinationDirectory =
           XmlHandler.getTagValue(transformNode, "bad_line_files_destination_directory");
       errorHandling.warningFilesExtension =
@@ -570,6 +567,7 @@ public class TextFileInputMeta
     errorHandling.errorFilesExtension = "error";
     errorHandling.lineNumberFilesDestinationDirectory = null;
     errorHandling.lineNumberFilesExtension = "line";
+    ignoreFields = false;
 
     int nrfiles = 0;
     int nrFields = 0;
@@ -618,60 +616,78 @@ public class TextFileInputMeta
       }
     }
 
-    for (int i = 0; i < inputFields.length; i++) {
-      BaseFileField field = inputFields[i];
-
-      int type = field.getType();
-      if (type == IValueMeta.TYPE_NONE) {
-        type = IValueMeta.TYPE_STRING;
-      }
-
-      String[] filePathList =
-          FileInputList.createFilePathList(
-              variables,
-              inputFiles.fileName,
-              inputFiles.fileMask,
-              inputFiles.excludeFileMask,
-              inputFiles.fileRequired,
-              inputFiles.includeSubFolderBoolean());
-
-      String fileNameToPrepend = filePathList.length > 0 ? filePathList[0] : null;
-
+    if (ignoreFields) {
       try {
-        String fieldname =
-            content.prependFileName && fileNameToPrepend != null
-                ? FileNameUtils.getBaseName(fileNameToPrepend) + "_" + field.getName()
-                : field.getName();
-        IValueMeta v = ValueMetaFactory.createValueMeta(fieldname, type);
-        v.setLength(field.getLength());
-        v.setPrecision(field.getPrecision());
-        v.setOrigin(name);
-        v.setConversionMask(field.getFormat());
-        v.setDecimalSymbol(field.getDecimalSymbol());
-        v.setGroupingSymbol(field.getGroupSymbol());
-        v.setCurrencySymbol(field.getCurrencySymbol());
-        v.setDateFormatLenient(content.dateFormatLenient);
-        v.setDateFormatLocale(content.dateFormatLocale);
-        v.setTrimType(field.getTrimType());
+        SchemaDefinition loadedSchemaDefinition =
+            (new SchemaDefinitionUtil())
+                .loadSchemaDefinition(metadataProvider, getSchemaDefinition());
+        if (loadedSchemaDefinition != null) {
+          IRowMeta r = loadedSchemaDefinition.getRowMeta();
+          if (r != null) {
+            for (int i = 0; i < r.size(); i++) {
+              row.addValueMeta(r.getValueMeta(i));
+            }
+          }
+        }
+      } catch (HopTransformException | HopPluginException e) {
+        // ignore any errors here.
+      }
+    } else {
+      for (int i = 0; i < inputFields.length; i++) {
+        BaseFileField field = inputFields[i];
 
-        row.addValueMeta(v);
-      } catch (Exception e) {
-        throw new HopTransformException(e);
+        int type = field.getType();
+        if (type == IValueMeta.TYPE_NONE) {
+          type = IValueMeta.TYPE_STRING;
+        }
+
+        String[] filePathList =
+            FileInputList.createFilePathList(
+                variables,
+                inputFiles.fileName,
+                inputFiles.fileMask,
+                inputFiles.excludeFileMask,
+                inputFiles.fileRequired,
+                inputFiles.includeSubFolderBoolean());
+
+        String fileNameToPrepend = filePathList.length > 0 ? filePathList[0] : null;
+
+        try {
+          String fieldname =
+              content.prependFileName && fileNameToPrepend != null
+                  ? FileNameUtils.getBaseName(fileNameToPrepend) + "_" + field.getName()
+                  : field.getName();
+          IValueMeta v = ValueMetaFactory.createValueMeta(fieldname, type);
+          v.setLength(field.getLength());
+          v.setPrecision(field.getPrecision());
+          v.setOrigin(name);
+          v.setConversionMask(field.getFormat());
+          v.setDecimalSymbol(field.getDecimalSymbol());
+          v.setGroupingSymbol(field.getGroupSymbol());
+          v.setCurrencySymbol(field.getCurrencySymbol());
+          v.setDateFormatLenient(content.dateFormatLenient);
+          v.setDateFormatLocale(content.dateFormatLocale);
+          v.setTrimType(field.getTrimType());
+
+          row.addValueMeta(v);
+        } catch (Exception e) {
+          throw new HopTransformException(e);
+        }
       }
     }
     if (errorHandling.errorIgnored) {
-      if (errorCountField != null && errorCountField.length() > 0) {
+      if (!Utils.isEmpty(errorCountField)) {
         IValueMeta v = new ValueMetaInteger(errorCountField);
         v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
         v.setOrigin(name);
         row.addValueMeta(v);
       }
-      if (errorFieldsField != null && errorFieldsField.length() > 0) {
+      if (!Utils.isEmpty(errorFieldsField)) {
         IValueMeta v = new ValueMetaString(errorFieldsField);
         v.setOrigin(name);
         row.addValueMeta(v);
       }
-      if (errorTextField != null && errorTextField.length() > 0) {
+      if (!Utils.isEmpty(errorTextField)) {
         IValueMeta v = new ValueMetaString(errorTextField);
         v.setOrigin(name);
         row.addValueMeta(v);
@@ -744,6 +760,11 @@ public class TextFileInputMeta
     }
   }
 
+  /**
+   * @deprecated
+   * @return the XML that will be saved in the pipeline file
+   */
+  @Deprecated(since = "2.16", forRemoval = true)
   @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(1500);
@@ -921,6 +942,7 @@ public class TextFileInputMeta
     retval.append("    ").append(XmlHandler.addTagValue("error_fields_field", errorFieldsField));
     retval.append("    ").append(XmlHandler.addTagValue("error_text_field", errorTextField));
     retval.append("    ").append(XmlHandler.addTagValue("schema_definition", schemaDefinition));
+    retval.append("    ").append(XmlHandler.addTagValue("ignore_fields", ignoreFields));
 
     retval
         .append("    ")
@@ -1187,7 +1209,7 @@ public class TextFileInputMeta
         //
         for (int i = 0; i < inputFiles.fileName.length; i++) {
           final String fileName = inputFiles.fileName[i];
-          if (fileName == null || fileName.isEmpty()) {
+          if (Utils.isEmpty(fileName)) {
             continue;
           }
 

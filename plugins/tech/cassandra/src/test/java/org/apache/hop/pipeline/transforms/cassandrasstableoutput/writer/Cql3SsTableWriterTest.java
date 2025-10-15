@@ -17,10 +17,11 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -37,15 +38,15 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class Cql3SsTableWriterTest {
-  @Before
-  public void notOnWindows() {
-    org.junit.Assume.assumeFalse(SystemUtils.IS_OS_WINDOWS);
+class Cql3SsTableWriterTest {
+  @BeforeAll
+  static void notOnWindows() {
+    assumeFalse(SystemUtils.IS_OS_WINDOWS);
   }
 
   public static final String KEY_FIELD = "KEY_FIELD";
@@ -100,7 +101,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testInit() throws Exception {
+  void testInit() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
   }
@@ -127,7 +128,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testProcessRow() throws Exception {
+  void testProcessRow() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
     Map<String, Object> input = new HashMap<>();
@@ -139,7 +140,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testClose() throws Exception {
+  void testClose() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
     checker.set(true);
@@ -148,7 +149,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testBuildCreateTableCQLStatement() throws Exception {
+  void testBuildCreateTableCQLStatement() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
     assertEquals(
@@ -158,7 +159,7 @@ public class Cql3SsTableWriterTest {
   }
 
   @Test
-  public void testBuildInsertCQLStatement() throws Exception {
+  void testBuildInsertCQLStatement() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
     assertEquals(

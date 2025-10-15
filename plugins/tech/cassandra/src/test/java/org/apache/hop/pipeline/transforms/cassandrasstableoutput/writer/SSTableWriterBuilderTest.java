@@ -17,14 +17,14 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.hop.core.row.IRowMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class SSTableWriterBuilderTest extends SSTableWriterBuilder {
+class SSTableWriterBuilderTest extends SSTableWriterBuilder {
 
   public static final String KEY_FIELD = "some_key";
   public static final int BUFFER_SIZE = 10;
@@ -82,7 +82,7 @@ public class SSTableWriterBuilderTest extends SSTableWriterBuilder {
   }
 
   @Test
-  public void testBuild2() throws Exception {
+  void testBuild2() throws Exception {
     SSTableWriterBuilder ssTableWriterBuilder = new SSTableWriterBuilderTest();
     ssTableWriterBuilder =
         ssTableWriterBuilder
@@ -98,7 +98,7 @@ public class SSTableWriterBuilderTest extends SSTableWriterBuilder {
   }
 
   @Test
-  public void testBuild3() throws Exception {
+  void testBuild3() throws Exception {
     SSTableWriterBuilder ssTableWriterBuilder = new SSTableWriterBuilderTest();
 
     ssTableWriterBuilder =

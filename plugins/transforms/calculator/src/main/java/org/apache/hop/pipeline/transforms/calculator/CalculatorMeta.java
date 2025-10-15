@@ -104,7 +104,7 @@ public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData
     //
     int defaultResultType = ValueMetaFactory.getIdForValueMeta(fn.getValueType());
     if (defaultResultType == IValueMeta.TYPE_NONE) {
-      defaultResultType = fn.getCalcType().getDefaultResultType();
+      defaultResultType = fn.getCalcType().calculation.getDefaultResultType();
     }
     try {
       v = ValueMetaFactory.createValueMeta(fn.getFieldName(), defaultResultType);
@@ -157,7 +157,7 @@ public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData
               transformMeta);
       remarks.add(cr);
 
-      if (prev == null || prev.size() == 0) {
+      if (prev == null || prev.isEmpty()) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_WARNING,

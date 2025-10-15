@@ -28,15 +28,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class RegexEvalUnitTest {
+class RegexEvalUnitTest {
   private TransformMockHelper<RegexEvalMeta, RegexEvalData> transformMockHelper;
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     transformMockHelper =
         new TransformMockHelper<>("REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class);
     when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -44,14 +44,13 @@ public class RegexEvalUnitTest {
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testOutputIsMuchBiggerThanInputDoesntThrowArrayIndexOutOfBounds()
-      throws HopException {
+  void testOutputIsMuchBiggerThanInputDoesntThrowArrayIndexOutOfBounds() throws HopException {
     RegexEval regexEval =
         new RegexEval(
             transformMockHelper.transformMeta,

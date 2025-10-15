@@ -32,7 +32,6 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.ITypeFilename;
-import org.apache.hop.core.gui.plugin.ITypeMetadata;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -272,12 +271,11 @@ public class GuiCompositeWidgets {
   private Control getMetadataControl(
       Composite parent, GuiElements guiElements, PropsUi props, Control lastControl) {
 
-    ITypeMetadata typeMetadata = instantiateTypeMetadata(guiElements);
     MetaSelectionLine<? extends IHopMetadata> metaSelectionLine =
         new MetaSelectionLine<>(
             variables,
             HopGui.getInstance().getMetadataProvider(),
-            typeMetadata.getMetadataClass(),
+            guiElements.getMetadataClass(),
             parent,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             guiElements.getLabel(),
@@ -560,28 +558,6 @@ public class GuiCompositeWidgets {
     }
   }
 
-  public ITypeMetadata instantiateTypeMetadata(GuiElements guiElements) {
-    Class<? extends ITypeMetadata> typeMetadataClass = guiElements.getTypeMetadata();
-    if (typeMetadataClass == null) {
-      throw new RuntimeException(
-          "Please specify a ITypeMetadata class to use for widget " + guiElements.getId());
-    }
-    // Instantiate the class...
-    //
-    try {
-      return typeMetadataClass.newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException(
-          "Error instantiating class "
-              + typeMetadataClass.getName()
-              + " for GUI elements "
-              + guiElements.getId()
-              + " and type "
-              + guiElements.getType(),
-          e);
-    }
-  }
-
   private void layoutControlOnRight(
       PropsUi props, Control lastControl, Control control, Label label) {
     FormData fdControl = new FormData();
@@ -717,6 +693,7 @@ public class GuiCompositeWidgets {
     if (guiElements.isIgnored()) {
       return;
     }
+
     // No data to set for a button widget
     if (guiElements.getType() == GuiElementType.BUTTON) {
       return;
@@ -827,6 +804,7 @@ public class GuiCompositeWidgets {
     if (guiElements.isIgnored()) {
       return;
     }
+
     // No data to retrieve from a button widget
     if (guiElements.getType() == GuiElementType.BUTTON) {
       return;

@@ -49,7 +49,6 @@ public class HopEncrypt {
         System.exit(0);
       } catch (Exception ex) {
         System.err.println("Error encrypting password");
-        ex.printStackTrace();
         System.exit(2);
       }
 

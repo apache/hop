@@ -28,12 +28,15 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
@@ -277,7 +280,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         // strip off brackets to get actual object name if terminal object
         // is an array
         if (name.contains("[")) {
-          name = name.substring(name.indexOf('[') + 1, name.length());
+          name = name.substring(name.indexOf('[') + 1);
         }
 
         mongoIndex.put(name, direction);
@@ -437,7 +440,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
               && path.contains("[")
               && !path.contains(mongoOperatorUpdateAllArray)) {
             String arrayPath = path.substring(0, path.indexOf('['));
-            String arraySpec = path.substring(path.indexOf('['), path.length());
+            String arraySpec = path.substring(path.indexOf('['));
             MongoDbOutputMeta.MongoField a = new MongoDbOutputMeta.MongoField();
             a.incomingFieldName = field.incomingFieldName;
             a.environUpdatedFieldName = field.environUpdatedFieldName;
@@ -459,13 +462,13 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             // we ignore any index that might have been specified as $push
             // always appends to the end of the array.
             String arrayPath = path.substring(0, path.indexOf('['));
-            String structureToPush = path.substring(path.indexOf(']') + 1, path.length());
+            String structureToPush = path.substring(path.indexOf(']') + 1);
 
             // check to see if we're pushing a record at this point in the path
             // or another array...
             if (structureToPush.charAt(0) == '.') {
               // skip the dot
-              structureToPush = structureToPush.substring(1, structureToPush.length());
+              structureToPush = structureToPush.substring(1);
             }
 
             MongoDbOutputMeta.MongoField a = new MongoDbOutputMeta.MongoField();
@@ -783,7 +786,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             // no more path parts so we must be setting a field in an array
             // element
             // that is a record
-            if ((pathParts == null || pathParts.isEmpty()) && current instanceof BasicDBObject) {
+            if ((Utils.isEmpty(pathParts)) && current instanceof BasicDBObject) {
               if (field.useIncomingFieldNameAsMongoFieldName) {
                 boolean res =
                     setMongoValueFromHopValue(
@@ -920,6 +923,17 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       mongoObject.put(lookup.toString(), val);
       return true;
     }
+    // UUID
+    try {
+      int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+      if (hopType.getType() == uuidTypeId) {
+        UUID val = (UUID) hopType.convertData(hopType, hopValue);
+        mongoObject.put(lookup.toString(), val);
+        return true;
+      }
+    } catch (Exception ignore) {
+      // UUID plugin not present, fall through
+    }
     if (hopType.isSerializableType()) {
       throw new HopValueException(
           BaseMessages.getString(
@@ -932,7 +946,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
   private static Object getPathElementName(
       List<String> pathParts, DBObject current, boolean incomingAsFieldName) throws HopException {
 
-    if (pathParts == null || pathParts.isEmpty()) {
+    if (Utils.isEmpty(pathParts)) {
       return null;
     }
 
@@ -940,7 +954,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
     if (part.startsWith("[")) { //
       String index = part.substring(1, part.indexOf(']')).trim();
       part = part.substring(part.indexOf(']') + 1).trim();
-      if (part.length() > 0) {
+      if (!part.isEmpty()) {
         // any remaining characters must indicate a multi-dimensional array
         pathParts.set(0, part);
 
@@ -1010,7 +1024,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
   protected static MongoTopLevel checkTopLevelConsistency(
       List<MongoDbOutputMeta.MongoField> fieldDefs, IVariables vars) throws HopException {
 
-    if (fieldDefs == null || fieldDefs.isEmpty()) {
+    if (Utils.isEmpty(fieldDefs)) {
       throw new HopException(
           BaseMessages.getString(PKG, "MongoDbOutput.Messages.Error.NoMongoPathsDefined"));
     }

@@ -159,6 +159,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
   protected Button wCreateParentFolder;
 
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+  private Button wIgnoreFields;
 
   private ColumnInfo[] colinf;
 
@@ -1104,6 +1105,36 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
     wSchemaDefinition.addSelectionListener(lsSelection);
 
+    // Ignore manual schema
+    //
+    Label wlIgnoreFields = new Label(wFieldsComp, SWT.RIGHT);
+    PropsUi.setLook(wlIgnoreFields);
+    wlIgnoreFields.setText(
+        BaseMessages.getString(PKG, "TextFileOutputDialog.IgnoreTransformFields.Label"));
+    FormData fdlIgnoreFields = new FormData();
+    fdlIgnoreFields.left = new FormAttachment(0, 0);
+    fdlIgnoreFields.right = new FormAttachment(middle, -margin);
+    fdlIgnoreFields.top = new FormAttachment(wSchemaDefinition, margin);
+    wlIgnoreFields.setLayoutData(fdlIgnoreFields);
+    wIgnoreFields = new Button(wFieldsComp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wIgnoreFields);
+    FormData fdIgnoreFields = new FormData();
+    fdIgnoreFields.left = new FormAttachment(middle, 0);
+    fdIgnoreFields.right = new FormAttachment(100, 0);
+    fdIgnoreFields.top = new FormAttachment(wlIgnoreFields, 0, SWT.CENTER);
+    wIgnoreFields.setLayoutData(fdIgnoreFields);
+
+    wIgnoreFields.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            wFields.setEnabled(!wIgnoreFields.getSelection());
+            wGet.setEnabled(!wIgnoreFields.getSelection());
+            wMinWidth.setEnabled(!wIgnoreFields.getSelection());
+            input.setChanged();
+          }
+        });
+
     final int FieldsRows = input.getOutputFields().length;
 
     colinf =
@@ -1198,7 +1229,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
     FormData fdFieldGroup = new FormData();
     fdFieldGroup.left = new FormAttachment(0, margin);
-    fdFieldGroup.top = new FormAttachment(wSchemaDefinition, margin);
+    fdFieldGroup.top = new FormAttachment(wIgnoreFields, margin);
     fdFieldGroup.right = new FormAttachment(100, -margin);
     fdFieldGroup.bottom = new FormAttachment(100, 0);
     fieldGroup.setLayoutData(fdFieldGroup);
@@ -1472,6 +1503,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     }
     wServletOutput.setSelection(input.isServletOutput());
     wSchemaDefinition.setText(Const.NVL(input.getSchemaDefinition(), ""));
+    wIgnoreFields.setSelection(input.isIgnoreFields());
     setFlagsServletOption();
     wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
@@ -1580,6 +1612,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
   protected void saveInfoInMeta(TextFileOutputMeta tfoi) {
     tfoi.setFileName(wFilename.getText());
     tfoi.setSchemaDefinition(wSchemaDefinition.getText());
+    tfoi.setIgnoreFields(wIgnoreFields.getSelection());
     tfoi.setServletOutput(wServletOutput.getSelection());
     tfoi.setCreateParentFolder(wCreateParentFolder.getSelection());
     tfoi.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());

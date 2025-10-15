@@ -17,18 +17,18 @@
 
 package org.apache.hop.avro.transforms.avroinput;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 
-public class AvroInputMetaTest {
+class AvroInputMetaTest {
 
   @Test
-  public void testGetLoadXml() throws Exception {
+  void testGetLoadXml() throws Exception {
 
     AvroFileInputMeta meta = new AvroFileInputMeta();
     meta.setOutputFieldName("avro");

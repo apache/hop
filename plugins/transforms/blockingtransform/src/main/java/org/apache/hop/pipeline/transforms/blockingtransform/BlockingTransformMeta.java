@@ -91,7 +91,7 @@ public class BlockingTransformMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (prev != null && prev.size() > 0) {
+    if (prev != null && !prev.isEmpty()) {
       // Check the sort directory
       String realDirectory = variables.resolve(directory);
 

@@ -17,15 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinsert;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class SalesforceInsertDataTest {
+class SalesforceInsertDataTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     SalesforceInsertData data = new SalesforceInsertData();
     assertNull(data.inputRowMeta);
     assertNull(data.outputRowMeta);

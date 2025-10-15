@@ -16,18 +16,19 @@
  */
 package org.apache.hop.pipeline.transforms.propertyinput;
 
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PropertyInputMetaTest {
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Test;
+
+class PropertyInputMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     PropertyInputMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/properties-input-transform.xml", PropertyInputMeta.class);
-    Assert.assertEquals(1, meta.getFiles().size());
-    Assert.assertEquals(2, meta.getInputFields().size());
+    assertEquals(1, meta.getFiles().size());
+    assertEquals(2, meta.getInputFields().size());
   }
 }

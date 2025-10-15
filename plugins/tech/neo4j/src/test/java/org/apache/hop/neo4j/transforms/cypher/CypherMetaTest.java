@@ -19,26 +19,26 @@
 package org.apache.hop.neo4j.transforms.cypher;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class CypherMetaTest {
+class CypherMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     CypherMeta meta =
         TransformSerializationTestUtil.testSerialization("/cypher-transform.xml", CypherMeta.class);
 
-    Assert.assertEquals("Test", meta.getConnectionName());
-    Assert.assertEquals(1, meta.getParameterMappings().size());
+    Assertions.assertEquals("Test", meta.getConnectionName());
+    Assertions.assertEquals(1, meta.getParameterMappings().size());
   }
 
   @Test
-  public void testSerialization2() throws Exception {
+  void testSerialization2() throws Exception {
     CypherMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/cypher-transform2.xml", CypherMeta.class);
 
-    Assert.assertEquals(1, meta.getReturnValues().size());
+    Assertions.assertEquals(1, meta.getReturnValues().size());
   }
 }

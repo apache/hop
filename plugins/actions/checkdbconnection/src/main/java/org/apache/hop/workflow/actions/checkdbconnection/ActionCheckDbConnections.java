@@ -19,6 +19,9 @@ package org.apache.hop.workflow.actions.checkdbconnection;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -27,20 +30,20 @@ import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
 
 /** This check db connections */
 @Action(
@@ -55,10 +58,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckDbConnections.class;
 
-  @HopMetadataProperty(
-      groupKey = "connections",
-      key = "connection",
-      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+  @HopMetadataProperty(groupKey = "connections", key = "connection")
   private List<CDConnection> connections;
 
   public ActionCheckDbConnections(String name) {
@@ -94,79 +94,92 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
         if (parentWorkflow.isStopped()) {
           break;
         }
-        DatabaseMeta databaseMeta = connection.getDatabaseMeta();
-        try (Database db = new Database(this, this, databaseMeta)) {
-          db.connect();
-
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    "ActionCheckDbConnections.Connected",
-                    databaseMeta.getDatabaseName(),
-                    databaseMeta.getName()));
-          }
-
-          long iMaximumTimeout = Const.toLong(resolve(connection.getWaitTime()), 0L);
-          if (iMaximumTimeout > 0) {
-
-            WaitTimeUnit timeUnit = connection.getWaitTimeUnit();
-            long multiple = timeUnit.getFactor();
-            String waitTimeMessage = connection.getWaitTimeUnit().getDescription();
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG, "ActionCheckDbConnections.Wait", "" + iMaximumTimeout, waitTimeMessage));
-            }
-
-            // The start time (in seconds ,Minutes or Hours)
-            timeStart = System.currentTimeMillis();
-
-            boolean continueLoop = true;
-            while (continueLoop && !parentWorkflow.isStopped()) {
-              // Update Time value
-              now = System.currentTimeMillis();
-              // Let's check the limit time
-              if ((now >= (timeStart + iMaximumTimeout * multiple))) {
-                // We have reached the time limit
-                if (isDetailed()) {
-                  logDetailed(
-                      BaseMessages.getString(
-                          PKG,
-                          "ActionCheckDbConnections.WaitTimeIsElapsed.Label",
-                          databaseMeta.getDatabaseName(),
-                          databaseMeta.getName()));
-                }
-
-                continueLoop = false;
-              } else {
-                try {
-                  Thread.sleep(100);
-                } catch (Exception e) {
-                  // Ignore sleep errors
-                }
-              }
-            }
-          }
-
-          nrSuccess++;
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    "ActionCheckDbConnections.ConnectionOK",
-                    databaseMeta.getDatabaseName(),
-                    databaseMeta.getName()));
-          }
-        } catch (HopDatabaseException e) {
-          nrErrors++;
+        String databaseName = resolve(connection.getName());
+        DatabaseMeta databaseMeta = loadDatabaseMeta(databaseName);
+        if (databaseMeta == null) {
           logError(
               BaseMessages.getString(
                   PKG,
-                  "ActionCheckDbConnections.Exception",
-                  databaseMeta.getDatabaseName(),
-                  databaseMeta.getName(),
-                  e.toString()));
+                  "ActionCheckDbConnections.DatabaseConnectionCouldNotBeLoaded.Message",
+                  databaseName));
+          nrErrors++;
+        } else {
+          try (Database db = new Database(this, this, databaseMeta)) {
+            db.connect();
+
+            if (isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG,
+                      "ActionCheckDbConnections.Connected",
+                      databaseMeta.getDatabaseName(),
+                      databaseMeta.getName()));
+            }
+
+            long iMaximumTimeout = Const.toLong(resolve(connection.getWaitTime()), 0L);
+            if (iMaximumTimeout > 0) {
+
+              WaitTimeUnit timeUnit = connection.getWaitTimeUnit();
+              long multiple = timeUnit.getFactor();
+              String waitTimeMessage = connection.getWaitTimeUnit().getDescription();
+              if (isDetailed()) {
+                logDetailed(
+                    BaseMessages.getString(
+                        PKG,
+                        "ActionCheckDbConnections.Wait",
+                        "" + iMaximumTimeout,
+                        waitTimeMessage));
+              }
+
+              // The start time (in seconds, minutes or hours)
+              timeStart = System.currentTimeMillis();
+
+              boolean continueLoop = true;
+              while (continueLoop && !parentWorkflow.isStopped()) {
+                // Update Time value
+                now = System.currentTimeMillis();
+                // Let's check the limit time
+                if ((now >= (timeStart + iMaximumTimeout * multiple))) {
+                  // We have reached the time limit
+                  if (isDetailed()) {
+                    logDetailed(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionCheckDbConnections.WaitTimeIsElapsed.Label",
+                            databaseMeta.getDatabaseName(),
+                            databaseMeta.getName()));
+                  }
+
+                  continueLoop = false;
+                } else {
+                  try {
+                    Thread.sleep(100);
+                  } catch (Exception e) {
+                    // Ignore sleep errors
+                  }
+                }
+              }
+            }
+
+            nrSuccess++;
+            if (isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG,
+                      "ActionCheckDbConnections.ConnectionOK",
+                      databaseMeta.getDatabaseName(),
+                      databaseMeta.getName()));
+            }
+          } catch (HopDatabaseException e) {
+            nrErrors++;
+            logError(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionCheckDbConnections.Exception",
+                    databaseMeta.getDatabaseName(),
+                    databaseMeta.getName(),
+                    e.toString()));
+          }
         }
       }
     }
@@ -190,6 +203,17 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
     return result;
   }
 
+  private DatabaseMeta loadDatabaseMeta(String databaseName) {
+    try {
+      IHopMetadataSerializer<DatabaseMeta> serializer =
+          getMetadataProvider().getSerializer(DatabaseMeta.class);
+      return serializer.load(databaseName);
+    } catch (HopException e) {
+      logError("Error loading database metadata for connection '" + databaseName + "'", e);
+      return null;
+    }
+  }
+
   @Override
   public boolean isEvaluation() {
     return true;
@@ -201,7 +225,7 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
 
     for (CDConnection connection : connections) {
-      DatabaseMeta databaseMeta = connection.getDatabaseMeta();
+      DatabaseMeta databaseMeta = loadDatabaseMeta(resolve(connection.getName()));
       if (databaseMeta != null) {
         ResourceReference reference = new ResourceReference(this);
         reference
@@ -223,18 +247,26 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    ActionValidatorUtils.andValidator()
-        .validate(
-            this,
-            "tablename",
-            remarks,
-            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
-    ActionValidatorUtils.andValidator()
-        .validate(
-            this,
-            "columnname",
-            remarks,
-            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+
+    if (connections == null || connections.isEmpty()) {
+      String message =
+          BaseMessages.getString(PKG, "ActionCheckDbConnections.CheckResult.NothingToCheck");
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, message, this));
+    } else {
+      for (CDConnection connection : connections) {
+        if (Utils.isEmpty(connection.getName())) {
+          String message =
+              BaseMessages.getString(
+                  PKG, "ActionCheckDbConnections.CheckResult.MissingConnectionName");
+          remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, this));
+        }
+        if (Utils.isEmpty(connection.getWaitTime())) {
+          String message =
+              BaseMessages.getString(PKG, "ActionCheckDbConnections.CheckResult.MissingWaitTime");
+          remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, this));
+        }
+      }
+    }
   }
 
   public enum WaitTimeUnit implements IEnumHasCodeAndDescription {
@@ -255,9 +287,9 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
         BaseMessages.getString(PKG, "ActionCheckDbConnections.UnitTimeHour.Label"),
         3600000L),
     ;
-    private final String code;
-    private final String description;
-    private final long factor;
+    @Getter private final String code;
+    @Getter private final String description;
+    @Getter private final long factor;
 
     WaitTimeUnit(String code, String description, long factor) {
       this.code = code;
@@ -273,40 +305,13 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
       return IEnumHasCodeAndDescription.lookupDescription(
           WaitTimeUnit.class, description, MILLISECOND);
     }
-
-    /**
-     * Gets code
-     *
-     * @return value of code
-     */
-    @Override
-    public String getCode() {
-      return code;
-    }
-
-    /**
-     * Gets description
-     *
-     * @return value of description
-     */
-    @Override
-    public String getDescription() {
-      return description;
-    }
-
-    /**
-     * Gets factor
-     *
-     * @return value of factor
-     */
-    public long getFactor() {
-      return factor;
-    }
   }
 
+  @Getter
+  @Setter
   public static final class CDConnection {
-    @HopMetadataProperty(key = "name", storeWithName = true)
-    private DatabaseMeta databaseMeta;
+    @HopMetadataProperty(key = "name")
+    private String name;
 
     @HopMetadataProperty(key = "waitfor")
     private String waitTime;
@@ -321,63 +326,9 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
 
     public CDConnection(CDConnection c) {
       this();
-      this.databaseMeta = c.databaseMeta == null ? null : new DatabaseMeta(c.databaseMeta);
+      this.name = c.name;
       this.waitTime = c.waitTime;
       this.waitTimeUnit = c.waitTimeUnit;
-    }
-
-    /**
-     * Gets connection
-     *
-     * @return value of connection
-     */
-    public DatabaseMeta getDatabaseMeta() {
-      return databaseMeta;
-    }
-
-    /**
-     * Sets connection
-     *
-     * @param databaseMeta value of connection
-     */
-    public void setDatabaseMeta(DatabaseMeta databaseMeta) {
-      this.databaseMeta = databaseMeta;
-    }
-
-    /**
-     * Gets waitTime
-     *
-     * @return value of waitTime
-     */
-    public String getWaitTime() {
-      return waitTime;
-    }
-
-    /**
-     * Sets waitTime
-     *
-     * @param waitTime value of waitTime
-     */
-    public void setWaitTime(String waitTime) {
-      this.waitTime = waitTime;
-    }
-
-    /**
-     * Gets waitTimeUnit
-     *
-     * @return value of waitTimeUnit
-     */
-    public WaitTimeUnit getWaitTimeUnit() {
-      return waitTimeUnit;
-    }
-
-    /**
-     * Sets waitTimeUnit
-     *
-     * @param waitTimeUnit value of waitTimeUnit
-     */
-    public void setWaitTimeUnit(WaitTimeUnit waitTimeUnit) {
-      this.waitTimeUnit = waitTimeUnit;
     }
   }
 

@@ -100,9 +100,6 @@ public class HopGuiWorkflowCheckDelegate {
       workflowGraph.addExtraView();
     } else {
       if (workflowCheckTab != null && !workflowCheckTab.isDisposed()) {
-        // just set this one active and get out...
-        //
-        workflowGraph.extraViewTabFolder.setSelection(workflowCheckTab);
         return;
       }
     }
@@ -151,7 +148,6 @@ public class HopGuiWorkflowCheckDelegate {
     wTree.addListener(SWT.DefaultSelection, this::edit);
 
     workflowCheckTab.setControl(checkComposite);
-    workflowGraph.extraViewTabFolder.setSelection(workflowCheckTab);
   }
 
   @GuiToolbarElement(
@@ -184,6 +180,10 @@ public class HopGuiWorkflowCheckDelegate {
     try {
       final List<ICheckResult> remarks = new ArrayList<>();
 
+      // Activate folder tab
+      //
+      workflowGraph.extraViewTabFolder.setSelection(workflowCheckTab);
+
       // Run the check in a progress dialog with a monitor...
       //
       ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(hopGui.getShell());
@@ -205,10 +205,6 @@ public class HopGuiWorkflowCheckDelegate {
                       PKG, "WorkflowGraph.Check.ErrorCheckingWorkflow.Exception", e));
             }
           });
-
-      // Active tab
-      //
-      this.workflowGraph.extraViewTabFolder.setSelection(workflowCheckTab);
 
       // Update checks results
       //

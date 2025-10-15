@@ -34,31 +34,31 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @see InsertUpdate
  */
-public class InsertUpdateTestLazyConversionTest {
+class InsertUpdateTestLazyConversionTest {
   TransformMockHelper<InsertUpdateMeta, InsertUpdateData> smh;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     smh = new TransformMockHelper<>("insertUpdate", InsertUpdateMeta.class, InsertUpdateData.class);
     when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testDateLazyConversion() throws HopException {
+  void testDateLazyConversion() throws HopException {
 
     Database db = mock(Database.class);
 

@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,46 +48,46 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
  * Unit tests for calculator transform
  *
  * @see Calculator
  */
-public class CalculatorUnitTest {
+class CalculatorUnitTest {
   private TransformMockHelper<CalculatorMeta, CalculatorData> smh;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void init() throws HopException {
+  @BeforeAll
+  static void init() throws HopException {
     HopEnvironment.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     smh = new TransformMockHelper<>("Calculator", CalculatorMeta.class, CalculatorData.class);
     when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testMissingFile() throws HopException {
+  void testMissingFile() throws HopException {
     RowMeta inputRowMeta = new RowMeta();
     ValueMetaString pathMeta = new ValueMetaString("Path");
     inputRowMeta.addValueMeta(pathMeta);
@@ -129,7 +129,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void testAddSeconds() throws HopException {
+  void testAddSeconds() {
     RowMeta inputRowMeta = new RowMeta();
     ValueMetaDate dayMeta = new ValueMetaDate("Day");
     inputRowMeta.addValueMeta(dayMeta);
@@ -206,7 +206,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void testReturnDigitsOnly() throws HopException {
+  void testReturnDigitsOnly() {
     RowMeta inputRowMeta = new RowMeta();
     ValueMetaString nameMeta = new ValueMetaString("Name");
     inputRowMeta.addValueMeta(nameMeta);
@@ -248,8 +248,7 @@ public class CalculatorUnitTest {
       calculator.addRowListener(
           new RowAdapter() {
             @Override
-            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                throws HopTransformException {
+            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
               customAssertEquals("123456", row[2]);
             }
           });
@@ -261,7 +260,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void calculatorShouldClearDataInstance() throws Exception {
+  void calculatorShouldClearDataInstance() throws Exception {
     RowMeta inputRowMeta = new RowMeta();
     ValueMetaInteger valueMeta = new ValueMetaInteger("Value");
     inputRowMeta.addValueMeta(valueMeta);
@@ -303,7 +302,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void testRound1() throws HopException {
+  void testRound1() throws HopException {
     assertRound1(1.0, 1.2);
     assertRound1(2.0, 1.5);
     assertRound1(2.0, 1.7);
@@ -322,7 +321,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void testRound2() throws HopException {
+  void testRound2() throws HopException {
     assertRound2(1.0, 1.2, 0);
     assertRound2(2.0, 1.5, 0);
     assertRound2(2.0, 1.7, 0);
@@ -373,7 +372,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void testRoundStd1() throws HopException {
+  void testRoundStd1() throws HopException {
     assertRoundStd1(1.0, 1.2);
     assertRoundStd1(2.0, 1.5);
     assertRoundStd1(2.0, 1.7);
@@ -392,7 +391,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void testRoundStd2() throws HopException {
+  void testRoundStd2() throws HopException {
     assertRoundStd2(1.0, 1.2, 0);
     assertRoundStd2(2.0, 1.5, 0);
     assertRoundStd2(2.0, 1.7, 0);
@@ -408,7 +407,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void testRoundCustom1() throws HopException {
+  void testRoundCustom1() throws HopException {
     assertRoundCustom1(2.0, 1.2, BigDecimal.ROUND_UP);
     assertRoundCustom1(1.0, 1.2, BigDecimal.ROUND_DOWN);
     assertRoundCustom1(2.0, 1.2, BigDecimal.ROUND_CEILING);
@@ -519,7 +518,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void testRoundCustom2() throws HopException {
+  void testRoundCustom2() throws HopException {
     assertRoundCustom2(2.0, 1.2, 0, BigDecimal.ROUND_UP);
     assertRoundCustom2(1.0, 1.2, 0, BigDecimal.ROUND_DOWN);
     assertRoundCustom2(2.0, 1.2, 0, BigDecimal.ROUND_CEILING);
@@ -636,8 +635,7 @@ public class CalculatorUnitTest {
       final Long precision,
       final Long roundingMode,
       final int valueDataType,
-      final int functionDataType)
-      throws HopException {
+      final int functionDataType) {
 
     final String msg =
         getHopTypeName(valueDataType) + "->" + getHopTypeName(functionDataType) + " ";
@@ -694,7 +692,7 @@ public class CalculatorUnitTest {
     IRowSet inputRowSet = smh.getMockInputRowSet(inputValues.toArray());
     inputRowSet.setRowMeta(inputRowMeta);
     final String fieldA =
-        inputRowMeta.size() > 0 ? inputRowMeta.getValueMetaList().get(0).getName() : null;
+        !inputRowMeta.isEmpty() ? inputRowMeta.getValueMetaList().get(0).getName() : null;
     final String fieldB =
         inputRowMeta.size() > 1 ? inputRowMeta.getValueMetaList().get(1).getName() : null;
     final String fieldC =
@@ -736,8 +734,7 @@ public class CalculatorUnitTest {
       calculator.addRowListener(
           new RowAdapter() {
             @Override
-            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                throws HopTransformException {
+            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
               customAssertEquals(expectedResultRowSize, rowMeta.size());
               final int fieldResultIndex = rowMeta.size() - 1;
               customAssertEquals(fieldResult, rowMeta.getValueMeta(fieldResultIndex).getName());
@@ -865,30 +862,23 @@ public class CalculatorUnitTest {
 
   public void assertRound2(final Number expectedResult, final Number value, final long precision)
       throws HopException {
-    assertRoundEveryDataType(
-        expectedResult, CalculatorMetaFunction.CalculationType.ROUND_2, value, precision, null);
+    assertRoundEveryDataType(expectedResult, CalculationType.ROUND_2, value, precision, null);
   }
 
   public void assertRoundStd1(final Number expectedResult, final Number value) throws HopException {
-    assertRoundEveryDataType(
-        expectedResult, CalculatorMetaFunction.CalculationType.ROUND_STD_1, value, null, null);
+    assertRoundEveryDataType(expectedResult, CalculationType.ROUND_STD_1, value, null, null);
   }
 
   public void assertRoundStd2(final Number expectedResult, final Number value, final long precision)
       throws HopException {
-    assertRoundEveryDataType(
-        expectedResult, CalculatorMetaFunction.CalculationType.ROUND_STD_2, value, precision, null);
+    assertRoundEveryDataType(expectedResult, CalculationType.ROUND_STD_2, value, precision, null);
   }
 
   public void assertRoundCustom1(
       final Number expectedResult, final Number value, final long roundingMode)
       throws HopException {
     assertRoundEveryDataType(
-        expectedResult,
-        CalculatorMetaFunction.CalculationType.ROUND_CUSTOM_1,
-        value,
-        null,
-        roundingMode);
+        expectedResult, CalculationType.ROUND_CUSTOM_1, value, null, roundingMode);
   }
 
   public void assertRoundCustom2(
@@ -898,11 +888,7 @@ public class CalculatorUnitTest {
       final long roundingMode)
       throws HopException {
     assertRoundEveryDataType(
-        expectedResult,
-        CalculatorMetaFunction.CalculationType.ROUND_CUSTOM_2,
-        value,
-        precision,
-        roundingMode);
+        expectedResult, CalculationType.ROUND_CUSTOM_2, value, precision, roundingMode);
   }
 
   /**
@@ -964,7 +950,7 @@ public class CalculatorUnitTest {
   }
 
   @Test
-  public void calculatorReminder() throws Exception {
+  void calculatorReminder() throws Exception {
     assertCalculatorReminder(
         Double.valueOf("0.10000000000000053"),
         new Object[] {Long.valueOf("10"), Double.valueOf("3.3")},

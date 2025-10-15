@@ -49,6 +49,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -68,6 +69,7 @@ import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.project.ProjectDialog;
 import org.apache.hop.projects.util.ProjectsUtil;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -81,11 +83,11 @@ import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.core.widget.FileTree;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
@@ -466,7 +468,7 @@ public class ProjectsGuiPlugin {
     if (config.isEnvironmentsForActiveProject() && StringUtils.isEmpty(projectName)) {
       // list all environments and select the first one if we don't have a project selected
       List<String> allEnvironments = config.listEnvironmentNames();
-      environmentsCombo.setItems(allEnvironments.toArray(new String[allEnvironments.size()]));
+      environmentsCombo.setItems(allEnvironments.toArray(new String[0]));
       selectEnvironmentInList(allEnvironments.get(0));
       return;
     }
@@ -477,13 +479,11 @@ public class ProjectsGuiPlugin {
       // get the environments for the selected project.
       if (environmentsCombo != null) {
         List<String> projectEnvironments = config.listEnvironmentNamesForProject(projectName);
-        environmentsCombo.setItems(
-            projectEnvironments.toArray(new String[projectEnvironments.size()]));
+        environmentsCombo.setItems(projectEnvironments.toArray(new String[0]));
       }
     } else {
       List<String> projectEnvironments = config.listEnvironmentNames();
-      environmentsCombo.setItems(
-          projectEnvironments.toArray(new String[projectEnvironments.size()]));
+      environmentsCombo.setItems(projectEnvironments.toArray(new String[0]));
     }
 
     // What is the last used environment?
@@ -1122,55 +1122,17 @@ public class ProjectsGuiPlugin {
       Shell treeShell =
           new Shell(
               shell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL);
-      PropsUi.setLook(treeShell);
+      treeShell.setText(BaseMessages.getString(PKG, "HopGui.FileMenu.Project.Export.Label"));
       treeShell.setImage(GuiResource.getInstance().getImageHopUi());
+      treeShell.setMinimumSize(500, 300);
       PropsUi.setLook(treeShell);
-      treeShell.setMinimumSize(500, 200);
 
-      GridLayout layout = new GridLayout();
-      layout.numColumns = 4;
-      treeShell.setLayout(layout);
+      FormLayout formLayout = new FormLayout();
+      formLayout.marginWidth = PropsUi.getFormMargin();
+      formLayout.marginHeight = PropsUi.getFormMargin();
+      treeShell.setLayout(formLayout);
 
-      tree = new FileTree(treeShell, HopVfs.getFileObject(projectHome), projectName);
-      GridData gd = new GridData(GridData.FILL_BOTH);
-      gd.horizontalSpan = 4;
-      gd.heightHint = 300;
-      gd.horizontalIndent = 10;
-      tree.setLayoutData(gd);
-
-      Label separator = new Label(treeShell, SWT.SEPARATOR | SWT.SHADOW_OUT | SWT.HORIZONTAL);
-      GridData gdSeparator = new GridData(SWT.FILL, SWT.CENTER, true, false);
-      gdSeparator.horizontalSpan = 4;
-      separator.setLayoutData(gdSeparator);
-
-      Button btnIncludeVariables = new Button(treeShell, SWT.CHECK);
-      btnIncludeVariables.setSelection(true);
-      btnIncludeVariables.addListener(
-          SWT.Selection, event -> includeVariables.set(btnIncludeVariables.getSelection()));
-      GridData gdBtnIncludeVariables = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-      gdBtnIncludeVariables.horizontalIndent = 10;
-      btnIncludeVariables.setLayoutData(gdBtnIncludeVariables);
-      Label lblIncludeVariables = new Label(treeShell, SWT.NONE);
-      lblIncludeVariables.setText(
-          BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeVariables.Label"));
-      GridData gdLblIncludeVariables = new GridData(GridData.FILL_HORIZONTAL);
-      gdLblIncludeVariables.horizontalSpan = 3;
-      lblIncludeVariables.setLayoutData(gdLblIncludeVariables);
-
-      Button btnIncludeMetadata = new Button(treeShell, SWT.CHECK);
-      btnIncludeMetadata.setSelection(true);
-      btnIncludeMetadata.addListener(
-          SWT.Selection, event -> includeMetadata.set(btnIncludeMetadata.getSelection()));
-      GridData gdBtnIncludeMetadata = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-      gdBtnIncludeMetadata.horizontalIndent = 10;
-      btnIncludeMetadata.setLayoutData(gdBtnIncludeMetadata);
-      Label lblIncludeMetadata = new Label(treeShell, SWT.NONE);
-      lblIncludeMetadata.setText(
-          BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeMetadata.Label"));
-      GridData gdLblIncludeMetadata = new GridData(GridData.FILL_HORIZONTAL);
-      gdLblIncludeMetadata.horizontalSpan = 3;
-      lblIncludeMetadata.setLayoutData(gdLblIncludeMetadata);
-
+      // Some buttons at the bottom
       Button okButton = new Button(treeShell, SWT.PUSH);
       okButton.setText(BaseMessages.getString(PKG, "System.Button.OK"));
       okButton.addListener(
@@ -1179,20 +1141,55 @@ public class ProjectsGuiPlugin {
             cancel.set(false);
             treeShell.dispose();
           });
-      GridData gdBtnOk = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-      gdBtnOk.horizontalSpan = 2;
-      gdBtnOk.widthHint = 100;
-      okButton.setLayoutData(gdBtnOk);
-      treeShell.setDefaultButton(okButton);
 
       Button cancelButton = new Button(treeShell, SWT.PUSH);
       cancelButton.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
       cancelButton.addListener(SWT.Selection, event -> treeShell.dispose());
-      GridData gdBtCancel = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
-      gdBtCancel.horizontalSpan = 2;
-      gdBtCancel.widthHint = 100;
-      cancelButton.setLayoutData(gdBtCancel);
+      BaseTransformDialog.positionBottomButtons(
+          shell, new Button[] {okButton, cancelButton}, PropsUi.getMargin(), null);
 
+      Label separator = new Label(treeShell, SWT.SEPARATOR | SWT.HORIZONTAL);
+      separator.setLayoutData(
+          new FormDataBuilder()
+              .left()
+              .fullWidth()
+              .bottom(okButton, -2 * PropsUi.getMargin())
+              .result());
+
+      Button btnIncludeMetadata = new Button(treeShell, SWT.CHECK);
+      PropsUi.setLook(btnIncludeMetadata);
+      btnIncludeMetadata.setText(
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeMetadata.Label"));
+      btnIncludeMetadata.setSelection(true);
+      btnIncludeMetadata.setLayoutData(
+          new FormDataBuilder().fullWidth().bottom(separator, -2 * PropsUi.getMargin()).result());
+      btnIncludeMetadata.addListener(
+          SWT.Selection, event -> includeMetadata.set(btnIncludeMetadata.getSelection()));
+
+      Button btnIncludeVariables = new Button(treeShell, SWT.CHECK);
+      PropsUi.setLook(btnIncludeVariables);
+      btnIncludeVariables.setText(
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeVariables.Label"));
+      btnIncludeVariables.setSelection(true);
+      btnIncludeVariables.addListener(
+          SWT.Selection, event -> includeVariables.set(btnIncludeVariables.getSelection()));
+      btnIncludeVariables.setLayoutData(
+          new FormDataBuilder()
+              .fullWidth()
+              .bottom(btnIncludeMetadata, -PropsUi.getMargin())
+              .result());
+
+      tree = new FileTree(treeShell, HopVfs.getFileObject(projectHome), projectName);
+      tree.setLayoutData(
+          new FormDataBuilder()
+              .top()
+              .fullWidth()
+              .bottom(btnIncludeVariables, -PropsUi.getMargin())
+              .result());
+
+      BaseTransformDialog.setSize(treeShell);
+
+      treeShell.setDefaultButton(okButton);
       treeShell.pack();
       treeShell.open();
 
@@ -1245,24 +1242,26 @@ public class ProjectsGuiPlugin {
                   new SerializableMetadataProvider(hopGui.getMetadataProvider());
               String metadataJson = metadataProvider.toJson();
 
-              OutputStream outputStream = HopVfs.getOutputStream(zipFilename, false);
+              FileObject zipFile = HopVfs.getFileObject(zipFilename);
+              OutputStream outputStream = HopVfs.getOutputStream(zipFile, false);
               ZipOutputStream zos = new ZipOutputStream(outputStream);
               FileObject projectDirectory = HopVfs.getFileObject(projectHome);
               String projectHomeFolder =
                   HopVfs.getFileObject(projectHome).getParent().getName().getURI();
 
+              // Includes selected files and dependencies
               if (!tree.getFileObjects().isEmpty()) {
                 for (FileObject fileObject : tree.getFileObjects()) {
-                  zipFile(
-                      fileObject,
-                      fileObject.getName().getURI(),
-                      zos,
-                      projectHomeFolder,
-                      zipFilename);
+                  // To prevent the zip file from including itself
+                  if (zipFile.equals(fileObject)) {
+                    continue;
+                  }
+                  monitor.subTask(fileObject.getName().getURI());
+                  zipFile(fileObject, fileObject.getName().getURI(), zos, projectHomeFolder);
                 }
-              } else {
-                return;
               }
+
+              // Includes config file
               zipFile(
                   HopVfs.getFileObject(
                       Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG),
@@ -1270,21 +1269,26 @@ public class ProjectsGuiPlugin {
                       + Const.FILE_SEPARATOR
                       + Const.HOP_CONFIG,
                   zos,
-                  projectHomeFolder,
-                  zipFilename);
+                  projectHomeFolder);
+
+              // Includes variables
               if (includeVariables.get()) {
                 zipString(
                     variablesJson, "variables.json", zos, projectDirectory.getName().getBaseName());
               }
+
+              // Includes metadata
               if (includeMetadata.get()) {
                 zipString(
                     metadataJson, "metadata.json", zos, projectDirectory.getName().getBaseName());
               }
+
               zos.close();
               outputStream.close();
-              monitor.done();
             } catch (Exception e) {
               throw new InvocationTargetException(e, "Error zipping project: " + e.getMessage());
+            } finally {
+              monitor.done();
             }
           };
 
@@ -1316,52 +1320,40 @@ public class ProjectsGuiPlugin {
    * @param filename destination filename
    * @param zipOutputStream zip output stream to append the file to
    * @param projectHomeParent project home folder to be stripped from the base path
-   * @param zipFilename name of the destination zip file
    * @throws IOException when failing to add a file to the zip
    */
   public void zipFile(
       FileObject fileToZip,
       String filename,
       ZipOutputStream zipOutputStream,
-      String projectHomeParent,
-      String zipFilename)
+      String projectHomeParent)
       throws IOException {
     if (fileToZip.isHidden()) {
       return;
     }
+
+    // Build relative filename
+    filename = filename.replace(projectHomeParent, "");
+    if (filename.startsWith("/")) {
+      filename = filename.substring(1);
+    }
+
+    zipOutputStream.putNextEntry(new ZipEntry(filename));
     if (fileToZip.isFolder()) {
-      if (filename.endsWith("/")) {
-        zipOutputStream.putNextEntry(new ZipEntry(filename.replaceAll(projectHomeParent, "")));
-        zipOutputStream.closeEntry();
-      } else {
-        zipOutputStream.putNextEntry(
-            new ZipEntry(filename.replaceAll(projectHomeParent, "") + "/"));
-        zipOutputStream.closeEntry();
-      }
-      FileObject[] children = fileToZip.getChildren();
-      for (FileObject childFile : children) {
-        if (childFile.equals(zipFilename)) {
-          return;
-        }
+      zipOutputStream.closeEntry();
+      for (FileObject childFile : fileToZip.getChildren()) {
         zipFile(
             childFile,
             filename + "/" + childFile.getName().getBaseName(),
             zipOutputStream,
-            projectHomeParent,
-            zipFilename);
+            projectHomeParent);
       }
-      return;
+    } else {
+      InputStream fis = HopVfs.getInputStream(fileToZip);
+      fis.transferTo(zipOutputStream);
+      fis.close();
+      zipOutputStream.closeEntry();
     }
-    InputStream fis = HopVfs.getInputStream(fileToZip);
-    ZipEntry zipEntry = new ZipEntry(filename.replaceAll(projectHomeParent, ""));
-    zipOutputStream.putNextEntry(zipEntry);
-    byte[] bytes = new byte[1024];
-    int length;
-    while ((length = fis.read(bytes)) >= 0) {
-      zipOutputStream.write(bytes, 0, length);
-    }
-    zipOutputStream.closeEntry();
-    fis.close();
   }
 
   /**
@@ -1379,7 +1371,7 @@ public class ProjectsGuiPlugin {
       ZipOutputStream zipOutputStream,
       String projectHomeParent)
       throws IOException {
-    if (stringToZip == null || stringToZip.isEmpty()) {
+    if (Utils.isEmpty(stringToZip)) {
       return;
     }
     ByteArrayInputStream bais = new ByteArrayInputStream(stringToZip.getBytes());

@@ -18,12 +18,40 @@ under the License.
 :language: en_US
 :description: The Join action waits for parallel branches.
 
-= Join
+== Join Action
 
-== Description
+=== Description
 
-The `Join` action waits for all parallel branches at the same level to complete before running the next action(s).
+The *Join* action is used to synchronize parallel branches in a workflow. It acts as a control point that *waits for all preceding parallel branches at the same level* to complete before continuing with the next action(s). 
 
-== Usage
+This eliminates the need to create separate child workflows solely for the purpose of joining and continuing execution after parallel tasks have completed.
 
-By default, actions in a workflow run sequentially. To organize actions into separate branches and run those branches at the same time, you can execute parallel branches, and then join those branches later in your workflow.
+=== Usage
+
+Traditionally in Apache Hop, if you wanted to run parts of a workflow in parallel and then continue with a sequential flow, you would isolate those parallel sections in a child workflow. This was necessary to prevent downstream actions from being executed prematurely.
+
+With the new *Join* action, this workaround is no longer needed.
+
+To use the Join action:
+
+. Configure your workflow with multiple outgoing hops from a single action.
+. Enable *parallel execution* on the outgoing hops you want to run in parallel.
+. Add the *Join* action at the point where all parallel branches converge.
+. Connect all parallel branches to the *Join* action with regular (non-parallel) hops.
+. Connect the *Join* action to the next action you want to execute *after all parallel tasks have finished*.
+
+=== Example Workflow Structure
+
+When executed:
+
+image:how-to-guides/parallel-workflows/continue-in-parallel-join.png[Using the join action instead of a child workflow, width="65%"]
+
+* The actions `pipeline-1`, `pipeline-2` and `pipeline-3` run in parallel.
+* The `join` action waits until `pipeline-1`, `pipeline-2` and `pipeline-3` are finished.
+* Once they complete, the workflow continues with final action `check-datasets`.
+
+=== Benefits
+
+* *Simplifies parallel execution:* No need for a separate child workflow just to coordinate branches.
+* *Improves readability:* Your parallel and sequential logic can be maintained in a single workflow.
+* *Increases maintainability:* Fewer components and external dependencies (child workflows) to manage.

@@ -20,40 +20,41 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class WorkflowEntryTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class WorkflowEntryTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void setupBeforeClass() throws HopException {
+  @BeforeAll
+  static void setupBeforeClass() throws HopException {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testJobEntrymailPasswordFixed() {
+  void testJobEntrymailPasswordFixed() {
     ActionMail jem = new ActionMail();
     assertEquals("asdf", jem.getPassword("asdf"));
   }
 
   @Test
-  public void testJobEntrymailPasswordEcr() {
+  void testJobEntrymailPasswordEcr() {
     ActionMail jem = new ActionMail();
     assertEquals("asdf", jem.getPassword("Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc"));
   }
 
   @Test
-  public void testJobEntrymailPasswordVar() {
+  void testJobEntrymailPasswordVar() {
     ActionMail jem = new ActionMail();
     jem.setVariable("my_pass", "asdf");
     assertEquals("asdf", jem.getPassword("${my_pass}"));
   }
 
   @Test
-  public void testJobEntrymailPasswordEncrVar() {
+  void testJobEntrymailPasswordEncrVar() {
     ActionMail jem = new ActionMail();
     jem.setVariable("my_pass", "Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc");
     assertEquals("asdf", jem.getPassword("${my_pass}"));

@@ -40,5 +40,3 @@ On certain operating systems (MS Windows systems in particular) this operation w
 |Wildcard|The wildcards are Java Regular expressions.
 For instance .*\.txt would check any file with a .txt extension.
 |===
-
-After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.

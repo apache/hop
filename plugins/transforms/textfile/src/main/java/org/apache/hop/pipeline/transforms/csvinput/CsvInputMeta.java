@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.csvinput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -27,6 +29,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IInputFileMeta;
@@ -56,6 +59,8 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.w3c.dom.Node;
 
 @InjectionSupported(
@@ -69,6 +74,8 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::CsvInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/csvinput.html")
+@Getter
+@Setter
 public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     implements IInputFileMeta, ICsvInputAwareMeta {
 
@@ -111,7 +118,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
   @InjectionDeep private TextFileInputField[] inputFields;
 
   @Injection(name = "ADD_RESULT")
-  private boolean isaddresult;
+  private boolean addResult;
 
   @Injection(name = "RUNNING_IN_PARALLEL")
   private boolean runningInParallel;
@@ -125,17 +132,13 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
   @Injection(name = "SCHEMA_DEFINITION")
   private String schemaDefinition;
 
+  /** Reference to ignore fields tab */
+  @Injection(name = "IGNORE_FIELDS")
+  public boolean ignoreFields;
+
   public CsvInputMeta() {
     super();
     allocate(0);
-  }
-
-  public String getSchemaDefinition() {
-    return schemaDefinition;
-  }
-
-  public void setSchemaDefinition(String schemaDefinition) {
-    this.schemaDefinition = schemaDefinition;
   }
 
   @Override
@@ -160,7 +163,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     enclosure = "\"";
     headerPresent = true;
     lazyConversionActive = true;
-    isaddresult = false;
+    addResult = false;
     bufferSize = "50000";
   }
 
@@ -175,10 +178,11 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
       enclosure = XmlHandler.getTagValue(transformNode, "enclosure");
       bufferSize = XmlHandler.getTagValue(transformNode, "buffer_size");
       schemaDefinition = XmlHandler.getTagValue(transformNode, "schemaDefinition");
+      ignoreFields = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignoreFields"));
       headerPresent = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "header"));
       lazyConversionActive =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "lazy_conversion"));
-      isaddresult =
+      addResult =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "add_filename_result"));
       runningInParallel = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "parallel"));
       String nlp = XmlHandler.getTagValue(transformNode, "newline_possible");
@@ -237,8 +241,9 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     retval.append("    ").append(XmlHandler.addTagValue("header", headerPresent));
     retval.append("    ").append(XmlHandler.addTagValue("buffer_size", bufferSize));
     retval.append("    ").append(XmlHandler.addTagValue("schemaDefinition", schemaDefinition));
+    retval.append("    ").append(XmlHandler.addTagValue("ignoreFields", ignoreFields));
     retval.append("    ").append(XmlHandler.addTagValue("lazy_conversion", lazyConversionActive));
-    retval.append("    ").append(XmlHandler.addTagValue("add_filename_result", isaddresult));
+    retval.append("    ").append(XmlHandler.addTagValue("add_filename_result", addResult));
     retval.append("    ").append(XmlHandler.addTagValue("parallel", runningInParallel));
     retval
         .append("    ")
@@ -293,39 +298,83 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     try {
       rowMeta.clear(); // Start with a clean slate, eats the input
 
-      for (int i = 0; i < inputFields.length; i++) {
-        TextFileInputField field = inputFields[i];
+      if (ignoreFields) {
 
-        IValueMeta valueMeta = ValueMetaFactory.createValueMeta(field.getName(), field.getType());
-        valueMeta.setConversionMask(field.getFormat());
-        valueMeta.setLength(field.getLength());
-        valueMeta.setPrecision(field.getPrecision());
-        valueMeta.setConversionMask(field.getFormat());
-        valueMeta.setDecimalSymbol(field.getDecimalSymbol());
-        valueMeta.setGroupingSymbol(field.getGroupSymbol());
-        valueMeta.setCurrencySymbol(field.getCurrencySymbol());
-        valueMeta.setTrimType(field.getTrimType());
-        if (lazyConversionActive) {
-          valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+        try {
+          SchemaDefinition loadedSchemaDefinition =
+              (new SchemaDefinitionUtil())
+                  .loadSchemaDefinition(metadataProvider, getSchemaDefinition());
+          if (loadedSchemaDefinition != null) {
+            IRowMeta r = loadedSchemaDefinition.getRowMeta();
+            if (r != null) {
+              for (int i = 0; i < r.size(); i++) {
+                IValueMeta v = r.getValueMeta(i);
+                if (lazyConversionActive) {
+                  v.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+                }
+                v.setStringEncoding(variables.resolve(encoding));
+
+                // In case we want to convert Strings...
+                // Using a copy of the valueMeta object means that the inner and outer
+                // representation
+                // format
+                // is the same.
+                // Preview will show the data the same way as we read it.
+                // This layout is then taken further down the road by the metadata through the
+                // pipeline.
+                //
+                IValueMeta storageMetadata =
+                    ValueMetaFactory.cloneValueMeta(v, IValueMeta.TYPE_STRING);
+                storageMetadata.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+                storageMetadata.setLength(
+                    -1, -1); // we don't really know the lengths of the strings read in advance.
+                v.setStorageMetadata(storageMetadata);
+
+                v.setOrigin(origin);
+
+                rowMeta.addValueMeta(v);
+              }
+            }
+          }
+        } catch (HopTransformException | HopPluginException e) {
+          // ignore any errors here.
         }
-        valueMeta.setStringEncoding(variables.resolve(encoding));
+      } else {
+        for (int i = 0; i < inputFields.length; i++) {
+          TextFileInputField field = inputFields[i];
 
-        // In case we want to convert Strings...
-        // Using a copy of the valueMeta object means that the inner and outer representation format
-        // is the same.
-        // Preview will show the data the same way as we read it.
-        // This layout is then taken further down the road by the metadata through the pipeline.
-        //
-        IValueMeta storageMetadata =
-            ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING);
-        storageMetadata.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-        storageMetadata.setLength(
-            -1, -1); // we don't really know the lengths of the strings read in advance.
-        valueMeta.setStorageMetadata(storageMetadata);
+          IValueMeta valueMeta = ValueMetaFactory.createValueMeta(field.getName(), field.getType());
+          valueMeta.setConversionMask(field.getFormat());
+          valueMeta.setLength(field.getLength());
+          valueMeta.setPrecision(field.getPrecision());
+          valueMeta.setConversionMask(field.getFormat());
+          valueMeta.setDecimalSymbol(field.getDecimalSymbol());
+          valueMeta.setGroupingSymbol(field.getGroupSymbol());
+          valueMeta.setCurrencySymbol(field.getCurrencySymbol());
+          valueMeta.setTrimType(field.getTrimType());
+          if (lazyConversionActive) {
+            valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+          }
+          valueMeta.setStringEncoding(variables.resolve(encoding));
 
-        valueMeta.setOrigin(origin);
+          // In case we want to convert Strings...
+          // Using a copy of the valueMeta object means that the inner and outer representation
+          // format
+          // is the same.
+          // Preview will show the data the same way as we read it.
+          // This layout is then taken further down the road by the metadata through the pipeline.
+          //
+          IValueMeta storageMetadata =
+              ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING);
+          storageMetadata.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+          storageMetadata.setLength(
+              -1, -1); // we don't really know the lengths of the strings read in advance.
+          valueMeta.setStorageMetadata(storageMetadata);
 
-        rowMeta.addValueMeta(valueMeta);
+          valueMeta.setOrigin(origin);
+
+          rowMeta.addValueMeta(valueMeta);
+        }
       }
 
       if (!Utils.isEmpty(filenameField) && includingFilename) {
@@ -361,7 +410,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if (prev == null || prev.size() == 0) {
+    if (prev == null || prev.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
@@ -406,83 +455,11 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
   }
 
   /**
-   * @param delimiter the delimiter to set
-   */
-  public void setDelimiter(String delimiter) {
-    this.delimiter = delimiter;
-  }
-
-  /**
-   * @return the filename
-   */
-  public String getFilename() {
-    return filename;
-  }
-
-  /**
-   * @param filename the filename to set
-   */
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  /**
-   * @return the bufferSize
-   */
-  public String getBufferSize() {
-    return bufferSize;
-  }
-
-  /**
-   * @param bufferSize the bufferSize to set
-   */
-  public void setBufferSize(String bufferSize) {
-    this.bufferSize = bufferSize;
-  }
-
-  /**
-   * @return true if lazy conversion is turned on: conversions are delayed as long as possible,
-   *     perhaps to never occur at all.
-   */
-  public boolean isLazyConversionActive() {
-    return lazyConversionActive;
-  }
-
-  /**
-   * @param lazyConversionActive true if lazy conversion is to be turned on: conversions are delayed
-   *     as long as possible, perhaps to never occur at all.
-   */
-  public void setLazyConversionActive(boolean lazyConversionActive) {
-    this.lazyConversionActive = lazyConversionActive;
-  }
-
-  /**
-   * @return the headerPresent
-   */
-  public boolean isHeaderPresent() {
-    return headerPresent;
-  }
-
-  /**
-   * @param headerPresent the headerPresent to set
-   */
-  public void setHeaderPresent(boolean headerPresent) {
-    this.headerPresent = headerPresent;
-  }
-
-  /**
    * @return the enclosure
    */
   @Override
   public String getEnclosure() {
     return enclosure;
-  }
-
-  /**
-   * @param enclosure the enclosure to set
-   */
-  public void setEnclosure(String enclosure) {
-    this.enclosure = enclosure;
   }
 
   @Override
@@ -517,13 +494,6 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
   @Override
   public TextFileInputField[] getInputFields() {
     return inputFields;
-  }
-
-  /**
-   * @param inputFields the inputFields to set
-   */
-  public void setInputFields(TextFileInputField[] inputFields) {
-    this.inputFields = inputFields;
   }
 
   @Override
@@ -599,88 +569,11 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
   }
 
   /**
-   * @return the filenameField
-   */
-  public String getFilenameField() {
-    return filenameField;
-  }
-
-  /**
-   * @param filenameField the filenameField to set
-   */
-  public void setFilenameField(String filenameField) {
-    this.filenameField = filenameField;
-  }
-
-  /**
-   * @return the includingFilename
-   */
-  public boolean isIncludingFilename() {
-    return includingFilename;
-  }
-
-  /**
-   * @param includingFilename the includingFilename to set
-   */
-  public void setIncludingFilename(boolean includingFilename) {
-    this.includingFilename = includingFilename;
-  }
-
-  /**
-   * @return the rowNumField
-   */
-  public String getRowNumField() {
-    return rowNumField;
-  }
-
-  /**
-   * @param rowNumField the rowNumField to set
-   */
-  public void setRowNumField(String rowNumField) {
-    this.rowNumField = rowNumField;
-  }
-
-  /**
-   * @param isaddresult The isaddresult to set.
-   */
-  public void setAddResultFile(boolean isaddresult) {
-    this.isaddresult = isaddresult;
-  }
-
-  /**
-   * @return Returns isaddresult.
-   */
-  public boolean isAddResultFile() {
-    return isaddresult;
-  }
-
-  /**
-   * @return the runningInParallel
-   */
-  public boolean isRunningInParallel() {
-    return runningInParallel;
-  }
-
-  /**
-   * @param runningInParallel the runningInParallel to set
-   */
-  public void setRunningInParallel(boolean runningInParallel) {
-    this.runningInParallel = runningInParallel;
-  }
-
-  /**
    * @return the encoding
    */
   @Override
   public String getEncoding() {
     return encoding;
-  }
-
-  /**
-   * @param encoding the encoding to set
-   */
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
   }
 
   /**
@@ -727,20 +620,6 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  /**
-   * @return the newlinePossibleInFields
-   */
-  public boolean isNewlinePossibleInFields() {
-    return newlinePossibleInFields;
-  }
-
-  /**
-   * @param newlinePossibleInFields the newlinePossibleInFields to set
-   */
-  public void setNewlinePossibleInFields(boolean newlinePossibleInFields) {
-    this.newlinePossibleInFields = newlinePossibleInFields;
   }
 
   @Override

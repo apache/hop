@@ -19,17 +19,16 @@ package org.apache.hop.pipeline.transforms.multimerge;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,17 +36,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
+ class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<MultiMergeJoinMeta> testMetaClass = MultiMergeJoinMeta.class;
   private MultiMergeJoinMeta multiMergeMeta;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setUpLoadSave() throws Exception {
+  @BeforeEach
+ void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     multiMergeMeta = new MultiMergeJoinMeta();
@@ -88,12 +87,12 @@ public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+ void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 
   @Test
-  public void testSetGetInputTransforms() {
+ void testSetGetInputTransforms() {
     assertNull(multiMergeMeta.getInputTransforms());
     String[] inputTransforms = new String[] {"Transform1", "Transform2"};
     multiMergeMeta.setInputTransforms(inputTransforms);
@@ -101,17 +100,17 @@ public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  public void testGetXml() {
+ void testGetXml() {
     String[] inputTransforms = new String[] {"Transform1", "Transform2"};
     multiMergeMeta.setInputTransforms(inputTransforms);
     multiMergeMeta.setKeyFields(new String[] {"Key1", "Key2"});
     String xml = multiMergeMeta.getXml();
-    Assert.assertTrue(xml.contains("transform0"));
-    Assert.assertTrue(xml.contains("transform1"));
+    assertTrue(xml.contains("transform0"));
+    assertTrue(xml.contains("transform1"));
   }
 
   @Test
-  public void cloneTest() throws Exception {
+ void cloneTest() throws Exception {
     MultiMergeJoinMeta meta = new MultiMergeJoinMeta();
     meta.allocateKeys(2);
     meta.allocateInputTransforms(3);
@@ -120,9 +119,9 @@ public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
     // scalars should be cloned using super.clone() - makes sure they're calling super.clone()
     meta.setJoinType("INNER");
     MultiMergeJoinMeta aClone = (MultiMergeJoinMeta) meta.clone();
-    Assert.assertFalse(aClone == meta);
-    Assert.assertTrue(Arrays.equals(meta.getKeyFields(), aClone.getKeyFields()));
-    Assert.assertTrue(Arrays.equals(meta.getInputTransforms(), aClone.getInputTransforms()));
-    Assert.assertEquals(meta.getJoinType(), aClone.getJoinType());
+    assertFalse(aClone == meta);
+    assertTrue(Arrays.equals(meta.getKeyFields(), aClone.getKeyFields()));
+    assertTrue(Arrays.equals(meta.getInputTransforms(), aClone.getInputTransforms()));
+    assertEquals(meta.getJoinType(), aClone.getJoinType());
   }
 }

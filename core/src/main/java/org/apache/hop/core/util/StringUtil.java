@@ -20,7 +20,6 @@ package org.apache.hop.core.util;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -151,12 +150,16 @@ public class StringUtil {
       return null;
     }
 
-    StringBuilder buffer = new StringBuilder();
+    // search for opening string
+    int i = aString.indexOf(open);
+    if (i < 0) // no match, no need to instantiate the string builder
+    {
+      return aString;
+    }
 
     String rest = aString;
 
-    // search for opening string
-    int i = rest.indexOf(open);
+    StringBuilder buffer = new StringBuilder();
     while (i > -1) {
       int j = rest.indexOf(close, i + open.length());
       // search for closing string
@@ -251,20 +254,17 @@ public class StringUtil {
    * properties
    *
    * @param aString the string on which to apply the substitution.
-   * @param systemProperties the system properties to use
+   * @param systemProperties the system properties to use (ensure read is thread safe in calling
+   *     context)
    * @return the string with the substitution applied.
    */
   public static final synchronized String environmentSubstitute(
       String aString, Map<String, String> systemProperties) {
-    Map<String, String> sysMap = new HashMap<>();
-    synchronized (sysMap) {
-      sysMap.putAll(Collections.synchronizedMap(systemProperties));
-
-      aString = substituteWindows(aString, sysMap);
-      aString = substituteUnix(aString, sysMap);
-      aString = substituteHex(aString);
-      return aString;
-    }
+    // system properties are thread safe normally in our usages
+    aString = substituteWindows(aString, systemProperties);
+    aString = substituteUnix(aString, systemProperties);
+    aString = substituteHex(aString);
+    return aString;
   }
 
   /**
@@ -396,7 +396,7 @@ public class StringUtil {
   }
 
   public static String initCap(String st) {
-    if (st == null || st.trim().length() == 0) {
+    if (st == null || st.trim().isEmpty()) {
       return "";
     }
 
@@ -417,7 +417,7 @@ public class StringUtil {
    * @return true if the string supplied is empty
    */
   public static final boolean isEmpty(String string) {
-    return string == null || string.length() == 0;
+    return string == null || string.isEmpty();
   }
 
   /**
@@ -428,7 +428,7 @@ public class StringUtil {
    * @return true if the StringBuilder supplied is empty
    */
   public static final boolean isEmpty(StringBuilder string) {
-    return string == null || string.length() == 0;
+    return string == null || string.isEmpty();
   }
 
   public static String getIndent(int indentLevel) {

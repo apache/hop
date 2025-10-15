@@ -303,6 +303,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "StreamLookupDialog.ColumnInfo.Default"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    ciReturn[2].setUsingVariables(true);
     ciReturn[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "StreamLookupDialog.ColumnInfo.Type"),
@@ -492,7 +493,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
       TableItem item = wReturn.getNonEmpty(i);
       input.getValue()[i] = item.getText(1);
       input.getValueName()[i] = item.getText(2);
-      if (input.getValueName()[i] == null || input.getValueName()[i].length() == 0) {
+      if (Utils.isEmpty(input.getValueName()[i])) {
         input.getValueName()[i] = input.getValue()[i];
       }
       input.getValueDefault()[i] = item.getText(3);

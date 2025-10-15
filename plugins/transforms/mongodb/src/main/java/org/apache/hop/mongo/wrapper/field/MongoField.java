@@ -237,6 +237,19 @@ public class MongoField implements Comparable<MongoField> {
       case IValueMeta.TYPE_STRING:
         return tempValueMeta.getString(fieldValue);
       default:
+        // UUID support
+        try {
+          int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+          if (tempValueMeta.getType() == uuidTypeId) {
+            if (fieldValue instanceof java.util.UUID uuid) {
+              return uuid;
+            } else {
+              return java.util.UUID.fromString(fieldValue.toString());
+            }
+          }
+        } catch (Exception ignore) {
+          // UUID plugin not present, fall through
+        }
         return null;
     }
   }
@@ -337,7 +350,7 @@ public class MongoField implements Comparable<MongoField> {
 
     if (part.indexOf(']') < part.length() - 1) {
       // more dimensions to the array
-      part = part.substring(part.indexOf(']') + 1, part.length());
+      part = part.substring(part.indexOf(']') + 1);
       tempParts.add(0, part);
     }
 

@@ -43,6 +43,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditList;
@@ -781,7 +782,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
             BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Symlink") + Const.CR;
       }
       Map<String, Object> attributes = content.getAttributes();
-      if (attributes != null && !attributes.isEmpty()) {
+      if (!Utils.isEmpty(attributes)) {
         details +=
             BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Attributes") + Const.CR;
         for (String key : attributes.keySet()) {
@@ -1292,9 +1293,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       if (fileObject.isFile() || !fileObject.exists()) {
         fileObject = fileObject.getParent();
       }
-      FileObject navigateUpParent = fileObject.getParent();
-      if (navigateUpParent != null) {
-        navigateTo(HopVfs.getFilename(navigateUpParent), true);
+      if (fileObject != null) {
+        FileObject navigateUpParent = fileObject.getParent();
+        if (navigateUpParent != null) {
+          navigateTo(HopVfs.getFilename(navigateUpParent), true);
+        }
       }
     } catch (Exception e) {
       showError(
@@ -1318,7 +1321,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
             BaseMessages.getString(PKG, "HopVfsFileDialog.CreateFolder.Header"),
             BaseMessages.getString(PKG, "HopVfsFileDialog.CreateFolder.Message", activeFolder));
     folder = dialog.open();
-    if (folder != null && !folder.isEmpty()) {
+    if (!Utils.isEmpty(folder)) {
       String newPath = activeFolder.toString();
       if (!newPath.endsWith("/") && !newPath.endsWith("\\")) {
         newPath += "/";

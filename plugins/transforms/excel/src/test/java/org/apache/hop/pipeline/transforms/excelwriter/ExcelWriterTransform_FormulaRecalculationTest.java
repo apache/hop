@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.doNothing;
@@ -31,19 +31,19 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ExcelWriterTransform_FormulaRecalculationTest {
+class ExcelWriterTransform_FormulaRecalculationTest {
 
   private ExcelWriterTransform transform;
   private ExcelWriterTransformMeta meta;
   private ExcelWriterTransformData data;
   private TransformMockHelper<ExcelWriterTransformMeta, ExcelWriterTransformData> mockHelper;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     mockHelper =
         TransformMockUtil.getTransformMockHelper(
             ExcelWriterTransformMeta.class,
@@ -74,23 +74,23 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
     transform.init();
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     mockHelper.cleanUp();
   }
 
   @Test
-  public void forcesToRecalculate_Sxssf_PropertyIsSet() throws Exception {
+  void forcesToRecalculate_Sxssf_PropertyIsSet() throws Exception {
     forcesToRecalculate_Sxssf("Y", true);
   }
 
   @Test
-  public void forcesToRecalculate_Sxssf_PropertyIsCleared() throws Exception {
+  void forcesToRecalculate_Sxssf_PropertyIsCleared() throws Exception {
     forcesToRecalculate_Sxssf("N", false);
   }
 
   @Test
-  public void forcesToRecalculate_Sxssf_PropertyIsNotSet() throws Exception {
+  void forcesToRecalculate_Sxssf_PropertyIsNotSet() throws Exception {
     forcesToRecalculate_Sxssf(null, false);
   }
 
@@ -110,7 +110,7 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
   }
 
   @Test
-  public void forcesToRecalculate_Hssf() throws Exception {
+  void forcesToRecalculate_Hssf() throws Exception {
     data.currentWorkbookDefinition.setWorkbook(new HSSFWorkbook());
     data.currentWorkbookDefinition.getWorkbook().createSheet("sheet1");
     data.currentWorkbookDefinition.getWorkbook().createSheet("sheet2");
@@ -123,7 +123,7 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
       for (int i = 0; i < sheets; i++) {
         Sheet sheet = data.currentWorkbookDefinition.getWorkbook().getSheetAt(i);
         assertTrue(
-            "Sheet #" + i + ": " + sheet.getSheetName(), sheet.getForceFormulaRecalculation());
+            sheet.getForceFormulaRecalculation(), "Sheet #" + i + ": " + sheet.getSheetName());
       }
     }
   }

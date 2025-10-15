@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.abort;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
@@ -32,13 +32,13 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 
-public class AbortMetaTest {
+class AbortMetaTest {
 
   @Test
-  public void testRoundTrip() throws HopException {
+  void testRoundTrip() throws HopException {
     List<String> attributes =
         Arrays.asList("row_threshold", "message", "always_log_rows", "abort_option");
 
@@ -68,16 +68,18 @@ public class AbortMetaTest {
   }
 
   @Test
-  public void testBackwardsCompatibilityAbortWithError() throws HopXmlException {
+  void testBackwardsCompatibilityAbortWithError() throws HopXmlException {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     AbortMeta meta = new AbortMeta();
 
     // No abort option specified: leave the default: Abort
     String inputXml =
-        "  <transform>\n"
-            + "    <name>Abort</name>\n"
-            + "    <type>Abort</type>\n"
-            + "  </transform>";
+        """
+                      <transform>
+                        <name>Abort</name>
+                        <type>Abort</type>
+                      </transform>\
+                    """;
     Node node = XmlHandler.loadXmlString(inputXml).getFirstChild();
     meta.loadXml(node, metadataProvider);
     assertTrue(meta.isAbort());

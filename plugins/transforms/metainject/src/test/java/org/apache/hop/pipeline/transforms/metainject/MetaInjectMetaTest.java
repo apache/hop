@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -30,19 +30,19 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class MetaInjectMetaTest {
+class MetaInjectMetaTest {
 
   private static final String SOURCE_TRANSFORM_NAME = "SOURCE_TRANSFORM_NAME";
 
@@ -58,23 +58,24 @@ public class MetaInjectMetaTest {
 
   private static MetaInjectMeta metaInjectMeta;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void SetUp() throws Exception {
+  @BeforeAll
+  static void SetUp() throws Exception {
     if (!HopClientEnvironment.isInitialized()) {
       HopClientEnvironment.init();
     }
     metaInjectMeta = new MetaInjectMeta();
   }
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     metaInjectMeta = new MetaInjectMeta();
   }
 
   @Test
-  public void getResourceDependencies() {
+  void getResourceDependencies() {
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = mock(TransformMeta.class);
 
@@ -86,7 +87,7 @@ public class MetaInjectMetaTest {
   }
 
   @Test
-  public void getResourceDependencies_with_defined_fileName() {
+  void getResourceDependencies_with_defined_fileName() {
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = mock(TransformMeta.class);
     metaInjectMeta.setFileName("FILE_NAME");
@@ -100,7 +101,7 @@ public class MetaInjectMetaTest {
   }
 
   @Test
-  public void exportResources() throws HopException {
+  void exportResources() throws HopException {
     IVariables variables = mock(IVariables.class);
     IResourceNaming resourceNamingInterface = mock(IResourceNaming.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
@@ -123,7 +124,7 @@ public class MetaInjectMetaTest {
   }
 
   @Test
-  public void convertToMap() {
+  void convertToMap() {
     MetaInjectMapping metaInjectMapping = new MetaInjectMapping();
     metaInjectMapping.setSourceTransform(SOURCE_TRANSFORM_NAME);
     metaInjectMapping.setSourceField(SOURCE_FIELD_NAME);

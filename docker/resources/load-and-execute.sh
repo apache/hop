@@ -197,6 +197,17 @@ else
   log "Not creating a project or environment in the container"
 fi
 
+# Configure Hop settings in the container
+#
+if [ -n "${HOP_CONFIG_OPTIONS}" ]; then
+  # We have a hop-config to run with the given options
+  #
+  echo "Configuring Hop with : ${HOP_CONFIG_OPTIONS}"
+  "${DEPLOYMENT_PATH}"/hop-config.sh \
+    "{HOP_CONFIG_OPTIONS}" \
+    2>&1 | tee ${HOP_LOG_PATH}
+fi
+
 if [ -z "${HOP_FILE_PATH}" ]; then
   write_server_config
   log "Starting a hop-server on port "${HOP_SERVER_PORT}
@@ -219,6 +230,12 @@ else
   if [ -n "${HOP_RUN_METADATA_EXPORT}" ]; then
     log "Using a JSON metadata export file: ${HOP_RUN_METADATA_EXPORT}"
     HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --metadata-export=${HOP_RUN_METADATA_EXPORT}"
+  fi
+
+  # Support for start action parameter
+  if [ -n "${HOP_START_ACTION}" ]; then
+    log "Using start action: ${HOP_START_ACTION}"
+    HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --startaction=${HOP_START_ACTION}"
   fi
 
   log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"

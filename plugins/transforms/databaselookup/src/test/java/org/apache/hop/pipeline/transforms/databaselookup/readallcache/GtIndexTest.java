@@ -17,23 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.BitSet;
 import java.util.List;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
-public class GtIndexTest extends IndexTestBase<GtIndex> {
+class GtIndexTest extends IndexTestBase<GtIndex> {
 
-  @Parameterized.Parameters
-  public static List<Object[]> createSampleData() {
+  static List<Object[]> createSampleData() {
     return IndexTestBase.createSampleData();
   }
 
-  public GtIndexTest(Long[][] rows) {
-    super(GtIndex.class, rows);
+  public GtIndexTest() {
+    super(GtIndex.class, null);
   }
 
   @Override

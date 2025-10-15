@@ -17,8 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class ExcelWriterOutputField implements Cloneable {
 
   @HopMetadataProperty(
@@ -70,14 +74,6 @@ public class ExcelWriterOutputField implements Cloneable {
       injectionKey = "STYLECELL",
       injectionKeyDescription = "ExcelWriterMeta.Injection.Output.StyleCell.Field")
   private String styleCell;
-
-  public String getCommentAuthorField() {
-    return commentAuthorField;
-  }
-
-  public void setCommentAuthorField(String commentAuthorField) {
-    this.commentAuthorField = commentAuthorField;
-  }
 
   public ExcelWriterOutputField(String name, String type, String format) {
     this.name = name;
@@ -151,78 +147,6 @@ public class ExcelWriterOutputField implements Cloneable {
     } catch (CloneNotSupportedException e) {
       return null;
     }
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String fieldname) {
-    this.name = fieldname;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public boolean isFormula() {
-    return formula;
-  }
-
-  public void setFormula(boolean formula) {
-    this.formula = formula;
-  }
-
-  public String getHyperlinkField() {
-    return hyperlinkField;
-  }
-
-  public void setHyperlinkField(String hyperlinkField) {
-    this.hyperlinkField = hyperlinkField;
-  }
-
-  public String getCommentField() {
-    return commentField;
-  }
-
-  public void setCommentField(String commentField) {
-    this.commentField = commentField;
-  }
-
-  public String getTitleStyleCell() {
-    return titleStyleCell;
-  }
-
-  public void setTitleStyleCell(String formatCell) {
-    this.titleStyleCell = formatCell;
-  }
-
-  public String getStyleCell() {
-    return styleCell;
-  }
-
-  public void setStyleCell(String styleCell) {
-    this.styleCell = styleCell;
   }
 
   @Override

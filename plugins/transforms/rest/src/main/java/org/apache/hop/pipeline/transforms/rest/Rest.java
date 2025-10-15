@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import static org.apache.hop.core.Const.NVL;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -94,7 +96,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
     // get dynamic url ?
     if (meta.isUrlInField()) {
-      if (!Utils.isEmpty(meta.getConnectionName())) {
+      if (!Utils.isEmpty(data.connectionName)) {
         data.realUrl = baseUrl + data.inputRowMeta.getString(rowData, data.indexOfUrlField);
       } else {
         data.realUrl = data.inputRowMeta.getString(rowData, data.indexOfUrlField);
@@ -214,7 +216,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       String entityString = null;
       if (data.useBody) {
         // Set Http request entity
-        entityString = Const.NVL(data.inputRowMeta.getString(rowData, data.indexOfBodyField), null);
+        entityString = NVL(data.inputRowMeta.getString(rowData, data.indexOfBodyField), null);
         if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entityString));
         }
@@ -235,7 +237,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             response = invocationBuilder.put(Entity.entity(entityString, data.mediaType));
           }
         } else if (data.method.equals(RestMeta.HTTP_METHOD_DELETE)) {
-          response = invocationBuilder.delete();
+          Invocation invocation =
+              invocationBuilder.build("DELETE", Entity.entity(entityString, data.mediaType));
+          response = invocation.invoke();
         } else if (data.method.equals(RestMeta.HTTP_METHOD_HEAD)) {
           response = invocationBuilder.head();
         } else if (data.method.equals(RestMeta.HTTP_METHOD_OPTIONS)) {
@@ -337,6 +341,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.config.connectorProvider(new ApacheConnectorProvider());
       data.config.property(
           ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+      data.config.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
 
       data.config.property(ClientProperties.READ_TIMEOUT, data.realReadTimeout);
       data.config.property(ClientProperties.CONNECT_TIMEOUT, data.realConnectionTimeout);
@@ -438,8 +443,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       } else {
         // Static URL
-        if (!Utils.isEmpty(meta.getConnectionName())) {
-          data.realUrl = baseUrl + resolve(meta.getUrl());
+        if (!Utils.isEmpty(data.connectionName)) {
+          data.realUrl = baseUrl + NVL(resolve(meta.getUrl()), "");
         } else {
           data.realUrl = resolve(meta.getUrl());
         }
@@ -479,7 +484,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
       if (RestMeta.isActiveParameters(meta.getMethod())) {
         // Parameters
-        int nrparams = meta.getParameterFields() != null ? 0 : meta.getParameterFields().size();
+        int nrparams = meta.getParameterFields() == null ? 0 : meta.getParameterFields().size();
         if (nrparams > 0) {
           data.nrParams = nrparams;
           data.paramNames = new String[nrparams];
@@ -568,10 +573,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     if (super.init()) {
 
       // use the information from the selection line if we have one.
-      if (!Utils.isEmpty(meta.getConnectionName())) {
+      data.connectionName = resolve(meta.getConnectionName());
+      if (!Utils.isEmpty(data.connectionName)) {
         try {
           this.connection =
-              metadataProvider.getSerializer(RestConnection.class).load(meta.getConnectionName());
+              metadataProvider.getSerializer(RestConnection.class).load(data.connectionName);
           baseUrl = resolve(connection.getBaseUrl());
 
         } catch (Exception e) {
@@ -606,7 +612,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.trustStoreFile = resolve(meta.getTrustStoreFile());
       data.trustStorePassword = resolve(meta.getTrustStorePassword());
 
-      String applicationType = Const.NVL(meta.getApplicationType(), "");
+      String applicationType = NVL(meta.getApplicationType(), "");
       if (applicationType.equals(RestMeta.APPLICATION_TYPE_XML)) {
         data.mediaType = MediaType.APPLICATION_XML_TYPE;
       } else if (applicationType.equals(RestMeta.APPLICATION_TYPE_JSON)) {

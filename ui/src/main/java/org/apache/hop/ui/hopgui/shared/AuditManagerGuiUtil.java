@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.IAuditManager;
@@ -46,7 +47,7 @@ public class AuditManagerGuiUtil {
     //
     try {
       AuditList list = AuditManager.getActive().retrieveList(HopNamespace.getNamespace(), type);
-      if (list == null || list.getNames() == null || list.getNames().isEmpty()) {
+      if (list == null || Utils.isEmpty(list.getNames())) {
         return "";
       }
       return list.getNames().get(0);
@@ -75,7 +76,7 @@ public class AuditManagerGuiUtil {
     //
     try {
       AuditList list = AuditManager.getActive().retrieveList(HopNamespace.getNamespace(), type);
-      if (list == null || list.getNames() == null || list.getNames().isEmpty()) {
+      if (list == null || Utils.isEmpty(list.getNames())) {
         return new String[0];
       }
       return list.getNames().toArray(new String[0]);

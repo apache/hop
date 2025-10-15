@@ -59,13 +59,11 @@ public class HopDiffTest {
     InputStream xmlStream = new FileInputStream(file);
     PipelineMeta pipelineMeta =
         new PipelineMeta(xmlStream, metadataProvider, Variables.getADefaultVariableSpace());
-    // pipelineMeta.sortTransforms();
 
     File file2 = new File("src/test/resources/r2.hpl");
     InputStream xmlStream2 = new FileInputStream(file2);
     PipelineMeta pipelineMeta2 =
         new PipelineMeta(xmlStream2, metadataProvider, Variables.getADefaultVariableSpace());
-    // pipelineMeta2.sortTransforms();
 
     pipelineMeta = compareTransforms(pipelineMeta, pipelineMeta2, true);
     pipelineMeta2 = compareTransforms(pipelineMeta2, pipelineMeta, false);

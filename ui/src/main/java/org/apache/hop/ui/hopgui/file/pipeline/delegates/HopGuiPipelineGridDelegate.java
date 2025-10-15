@@ -88,6 +88,8 @@ public class HopGuiPipelineGridDelegate {
 
   private final ReentrantLock refreshViewLock;
 
+  private Timer refreshMetricsTimer;
+
   /**
    * @param hopGui
    * @param pipelineGraph
@@ -120,8 +122,10 @@ public class HopGuiPipelineGridDelegate {
     } else {
       if (pipelineGridTab != null && !pipelineGridTab.isDisposed()) {
         // just set this one active and get out...
+        // and activate the refresh timer
         //
         pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
+        startRefreshMetricsTimer();
         return;
       }
     }
@@ -250,10 +254,23 @@ public class HopGuiPipelineGridDelegate {
         new ValueMetaString("#", HopGuiPipelineGridDelegate::subTransformCompare);
     numberColumn.setValueMeta(numberColumnValueMeta);
 
-    // Timer updates the view every UPDATE_TIME_VIEW interval
-    final Timer tim = new Timer("HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName());
+    startRefreshMetricsTimer();
+    pipelineGridTab.addDisposeListener(disposeEvent -> stopRefreshMetricsTimer());
 
-    TimerTask timtask =
+    pipelineGridTab.setControl(pipelineGridComposite);
+
+    pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
+  }
+
+  public void startRefreshMetricsTimer() {
+    if (refreshMetricsTimer != null) {
+      return;
+    }
+
+    // Timer updates the view every UPDATE_TIME_VIEW interval
+    refreshMetricsTimer = new Timer("HopGuiPipelineGraph: " + pipelineGraph.getMeta().getName());
+
+    TimerTask refreshMetricsTimerTask =
         new TimerTask() {
           @Override
           public void run() {
@@ -261,20 +278,22 @@ public class HopGuiPipelineGridDelegate {
               hopGui.getDisplay().asyncExec(HopGuiPipelineGridDelegate.this::refreshView);
               if (pipelineGraph.getPipeline() != null
                   && (pipelineGraph.getPipeline().isFinished()
-                      || pipelineGraph.getPipeline().isStopped())) {
-                ExecutorUtil.cleanup(tim, UPDATE_TIME_VIEW + 10);
+                      || pipelineGraph.getPipeline().isStopped())
+                  && !pipelineGraph.getPipeline().isReadyToStart()) {
+                ExecutorUtil.cleanup(refreshMetricsTimer, UPDATE_TIME_VIEW + 10);
               }
             }
           }
         };
 
-    tim.schedule(timtask, 0L, UPDATE_TIME_VIEW);
+    refreshMetricsTimer.schedule(refreshMetricsTimerTask, 0L, UPDATE_TIME_VIEW);
+  }
 
-    pipelineGridTab.addDisposeListener(disposeEvent -> ExecutorUtil.cleanup(tim));
-
-    pipelineGridTab.setControl(pipelineGridComposite);
-
-    pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
+  public void stopRefreshMetricsTimer() {
+    // Refresh one last time to make sure we're showing the correct data.
+    hopGui.getDisplay().asyncExec(this::refreshView);
+    ExecutorUtil.cleanup(refreshMetricsTimer);
+    refreshMetricsTimer = null;
   }
 
   /**

@@ -89,7 +89,7 @@ public class XmlInputFieldsImportProgressDialog {
     this.option = option;
     this.loopXPath = loopXPath;
 
-    if (option.isXmlSourceIsFile()) {
+    if (option.isXmlSourceFile()) {
       this.filename = xmlSource;
       this.xml = null;
       this.url = null;
@@ -345,7 +345,7 @@ public class XmlInputFieldsImportProgressDialog {
     String retval = inputstring;
     retval = retval.replace(this.loopXPath, "");
     while (retval.startsWith(GetXmlDataMeta.N0DE_SEPARATOR)) {
-      retval = retval.substring(1, retval.length());
+      retval = retval.substring(1);
     }
 
     return retval;

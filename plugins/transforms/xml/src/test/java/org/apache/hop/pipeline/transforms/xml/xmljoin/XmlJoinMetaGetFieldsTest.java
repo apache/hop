@@ -16,7 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -26,22 +26,22 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class XmlJoinMetaGetFieldsTest {
+class XmlJoinMetaGetFieldsTest {
 
   XmlJoinMeta xmlJoinMeta;
   PipelineMeta pipelineMeta;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     xmlJoinMeta = new XmlJoinMeta();
     pipelineMeta = mock(PipelineMeta.class);
   }
 
   @Test
-  public void testGetFieldsReturnTargetTransformFieldsPlusResultXmlField() throws Exception {
+  void testGetFieldsReturnTargetTransformFieldsPlusResultXmlField() throws Exception {
     String sourceXmlTransform = "source xml transform name";
     String sourceTransformField = "source field test name";
     String targetTransformField = "target field test name";
@@ -79,7 +79,7 @@ public class XmlJoinMetaGetFieldsTest {
   }
 
   @Test
-  public void testGetFieldsReturnTargetTransformFieldsWithDuplicates() throws Exception {
+  void testGetFieldsReturnTargetTransformFieldsWithDuplicates() throws Exception {
     // Source Transform
     String sourceXmlTransform = "source xml transform name";
     String sourceTransformField1 = "a";

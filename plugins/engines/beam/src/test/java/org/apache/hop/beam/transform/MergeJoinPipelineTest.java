@@ -19,12 +19,12 @@ package org.apache.hop.beam.transform;
 
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class MergeJoinPipelineTest extends PipelineTestBase {
+class MergeJoinPipelineTest extends PipelineTestBase {
 
   @Test
-  public void testMergeJoinPipeline() throws Exception {
+  void testMergeJoinPipeline() throws Exception {
 
     PipelineMeta pipelineMeta =
         BeamPipelineMetaUtil.generateMergeJoinPipelineMeta(

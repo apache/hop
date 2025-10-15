@@ -16,28 +16,30 @@
  */
 package org.apache.hop.databases.h2;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.SqlScriptStatement;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class H2BaseDatabaseMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+class H2BaseDatabaseMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
   BaseDatabaseMeta nativeMeta;
 
-  @Before
-  public void setupOnce() throws Exception {
+  @BeforeEach
+  void setupOnce() throws Exception {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testShowIsTreatedAsAResultsQuery() {
+  void testShowIsTreatedAsAResultsQuery() {
     List<SqlScriptStatement> sqlScriptStatements =
         new H2DatabaseMeta().getSqlScriptStatements("show annotations from service");
     assertTrue(sqlScriptStatements.get(0).isQuery());

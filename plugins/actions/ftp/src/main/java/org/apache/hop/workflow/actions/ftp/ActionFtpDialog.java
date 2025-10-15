@@ -1306,7 +1306,6 @@ public class ActionFtpDialog extends ActionDialog {
         } catch (Exception authEx) {
           throw new Exception("FTP authentication failed: " + authEx.getMessage(), authEx);
         }
-
       }
       return true;
     } catch (Exception e) {

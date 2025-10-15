@@ -20,18 +20,18 @@ package org.apache.hop.pipeline.transforms.combinationlookup;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class CombinationLookupMetaTest {
-  @Before
-  public void setUpLoadSave() throws Exception {
+class CombinationLookupMetaTest {
+  @BeforeEach
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     TransformSerializationTestUtil.testSerialization(
         "/combination-lookup-transform.xml", CombinationLookupMeta.class);
   }

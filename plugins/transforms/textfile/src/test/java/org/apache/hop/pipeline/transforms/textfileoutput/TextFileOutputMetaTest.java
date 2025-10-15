@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,19 +30,20 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TextFileOutputMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class TextFileOutputMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
@@ -76,7 +77,9 @@ public class TextFileOutputMetaTest {
         "pad",
         "fast_dump",
         "splitevery",
-        "OutputFields");
+        "OutputFields",
+        "schemaDefinition",
+        "ignoreFields");
   }
 
   public static Map<String, String> getGetterMap() {
@@ -110,6 +113,8 @@ public class TextFileOutputMetaTest {
     getterMap.put("fast_dump", "isFastDump");
     getterMap.put("splitevery", "getSplitEvery");
     getterMap.put("OutputFields", "getOutputFields");
+    getterMap.put("schemaDefinition", "getSchemaDefinition");
+    getterMap.put("ignoreFields", "isIgnoreFields");
     return getterMap;
   }
 
@@ -128,7 +133,7 @@ public class TextFileOutputMetaTest {
     setterMap.put("fileNameInField", "setFileNameInField");
     setterMap.put("fileNameField", "setFileNameField");
     setterMap.put("create_parent_folder", "setCreateParentFolder");
-    setterMap.put("fileName", "setFilename");
+    setterMap.put("fileName", "setFileName");
     setterMap.put("servlet_output", "setServletOutput");
     setterMap.put("do_not_open_new_file_init", "setDoNotOpenNewFileInit");
     setterMap.put("extention", "setExtension");
@@ -144,6 +149,8 @@ public class TextFileOutputMetaTest {
     setterMap.put("fast_dump", "setFastDump");
     setterMap.put("splitevery", "setSplitEvery");
     setterMap.put("OutputFields", "setOutputFields");
+    setterMap.put("schemaDefinition", "setSchemaDefinition");
+    setterMap.put("ignoreFields", "setIgnoreFields");
     return setterMap;
   }
 
@@ -160,7 +167,7 @@ public class TextFileOutputMetaTest {
   }
 
   @Test
-  public void testRoundTrip() throws HopException {
+  void testRoundTrip() throws HopException {
     LoadSaveTester<TextFileOutputMeta> loadSaveTester =
         new LoadSaveTester<>(
             TextFileOutputMeta.class,
@@ -174,7 +181,7 @@ public class TextFileOutputMetaTest {
   }
 
   @Test
-  public void testVarReplaceSplit() {
+  void testVarReplaceSplit() {
     TextFileOutputMeta meta = new TextFileOutputMeta();
     meta.setDefault();
     meta.setSplitEveryRows("${splitVar}");

@@ -16,29 +16,30 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class UserDefinedJavaClassMetaInjectionTest
-    extends BaseMetadataInjectionTest<UserDefinedJavaClassMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class UserDefinedJavaClassMetaInjectionTest
+    extends BaseMetadataInjectionTestJunit5<UserDefinedJavaClassMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     setup(new UserDefinedJavaClassMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("CLEAR_RESULT_FIELDS", () -> meta.isClearingResultFields());
     check("TARGET_DESCRIPTION", () -> meta.getTargetTransformDefinitions().get(0).description);
     check("TARGET_TRANSFORM_NAME", () -> meta.getTargetTransformDefinitions().get(0).transformName);

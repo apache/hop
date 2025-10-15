@@ -17,94 +17,96 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.file.TextFileInputField;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CsvInputEnclosureTest extends CsvInputUnitTestBase {
+class CsvInputEnclosureTest extends CsvInputUnitTestBase {
   private static final String QUOTATION_AND_EXCLAMATION_MARK = "\"!";
   private static final String QUOTATION_MARK = "\"";
   private static final String SEMICOLON = ";";
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private CsvInput csvInput;
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvInputEnclosureTest");
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void hasEnclosures_HasNewLine() throws Exception {
+  void hasEnclosures_HasNewLine() throws Exception {
     doTest("\"value1\";\"value2\"\n", QUOTATION_MARK);
   }
 
   @Test
-  public void hasEnclosures_HasNotNewLine() throws Exception {
+  void hasEnclosures_HasNotNewLine() throws Exception {
     doTest("\"value1\";\"value2\"", QUOTATION_MARK);
   }
 
   @Test
-  public void hasNotEnclosures_HasNewLine() throws Exception {
+  void hasNotEnclosures_HasNewLine() throws Exception {
     doTest("value1;value2\n", QUOTATION_MARK);
   }
 
   @Test
-  public void hasNotEnclosures_HasNotNewLine() throws Exception {
+  void hasNotEnclosures_HasNotNewLine() throws Exception {
     doTest("value1;value2", QUOTATION_MARK);
   }
 
   @Test
-  public void hasMultiSymbolsEnclosureWithoutEnclosureAndEndFile() throws Exception {
+  void hasMultiSymbolsEnclosureWithoutEnclosureAndEndFile() throws Exception {
     doTest("value1;value2", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
-  public void hasMultiSymbolsEnclosureWithEnclosureAndWithoutEndFile() throws Exception {
+  void hasMultiSymbolsEnclosureWithEnclosureAndWithoutEndFile() throws Exception {
     doTest("\"!value1\"!;value2", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
-  public void hasMultiSymbolsEnclosurewithEnclosureInBothfield() throws Exception {
+  void hasMultiSymbolsEnclosurewithEnclosureInBothfield() throws Exception {
     doTest("\"!value1\"!;\"!value2\"!", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
-  public void hasMultiSymbolsEnclosureWithoutEnclosureAndWithEndfileRN() throws Exception {
+  void hasMultiSymbolsEnclosureWithoutEnclosureAndWithEndfileRN() throws Exception {
     doTest("value1;value2\r\n", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
-  public void hasMultiSymbolsEnclosureWithEnclosureAndWithEndfileRN() throws Exception {
+  void hasMultiSymbolsEnclosureWithEnclosureAndWithEndfileRN() throws Exception {
     doTest("value1;\"!value2\"!\r\n", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
-  public void hasMultiSymbolsEnclosureWithoutEnclosureAndWithEndfileN() throws Exception {
+  void hasMultiSymbolsEnclosureWithoutEnclosureAndWithEndfileN() throws Exception {
     doTest("value1;value2\n", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
-  public void hasMultiSymbolsEnclosureWithEnclosureAndWithEndfileN() throws Exception {
+  void hasMultiSymbolsEnclosureWithEnclosureAndWithEndfileN() throws Exception {
     doTest("value1;\"!value2\"!\n", QUOTATION_AND_EXCLAMATION_MARK);
   }
 

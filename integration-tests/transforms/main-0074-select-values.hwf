@@ -36,6 +36,7 @@ limitations under the License.
       <type>SPECIAL</type>
       <attributes/>
       <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <hour>12</hour>
       <intervalMinutes>60</intervalMinutes>
       <intervalSeconds>0</intervalSeconds>
@@ -77,8 +78,8 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>688</xloc>
-      <yloc>48</yloc>
+      <xloc>384</xloc>
+      <yloc>144</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -92,8 +93,8 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>960</xloc>
-      <yloc>48</yloc>
+      <xloc>384</xloc>
+      <yloc>240</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -102,8 +103,23 @@ limitations under the License.
       <type>SUCCESS</type>
       <attributes/>
       <parallel>N</parallel>
-      <xloc>1248</xloc>
-      <yloc>48</yloc>
+      <xloc>656</xloc>
+      <yloc>352</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0074-select-values-metadata-rounding-type</name>
+      <description/>
+      <type>RunPipelineTests</type>
+      <attributes/>
+      <test_names>
+        <test_name>
+          <name>0074-selet-values-metadata-rounding-type UNIT</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>352</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -131,6 +147,13 @@ limitations under the License.
     </hop>
     <hop>
       <from>0074-select-values-metadata</from>
+      <to>0074-select-values-metadata-rounding-type</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0074-select-values-metadata-rounding-type</from>
       <to>Success</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

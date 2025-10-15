@@ -17,23 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
+import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
@@ -45,9 +45,9 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-import org.w3c.dom.Node;
 
-@InjectionSupported(localizationPrefix = "MergeRows.Injection.")
+@Getter
+@Setter
 @Transform(
     id = "MergeRows",
     image = "mergerows.svg",
@@ -58,152 +58,71 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/mergerows.html")
 public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class;
-  public static final String CONST_VALUE = "value";
 
-  @Injection(name = "FLAG_FIELD")
+  @HopMetadataProperty(
+      key = "flag_field",
+      injectionKey = "FLAG_FIELD",
+      injectionKeyDescription = "MergeRows.Injection.FLAG_FIELD")
   private String flagField;
 
-  @Injection(name = "KEY_FIELDS")
-  private String[] keyFields;
+  @HopMetadataProperty(
+      key = "key",
+      groupKey = "keys",
+      injectionKey = "KEY_FIELD",
+      injectionKeyDescription = "MergeRows.Injection.KEY_FIELD",
+      injectionGroupKey = "KEY_FIELDS",
+      injectionGroupDescription = "MergeRows.Injection.KEY_FIELDS")
+  private List<String> keyFields;
 
-  @Injection(name = "VALUE_FIELDS")
-  private String[] valueFields;
+  @HopMetadataProperty(
+      key = "value",
+      groupKey = "values",
+      injectionKey = "VALUE_FIELD",
+      injectionKeyDescription = "MergeRows.Injection.VALUE_FIELD",
+      injectionGroupKey = "VALUE_FIELDS",
+      injectionGroupDescription = "MergeRows.Injection.VALUE_FIELDS")
+  private List<String> valueFields;
 
-  /**
-   * @return Returns the keyFields.
-   */
-  public String[] getKeyFields() {
-    return keyFields;
-  }
+  @HopMetadataProperty(
+      key = "reference",
+      injectionKey = "REFERENCE_TRANSFORM",
+      injectionKeyDescription = "MergeRowsMeta.InfoStream.FirstStream.Description")
+  private String referenceTransform;
 
-  /**
-   * @param keyFields The keyFields to set.
-   */
-  public void setKeyFields(String[] keyFields) {
-    this.keyFields = keyFields;
-  }
+  @HopMetadataProperty(
+      key = "compare",
+      injectionKey = "COMPARE_TRANSFORM",
+      injectionKeyDescription = "MergeRowsMeta.InfoStream.SecondStream.Description")
+  private String compareTransform;
 
-  /**
-   * @return Returns the valueFields.
-   */
-  public String[] getValueFields() {
-    return valueFields;
-  }
-
-  /**
-   * @param valueFields The valueFields to set.
-   */
-  public void setValueFields(String[] valueFields) {
-    this.valueFields = valueFields;
-  }
+  @HopMetadataProperty(
+      key = "diff-field",
+      injectionKey = "DIFF_FIELD",
+      injectionKeyDescription = "MergeRows.Injection.DIFF_FIELD")
+  private String diffJsonField;
 
   public MergeRowsMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    keyFields = new ArrayList<>();
+    valueFields = new ArrayList<>();
+  }
+
+  public MergeRowsMeta(MergeRowsMeta m) {
+    this.flagField = m.flagField;
+    this.keyFields = new ArrayList<>(m.keyFields);
+    this.valueFields = new ArrayList<>(m.valueFields);
+    this.referenceTransform = m.referenceTransform;
+    this.compareTransform = m.compareTransform;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  /**
-   * @return Returns the flagField.
-   */
-  public String getFlagField() {
-    return flagField;
-  }
-
-  /**
-   * @param flagField The flagField to set.
-   */
-  public void setFlagField(String flagField) {
-    this.flagField = flagField;
-  }
-
-  public void allocate(int nrKeys, int nrValues) {
-    keyFields = new String[nrKeys];
-    valueFields = new String[nrValues];
-  }
-
-  @Override
-  public Object clone() {
-    MergeRowsMeta retval = (MergeRowsMeta) super.clone();
-    int nrKeys = keyFields.length;
-    int nrValues = valueFields.length;
-    retval.allocate(nrKeys, nrValues);
-    System.arraycopy(keyFields, 0, retval.keyFields, 0, nrKeys);
-    System.arraycopy(valueFields, 0, retval.valueFields, 0, nrValues);
-    return retval;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    <keys>" + Const.CR);
-    for (int i = 0; i < keyFields.length; i++) {
-      retval.append("      " + XmlHandler.addTagValue("key", keyFields[i]));
-    }
-    retval.append("    </keys>" + Const.CR);
-
-    retval.append("    <values>" + Const.CR);
-    for (int i = 0; i < valueFields.length; i++) {
-      retval.append("      " + XmlHandler.addTagValue(CONST_VALUE, valueFields[i]));
-    }
-    retval.append("    </values>" + Const.CR);
-
-    retval.append(XmlHandler.addTagValue("flag_field", flagField));
-
-    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    retval.append(XmlHandler.addTagValue("reference", infoStreams.get(0).getTransformName()));
-    retval.append(XmlHandler.addTagValue("compare", infoStreams.get(1).getTransformName()));
-    retval.append("    <compare>" + Const.CR);
-
-    retval.append("    </compare>" + Const.CR);
-
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-
-      Node keysnode = XmlHandler.getSubNode(transformNode, "keys");
-      Node valuesnode = XmlHandler.getSubNode(transformNode, "values");
-
-      int nrKeys = XmlHandler.countNodes(keysnode, "key");
-      int nrValues = XmlHandler.countNodes(valuesnode, CONST_VALUE);
-
-      allocate(nrKeys, nrValues);
-
-      for (int i = 0; i < nrKeys; i++) {
-        Node keynode = XmlHandler.getSubNodeByNr(keysnode, "key", i);
-        keyFields[i] = XmlHandler.getNodeValue(keynode);
-      }
-
-      for (int i = 0; i < nrValues; i++) {
-        Node valuenode = XmlHandler.getSubNodeByNr(valuesnode, CONST_VALUE, i);
-        valueFields[i] = XmlHandler.getNodeValue(valuenode);
-      }
-
-      flagField = XmlHandler.getTagValue(transformNode, "flag_field");
-
-      List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-      IStream referenceStream = infoStreams.get(0);
-      IStream compareStream = infoStreams.get(1);
-
-      compareStream.setSubject(XmlHandler.getTagValue(transformNode, "compare"));
-      referenceStream.setSubject(XmlHandler.getTagValue(transformNode, "reference"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "MergeRowsMeta.Exception.UnableToLoadTransformMeta"), e);
-    }
+  public MergeRowsMeta clone() {
+    return new MergeRowsMeta(this);
   }
 
   @Override
   public void setDefault() {
     flagField = "flagfield";
-    allocate(0, 0);
   }
 
   @Override
@@ -212,14 +131,6 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
     for (IStream stream : infoStreams) {
       stream.setTransformMeta(TransformMeta.findTransform(transforms, stream.getSubject()));
     }
-  }
-
-  public boolean chosesTargetTransforms() {
-    return false;
-  }
-
-  public String[] getTargetTransforms() {
-    return null;
   }
 
   @Override
@@ -247,6 +158,11 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
     if (Utils.isEmpty(flagField)) {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "MergeRowsMeta.Exception.FlagFieldNotSpecified"));
+    }
+    if (StringUtils.isNotEmpty(variables.resolve(diffJsonField))) {
+      IValueMeta diffField = new ValueMetaString(variables.resolve(diffJsonField));
+      diffField.setOrigin(name);
+      r.addValueMeta(diffField);
     }
     IValueMeta flagFieldValue = new ValueMetaString(flagField);
     flagFieldValue.setOrigin(name);
@@ -313,7 +229,7 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
         MergeRows.checkInputLayoutValid(referenceRowMeta, compareRowMeta);
         rowsMatch = true;
       } catch (HopRowException kre) {
-        rowsMatch = false;
+        // Ignore
       }
       if (rowsMatch) {
         cr =
@@ -338,7 +254,6 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   public ITransformIOMeta getTransformIOMeta() {
     ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta == null) {
-
       ioMeta = new TransformIOMeta(true, true, false, false, false, false);
 
       ioMeta.addStream(
@@ -347,23 +262,18 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
               null,
               BaseMessages.getString(PKG, "MergeRowsMeta.InfoStream.FirstStream.Description"),
               StreamIcon.INFO,
-              null));
+              referenceTransform));
       ioMeta.addStream(
           new Stream(
               StreamType.INFO,
               null,
               BaseMessages.getString(PKG, "MergeRowsMeta.InfoStream.SecondStream.Description"),
               StreamIcon.INFO,
-              null));
+              compareTransform));
       setTransformIOMeta(ioMeta);
     }
 
     return ioMeta;
-  }
-
-  @Override
-  public void resetTransformIoMeta() {
-    // Do Nothing
   }
 
   @Override

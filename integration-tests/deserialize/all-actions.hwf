@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>All-Actions</name>
+  <name>all-actions</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -36,6 +36,7 @@ limitations under the License.
       <type>SPECIAL</type>
       <attributes/>
       <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <hour>12</hour>
       <intervalMinutes>60</intervalMinutes>
       <intervalSeconds>0</intervalSeconds>
@@ -136,9 +137,8 @@ limitations under the License.
       <description/>
       <type>FILES_EXIST</type>
       <attributes/>
-      <filename/>
       <fields>
-      </fields>
+</fields>
       <parallel>N</parallel>
       <xloc>640</xloc>
       <yloc>432</yloc>
@@ -220,19 +220,16 @@ limitations under the License.
       <description/>
       <type>SHELL</type>
       <attributes/>
-      <filename/>
-      <work_directory/>
-      <arg_from_previous>N</arg_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <set_append_logfile>N</set_append_logfile>
-      <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
+      <arg_from_previous>N</arg_from_previous>
+      <arguments>
+</arguments>
+      <exec_per_row>N</exec_per_row>
       <insertScript>N</insertScript>
-      <script/>
       <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
       <parallel>N</parallel>
       <xloc>1136</xloc>
       <yloc>112</yloc>
@@ -273,32 +270,22 @@ limitations under the License.
       <description/>
       <type>MSSQL_BULK_LOAD</type>
       <attributes/>
-      <schemaname/>
-      <tablename/>
-      <filename/>
-      <datafiletype>char</datafiletype>
-      <fieldterminator/>
-      <lineterminated/>
-      <codepage>OEM</codepage>
-      <specificcodepage/>
-      <formatfilename/>
-      <firetriggers>N</firetriggers>
-      <checkconstraints>N</checkconstraints>
-      <keepnulls>N</keepnulls>
-      <keepidentity>N</keepidentity>
-      <tablock>N</tablock>
-      <startfile>0</startfile>
-      <endfile>0</endfile>
-      <orderby/>
-      <orderdirection>Asc</orderdirection>
-      <maxerrors>0</maxerrors>
-      <batchsize>0</batchsize>
-      <rowsperbatch>0</rowsperbatch>
-      <errorfilename/>
       <adddatetime>N</adddatetime>
       <addfiletoresult>N</addfiletoresult>
+      <batchsize>0</batchsize>
+      <checkconstraints>N</checkconstraints>
+      <codepage>OEM</codepage>
+      <datafiletype>char</datafiletype>
+      <endfile>0</endfile>
+      <firetriggers>N</firetriggers>
+      <keepidentity>N</keepidentity>
+      <keepnulls>N</keepnulls>
+      <maxerrors>0</maxerrors>
+      <orderdirection>Asc</orderdirection>
+      <rowsperbatch>0</rowsperbatch>
+      <startfile>0</startfile>
+      <tablock>N</tablock>
       <truncate>N</truncate>
-      <connection/>
       <parallel>N</parallel>
       <xloc>976</xloc>
       <yloc>32</yloc>
@@ -309,21 +296,11 @@ limitations under the License.
       <description/>
       <type>MYSQL_BULK_LOAD</type>
       <attributes/>
-      <schemaname/>
-      <tablename/>
-      <filename/>
-      <separator/>
-      <enclosed/>
-      <escaped/>
-      <linestarted/>
-      <lineterminated/>
-      <replacedata>Y</replacedata>
+      <addfiletoresult>N</addfiletoresult>
       <ignorelines>0</ignorelines>
-      <listattribut/>
       <localinfile>Y</localinfile>
       <prorityvalue>0</prorityvalue>
-      <addfiletoresult>N</addfiletoresult>
-      <connection/>
+      <replacedata>Y</replacedata>
       <parallel>N</parallel>
       <xloc>976</xloc>
       <yloc>112</yloc>
@@ -334,20 +311,12 @@ limitations under the License.
       <description/>
       <type>MYSQL_BULK_FILE</type>
       <attributes/>
-      <schemaname/>
-      <tablename/>
-      <filename/>
-      <separator/>
-      <enclosed/>
-      <optionenclosed>N</optionenclosed>
-      <lineterminated/>
-      <limitlines>0</limitlines>
-      <listcolumn/>
-      <highpriority>Y</highpriority>
-      <outdumpvalue>0</outdumpvalue>
-      <iffileexists>2</iffileexists>
       <addfiletoresult>N</addfiletoresult>
-      <connection/>
+      <highpriority>Y</highpriority>
+      <iffileexists>2</iffileexists>
+      <limitlines>0</limitlines>
+      <optionenclosed>N</optionenclosed>
+      <outdumpvalue>0</outdumpvalue>
       <parallel>N</parallel>
       <xloc>976</xloc>
       <yloc>192</yloc>
@@ -515,38 +484,21 @@ limitations under the License.
       <description/>
       <type>MAIL</type>
       <attributes/>
-      <server/>
-      <port/>
-      <destination/>
-      <destinationCc/>
-      <destinationBCc/>
-      <replyto/>
-      <replytoname/>
-      <subject/>
-      <include_date>N</include_date>
-      <contact_person/>
-      <contact_phone/>
-      <comment/>
-      <include_files>N</include_files>
-      <zip_files>N</zip_files>
-      <zip_name/>
-      <use_auth>N</use_auth>
-      <usexoauth2>N</usexoauth2>
-      <use_secure_auth>N</use_secure_auth>
-      <auth_user/>
       <auth_password>Encrypted </auth_password>
+      <check_server_identity>N</check_server_identity>
+      <embeddedimages>
+</embeddedimages>
+      <fileTypes>
+</fileTypes>
+      <include_date>N</include_date>
+      <include_files>N</include_files>
       <only_comment>N</only_comment>
       <use_HTML>N</use_HTML>
       <use_Priority>N</use_Priority>
-      <encoding/>
-      <priority/>
-      <importance/>
-      <sensitivity/>
-      <secureconnectiontype/>
-      <replyToAddresses/>
-      <filetypes>      </filetypes>
-      <embeddedimages>
-      </embeddedimages>
+      <use_auth>N</use_auth>
+      <use_secure_auth>N</use_secure_auth>
+      <usexoauth2>N</usexoauth2>
+      <zip_files>N</zip_files>
       <parallel>N</parallel>
       <xloc>1264</xloc>
       <yloc>32</yloc>
@@ -570,17 +522,7 @@ limitations under the License.
       <description/>
       <type>XSLT</type>
       <attributes/>
-      <xmlfilename/>
-      <xslfilename/>
-      <outputfilename/>
-      <iffileexists>1</iffileexists>
-      <addfiletoresult>N</addfiletoresult>
-      <filenamesfromprevious>N</filenamesfromprevious>
-      <xsltfactory>JAXP</xsltfactory>
-      <parameters>
-    </parameters>
-      <outputproperties>
-    </outputproperties>
+      <ifFileExists>1</ifFileExists>
       <parallel>N</parallel>
       <xloc>208</xloc>
       <yloc>464</yloc>
@@ -658,16 +600,12 @@ limitations under the License.
       <description/>
       <type>EVAL_TABLE_CONTENT</type>
       <attributes/>
-      <connection/>
-      <schemaname/>
-      <tablename/>
-      <success_condition>rows_count_greater</success_condition>
-      <limit>0</limit>
-      <is_custom_sql>N</is_custom_sql>
-      <is_usevars>N</is_usevars>
-      <custom_sql/>
       <add_rows_result>N</add_rows_result>
       <clear_result_rows>Y</clear_result_rows>
+      <is_custom_sql>N</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <limit>0</limit>
+      <success_condition>rows_count_greater</success_condition>
       <parallel>N</parallel>
       <xloc>208</xloc>
       <yloc>224</yloc>
@@ -700,46 +638,26 @@ limitations under the License.
       <description/>
       <type>GET_POP</type>
       <attributes/>
-      <servername/>
-      <username/>
-      <password>Encrypted </password>
-      <usessl>N</usessl>
-      <sslport/>
-      <usexoauth2>N</usexoauth2>
-      <outputdirectory/>
-      <filenamepattern>name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail</filenamepattern>
-      <retrievemails>0</retrievemails>
-      <firstmails/>
-      <delete>N</delete>
-      <savemessage>Y</savemessage>
-      <saveattachment>Y</saveattachment>
-      <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
-      <protocol>POP3</protocol>
-      <attachmentfolder/>
-      <attachmentwildcard/>
-      <valueimaplist>imaplistall</valueimaplist>
-      <imapfirstmails>0</imapfirstmails>
-      <imapfolder/>
-      <sendersearch/>
-      <nottermsendersearch>N</nottermsendersearch>
-      <receipientsearch/>
-      <nottermreceipientsearch>N</nottermreceipientsearch>
-      <subjectsearch/>
-      <nottermsubjectsearch>N</nottermsubjectsearch>
-      <bodysearch/>
-      <nottermbodysearch>N</nottermbodysearch>
-      <conditionreceiveddate>ignore</conditionreceiveddate>
-      <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
-      <receiveddate1/>
-      <receiveddate2/>
-      <actiontype>get</actiontype>
-      <movetoimapfolder/>
-      <createmovetofolder>N</createmovetofolder>
       <createlocalfolder>N</createlocalfolder>
-      <aftergetimap>nothing</aftergetimap>
+      <createmovetofolder>N</createmovetofolder>
+      <delete>N</delete>
+      <filenamepattern>name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail</filenamepattern>
+      <imapfirstmails>0</imapfirstmails>
       <includesubfolders>N</includesubfolders>
+      <nottermbodysearch>N</nottermbodysearch>
+      <nottermreceipientsearh>N</nottermreceipientsearh>
+      <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
+      <nottermsendersearch>N</nottermsendersearch>
+      <nottermsubjectsearch>N</nottermsubjectsearch>
+      <password>Encrypted </password>
+      <protocol>POP3</protocol>
+      <retrievemails>0</retrievemails>
+      <saveattachment>Y</saveattachment>
+      <savemessage>Y</savemessage>
+      <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
       <useproxy>N</useproxy>
-      <proxyusername/>
+      <usessl>N</usessl>
+      <usexoauth2>N</usexoauth2>
       <parallel>N</parallel>
       <xloc>1264</xloc>
       <yloc>208</yloc>
@@ -832,9 +750,8 @@ limitations under the License.
       <description/>
       <type>CREATE_FILE</type>
       <attributes/>
-      <filename/>
-      <fail_if_file_exists>Y</fail_if_file_exists>
       <add_filename_result>N</add_filename_result>
+      <fail_if_file_exists>Y</fail_if_file_exists>
       <parallel>N</parallel>
       <xloc>640</xloc>
       <yloc>96</yloc>
@@ -857,9 +774,9 @@ limitations under the License.
       <type>DELETE_FILES</type>
       <attributes/>
       <arg_from_previous>N</arg_from_previous>
-      <include_subfolders>N</include_subfolders>
       <fields>
-      </fields>
+</fields>
+      <include_subfolders>N</include_subfolders>
       <parallel>N</parallel>
       <xloc>640</xloc>
       <yloc>304</yloc>
@@ -885,7 +802,8 @@ limitations under the License.
       <description/>
       <type>NEO4J_CHECK_CONNECTIONS</type>
       <attributes/>
-      <connections/>
+      <connections>
+</connections>
       <parallel>N</parallel>
       <xloc>1392</xloc>
       <yloc>32</yloc>
@@ -896,25 +814,14 @@ limitations under the License.
       <description/>
       <type>HTTP</type>
       <attributes/>
-      <url/>
-      <targetfilename/>
-      <file_appended>N</file_appended>
-      <date_time_added>N</date_time_added>
-      <targetfilename_extension/>
-      <uploadfilename/>
-      <run_every_row>N</run_every_row>
-      <ignore_ssl>N</ignore_ssl>
-      <url_fieldname/>
-      <upload_fieldname/>
-      <dest_fieldname/>
-      <username/>
-      <password>Encrypted </password>
-      <proxy_host/>
-      <proxy_port/>
-      <non_proxy_hosts/>
       <addfilenameresult>Y</addfilenameresult>
+      <date_time_added>N</date_time_added>
+      <file_appended>N</file_appended>
       <headers>
-      </headers>
+</headers>
+      <ignore_ssl>N</ignore_ssl>
+      <password>Encrypted </password>
+      <run_every_row>N</run_every_row>
       <parallel>N</parallel>
       <xloc>800</xloc>
       <yloc>528</yloc>
@@ -926,10 +833,10 @@ limitations under the License.
       <type>DELETE_FOLDERS</type>
       <attributes/>
       <arg_from_previous>N</arg_from_previous>
-      <success_condition>success_if_no_errors</success_condition>
-      <limit_folders>10</limit_folders>
       <fields>
-      </fields>
+</fields>
+      <limit_folders>10</limit_folders>
+      <success_condition>success_if_no_errors</success_condition>
       <parallel>N</parallel>
       <xloc>512</xloc>
       <yloc>304</yloc>
@@ -976,16 +883,6 @@ limitations under the License.
       <parallel>N</parallel>
       <xloc>1136</xloc>
       <yloc>304</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Display msgbox info</name>
-      <description/>
-      <type>MSGBOX_INFO</type>
-      <attributes/>
-      <parallel>N</parallel>
-      <xloc>800</xloc>
-      <yloc>592</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -1257,12 +1154,12 @@ limitations under the License.
       <type>DOS_UNIX_CONVERTER</type>
       <attributes/>
       <arg_from_previous>N</arg_from_previous>
+      <fields>
+</fields>
       <include_subfolders>N</include_subfolders>
       <nr_errors_less_than>10</nr_errors_less_than>
-      <success_condition>success_if_no_errors</success_condition>
       <resultfilenames>all_filenames</resultfilenames>
-      <fields>
-      </fields>
+      <success_condition>success_if_no_errors</success_condition>
       <parallel>N</parallel>
       <xloc>800</xloc>
       <yloc>784</yloc>
@@ -1303,9 +1200,6 @@ limitations under the License.
       <description/>
       <type>XSD_VALIDATOR</type>
       <attributes/>
-      <xsdsource/>
-      <xmlfilename/>
-      <xsdfilename/>
       <allowExternalEntities>Y</allowExternalEntities>
       <parallel>N</parallel>
       <xloc>208</xloc>
@@ -1317,8 +1211,6 @@ limitations under the License.
       <description/>
       <type>DTD_VALIDATOR</type>
       <attributes/>
-      <xmlfilename/>
-      <dtdfilename/>
       <dtdintern>N</dtdintern>
       <parallel>N</parallel>
       <xloc>208</xloc>
@@ -1331,12 +1223,12 @@ limitations under the License.
       <type>XML_WELL_FORMED</type>
       <attributes/>
       <arg_from_previous>N</arg_from_previous>
+      <fields>
+</fields>
       <include_subfolders>N</include_subfolders>
       <nr_errors_less_than>10</nr_errors_less_than>
-      <success_condition>success_if_no_errors</success_condition>
       <resultfilenames>all_filenames</resultfilenames>
-      <fields>
-      </fields>
+      <success_condition>success_if_no_errors</success_condition>
       <parallel>N</parallel>
       <xloc>208</xloc>
       <yloc>656</yloc>

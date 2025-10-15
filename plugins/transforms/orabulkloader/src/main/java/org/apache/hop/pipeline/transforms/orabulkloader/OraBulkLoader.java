@@ -253,7 +253,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
         .append('(');
 
     List<OraBulkLoaderMappingMeta> mappings = meta.getMappings();
-    if (mappings == null || mappings.isEmpty()) {
+    if (Utils.isEmpty(mappings)) {
       throw new HopException("No fields defined to load to database");
     }
     boolean firstMapping = true;
@@ -420,25 +420,19 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       if (!password) {
         pass = "******";
       }
-
-      sb.append(" userid=").append(resolve(user)).append("/").append(resolve(pass)).append("@");
-
-      // If host name is specified, use form host:port/dbName else use TNS_NAME
-      if (!Utils.isEmpty(db.getHostname())) {
-        sb.append(resolve(db.getHostname()));
-        sb.append(':');
-        sb.append(resolve(db.getPort()));
+      String connectURL = Const.NVL(db.getURL(variables), "");
+      if (connectURL.indexOf('@') >= 0) {
+        connectURL = connectURL.substring(connectURL.indexOf('@') + 1);
       }
 
-      String databaseName = resolve(db.getDatabaseName());
+      sb.append(" userid=\'")
+          .append(resolve(user))
+          .append("/")
+          .append(resolve(pass))
+          .append("@")
+          .append(resolve(connectURL))
+          .append("\'");
 
-      // Quote
-      if (databaseName.indexOf('(') >= 0) {
-        databaseName = databaseName.replace("=", "\\=");
-        databaseName = '"' + databaseName + '"';
-      }
-
-      sb.append("/" + databaseName);
     } else {
       throw new HopException("No connection specified");
     }

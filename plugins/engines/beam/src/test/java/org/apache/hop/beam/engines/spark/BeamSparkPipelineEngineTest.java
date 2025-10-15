@@ -17,7 +17,7 @@
 
 package org.apache.hop.beam.engines.spark;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import org.apache.hop.beam.engines.BeamBasePipelineEngineTest;
@@ -26,13 +26,13 @@ import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
+class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
 
   // Disabled because of log4j library dependency problems with Spark
   @Test
-  public void testSparkPipelineEngine() throws Exception {
+  void testSparkPipelineEngine() throws Exception {
 
     BeamSparkPipelineRunConfiguration configuration = new BeamSparkPipelineRunConfiguration();
     configuration.setSparkMaster("local");

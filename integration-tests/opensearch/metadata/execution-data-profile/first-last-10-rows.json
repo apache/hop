@@ -1,0 +1,17 @@
+{
+  "virtualPath": "",
+  "name": "first-last-10-rows",
+  "description": "",
+  "sampler": [
+    {
+      "FirstRowsExecutionDataSampler": {
+        "sampleSize": "10"
+      }
+    },
+    {
+      "LastRowsExecutionDataSampler": {
+        "sampleSize": "100"
+      }
+    }
+  ]
+}

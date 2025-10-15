@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -25,21 +25,22 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class RowGeneratorUnitTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class RowGeneratorUnitTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private TransformMockHelper<RowGeneratorMeta, RowGeneratorData> transformMockHelper;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     transformMockHelper =
         new TransformMockHelper(
             "RowGenerator TEST", RowGeneratorMeta.class, RowGeneratorData.class);
@@ -48,18 +49,18 @@ public class RowGeneratorUnitTest {
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
-  @BeforeClass
-  public static void initEnvironment() throws Exception {
+  @BeforeAll
+  static void initEnvironment() throws Exception {
     HopEnvironment.init();
   }
 
   @Test
-  public void testReadRowLimitAsPipelineVar() throws HopException {
+  void testReadRowLimitAsPipelineVar() throws HopException {
     RowGenerator rowGenerator =
         new RowGenerator(
             transformMockHelper.transformMeta,

@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.sort;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -28,25 +30,25 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
-public class SortRowsMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SortRowsMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   /**
    * @throws HopException
    */
   @Test
-  public void testRoundTrips() throws Exception {
+  void testRoundTrips() throws Exception {
     List<String> attributes =
         Arrays.asList(
             "Directory",
@@ -115,7 +117,7 @@ public class SortRowsMetaTest {
   }
 
   @Test
-  public void testGetDefaultStrength() {
+  void testGetDefaultStrength() {
     SortRowsMeta srm = new SortRowsMeta();
     int usStrength = srm.getDefaultCollationStrength(Locale.US);
     assertEquals(Collator.TERTIARY, usStrength);
@@ -123,7 +125,7 @@ public class SortRowsMetaTest {
   }
 
   @Test
-  public void testPDI16559() throws Exception {
+  void testPDI16559() throws Exception {
     SortRowsMeta sortRowsReal = new SortRowsMeta();
     SortRowsMeta sortRows = Mockito.spy(sortRowsReal);
     sortRows.setDirectory("/tmp");
@@ -138,14 +140,14 @@ public class SortRowsMetaTest {
     // check the field names
     for (int i = 0; i < sortRows.getSortFields().size(); i++) {
       SortRowsField sortRowsField = sortRows.getSortFields().get(i);
-      Assert.assertEquals("field" + (i + 1), sortRowsField.getFieldName());
+      assertEquals("field" + (i + 1), sortRowsField.getFieldName());
     }
 
     // check the properties for SortRowField 3.
-    Assert.assertFalse(sortRowsFields.get(2).isAscending());
-    Assert.assertTrue(sortRowsFields.get(2).isCaseSensitive());
-    Assert.assertTrue(sortRowsFields.get(2).isCollatorEnabled());
-    Assert.assertEquals(3, sortRowsFields.get(2).getCollatorStrength());
-    Assert.assertFalse(sortRowsFields.get(2).isPreSortedField());
+    assertFalse(sortRowsFields.get(2).isAscending());
+    assertTrue(sortRowsFields.get(2).isCaseSensitive());
+    assertTrue(sortRowsFields.get(2).isCollatorEnabled());
+    assertEquals(3, sortRowsFields.get(2).getCollatorStrength());
+    assertFalse(sortRowsFields.get(2).isPreSortedField());
   }
 }

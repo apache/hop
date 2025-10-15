@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -34,7 +35,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -473,6 +476,10 @@ public class SelectValuesDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Currency"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.RoundingType"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaNumber.roundingTypeDesc),
         };
     colmeta[5].setToolTip(
         BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Tooltip"));
@@ -612,7 +619,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
      * Remove certain fields...
      */
     if (input.getSelectOption().getDeleteName() != null
-        && input.getSelectOption().getDeleteName().size() > 0) {
+        && !input.getSelectOption().getDeleteName().isEmpty()) {
       for (int i = 0; i < input.getSelectOption().getDeleteName().size(); i++) {
         DeleteField deleteName = input.getSelectOption().getDeleteName().get(i);
         TableItem item = wRemove.table.getItem(i);
@@ -671,6 +678,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
         item.setText(index++, Const.NVL(change.getDecimalSymbol(), ""));
         item.setText(index++, Const.NVL(change.getGroupingSymbol(), ""));
         item.setText(index++, Const.NVL(change.getCurrencySymbol(), ""));
+        // Prevent setting the default to Half Even.
+        if (StringUtils.isNotEmpty(change.getRoundingType())) {
+          item.setText(
+              index, Const.NVL(ValueMetaBase.getRoundingTypeDesc(change.getRoundingType()), ""));
+        }
       }
       wMeta.setRowNums();
       wMeta.optWidth(true);
@@ -720,7 +732,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       currentSelectFieldItem.setName(item.getText(1));
       currentSelectFieldItem.setRename(item.getText(2));
       if (currentSelectFieldItem.getRename() == null
-          || currentSelectFieldItem.getName().length() == 0) {
+          || currentSelectFieldItem.getName().isEmpty()) {
         currentSelectFieldItem.setRename(currentSelectFieldItem.getName());
       }
       currentSelectFieldItem.setLength(Const.toInt(item.getText(3), -2));
@@ -788,6 +800,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       change.setDecimalSymbol(item.getText(index++));
       change.setGroupingSymbol(item.getText(index++));
       change.setCurrencySymbol(item.getText(index++));
+      change.setRoundingType(ValueMetaBase.getRoundingTypeCode(item.getText(index)));
 
       input.getSelectOption().getMeta().add(change);
     }
@@ -848,7 +861,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       for (int i = 0; i < wRemove.getItemCount(); i++) {
         String[] columns = wRemove.getItem(i);
         for (String column : columns) {
-          if (column.length() > 0) {
+          if (!column.isEmpty()) {
             BaseDialog.openMessageBox(
                 shell,
                 BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"),
@@ -861,7 +874,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       for (int i = 0; i < wMeta.getItemCount(); i++) {
         String[] columns = wMeta.getItem(i);
         for (String col : columns) {
-          if (col.length() > 0) {
+          if (!col.isEmpty()) {
             BaseDialog.openMessageBox(
                 shell,
                 BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"),
@@ -934,7 +947,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
       mappings.add(mapping);
     }
     // show a confirm dialog if some misconfiguration was found
-    if (missingFields.length() > 0) {
+    if (!missingFields.isEmpty()) {
       int answer =
           BaseDialog.openMessageBox(
               shell,

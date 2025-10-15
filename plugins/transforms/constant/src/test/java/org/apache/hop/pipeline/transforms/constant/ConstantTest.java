@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -29,30 +29,31 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
-public class ConstantTest {
+class ConstantTest {
 
   private TransformMockHelper<ConstantMeta, ConstantData> mockHelper;
   private RowMetaAndData rowMetaAndData = mock(RowMetaAndData.class);
   private Constant constantSpy;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopPluginException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopPluginException {
     ValueMetaPluginType.getInstance().searchPlugins();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     mockHelper = new TransformMockHelper<>("Add Constants", ConstantMeta.class, ConstantData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -71,13 +72,13 @@ public class ConstantTest {
                 mockHelper.pipeline));
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     mockHelper.cleanUp();
   }
 
   @Test
-  public void testProcessRowSuccess() throws Exception {
+  void testProcessRowSuccess() throws Exception {
 
     doReturn(new Object[1]).when(constantSpy).getRow();
     doReturn(new RowMeta()).when(constantSpy).getInputRowMeta();
@@ -88,7 +89,7 @@ public class ConstantTest {
   }
 
   @Test
-  public void testProcessRow_fail() throws Exception {
+  void testProcessRow_fail() throws Exception {
 
     doReturn(null).when(constantSpy).getRow();
     doReturn(null).when(constantSpy).getInputRowMeta();

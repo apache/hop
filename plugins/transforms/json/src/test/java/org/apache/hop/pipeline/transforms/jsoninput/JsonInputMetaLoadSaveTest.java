@@ -30,15 +30,15 @@ import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
+class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
 
   static final int FILE_COUNT = new Random().nextInt(20) + 1;
   static final int FIELD_COUNT = new Random().nextInt(20) + 1;
 
   @Test
-  public void testLoadSave() throws HopException {
+  void testLoadSave() throws HopException {
     List<String> attributes =
         Arrays.asList(
             "includeFilename",

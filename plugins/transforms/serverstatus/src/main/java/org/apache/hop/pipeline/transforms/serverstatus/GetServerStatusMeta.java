@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::GetServerStatus.Transform.Name",
     description = "i18n::GetServerStatus.Transform.Description",
     image = "ui/images/server.svg",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "/pipeline/transforms/serverstatus.html",
     keywords = "i18n::GetServerStatus.Transform.Keywords")
 public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetServerStatusData> {

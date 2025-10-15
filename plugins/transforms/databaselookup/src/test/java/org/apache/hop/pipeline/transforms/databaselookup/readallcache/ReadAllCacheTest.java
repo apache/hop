@@ -17,8 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Date;
 import java.util.List;
@@ -29,19 +30,19 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookupData;
 import org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookupMeta;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ReadAllCacheTest {
+class ReadAllCacheTest {
 
   private DatabaseLookupData transformData;
   private RowMeta keysMeta;
   private Object[][] keys;
   private Object[][] data;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     transformData = new DatabaseLookupData();
     transformData.conditions = new int[4];
 
@@ -66,44 +67,49 @@ public class ReadAllCacheTest {
         };
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     transformData = null;
     keysMeta = null;
     keys = null;
     data = null;
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void storeRowInCache_ThrowsException() throws Exception {
-    buildCache("").storeRowInCache(new DatabaseLookupMeta(), keysMeta.clone(), keys[0], data[0]);
+  @Test
+  void storeRowInCache_ThrowsException() throws Exception {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> {
+          buildCache("")
+              .storeRowInCache(new DatabaseLookupMeta(), keysMeta.clone(), keys[0], data[0]);
+        });
   }
 
   @Test
-  public void hasDbConditionStopsSearching() throws Exception {
+  void hasDbConditionStopsSearching() throws Exception {
     transformData.hasDBCondition = true;
     assertNull(buildCache("").getRowFromCache(keysMeta.clone(), keys[0]));
   }
 
   @Test
-  public void lookup_Finds_Only() throws Exception {
+  void lookup_Finds_Only() throws Exception {
     ReadAllCache cache = buildCache("=,<,=,IS NULL");
     Object[] found =
         cache.getRowFromCache(keysMeta.clone(), new Object[] {1L, "2", new Date(100), null});
     assertArrayEquals(
-        "(keys[0] == 1) && (keys[1] < '2') && (keys[2] == 100) --> row 3", data[3], found);
+        data[3], found, "(keys[0] == 1) && (keys[1] < '2') && (keys[2] == 100) --> row 3");
   }
 
   @Test
-  public void lookup_Finds_FirstMatching() throws Exception {
+  void lookup_Finds_FirstMatching() throws Exception {
     ReadAllCache cache = buildCache("=,IS NOT NULL,<=,IS NULL");
     Object[] found =
         cache.getRowFromCache(keysMeta.clone(), new Object[] {1L, null, new Date(1000000), null});
-    assertArrayEquals("(keys[0] == 1) && (keys[2] < 1000000) --> row 3", data[3], found);
+    assertArrayEquals(data[3], found, "(keys[0] == 1) && (keys[2] < 1000000) --> row 3");
   }
 
   @Test
-  public void lookup_Finds_WithBetweenOperator() throws Exception {
+  void lookup_Finds_WithBetweenOperator() throws Exception {
     RowMeta meta = keysMeta.clone();
     meta.setValueMeta(3, new ValueMetaDate());
     meta.addValueMeta(new ValueMetaInteger());
@@ -111,11 +117,11 @@ public class ReadAllCacheTest {
     ReadAllCache cache = buildCache("<>,IS NOT NULL,BETWEEN,IS NULL");
     Object[] found =
         cache.getRowFromCache(meta, new Object[] {-1L, null, new Date(140), new Date(160), null});
-    assertArrayEquals("(140 <= keys[2] <= 160) --> row 4", data[4], found);
+    assertArrayEquals(data[4], found, "(140 <= keys[2] <= 160) --> row 4");
   }
 
   @Test
-  public void lookup_Finds_WithTwoBetweenOperators() throws Exception {
+  void lookup_Finds_WithTwoBetweenOperators() throws Exception {
     RowMeta meta = new RowMeta();
     meta.addValueMeta(new ValueMetaInteger());
     meta.addValueMeta(new ValueMetaString());
@@ -129,19 +135,19 @@ public class ReadAllCacheTest {
         cache.getRowFromCache(
             meta, new Object[] {-1L, "1", "3", new Date(0), new Date(1000), null});
     assertArrayEquals(
-        "('1' <= keys[1] <= '3') && (0 <= keys[2] <= 1000) --> row 2", data[2], found);
+        data[2], found, "('1' <= keys[1] <= '3') && (0 <= keys[2] <= 1000) --> row 2");
   }
 
   @Test
-  public void lookup_DoesNotFind_FilteredByIndex() throws Exception {
+  void lookup_DoesNotFind_FilteredByIndex() throws Exception {
     ReadAllCache cache = buildCache("=,IS NOT NULL,>=,IS NOT NULL");
     Object[] found =
         cache.getRowFromCache(keysMeta.clone(), new Object[] {1L, null, new Date(0), null});
-    assertNull("(keys[3] != NULL) --> none", found);
+    assertNull(found, "(keys[3] != NULL) --> none");
   }
 
   @Test
-  public void lookup_DoesNotFind_WithBetweenOperator() throws Exception {
+  void lookup_DoesNotFind_WithBetweenOperator() throws Exception {
     RowMeta meta = keysMeta.clone();
     meta.setValueMeta(3, new ValueMetaDate());
     meta.addValueMeta(new ValueMetaInteger());
@@ -149,7 +155,7 @@ public class ReadAllCacheTest {
     ReadAllCache cache = buildCache("<>,IS NOT NULL,BETWEEN,IS NULL");
     Object[] found =
         cache.getRowFromCache(meta, new Object[] {-1L, null, new Date(1000), new Date(2000), null});
-    assertNull("(1000 <= keys[2] <= 2000) --> none", found);
+    assertNull(found, "(1000 <= keys[2] <= 2000) --> none");
   }
 
   private ReadAllCache buildCache(String conditions) throws Exception {
@@ -177,7 +183,7 @@ public class ReadAllCacheTest {
   }
 
   @Test
-  public void lookup_HandlesAbsenceOfLookupValue() throws Exception {
+  void lookup_HandlesAbsenceOfLookupValue() throws Exception {
     transformData = new DatabaseLookupData();
     transformData.conditions = new int[] {DatabaseLookupMeta.CONDITION_IS_NOT_NULL};
 
@@ -190,6 +196,6 @@ public class ReadAllCacheTest {
     ReadAllCache cache = builder.build();
 
     Object[] found = cache.getRowFromCache(new RowMeta(), new Object[0]);
-    assertArrayEquals("(keys[1] == 1L) --> row 2", new Object[] {"one"}, found);
+    assertArrayEquals(new Object[] {"one"}, found, "(keys[1] == 1L) --> row 2");
   }
 }

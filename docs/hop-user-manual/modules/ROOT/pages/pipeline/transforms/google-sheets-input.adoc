@@ -65,6 +65,15 @@ Click the `Test Connection` button to verify your specified JSON credential key 
 |Worksheet Id|specify the worksheet id (title) for the sheet in your Google Spreadsheet you want to read from. Click the "Browse" button to get the list of available worksheets in the selected Google Spreadsheet.
 |===
 
+=== Proxy tab
+
+[%header, width="90%", cols="1,4"]
+|===
+|option|description
+|Proxy host|Proxy server hostname
+|Proxy port|Proxy server port
+|===
+
 ===  Fields tab
 
 Lets you select from the fields of the sheet.

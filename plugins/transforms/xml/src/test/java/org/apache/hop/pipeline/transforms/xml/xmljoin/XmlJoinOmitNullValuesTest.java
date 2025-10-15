@@ -34,20 +34,20 @@ import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for XmlJoin transform
  *
  * @see XmlJoin
  */
-public class XmlJoinOmitNullValuesTest {
+class XmlJoinOmitNullValuesTest {
   TransformMockHelper<XmlJoinMeta, XmlJoinData> tmh;
 
-  @Before
-  public void init() throws Exception {
+  @BeforeEach
+  void init() throws Exception {
     tmh = new TransformMockHelper<>("XmlJoin", XmlJoinMeta.class, XmlJoinData.class);
     when(tmh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(tmh.iLogChannel);
@@ -55,7 +55,7 @@ public class XmlJoinOmitNullValuesTest {
   }
 
   @Test
-  public void testRemoveEmptyNodes() throws HopException {
+  void testRemoveEmptyNodes() throws HopException {
     doTest(
         "<child><empty/><subChild a=\"\"><empty/></subChild><subChild><empty/></subChild><subChild><subSubChild a=\"\"/></subChild></child>",
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root xmlns=\"http://www.myns1.com\" xmlns:xsi=\"http://www.myns2.com\" xsi:schemalocation=\"http://www.mysl1.com\"></root>",
@@ -121,12 +121,12 @@ public class XmlJoinOmitNullValuesTest {
         new RowAdapter() {
           @Override
           public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
-            Assert.assertEquals(expectedXml, row[0]);
+            Assertions.assertEquals(expectedXml, row[0]);
           }
         });
 
-    Assert.assertTrue(spy.processRow());
-    Assert.assertFalse(spy.processRow());
+    Assertions.assertTrue(spy.processRow());
+    Assertions.assertFalse(spy.processRow());
   }
 
   private IRowSet createSourceRowSet(String sourceXml) {

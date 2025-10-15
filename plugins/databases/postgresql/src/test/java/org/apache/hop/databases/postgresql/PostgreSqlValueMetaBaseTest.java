@@ -17,9 +17,9 @@
 
 package org.apache.hop.databases.postgresql;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -52,16 +52,17 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Spy;
 
-public class PostgreSqlValueMetaBaseTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+class PostgreSqlValueMetaBaseTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String TEST_NAME = "TEST_NAME";
   private static final String LOG_FIELD = "LOG_FIELD";
@@ -78,16 +79,16 @@ public class PostgreSqlValueMetaBaseTest {
   private IValueMeta valueMetaBase;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() throws HopPluginException {
+  @BeforeEach
+  void setUp() throws HopPluginException {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener(listener);
 
@@ -98,8 +99,8 @@ public class PostgreSqlValueMetaBaseTest {
     variables = spy(new Variables());
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     HopLogStore.getAppender().removeLoggingEventListener(listener);
     listener = new StoreLoggingEventListener();
   }
@@ -123,7 +124,7 @@ public class PostgreSqlValueMetaBaseTest {
    * length.
    */
   @Test
-  public void test_PDI_17126_Postgres() throws Exception {
+  void test_PDI_17126_Postgres() throws Exception {
     String data = StringUtils.repeat("*", 10);
     initValueMeta(new PostgreSqlDatabaseMeta(), 20, data);
 
@@ -135,7 +136,7 @@ public class PostgreSqlValueMetaBaseTest {
    * field length.
    */
   @Test
-  public void test_Pdi_17126_postgres_DataLongerThanMetaLength() throws Exception {
+  void test_Pdi_17126_postgres_DataLongerThanMetaLength() throws Exception {
     String data = StringUtils.repeat("*", 20);
     initValueMeta(new PostgreSqlDatabaseMeta(), 10, data);
 
@@ -147,7 +148,7 @@ public class PostgreSqlValueMetaBaseTest {
    * mocking it at 1KB instead of the real value which is 2GB for PostgreSQL
    */
   @Test
-  public void test_Pdi_17126_postgres_truncate() throws Exception {
+  void test_Pdi_17126_postgres_truncate() throws Exception {
     List<HopLoggingEvent> events = listener.getEvents();
     assertEquals(0, events.size());
 
@@ -178,7 +179,7 @@ public class PostgreSqlValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingPostgesSql()
+  void testMetdataPreviewSqlNumericWithUndefinedSizeUsingPostgesSql()
       throws SQLException, HopDatabaseException {
     doReturn(Types.NUMERIC).when(resultSet).getInt("DATA_TYPE");
     doReturn(0).when(resultSet).getInt("COLUMN_SIZE");
@@ -192,7 +193,7 @@ public class PostgreSqlValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BINARY).when(resultSet).getInt("DATA_TYPE");
     doReturn(mock(PostgreSqlDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
@@ -200,7 +201,7 @@ public class PostgreSqlValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BLOB).when(resultSet).getInt("DATA_TYPE");
     doReturn(mock(PostgreSqlDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
@@ -209,8 +210,7 @@ public class PostgreSqlValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlVarBinaryToHopBinary()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlVarBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
     doReturn(mock(PostgreSqlDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
@@ -218,8 +218,7 @@ public class PostgreSqlValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlLongVarBinaryToHopBinary()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlLongVarBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.LONGVARBINARY).when(resultSet).getInt("DATA_TYPE");
     doReturn(mock(PostgreSqlDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);

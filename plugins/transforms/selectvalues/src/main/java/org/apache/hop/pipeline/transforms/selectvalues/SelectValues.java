@@ -343,6 +343,9 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
         if (!Utils.isEmpty(change.getCurrencySymbol())) {
           valueMeta.setCurrencySymbol(change.getCurrencySymbol());
         }
+        if (!Utils.isEmpty(change.getRoundingType())) {
+          valueMeta.setRoundingType(change.getRoundingType());
+        }
       }
     }
 

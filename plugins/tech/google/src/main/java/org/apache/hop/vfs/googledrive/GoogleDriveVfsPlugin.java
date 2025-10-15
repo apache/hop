@@ -23,7 +23,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
 
-@VfsPlugin(type = "googledrive", typeDescription = "Google Drive VFS")
+@VfsPlugin(
+    type = "googledrive",
+    typeDescription = "Google Drive VFS",
+    classLoaderGroup = "vfs-google")
 public class GoogleDriveVfsPlugin implements IVfs {
   @Override
   public String[] getUrlSchemes() {

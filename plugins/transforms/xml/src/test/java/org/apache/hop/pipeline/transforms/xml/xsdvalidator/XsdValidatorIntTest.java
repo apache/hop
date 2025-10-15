@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,11 +40,11 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.xml.PipelineTestFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class XsdValidatorIntTest {
+class XsdValidatorIntTest {
 
   private static final String RAMDIR = "ram://" + XsdValidatorIntTest.class.getSimpleName();
   private static final String TEST_FILES_DIR = "src/test/resources/xsdvalidator/";
@@ -52,13 +52,13 @@ public class XsdValidatorIntTest {
   private static FileObject schemaRamFile = null;
   private static FileObject dataRamFile = null;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
-  @AfterClass
-  public static void tearDownAfterClass() {
+  @AfterAll
+  static void tearDownAfterClass() {
     try {
       if (schemaRamFile != null && schemaRamFile.exists()) {
         schemaRamFile.delete();
@@ -72,7 +72,7 @@ public class XsdValidatorIntTest {
   }
 
   @Test
-  public void testVfsInputFiles() throws Exception {
+  void testVfsInputFiles() throws Exception {
     testVfsFileTypes(
         getDataRamFile().getURL().toString(), getSchemaRamFile().getURL().toString(), true);
     testVfsFileTypes(

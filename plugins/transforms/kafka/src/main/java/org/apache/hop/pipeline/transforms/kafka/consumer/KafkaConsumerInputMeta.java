@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -67,6 +69,8 @@ import org.w3c.dom.Node;
 @InjectionSupported(
     localizationPrefix = "KafkaConsumerInputMeta.Injection.",
     groups = {"CONFIGURATION_PROPERTIES"})
+@Getter
+@Setter
 public class KafkaConsumerInputMeta
     extends TransformWithMappingMeta<KafkaConsumerInput, KafkaConsumerInputData>
     implements Cloneable {
@@ -79,6 +83,8 @@ public class KafkaConsumerInputMeta
   public static final String TOPIC = "topic";
   public static final String CONSUMER_GROUP = "consumerGroup";
   public static final String PIPELINE_PATH = "pipelinePath";
+  public static final String EXECUTION_INFORMATION_LOCATION = "executionInformationLocation";
+  public static final String EXECUTION_DATA_PROFILE = "executionDataProfile";
   public static final String BATCH_SIZE = "batchSize";
   public static final String BATCH_DURATION = "batchDuration";
   public static final String DIRECT_BOOTSTRAP_SERVERS = "directBootstrapServers";
@@ -97,6 +103,12 @@ public class KafkaConsumerInputMeta
 
   @Injection(name = PIPELINE_PATH)
   protected String filename = "";
+
+  @Injection(name = EXECUTION_INFORMATION_LOCATION)
+  protected String executionInformationLocation = "";
+
+  @Injection(name = EXECUTION_DATA_PROFILE)
+  protected String executionDataProfile = "";
 
   @Injection(name = NUM_MESSAGES)
   protected String batchSize = "1000";
@@ -135,12 +147,16 @@ public class KafkaConsumerInputMeta
 
   private Map<String, String> config = new LinkedHashMap<>();
 
+  @Injection(name = TOPIC_FIELD_NAME)
   private KafkaConsumerField topicField;
 
+  @Injection(name = OFFSET_FIELD_NAME)
   private KafkaConsumerField offsetField;
 
+  @Injection(name = PARTITION_FIELD_NAME)
   private KafkaConsumerField partitionField;
 
+  @Injection(name = TIMESTAMP_FIELD_NAME)
   private KafkaConsumerField timestampField;
 
   // Describe the standard way of retrieving mappings
@@ -199,6 +215,9 @@ public class KafkaConsumerInputMeta
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider) {
 
     setFilename(XmlHandler.getTagValue(transformNode, PIPELINE_PATH));
+    setExecutionInformationLocation(
+        XmlHandler.getTagValue(transformNode, EXECUTION_INFORMATION_LOCATION));
+    setExecutionDataProfile(XmlHandler.getTagValue(transformNode, EXECUTION_DATA_PROFILE));
 
     topics = new ArrayList<>();
     List<Node> topicsNode = XmlHandler.getNodes(transformNode, TOPIC);
@@ -305,6 +324,10 @@ public class KafkaConsumerInputMeta
 
     xml.append("    ").append(XmlHandler.addTagValue(CONSUMER_GROUP, consumerGroup));
     xml.append("    ").append(XmlHandler.addTagValue(PIPELINE_PATH, filename));
+    xml.append("    ")
+        .append(
+            XmlHandler.addTagValue(EXECUTION_INFORMATION_LOCATION, executionInformationLocation));
+    xml.append("    ").append(XmlHandler.addTagValue(EXECUTION_DATA_PROFILE, executionDataProfile));
     xml.append("    ").append(XmlHandler.addTagValue(SUB_TRANSFORM, getSubTransform()));
     xml.append("    ").append(XmlHandler.addTagValue(BATCH_SIZE, batchSize));
     xml.append("    ").append(XmlHandler.addTagValue(BATCH_DURATION, batchDuration));
@@ -531,265 +554,6 @@ public class KafkaConsumerInputMeta
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     return TransformWithMappingMeta.loadMappingMeta(this, metadataProvider, variables);
-  }
-
-  /**
-   * Gets filename
-   *
-   * @return value of filename
-   */
-  @Override
-  public String getFilename() {
-    return filename;
-  }
-
-  /**
-   * @param filename The filename to set
-   */
-  @Override
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  /**
-   * Gets batchSize
-   *
-   * @return value of batchSize
-   */
-  public String getBatchSize() {
-    return batchSize;
-  }
-
-  /**
-   * @param batchSize The batchSize to set
-   */
-  public void setBatchSize(String batchSize) {
-    this.batchSize = batchSize;
-  }
-
-  /**
-   * Gets batchDuration
-   *
-   * @return value of batchDuration
-   */
-  public String getBatchDuration() {
-    return batchDuration;
-  }
-
-  /**
-   * @param batchDuration The batchDuration to set
-   */
-  public void setBatchDuration(String batchDuration) {
-    this.batchDuration = batchDuration;
-  }
-
-  /**
-   * Gets the name of the transform in the kafka pipeline to retrieve data from
-   *
-   * @return name of the transform
-   */
-  public String getSubTransform() {
-    return subTransform;
-  }
-
-  /**
-   * @param subTransform the name of the transform in the kafka pipeline to retrieve data from to
-   *     set
-   */
-  public void setSubTransform(String subTransform) {
-    this.subTransform = subTransform;
-  }
-
-  /**
-   * Gets directBootstrapServers
-   *
-   * @return value of directBootstrapServers
-   */
-  public String getDirectBootstrapServers() {
-    return directBootstrapServers;
-  }
-
-  /**
-   * @param directBootstrapServers The directBootstrapServers to set
-   */
-  public void setDirectBootstrapServers(String directBootstrapServers) {
-    this.directBootstrapServers = directBootstrapServers;
-  }
-
-  /**
-   * Gets topics
-   *
-   * @return value of topics
-   */
-  public List<String> getTopics() {
-    return topics;
-  }
-
-  /**
-   * @param topics The topics to set
-   */
-  public void setTopics(List<String> topics) {
-    this.topics = topics;
-  }
-
-  /**
-   * Gets consumerGroup
-   *
-   * @return value of consumerGroup
-   */
-  public String getConsumerGroup() {
-    return consumerGroup;
-  }
-
-  /**
-   * @param consumerGroup The consumerGroup to set
-   */
-  public void setConsumerGroup(String consumerGroup) {
-    this.consumerGroup = consumerGroup;
-  }
-
-  /**
-   * Gets keyField
-   *
-   * @return value of keyField
-   */
-  public KafkaConsumerField getKeyField() {
-    return keyField;
-  }
-
-  /**
-   * @param keyField The keyField to set
-   */
-  public void setKeyField(KafkaConsumerField keyField) {
-    this.keyField = keyField;
-  }
-
-  /**
-   * Gets messageField
-   *
-   * @return value of messageField
-   */
-  public KafkaConsumerField getMessageField() {
-    return messageField;
-  }
-
-  /**
-   * @param messageField The messageField to set
-   */
-  public void setMessageField(KafkaConsumerField messageField) {
-    this.messageField = messageField;
-  }
-
-  /**
-   * Gets injectedConfigNames
-   *
-   * @return value of injectedConfigNames
-   */
-  public List<String> getInjectedConfigNames() {
-    return injectedConfigNames;
-  }
-
-  /**
-   * @param injectedConfigNames The injectedConfigNames to set
-   */
-  public void setInjectedConfigNames(List<String> injectedConfigNames) {
-    this.injectedConfigNames = injectedConfigNames;
-  }
-
-  /**
-   * Gets injectedConfigValues
-   *
-   * @return value of injectedConfigValues
-   */
-  public List<String> getInjectedConfigValues() {
-    return injectedConfigValues;
-  }
-
-  /**
-   * @param injectedConfigValues The injectedConfigValues to set
-   */
-  public void setInjectedConfigValues(List<String> injectedConfigValues) {
-    this.injectedConfigValues = injectedConfigValues;
-  }
-
-  /**
-   * Gets topicField
-   *
-   * @return value of topicField
-   */
-  public KafkaConsumerField getTopicField() {
-    return topicField;
-  }
-
-  /**
-   * @param topicField The topicField to set
-   */
-  public void setTopicField(KafkaConsumerField topicField) {
-    this.topicField = topicField;
-  }
-
-  /**
-   * Gets offsetField
-   *
-   * @return value of offsetField
-   */
-  public KafkaConsumerField getOffsetField() {
-    return offsetField;
-  }
-
-  /**
-   * @param offsetField The offsetField to set
-   */
-  public void setOffsetField(KafkaConsumerField offsetField) {
-    this.offsetField = offsetField;
-  }
-
-  /**
-   * Gets partitionField
-   *
-   * @return value of partitionField
-   */
-  public KafkaConsumerField getPartitionField() {
-    return partitionField;
-  }
-
-  /**
-   * @param partitionField The partitionField to set
-   */
-  public void setPartitionField(KafkaConsumerField partitionField) {
-    this.partitionField = partitionField;
-  }
-
-  /**
-   * Gets timestampField
-   *
-   * @return value of timestampField
-   */
-  public KafkaConsumerField getTimestampField() {
-    return timestampField;
-  }
-
-  /**
-   * @param timestampField The timestampField to set
-   */
-  public void setTimestampField(KafkaConsumerField timestampField) {
-    this.timestampField = timestampField;
-  }
-
-  /**
-   * Gets autoCommit
-   *
-   * @return value of autoCommit
-   */
-  public boolean isAutoCommit() {
-    return autoCommit;
-  }
-
-  /**
-   * @param autoCommit The autoCommit to set
-   */
-  public void setAutoCommit(boolean autoCommit) {
-    this.autoCommit = autoCommit;
   }
 
   @Override

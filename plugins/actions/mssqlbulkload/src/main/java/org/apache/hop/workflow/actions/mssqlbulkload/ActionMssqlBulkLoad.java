@@ -356,13 +356,13 @@ public class ActionMssqlBulkLoad extends ActionBase {
                   sqlBulkLoad = sqlBulkLoad + "DATAFILETYPE ='" + dataFileType + "'";
                 }
 
-                if (lineTerminatedby.length() > 0) {
+                if (!lineTerminatedby.isEmpty()) {
                   sqlBulkLoad = sqlBulkLoad + "," + lineTerminatedby;
                 }
-                if (takeFirstNbrLines.length() > 0) {
+                if (!takeFirstNbrLines.isEmpty()) {
                   sqlBulkLoad = sqlBulkLoad + "," + takeFirstNbrLines;
                 }
-                if (useCodepage.length() > 0) {
+                if (!useCodepage.isEmpty()) {
                   sqlBulkLoad = sqlBulkLoad + "," + useCodepage;
                 }
                 String realFormatFile = resolve(formatFileName);
@@ -387,7 +387,7 @@ public class ActionMssqlBulkLoad extends ActionBase {
                 if (orderBy != null) {
                   sqlBulkLoad = sqlBulkLoad + ",ORDER ( " + orderBy + " " + orderDirection + ")";
                 }
-                if (errorfileName.length() > 0) {
+                if (!errorfileName.isEmpty()) {
                   sqlBulkLoad = sqlBulkLoad + ", " + errorfileName;
                 }
                 if (maxErrors > 0) {

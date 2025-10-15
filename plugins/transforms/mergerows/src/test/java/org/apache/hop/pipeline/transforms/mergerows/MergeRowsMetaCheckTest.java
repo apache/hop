@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -37,10 +37,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class MergeRowsMetaCheckTest {
+class MergeRowsMetaCheckTest {
 
   private PipelineMeta pipelineMeta;
   private MergeRowsMeta meta;
@@ -77,8 +77,8 @@ public class MergeRowsMetaCheckTest {
     return output;
   }
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pipelineMeta = mock(PipelineMeta.class);
     meta = new MergeRowsMeta();
     transformMeta = new TransformMeta(TRANSFORM_NAME, meta);
@@ -92,7 +92,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @Test
-  public void testCheckInputRowsBothEmpty() throws HopTransformException {
+  void testCheckInputRowsBothEmpty() throws HopTransformException {
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMetaEmpty());
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(COMPARISON_TRANSFORM_NAME)))
@@ -115,7 +115,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @Test
-  public void testCheckInputRowsBothNonEmpty() throws HopTransformException {
+  void testCheckInputRowsBothNonEmpty() throws HopTransformException {
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMeta10Strings());
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(COMPARISON_TRANSFORM_NAME)))
@@ -138,7 +138,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @Test
-  public void testCheckInputRowsEmptyAndNonEmpty() throws HopTransformException {
+  void testCheckInputRowsEmptyAndNonEmpty() throws HopTransformException {
     when(pipelineMeta.getPrevTransformFields(any(), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMetaEmpty());
     when(pipelineMeta.getPrevTransformFields(any(), eq(COMPARISON_TRANSFORM_NAME)))
@@ -161,7 +161,7 @@ public class MergeRowsMetaCheckTest {
   }
 
   @Test
-  public void testCheckInputRowsDifferentRowMetaTypes() throws HopTransformException {
+  void testCheckInputRowsDifferentRowMetaTypes() throws HopTransformException {
     when(pipelineMeta.getPrevTransformFields(any(), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMeta10MixedTypes());
     when(pipelineMeta.getPrevTransformFields(any(), eq(COMPARISON_TRANSFORM_NAME)))

@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.excelinput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
@@ -45,12 +47,15 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 
 /** Meta data for the Excel transform. */
 @Transform(
@@ -61,6 +66,8 @@ import org.apache.hop.resource.ResourceDefinition;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::ExcelInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelinput.html")
+@Getter
+@Setter
 public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData> {
   private static final Class<?> PKG = ExcelInputMeta.class;
 
@@ -109,8 +116,12 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
 
   @HopMetadataProperty(
       key = "schema_definition",
-      injectionKeyDescription = "The fields schema definition")
+      injectionKeyDescription = "The fields schema definition",
+      hopMetadataPropertyType = HopMetadataPropertyType.STATIC_SCHEMA_DEFINITION)
   private String schemaDefinition;
+
+  @HopMetadataProperty(key = "ignore_fields", injectionKeyDescription = "Ignore manual fields")
+  private boolean ignoreFields;
 
   /** Stop reading when you hit an empty row. */
   @HopMetadataProperty(
@@ -305,6 +316,7 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     this.sheetField = m.sheetField;
     this.startsWithHeader = m.startsWithHeader;
     this.schemaDefinition = m.schemaDefinition;
+    this.ignoreFields = m.ignoreFields;
     this.stopOnEmpty = m.stopOnEmpty;
     this.ignoreEmptyRows = m.ignoreEmptyRows;
     this.rowNumberField = m.rowNumberField;
@@ -376,46 +388,65 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     // Clean the row if eventually is dirty
     row.clear();
 
-    for (ExcelInputField field : fields) {
-      int type = field.getHopType();
-      if (type == IValueMeta.TYPE_NONE) {
-        type = IValueMeta.TYPE_STRING;
-      }
+    if (ignoreFields) {
       try {
-        IValueMeta v = ValueMetaFactory.createValueMeta(field.getName(), type);
-        v.setLength(field.getLength());
-        v.setPrecision(field.getPrecision());
-        v.setOrigin(name);
-        v.setConversionMask(field.getFormat());
-        v.setDecimalSymbol(field.getDecimalSymbol());
-        v.setGroupingSymbol(field.getGroupSymbol());
-        v.setCurrencySymbol(field.getCurrencySymbol());
-        row.addValueMeta(v);
-      } catch (Exception e) {
-        throw new HopTransformException(e);
+        SchemaDefinition loadedSchemaDefinition =
+            (new SchemaDefinitionUtil())
+                .loadSchemaDefinition(metadataProvider, getSchemaDefinition());
+        if (loadedSchemaDefinition != null) {
+          IRowMeta r = loadedSchemaDefinition.getRowMeta();
+          if (r != null) {
+            for (int i = 0; i < r.size(); i++) {
+              row.addValueMeta(r.getValueMeta(i));
+            }
+          }
+        }
+      } catch (HopTransformException | HopPluginException e) {
+        // ignore any errors here.
+      }
+    } else {
+      for (ExcelInputField field : fields) {
+        int type = field.getHopType();
+        if (type == IValueMeta.TYPE_NONE) {
+          type = IValueMeta.TYPE_STRING;
+        }
+        try {
+          IValueMeta v = ValueMetaFactory.createValueMeta(field.getName(), type);
+          v.setLength(field.getLength());
+          v.setPrecision(field.getPrecision());
+          v.setOrigin(name);
+          v.setConversionMask(field.getFormat());
+          v.setDecimalSymbol(field.getDecimalSymbol());
+          v.setGroupingSymbol(field.getGroupSymbol());
+          v.setCurrencySymbol(field.getCurrencySymbol());
+          row.addValueMeta(v);
+        } catch (Exception e) {
+          throw new HopTransformException(e);
+        }
       }
     }
-    if (fileField != null && fileField.length() > 0) {
+
+    if (!Utils.isEmpty(fileField)) {
       IValueMeta v = new ValueMetaString(fileField);
       v.setLength(250);
       v.setPrecision(-1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (sheetField != null && sheetField.length() > 0) {
+    if (!Utils.isEmpty(sheetField)) {
       IValueMeta v = new ValueMetaString(sheetField);
       v.setLength(250);
       v.setPrecision(-1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (sheetRowNumberField != null && sheetRowNumberField.length() > 0) {
+    if (!Utils.isEmpty(sheetRowNumberField)) {
       IValueMeta v = new ValueMetaInteger(sheetRowNumberField);
       v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (rowNumberField != null && rowNumberField.length() > 0) {
+    if (!Utils.isEmpty(rowNumberField)) {
       IValueMeta v = new ValueMetaInteger(rowNumberField);
       v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       v.setOrigin(name);
@@ -605,28 +636,39 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     }
   }
 
-  public IRowMeta getEmptyFields() {
+  public IRowMeta getEmptyFields(IHopMetadataProvider metadataProvider) {
     IRowMeta row = new RowMeta();
 
-    for (ExcelInputField field : fields) {
-      IValueMeta v;
+    if (ignoreFields) {
       try {
-        v = ValueMetaFactory.createValueMeta(field.getName(), field.getHopType());
-      } catch (HopPluginException e) {
-        v = new ValueMetaNone(field.getName());
+        SchemaDefinition loadedSchemaDefinition =
+            (new SchemaDefinitionUtil())
+                .loadSchemaDefinition(metadataProvider, getSchemaDefinition());
+        if (loadedSchemaDefinition != null) {
+          IRowMeta r = loadedSchemaDefinition.getRowMeta();
+          if (r != null) {
+            for (int i = 0; i < r.size(); i++) {
+              row.addValueMeta(r.getValueMeta(i));
+            }
+          }
+        }
+      } catch (HopTransformException | HopPluginException e) {
+        // ignore any errors here.
       }
-      row.addValueMeta(v);
+    } else {
+
+      for (ExcelInputField field : fields) {
+        IValueMeta v;
+        try {
+          v = ValueMetaFactory.createValueMeta(field.getName(), field.getHopType());
+        } catch (HopPluginException e) {
+          v = new ValueMetaNone(field.getName());
+        }
+        row.addValueMeta(v);
+      }
     }
 
     return row;
-  }
-
-  public String getWarningFilesDestinationDirectory() {
-    return warningFilesDestinationDirectory;
-  }
-
-  public void setWarningFilesDestinationDirectory(String badLineFilesDestinationDirectory) {
-    this.warningFilesDestinationDirectory = badLineFilesDestinationDirectory;
   }
 
   public String getBadLineFilesExtension() {
@@ -635,118 +677,6 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
 
   public void setBadLineFilesExtension(String badLineFilesExtension) {
     this.warningFilesExtension = badLineFilesExtension;
-  }
-
-  public boolean isErrorIgnored() {
-    return errorIgnored;
-  }
-
-  public void setErrorIgnored(boolean errorIgnored) {
-    this.errorIgnored = errorIgnored;
-  }
-
-  public String getErrorFilesDestinationDirectory() {
-    return errorFilesDestinationDirectory;
-  }
-
-  public void setErrorFilesDestinationDirectory(String errorLineFilesDestinationDirectory) {
-    this.errorFilesDestinationDirectory = errorLineFilesDestinationDirectory;
-  }
-
-  public String getErrorFilesExtension() {
-    return errorFilesExtension;
-  }
-
-  public void setErrorFilesExtension(String errorLineFilesExtension) {
-    this.errorFilesExtension = errorLineFilesExtension;
-  }
-
-  public String getLineNumberFilesDestinationDirectory() {
-    return lineNumberFilesDestinationDirectory;
-  }
-
-  public void setLineNumberFilesDestinationDirectory(String lineNumberFilesDestinationDirectory) {
-    this.lineNumberFilesDestinationDirectory = lineNumberFilesDestinationDirectory;
-  }
-
-  public String getLineNumberFilesExtension() {
-    return lineNumberFilesExtension;
-  }
-
-  public void setLineNumberFilesExtension(String lineNumberFilesExtension) {
-    this.lineNumberFilesExtension = lineNumberFilesExtension;
-  }
-
-  public boolean isErrorLineSkipped() {
-    return errorLineSkipped;
-  }
-
-  public void setErrorLineSkipped(boolean errorLineSkipped) {
-    this.errorLineSkipped = errorLineSkipped;
-  }
-
-  public boolean isStrictTypes() {
-    return strictTypes;
-  }
-
-  public void setStrictTypes(boolean strictTypes) {
-    this.strictTypes = strictTypes;
-  }
-
-  /**
-   * @return Returns the acceptingField.
-   */
-  public String getAcceptingField() {
-    return acceptingField;
-  }
-
-  /**
-   * @param acceptingField The acceptingField to set.
-   */
-  public void setAcceptingField(String acceptingField) {
-    this.acceptingField = acceptingField;
-  }
-
-  /**
-   * @return Returns the acceptingFilenames.
-   */
-  public boolean isAcceptingFilenames() {
-    return acceptingFilenames;
-  }
-
-  /**
-   * @param acceptingFilenames The acceptingFilenames to set.
-   */
-  public void setAcceptingFilenames(boolean acceptingFilenames) {
-    this.acceptingFilenames = acceptingFilenames;
-  }
-
-  /**
-   * @return Returns the acceptingTransformName.
-   */
-  public String getAcceptingTransformName() {
-    return acceptingTransformName;
-  }
-
-  /**
-   * @param acceptingTransformName The acceptingTransformName to set.
-   */
-  public void setAcceptingTransformName(String acceptingTransformName) {
-    this.acceptingTransformName = acceptingTransformName;
-  }
-
-  /**
-   * @return the encoding
-   */
-  public String getEncoding() {
-    return encoding;
-  }
-
-  /**
-   * @param encoding the encoding to set
-   */
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
   }
 
   /**
@@ -832,6 +762,8 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     return rows;
   }
 
+  @Getter
+  @Setter
   public static class EIFile {
     @HopMetadataProperty(
         key = "name",
@@ -873,98 +805,10 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
       this.required = f.required;
       this.includeSubFolders = f.includeSubFolders;
     }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    /**
-     * Gets mask
-     *
-     * @return value of mask
-     */
-    public String getMask() {
-      return mask;
-    }
-
-    /**
-     * Sets mask
-     *
-     * @param mask value of mask
-     */
-    public void setMask(String mask) {
-      this.mask = mask;
-    }
-
-    /**
-     * Gets excludeMask
-     *
-     * @return value of excludeMask
-     */
-    public String getExcludeMask() {
-      return excludeMask;
-    }
-
-    /**
-     * Sets excludeMask
-     *
-     * @param excludeMask value of excludeMask
-     */
-    public void setExcludeMask(String excludeMask) {
-      this.excludeMask = excludeMask;
-    }
-
-    /**
-     * Gets required
-     *
-     * @return value of required
-     */
-    public String getRequired() {
-      return required;
-    }
-
-    /**
-     * Sets required
-     *
-     * @param required value of required
-     */
-    public void setRequired(String required) {
-      this.required = required;
-    }
-
-    /**
-     * Gets includeSubFolders
-     *
-     * @return value of includeSubFolders
-     */
-    public String getIncludeSubFolders() {
-      return includeSubFolders;
-    }
-
-    /**
-     * Sets includeSubFolders
-     *
-     * @param includeSubFolders value of includeSubFolders
-     */
-    public void setIncludeSubFolders(String includeSubFolders) {
-      this.includeSubFolders = includeSubFolders;
-    }
   }
 
+  @Getter
+  @Setter
   public static class EISheet {
     @HopMetadataProperty(
         key = "name",
@@ -991,463 +835,5 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
       this.startRow = s.startRow;
       this.startColumn = s.startColumn;
     }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    /**
-     * Gets startRow
-     *
-     * @return value of startRow
-     */
-    public int getStartRow() {
-      return startRow;
-    }
-
-    /**
-     * Sets startRow
-     *
-     * @param startRow value of startRow
-     */
-    public void setStartRow(int startRow) {
-      this.startRow = startRow;
-    }
-
-    /**
-     * Gets startColumn
-     *
-     * @return value of startColumn
-     */
-    public int getStartColumn() {
-      return startColumn;
-    }
-
-    /**
-     * Sets startColumn
-     *
-     * @param startColumn value of startColumn
-     */
-    public void setStartColumn(int startColumn) {
-      this.startColumn = startColumn;
-    }
-  }
-
-  /**
-   * Gets files
-   *
-   * @return value of files
-   */
-  public List<EIFile> getFiles() {
-    return files;
-  }
-
-  /**
-   * Sets files
-   *
-   * @param files value of files
-   */
-  public void setFiles(List<EIFile> files) {
-    this.files = files;
-  }
-
-  /**
-   * Gets fileField
-   *
-   * @return value of fileField
-   */
-  public String getFileField() {
-    return fileField;
-  }
-
-  /**
-   * Sets fileField
-   *
-   * @param fileField value of fileField
-   */
-  public void setFileField(String fileField) {
-    this.fileField = fileField;
-  }
-
-  /**
-   * Gets sheets
-   *
-   * @return value of sheets
-   */
-  public List<EISheet> getSheets() {
-    return sheets;
-  }
-
-  /**
-   * Sets sheets
-   *
-   * @param sheets value of sheets
-   */
-  public void setSheets(List<EISheet> sheets) {
-    this.sheets = sheets;
-  }
-
-  /**
-   * Gets sheetField
-   *
-   * @return value of sheetField
-   */
-  public String getSheetField() {
-    return sheetField;
-  }
-
-  /**
-   * Sets sheetField
-   *
-   * @param sheetField value of sheetField
-   */
-  public void setSheetField(String sheetField) {
-    this.sheetField = sheetField;
-  }
-
-  /**
-   * Gets startsWithHeader
-   *
-   * @return value of startsWithHeader
-   */
-  public boolean isStartsWithHeader() {
-    return startsWithHeader;
-  }
-
-  /**
-   * Sets startsWithHeader
-   *
-   * @param startsWithHeader value of startsWithHeader
-   */
-  public void setStartsWithHeader(boolean startsWithHeader) {
-    this.startsWithHeader = startsWithHeader;
-  }
-
-  /**
-   * Gets stopOnEmpty
-   *
-   * @return value of stopOnEmpty
-   */
-  public boolean isStopOnEmpty() {
-    return stopOnEmpty;
-  }
-
-  /**
-   * Sets stopOnEmpty
-   *
-   * @param stopOnEmpty value of stopOnEmpty
-   */
-  public void setStopOnEmpty(boolean stopOnEmpty) {
-    this.stopOnEmpty = stopOnEmpty;
-  }
-
-  /**
-   * Gets ignoreEmptyRows
-   *
-   * @return value of ignoreEmptyRows
-   */
-  public boolean isIgnoreEmptyRows() {
-    return ignoreEmptyRows;
-  }
-
-  /**
-   * Sets ignoreEmptyRows
-   *
-   * @param ignoreEmptyRows value of ignoreEmptyRows
-   */
-  public void setIgnoreEmptyRows(boolean ignoreEmptyRows) {
-    this.ignoreEmptyRows = ignoreEmptyRows;
-  }
-
-  /**
-   * Gets rowNumberField
-   *
-   * @return value of rowNumberField
-   */
-  public String getRowNumberField() {
-    return rowNumberField;
-  }
-
-  /**
-   * Sets rowNumberField
-   *
-   * @param rowNumberField value of rowNumberField
-   */
-  public void setRowNumberField(String rowNumberField) {
-    this.rowNumberField = rowNumberField;
-  }
-
-  /**
-   * Gets sheetRowNumberField
-   *
-   * @return value of sheetRowNumberField
-   */
-  public String getSheetRowNumberField() {
-    return sheetRowNumberField;
-  }
-
-  /**
-   * Sets sheetRowNumberField
-   *
-   * @param sheetRowNumberField value of sheetRowNumberField
-   */
-  public void setSheetRowNumberField(String sheetRowNumberField) {
-    this.sheetRowNumberField = sheetRowNumberField;
-  }
-
-  /**
-   * Gets rowLimit
-   *
-   * @return value of rowLimit
-   */
-  public long getRowLimit() {
-    return rowLimit;
-  }
-
-  /**
-   * Sets rowLimit
-   *
-   * @param rowLimit value of rowLimit
-   */
-  public void setRowLimit(long rowLimit) {
-    this.rowLimit = rowLimit;
-  }
-
-  /**
-   * Gets fields
-   *
-   * @return value of fields
-   */
-  public List<ExcelInputField> getFields() {
-    return fields;
-  }
-
-  /**
-   * Sets fields
-   *
-   * @param fields value of fields
-   */
-  public void setFields(List<ExcelInputField> fields) {
-    this.fields = fields;
-  }
-
-  /**
-   * Gets warningFilesExtension
-   *
-   * @return value of warningFilesExtension
-   */
-  public String getWarningFilesExtension() {
-    return warningFilesExtension;
-  }
-
-  /**
-   * Sets warningFilesExtension
-   *
-   * @param warningFilesExtension value of warningFilesExtension
-   */
-  public void setWarningFilesExtension(String warningFilesExtension) {
-    this.warningFilesExtension = warningFilesExtension;
-  }
-
-  /**
-   * Gets isaddresult
-   *
-   * @return value of isaddresult
-   */
-  public boolean isAddFilenamesToResult() {
-    return addFilenamesToResult;
-  }
-
-  /**
-   * Sets isaddresult
-   *
-   * @param addFilenamesToResult value of isaddresult
-   */
-  public void setAddFilenamesToResult(boolean addFilenamesToResult) {
-    this.addFilenamesToResult = addFilenamesToResult;
-  }
-
-  /**
-   * Gets shortFileFieldName
-   *
-   * @return value of shortFileFieldName
-   */
-  public String getShortFileFieldName() {
-    return shortFileFieldName;
-  }
-
-  /**
-   * Sets shortFileFieldName
-   *
-   * @param shortFileFieldName value of shortFileFieldName
-   */
-  public void setShortFileFieldName(String shortFileFieldName) {
-    this.shortFileFieldName = shortFileFieldName;
-  }
-
-  /**
-   * Gets pathFieldName
-   *
-   * @return value of pathFieldName
-   */
-  public String getPathFieldName() {
-    return pathFieldName;
-  }
-
-  /**
-   * Sets pathFieldName
-   *
-   * @param pathFieldName value of pathFieldName
-   */
-  public void setPathFieldName(String pathFieldName) {
-    this.pathFieldName = pathFieldName;
-  }
-
-  /**
-   * Gets hiddenFieldName
-   *
-   * @return value of hiddenFieldName
-   */
-  public String getHiddenFieldName() {
-    return hiddenFieldName;
-  }
-
-  /**
-   * Sets hiddenFieldName
-   *
-   * @param hiddenFieldName value of hiddenFieldName
-   */
-  public void setHiddenFieldName(String hiddenFieldName) {
-    this.hiddenFieldName = hiddenFieldName;
-  }
-
-  /**
-   * Gets lastModificationTimeFieldName
-   *
-   * @return value of lastModificationTimeFieldName
-   */
-  public String getLastModificationTimeFieldName() {
-    return lastModificationTimeFieldName;
-  }
-
-  /**
-   * Sets lastModificationTimeFieldName
-   *
-   * @param lastModificationTimeFieldName value of lastModificationTimeFieldName
-   */
-  public void setLastModificationTimeFieldName(String lastModificationTimeFieldName) {
-    this.lastModificationTimeFieldName = lastModificationTimeFieldName;
-  }
-
-  /**
-   * Gets uriNameFieldName
-   *
-   * @return value of uriNameFieldName
-   */
-  public String getUriNameFieldName() {
-    return uriNameFieldName;
-  }
-
-  /**
-   * Sets uriNameFieldName
-   *
-   * @param uriNameFieldName value of uriNameFieldName
-   */
-  public void setUriNameFieldName(String uriNameFieldName) {
-    this.uriNameFieldName = uriNameFieldName;
-  }
-
-  /**
-   * Gets rootUriNameFieldName
-   *
-   * @return value of rootUriNameFieldName
-   */
-  public String getRootUriNameFieldName() {
-    return rootUriNameFieldName;
-  }
-
-  /**
-   * Sets rootUriNameFieldName
-   *
-   * @param rootUriNameFieldName value of rootUriNameFieldName
-   */
-  public void setRootUriNameFieldName(String rootUriNameFieldName) {
-    this.rootUriNameFieldName = rootUriNameFieldName;
-  }
-
-  /**
-   * Gets extensionFieldName
-   *
-   * @return value of extensionFieldName
-   */
-  public String getExtensionFieldName() {
-    return extensionFieldName;
-  }
-
-  /**
-   * Sets extensionFieldName
-   *
-   * @param extensionFieldName value of extensionFieldName
-   */
-  public void setExtensionFieldName(String extensionFieldName) {
-    this.extensionFieldName = extensionFieldName;
-  }
-
-  /**
-   * Gets sizeFieldName
-   *
-   * @return value of sizeFieldName
-   */
-  public String getSizeFieldName() {
-    return sizeFieldName;
-  }
-
-  /**
-   * Sets sizeFieldName
-   *
-   * @param sizeFieldName value of sizeFieldName
-   */
-  public void setSizeFieldName(String sizeFieldName) {
-    this.sizeFieldName = sizeFieldName;
-  }
-
-  public String getSchemaDefinition() {
-    return schemaDefinition;
-  }
-
-  public void setSchemaDefinition(String schemaDefinition) {
-    this.schemaDefinition = schemaDefinition;
-  }
-
-  /**
-   * Gets spreadSheetType
-   *
-   * @return value of spreadSheetType
-   */
-  public SpreadSheetType getSpreadSheetType() {
-    return spreadSheetType;
-  }
-
-  /**
-   * Sets spreadSheetType
-   *
-   * @param spreadSheetType value of spreadSheetType
-   */
-  public void setSpreadSheetType(SpreadSheetType spreadSheetType) {
-    this.spreadSheetType = spreadSheetType;
   }
 }

@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.salesforceutils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -27,10 +27,10 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
 import org.apache.hop.core.logging.ILogChannel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SalesforceUtilsTest {
+class SalesforceUtilsTest {
 
   private static ILogChannel logMock;
 
@@ -38,13 +38,13 @@ public class SalesforceUtilsTest {
 
   private String expectedFieldName;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     logMock = mock(ILogChannel.class);
   }
 
   @Test
-  public void testNoInstances() {
+  void testNoInstances() {
     Constructor<?>[] methods = SalesforceUtils.class.getConstructors();
     for (int i = 0; i < methods.length; i++) {
       assertFalse(methods[i].isAccessible());
@@ -52,7 +52,7 @@ public class SalesforceUtilsTest {
   }
 
   @Test
-  public void testFieldWithExtIdYes_StandartObject() {
+  void testFieldWithExtIdYes_StandartObject() {
     inputFieldName = "Account:ExtID_AccountId__c/Account";
     expectedFieldName = "AccountId";
     String fieldToNullName = SalesforceUtils.getFieldToNullName(logMock, inputFieldName, true);
@@ -60,7 +60,7 @@ public class SalesforceUtilsTest {
   }
 
   @Test
-  public void testFieldWithExtIdNo_StandartObject() {
+  void testFieldWithExtIdNo_StandartObject() {
     inputFieldName = "AccountId";
     expectedFieldName = "AccountId";
     String fieldToNullName = SalesforceUtils.getFieldToNullName(logMock, inputFieldName, false);
@@ -68,7 +68,7 @@ public class SalesforceUtilsTest {
   }
 
   @Test
-  public void testFieldWithExtIdYes_CustomObject() {
+  void testFieldWithExtIdYes_CustomObject() {
     inputFieldName = "ParentObject__c:Name/ParentObjectId__r";
     expectedFieldName = "ParentObjectId__c";
     String fieldToNullName = SalesforceUtils.getFieldToNullName(logMock, inputFieldName, true);
@@ -76,7 +76,7 @@ public class SalesforceUtilsTest {
   }
 
   @Test
-  public void testFieldWithExtIdNo_CustomObject() {
+  void testFieldWithExtIdNo_CustomObject() {
     inputFieldName = "ParentObjectId__c";
     expectedFieldName = "ParentObjectId__c";
     String fieldToNullName = SalesforceUtils.getFieldToNullName(logMock, inputFieldName, false);
@@ -84,7 +84,7 @@ public class SalesforceUtilsTest {
   }
 
   @Test
-  public void testFieldWithExtIdYesButNameInIncorrectSyntax_StandartObject() {
+  void testFieldWithExtIdYesButNameInIncorrectSyntax_StandartObject() {
     when(logMock.isDebug()).thenReturn(true);
     inputFieldName = "Account";
     expectedFieldName = inputFieldName;
@@ -93,7 +93,7 @@ public class SalesforceUtilsTest {
   }
 
   @Test
-  public void testIncorrectExternalKeySyntaxWarnIsLoggedInDebugMode() {
+  void testIncorrectExternalKeySyntaxWarnIsLoggedInDebugMode() {
     when(logMock.isDebug()).thenReturn(true);
     inputFieldName = "AccountId";
     verify(logMock, never()).logDebug(anyString());
@@ -104,7 +104,7 @@ public class SalesforceUtilsTest {
   }
 
   @Test
-  public void testIncorrectExternalKeySyntaxWarnIsNotLoggedInNotDebugMode() {
+  void testIncorrectExternalKeySyntaxWarnIsNotLoggedInNotDebugMode() {
     when(logMock.isDebug()).thenReturn(false);
     inputFieldName = "AccountId";
     verify(logMock, never()).logDebug(anyString());
@@ -115,7 +115,7 @@ public class SalesforceUtilsTest {
   }
 
   @Test
-  public void testFinalNullFieldNameIsLoggedInDebugMode_StandartObject() {
+  void testFinalNullFieldNameIsLoggedInDebugMode_StandartObject() {
     when(logMock.isDebug()).thenReturn(true);
     inputFieldName = "Account:ExtID_AccountId__c/Account";
     verify(logMock, never()).logDebug(anyString());
@@ -124,7 +124,7 @@ public class SalesforceUtilsTest {
   }
 
   @Test
-  public void testFinalNullFieldNameIsLoggedInDebugMode_CustomObject() {
+  void testFinalNullFieldNameIsLoggedInDebugMode_CustomObject() {
     when(logMock.isDebug()).thenReturn(true);
     inputFieldName = "ParentObject__c:Name/ParentObjectId__r";
     verify(logMock, never()).logDebug(anyString());

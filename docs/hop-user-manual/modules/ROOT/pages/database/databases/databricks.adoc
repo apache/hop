@@ -1,0 +1,38 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[database-plugins-databricks]]
+:documentationPath: /database/databases/
+:language: en_US
+
+= Databricks
+
+Check the https://docs.databricks.com/aws/en/integrations/compute-details[Databricks documentation] on how to get the details for your connection to specify your catalog.
+
+WARNING: the database name field is not used in a Databricks connection. Use the Catalog Name field.
+
+[cols="2*",options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://docs.databricks.com/aws/en/integrations/jdbc/download[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://docs.databricks.com/aws/en/integrations/jdbc/[Documentation Link]
+|JDBC Url  | jdbc:databricks://<server-hostname>:443;httpPath=<http-path>[;<setting1>=<value1>;<setting2>=<value2>;<settingN>=<valueN>]
+|Driver folder | <Hop Installation>/lib/jdbc
+|===
+

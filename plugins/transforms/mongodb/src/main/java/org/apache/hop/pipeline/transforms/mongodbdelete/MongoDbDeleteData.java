@@ -22,10 +22,12 @@ import com.mongodb.DBObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -347,6 +349,17 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
       mongoObject.put(lookup.toString(), val);
       return true;
     }
+    // UUID
+    try {
+      int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+      if (valueMeta.getType() == uuidTypeId) {
+        UUID val = (UUID) valueMeta.convertData(valueMeta, objectValue);
+        mongoObject.put(lookup.toString(), val);
+        return true;
+      }
+    } catch (Exception ignore) {
+      // UUID plugin not present, fall through
+    }
     if (valueMeta.isSerializableType()) {
       throw new HopValueException(
           BaseMessages.getString(PKG, "MongoDbDelete.ErrorMessage.CantStoreHopSerializableVals"));
@@ -382,7 +395,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
       }
 
       if (endIndex + 1 < path.length()) {
-        tempStr = path.substring(endIndex + 1, path.length());
+        tempStr = path.substring(endIndex + 1);
       } else {
         break;
       }

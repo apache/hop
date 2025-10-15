@@ -172,7 +172,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     }
 
     List<String> vars = pipelineMeta.getUsedVariables();
-    if (vars != null && !vars.isEmpty()) {
+    if (!Utils.isEmpty(vars)) {
       HashMap<String, String> newVariables = new HashMap<>();
 
       for (int i = 0; i < vars.size(); i++) {

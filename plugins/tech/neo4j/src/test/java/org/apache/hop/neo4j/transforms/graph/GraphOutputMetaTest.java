@@ -17,7 +17,7 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,11 +26,11 @@ import java.nio.file.Paths;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class GraphOutputMetaTest {
+class GraphOutputMetaTest {
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     String tag = TransformMeta.XML_TAG;
 
     Path path = Paths.get(getClass().getResource("/transform1.snippet").toURI());

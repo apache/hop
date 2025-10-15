@@ -17,16 +17,16 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.databases.cassandra.util.Selector;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class SelectorTest {
+class SelectorTest {
 
   private static final String ARG_FUNCTION = "WRITETIME";
 
@@ -39,7 +39,7 @@ public class SelectorTest {
   private Selector actualSelector;
 
   @Test
-  public void testSelector_ByNameAliasFunction() {
+  void testSelector_ByNameAliasFunction() {
     actualSelector = new Selector(ARG_FUNCTION_NAME, ARG_ALIAS, ARG_FUNCTION);
     assertNotNull(actualSelector);
     assertEquals(ARG_FUNCTION_NAME, actualSelector.getColumnName());
@@ -49,7 +49,7 @@ public class SelectorTest {
   }
 
   @Test
-  public void testSelector_ByNameFunction() {
+  void testSelector_ByNameFunction() {
     actualSelector = new Selector(ARG_FUNCTION_NAME, null, ARG_FUNCTION);
     assertNotNull(actualSelector);
     assertEquals(ARG_FUNCTION_NAME, actualSelector.getColumnName());
@@ -59,7 +59,7 @@ public class SelectorTest {
   }
 
   @Test
-  public void testSelector_ByName() {
+  void testSelector_ByName() {
     actualSelector = new Selector(ARG_NAME);
     assertNotNull(actualSelector);
     assertEquals(ARG_NAME, actualSelector.getColumnName());
@@ -69,7 +69,7 @@ public class SelectorTest {
   }
 
   @Test
-  public void testSelector_ByNameAlias() {
+  void testSelector_ByNameAlias() {
     actualSelector = new Selector(ARG_NAME, ARG_ALIAS);
     assertNotNull(actualSelector);
     assertEquals(ARG_NAME, actualSelector.getColumnName());
@@ -79,21 +79,21 @@ public class SelectorTest {
   }
 
   @Test
-  public void testCaseInsensetiveFunction_NameLowerCase() {
+  void testCaseInsensetiveFunction_NameLowerCase() {
     Selector selector = new Selector("Token(Test)", null, "TOKEN");
     String columnName = selector.getColumnName();
     assertEquals("token(Test)", columnName);
   }
 
   @Test
-  public void testCaseSensetiveFunction_NameInOriginCase() {
+  void testCaseSensetiveFunction_NameInOriginCase() {
     Selector selector = new Selector("DaTeOF(Test)", null, "DATEOF");
     String columnName = selector.getColumnName();
     assertEquals("DaTeOF(Test)", columnName);
   }
 
   @Test
-  public void testCaseInSensetiveFunctionCount_SpecificCase() {
+  void testCaseInSensetiveFunctionCount_SpecificCase() {
     Selector selector = new Selector("COUNT", null, "COUNT");
     assertNotNull(selector);
     assertEquals("count", selector.getColumnName());
@@ -103,7 +103,7 @@ public class SelectorTest {
   }
 
   @Test
-  public void testSelector_ByNullName() {
+  void testSelector_ByNullName() {
     Selector selector = new Selector(null);
     String columnName = selector.getColumnName();
     assertNotNull(selector);

@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseTarget;
 
 public class BeamPipelineMetaUtil {
 
-  public static final PipelineMeta generateBeamInputOutputPipelineMeta(
+  public static PipelineMeta generateBeamInputOutputPipelineMeta(
       String pipelineName,
       String inputTransformName,
       String outputTransformName,
@@ -93,7 +93,7 @@ public class BeamPipelineMetaUtil {
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateBeamGroupByPipelineMeta(
+  public static PipelineMeta generateBeamGroupByPipelineMeta(
       String transname,
       String inputTransformName,
       String outputTransformName,
@@ -149,7 +149,7 @@ public class BeamPipelineMetaUtil {
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateFilterRowsPipelineMeta(
+  public static PipelineMeta generateFilterRowsPipelineMeta(
       String transname,
       String inputTransformName,
       String outputTransformName,
@@ -227,7 +227,7 @@ public class BeamPipelineMetaUtil {
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateSwitchCasePipelineMeta(
+  public static PipelineMeta generateSwitchCasePipelineMeta(
       String transname,
       String inputTransformName,
       String outputTransformName,
@@ -318,7 +318,7 @@ public class BeamPipelineMetaUtil {
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateStreamLookupPipelineMeta(
+  public static PipelineMeta generateStreamLookupPipelineMeta(
       String transname,
       String inputTransformName,
       String outputTransformName,
@@ -397,7 +397,7 @@ public class BeamPipelineMetaUtil {
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateMergeJoinPipelineMeta(
+  public static PipelineMeta generateMergeJoinPipelineMeta(
       String pipelineName,
       String inputTransformName,
       String outputTransformName,

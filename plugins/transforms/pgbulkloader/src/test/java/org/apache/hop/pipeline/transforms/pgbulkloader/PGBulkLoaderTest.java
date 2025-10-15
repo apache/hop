@@ -17,11 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -41,16 +41,18 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class PGBulkLoaderTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class PGBulkLoaderTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
   private TransformMockHelper<PGBulkLoaderMeta, PGBulkLoaderData> transformMockHelper;
   private PGBulkLoader pgBulkLoader;
 
@@ -63,13 +65,13 @@ public class PGBulkLoaderTest {
   private static final String DB_NAME_OVVERRIDE = "test1181_2";
   private static final String DB_NAME_EMPTY = "";
 
-  @BeforeClass
-  public static void setupBeforeClass() throws HopException {
+  @BeforeAll
+  static void setupBeforeClass() throws HopException {
     HopClientEnvironment.init();
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     PluginRegistry.getInstance()
         .registerPluginClass(
@@ -94,13 +96,13 @@ public class PGBulkLoaderTest {
             transformMockHelper.pipeline);
   }
 
-  @After
-  public void tearDown() throws Exception {
+  @AfterEach
+  void tearDown() throws Exception {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void testCreateCommandLine() throws Exception {
+  void testCreateCommandLine() throws Exception {
     PGBulkLoaderMeta meta = mock(PGBulkLoaderMeta.class);
 
     when(transformMockHelper.pipelineMeta.findDatabase(any(), any()))
@@ -130,7 +132,7 @@ public class PGBulkLoaderTest {
   }
 
   @Test
-  public void testDBNameOverridden_IfDbNameOverrideSetUp() throws Exception {
+  void testDBNameOverridden_IfDbNameOverrideSetUp() throws Exception {
     // Db Name Override is set up
     PGBulkLoaderMeta pgBulkLoaderMock = getPgBulkLoaderMock(DB_NAME_OVVERRIDE);
     when(transformMockHelper.pipelineMeta.findDatabase(any(), any()))
@@ -148,7 +150,7 @@ public class PGBulkLoaderTest {
   }
 
   @Test
-  public void testDBNameNOTOverridden_IfDbNameOverrideEmpty() throws Exception {
+  void testDBNameNOTOverridden_IfDbNameOverrideEmpty() throws Exception {
     // Db Name Override is empty
     PGBulkLoaderMeta pgBulkLoaderMock = getPgBulkLoaderMock(DB_NAME_EMPTY);
     DatabaseMeta databaseMeta = getDatabaseMetaSpy();
@@ -166,7 +168,7 @@ public class PGBulkLoaderTest {
   }
 
   @Test
-  public void testDBNameNOTOverridden_IfDbNameOverrideNull() throws Exception {
+  void testDBNameNOTOverridden_IfDbNameOverrideNull() throws Exception {
     // Db Name Override is null
     PGBulkLoaderMeta pgBulkLoaderMock = getPgBulkLoaderMock(null);
     DatabaseMeta databaseMeta = getDatabaseMetaSpy();
@@ -184,7 +186,7 @@ public class PGBulkLoaderTest {
   }
 
   @Test
-  public void testProcessRow_StreamIsNull() throws Exception {
+  void testProcessRow_StreamIsNull() throws Exception {
     PGBulkLoader pgBulkLoaderStreamIsNull = mock(PGBulkLoader.class);
     doReturn(null).when(pgBulkLoaderStreamIsNull).getRow();
     PGBulkLoaderMeta meta = mock(PGBulkLoaderMeta.class);
@@ -197,7 +199,7 @@ public class PGBulkLoaderTest {
    * appropriate reason to the user by throwing a HopException.
    */
   @Test
-  public void testNoDatabaseConnection() {
+  void testNoDatabaseConnection() {
     try {
       doReturn(null).when(transformMockHelper.iTransformMeta).getConnection();
       assertFalse(pgBulkLoader.init());

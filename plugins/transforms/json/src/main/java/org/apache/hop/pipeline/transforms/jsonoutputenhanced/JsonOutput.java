@@ -101,26 +101,39 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   @Override
   public boolean processRow() throws HopException {
-
-    Object[] r = getRow(); // This also waits for a row to be finished.
+    // This also waits for a row to be finished.
+    Object[] r = getRow();
     if (r == null) {
-      // no more input to be expected...
-      // Let's output the remaining unsafe data
-      outputRow(prevRow);
       // only attempt writing to file when the first row is not empty
       if (data.isWriteToFile && !first && meta.getSplitOutputAfter() == 0) {
+        // no more input to be expected...
+        // Let's output the remaining unsafe data
+        outputRow(prevRow);
         writeJsonFile();
+        setOutputDone();
+        return false;
       }
+
+      // Process the leftover data only when a split file size is defined
+      // and there are still items pending.
+      if (meta.getSplitOutputAfter() > 0 && !data.jsonItems.isEmpty()) {
+        serializeJson(data.jsonItems);
+        writeJsonFile();
+        setOutputDone();
+        return false;
+      }
+
+      outputRow(prevRow);
       setOutputDone();
       return false;
     }
 
-    if (first && onFirstRecord(r)) return false;
+    if (first && onFirstRecord(r)) {
+      return false;
+    }
 
     data.rowsAreSafe = false;
-
     manageRowItems(r);
-
     return true;
   }
 
@@ -290,21 +303,21 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   private String getJsonAttributeName(JsonOutputField field) {
     String elementName = variables.resolve(field.getElementName());
-    return (elementName != null && elementName.length() > 0 ? elementName : field.getFieldName());
+    return Const.NVL(elementName, field.getFieldName());
   }
 
   private String getKeyJsonAttributeName(JsonOutputKeyField field) {
     String elementName = variables.resolve(field.getElementName());
-    return (elementName != null && elementName.length() > 0 ? elementName : field.getFieldName());
+    return Const.NVL(elementName, field.getFieldName());
   }
 
   private void outputRow(Object[] rowData) throws HopException {
     // We can now output an object
     ObjectNode globalItemNode = null;
 
-    if (data.jsonKeyGroupItems == null || data.jsonKeyGroupItems.isEmpty()) return;
+    if (Utils.isEmpty(data.jsonKeyGroupItems)) return;
 
-    if (data.jsonKeyGroupItems != null && !data.jsonKeyGroupItems.isEmpty()) {
+    if (!data.jsonKeyGroupItems.isEmpty()) {
       serializeJson(data.jsonKeyGroupItems);
     }
 
@@ -379,15 +392,13 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         data.jsonItems.add(globalItemNode);
       }
 
-      Object[] additionalRowFields = new Object[1];
+      Object[] additionalRowFields = new Object[2];
 
       additionalRowFields[0] = data.jsonSerialized;
-      int nextFieldPos = 1;
 
       // Fill accessory fields
-      if (meta.getJsonSizeFieldname() != null && meta.getJsonSizeFieldname().length() > 0) {
-        additionalRowFields[nextFieldPos] = Long.valueOf(data.jsonLength);
-        nextFieldPos++;
+      if (!Utils.isEmpty(meta.getJsonSizeFieldname())) {
+        additionalRowFields[1] = data.jsonLength;
       }
 
       Object[] outputRowData = RowDataUtil.addRowData(keyRow, keyRow.length, additionalRowFields);
@@ -420,7 +431,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     ObjectNode theNode = new ObjectNode(nc);
 
     try {
-      if (meta.getJsonBloc() != null && meta.getJsonBloc().length() > 0) {
+      if (!Utils.isEmpty(meta.getJsonBloc())) {
         // TBD Try to understand if this can have a performance impact and do it better...
         theNode.set(
             meta.getJsonBloc(),
@@ -494,7 +505,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         meta.getKeyFields().length, new ValueMetaString(meta.getOutputValue()));
 
     int fieldLength = meta.getKeyFields().length + 1;
-    if (meta.getJsonSizeFieldname() != null && meta.getJsonSizeFieldname().length() > 0) {
+    if (!Utils.isEmpty(meta.getJsonSizeFieldname())) {
       data.outputRowMeta.addValueMeta(
           fieldLength, new ValueMetaInteger(meta.getJsonSizeFieldname()));
       fieldLength++;

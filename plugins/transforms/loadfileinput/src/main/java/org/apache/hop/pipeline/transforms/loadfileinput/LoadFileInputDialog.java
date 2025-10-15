@@ -1421,10 +1421,6 @@ public class LoadFileInputDialog extends BaseTransformDialog {
       LoadFileInputMeta oneMeta = new LoadFileInputMeta();
       getInfo(oneMeta);
 
-      PipelineMeta previewMeta =
-          PipelinePreviewFactory.generatePreviewPipeline(
-              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
-
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(
               shell,
@@ -1434,6 +1430,11 @@ public class LoadFileInputDialog extends BaseTransformDialog {
 
       int previewSize = numberDialog.open();
       if (previewSize > 0) {
+        oneMeta.setRowLimit(previewSize);
+        PipelineMeta previewMeta =
+            PipelinePreviewFactory.generatePreviewPipeline(
+                pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
         PipelinePreviewProgressDialog progressDialog =
             new PipelinePreviewProgressDialog(
                 shell,

@@ -33,6 +33,7 @@ public @interface ConfigPlugin {
   String CATEGORY_SEARCH = "search";
   String CATEGORY_IMPORT = "import";
   String CATEGORY_SERVER = "server";
+  String CATEGORY_DOC = "doc";
 
   String id();
 

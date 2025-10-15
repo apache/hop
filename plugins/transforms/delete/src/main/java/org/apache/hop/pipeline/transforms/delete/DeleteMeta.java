@@ -246,7 +246,7 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
         }
 
         // Look up fields in the input stream <prev>
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -354,7 +354,7 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
-      if (prev != null && prev.size() > 0) {
+      if (prev != null && !prev.isEmpty()) {
         if (!Utils.isEmpty(lookup.getTableName())) {
           Database db = new Database(loggingObject, variables, databaseMeta);
           try {
@@ -396,7 +396,7 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
             }
 
             String sql = crTable + crIndex;
-            if (sql.length() == 0) {
+            if (sql.isEmpty()) {
               retval.setSql(null);
             } else {
               retval.setSql(sql);

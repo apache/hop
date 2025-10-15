@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
@@ -29,18 +29,18 @@ import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class CsvInputTest extends CsvInputUnitTestBase {
+class CsvInputTest extends CsvInputUnitTestBase {
 
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
   private ILogChannel logChannelInterface;
   private CsvInputMeta csvInputMeta;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     logChannelInterface = mock(ILogChannel.class);
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
@@ -48,13 +48,13 @@ public class CsvInputTest extends CsvInputUnitTestBase {
     csvInputMeta = mock(CsvInputMeta.class);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void guessStringsFromLineWithEmptyLine() throws Exception {
+  void guessStringsFromLineWithEmptyLine() throws Exception {
     // This only validates that, given a null 'line', a null is returned!
     String[] saData =
         TextFileLineUtil.guessStringsFromLine(
@@ -68,7 +68,7 @@ public class CsvInputTest extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void testFileIsReleasedAfterProcessing() throws Exception {
+  void testFileIsReleasedAfterProcessing() throws Exception {
     // Create a file with some content to be processed
     TextFileInputField[] inputFileFields = createInputFileFields("f1", "f2", "f3");
     String fileContents = "Something" + DELIMITER + "" + DELIMITER + "The former was empty!";

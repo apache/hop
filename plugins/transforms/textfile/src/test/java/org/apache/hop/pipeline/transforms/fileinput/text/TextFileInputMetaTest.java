@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -31,10 +31,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class TextFileInputMetaTest {
+class TextFileInputMetaTest {
   private static final String FILE_NAME_NULL = null;
   private static final String FILE_NAME_EMPTY = StringUtil.EMPTY_STRING;
   private static final String FILE_NAME_VALID_PATH = "path/to/file";
@@ -42,8 +42,8 @@ public class TextFileInputMetaTest {
   private TextFileInputMeta inputMeta;
   private IVariables variables;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     PipelineMeta parentPipelineMeta = mock(PipelineMeta.class);
 
@@ -62,7 +62,7 @@ public class TextFileInputMetaTest {
   }
 
   @Test
-  public void testGetXmlWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
+  void testGetXmlWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
     inputMeta.inputFiles = new BaseFileInputFiles();
     inputMeta.inputFiles.fileName = new String[] {FILE_NAME_VALID_PATH};
 
@@ -76,7 +76,7 @@ public class TextFileInputMetaTest {
   }
 
   @Test
-  public void testClonelWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
+  void testClonelWorksIfWeUpdateOnlyPartOfInputFilesInformation() {
     inputMeta.inputFiles = new BaseFileInputFiles();
     inputMeta.inputFiles.fileName = new String[] {FILE_NAME_VALID_PATH};
 

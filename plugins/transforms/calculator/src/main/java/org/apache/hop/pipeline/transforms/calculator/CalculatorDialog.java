@@ -28,7 +28,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -236,7 +235,7 @@ public class CalculatorDialog extends BaseTransformDialog {
             EnterSelectionDialog esd =
                 new EnterSelectionDialog(
                     shell,
-                    CalculationType.getDescriptions(),
+                    CalculationType.descriptions,
                     BaseMessages.getString(PKG, "CalculatorDialog.SelectCalculationType.Title"),
                     BaseMessages.getString(PKG, "CalculatorDialog.SelectCalculationType.Message"));
             String string = esd.open();
@@ -392,7 +391,8 @@ public class CalculatorDialog extends BaseTransformDialog {
     for (TableItem item : wFields.getNonEmptyItems()) {
 
       String fieldName = item.getText(1);
-      CalculationType calcType = CalculationType.getTypeWithDescription(item.getText(2));
+      CalculationType calcType = CalculationType.findByDescription(item.getText(2));
+
       String fieldA = item.getText(3);
       String fieldB = item.getText(4);
       String fieldC = item.getText(5);

@@ -38,14 +38,14 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /** Common mock setup for MongoDbOutputTest and MongoDbInput */
-public class BaseMongoDbTransformTest {
+class BaseMongoDbTransformTest {
 
   @Mock protected TransformMeta transformMeta;
   @Mock protected PipelineMeta pipelineMeta;
@@ -63,8 +63,8 @@ public class BaseMongoDbTransformTest {
   protected RowMeta rowMeta = new RowMeta();
   protected Object[] rowData;
 
-  @Before
-  public void before() throws Exception {
+  @BeforeEach
+  void before() throws Exception {
     MockitoAnnotations.openMocks(this);
     when(mongoClientWrapperFactory.createMongoClientWrapper(
             any(MongoProperties.class), any(MongoUtilLogger.class)))

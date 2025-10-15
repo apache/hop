@@ -383,7 +383,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       }
 
       // Add filename to result filenames ?
-      if (meta.isAddResultFile()) {
+      if (meta.isAddResult()) {
         ResultFile resultFile =
             new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL, fileObject, getPipelineMeta().getName(), toString());
@@ -854,7 +854,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         incrementLinesInput();
       }
 
-      if (conversionExceptions != null && !conversionExceptions.isEmpty()) {
+      if (!Utils.isEmpty(conversionExceptions)) {
         // Forward the first exception
         //
         throw new HopConversionException(

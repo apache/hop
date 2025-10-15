@@ -17,29 +17,29 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.mongo.MongoProp;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class MongoClientWrapperFactoryTest {
+class MongoClientWrapperFactoryTest {
 
   @Mock DefaultMongoClientFactory mongoClientFactory;
   @Mock MongoUtilLogger logger;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     MockitoAnnotations.openMocks(this);
     NoAuthMongoClientWrapper.clientFactory = mongoClientFactory;
   }
 
   @Test
-  public void testCreateMongoClientWrapper() throws Exception {
+  void testCreateMongoClientWrapper() throws Exception {
     MongoClientWrapper wrapper =
         MongoClientWrapperFactory.createMongoClientWrapper(
             new MongoProperties.Builder()

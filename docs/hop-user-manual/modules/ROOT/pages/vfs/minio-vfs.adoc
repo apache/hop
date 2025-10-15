@@ -1,0 +1,100 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+:documentationPath: /vfs/
+:language: en_US
+:description: Use MinIO or other S3 compatible object stores
+
+= MinIO
+
+== Scheme
+
+The scheme you can use to access your files in https://www.min.io/[MinIO] object stores is
+
+`**minio://**`
+
+== Configuration
+
+=== Hop GUI
+
+You can find the configuration of the MinIO VFS driver in the
+xref:hop-gui/perspective-configuration.adoc[configuration perspective], in the plugins tab under "MinIO VFS".
+You will find the following options to configure:
+
+|===
+|Option |Description |Variable
+
+|Access key
+|The MinIO access key to use
+|`HOP_MINIO_ENDPOINT_HOSTNAME`
+
+|Secret key
+|The MinIO secret key to use
+|`HOP_MINIO_ENDPOINT_PORT`
+
+|Endpoint hostname
+|The hostname of the MinIO service
+|`HOP_MINIO_ENDPOINT_SECURE`
+
+|Endpoint port
+|The port of the MinIO service (Default is 9000)
+|`HOP_MINIO_ACCESS_KEY`
+
+|Endpoint secure?
+|Check this option if you want to connect over https:// instead of http
+|`HOP_MINIO_SECRET_KEY`
+
+|Region
+|The MinIO region to use
+|`HOP_MINIO_REGION`
+
+|Object part size
+|The object part size for your files on MinIO
+|`HOP_MINIO_PART_SIZE`
+
+|===
+
+=== Hop Config
+
+The same options that are available in the configuration perspective are also available through `hop config`:
+
+[source,bash]
+----
+      -mia, --minio-access-key=<accessKey>
+                             The access key to use for Minio VFS
+      -mie, --minio-endpoint-secure
+                             Secure the Minio service endpoint?
+      -mih, --minio-endpoint-host=<endPointHostname>
+                             The hostname of the Minio service endpoint
+      -mip, --minio-part-size=<partSize>
+                             The part size to use for MinIO objects
+      -mir, --minio-region=<region>
+                             The region to use for the MinIO service
+      -mis, --minio-secret-key=<secretKey>
+                             The secret key to use for Minio VFS
+      -mit, --minio-endpoint-port=<endPointPort>
+                             The port of the Minio service endpoint
+----
+
+
+== Usage and testing
+
+To test if the configuration works you can simply upload a small CSV file in an MinIO bucket and then use File/Open in Hop GUI.
+Then you type in `minio://` as a file location and hit enter (or click the refresh button).
+Browse to the CSV file you uploaded and open it.
+If all is configured correctly you should be able to see the content in the Hop GUI.
+

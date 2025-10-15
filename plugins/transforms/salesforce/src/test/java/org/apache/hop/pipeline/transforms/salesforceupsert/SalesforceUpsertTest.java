@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.salesforceupsert;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -43,18 +43,18 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SalesforceUpsertTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SalesforceUpsertTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String EXT_ID_ACCOUNT_ID_C = "ExtID_AccountId__c";
   private static final String ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT =
@@ -62,8 +62,8 @@ public class SalesforceUpsertTest {
   private static final String ACCOUNT_ID = "AccountId";
   private TransformMockHelper<SalesforceUpsertMeta, SalesforceUpsertData> smh;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -71,8 +71,8 @@ public class SalesforceUpsertTest {
     Encr.init(passwordEncoderPluginID);
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     smh =
         new TransformMockHelper<>(
             "SalesforceUpsert", SalesforceUpsertMeta.class, SalesforceUpsertData.class);
@@ -80,13 +80,13 @@ public class SalesforceUpsertTest {
         .thenReturn(smh.iLogChannel);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testWriteToSalesForceForNullExtIdField_WithExtIdNO() throws Exception {
+  void testWriteToSalesForceForNullExtIdField_WithExtIdNO() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpsertData data = generateSalesforceUpsertData();
@@ -106,7 +106,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNullExtIdField_WithExtIdYES() throws Exception {
+  void testWriteToSalesForceForNullExtIdField_WithExtIdYES() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(
             new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
@@ -127,7 +127,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNotNullExtIdField_WithExtIdNO() throws Exception {
+  void testWriteToSalesForceForNotNullExtIdField_WithExtIdNO() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpsertData data = generateSalesforceUpsertData();
@@ -154,7 +154,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceForNotNullExtIdField_WithExtIdYES() throws Exception {
+  void testWriteToSalesForceForNotNullExtIdField_WithExtIdYES() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(
             new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
@@ -186,7 +186,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testLogMessageInDetailedModeFotWriteToSalesForce() throws HopException {
+  void testLogMessageInDetailedModeFotWriteToSalesForce() throws HopException {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpsertData data = generateSalesforceUpsertData();
@@ -229,7 +229,7 @@ public class SalesforceUpsertTest {
   }
 
   @Test
-  public void testWriteToSalesForceHopIntegerValue() throws Exception {
+  void testWriteToSalesForceHopIntegerValue() throws Exception {
     SalesforceUpsertMeta meta =
         generateSalesforceUpsertMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpsertData data = generateSalesforceUpsertData();
@@ -244,11 +244,11 @@ public class SalesforceUpsertTest {
 
     sfInputTransform.writeToSalesForce(new Object[] {1L});
     XmlObject sObject = data.sfBuffer[0].getChild(ACCOUNT_ID);
-    Assert.assertEquals(1, sObject.getValue());
+    assertEquals(1, sObject.getValue());
   }
 
   @Test
-  public void testSetFieldInSObjectForeignKey() {
+  void testSetFieldInSObjectForeignKey() {
     SalesforceUpsert salesforceUpsert =
         new SalesforceUpsert(
             smh.transformMeta,
@@ -276,7 +276,7 @@ public class SalesforceUpsertTest {
     salesforceUpsert.setFieldInSObject(sobjPass, parentObject);
     salesforceUpsert.setFieldInSObject(sobjPass, childObject);
 
-    Assert.assertEquals(parentValue, sobjPass.getField(parentParam));
-    Assert.assertEquals(childValue, ((SObject) sobjPass.getField(child)).getField(childParam));
+    assertEquals(parentValue, sobjPass.getField(parentParam));
+    assertEquals(childValue, ((SObject) sobjPass.getField(child)).getField(childParam));
   }
 }

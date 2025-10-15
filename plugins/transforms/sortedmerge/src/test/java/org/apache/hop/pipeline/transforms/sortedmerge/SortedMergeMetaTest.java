@@ -17,27 +17,30 @@
 
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SortedMergeMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SortedMergeMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testRoundTrips() throws HopException {
+  void testRoundTrips() throws HopException {
     List<String> attributes = Arrays.asList("name", "ascending");
 
     Map<String, String> getterMap = new HashMap<>();
@@ -70,15 +73,14 @@ public class SortedMergeMetaTest {
   }
 
   @Test
-  public void testPDI16559() throws Exception {
+  void testPDI16559() throws Exception {
     SortedMergeMeta sortedMerge = new SortedMergeMeta();
     sortedMerge.setFieldName(new String[] {"field1", "field2", "field3", "field4", "field5"});
     sortedMerge.setAscending(new boolean[] {false, true});
 
     try {
       String badXml = sortedMerge.getXml();
-      Assert.fail(
-          "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB");
+      fail("Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB");
     } catch (Exception expected) {
       // Do Nothing
     }
@@ -88,6 +90,6 @@ public class SortedMergeMetaTest {
 
     int targetSz = sortedMerge.getFieldName().length;
 
-    Assert.assertEquals(targetSz, sortedMerge.getAscending().length);
+    assertEquals(targetSz, sortedMerge.getAscending().length);
   }
 }

@@ -18,13 +18,21 @@
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.playlist.FilePlayListAll;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransform;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 
 /**
  * Read all sorts of text files, convert them to rows and writes these to one or more output
@@ -70,10 +78,43 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
     data.enclosure = resolve(meta.content.enclosure);
     data.escapeCharacter = resolve(meta.content.escapeCharacter);
     // CSV without separator defined
-    if (meta.content.fileType.equalsIgnoreCase("CSV")
-        && (meta.content.separator == null || meta.content.separator.isEmpty())) {
+    if (meta.content.fileType.equalsIgnoreCase("CSV") && (Utils.isEmpty(meta.content.separator))) {
       logError(BaseMessages.getString(PKG, "TextFileInput.Exception.NoSeparator"));
       return false;
+    }
+
+    // If use shema and ignore fields set the field definitions in the transform
+    if (meta.ignoreFields) {
+      try {
+        SchemaDefinition loadedSchemaDefinition =
+            (new SchemaDefinitionUtil())
+                .loadSchemaDefinition(metadataProvider, meta.getSchemaDefinition());
+        if (loadedSchemaDefinition != null) {
+          IRowMeta r = loadedSchemaDefinition.getRowMeta();
+          if (r != null) {
+            meta.inputFields = new BaseFileField[r.size()];
+            for (int i = 0; i < r.size(); i++) {
+              final SchemaFieldDefinition schemaFieldDefinition =
+                  loadedSchemaDefinition.getFieldDefinitions().get(i);
+              BaseFileField f = new BaseFileField();
+              f.setName(schemaFieldDefinition.getName());
+              f.setType(r.getValueMeta(i).getType());
+              f.setFormat(r.getValueMeta(i).getFormatMask());
+              f.setLength(r.getValueMeta(i).getLength());
+              f.setPrecision(r.getValueMeta(i).getPrecision());
+              f.setCurrencySymbol(r.getValueMeta(i).getCurrencySymbol());
+              f.setDecimalSymbol(r.getValueMeta(i).getDecimalSymbol());
+              f.setGroupSymbol(r.getValueMeta(i).getGroupingSymbol());
+              f.setIfNullValue(schemaFieldDefinition.getIfNullValue());
+              f.setTrimType(r.getValueMeta(i).getTrimType());
+              f.setRepeated(false);
+              meta.inputFields[i] = f;
+            }
+          }
+        }
+      } catch (HopTransformException | HopPluginException e) {
+        // ignore any errors here.
+      }
     }
 
     return true;

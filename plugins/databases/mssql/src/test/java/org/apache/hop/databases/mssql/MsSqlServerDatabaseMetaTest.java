@@ -17,10 +17,10 @@
 
 package org.apache.hop.databases.mssql;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -46,32 +46,34 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-public class MsSqlServerDatabaseMetaTest {
+class MsSqlServerDatabaseMetaTest {
   MsSqlServerDatabaseMeta nativeMeta;
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private DatabaseMeta databaseMeta;
   private IDatabase iDatabase;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpOnce() throws HopException {
+  @BeforeAll
+  static void setUpOnce() throws HopException {
     // Register Natives to create a default DatabaseMeta
     DatabasePluginType.getInstance().searchPlugins();
     ValueMetaPluginType.getInstance().searchPlugins();
     HopClientEnvironment.init();
   }
 
-  @Before
-  public void setupOnce() {
+  @BeforeEach
+  void setupOnce() {
     nativeMeta = new MsSqlServerDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
     databaseMeta = new DatabaseMeta();
@@ -81,7 +83,7 @@ public class MsSqlServerDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     assertFalse(nativeMeta.isSupportsCatalogs());
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(1433, nativeMeta.getDefaultDatabasePort());
@@ -484,7 +486,7 @@ public class MsSqlServerDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     assertEquals("SELECT TOP 1 * FROM FOO", nativeMeta.getSqlQueryFields("FOO"));
     String lineSep = System.getProperty("line.separator");
     assertEquals(
@@ -535,7 +537,7 @@ public class MsSqlServerDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     assertEquals(
         "CHAR(1)",
         nativeMeta.getFieldDefinition(new ValueMetaBoolean("BAR"), "", "", false, false, false));
@@ -649,7 +651,7 @@ public class MsSqlServerDatabaseMetaTest {
   private String[] row2 = new String[] {"ROW2COL1", "ROW2COL2"};
 
   @Test
-  public void testCheckIndexExists() throws Exception {
+  void testCheckIndexExists() throws Exception {
     String expectedSQL =
         "select i.name table_name, c.name column_name from     sysindexes i, sysindexkeys k, syscolumns c where    i.name = 'FOO' AND      i.id = k.id AND      i.id = c.id AND      k.colid = c.colid "; // yes, variables at the end like in the dbmeta
     Database db = Mockito.mock(Database.class);
@@ -683,46 +685,46 @@ public class MsSqlServerDatabaseMetaTest {
   }
 
   /*  @Test
-  public void databases_WithSameDbConnTypes_AreTheSame() {
-    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
-  }*/
+  void databases_WithSameDbConnTypes_AreTheSame() {
+     IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
+     assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
+   }*/
 
   /*  @Test
-  public void databases_WithSameDbConnTypes_AreNotSame_IfPluginIdIsNull() {
-    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( null );
-    assertFalse(
-      databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
-  }*/
+  void databases_WithSameDbConnTypes_AreNotSame_IfPluginIdIsNull() {
+     IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+     mssqlServerDatabaseMeta.setPluginId( null );
+     assertFalse(
+       databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
+   }*/
 
   /*  @Test
-  public void databases_WithDifferentDbConnTypes_AreDifferent_IfNonOfThemIsSubsetOfAnother() {
-    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    IDatabase oracleDatabaseMeta = new OracleDatabaseMeta();
-    oracleDatabaseMeta.setPluginId( "ORACLE" );
+  void databases_WithDifferentDbConnTypes_AreDifferent_IfNonOfThemIsSubsetOfAnother() {
+     IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
+     IDatabase oracleDatabaseMeta = new OracleDatabaseMeta();
+     oracleDatabaseMeta.setPluginId( "ORACLE" );
 
-    assertFalse( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, oracleDatabaseMeta ) );
-  }*/
+     assertFalse( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, oracleDatabaseMeta ) );
+   }*/
 
   /*  @Test
-  public void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_3LevelHierarchy() {
-    class MSSQLServerNativeDatabaseMetaChild extends MSSQLServerDatabaseMeta {
-      @Override
-      public String getPluginId() {
-        return "MSSQLNATIVE_CHILD";
-      }
-    }
+  void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_3LevelHierarchy() {
+     class MSSQLServerNativeDatabaseMetaChild extends MSSQLServerDatabaseMeta {
+       @Override
+       public String getPluginId() {
+         return "MSSQLNATIVE_CHILD";
+       }
+     }
 
-    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    IDatabase mssqlServerNativeDatabaseMetaChild = new MSSQLServerNativeDatabaseMetaChild();
+     IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
+     IDatabase mssqlServerNativeDatabaseMetaChild = new MSSQLServerNativeDatabaseMetaChild();
 
-    assertTrue(
-      databaseMeta
-        .databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerNativeDatabaseMetaChild ) );
-  }*/
+     assertTrue(
+       databaseMeta
+         .databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerNativeDatabaseMetaChild ) );
+   }*/
 
 }

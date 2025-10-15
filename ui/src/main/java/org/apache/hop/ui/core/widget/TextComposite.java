@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.widget;
 
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -229,7 +230,7 @@ public abstract class TextComposite extends Composite {
     try {
       Clipboard clipboard = new Clipboard(getParent().getDisplay());
       String text = (String) clipboard.getContents(TextTransfer.getInstance());
-      if (text != null && text.length() > 0) {
+      if (!Utils.isEmpty(text)) {
         return true;
       } else {
         return false;

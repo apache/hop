@@ -21,25 +21,25 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.apache.hop.core.logging.ILogChannel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class HopMongoUtilLoggerTest {
+class HopMongoUtilLoggerTest {
 
   @Mock ILogChannel logChannelInterface;
   @Mock Exception exception;
   HopMongoUtilLogger logger;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     MockitoAnnotations.openMocks(this);
     logger = new HopMongoUtilLogger(logChannelInterface);
   }
 
   @Test
-  public void testLoggingDelegates() throws Exception {
+  void testLoggingDelegates() throws Exception {
     logger.debug("log");
     verify(logChannelInterface).logDebug("log");
     logger.info("log");

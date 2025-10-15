@@ -16,8 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.normaliser;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,15 +30,16 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class NormaliserTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class NormaliserTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void before() throws HopException {
+  @BeforeAll
+  static void before() throws HopException {
     HopEnvironment.init();
   }
 
@@ -149,7 +150,7 @@ public class NormaliserTest {
   }
 
   // @Test
-  public void testNormaliserProcessRowsWikiData() throws Exception {
+  void testNormaliserProcessRowsWikiData() throws Exception {
     // We should have 1 row as input to the normaliser and 3 rows as output to the normaliser with
     // the data
     //

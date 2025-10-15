@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -39,11 +39,11 @@ import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
-public class StaxPoiSheetTest {
+class StaxPoiSheetTest {
 
   private static final String BP_SHEET =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
@@ -151,7 +151,7 @@ public class StaxPoiSheetTest {
               + "</sheetData>");
 
   @Test
-  public void testNullDateCell() throws Exception {
+  void testNullDateCell() throws Exception {
     // cell had null value instead of being null
     final String sheetId = "1";
     final String sheetName = "Sheet 1";
@@ -168,11 +168,11 @@ public class StaxPoiSheetTest {
     assertNotNull(cell);
     assertEquals(KCellType.DATE, cell.getType());
     cell = spSheet.getRow(2)[0];
-    assertNull("cell must be null", cell);
+    assertNull(cell, "cell must be null");
   }
 
   @Test
-  public void testEmptySheet() throws Exception {
+  void testEmptySheet() throws Exception {
     XSSFReader reader =
         mockXSSFReader(
             "sheet1", SHEET_EMPTY, mock(SharedStringsTable.class), mock(StylesTable.class));
@@ -184,7 +184,7 @@ public class StaxPoiSheetTest {
   }
 
   @Test
-  public void testReadSameRow() throws Exception {
+  void testReadSameRow() throws Exception {
     IKSheet sheet1 = getSampleSheet();
     IKCell[] row = sheet1.getRow(3);
     assertEquals("Two", row[1].getValue());
@@ -193,7 +193,7 @@ public class StaxPoiSheetTest {
   }
 
   @Test
-  public void testReadRowRA() throws Exception {
+  void testReadRowRA() throws Exception {
     IKSheet sheet1 = getSampleSheet();
     IKCell[] row = sheet1.getRow(4);
     assertEquals("Three", row[1].getValue());
@@ -202,14 +202,14 @@ public class StaxPoiSheetTest {
   }
 
   @Test
-  public void testReadEmptyRow() throws Exception {
+  void testReadEmptyRow() throws Exception {
     IKSheet sheet1 = getSampleSheet();
     IKCell[] row = sheet1.getRow(0);
-    assertEquals("empty row expected", 0, row.length);
+    assertEquals(0, row.length, "empty row expected");
   }
 
   @Test
-  public void testReadCells() throws Exception {
+  void testReadCells() throws Exception {
     IKSheet sheet = getSampleSheet();
 
     IKCell cell = sheet.getCell(1, 2);
@@ -226,7 +226,7 @@ public class StaxPoiSheetTest {
   }
 
   @Test
-  public void testReadData() throws Exception {
+  void testReadData() throws Exception {
     IKSheet sheet1 = getSampleSheet();
     assertEquals(5, sheet1.getRows());
 
@@ -341,7 +341,7 @@ public class StaxPoiSheetTest {
   }
 
   @Test
-  public void testInlineString() throws Exception {
+  void testInlineString() throws Exception {
     final String sheetId = "1";
     final String sheetName = "Sheet 1";
     XSSFReader reader =
@@ -372,7 +372,7 @@ public class StaxPoiSheetTest {
   // ref="A1"/>.
   // Below tests to validate correct work for such cases
   @Test
-  public void testNoUsedRangeSpecified() throws Exception {
+  void testNoUsedRangeSpecified() throws Exception {
     final String sheetId = "1";
     final String sheetName = "Sheet 1";
     SharedStringsTable sharedStringsTableMock =

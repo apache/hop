@@ -17,44 +17,46 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /** Csv data is taken from the attachment to the issue. */
-public class PDI_15270_Test extends CsvInputUnitTestBase {
+class PDI_15270_Test extends CsvInputUnitTestBase {
   private CsvInput csvInput;
   private String[] expected;
   private String content;
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Before
-  public void setUp() throws Exception {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeEach
+  void setUp() throws Exception {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "Pdi15270Test");
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void noEnclosures() throws Exception {
+  void noEnclosures() throws Exception {
     String field1 = "FIRST_NM";
     String field2 = "MIDDLE_NM";
     String field3 = "LAST_NM";
@@ -64,7 +66,7 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void noEnclosuresWithEmptyFieldTest() throws Exception {
+  void noEnclosuresWithEmptyFieldTest() throws Exception {
     String field1 = "Ima";
     String field2 = "";
     String field3 = "Rose";
@@ -74,7 +76,7 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void withEnclosuresTest() throws Exception {
+  void withEnclosuresTest() throws Exception {
     String field1 = "Tom Tom";
     String field2 = "the";
     String field3 = "Piper's Son";
@@ -86,7 +88,7 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void withEnclosuresOnOneFieldTest() throws Exception {
+  void withEnclosuresOnOneFieldTest() throws Exception {
     String field1 = "Martin";
     String field2 = "Luther";
     String field3 = "King, Jr.";
@@ -96,7 +98,7 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void withEnclosuresInMiddleOfFieldTest() throws Exception {
+  void withEnclosuresInMiddleOfFieldTest() throws Exception {
     String field1 = "John \"Duke\"";
     String field2 = "";
     String field3 = "Wayne";

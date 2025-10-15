@@ -17,11 +17,11 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -35,19 +35,19 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.bson.types.Binary;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 
-public class MongoFieldTest {
+class MongoFieldTest {
 
   @Mock IVariables variables;
   private MongoField field;
 
-  @Before
-  public void before() throws HopPluginException {
+  @BeforeEach
+  void before() throws HopPluginException {
     MockitoAnnotations.openMocks(this);
     when(variables.resolve(any(String.class)))
         .thenAnswer(
@@ -57,7 +57,7 @@ public class MongoFieldTest {
   }
 
   @Test
-  public void testGetPath() {
+  void testGetPath() {
     MongoField mongoField = new MongoField();
 
     mongoField.fieldPath = "$.parent[0].child[0]";
@@ -73,7 +73,7 @@ public class MongoFieldTest {
   // "Number", "String", "Date", "Boolean", "Integer", "BigNumber", "Serializable",
   // "Binary", "Timestamp", "Internet Address"
   @Test
-  public void testDatatypes() throws HopException {
+  void testDatatypes() throws HopException {
     initField("Number");
     assertEquals(1.1, field.getHopValue(1.1));
     assertEquals(1.1, field.getHopValue("1.1"));
@@ -113,10 +113,15 @@ public class MongoFieldTest {
     initField("String");
     assertEquals("foo", field.getHopValue("foo"));
     assertEquals("123", field.getHopValue(123));
+
+    initField("UUID");
+    java.util.UUID uuid = java.util.UUID.fromString("4d0e4aee-d845-4f5e-8c7d-9d5cff1c2a4d");
+    assertEquals(uuid, field.getHopValue(uuid));
+    assertEquals(uuid, field.getHopValue("4d0e4aee-d845-4f5e-8c7d-9d5cff1c2a4d"));
   }
 
   @Test
-  public void testConvertArrayIndicesToHopValue() throws HopException {
+  void testConvertArrayIndicesToHopValue() throws HopException {
     BasicDBObject dbObj =
         (BasicDBObject) BasicDBObject.parse("{ parent : { fieldName : ['valA', 'valB'] } } ");
 
@@ -127,10 +132,10 @@ public class MongoFieldTest {
   }
 
   @Test
-  public void testConvertUndefinedOrNullToHopValue() throws HopException {
+  void testConvertUndefinedOrNullToHopValue() throws HopException {
     BasicDBObject dbObj = BasicDBObject.parse("{ test1 : undefined, test2 : null } ");
     initField("fieldName", "$.test1", "String");
-    assertNull("Undefined should be interpreted as null ", field.convertToHopValue(dbObj));
+    assertNull(field.convertToHopValue(dbObj), "Undefined should be interpreted as null ");
     initField("fieldName", "$.test2", "String");
     assertNull(field.convertToHopValue(dbObj));
     initField("fieldName", "$.test3", "String");

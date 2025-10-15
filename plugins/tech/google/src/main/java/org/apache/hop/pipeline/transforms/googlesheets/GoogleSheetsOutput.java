@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.googlesheets;
 
 import com.google.api.client.googleapis.batch.BatchRequest;
 import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -37,6 +36,7 @@ import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
 import com.google.api.services.sheets.v4.model.ClearValuesRequest;
 import com.google.api.services.sheets.v4.model.ClearValuesResponse;
+import com.google.api.services.sheets.v4.model.DeleteSheetRequest;
 import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.SheetProperties;
@@ -47,9 +47,11 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -59,6 +61,7 @@ public class GoogleSheetsOutput
     extends BaseTransform<GoogleSheetsOutputMeta, GoogleSheetsOutputData> {
 
   private String spreadsheetID;
+  private NetHttpTransport httpTransport;
 
   public GoogleSheetsOutput(
       TransformMeta transformMeta,
@@ -82,7 +85,8 @@ public class GoogleSheetsOutput
 
       // Check if file exists
       try {
-        httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        httpTransport =
+            GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
         jsonFactory = JacksonFactory.getDefaultInstance();
         scope = "https://www.googleapis.com/auth/drive";
 
@@ -139,6 +143,23 @@ public class GoogleSheetsOutput
           for (Sheet sheet : sheets) {
             if (sheet.getProperties().getTitle().equals(resolve(meta.getWorksheetId()))) {
               worksheetExists = true;
+              // the sheet exists, but we need to recreate it, so we'll delete it here first
+              if (meta.isReplaceSheet()) {
+                DeleteSheetRequest deleteSheetRequest =
+                    new DeleteSheetRequest().setSheetId(sheet.getProperties().getSheetId());
+                Request request = new Request().setDeleteSheet(deleteSheetRequest);
+                List<Request> requests = Collections.singletonList(request);
+                BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest =
+                    new BatchUpdateSpreadsheetRequest().setRequests(requests);
+                data.service
+                    .spreadsheets()
+                    .batchUpdate(spreadsheetID, batchUpdateSpreadsheetRequest)
+                    .execute();
+                worksheetExists = false;
+                if (isDetailed()) {
+                  logDetailed("deleted sheet " + sheet.getProperties().getTitle());
+                }
+              }
             }
           }
 
@@ -161,7 +182,7 @@ public class GoogleSheetsOutput
 
         // If it does not exist & create checkbox is checker create it.
         if (!exists && meta.isCreate()) {
-          if (Boolean.FALSE.equals(meta.isAppend())) { // si append + create alors erreur
+          if (meta.isAppend()) { // si append + create alors erreur
             // Init Service
             scope = "https://www.googleapis.com/auth/spreadsheets";
 
@@ -207,7 +228,7 @@ public class GoogleSheetsOutput
           }
 
           // now if share email is not null we share with R/W with the email given
-          if ((resolve(meta.getShareEmail()) != null && !resolve(meta.getShareEmail()).isEmpty())
+          if ((!Utils.isEmpty(resolve(meta.getShareEmail())))
               || (resolve(meta.getShareDomain()) != null
                   && !resolve(meta.getShareDomain()).isEmpty())) {
 
@@ -228,7 +249,7 @@ public class GoogleSheetsOutput
                   }
                 };
             BatchRequest batch = service.batch();
-            if (resolve(meta.getShareEmail()) != null && !resolve(meta.getShareEmail()).isEmpty()) {
+            if (!Utils.isEmpty(resolve(meta.getShareEmail()))) {
               logBasic("Sharing sheet with:" + resolve(meta.getShareEmail()));
               Permission userPermission =
                   new Permission()
@@ -317,7 +338,8 @@ public class GoogleSheetsOutput
           logBasic(
               "Clearing range" + range + " in Spreadsheet :" + resolve(meta.getSpreadsheetKey()));
           // Creating service
-          NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+          httpTransport =
+              GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
           JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
           String scope = SheetsScopes.SPREADSHEETS;
           HttpRequestInitializer credential =

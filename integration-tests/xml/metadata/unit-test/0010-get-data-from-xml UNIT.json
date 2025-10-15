@@ -1,0 +1,33 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "tag1",
+          "data_set_field": "tag1"
+        },
+        {
+          "transform_field": "tag2",
+          "data_set_field": "tag2"
+        }
+      ],
+      "field_order": [
+        "tag1",
+        "tag2"
+      ],
+      "data_set_name": "golden-get-data-from-xml",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0010-get-data-from-xml UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0010-get-data-from-xml.hpl"
+}

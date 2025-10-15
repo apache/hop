@@ -95,15 +95,15 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       if (avroName.startsWith("$.")) {
         avroName = avroName.substring(2);
       }
-      if (parentName == null || parentName.length() == 0 || avroName.startsWith(parentName + ".")) {
-        if (parentName != null && parentName.length() > 0) {
+      if (parentName.isEmpty() || avroName.startsWith(parentName + ".")) {
+        if (!parentName.isEmpty()) {
           avroName = avroName.substring(parentName.length() + 1);
         }
         if (avroName.contains(".")) {
           String currentAvroPath = avroName.substring(0, avroName.indexOf("."));
           Schema childSchema = recordSchema.getField(currentAvroPath).schema();
           String childPath = parentName + "." + currentAvroPath;
-          if (parentName == null || parentName.length() == 0) {
+          if (parentName.isEmpty()) {
             childPath = currentAvroPath;
           }
 

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
@@ -278,7 +279,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
 
       List<DBObject> collInfo = coll.getIndexInfo();
       List<String> result = new ArrayList<>();
-      if (collInfo == null || collInfo.isEmpty()) {
+      if (Utils.isEmpty(collInfo)) {
         throw new MongoDbException(
             BaseMessages.getString(
                 PKG, "MongoNoAuthWrapper.ErrorMessage.UnableToGetInfoForCollection", collection));
@@ -377,7 +378,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   protected List<String> setupAllTags(BasicDBList members) {
     HashSet<String> tempTags = new HashSet<>();
 
-    if (members != null && !members.isEmpty()) {
+    if (!Utils.isEmpty(members)) {
       for (Object member : members) {
         if (member != null) {
           DBObject tags = (DBObject) ((DBObject) member).get("tags");
@@ -441,7 +442,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   protected List<DBObject> checkForReplicaSetMembersThatSatisfyTagSets(
       List<DBObject> tagSets, BasicDBList members) {
     List<DBObject> satisfy = new ArrayList<>();
-    if (members != null && !members.isEmpty()) {
+    if (!Utils.isEmpty(members)) {
       for (Object m : members) {
         if (m != null) {
           DBObject tags = (DBObject) ((DBObject) m).get("tags");

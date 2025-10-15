@@ -33,12 +33,12 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
 import org.apache.hop.pipeline.transforms.mongodboutput.MongoDbOutputMeta.MongoField;
 import org.apache.hop.pipeline.transforms.mongodboutput.MongoDbOutputMeta.MongoIndex;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class MongoDbOutputMetaTest {
-  @BeforeClass
-  public static void beforeClass() throws HopException {
+class MongoDbOutputMetaTest {
+  @BeforeAll
+  static void beforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -47,7 +47,7 @@ public class MongoDbOutputMetaTest {
   }
 
   @Test
-  public void testRoundTrips() throws HopException {
+  void testRoundTrips() throws HopException {
     List<String> commonFields =
         Arrays.asList(
             "mongo_collection",

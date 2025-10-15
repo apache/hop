@@ -1166,7 +1166,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
             e);
       }
 
-      if (fields.size() > 0) {
+      if (!fields.isEmpty()) {
 
         // Clear Fields Grid
         wFields.removeAll();
@@ -1455,10 +1455,6 @@ public class PropertyInputDialog extends BaseTransformDialog {
       PropertyInputMeta oneMeta = new PropertyInputMeta();
       getInfo(oneMeta);
 
-      PipelineMeta previewMeta =
-          PipelinePreviewFactory.generatePreviewPipeline(
-              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
-
       EnterNumberDialog numberDialog =
           new EnterNumberDialog(
               shell,
@@ -1468,6 +1464,11 @@ public class PropertyInputDialog extends BaseTransformDialog {
 
       int previewSize = numberDialog.open();
       if (previewSize > 0) {
+        oneMeta.setRowLimit(previewSize);
+        PipelineMeta previewMeta =
+            PipelinePreviewFactory.generatePreviewPipeline(
+                pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
         PipelinePreviewProgressDialog progressDialog =
             new PipelinePreviewProgressDialog(
                 shell,

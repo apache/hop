@@ -17,11 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,28 +37,29 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.w3c.dom.Node;
 
-public class WebServiceMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class WebServiceMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testLoadXml() throws Exception {
+  void testLoadXml() throws Exception {
     Node node = getTestNode();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
@@ -103,7 +104,7 @@ public class WebServiceMetaTest {
   }
 
   @Test
-  public void testGetFields() throws Exception {
+  void testGetFields() throws Exception {
     WebServiceMeta webServiceMeta = new WebServiceMeta();
     webServiceMeta.setDefault();
     IRowMeta rmi = mock(IRowMeta.class);
@@ -145,7 +146,7 @@ public class WebServiceMetaTest {
   }
 
   @Test
-  public void testCheck() {
+  void testCheck() {
     WebServiceMeta webServiceMeta = new WebServiceMeta();
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = mock(TransformMeta.class);
@@ -188,7 +189,7 @@ public class WebServiceMetaTest {
   }
 
   @Test
-  public void testGetFieldOut() throws Exception {
+  void testGetFieldOut() throws Exception {
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     WebServiceMeta webServiceMeta = new WebServiceMeta(getTestNode(), metadataProvider);

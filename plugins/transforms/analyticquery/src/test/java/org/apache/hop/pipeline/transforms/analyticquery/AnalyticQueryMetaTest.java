@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -36,12 +36,12 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class AnalyticQueryMetaTest {
+class AnalyticQueryMetaTest {
 
   @Test
-  public void testXmlRoundTrip() throws Exception {
+  void testXmlRoundTrip() throws Exception {
     String tag = TransformMeta.XML_TAG;
 
     Path path = Paths.get(getClass().getResource("/transform1.snippet").toURI());
@@ -76,7 +76,7 @@ public class AnalyticQueryMetaTest {
   }
 
   @Test
-  public void testXmlMissingMetadata() throws Exception {
+  void testXmlMissingMetadata() throws Exception {
     String tag = TransformMeta.XML_TAG;
 
     Path path = Paths.get(getClass().getResource("/transform2.snippet").toURI());
@@ -93,7 +93,7 @@ public class AnalyticQueryMetaTest {
   }
 
   @Test
-  public void testInjectionMetadata() {
+  void testInjectionMetadata() {
     BeanInjectionInfo<AnalyticQueryMeta> injectionInfo =
         new BeanInjectionInfo<>(AnalyticQueryMeta.class);
     assertEquals(5, injectionInfo.getProperties().size());
@@ -127,7 +127,7 @@ public class AnalyticQueryMetaTest {
   }
 
   @Test
-  public void testInjection() throws Exception {
+  void testInjection() throws Exception {
     BeanInjectionInfo<AnalyticQueryMeta> info = new BeanInjectionInfo<>(AnalyticQueryMeta.class);
     BeanInjector<AnalyticQueryMeta> injector =
         new BeanInjector<>(info, new MemoryMetadataProvider());

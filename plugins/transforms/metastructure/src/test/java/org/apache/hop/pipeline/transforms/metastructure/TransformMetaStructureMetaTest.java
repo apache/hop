@@ -22,16 +22,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TransformMetaStructureMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class TransformMetaStructureMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testTransformMeta() throws HopException {
+  void testTransformMeta() throws HopException {
     List<String> attributes = Arrays.asList("outputRowcount", "rowcountField");
     // At present, none of the other fields in TransformMetaStructureMeta are being persisted or
     // read

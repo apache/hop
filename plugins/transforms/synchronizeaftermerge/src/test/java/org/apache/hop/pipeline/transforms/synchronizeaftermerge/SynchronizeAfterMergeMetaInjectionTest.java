@@ -17,27 +17,28 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SynchronizeAfterMergeMetaInjectionTest
-    extends BaseMetadataInjectionTest<SynchronizeAfterMergeMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SynchronizeAfterMergeMetaInjectionTest
+    extends BaseMetadataInjectionTestJunit5<SynchronizeAfterMergeMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     super.setup(new SynchronizeAfterMergeMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check(
         "SHEMA_NAME",
         new IStringGetter() {
@@ -196,7 +197,7 @@ public class SynchronizeAfterMergeMetaInjectionTest
   }
 
   @Test
-  public void getXml() throws HopException {
+  void getXml() throws HopException {
     skipProperties(
         "CONNECTION_NAME",
         "TABLE_NAME",

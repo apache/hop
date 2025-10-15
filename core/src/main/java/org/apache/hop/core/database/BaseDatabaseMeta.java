@@ -17,21 +17,31 @@
 
 package org.apache.hop.core.database;
 
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Stream;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -40,6 +50,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
  * This class contains the basic information on a database connection. It is not intended to be used
  * other than the inheriting classes such as OracleDatabaseInfo, ...
  */
+@Getter
+@Setter
 public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /** The SQL to execute at connect time (right after connecting) */
@@ -99,6 +111,12 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   public static final String ID_PASSWORD_LABEL = "password-label";
   public static final String ID_PASSWORD_WIDGET = "password-widget";
+
+  // Standard UI element IDs that can be excluded from database editors
+  public static final String ELEMENT_ID_DATABASE_NAME = "databaseName";
+  public static final String ELEMENT_ID_MANUAL_URL = "manualUrl";
+  public static final String ELEMENT_ID_USERNAME = "username";
+  public static final String ELEMENT_ID_PASSWORD = "password";
 
   /**
    * Boolean to indicate if savepoints can be released Most databases do, so we set it to true.
@@ -1218,48 +1236,44 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   public boolean hasIndex(
       Database database, String schemaName, String tableName, String[] idxFields)
       throws HopDatabaseException {
-
-    String schemaTable =
-        database.getDatabaseMeta().getQuotedSchemaTableCombination(database, schemaName, tableName);
-
-    boolean[] exists = new boolean[idxFields.length];
-    for (int i = 0; i < exists.length; i++) {
-      exists[i] = false;
-    }
-
+    Map<String, SortedSet<String>> indexes = new HashMap<>();
+    String catalog = null;
+    String schema = schemaName;
     try {
-      // Get a list of all the indexes for this table
-      ResultSet indexList = null;
+      DatabaseMetaData metaData = database.getConnection().getMetaData();
       try {
-        indexList =
-            database.getDatabaseMetaData().getIndexInfo(null, null, schemaTable, false, true);
+        if (metaData.supportsCatalogsInIndexDefinitions()) {
+          catalog = database.getConnection().getCatalog();
+        }
+        schema =
+            metaData.supportsSchemasInIndexDefinitions() ? normalizeCase(metaData, schema) : null;
+        tableName = normalizeCase(metaData, tableName);
+      } catch (SQLException ignored) {
+      }
+      try (ResultSet indexList = metaData.getIndexInfo(catalog, schema, tableName, false, true)) {
         while (indexList.next()) {
-          String column = indexList.getString("COLUMN_NAME");
-
-          int idx = Const.indexOfString(column, idxFields);
-          if (idx >= 0) {
-            exists[idx] = true;
+          String indexName = indexList.getString("INDEX_NAME");
+          if (!StringUtil.isEmpty(indexName)) {
+            indexes
+                .computeIfAbsent(indexName, s -> new TreeSet<>(String::compareToIgnoreCase))
+                .add(indexList.getString("COLUMN_NAME"));
           }
         }
-      } finally {
-        if (indexList != null) {
-          indexList.close();
-        }
       }
-
-      // See if all the fields are indexed...
-      boolean all = true;
-      for (int i = 0; i < exists.length && all; i++) {
-        if (!exists[i]) {
-          all = false;
-        }
-      }
-
-      return all;
-    } catch (Exception e) {
+    } catch (SQLException e) {
       throw new HopDatabaseException(
-          "Unable to determine if indexes exists on table [" + schemaTable + "]", e);
+          "Unable to determine if indexes exists on table [" + tableName + "]", e);
     }
+    if (indexes.isEmpty()) {
+      return false;
+    }
+    String[] sorted =
+        Stream.of(idxFields).sorted(String::compareToIgnoreCase).toArray(String[]::new);
+    int len = sorted.length;
+    return indexes.values().stream()
+        .filter(strings -> strings.size() >= len)
+        .map(strings -> strings.toArray(String[]::new))
+        .anyMatch(cols -> Arrays.equals(sorted, 0, len, cols, 0, len, String::compareToIgnoreCase));
   }
 
   /**
@@ -1380,6 +1394,22 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public boolean isExplorable() {
     return true;
+  }
+
+  /**
+   * @return true if this is a relational database you can explore. Return false for SAP, PALO, etc.
+   */
+  @Override
+  public boolean isTestable() {
+    return true;
+  }
+
+  /**
+   * @return true if this is a relational database for which exploring is disabled
+   */
+  @Override
+  public boolean isExploringDisabled() {
+    return false;
   }
 
   /**
@@ -1911,6 +1941,28 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public IValueMeta customizeValueFromSqlType(
       IValueMeta v, java.sql.ResultSetMetaData rm, int index) throws SQLException {
+    if (v == null || rm == null) {
+      return null;
+    }
+
+    String typeName = rm.getColumnTypeName(index);
+    // Most dbs expose uuid as "UUID", sql server (native) as "UNIQUEIDENTIFIER"
+    if ("uuid".equalsIgnoreCase(typeName) || "uniqueidentifier".equalsIgnoreCase(typeName)) {
+      try {
+
+        int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+
+        // Keep any existing metadata
+        IValueMeta u = ValueMetaFactory.cloneValueMeta(v, uuidTypeId);
+
+        u.setLength(-1);
+        u.setPrecision(-1);
+
+        return u;
+      } catch (HopPluginException ignore) {
+        // UUID plugin not present
+      }
+    }
     return null;
   }
 
@@ -1957,5 +2009,42 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public String getSqlInsertClauseBeforeFields(IVariables variables, String schemaTable) {
     return null;
+  }
+
+  private String normalizeCase(DatabaseMetaData metaData, String identifier) throws SQLException {
+    if (StringUtil.isEmpty(identifier)) {
+      return null;
+    }
+    if (!metaData.storesMixedCaseIdentifiers()) {
+      if (metaData.storesUpperCaseIdentifiers()) {
+        return identifier.toUpperCase();
+      }
+      if (metaData.storesLowerCaseIdentifiers()) {
+        return identifier.toLowerCase();
+      }
+    }
+    return identifier;
+  }
+
+  /**
+   * Returns a list of UI element IDs that should be excluded from the database editor. Databricks
+   * doesn't need database name or manual URL fields.
+   *
+   * @return List of element IDs to exclude
+   */
+  @Override
+  public List<String> getRemoveItems() {
+    return new ArrayList<>();
+  }
+
+  /**
+   * Returns whether URL information should be hidden in test connection dialogs. Databricks URLs
+   * may contain sensitive authentication tokens.
+   *
+   * @return true to hide URL information in test connection results
+   */
+  @Override
+  public boolean isHideUrlInTestConnection() {
+    return false; // don't hide URLs by default, set to true if the url may contain sensitive tokens
   }
 }

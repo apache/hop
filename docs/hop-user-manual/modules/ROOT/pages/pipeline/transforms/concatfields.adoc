@@ -53,6 +53,8 @@ Typically this is ; or a tab.
 |Enclosure|A pair of strings can enclose some fields.
 This allows separator characters in fields.
 The enclosure string is optional.
+|Force enclosure?|Force adding the enclosing character before and after each field that is added to the concatenated string.
+|Remove concatenated fields from output?|If checked, the fields that were used to create the concatenated field (specified in `Target Field Name`) will be removed from the output and wil not be available in later transforms.
 |===
 
 === Fields Tab
@@ -85,7 +87,7 @@ See Number Formats for a complete description of format symbols.
 |Group|A grouping can be a "," (10,000.00) or "." (5.000,00)
 |Trim type|The trimming method to apply on the string.
 Trimming only works when there is no field length given.
-|Null|If the value of the field is null, insert this string into the textfile
+|Null|A string to replace null values of this field with, by default null is replaced with an empty string.
 |Get|Click to retrieve the list of fields from the input fields stream(s)
 |Minimal width|Alter the options in the fields tab in such a way that the resulting width of lines in the text file is minimal.
 So instead of save 0000001, we write 1, etc.

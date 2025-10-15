@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.StringReader;
 import java.util.Arrays;
@@ -31,21 +31,23 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 /** User: Dzmitry Stsiapanau Date: 1/20/14 Time: 3:04 PM */
-public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
   LoadSaveTester loadSaveTester;
   Class<SystemDataMeta> testMetaClass = SystemDataMeta.class;
   SystemDataMeta expectedSystemDataMeta;
@@ -61,8 +63,8 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
           + "        </field>\n"
           + "      </fields>\n";
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     expectedSystemDataMeta = new SystemDataMeta();
     expectedSystemDataMeta.allocate(2);
     String[] names = expectedSystemDataMeta.getFieldName();
@@ -78,7 +80,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   }
 
   @Test
-  public void testLoadXml() throws Exception {
+  void testLoadXml() throws Exception {
     SystemDataMeta systemDataMeta = new SystemDataMeta();
     DocumentBuilderFactory documentBuilderFactory =
         XmlParserFactoryProducer.createSecureDocBuilderFactory();
@@ -89,15 +91,15 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   }
 
   @Test
-  public void testGetXml() throws Exception {
+  void testGetXml() throws Exception {
     String generatedXML = expectedSystemDataMeta.getXml();
     assertEquals(
         expectedXML.replaceAll("\n", "").replaceAll("\r", ""),
         generatedXML.replaceAll("\n", "").replaceAll("\r", ""));
   }
 
-  @Before
-  public void setUpLoadSave() throws Exception {
+  @BeforeEach
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
     List<String> attributes = Arrays.asList("fieldName", "fieldType");
@@ -148,7 +150,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 

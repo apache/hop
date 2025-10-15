@@ -17,20 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
  * We take file with content and run it parallel with several transforms. see docs for {@link
@@ -54,25 +54,26 @@ import org.junit.Test;
  * byte: '\r' or '\n' (Mac, Linux) . Representation can differ. So, if we have different types of
  * new lines in one file - it's ok. - file ends with new line or not
  */
-public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
+class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvProcessRowInParallelTest");
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void oneByteNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
+  void oneByteNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
     final int totalNumberOfTransforms = 2;
     final String fileContent = "a;1\r" + "b;2\r";
 
@@ -83,7 +84,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void oneByteNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
+  void oneByteNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
     final int totalNumberOfTransforms = 2;
 
     final String fileContent = "a;1\r" + "b;2\r" + "c;3";
@@ -95,7 +96,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void PDI_15162_mixedByteNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
+  void PDI_15162_mixedByteNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
     final int totalNumberOfTransforms = 2;
 
     final String fileContent =
@@ -117,7 +118,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void PDI_15162_mixedByteNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
+  void PDI_15162_mixedByteNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
     final int totalNumberOfTransforms = 2;
 
     final String fileContent =
@@ -139,7 +140,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void twoByteNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
+  void twoByteNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
     final String fileContent = "a;1\r\n" + "b;2\r\n";
     final int totalNumberOfTransforms = 2;
 
@@ -150,7 +151,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void twoByteNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
+  void twoByteNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
     final String fileContent = "a;1\r\n" + "b;2";
     final int totalNumberOfTransforms = 2;
 
@@ -163,7 +164,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void twoByteNewLineIndicator_NewLineAtTheEnd_3Threads() throws Exception {
+  void twoByteNewLineIndicator_NewLineAtTheEnd_3Threads() throws Exception {
     final String fileContent =
         "a;1\r\n" + "b;2\r\n"
             // thread 1 should read until this line
@@ -189,7 +190,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
    * read 2nd and 3d line.
    */
   @Test
-  public void mixedBytesNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
+  void mixedBytesNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
     final String fileContent = "abcd;1\r\n" + "b;2\r\n" + "d;3";
 
     final int totalNumberOfTransforms = 2;
@@ -201,7 +202,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void mixedBytesNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
+  void mixedBytesNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
     final String fileContent = "abcd;1\r\n" + "b;2\r" + "d;3\r";
 
     final int totalNumberOfTransforms = 2;
@@ -213,8 +214,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   @Test
-  public void PDI_16589_twoByteNewLineIndicator_withHeaders_NewLineAtTheEnd_4Threads()
-      throws Exception {
+  void PDI_16589_twoByteNewLineIndicator_withHeaders_NewLineAtTheEnd_4Threads() throws Exception {
     final int totalNumberOfTransforms = 4;
 
     final String fileContent =

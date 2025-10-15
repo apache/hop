@@ -17,22 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.splitfieldtorows;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SplitFieldToRowsTest {
+class SplitFieldToRowsTest {
 
   private TransformMockHelper<SplitFieldToRowsMeta, SplitFieldToRowsData> transformMockHelper;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     transformMockHelper =
         new TransformMockHelper<>(
             "Test SplitFieldToRows", SplitFieldToRowsMeta.class, SplitFieldToRowsData.class);
@@ -41,13 +41,13 @@ public class SplitFieldToRowsTest {
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
   @Test
-  public void interpretsNullDelimiterAsEmpty() throws Exception {
+  void interpretsNullDelimiterAsEmpty() throws Exception {
     SplitFieldToRows transform =
         new SplitFieldToRows(
             transformMockHelper.transformMeta,

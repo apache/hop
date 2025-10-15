@@ -109,7 +109,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
         data.positions = new int[meta.getFieldName().length];
         String[] fieldName = meta.getFieldName();
         for (int i = 0; i < fieldName.length; i++) {
-          if (fieldName[i] == null || fieldName[i].length() == 0) {
+          if (Utils.isEmpty(fieldName[i])) {
             continue;
           }
           if (meta.isReplacefields()) {

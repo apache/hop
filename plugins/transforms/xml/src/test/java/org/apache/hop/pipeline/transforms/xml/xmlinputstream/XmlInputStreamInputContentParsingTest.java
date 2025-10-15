@@ -17,15 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class XmlInputStreamInputContentParsingTest extends BaseXmlInputStreamParsingTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class XmlInputStreamInputContentParsingTest extends BaseXmlInputStreamParsingTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  public void testDefaultOptions() throws Exception {
+  void testDefaultOptions() throws Exception {
     init("default.xml");
 
     process();

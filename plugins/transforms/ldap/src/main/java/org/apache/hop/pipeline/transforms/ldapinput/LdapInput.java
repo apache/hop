@@ -318,7 +318,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
   private String extractString(Attribute attr) throws Exception {
     StringBuilder attrStr = new StringBuilder();
     for (NamingEnumeration<?> eattr = attr.getAll(); eattr.hasMore(); ) {
-      if (attrStr.length() > 0) {
+      if (!attrStr.isEmpty()) {
         attrStr.append(data.multiValuedFieldSeparator);
       }
       attrStr.append(eattr.next().toString());

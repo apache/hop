@@ -16,30 +16,31 @@
  */
 package org.apache.hop.pipeline.transforms.ifnull;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class IfNullMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class IfNullMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setUpLoadSave() throws Exception {
+  @BeforeEach
+  void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
 
   @Test
-  public void testLoadSaveValueType() throws Exception {
+  void testLoadSaveValueType() throws Exception {
     IfNullMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/if-null-transform-value-type.xml", IfNullMeta.class);
@@ -61,7 +62,7 @@ public class IfNullMetaTest {
   }
 
   @Test
-  public void testLoadSaveField() throws Exception {
+  void testLoadSaveField() throws Exception {
     IfNullMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/if-null-transform-field.xml", IfNullMeta.class);
@@ -84,7 +85,7 @@ public class IfNullMetaTest {
   }
 
   @Test
-  public void testSetDefault() throws Exception {
+  void testSetDefault() throws Exception {
     IfNullMeta meta = new IfNullMeta();
     meta.setDefault();
     assertTrue((meta.getValueTypes() != null) && (meta.getValueTypes().isEmpty()));

@@ -273,7 +273,9 @@ public class ActionDeleteFolders extends ActionBase {
           rcode = true;
         } else {
           // Error...This file is not a folder!
-          logError(BaseMessages.getString(PKG, "ActionDeleteFolders.Error.NotFolder"));
+          logError(
+              BaseMessages.getString(
+                  PKG, "ActionDeleteFolders.Error.NotFolder", folder.toString()));
         }
       } else {
         // File already deleted, no reason to try to delete it
@@ -316,7 +318,7 @@ public class ActionDeleteFolders extends ActionBase {
     //      return;
     //    }
 
-    if (fileItems == null || fileItems.isEmpty()) {
+    if (Utils.isEmpty(fileItems)) {
       String message = BaseMessages.getString(PKG, "CloneRowMeta.CheckResult.NrClonesdMissing");
       remarks.add(
           new CheckResult(ICheckResult.TYPE_RESULT_WARNING, "Any folders to deletes", this));

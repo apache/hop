@@ -17,26 +17,27 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTest<TextFileOutputMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTestJunit5<TextFileOutputMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     setup(new TextFileOutputMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FILENAME", () -> meta.getFileName());
     check("PASS_TO_SERVLET", () -> meta.isServletOutput());
     check("CREATE_PARENT_FOLDER", () -> meta.isCreateParentFolder());
@@ -66,6 +67,8 @@ public class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTest<T
     check("DO_NOT_CREATE_FILE_AT_STARTUP", () -> meta.isDoNotOpenNewFileInit());
     check("SPECIFY_DATE_FORMAT", () -> meta.isSpecifyingFormat());
     check("DATE_FORMAT", () -> meta.getDateTimeFormat());
+    check("SCHEMA_DEFINITION", () -> meta.getSchemaDefinition());
+    check("IGNORE_FIELDS", () -> meta.isIgnoreFields());
 
     /////////////////////////////
     check("OUTPUT_FIELDNAME", () -> meta.getOutputFields()[0].getName());

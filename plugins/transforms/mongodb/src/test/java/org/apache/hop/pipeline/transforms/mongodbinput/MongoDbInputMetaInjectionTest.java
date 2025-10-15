@@ -16,33 +16,33 @@
  */
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannelFactory;
 import org.apache.hop.pipeline.transforms.mongodboutput.MongoDbOutputMetaInjectionTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** MDI test for MongoDbInput. */
-public class MongoDbInputMetaInjectionTest extends BaseMetadataInjectionTest<MongoDbInputMeta> {
+class MongoDbInputMetaInjectionTest extends BaseMetadataInjectionTestJunit5<MongoDbInputMeta> {
 
   private ILogChannelFactory oldLogChannelInterfaceFactory;
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     oldLogChannelInterfaceFactory = HopLogStore.getLogChannelFactory();
     MongoDbOutputMetaInjectionTest.setHopLogFactoryWithMock();
     setup(new MongoDbInputMeta());
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     HopLogStore.setLogChannelFactory(oldLogChannelInterfaceFactory);
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("CONNECTION", () -> meta.getConnectionName());
     check("JSON_FIELD", () -> meta.getFieldsName());
     check("JSON_QUERY", () -> meta.getJsonQuery());

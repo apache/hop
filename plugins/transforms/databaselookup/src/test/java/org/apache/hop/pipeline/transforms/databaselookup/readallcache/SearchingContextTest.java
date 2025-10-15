@@ -17,25 +17,25 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.BitSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class SearchingContextTest {
+class SearchingContextTest {
 
   @Test
-  public void returnsClearWorkingSet() {
+  void returnsClearWorkingSet() {
     SearchingContext ctx = new SearchingContext();
     ctx.init(4);
     ctx.getWorkingSet().set(1);
-    assertEquals("Should return cleared object", -1, ctx.getWorkingSet().nextSetBit(0));
+    assertEquals(-1, ctx.getWorkingSet().nextSetBit(0), "Should return cleared object");
   }
 
   @Test
-  public void intersectionDetectsBecomingEmpty() {
+  void intersectionDetectsBecomingEmpty() {
 
     SearchingContext ctx = new SearchingContext();
     ctx.init(4);
@@ -48,6 +48,6 @@ public class SearchingContextTest {
 
     set = ctx.getWorkingSet();
     ctx.intersect(set, false);
-    assertTrue(ctx.isEmpty());
+    assertTrue(ctx.isEmpty(), "Expected to be empty");
   }
 }

@@ -114,7 +114,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       IRowMeta targetStreamRowMeta = data.targetRowSet.getRowMeta();
       String[] targetStreamFieldNames = targetStreamRowMeta.getFieldNames();
       for (int i = 0; i < targetStreamFieldNames.length; i++) {
-        if (meta.getTargetXmlField().equals(targetStreamFieldNames[i])) {
+        if (variables.resolve(meta.getTargetXmlField()).equals(targetStreamFieldNames[i])) {
           targetFieldId = i;
         }
       }
@@ -122,7 +122,9 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       if (targetFieldId == -1) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, meta.getTargetXmlField()));
+                PKG,
+                CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND,
+                variables.resolve(meta.getTargetXmlField())));
       }
 
       IRowMeta sourceStreamRowMeta =
@@ -144,7 +146,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
 
       InputSource inputSource = new InputSource(new StringReader(strTarget));
 
-      data.xPathStatement = meta.getTargetXPath();
+      data.xPathStatement = variables.resolve(meta.getTargetXPath());
       try {
         DocumentBuilder builder =
             XmlParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder();
@@ -196,7 +198,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
         // get target xml
         String[] sourceFieldNames = data.sourceRowSet.getRowMeta().getFieldNames();
         for (int i = 0; i < sourceFieldNames.length; i++) {
-          if (meta.getSourceXmlField().equals(sourceFieldNames[i])) {
+          if (variables.resolve(meta.getSourceXmlField()).equals(sourceFieldNames[i])) {
             data.iSourceXMLField = i;
           }
         }
@@ -204,7 +206,9 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
         if (data.iSourceXMLField == -1) {
           throw new HopException(
               BaseMessages.getString(
-                  PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, meta.getSourceXmlField()));
+                  PKG,
+                  CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND,
+                  variables.resolve(meta.getSourceXmlField())));
         }
       }
 
@@ -212,7 +216,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
         // get the column of the compare value
         String[] sourceFieldNames = data.sourceRowSet.getRowMeta().getFieldNames();
         for (int i = 0; i < sourceFieldNames.length; i++) {
-          if (meta.getJoinCompareField().equals(sourceFieldNames[i])) {
+          if (variables.resolve(meta.getJoinCompareField()).equals(sourceFieldNames[i])) {
             data.iCompareFieldID = i;
           }
         }
@@ -220,7 +224,9 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
         if (data.iCompareFieldID == -1) {
           throw new HopException(
               BaseMessages.getString(
-                  PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, meta.getJoinCompareField()));
+                  PKG,
+                  CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND,
+                  variables.resolve(meta.getJoinCompareField())));
         }
       }
 
@@ -314,7 +320,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
           node.getNodeType() == Node.ELEMENT_NODE
               && !node.hasAttributes()
               && !node.hasChildNodes()
-              && node.getTextContent().length() == 0;
+              && node.getTextContent().isEmpty();
 
       if (nodeIsEmpty) {
         // We shifted elements left, do not increment counter

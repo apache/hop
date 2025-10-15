@@ -2012,7 +2012,7 @@ public class WorkflowMeta extends AbstractMeta
 
   @Override
   public boolean hasMissingPlugins() {
-    return missingActions != null && !missingActions.isEmpty();
+    return !Utils.isEmpty(missingActions);
   }
 
   public String getStartActionName() {

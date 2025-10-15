@@ -17,10 +17,11 @@
 package org.apache.hop.vfs.s3.vfs;
 
 import static java.util.AbstractMap.SimpleEntry;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atMost;
@@ -65,12 +66,12 @@ import org.apache.hop.vfs.s3.s3.vfs.S3FileName;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileObject;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileSystem;
 import org.apache.hop.vfs.s3.s3common.S3HopProperty;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-public class S3FileObjectTest {
+class S3FileObjectTest {
 
   public static final String HOST = "S3";
   public static final String SCHEME = "s3";
@@ -95,13 +96,13 @@ public class S3FileObjectTest {
   private final String origKey = "some/key";
   private final Date testDate = new Date();
 
-  @BeforeClass
-  public static void initHop() throws Exception {
+  @BeforeAll
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     s3ServiceMock = mock(AmazonS3.class);
     S3Object s3Object = new S3Object();
@@ -171,7 +172,7 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testGetS3Object() throws Exception {
+  void testGetS3Object() throws Exception {
     when(s3ServiceMock.getObject(anyString(), anyString())).thenReturn(new S3Object());
     S3FileObject s3FileObject = new S3FileObject(filename, fileSystemSpy);
     S3Object s3Object = s3FileObject.getS3Object();
@@ -179,14 +180,14 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testGetS3BucketName() {
+  void testGetS3BucketName() {
     filename = new S3FileName(SCHEME, BUCKET_NAME, "", FileType.FOLDER);
     when(s3FileObjectBucketSpy.getName()).thenReturn(filename);
     s3FileObjectBucketSpy.getS3BucketName();
   }
 
   @Test
-  public void testDoGetOutputStream() throws Exception {
+  void testDoGetOutputStream() throws Exception {
     InitiateMultipartUploadResult initResponse = mock(InitiateMultipartUploadResult.class);
     when(initResponse.getUploadId()).thenReturn("foo");
     when(s3ServiceMock.initiateMultipartUpload(any())).thenReturn(initResponse);
@@ -207,17 +208,17 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testDoGetInputStream() throws Exception {
+  void testDoGetInputStream() throws Exception {
     assertNotNull(s3FileObjectBucketSpy.getInputStream());
   }
 
   @Test
-  public void testDoGetTypeImaginary() throws Exception {
+  void testDoGetTypeImaginary() throws Exception {
     assertEquals(FileType.IMAGINARY, s3FileObjectFileSpy.getType());
   }
 
   @Test
-  public void testDoGetTypeFolder() throws Exception {
+  void testDoGetTypeFolder() throws Exception {
     FileName mockFile = mock(FileName.class);
     when(s3FileObjectBucketSpy.getName()).thenReturn(mockFile);
     when(mockFile.getPath()).thenReturn(S3FileObject.DELIMITER);
@@ -225,7 +226,7 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testDoCreateFolder() throws Exception {
+  void testDoCreateFolder() throws Exception {
     S3FileObject notRootBucket =
         spy(
             new S3FileObject(
@@ -241,21 +242,21 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testCanRenameTo() throws Exception {
+  void testCanRenameTo() throws Exception {
     FileObject newFile = mock(FileObject.class);
     assertFalse(s3FileObjectBucketSpy.canRenameTo(newFile));
     when(s3FileObjectBucketSpy.getType()).thenReturn(FileType.FOLDER);
     assertFalse(s3FileObjectBucketSpy.canRenameTo(newFile));
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testCanRenameToNullFile() {
+  @Test
+  void testCanRenameToNullFile() {
     // This is a bug / weakness in VFS itself
-    s3FileObjectBucketSpy.canRenameTo(null);
+    assertThrows(NullPointerException.class, () -> s3FileObjectBucketSpy.canRenameTo(null));
   }
 
   @Test
-  public void testDoDelete() throws Exception {
+  void testDoDelete() throws Exception {
     fileSystemSpy.init();
     s3FileObjectBucketSpy.doDelete();
     verify(s3ServiceMock).deleteObject("bucket3", "key0");
@@ -265,7 +266,7 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testDoRename() throws Exception {
+  void testDoRename() throws Exception {
     String someNewBucketName = "someNewBucketName";
     String someNewKey = "some/newKey";
     S3FileName newFileName =
@@ -287,13 +288,13 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testDoGetLastModifiedTime() throws Exception {
+  void testDoGetLastModifiedTime() throws Exception {
     s3FileObjectFileSpy.doAttach();
     assertEquals(testDate.getTime(), s3FileObjectFileSpy.doGetLastModifiedTime());
   }
 
   @Test
-  public void testListChildrenNotRoot() throws FileSystemException {
+  void testListChildrenNotRoot() throws FileSystemException {
     fileSystemSpy.init();
     FileObject[] children = s3FileObjectBucketSpy.getChildren();
     assertEquals(6, children.length);
@@ -305,7 +306,7 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testListChildrenRoot() throws FileSystemException {
+  void testListChildrenRoot() throws FileSystemException {
     fileSystemSpy.init();
     FileObject[] children = s3FileObjectSpyRoot.getChildren();
     assertEquals(4, children.length);
@@ -317,7 +318,7 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testFixFilePathToFile() {
+  void testFixFilePathToFile() {
     String bucketName = "s3:/";
     String key = "bucketName/some/key/path";
     SimpleEntry<String, String> newPath = s3FileObjectBucketSpy.fixFilePath(key, bucketName);
@@ -326,7 +327,7 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testFixFilePathToFolder() {
+  void testFixFilePathToFolder() {
     String bucketName = "s3:/";
     String key = "bucketName";
     SimpleEntry<String, String> newPath = s3FileObjectBucketSpy.fixFilePath(key, bucketName);
@@ -335,7 +336,7 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testHandleAttachException() throws FileSystemException {
+  void testHandleAttachException() throws FileSystemException {
     String testKey = BUCKET_NAME + "/" + origKey;
     String testBucket = "badBucketName";
     AmazonS3Exception exception = new AmazonS3Exception("NoSuchKey");
@@ -351,7 +352,7 @@ public class S3FileObjectTest {
   }
 
   @Test
-  public void testHandleAttachExceptionEmptyFolder() throws FileSystemException {
+  void testHandleAttachExceptionEmptyFolder() throws FileSystemException {
     String testKey = BUCKET_NAME + "/" + origKey;
     String testBucket = "badBucketName";
     AmazonS3Exception exception = new AmazonS3Exception("NoSuchKey");

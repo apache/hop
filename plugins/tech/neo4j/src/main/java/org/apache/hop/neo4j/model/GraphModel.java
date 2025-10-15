@@ -53,6 +53,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty protected List<GraphRelationship> relationships;
 
   public GraphModel() {
+    name = "";
     nodes = new ArrayList<>();
     relationships = new ArrayList<>();
   }

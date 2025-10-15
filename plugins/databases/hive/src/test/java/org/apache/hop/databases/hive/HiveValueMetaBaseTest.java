@@ -18,8 +18,8 @@
 
 package org.apache.hop.databases.hive;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -45,34 +45,35 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class HiveValueMetaBaseTest {
+class HiveValueMetaBaseTest {
   protected static final String TEST_NAME = "TEST_NAME";
   protected static final String LOG_FIELD = "LOG_FIELD";
 
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  ;
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
   private PreparedStatement preparedStatementMock = mock(PreparedStatement.class);
   private ResultSet resultSet;
   private DatabaseMeta databaseMeta;
   private IValueMeta valueMetaBase;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
     // HopLogStore.init();
   }
 
-  @Before
-  public void setUp() throws HopPluginException {
+  @BeforeEach
+  void setUp() throws HopPluginException {
     valueMetaBase = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_NONE);
     databaseMeta = spy(new DatabaseMeta());
     resultSet = mock(ResultSet.class);
@@ -87,7 +88,7 @@ public class HiveValueMetaBaseTest {
   }
 
   @Test
-  public void testGetValueFromSqlTypeBinaryHive() throws Exception {
+  void testGetValueFromSqlTypeBinaryHive() throws Exception {
 
     final int binaryColumnIndex = 1;
     ValueMetaBase valueMetaBase = new ValueMetaBase();
@@ -108,7 +109,7 @@ public class HiveValueMetaBaseTest {
   }
 
   @Test
-  public void testMetaDataPreviewSqlVarBinaryToHopBinaryUsingHiveVariant()
+  void testMetaDataPreviewSqlVarBinaryToHopBinaryUsingHiveVariant()
       throws SQLException, HopDatabaseException {
     doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
     doReturn(16).when(resultSet).getInt("COLUMN_SIZE");

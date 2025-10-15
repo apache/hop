@@ -28,6 +28,7 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.playlist.FilePlayListAll;
 import org.apache.hop.core.row.IValueMeta;
@@ -47,6 +48,9 @@ import org.apache.hop.pipeline.transform.errorhandling.CompositeFileErrorHandler
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerContentLineNumber;
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerMissingFiles;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 
 /** This class reads data from one or more Microsoft Excel files. */
@@ -832,7 +836,35 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         return false;
       }
 
-      if (meta.getEmptyFields().size() > 0) {
+      // Override fields by schema
+      if (meta.isIgnoreFields()) {
+        meta.setFields(new ArrayList<>());
+        try {
+          SchemaDefinition loadedSchemaDefinition =
+              (new SchemaDefinitionUtil())
+                  .loadSchemaDefinition(metadataProvider, meta.getSchemaDefinition());
+          if (loadedSchemaDefinition != null) {
+            for (SchemaFieldDefinition schemaFieldDefinition :
+                loadedSchemaDefinition.getFieldDefinitions()) {
+              ExcelInputField excelInputField = new ExcelInputField();
+              excelInputField.setName(schemaFieldDefinition.getName());
+              excelInputField.setCurrencySymbol(schemaFieldDefinition.getCurrencySymbol());
+              excelInputField.setDecimalSymbol(schemaFieldDefinition.getDecimalSymbol());
+              excelInputField.setLength(schemaFieldDefinition.getLength());
+              excelInputField.setPrecision(schemaFieldDefinition.getPrecision());
+              excelInputField.setFormat(schemaFieldDefinition.getFormatMask());
+              excelInputField.setType(schemaFieldDefinition.getHopType());
+              excelInputField.setTrimType(
+                  IValueMeta.TrimType.lookupType(schemaFieldDefinition.getTrimType()));
+              meta.getFields().add(excelInputField);
+            }
+          }
+        } catch (HopTransformException e) {
+          // ignore any errors here.
+        }
+      }
+
+      if (!meta.getEmptyFields(metadataProvider).isEmpty()) {
         // Determine the maximum filename length...
         data.maxfilelength = -1;
 
@@ -847,7 +879,6 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         data.maxsheetlength = -1;
         if (!meta.readAllSheets()) {
           data.sheetNames = meta.getSheetsNames();
-          ;
           data.startColumn = meta.getSheetsStartColumns();
           data.startRow = meta.getSheetsStartRows();
         } else {

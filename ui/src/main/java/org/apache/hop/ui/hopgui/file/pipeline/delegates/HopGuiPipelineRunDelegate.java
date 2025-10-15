@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -120,7 +121,7 @@ public class HopGuiPipelineRunDelegate {
       // Set the default number of rows to retrieve on all selected transforms...
       //
       List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
-      if (selectedTransforms != null && !selectedTransforms.isEmpty()) {
+      if (!Utils.isEmpty(selectedTransforms)) {
         pipelineDebugMeta.getTransformDebugMetaMap().clear();
         for (TransformMeta transformMeta : pipelineMeta.getSelectedTransforms()) {
           TransformDebugMeta transformDebugMeta = new TransformDebugMeta(transformMeta);
@@ -144,7 +145,7 @@ public class HopGuiPipelineRunDelegate {
       // Set the default number of preview rows on all selected transforms...
       //
       List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
-      if (selectedTransforms != null && !selectedTransforms.isEmpty()) {
+      if (!Utils.isEmpty(selectedTransforms)) {
         pipelineDebugMeta.getTransformDebugMetaMap().clear();
         for (TransformMeta transformMeta : pipelineMeta.getSelectedTransforms()) {
           TransformDebugMeta transformDebugMeta = new TransformDebugMeta(transformMeta);
@@ -201,7 +202,6 @@ public class HopGuiPipelineRunDelegate {
     if (execConfigAnswer) {
       pipelineGraph.pipelineLogDelegate.addPipelineLog();
       pipelineGraph.pipelineGridDelegate.addPipelineGrid();
-      pipelineGraph.extraViewTabFolder.setSelection(0);
 
       // Set the run options
       pipelineMeta.setClearingLog(executionConfiguration.isClearingLog());

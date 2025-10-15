@@ -32,6 +32,18 @@
         {
           "transform_field": "variable",
           "data_set_field": "variable"
+        },
+        {
+          "transform_field": "hostname_str",
+          "data_set_field": "hostname_str"
+        },
+        {
+          "transform_field": "json_str",
+          "data_set_field": "json"
+        },
+        {
+          "transform_field": "hostname_2",
+          "data_set_field": "hostname_2"
         }
       ],
       "field_order": [
@@ -40,7 +52,10 @@
         "db",
         "username",
         "password",
-        "variable"
+        "variable",
+        "hostname_str",
+        "json",
+        "hostname_2"
       ],
       "data_set_name": "0002-golden-pipeline-resolver",
       "transform_name": "Validate"

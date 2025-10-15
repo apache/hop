@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -25,22 +25,22 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MemoryGroupByDataTest {
+@ExtendWith(MockitoExtension.class)
+class MemoryGroupByDataTest {
 
   private MemoryGroupByData data = new MemoryGroupByData();
 
   @Mock private IRowMeta groupMeta;
   @Mock private IValueMeta valueMeta;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     data.groupMeta = groupMeta;
     when(groupMeta.size()).thenReturn(1);
     when(groupMeta.getValueMeta(anyInt())).thenReturn(valueMeta);
@@ -53,7 +53,7 @@ public class MemoryGroupByDataTest {
   }
 
   @Test
-  public void hashEntryTest() {
+  void hashEntryTest() {
     HashMap<MemoryGroupByData.HashEntry, String> map = new HashMap<>();
 
     byte[] byteValue1 = "key".getBytes();

@@ -301,7 +301,7 @@ public class SftpClient {
       }
 
       for (String f : folders) {
-        if (f.length() != 0 && !folderExists(f)) {
+        if (!f.isEmpty() && !folderExists(f)) {
           c.mkdir(f);
         }
       }

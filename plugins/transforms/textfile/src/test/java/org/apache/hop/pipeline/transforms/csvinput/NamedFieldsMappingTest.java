@@ -17,37 +17,37 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class NamedFieldsMappingTest {
+class NamedFieldsMappingTest {
 
   private NamedFieldsMapping fieldsMapping;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     fieldsMapping = new NamedFieldsMapping(new int[] {3, 4});
   }
 
   @Test
-  public void fieldMetaIndex() {
+  void fieldMetaIndex() {
     assertEquals(3, fieldsMapping.fieldMetaIndex(0));
   }
 
   @Test
-  public void fieldMetaIndexWithUnexistingField() {
+  void fieldMetaIndexWithUnexistingField() {
     assertEquals(IFieldsMapping.FIELD_DOES_NOT_EXIST, fieldsMapping.fieldMetaIndex(4));
   }
 
   @Test
-  public void size() {
+  void size() {
     assertEquals(2, fieldsMapping.size());
   }
 
   @Test
-  public void mapping() {
+  void mapping() {
     NamedFieldsMapping mapping =
         NamedFieldsMapping.mapping(
             new String[] {"FIRST", "SECOND", "THIRD"}, new String[] {"SECOND", "THIRD"});
@@ -55,7 +55,7 @@ public class NamedFieldsMappingTest {
   }
 
   @Test
-  public void mappingWithNonUniqueColumnNames() {
+  void mappingWithNonUniqueColumnNames() {
     NamedFieldsMapping mapping =
         NamedFieldsMapping.mapping(
             new String[] {"Object", "Test", "Object"}, new String[] {"Object", "Test", "Object"});
@@ -64,7 +64,7 @@ public class NamedFieldsMappingTest {
   }
 
   @Test
-  public void fieldMetaIndexWithUnexistingField_nonUniqueColumnNames() {
+  void fieldMetaIndexWithUnexistingField_nonUniqueColumnNames() {
     NamedFieldsMapping mapping =
         NamedFieldsMapping.mapping(
             new String[] {"Object", "Test", "Object"}, new String[] {"Object", "Test"});
@@ -72,7 +72,7 @@ public class NamedFieldsMappingTest {
   }
 
   @Test
-  public void mappingWithNonMatchingColumnNames() {
+  void mappingWithNonMatchingColumnNames() {
     NamedFieldsMapping mapping =
         NamedFieldsMapping.mapping(
             new String[] {"One", "Two", "Three"}, new String[] {"A", "B", "C"});

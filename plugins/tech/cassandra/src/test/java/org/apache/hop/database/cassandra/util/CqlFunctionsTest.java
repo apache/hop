@@ -17,16 +17,16 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.hop.databases.cassandra.util.CqlFunctions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CqlFunctionsTest {
+class CqlFunctionsTest {
 
   @Test
-  public void testGetFunctionsFromString() {
+  void testGetFunctionsFromString() {
     String[] fString =
         new String[] {"TOKEN", "COUNT", "WRITETIME", "TTL", "DATEOF", "UNIXTIMESTAMPOF"};
     for (int i = 0; i < CqlFunctions.values().length; i++) {
@@ -36,7 +36,7 @@ public class CqlFunctionsTest {
   }
 
   @Test
-  public void testGetFunctionsValidators() {
+  void testGetFunctionsValidators() {
     String[] expectedValidators =
         new String[] {
           "org.apache.cassandra.db.marshal.LongType",
@@ -49,20 +49,20 @@ public class CqlFunctionsTest {
     assertEquals(expectedValidators.length, CqlFunctions.values().length);
     for (int i = 0; i < expectedValidators.length; i++) {
       assertEquals(
-          "Incorrect validator for the function: " + CqlFunctions.values()[i].name(),
           expectedValidators[i],
-          CqlFunctions.values()[i].getValidator());
+          CqlFunctions.values()[i].getValidator(),
+          "Incorrect validator for the function: " + CqlFunctions.values()[i].name());
     }
   }
 
   @Test
-  public void testGetNull_IfInputIsUnknownFunction() {
+  void testGetNull_IfInputIsUnknownFunction() {
     CqlFunctions actualP = CqlFunctions.getFromString("UnknownFunction");
     assertNull(actualP);
   }
 
   @Test
-  public void testGetNull_IfInputIsNull() {
+  void testGetNull_IfInputIsNull() {
     CqlFunctions actualP = CqlFunctions.getFromString(null);
     assertNull(actualP);
   }

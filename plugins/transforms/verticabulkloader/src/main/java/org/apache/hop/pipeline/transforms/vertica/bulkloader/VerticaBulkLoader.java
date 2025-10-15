@@ -169,7 +169,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
       try {
         data.pipedInputStream = new PipedInputStream();
-        if (data.colSpecs == null || data.colSpecs.isEmpty()) {
+        if (Utils.isEmpty(data.colSpecs)) {
           return false;
         }
         data.encoder = createStreamEncoder(data.colSpecs, data.pipedInputStream);

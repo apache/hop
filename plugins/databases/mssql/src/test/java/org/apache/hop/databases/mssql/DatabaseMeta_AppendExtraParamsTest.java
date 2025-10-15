@@ -26,7 +26,7 @@ import org.apache.hop.core.variables.Variables;
  * check syntax only) after adding any extra parameters in spite of number of this parameters and
  * their validity.
  */
-public class DatabaseMeta_AppendExtraParamsTest {
+class DatabaseMeta_AppendExtraParamsTest {
   private static final String CONN_TYPE_MSSQL = "MSSQL";
 
   private static final String STRING_EXTRA_OPTION = "extraOption";
@@ -64,12 +64,12 @@ public class DatabaseMeta_AppendExtraParamsTest {
   }*/
 
   /*  @Test
-  public void urlNotChanges_WhenNoExtraOptionsGiven() {
-    Map<String, String> extraOptions = generateExtraOptions( CONN_TYPE_MSSQL, 0 );
+  void urlNotChanges_WhenNoExtraOptionsGiven() {
+     Map<String, String> extraOptions = generateExtraOptions( CONN_TYPE_MSSQL, 0 );
 
-    String connUrlWithExtraOptions = meta.appendExtraOptions( CONN_URL_NO_EXTRA_OPTIONS, extraOptions );
-    assertEquals( CONN_URL_NO_EXTRA_OPTIONS, connUrlWithExtraOptions );
-  }*/
+     String connUrlWithExtraOptions = meta.appendExtraOptions( CONN_URL_NO_EXTRA_OPTIONS, extraOptions );
+     assertEquals( CONN_URL_NO_EXTRA_OPTIONS, connUrlWithExtraOptions );
+   }*/
 
   /**
    * Extra option key is expected to be in pattern: ConnType.key If ConnType and key are not divided
@@ -100,44 +100,44 @@ public class DatabaseMeta_AppendExtraParamsTest {
   */
 
   /*  @Test
-  public void extraOptionsAreNotAppended_WhenConnTypePointsToAnotherDataBase() throws Exception {
-    Map<String, String> extraOptions = generateExtraOptions( STRING_DEFAULT, 2 );
+  void extraOptionsAreNotAppended_WhenConnTypePointsToAnotherDataBase() throws Exception {
+     Map<String, String> extraOptions = generateExtraOptions( STRING_DEFAULT, 2 );
 
-    // emulate that there is no database with STRING_DEFAULT plugin id.
-    doThrow( new HopDatabaseException() ).when( meta ).getDbInterface( STRING_DEFAULT );
-    String connUrlWithExtraOptions = meta.appendExtraOptions( CONN_URL_NO_EXTRA_OPTIONS, extraOptions );
-    assertEquals( CONN_URL_NO_EXTRA_OPTIONS, connUrlWithExtraOptions );
-  }*/
-
-  /*  @Test
-  public void urlIsValid_AfterAddingValidExtraOptions() {
-    Map<String, String> extraOptions = generateExtraOptions( CONN_TYPE_MSSQL, 1 );
-
-    String expectedExtraOptionsUrl =
-      STRING_EXTRA_OPTION + 0 + mssqlServerDatabaseMeta.getExtraOptionValueSeparator() + STRING_OPTION_VALUE + 0;
-    String expectedUrl =
-      CONN_URL_NO_EXTRA_OPTIONS + mssqlServerDatabaseMeta.getExtraOptionSeparator() + expectedExtraOptionsUrl;
-
-    String connUrlWithExtraOptions = meta.appendExtraOptions( CONN_URL_NO_EXTRA_OPTIONS, extraOptions );
-    assertEquals( expectedUrl, connUrlWithExtraOptions );
-  }*/
+     // emulate that there is no database with STRING_DEFAULT plugin id.
+     doThrow( new HopDatabaseException() ).when( meta ).getDbInterface( STRING_DEFAULT );
+     String connUrlWithExtraOptions = meta.appendExtraOptions( CONN_URL_NO_EXTRA_OPTIONS, extraOptions );
+     assertEquals( CONN_URL_NO_EXTRA_OPTIONS, connUrlWithExtraOptions );
+   }*/
 
   /*  @Test
-  public void onlyValidExtraOptions_AreAppendedToUrl() {
-    Map<String, String> extraOptions = generateExtraOptions( CONN_TYPE_MSSQL, 1 );
-    extraOptions.put( STRING_DEFAULT, STRING_DEFAULT );
-    extraOptions.put( CONN_TYPE_MSSQL + "." + "key1", StringUtil.EMPTY_STRING );
-    extraOptions.put( CONN_TYPE_MSSQL + "." + "key2", DatabaseMeta.EMPTY_OPTIONS_STRING );
+  void urlIsValid_AfterAddingValidExtraOptions() {
+     Map<String, String> extraOptions = generateExtraOptions( CONN_TYPE_MSSQL, 1 );
 
-    String expectedExtraOptionsUrl =
-      STRING_EXTRA_OPTION + 0 + mssqlServerDatabaseMeta.getExtraOptionValueSeparator() + STRING_OPTION_VALUE + 0;
-    String expectedUrl =
-      CONN_URL_NO_EXTRA_OPTIONS + mssqlServerDatabaseMeta.getExtraOptionSeparator() + expectedExtraOptionsUrl;
+     String expectedExtraOptionsUrl =
+       STRING_EXTRA_OPTION + 0 + mssqlServerDatabaseMeta.getExtraOptionValueSeparator() + STRING_OPTION_VALUE + 0;
+     String expectedUrl =
+       CONN_URL_NO_EXTRA_OPTIONS + mssqlServerDatabaseMeta.getExtraOptionSeparator() + expectedExtraOptionsUrl;
+
+     String connUrlWithExtraOptions = meta.appendExtraOptions( CONN_URL_NO_EXTRA_OPTIONS, extraOptions );
+     assertEquals( expectedUrl, connUrlWithExtraOptions );
+   }*/
+
+  /*  @Test
+  void onlyValidExtraOptions_AreAppendedToUrl() {
+     Map<String, String> extraOptions = generateExtraOptions( CONN_TYPE_MSSQL, 1 );
+     extraOptions.put( STRING_DEFAULT, STRING_DEFAULT );
+     extraOptions.put( CONN_TYPE_MSSQL + "." + "key1", StringUtil.EMPTY_STRING );
+     extraOptions.put( CONN_TYPE_MSSQL + "." + "key2", DatabaseMeta.EMPTY_OPTIONS_STRING );
+
+     String expectedExtraOptionsUrl =
+       STRING_EXTRA_OPTION + 0 + mssqlServerDatabaseMeta.getExtraOptionValueSeparator() + STRING_OPTION_VALUE + 0;
+     String expectedUrl =
+       CONN_URL_NO_EXTRA_OPTIONS + mssqlServerDatabaseMeta.getExtraOptionSeparator() + expectedExtraOptionsUrl;
 
 
-    String connUrlWithExtraOptions = meta.appendExtraOptions( CONN_URL_NO_EXTRA_OPTIONS, extraOptions );
-    assertEquals( expectedUrl, connUrlWithExtraOptions );
-  }*/
+     String connUrlWithExtraOptions = meta.appendExtraOptions( CONN_URL_NO_EXTRA_OPTIONS, extraOptions );
+     assertEquals( expectedUrl, connUrlWithExtraOptions );
+   }*/
 
   /**
    * Extra option is considered to be valid if it is build in pattern: ConnType.key <b>All generated

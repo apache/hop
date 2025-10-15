@@ -17,22 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.append;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class AppendMetaInjectionTest extends BaseMetadataInjectionTest<AppendMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class AppendMetaInjectionTest extends BaseMetadataInjectionTestJunit5<AppendMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     setup(new AppendMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("HEAD_TRANSFORM", () -> meta.headTransformName);
     check("TAIL_TRANSFORM", () -> meta.tailTransformName);
   }

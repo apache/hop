@@ -670,9 +670,6 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     // Create the XML input transform
     GoogleAnalyticsMeta oneMeta = new GoogleAnalyticsMeta();
     getInfo(oneMeta);
-    PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline(
-            metadataProvider, oneMeta, wTransformName.getText());
 
     EnterNumberDialog numberDialog =
         new EnterNumberDialog(
@@ -682,6 +679,11 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "GoogleAnalyticsDialog.PreviewSize.DialogMessage"));
     int previewSize = numberDialog.open();
     if (previewSize > 0) {
+      oneMeta.setRowLimit(previewSize);
+      PipelineMeta previewMeta =
+          PipelinePreviewFactory.generatePreviewPipeline(
+              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
               shell,

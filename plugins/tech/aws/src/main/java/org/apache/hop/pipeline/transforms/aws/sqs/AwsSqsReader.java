@@ -81,13 +81,6 @@ public class AwsSqsReader {
                     .withRegion(this.awsRegion)
                     .build();
 
-        baseTransform.logBasic(
-            "Connected to SQS in Region "
-                + this.awsRegion
-                + " with API-Key >>"
-                + this.awsKey
-                + "<<");
-
       } else {
         AWSCredentialsProvider provider = new DefaultAWSCredentialsProviderChain();
         sqsClient =

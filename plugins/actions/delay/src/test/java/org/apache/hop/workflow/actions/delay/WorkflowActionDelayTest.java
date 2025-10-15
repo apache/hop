@@ -17,16 +17,16 @@
 
 package org.apache.hop.workflow.actions.delay;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.util.Utils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class WorkflowActionDelayTest {
+class WorkflowActionDelayTest {
 
   @Test
-  public void testGetRealMaximumTimeout() {
+  void testGetRealMaximumTimeout() {
     ActionDelay entry = new ActionDelay();
     assertTrue(Utils.isEmpty(entry.getRealMaximumTimeout()));
 

@@ -34,6 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
@@ -235,7 +236,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         return;
       }
       JSONArray jHits = (JSONArray) jHitsTop.get("hits");
-      if (jHits == null || jHits.isEmpty()) {
+      if (Utils.isEmpty(jHits)) {
         // No hits returned
         return;
       }
@@ -314,7 +315,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         return null;
       }
       JSONArray jHits = (JSONArray) jHitsTop.get("hits");
-      if (jHits == null || jHits.isEmpty()) {
+      if (Utils.isEmpty(jHits)) {
         // No hits returned
         return null;
       }
@@ -399,7 +400,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         return;
       }
       JSONArray jHits = (JSONArray) jHitsTop.get("hits");
-      if (jHits == null || jHits.isEmpty()) {
+      if (Utils.isEmpty(jHits)) {
         // No hits returned
         return;
       }
@@ -413,7 +414,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         JSONObject jHitsFields = (JSONObject) jHit.get("fields");
 
         JSONArray jHitsFieldsIds = (JSONArray) jHitsFields.get("id");
-        if (jHitsFieldsIds == null || jHitsFieldsIds.isEmpty()) {
+        if (Utils.isEmpty(jHitsFieldsIds)) {
           // Skip this one
           continue;
         }

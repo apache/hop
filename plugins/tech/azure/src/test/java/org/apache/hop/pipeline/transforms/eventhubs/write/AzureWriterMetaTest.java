@@ -18,18 +18,17 @@
 
 package org.apache.hop.pipeline.transforms.eventhubs.write;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class AzureWriterMetaTest {
+class AzureWriterMetaTest {
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init(List.of(TwoWayPasswordEncoderPluginType.getInstance()));
     AzureWriterMeta meta =
         TransformSerializationTestUtil.testSerialization(
@@ -39,6 +38,6 @@ public class AzureWriterMetaTest {
     assertEquals("key-name", meta.getSasKeyName());
     assertEquals("key-string", meta.getSasKey());
     assertEquals("123", meta.getBatchSize());
-    assertNotNull("message", meta.getMessageField());
+    assertEquals("message-field", meta.getMessageField());
   }
 }

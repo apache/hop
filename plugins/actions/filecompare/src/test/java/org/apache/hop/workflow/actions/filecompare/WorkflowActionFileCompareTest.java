@@ -19,13 +19,13 @@ package org.apache.hop.workflow.actions.filecompare;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class WorkflowActionFileCompareTest
-    extends WorkflowActionLoadSaveTestSupport<ActionFileCompare> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class WorkflowActionFileCompareTest extends WorkflowActionLoadSaveTestSupport<ActionFileCompare> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Override
   protected Class<ActionFileCompare> getActionClass() {

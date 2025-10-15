@@ -216,6 +216,11 @@ public class HopGuiPipelineTransformDelegate {
         //
         transformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
+        // Mark the TransformMeta wrapper as changed since the dialog was closed with OK
+        // This ensures that changes are properly tracked regardless of inner metadata object
+        // identity
+        transformMeta.setChanged();
+
         //
         // See if the new name the user enter, doesn't collide with
         // another transform.
@@ -670,7 +675,7 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   public void delTransforms(PipelineMeta pipelineMeta, List<TransformMeta> transforms) {
-    if (transforms == null || transforms.isEmpty()) {
+    if (Utils.isEmpty(transforms)) {
       return; // nothing to do
     }
     try {

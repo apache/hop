@@ -23,7 +23,7 @@ import java.io.PrintWriter;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.row.IValueMeta;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class CsvInputUnitTestBase {
 
@@ -32,8 +32,8 @@ public abstract class CsvInputUnitTestBase {
   static final String ENCLOSURE = "\"";
   static final String DELIMITER = ",";
 
-  @BeforeClass
-  public static void initHop() throws Exception {
+  @BeforeAll
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 

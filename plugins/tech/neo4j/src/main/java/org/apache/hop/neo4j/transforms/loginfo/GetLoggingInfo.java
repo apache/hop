@@ -31,6 +31,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.neo4j.logging.Defaults;
 import org.apache.hop.neo4j.logging.util.LoggingCore;
 import org.apache.hop.neo4j.shared.NeoConnection;
@@ -181,7 +182,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     if (super.init()) {
       data.readsRows = false;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      if (previous != null && !previous.isEmpty()) {
+      if (!Utils.isEmpty(previous)) {
         data.readsRows = true;
       }
 

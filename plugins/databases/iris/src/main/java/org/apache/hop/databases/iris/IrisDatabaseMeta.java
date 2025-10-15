@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "IRIS",
     typeDescription = "InterSystems Iris",
+    image = "intersystems.svg",
     documentationUrl = "/database/databases/iris.html")
 @GuiPlugin(id = "GUI-IrisDatabaseMeta")
 public class IrisDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
@@ -46,6 +47,11 @@ public class IrisDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       return 1972;
     }
     return -1;
+  }
+
+  @Override
+  public boolean isSupportsCatalogs() {
+    return false;
   }
 
   @Override

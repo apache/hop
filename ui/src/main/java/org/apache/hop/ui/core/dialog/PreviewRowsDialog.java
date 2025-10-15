@@ -19,7 +19,9 @@ package org.apache.hop.ui.core.dialog;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -56,6 +58,9 @@ public class PreviewRowsDialog {
   private static final Class<?> PKG = PreviewRowsDialog.class;
 
   public static final int MAX_BINARY_STRING_PREVIEW_SIZE = 1000000;
+  public static final boolean PREVIEW_AVOID_BINARY_IN_HEX =
+      Const.toBoolean(
+          HopConfig.readStringVariable(Const.HOP_BINARY_FIELDS_AVOID_HEX_PREVIEW, "false"));
 
   private String transformName;
 
@@ -272,7 +277,7 @@ public class PreviewRowsDialog {
     }
     if (!dynamic) {
       // Mmm, if we don't get any rows in the buffer: show a dialog box.
-      if (buffer == null || buffer.isEmpty()) {
+      if (Utils.isEmpty(buffer)) {
         ShowMessageDialog dialog =
             new ShowMessageDialog(
                 shell,
@@ -371,19 +376,28 @@ public class PreviewRowsDialog {
       IValueMeta v = rowMeta.getValueMeta(c);
       String show;
       try {
-        show = v.getString(row[c]);
-        if (v.isBinary() && show != null && show.length() > MAX_BINARY_STRING_PREVIEW_SIZE) {
-          // We want to limit the size of the strings during preview to keep all SWT widgets happy.
-          //
-          show = show.substring(0, MAX_BINARY_STRING_PREVIEW_SIZE);
+        if (v.isBinary()) {
+          byte[] bytes = v.getBinary(row[c]);
+          if (bytes == null) {
+            show = null;
+          } else {
+            if (PREVIEW_AVOID_BINARY_IN_HEX) {
+              show = v.getString(bytes);
+            } else {
+              show = Hex.encodeHexString(bytes);
+            }
+            if (show.length() > MAX_BINARY_STRING_PREVIEW_SIZE) {
+              // We want to limit the size of the strings during preview to keep all SWT widgets
+              // happy.
+              //
+              show = show.substring(0, MAX_BINARY_STRING_PREVIEW_SIZE);
+            }
+          }
+        } else {
+          show = v.getString(row[c]);
         }
-      } catch (HopValueException e) {
-        nrErrors++;
-        if (nrErrors < 25) {
-          log.logError(Const.getStackTracker(e));
-        }
-        show = null;
-      } catch (ArrayIndexOutOfBoundsException e) {
+
+      } catch (HopValueException | ArrayIndexOutOfBoundsException e) {
         nrErrors++;
         if (nrErrors < 25) {
           log.logError(Const.getStackTracker(e));

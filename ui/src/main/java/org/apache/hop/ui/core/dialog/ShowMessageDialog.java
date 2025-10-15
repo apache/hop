@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -63,18 +62,17 @@ public class ShowMessageDialog extends Dialog {
   private Shell shell;
   private PropsUi props;
 
-  private int flags;
+  private int style;
   private final Map<Integer, String> buttonTextByFlag;
 
   private int returnValue;
-  private int type;
 
   private Shell parent;
 
   private boolean scroll;
   private boolean hasIcon;
 
-  /** Timeout of dialog in seconds */
+  /** Timeout of the dialog in seconds */
   private int timeOut;
 
   private List<Button> buttons;
@@ -90,35 +88,35 @@ public class ShowMessageDialog extends Dialog {
    * Dialog to allow someone to show a text with an icon in front
    *
    * @param parent The parent shell to use
-   * @param flags the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also
-   *     SWT.OK, SWT.CANCEL is allowed.
+   * @param style the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also
+   *     SWT.OK, SWT.CANCEL, SWT.APPLICATION_MODAL, SWT.PRIMARY_MODAL, SWT.SYSTEM_MODAL is allowed.
    * @param title The dialog title
    * @param message The message to display
    */
-  public ShowMessageDialog(Shell parent, int flags, String title, String message) {
-    this(parent, flags, title, message, false);
+  public ShowMessageDialog(Shell parent, int style, String title, String message) {
+    this(parent, style, title, message, false);
   }
 
   /**
    * Dialog to allow someone to show a text with an icon in front
    *
    * @param parent The parent shell to use
-   * @param flags the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also
-   *     SWT.OK, SWT.CANCEL is allowed.
+   * @param style the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also
+   *     SWT.OK, SWT.CANCEL, SWT.APPLICATION_MODAL, SWT.PRIMARY_MODAL, SWT.SYSTEM_MODAL is allowed.
    * @param title The dialog title
    * @param message The message to display
    * @param scroll Set the dialog to a default size and enable scrolling
    */
-  public ShowMessageDialog(Shell parent, int flags, String title, String message, boolean scroll) {
-    this(parent, flags, buttonTextByFlagDefaults, title, message, scroll);
+  public ShowMessageDialog(Shell parent, int style, String title, String message, boolean scroll) {
+    this(parent, style, buttonTextByFlagDefaults, title, message, scroll);
   }
 
   /**
    * Dialog to allow someone to show a text with an icon in front
    *
    * @param parent The parent shell to use
-   * @param flags the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also
-   *     SWT.OK, SWT.CANCEL is allowed.
+   * @param style the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also
+   *     SWT.OK, SWT.CANCEL, SWT.APPLICATION_MODAL, SWT.PRIMARY_MODAL, SWT.SYSTEM_MODAL is allowed.
    * @param buttonTextByFlag Custom text to display for each button by flag i.e. key: SWT.OK, value:
    *     "Custom OK" Note - controls button order, use an ordered map to maintain button order.
    * @param title The dialog title
@@ -127,7 +125,7 @@ public class ShowMessageDialog extends Dialog {
    */
   public ShowMessageDialog(
       Shell parent,
-      int flags,
+      int style,
       Map<Integer, String> buttonTextByFlag,
       String title,
       String message,
@@ -135,7 +133,7 @@ public class ShowMessageDialog extends Dialog {
     super(parent, SWT.NONE);
     this.buttonTextByFlag = buttonTextByFlag;
     this.parent = parent;
-    this.flags = flags;
+    this.style = style;
     this.title = title;
     this.message = message;
     this.scroll = scroll;
@@ -146,37 +144,36 @@ public class ShowMessageDialog extends Dialog {
   public int open() {
     Display display = parent.getDisplay();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | style);
 
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
-
     formLayout = new FormLayout();
     shell.setLayout(formLayout);
-
+    shell.setMinimumSize(600, 300);
     shell.setText(title);
 
     hasIcon =
-        (flags & SWT.ICON_WARNING) != 0
-            || (flags & SWT.ICON_INFORMATION) != 0
-            || (flags & SWT.ICON_QUESTION) != 0
-            || (flags & SWT.ICON_ERROR) != 0
-            || (flags & SWT.ICON_WORKING) != 0;
+        (style & SWT.ICON_WARNING) != 0
+            || (style & SWT.ICON_INFORMATION) != 0
+            || (style & SWT.ICON_QUESTION) != 0
+            || (style & SWT.ICON_ERROR) != 0
+            || (style & SWT.ICON_WORKING) != 0;
 
     Image image = null;
-    if ((flags & SWT.ICON_WARNING) != 0) {
+    if ((style & SWT.ICON_WARNING) != 0) {
       image = display.getSystemImage(SWT.ICON_WARNING);
     }
-    if ((flags & SWT.ICON_INFORMATION) != 0) {
+    if ((style & SWT.ICON_INFORMATION) != 0) {
       image = display.getSystemImage(SWT.ICON_INFORMATION);
     }
-    if ((flags & SWT.ICON_QUESTION) != 0) {
+    if ((style & SWT.ICON_QUESTION) != 0) {
       image = display.getSystemImage(SWT.ICON_QUESTION);
     }
-    if ((flags & SWT.ICON_ERROR) != 0) {
+    if ((style & SWT.ICON_ERROR) != 0) {
       image = display.getSystemImage(SWT.ICON_ERROR);
     }
-    if ((flags & SWT.ICON_WORKING) != 0) {
+    if ((style & SWT.ICON_WORKING) != 0) {
       image = display.getSystemImage(SWT.ICON_WORKING);
     }
 
@@ -218,7 +215,7 @@ public class ShowMessageDialog extends Dialog {
 
     for (Map.Entry<Integer, String> entry : buttonTextByFlag.entrySet()) {
       Integer buttonFlag = entry.getKey();
-      if ((flags & buttonFlag) != 0) {
+      if ((style & buttonFlag) != 0) {
         Button button = new Button(shell, SWT.PUSH);
         button.setText(entry.getValue());
         SelectionAdapter selectionAdapter =
@@ -234,7 +231,11 @@ public class ShowMessageDialog extends Dialog {
       }
     }
 
-    setLayoutAccordingToType();
+    int margin = PropsUi.getMargin();
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
+    setFdlDesc(margin * 2, margin, 0, margin);
+    BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), margin, null);
 
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener(
@@ -279,7 +280,7 @@ public class ShowMessageDialog extends Dialog {
   }
 
   private void cancel() {
-    if ((flags & SWT.NO) > 0) {
+    if ((style & SWT.NO) > 0) {
       quit(SWT.NO);
     } else {
       quit(SWT.CANCEL);
@@ -289,31 +290,6 @@ public class ShowMessageDialog extends Dialog {
   private void quit(int returnValue) {
     this.returnValue = returnValue;
     dispose();
-  }
-
-  /** Handles any variances in the UI from the default. */
-  private void setLayoutAccordingToType() {
-    int margin = PropsUi.getMargin();
-    switch (type) {
-      case Const.SHOW_MESSAGE_DIALOG_DB_TEST_SUCCESS:
-        formLayout.marginWidth = 15;
-        formLayout.marginHeight = 15;
-        setFdlDesc(margin * 3, 0, 0, margin);
-        BaseTransformDialog.positionBottomButtons(
-            shell,
-            buttons.toArray(new Button[buttons.size()]),
-            0,
-            BaseTransformDialog.BUTTON_ALIGNMENT_RIGHT,
-            wlDesc);
-        break;
-      default:
-        formLayout.marginWidth = PropsUi.getFormMargin();
-        formLayout.marginHeight = PropsUi.getFormMargin();
-        setFdlDesc(margin * 2, margin, 0, margin);
-        BaseTransformDialog.positionBottomButtons(
-            shell, buttons.toArray(new Button[buttons.size()]), margin, wlDesc);
-        break;
-    }
   }
 
   private void setFdlDesc(
@@ -339,9 +315,5 @@ public class ShowMessageDialog extends Dialog {
    */
   public void setTimeOut(int timeOut) {
     this.timeOut = timeOut;
-  }
-
-  public void setType(int type) {
-    this.type = type;
   }
 }

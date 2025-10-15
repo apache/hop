@@ -19,6 +19,7 @@
 package org.apache.hop.execution.caching;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -268,7 +269,9 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     // We'll assume that the parent cache entry isn't removed while children are still executing.
     //
     CacheEntry entry = cache.get(execution.getParentId());
-    entry.addChildExecution(execution);
+    if (entry != null) {
+      entry.addChildExecution(execution);
+    }
   }
 
   @Override
@@ -283,14 +286,45 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   protected synchronized void addStateToCache(ExecutionState executionState) {
     CacheEntry entry = cache.get(executionState.getId());
-    // This entry should always exist
-    entry.setExecutionState(executionState);
+    if (entry == null) {
+      // Lookup by parent (happens when a pipeline is executed by a transform)
+      entry = findCacheEntryWithParent(executionState.getParentId());
+    }
+    if (entry != null) {
+      // This entry should always exist
+      entry.setExecutionState(executionState);
+    }
+  }
+
+  protected CacheEntry findCacheEntryWithParent(String parentId) {
+    Collection<CacheEntry> values = cache.values();
+    for (CacheEntry cacheEntry : values) {
+      if (cacheEntry.getExecution() == null) {
+        continue;
+      }
+      if (cacheEntry.getExecution().getParentId().equals(parentId)) {
+        return cacheEntry;
+      }
+      if (cacheEntry.getExecutionState() == null) {
+        continue;
+      }
+      if (cacheEntry.getExecutionState().getId().equals(parentId)) {
+        return cacheEntry;
+      }
+    }
+    return null;
   }
 
   protected synchronized void addChildStateToCache(ExecutionState executionState) {
     CacheEntry entry = cache.get(executionState.getParentId());
-    // This parent entry should always exit
-    entry.addChildExecutionState(executionState);
+    if (entry == null) {
+      // Lookup by parent (happens when a pipeline is executed by a transform)
+      entry = findCacheEntryWithParent(executionState.getParentId());
+    }
+    if (entry != null) {
+      // This parent entry should always exit
+      entry.addChildExecutionState(executionState);
+    }
   }
 
   @Override
@@ -318,6 +352,12 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       // See if this is a parent in the cache.
       //
       if (cacheEntry.getId().equals(executionId)) {
+        return cacheEntry;
+      }
+      // Sometimes the ID of the execution state is different from the execution
+      //
+      if (cacheEntry.getExecutionState() != null
+          && cacheEntry.getExecutionState().getId().equals(executionId)) {
         return cacheEntry;
       }
 
@@ -383,13 +423,9 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     // The ownerId in the data refers to the execution ID of the transform or action
     //
     CacheEntry entry = findCacheEntry(data.getParentId());
-    if (entry == null) {
-      throw new HopException(
-          "Error finding execution state to register data, for execution id '"
-              + data.getOwnerId()
-              + "'");
+    if (entry != null) {
+      entry.addExecutionData(data);
     }
-    entry.addExecutionData(data);
   }
 
   protected static void addChildIds(CacheEntry entry, Set<DatedId> ids) {

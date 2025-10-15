@@ -54,6 +54,9 @@ Make sure that the pipeline you want to execute is available on the server.
 |Output field
 |The output field from which this service will take data from, convert it to a String and output it
 
+|Status field
+|The field that contains the status code to be returned by the service, default status code is `200` if left empty
+
 |Content type
 |The content type which will get reported by the webService servlet
 
@@ -61,7 +64,10 @@ Make sure that the pipeline you want to execute is available on the server.
 |Enable this option if you want the executions of the web service pipeline to be listed in the status of the server.
 
 |Request body content variable
-|This is the name of the variable which at runtime will contain the content of the request body content.  This is useful when doing a POST against the webservice.
+|This is the name of the variable which at runtime will contain the content of the request body.  This is useful when doing a POST against the webservice.
+
+|Request header content variable
+|This is the name of the variable which at runtime will contain the content of the request header.  This is return a json object containing all headers that were in the request.
 
 |===
 

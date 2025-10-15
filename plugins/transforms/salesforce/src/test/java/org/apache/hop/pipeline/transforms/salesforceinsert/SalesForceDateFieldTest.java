@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinsert;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -39,27 +40,28 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
  * Tests for SalesforceInsert transform
  *
  * @see SalesforceInsert
  */
-public class SalesForceDateFieldTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SalesForceDateFieldTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
   private TransformMockHelper<SalesforceInsertMeta, SalesforceInsertData> smh;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -67,8 +69,8 @@ public class SalesForceDateFieldTest {
     Encr.init(passwordEncoderPluginID);
   }
 
-  @Before
-  public void init() {
+  @BeforeEach
+  void init() {
     smh =
         new TransformMockHelper<>(
             "SalesforceInsert", SalesforceInsertMeta.class, SalesforceInsertData.class);
@@ -76,13 +78,13 @@ public class SalesForceDateFieldTest {
         .thenReturn(smh.iLogChannel);
   }
 
-  @After
-  public void cleanUp() {
+  @AfterEach
+  void cleanUp() {
     smh.cleanUp();
   }
 
   @Test
-  public void testDateInsert() throws Exception {
+  void testDateInsert() throws Exception {
 
     SalesforceInsertMeta meta = smh.iTransformMeta;
     doReturn(UUID.randomUUID().toString()).when(meta).getTargetUrl();
@@ -130,6 +132,6 @@ public class SalesForceDateFieldTest {
     utc.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     XmlObject xmlObject = SalesforceConnection.getChildren(data.sfBuffer[0])[0];
-    Assert.assertEquals("2013-10-16", utc.format(((Calendar) xmlObject.getValue()).getTime()));
+    assertEquals("2013-10-16", utc.format(((Calendar) xmlObject.getValue()).getTime()));
   }
 }

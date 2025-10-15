@@ -17,10 +17,10 @@
 
 package org.apache.hop.databases.cratedb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -28,34 +28,36 @@ import java.sql.Statement;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.postgresql.util.PSQLException;
 import org.testcontainers.cratedb.CrateDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-public class CrateDBDatabaseMetaIT {
+@Testcontainers
+class CrateDBDatabaseMetaIT {
 
-  @ClassRule public static CrateDBContainer crateDBContainer = new CrateDBContainer("crate");
+  @Container static CrateDBContainer crateDBContainer = new CrateDBContainer("crate");
 
   private static Connection connection;
 
   private CrateDBDatabaseMeta nativeMeta = new CrateDBDatabaseMeta();
 
-  @BeforeClass
-  public static void setup() throws Exception {
+  @BeforeAll
+  static void setup() throws Exception {
     connection = crateDBContainer.createConnection("");
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     executeUpdate("DROP TABLE IF EXISTS foo;");
     executeUpdate("CREATE TABLE foo (id INT PRIMARY KEY, name VARCHAR(100), description TEXT);");
   }
 
   @Test
-  public void testSimpleSelect() throws Exception {
+  void testSimpleSelect() throws Exception {
     Statement statement = connection.createStatement();
     ResultSet resultSet = statement.executeQuery("SELECT 1");
     assertTrue(resultSet.next());
@@ -63,7 +65,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void doNotSupportSequences() {
+  void doNotSupportSequences() {
     assertFalse(nativeMeta.isSupportsSequences());
     assertThrows(
         UnsupportedOperationException.class,
@@ -80,7 +82,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void sqlStatements() throws Exception {
+  void sqlStatements() throws Exception {
     executeUpdate(
         "INSERT INTO foo (id, name, description) VALUES (1, 'Alice', 'test_description');");
     executeUpdate("REFRESH TABLE foo;");
@@ -119,7 +121,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addTimestampColumn() throws Exception {
+  void addTimestampColumn() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaDate("BAR"), "", false, "", false));
     executeUpdate(
@@ -130,7 +132,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addNumberColumn() throws Exception {
+  void addNumberColumn() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 10, 3), "", false, "", false));
@@ -143,7 +145,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addBigNumber() throws Exception {
+  void addBigNumber() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 21, 4), "", false, "", false));
@@ -156,7 +158,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addStringColumnWithLength() throws Exception {
+  void addStringColumnWithLength() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", false));
@@ -170,7 +172,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void addLongTextColumn() throws Exception {
+  void addLongTextColumn() throws Exception {
     executeUpdate(
         nativeMeta.getAddColumnStatement(
             "FOO",
@@ -183,7 +185,7 @@ public class CrateDBDatabaseMetaIT {
   }
 
   @Test
-  public void doesNotSupportLockTables() {
+  void doesNotSupportLockTables() {
     assertThrows(
         UnsupportedOperationException.class,
         () -> executeUpdate(nativeMeta.getSqlLockTables(new String[] {"FOO", "BAR"})));

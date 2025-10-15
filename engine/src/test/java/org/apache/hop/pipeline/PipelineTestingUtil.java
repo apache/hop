@@ -17,11 +17,11 @@
 
 package org.apache.hop.pipeline;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,12 +41,12 @@ public class PipelineTestingUtil {
     List<Object[]> result = new ArrayList<>(expectedRowsAmount);
     while (transform.processRow() && i < expectedRowsAmount) {
       Object[] row = output.getRowImmediate();
-      assertNotNull(Integer.toString(i), row);
+      assertNotNull(row, Integer.toString(i));
       result.add(row);
 
       i++;
     }
-    assertEquals("The amount of executions should be equal to expected", expectedRowsAmount, i);
+    assertEquals(expectedRowsAmount, i, "The amount of executions should be equal to expected");
     if (checkIsDone) {
       assertTrue(output.isDone());
     }
@@ -80,7 +80,7 @@ public class PipelineTestingUtil {
 
     int i = 0;
     while (i < expected.length) {
-      assertEquals(String.format("[%d][%d]", index, i), expected[i], actual[i]);
+      assertEquals(expected[i], actual[i], String.format("[%d][%d]", index, i));
       i++;
     }
     while (i < actual.length) {

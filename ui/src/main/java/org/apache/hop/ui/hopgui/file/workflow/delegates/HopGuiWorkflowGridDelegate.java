@@ -81,9 +81,6 @@ public class HopGuiWorkflowGridDelegate {
       workflowGraph.addExtraView();
     } else {
       if (workflowGridTab != null && !workflowGridTab.isDisposed()) {
-        // just set this one active and get out...
-        //
-        workflowGraph.extraViewTabFolder.setSelection(workflowGridTab);
         return;
       }
     }
@@ -96,8 +93,6 @@ public class HopGuiWorkflowGridDelegate {
     addControls();
 
     workflowGridTab.setControl(wTree);
-
-    workflowGraph.extraViewTabFolder.setSelection(workflowGridTab);
   }
 
   /** Add the controls to the tab */
@@ -219,7 +214,7 @@ public class HopGuiWorkflowGridDelegate {
         if (selectedIndex != null) {
           wTree.setSelection(wTree.getItem(0).getItem(selectedIndex));
           wTree.setTopItem(wTree.getItem(0).getItem(selectedIndex));
-        } else {
+        } else if (treeItem.getItemCount() >= 1) {
           wTree.setTopItem(treeItem.getItem(treeItem.getItemCount() - 1));
         }
       }

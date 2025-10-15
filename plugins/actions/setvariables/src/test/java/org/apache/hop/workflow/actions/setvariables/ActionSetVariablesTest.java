@@ -17,9 +17,10 @@
 
 package org.apache.hop.workflow.actions.setvariables;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayInputStream;
@@ -46,25 +47,24 @@ import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableD
 import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableType;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-public class ActionSetVariablesTest {
+class ActionSetVariablesTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionSetVariables action;
 
-  @BeforeClass
-  public static void setUpBeforeClass() {
+  @BeforeAll
+  static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionSetVariables();
     workflow.getWorkflowMeta().addAction(new ActionMeta(action));
@@ -73,7 +73,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init();
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
 
@@ -108,40 +108,40 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testASCIIText() throws Exception {
+  void testASCIIText() throws Exception {
     // properties file with native2ascii
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/ASCIIText.properties");
     action.setReplaceVars(true);
     Result result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertEquals("日本語", action.getVariable("Japanese"));
     assertEquals("English", action.getVariable("English"));
     assertEquals("中文", action.getVariable("Chinese"));
   }
 
   @Test
-  public void testUTF8Text() throws Exception {
+  void testUTF8Text() throws Exception {
     // properties files without native2ascii
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/UTF8Text.properties");
     action.setReplaceVars(true);
     Result result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertEquals("日本語", action.getVariable("Japanese"));
     assertEquals("English", action.getVariable("English"));
     assertEquals("中文", action.getVariable("Chinese"));
   }
 
   @Test
-  public void testInputStreamClosed() throws Exception {
+  void testInputStreamClosed() throws Exception {
     // properties files without native2ascii
     String propertiesFilename =
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/UTF8Text.properties";
     action.setFilename(propertiesFilename);
     action.setReplaceVars(true);
     Result result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     RandomAccessFile fos = null;
     try {
       File file = new File(propertiesFilename);
@@ -149,7 +149,7 @@ public class ActionSetVariablesTest {
         fos = new RandomAccessFile(file, "rw");
       }
     } catch (FileNotFoundException | SecurityException e) {
-      Assert.fail("the file with properties should be unallocated");
+      fail("the file with properties should be unallocated");
     } finally {
       if (fos != null) {
         fos.close();
@@ -158,7 +158,7 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testParentJobVariablesExecutingFilePropertiesThatChangesVariablesAndParameters()
+  void testParentJobVariablesExecutingFilePropertiesThatChangesVariablesAndParameters()
       throws Exception {
     action.setReplaceVars(true);
     action.setFileVariableType(VariableType.CURRENT_WORKFLOW);
@@ -172,7 +172,7 @@ public class ActionSetVariablesTest {
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/configurationA.properties");
     Result result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertEquals("a", parentWorkflow.getVariable("propertyFile"));
     assertEquals("a", parentWorkflow.getVariable("dynamicProperty"));
     assertEquals("parentValue", parentWorkflow.getVariable("parentParam"));
@@ -180,7 +180,7 @@ public class ActionSetVariablesTest {
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/configurationB.properties");
     result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertEquals("b", parentWorkflow.getVariable("propertyFile"));
     assertEquals("new", parentWorkflow.getVariable("newProperty"));
     assertEquals("haha", parentWorkflow.getVariable("parentParam"));
@@ -190,7 +190,7 @@ public class ActionSetVariablesTest {
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/configurationA.properties");
     result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertEquals("a", parentWorkflow.getVariable("propertyFile"));
     assertEquals("", parentWorkflow.getVariable("newProperty"));
     assertEquals("parentValue", parentWorkflow.getVariable("parentParam"));
@@ -200,7 +200,7 @@ public class ActionSetVariablesTest {
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/configurationB.properties");
     result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertEquals("b", parentWorkflow.getVariable("propertyFile"));
     assertEquals("new", parentWorkflow.getVariable("newProperty"));
     assertEquals("haha", parentWorkflow.getVariable("parentParam"));
@@ -209,39 +209,37 @@ public class ActionSetVariablesTest {
   }
 
   @Test
-  public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_NullVariable() throws Exception {
+  void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_NullVariable() throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(getEntryNode("nullVariable", null, "JVM"), metadataProvider, new Variables());
     Result result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertNull(System.getProperty("nullVariable"));
   }
 
   @Test
-  public void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_NullVariable()
-      throws Exception {
+  void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_NullVariable() throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(
         getEntryNode("nullVariable", null, "CURRENT_WORKFLOW"), metadataProvider, new Variables());
     Result result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertNull(action.getVariable("nullVariable"));
   }
 
   @Test
-  public void testSetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
+  void testSetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(
         getEntryNode("variableNotNull", "someValue", "JVM"), metadataProvider, new Variables());
     assertNull(System.getProperty("variableNotNull"));
     Result result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertEquals("someValue", System.getProperty("variableNotNull"));
   }
 
   @Test
-  public void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_VariableNotNull()
-      throws Exception {
+  void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_VariableNotNull() throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(
         getEntryNode("variableNotNull", "someValue", "CURRENT_WORKFLOW"),
@@ -249,7 +247,7 @@ public class ActionSetVariablesTest {
         new Variables());
     assertNull(System.getProperty("variableNotNull"));
     Result result = action.execute(new Result(), 0);
-    assertTrue("Result should be true", result.getResult());
+    assertTrue(result.getResult(), "Result should be true");
     assertEquals("someValue", action.getVariable("variableNotNull"));
   }
 

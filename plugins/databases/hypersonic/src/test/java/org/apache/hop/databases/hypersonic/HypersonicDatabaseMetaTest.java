@@ -17,10 +17,10 @@
 
 package org.apache.hop.databases.hypersonic;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -33,10 +33,10 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** User: Dzmitry Stsiapanau Date: 1/14/14 Time: 5:08 PM */
-public class HypersonicDatabaseMetaTest {
+class HypersonicDatabaseMetaTest {
   private HypersonicDatabaseMeta hypersonicDatabaseMeta;
   private HypersonicDatabaseMeta hypersonicDatabaseMetaQouting;
   private HypersonicDatabaseMeta hypersonicDatabaseMetaUppercase;
@@ -53,7 +53,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testSettings() {
+  void testSettings() {
     HypersonicDatabaseMeta nativeMeta = hypersonicDatabaseMeta;
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
@@ -403,7 +403,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testSqlStatements() {
+  void testSqlStatements() {
     HypersonicDatabaseMeta nativeMeta = new HypersonicDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
@@ -566,7 +566,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetSqlSequenceExists() {
+  void testGetSqlSequenceExists() {
     String sql = hypersonicDatabaseMeta.getSqlSequenceExists(sequenceName);
     String expectedSql =
         "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = 'seQuence'";
@@ -578,7 +578,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetSqlCurrentSequenceValue() {
+  void testGetSqlCurrentSequenceValue() {
     String sql = hypersonicDatabaseMeta.getSqlCurrentSequenceValue(sequenceName);
     String expectedSql =
         "SELECT seQuence.currval FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = 'seQuence'";
@@ -590,7 +590,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetSqlNextSequenceValue() {
+  void testGetSqlNextSequenceValue() {
     String sql = hypersonicDatabaseMeta.getSqlNextSequenceValue(sequenceName);
     String expectedSql =
         "SELECT NEXT VALUE FOR seQuence FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = 'seQuence'";
@@ -602,7 +602,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetSqlQueryFields() {
+  void testGetSqlQueryFields() {
     String sql = hypersonicDatabaseMeta.getSqlQueryFields(tableName);
     String expectedSql = "SELECT * FROM teST";
     assertEquals(expectedSql, sql);
@@ -613,7 +613,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetSchemaTableCombination() {
+  void testGetSchemaTableCombination() {
     String sql = hypersonicDatabaseMeta.getSchemaTableCombination(schemaName, tableName);
     String expectedSql = "SCHema.teST";
     assertEquals(expectedSql, sql);
@@ -624,7 +624,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetTruncateTableStatement() {
+  void testGetTruncateTableStatement() {
     String sql = hypersonicDatabaseMeta.getTruncateTableStatement(tableName);
     String expectedSql = "TRUNCATE TABLE teST";
     assertEquals(expectedSql, sql);
@@ -635,18 +635,18 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition() {
+  void testGetFieldDefinition() {
     IValueMeta vm = new ValueMetaString();
     String sql = hypersonicDatabaseMeta.getFieldDefinition(vm, null, null, false, false, false);
     String expectedSql = "VARCHAR()";
-    assertEquals("Check Apache Hop string without length", expectedSql, sql);
+    assertEquals(expectedSql, sql, "Check Apache Hop string without length");
     vm.setLength(DatabaseMeta.CLOB_LENGTH - 1);
     sql = hypersonicDatabaseMeta.getFieldDefinition(vm, null, null, false, false, false);
     expectedSql = "VARCHAR(" + (DatabaseMeta.CLOB_LENGTH - 1) + ")";
-    assertEquals("Check Apache Hop string with length", expectedSql, sql);
+    assertEquals(expectedSql, sql, "Check Apache Hop string with length");
     vm.setLength(DatabaseMeta.CLOB_LENGTH);
     sql = hypersonicDatabaseMeta.getFieldDefinition(vm, null, null, false, false, false);
     expectedSql = "LONGVARCHAR";
-    assertEquals("Check Apache Hop string with clob/text length", expectedSql, sql);
+    assertEquals(expectedSql, sql, "Check Apache Hop string with clob/text length");
   }
 }

@@ -19,12 +19,12 @@ package org.apache.hop.beam.transform;
 
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class GroupByPipelineTest extends PipelineTestBase {
+class GroupByPipelineTest extends PipelineTestBase {
 
   @Test
-  public void testGroupByPipeline() throws Exception {
+  void testGroupByPipeline() throws Exception {
 
     PipelineMeta pipelineMeta =
         BeamPipelineMetaUtil.generateBeamGroupByPipelineMeta(

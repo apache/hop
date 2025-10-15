@@ -1,4 +1,4 @@
-hostname,port,db,username,password,variable
-hostname1,port1,db1,user1,port1,value1
-hostname2,port2,db2,user2,port2,value2
-hostname3,port3,db3,user3,port3,value3
+hostname,port,db,username,password,variable,hostname_str,json,hostname_2
+hostname1,port1,db1,user1,port1,value1,Hostname: hostname1; Port: port1,"{ ""json"": [ {""hostname"":""hostname1"",""password"":""pwd1"",""port"":""port1"",""variable"":""value1"",""db"":""db1"",""username"":""user1""} ] }",hostname1
+hostname2,port2,db2,user2,port2,value2,Hostname: hostname2; Port: port2,"{ ""json"": [ {""hostname"":""hostname2"",""password"":""pwd2"",""port"":""port2"",""variable"":""value2"",""db"":""db2"",""username"":""user2""} ] }",hostname2
+hostname3,port3,db3,user3,port3,value3,Hostname: hostname3; Port: port3,"{ ""json"": [ {""hostname"":""hostname3"",""password"":""pwd3"",""port"":""port3"",""variable"":""value3"",""db"":""db3"",""username"":""user3""} ] }",hostname3

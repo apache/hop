@@ -18,18 +18,18 @@
 package org.apache.hop.pipeline.transforms.cassandrainput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class CassandraInputMetaInjectionTest extends BaseMetadataInjectionTest<CassandraInputMeta> {
+class CassandraInputMetaInjectionTest extends BaseMetadataInjectionTest<CassandraInputMeta> {
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     setup(new CassandraInputMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("CONNECTION", () -> meta.getConnectionName());
     check("CQL_QUERY", () -> meta.getCqlSelectQuery());
     check("EXECUTE_FOR_EACH_ROW", () -> meta.isExecuteForEachIncomingRow());

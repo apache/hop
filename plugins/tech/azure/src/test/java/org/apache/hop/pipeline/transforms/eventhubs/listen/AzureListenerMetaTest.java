@@ -18,17 +18,18 @@
 
 package org.apache.hop.pipeline.transforms.eventhubs.listen;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
-import junit.framework.TestCase;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class AzureListenerMetaTest extends TestCase {
+class AzureListenerMetaTest {
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     HopClientEnvironment.init(List.of(TwoWayPasswordEncoderPluginType.getInstance()));
     AzureListenerMeta meta =
         TransformSerializationTestUtil.testSerialization(
@@ -40,18 +41,18 @@ public class AzureListenerMetaTest extends TestCase {
     assertEquals("key-value", meta.getSasKey());
     assertEquals("123", meta.getBatchSize());
     assertEquals("234", meta.getPrefetchSize());
-    assertNotNull("message", meta.getOutputField());
-    assertNotNull("partitionId", meta.getPartitionIdField());
-    assertNotNull("offset", meta.getOffsetField());
-    assertNotNull("sequenceNumber", meta.getSequenceNumberField());
-    assertNotNull("host", meta.getHostField());
-    assertNotNull("enqueuedTime", meta.getEnqueuedTimeField());
-    assertNotNull("$Default", meta.getConsumerGroupName());
-    assertNotNull("connection-string", meta.getStorageConnectionString());
-    assertNotNull("container-name", meta.getStorageContainerName());
-    assertNotNull("pipeline.hpl", meta.getBatchPipeline());
-    assertNotNull("input", meta.getBatchInputTransform());
-    assertNotNull("output", meta.getBatchOutputTransform());
-    assertNotNull("5000", meta.getBatchMaxWaitTime());
+    assertEquals("message", meta.getOutputField());
+    assertEquals("partitionId", meta.getPartitionIdField());
+    assertEquals("offset", meta.getOffsetField());
+    assertEquals("sequenceNumber", meta.getSequenceNumberField());
+    assertEquals("host", meta.getHostField());
+    assertEquals("enqueuedTime", meta.getEnqueuedTimeField());
+    assertEquals("$Default", meta.getConsumerGroupName());
+    assertEquals("connection-string", meta.getStorageConnectionString());
+    assertEquals("container-name", meta.getStorageContainerName());
+    assertEquals("pipeline.hpl", meta.getBatchPipeline());
+    assertEquals("input", meta.getBatchInputTransform());
+    assertEquals("output", meta.getBatchOutputTransform());
+    assertEquals("5000", meta.getBatchMaxWaitTime());
   }
 }

@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Strings Cut transform cuts a portion of a (sub)string. If the designated field is out of range, it returns blank.
+:description: The Strings Cut transform cuts a portion of a string (i.e., a substring). If the designated field is out of range, it returns blank.
 
 = image:transforms/icons/stringcut.svg[Strings cut transform Icon, role="image-doc-icon"] Strings cut
 
@@ -25,7 +25,7 @@ under the License.
 |
 == Description
 
-The Strings Cut transform cuts a portion of a (sub)string. If the designated field is out of range, it returns blank.
+The Strings Cut transform cuts a portion of a string (i.e., a substring). If the designated field is out of range, it returns blank.
 
 |
 == Supported Engines
@@ -52,4 +52,29 @@ This value is 0-based, thus the first character in a string is 0.
 |Cut to|Designate where to end cutting the substring.
 This value is exclusive (1-based), so using a 1 includes the first character.
 The maximum length of the new string is Cut to minus Cut from.
+|===
+
+== Examples
+
+Consider the following string (displayed here with positive and negative length references):
+....
+|0        |10       |20       |30       |40
+The quick brown fox jumps over the lazy dog
+   |-40      |-30      |-20      |-10      
+....
+
+The text above is considered as input string in all the following examples:
+
+[options="header"]
+|===
+|Cut from|Cut to|Result|Notes
+|0|9|`The quick`|Use `0` to refer to the first character
+|10|19|`brown fox`|Use two positive indexes to get a substring from the start of the input
+|0|-12|`the lazy dog`|Use a negative index to get a substring from the end of the input
+|-13|-23|`jumps over`|Use two negative indexes to get a substring from the end of the input
+|20|10|(null)|When the first index is lower than the second, `null` is returned
+|10|10|(empty string)|When the two indexes are equal, an empty string (not `null`) is returned
+|20|100|`jumps over the lazy dog`|When the second index is greater than the input length, the returned substring extends to the end of the input
+|50|100|(null)|When the first index is greater than the input length, `null` is returned
+|10|-10|`The quick brown fox jumps over the lazy dog`|When the two indexes have different signs, the entire input is returned
 |===

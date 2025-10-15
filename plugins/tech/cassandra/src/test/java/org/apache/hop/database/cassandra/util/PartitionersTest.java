@@ -17,17 +17,17 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.databases.cassandra.util.Partitioners;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PartitionersTest {
+class PartitionersTest {
   String pString;
   Partitioners expectedP;
 
   @Test
-  public void testGetNames() {
+  void testGetNames() {
     String[] expectedName =
         new String[] {"Murmur3Partitioner", "RandomPartitioner", "ByteOrderedPartitioner"};
     assertEquals(expectedName.length, Partitioners.values().length);
@@ -37,7 +37,7 @@ public class PartitionersTest {
   }
 
   @Test
-  public void testGetTypes() {
+  void testGetTypes() {
     String[] expectedType =
         new String[] {
           "org.apache.cassandra.db.marshal.LongType",
@@ -51,7 +51,7 @@ public class PartitionersTest {
   }
 
   @Test
-  public void testGetFromStringMurMur3Partitioner() {
+  void testGetFromStringMurMur3Partitioner() {
     pString = "Murmur3Partitioner";
     expectedP = Partitioners.MURMUR3;
     Partitioners actualP = Partitioners.getFromString(pString);
@@ -59,7 +59,7 @@ public class PartitionersTest {
   }
 
   @Test
-  public void testGetFromStringRandomPartitioner() {
+  void testGetFromStringRandomPartitioner() {
     pString = "RandomPartitioner";
     expectedP = Partitioners.RANDOM;
     Partitioners actualP = Partitioners.getFromString(pString);
@@ -67,7 +67,7 @@ public class PartitionersTest {
   }
 
   @Test
-  public void testGetFromStringByteOrderedPartitioner() {
+  void testGetFromStringByteOrderedPartitioner() {
     pString = "ByteOrderedPartitioner";
     expectedP = Partitioners.BYTEORDERED;
     Partitioners actualP = Partitioners.getFromString(pString);
@@ -75,7 +75,7 @@ public class PartitionersTest {
   }
 
   @Test
-  public void testGetDefaultMurMur3Partitioner_IfInputIsUnknownPartitioner() {
+  void testGetDefaultMurMur3Partitioner_IfInputIsUnknownPartitioner() {
     pString = "UnknownPartitioner";
     expectedP = Partitioners.MURMUR3;
     Partitioners actualP = Partitioners.getFromString(pString);
@@ -83,7 +83,7 @@ public class PartitionersTest {
   }
 
   @Test
-  public void testGetDefaultMurMur3Partitioner_IfInputIsNull() {
+  void testGetDefaultMurMur3Partitioner_IfInputIsNull() {
     pString = null;
     expectedP = Partitioners.MURMUR3;
     Partitioners actualP = Partitioners.getFromString(pString);

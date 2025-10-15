@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.checksum;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,17 +25,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
@@ -44,7 +45,7 @@ public class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
   }
 
   @Test
-  public void testConstants() {
+  void testConstants() {
     assertEquals("CRC32", CheckSumMeta.CheckSumType.CRC32.getCode());
     assertEquals("ADLER32", CheckSumMeta.CheckSumType.ADLER32.getCode());
     assertEquals("MD5", CheckSumMeta.CheckSumType.MD5.getCode());
@@ -55,7 +56,7 @@ public class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  void testSerialization() throws HopException {
     List<String> attributes =
         Arrays.asList("fields", "resultFieldName", "checkSumType", "resultType");
 

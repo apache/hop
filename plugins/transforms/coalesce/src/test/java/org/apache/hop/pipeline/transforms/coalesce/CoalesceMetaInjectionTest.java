@@ -17,18 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.coalesce;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class CoalesceMetaInjectionTest extends BaseMetadataInjectionTest<CoalesceMeta> {
-  @Before
-  public void setup() throws Exception {
+class CoalesceMetaInjectionTest extends BaseMetadataInjectionTestJunit5<CoalesceMeta> {
+  @BeforeEach
+  void setup() throws Exception {
     setup(new CoalesceMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("EMPTY_STRING_AS_NULLS", () -> meta.isTreatEmptyStringsAsNulls());
     check("NAME", () -> meta.getFields().get(0).getName());
     // check( "TYPE", () -> meta.getOperations().get(0).getType() );

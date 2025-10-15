@@ -23,16 +23,16 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.propertyinput.PropertyInputMeta.PIField;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 
 /** Base class for all CSV input transform tests. */
-@Ignore("No tests in abstract base class")
-public class BasePropertyParsingTest
+@Disabled("No tests in abstract base class")
+class BasePropertyParsingTest
     extends BaseParsingTest<PropertyInputMeta, PropertyInputData, PropertyInput> {
   /** Initialize transform info. */
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     meta = new PropertyInputMeta();
     meta.setDefault();
 

@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.loadsave;
 
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

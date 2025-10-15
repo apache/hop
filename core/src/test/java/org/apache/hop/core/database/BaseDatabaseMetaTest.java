@@ -24,10 +24,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
@@ -279,5 +283,52 @@ public class BaseDatabaseMetaTest {
                   }
                 });
     Mockito.when(db.getDatabaseMeta()).thenReturn(dm);
+  }
+
+  /**
+   * Build a String meta that mimics what getValueFromSqlType might have produced before
+   * customization: name set, BINARY_STRING storage with String storage metadata, etc.
+   */
+  private IValueMeta buildPreMeta() throws HopPluginException {
+    ValueMetaString v = new ValueMetaString("id");
+    v.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    ValueMetaString storage = new ValueMetaString("id");
+    storage.setStringEncoding("UTF-8");
+    v.setStorageMetadata(storage);
+    v.setLength(36);
+    v.setPrecision(0);
+    v.setOriginalColumnType(java.sql.Types.OTHER);
+    v.setOriginalColumnTypeName("uuid");
+    return v;
+  }
+
+  @Test
+  public void testCustomizeValueFromSqlTypeUuid() throws Exception {
+    int uuidTypeId;
+    try {
+      uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
+    } catch (Exception ignore) {
+      // UUID plugin not present:, skip the rest
+      return;
+    }
+
+    ResultSetMetaData rm = Mockito.mock(ResultSetMetaData.class);
+    Mockito.when(rm.getColumnTypeName(1)).thenReturn("UUID");
+
+    IValueMeta pre = buildPreMeta();
+    IValueMeta out = nativeMeta.customizeValueFromSqlType(pre, rm, 1);
+
+    assertEquals(uuidTypeId, out.getType());
+    assertEquals("id", out.getName());
+    // length/precision reset
+    assertEquals(-1, out.getLength());
+    assertEquals(-1, out.getPrecision());
+    // storage type preserved
+    assertEquals(pre.getStorageType(), out.getStorageType());
+    assertTrue(out.getStorageMetadata() != null);
+    assertTrue(out.getStorageMetadata().isString());
+    // original JDBC metadata preserved by clone
+    assertEquals(pre.getOriginalColumnType(), out.getOriginalColumnType());
+    assertEquals(pre.getOriginalColumnTypeName(), out.getOriginalColumnTypeName());
   }
 }

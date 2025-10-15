@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "dynamicsqlrow.svg",
     name = "i18n::DynamicSQLRow.Name",
     description = "i18n::DynamicSQLRow.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::DynamicSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/dynamicsqlrow.html",
     actionTransformTypes = {ActionTransformType.RDBMS})
@@ -362,7 +362,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
 
       try {
         db.connect();
-        if (sql != null && sql.length() != 0) {
+        if (!Utils.isEmpty(sql)) {
 
           errorMessage = "";
 

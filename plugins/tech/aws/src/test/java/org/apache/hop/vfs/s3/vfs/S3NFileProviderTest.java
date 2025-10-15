@@ -16,27 +16,27 @@
  */
 package org.apache.hop.vfs.s3.vfs;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.hop.vfs.s3.s3n.vfs.S3NFileProvider;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for S3FileProvider */
-public class S3NFileProviderTest {
+class S3NFileProviderTest {
 
   S3NFileProvider provider;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     provider = new S3NFileProvider();
   }
 
   @Test
-  public void testDoCreateFileSystem() throws Exception {
+  void testDoCreateFileSystem() throws Exception {
     FileName fileName = mock(FileName.class);
     FileSystemOptions options = new FileSystemOptions();
     assertNotNull(provider.doCreateFileSystem(fileName, options));

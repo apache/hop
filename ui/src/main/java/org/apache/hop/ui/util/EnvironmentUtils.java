@@ -29,7 +29,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Shell;
 
 public class EnvironmentUtils {
@@ -97,7 +96,7 @@ public class EnvironmentUtils {
   public synchronized boolean isWebkitUnavailable() {
     String path = getWebkitPath();
     String osName = getEnvironmentName();
-    return ((path == null || path.length() < 1 || !path.contains("webkit"))
+    return ((path == null || !path.contains("webkit"))
         && (osName.contains(
                 SUPPORTED_DISTRIBUTION_NAME
                     + " "
@@ -232,7 +231,12 @@ public class EnvironmentUtils {
         throw new HopException("Error opening URL: " + url, e);
       }
     } else {
-      Program.launch(url);
+      try {
+        Class<?> programClass = Class.forName("org.eclipse.swt.program.Program");
+        programClass.getMethod("launch", String.class).invoke(null, url);
+      } catch (Exception e) {
+        throw new HopException("Error launching program: " + url, e);
+      }
     }
   }
 }

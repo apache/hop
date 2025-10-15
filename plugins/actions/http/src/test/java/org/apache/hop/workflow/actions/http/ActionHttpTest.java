@@ -16,7 +16,7 @@
  */
 package org.apache.hop.workflow.actions.http;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -24,18 +24,19 @@ import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ActionHttpTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class ActionHttpTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private ActionHttp actionHttp = new ActionHttp();
 
-  @BeforeClass
-  public static void beforeClass() throws HopException {
+  @BeforeAll
+  static void beforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -44,7 +45,7 @@ public class ActionHttpTest {
   }
 
   @Test
-  public void testDeprecatedTargetFilenameExtension() {
+  void testDeprecatedTargetFilenameExtension() {
     actionHttp.setTargetFilenameExtension("txt");
     assertEquals("txt", actionHttp.getTargetFilenameExtension());
     actionHttp.setTargetFilenameExtension("zip");

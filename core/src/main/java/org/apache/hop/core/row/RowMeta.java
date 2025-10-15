@@ -1003,7 +1003,7 @@ public class RowMeta implements IRowMeta {
   @Override
   public int compare(Object[] rowData1, Object[] rowData2, int[] fieldnrs1, int[] fieldnrs2)
       throws HopValueException {
-    int len = (fieldnrs1.length < fieldnrs2.length) ? fieldnrs1.length : fieldnrs2.length;
+    int len = Math.min(fieldnrs1.length, fieldnrs2.length);
     lock.readLock().lock();
     try {
       for (int i = 0; i < len; i++) {
@@ -1037,7 +1037,7 @@ public class RowMeta implements IRowMeta {
   public int compare(
       Object[] rowData1, IRowMeta rowMeta2, Object[] rowData2, int[] fieldnrs1, int[] fieldnrs2)
       throws HopValueException {
-    int len = (fieldnrs1.length < fieldnrs2.length) ? fieldnrs1.length : fieldnrs2.length;
+    int len = Math.min(fieldnrs1.length, fieldnrs2.length);
     lock.readLock().lock();
     try {
       for (int i = 0; i < len; i++) {
@@ -1314,7 +1314,7 @@ public class RowMeta implements IRowMeta {
       Integer index = mapping.get(name);
       if (index != null) {
         IValueMeta value = metas.get(index);
-        if (!name.equalsIgnoreCase(value.getName())) {
+        if (!name.equals(value.getName())) { // case insensitive since we lowercase
           mapping.remove(name);
           index = null;
         }

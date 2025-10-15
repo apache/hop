@@ -20,20 +20,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILogChannelFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** MDI test for MongoDbOutput. */
-public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<MongoDbOutputMeta> {
+public class MongoDbOutputMetaInjectionTest
+    extends BaseMetadataInjectionTestJunit5<MongoDbOutputMeta> {
   private ILogChannelFactory oldLogChannelInterfaceFactory;
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     oldLogChannelInterfaceFactory = HopLogStore.getLogChannelFactory();
     setHopLogFactoryWithMock();
     setup(new MongoDbOutputMeta());
@@ -46,13 +47,13 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     HopLogStore.setLogChannelFactory(logChannelInterfaceFactory);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     HopLogStore.setLogChannelFactory(oldLogChannelInterfaceFactory);
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check(
         "TRUNCATE",
         new IBooleanGetter() {

@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -75,6 +77,7 @@ import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -345,6 +348,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private boolean ignoreNextClick;
   private boolean doubleClick;
   private WorkflowHopMeta clickedWorkflowHop;
+
+  private Timer redrawTimer;
 
   public HopGuiWorkflowGraph(
       Composite parent,
@@ -844,7 +849,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // We moved around some items: store undo info...
           //
           boolean also = false;
-          if (selectedNotes != null && !selectedNotes.isEmpty() && previousNoteLocations != null) {
+          if (!Utils.isEmpty(selectedNotes) && previousNoteLocations != null) {
             int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
 
             addUndoPosition(
@@ -853,7 +858,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 previousNoteLocations,
                 workflowMeta.getSelectedNoteLocations(),
                 also);
-            also = selectedActions != null && !selectedActions.isEmpty();
+            also = !Utils.isEmpty(selectedActions);
           }
           if (selectedActions != null
               && !selectedActions.isEmpty()
@@ -943,7 +948,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   previousNoteLocations,
                   workflowMeta.getSelectedNoteLocations(),
                   also);
-              also = selectedActions != null && !selectedActions.isEmpty();
+              also = !Utils.isEmpty(selectedActions);
             }
             if (selectedActions != null
                 && !selectedActions.isEmpty()
@@ -1529,6 +1534,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void start() {
     workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
     ServerPushSessionFacade.start();
+
     Thread thread =
         new Thread(
             () ->
@@ -1540,6 +1546,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                                 hopGui.getVariables(), workflowMeta, null);
                             ServerPushSessionFacade.stop();
                           } catch (Exception e) {
+                            stopRedrawTimer();
                             new ErrorDialog(
                                 getShell(),
                                 "Execute workflow",
@@ -2679,7 +2686,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           if (result.getNrLinesRejected() > 0) {
             tip.append("Lines rejected : ").append(result.getNrLinesRejected()).append(Const.CR);
           }
-          if (result.getResultFiles() != null && !result.getResultFiles().isEmpty()) {
+          if (!Utils.isEmpty(result.getResultFiles())) {
             tip.append(Const.CR).append("Result files:").append(Const.CR);
             if (result.getResultFiles().size() > 10) {
               tip.append(" (10 files of ").append(result.getResultFiles().size()).append(" shown");
@@ -2690,7 +2697,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               tip.append("  - ").append(file.toString()).append(Const.CR);
             }
           }
-          if (result.getRows() != null && !result.getRows().isEmpty()) {
+          if (!Utils.isEmpty(result.getRows())) {
             tip.append(Const.CR).append("Result rows: ");
             if (result.getRows().size() > 10) {
               tip.append(" (10 rows of ").append(result.getRows().size()).append(" shown");
@@ -2767,7 +2774,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (hi != null && tip.length() == 0) {
+    if (hi != null && tip.isEmpty()) {
       // Set the tooltip for the hop:
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo")).append(Const.CR);
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.SourceEntry"))
@@ -2794,7 +2801,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (tip == null || tip.length() == 0) {
+    if (Utils.isEmpty(tip)) {
       toolTip.setVisible(false);
     } else {
       if (!tip.toString().equalsIgnoreCase(getToolTipText())) {
@@ -3534,7 +3541,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowLogDelegate.addWorkflowLog();
     workflowGridDelegate.addWorkflowGrid();
     workflowCheckDelegate.addWorkflowCheck();
-    extraViewTabFolder.setSelection(0);
+    if (extraViewTabFolder.getSelectionIndex() == -1) {
+      extraViewTabFolder.setSelection(0);
+    }
 
     ToolItem toolItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
     toolItem.setToolTipText(
@@ -3699,7 +3708,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   hopGuiLoggingObject);
 
           workflow.setLogLevel(executionConfiguration.getLogLevel());
-          workflow.setInteractive(true);
           workflow.setGatheringMetrics(executionConfiguration.isGatheringMetrics());
 
           // Set the variables that where specified...
@@ -3757,6 +3765,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           // Link to the new workflow tracker
           workflowGridDelegate.setWorkflowTracker(workflow.getWorkflowTracker());
+
+          startRedrawTimer();
 
           updateGui();
 
@@ -3822,6 +3832,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (workflow != null && workflow.isInitialized() && workflow.isFinished()) {
       log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.WorkflowHasEnded"));
     }
+
+    stopRedrawTimer();
+
     updateGui();
   }
 
@@ -4258,5 +4271,33 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
     return true;
+  }
+
+  private void startRedrawTimer() {
+    redrawTimer = new Timer("WorkflowGraph auto refresh: " + workflow.getWorkflowName());
+    TimerTask timerTask =
+        new TimerTask() {
+          @Override
+          public void run() {
+            if (!hopDisplay().isDisposed()) {
+              hopDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (!HopGuiWorkflowGraph.this.canvas.isDisposed()) {
+                          if (perspective.isActive() && HopGuiWorkflowGraph.this.isVisible()) {
+                            updateGui();
+                          }
+                        }
+                      });
+            }
+          }
+        };
+
+    redrawTimer.schedule(timerTask, 0L, ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH);
+  }
+
+  protected void stopRedrawTimer() {
+    ExecutorUtil.cleanup(redrawTimer);
+    redrawTimer = null;
   }
 }

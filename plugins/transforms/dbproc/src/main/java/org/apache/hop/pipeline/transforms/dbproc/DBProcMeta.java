@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "dbproc.svg",
     name = "i18n::CallDBProcedure.Name",
     description = "i18n::CallDBProcedure.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::DBProcMeta.keyword",
     documentationUrl = "/pipeline/transforms/calldbproc.html",
     actionTransformTypes = ActionTransformType.RDBMS)
@@ -176,7 +176,7 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
         db.connect();
 
         // Look up fields in the input stream <prev>
-        if (prev != null && prev.size() > 0) {
+        if (prev != null && !prev.isEmpty()) {
           boolean first = true;
           errorMessage = "";
           boolean errorFound = false;

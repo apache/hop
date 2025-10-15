@@ -17,24 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.BitSet;
 import java.util.List;
 import org.apache.hop.core.row.IValueMeta;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
-public class LeIndexTest extends IndexTestBase<GtIndex> {
+class LeIndexTest extends IndexTestBase<GtIndex> {
 
-  @Parameterized.Parameters
-  public static List<Object[]> createSampleData() {
+  static List<Object[]> createSampleData() {
     return IndexTestBase.createSampleData();
   }
 
-  public LeIndexTest(Long[][] rows) {
-    super(GtIndex.class, rows);
+  public LeIndexTest() {
+    super(GtIndex.class, null);
   }
 
   @Override

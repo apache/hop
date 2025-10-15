@@ -28,6 +28,7 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -181,7 +182,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     }
 
     public void reset() {
-      if (tempPathList != null && !tempPathList.isEmpty()) {
+      if (!Utils.isEmpty(tempPathList)) {
         tempPathList.clear();
       }
       if (tempPathList != null) {
@@ -479,7 +480,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
 
     CheckResult cr;
 
-    if ((prev == null) || (prev.size() == 0)) {
+    if ((prev == null) || (prev.isEmpty())) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_WARNING,
@@ -537,7 +538,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     xml.append("    ").append(XmlHandler.addTagValue("write_retries", writeRetries));
     xml.append("    ").append(XmlHandler.addTagValue("write_retry_delay", writeRetryDelay));
 
-    if (mongoFields != null && !mongoFields.isEmpty()) {
+    if (!Utils.isEmpty(mongoFields)) {
       xml.append(CONST_SPACES).append(XmlHandler.openTag(CONST_FIELDS));
 
       for (MongoField field : mongoFields) {
@@ -568,7 +569,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
       xml.append(CONST_SPACES).append(XmlHandler.closeTag(CONST_FIELDS));
     }
 
-    if (mongoIndexes != null && !mongoIndexes.isEmpty()) {
+    if (!Utils.isEmpty(mongoIndexes)) {
       xml.append(CONST_SPACES).append(XmlHandler.openTag(CONST_MONGO_INDEXES));
 
       for (MongoIndex index : mongoIndexes) {

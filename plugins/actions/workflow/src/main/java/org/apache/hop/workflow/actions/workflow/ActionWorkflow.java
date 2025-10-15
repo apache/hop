@@ -230,7 +230,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
         retval += "_" + sdf.format(cal.getTime());
       }
-      if (logext != null && logext.length() > 0) {
+      if (!Utils.isEmpty(logext)) {
         retval += "." + logext;
       }
     }
@@ -455,10 +455,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         workflow.setResult(result);
         workflow.setInternalHopVariables();
         workflow.copyParametersFromDefinitions(workflowMeta);
-        workflow.setInteractive(parentWorkflow.isInteractive());
-        if (workflow.isInteractive()) {
-          workflow.getActionListeners().addAll(parentWorkflow.getActionListeners());
-        }
+        workflow.getActionListeners().addAll(parentWorkflow.getActionListeners());
 
         // Set the parameters calculated above on this instance.
         //

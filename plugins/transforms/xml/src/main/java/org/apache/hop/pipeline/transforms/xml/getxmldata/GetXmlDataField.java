@@ -17,14 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import org.apache.hop.core.Const;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.w3c.dom.Node;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes an XML field and the position in an XML field. */
+@Getter
+@Setter
 public class GetXmlDataField implements Cloneable {
   private static final Class<?> PKG = GetXmlDataMeta.class;
 
@@ -44,7 +46,7 @@ public class GetXmlDataField implements Cloneable {
   public static final int TYPE_TRIM_BOTH = 3;
 
   public static final int ELEMENT_TYPE_NODE = 0;
-  public static final int ELEMENT_TYPE_ATTRIBUT = 1;
+  public static final int ELEMENT_TYPE_ATTRIBUTE = 1;
 
   public static final String[] trimTypeCode = {"none", "left", "right", "both"};
 
@@ -65,8 +67,6 @@ public class GetXmlDataField implements Cloneable {
   // as all version support it.
   // - In a distant future remove "attribut" all together in v5 or so.
   //
-  // TODO Sven Boden
-  //
   // //////////////////////////////////////////////////////////////
   public static final String[] ElementTypeCode = {"node", "attribute"};
 
@@ -76,33 +76,69 @@ public class GetXmlDataField implements Cloneable {
     BaseMessages.getString(PKG, "GetXMLDataField.ElementType.Node"),
     BaseMessages.getString(PKG, "GetXMLDataField.ElementType.Attribute")
   };
-  public static final String CONST_SPACES = "        ";
 
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.FieldName")
   private String name;
-  private String xpath;
+
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.XPath")
+  private String xPath;
+
   private String resolvedXpath;
 
-  private int type;
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.Type")
+  private String type;
+
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.Length")
   private int length;
+
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.Format")
   private String format;
-  private int trimtype;
-  private int elementtype;
-  private int resulttype;
+
+  @HopMetadataProperty(
+      key = "trim_type",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.TrimType")
+  private String trimType;
+
+  @HopMetadataProperty(
+      key = "element_type",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.ElementType")
+  private String elementType;
+
+  @HopMetadataProperty(
+      key = "result_type",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.ResultType")
+  private String resultType;
+
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.Precision")
   private int precision;
+
+  @HopMetadataProperty(
+      key = "currency",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.CurrencySymbol")
   private String currencySymbol;
+
+  @HopMetadataProperty(
+      key = "decimal",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.DecimalSymbol")
   private String decimalSymbol;
+
+  @HopMetadataProperty(
+      key = "group",
+      injectionKeyDescription = "GetXmlDataMeta.Injection.GroupSymbol")
   private String groupSymbol;
+
+  @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.Repeat")
   private boolean repeat;
 
   public GetXmlDataField(String fieldname) {
     this.name = fieldname;
-    this.xpath = "";
+    this.xPath = "";
     this.length = -1;
-    this.type = IValueMeta.TYPE_STRING;
+    this.type = ValueMetaBase.getTypeDesc(IValueMeta.TYPE_STRING);
     this.format = "";
-    this.trimtype = TYPE_TRIM_NONE;
-    this.elementtype = ELEMENT_TYPE_NODE;
-    this.resulttype = RESULT_TYPE_VALUE_OF;
+    this.trimType = getTrimTypeCode(TYPE_TRIM_NONE);
+    this.elementType = getElementTypeDesc(ELEMENT_TYPE_NODE);
+    this.resultType = getResultTypeCode(RESULT_TYPE_VALUE_OF);
     this.groupSymbol = "";
     this.decimalSymbol = "";
     this.currencySymbol = "";
@@ -114,46 +150,7 @@ public class GetXmlDataField implements Cloneable {
     this("");
   }
 
-  public String getXml() {
-    StringBuffer xml = new StringBuffer(400);
-
-    xml.append("      <field>").append(Const.CR);
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getName()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("xpath", getXPath()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("element_type", getElementTypeCode()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("result_type", getResultTypeCode()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("type", getTypeDesc()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("format", getFormat()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("group", getGroupSymbol()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("length", getLength()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", getPrecision()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("repeat", isRepeated()));
-
-    xml.append("      </field>").append(Const.CR);
-
-    return xml.toString();
-  }
-
-  public GetXmlDataField(Node fnode) {
-    setName(XmlHandler.getTagValue(fnode, "name"));
-    setXPath(XmlHandler.getTagValue(fnode, "xpath"));
-    setElementType(getElementTypeByCode(XmlHandler.getTagValue(fnode, "element_type")));
-    setResultType(getResultTypeByCode(XmlHandler.getTagValue(fnode, "result_type")));
-    setType(ValueMetaBase.getType(XmlHandler.getTagValue(fnode, "type")));
-    setFormat(XmlHandler.getTagValue(fnode, "format"));
-    setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
-    setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
-    setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
-    setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
-    setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-    setTrimType(getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
-    setRepeated(!"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "repeat")));
-  }
-
-  public static final int getTrimTypeByCode(String tt) {
+  public static int getTrimTypeByCode(String tt) {
     if (tt == null) {
       return 0;
     }
@@ -166,7 +163,7 @@ public class GetXmlDataField implements Cloneable {
     return 0;
   }
 
-  public static final int getElementTypeByCode(String tt) {
+  public static int getElementTypeByCode(String tt) {
     if (tt == null) {
       return 0;
     }
@@ -190,7 +187,7 @@ public class GetXmlDataField implements Cloneable {
     return 0;
   }
 
-  public static final int getTrimTypeByDesc(String tt) {
+  public static int getTrimTypeByDesc(String tt) {
     if (tt == null) {
       return 0;
     }
@@ -203,7 +200,7 @@ public class GetXmlDataField implements Cloneable {
     return 0;
   }
 
-  public static final int getElementTypeByDesc(String tt) {
+  public static int getElementTypeByDesc(String tt) {
     if (tt == null) {
       return 0;
     }
@@ -216,14 +213,14 @@ public class GetXmlDataField implements Cloneable {
     return 0;
   }
 
-  public static final String getTrimTypeCode(int i) {
+  public static String getTrimTypeCode(int i) {
     if (i < 0 || i >= trimTypeCode.length) {
       return trimTypeCode[0];
     }
     return trimTypeCode[i];
   }
 
-  public static final String getElementTypeCode(int i) {
+  public static String getElementTypeCode(int i) {
     // To be changed to the new code once all are converted
     if (i < 0 || i >= ElementOldTypeCode.length) {
       return ElementOldTypeCode[0];
@@ -231,153 +228,46 @@ public class GetXmlDataField implements Cloneable {
     return ElementOldTypeCode[i];
   }
 
-  public static final String getTrimTypeDesc(int i) {
+  public static String getTrimTypeDesc(int i) {
     if (i < 0 || i >= trimTypeDesc.length) {
       return trimTypeDesc[0];
     }
     return trimTypeDesc[i];
   }
 
-  public static final String getElementTypeDesc(int i) {
+  public static String getElementTypeDesc(int i) {
     if (i < 0 || i >= ElementTypeDesc.length) {
       return ElementTypeDesc[0];
     }
     return ElementTypeDesc[i];
   }
 
-  @Override
-  public Object clone() {
-    try {
-      GetXmlDataField retval = (GetXmlDataField) super.clone();
-
-      return retval;
-    } catch (CloneNotSupportedException e) {
-      return null;
-    }
-  }
-
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getXPath() {
-    return xpath;
-  }
-
   protected String getResolvedXPath() {
     return resolvedXpath;
-  }
-
-  public void setXPath(String fieldxpath) {
-    this.xpath = fieldxpath;
   }
 
   protected void setResolvedXPath(String resolvedXpath) {
     this.resolvedXpath = resolvedXpath;
   }
 
-  public void setName(String fieldname) {
-    this.name = fieldname;
-  }
-
-  public int getType() {
+  public String getTypeDesc() {
     return type;
   }
 
-  public String getTypeDesc() {
-    return ValueMetaBase.getTypeDesc(type);
-  }
-
-  public void setType(int type) {
-    this.type = type;
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public int getTrimType() {
-    return trimtype;
-  }
-
-  public int getElementType() {
-    return elementtype;
-  }
-
   public String getTrimTypeCode() {
-    return getTrimTypeCode(trimtype);
+    return trimType;
   }
 
   public String getElementTypeCode() {
-    return getElementTypeCode(elementtype);
+    return elementType;
   }
 
   public String getTrimTypeDesc() {
-    return getTrimTypeDesc(trimtype);
+    return getTrimTypeDesc(getTrimTypeByCode(trimType));
   }
 
   public String getElementTypeDesc() {
-    return getElementTypeDesc(elementtype);
-  }
-
-  public void setTrimType(int trimtype) {
-    this.trimtype = trimtype;
-  }
-
-  public void setElementType(int elementType) {
-    this.elementtype = elementType;
-  }
-
-  public String getGroupSymbol() {
-    return groupSymbol;
-  }
-
-  public void setGroupSymbol(String groupSymbol) {
-    this.groupSymbol = groupSymbol;
-  }
-
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  public int getPrecision() {
-    return precision;
-  }
-
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
-
-  public boolean isRepeated() {
-    return repeat;
-  }
-
-  public void setRepeated(boolean repeat) {
-    this.repeat = repeat;
+    return getElementTypeDesc(getElementTypeByCode(elementType));
   }
 
   public void flipRepeated() {
@@ -398,7 +288,7 @@ public class GetXmlDataField implements Cloneable {
   }
 
   public String getResultTypeDesc() {
-    return getResultTypeDesc(resulttype);
+    return getResultTypeDesc(getResultTypeByCode(resultType));
   }
 
   public static final String getResultTypeDesc(int i) {
@@ -406,14 +296,6 @@ public class GetXmlDataField implements Cloneable {
       return ResultTypeDesc[0];
     }
     return ResultTypeDesc[i];
-  }
-
-  public int getResultType() {
-    return resulttype;
-  }
-
-  public void setResultType(int resulttype) {
-    this.resulttype = resulttype;
   }
 
   public static final int getResultTypeByCode(String tt) {
@@ -437,7 +319,13 @@ public class GetXmlDataField implements Cloneable {
     return ResultTypeCode[i];
   }
 
-  public String getResultTypeCode() {
-    return getResultTypeCode(resulttype);
+  @Override
+  public Object clone() {
+    try {
+      GetXmlDataField retval = (GetXmlDataField) super.clone();
+      return retval;
+    } catch (CloneNotSupportedException e) {
+      return null;
+    }
   }
 }

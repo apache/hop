@@ -23,28 +23,30 @@ import static org.mockito.Mockito.when;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileFilter;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputData;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 /***
  *
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated(since = "2.10")
-public class PDI_2875_Test {
+class PDI_2875_Test {
   private static TransformMockHelper<TextFileInputMeta, TextFileInputData> smh;
   private static final String VAR_NAME = "VAR";
   private static final String EXPRESSION = "${" + VAR_NAME + "}";
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @BeforeClass
-  public static void setUp() throws HopException {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeAll
+  static void setUp() throws HopException {
     HopEnvironment.init();
     smh =
         new TransformMockHelper<>("CsvInputTest", TextFileInputMeta.class, TextFileInputData.class);
@@ -53,8 +55,8 @@ public class PDI_2875_Test {
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
-  @AfterClass
-  public static void cleanUp() {
+  @AfterAll
+  static void cleanUp() {
     smh.cleanUp();
   }
 

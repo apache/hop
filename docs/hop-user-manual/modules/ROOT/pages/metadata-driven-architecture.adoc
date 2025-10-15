@@ -1,0 +1,132 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[MetadataDrivenArchitecture]]
+:imagesdir: ../../assets/images
+:page-pagination:
+:description: Learn how Apache Hop’s metadata-driven design enables flexible, reusable, and maintainable data pipelines and workflows.
+
+= Apache Hop’s Metadata-Driven Architecture
+
+== Overview
+Apache Hop (Hop Orchestration Platform) employs a metadata-driven architecture to configure, manage, and execute data integration workflows and pipelines. This innovative design shifts the development focus from hard-coded scripting to structured metadata, information that defines how data is processed rather than executing the processing itself.
+
+By externalizing logic into metadata, Apache Hop fosters a system that is flexible, maintainable, reusable, and transparent, ideal for modern, scalable data environments.
+
+== What does “metadata-driven” mean in Apache Hop?
+In Apache Hop, “metadata-driven” means that the orchestration and transformation logic is not embedded in custom code. Instead, it is encapsulated in metadata objects such as:
+
+* Authentication
+* Data connections
+* Logging configurations
+* Execution configurations
+* File definitions
+* Variables and parameters
+
+These metadata objects are defined via graphical interfaces or configuration files (e.g., JSON) and interpreted at runtime by the Apache Hop engine.
+
+This abstraction allows the same engine to dynamically run various tasks without needing to rewrite logic in a programming language, making development more accessible and pipelines/workflows more adaptable.
+
+== Key concepts and components
+
+=== Pipelines
+Pipelines are the core units of data transformation in Apache Hop. Each pipeline defines a sequence of transforms, with each transform performing a specific operation (e.g., reading, transforming, filtering, writing).
+
+* Pipelines handle data movement and transformation.
+* Each transform can be configured via metadata.
+* Pipelines can be parameterized and reused across projects.
+
+=== Workflows
+Workflows control task orchestration, including:
+
+* Executing pipelines
+* Running scripts
+* Checking file or database existence
+* Sending success or failure notifications
+* Controlling flow via conditional logic
+
+Workflows can sequence and coordinate multiple pipelines and tasks into a reliable, automated data orchestration process.
+
+=== Metadata
+Metadata is the central control layer in Apache Hop. It governs:
+
+* Data source definitions (e.g., database connections)
+* Execution configurations (e.g., engine type)
+* Logging definitions
+* Variables, and environment settings
+
+Metadata is centralized and reusable, ensuring consistent behavior across workflows and pipelines.
+
+== How pipelines, workflows, and metadata interact
+The interaction between these components is what enables Apache Hop’s orchestration capabilities.
+
+=== Example use case
+Consider a scenario with the following workflow actions:
+
+1. A workflow begins execution.
+2. The first pipeline extracts and transforms data from a flat file.
+3. A Relational Database Connection metadata object is validated.
+4. If the connection is valid, a second pipeline extracts additional data from PostgreSQL using that connection.
+5. Once processing is complete:
+   * A success notification is sent.
+   * Processed files are archived.
+6. If any step fails, the workflow is aborted immediately.
+
+=== Where metadata comes in
+* The connection is defined as a reusable metadata object shared across pipelines.
+* The Workflow Run Configuration defines how the workflow runs (e.g., local engine vs. remote).
+* Execution Information Location metadata determines where logs and status details are stored.
+* Any variables, parameters, or environmental configurations are defined as metadata and injected at runtime.
+
+By centralizing all configuration in metadata, users can modify the pipeline or workflow behavior without touching the actual design, just update the metadata.
+
+== Benefits of Apache Hop’s metadata-driven approach
+
+[cols="1,2", options="header"]
+|===
+| Benefit | Description
+
+| Flexibility
+| Modify behavior or logic by changing metadata—no code changes required.
+
+| Reusability
+| Reuse transforms, connections, and configurations across projects.
+
+| Maintainability
+| Centralized metadata simplifies updates and troubleshooting.
+
+| Transparency
+| Visual interfaces make workflows easy to understand and audit.
+
+| Accessibility
+| Enables technical and non-technical users to contribute collaboratively.
+
+| Consistency
+| Standardized metadata ensures processes follow uniform design principles.
+
+| Portability
+| Apache Hop projects are portable across environments due to metadata abstraction and environment configuration support.
+|===
+
+== Consequences of the design
+* Configuration over code: Focus on metadata configuration rather than procedural code.
+* Declarative workflows: You define what should happen, not how it happens programmatically.
+* Engine optimization: The Apache Hop engine interprets and executes based on metadata, allowing for scalable performance across different runtimes.
+
+== Conclusion
+Apache Hop’s metadata-driven architecture is a modern, efficient way to design and operate data integration workflows. By separating logic from implementation and centralizing configuration, Apache Hop empowers teams to build modular, maintainable, and scalable data pipelines and workflows.
+
+While the initial learning curve and metadata governance can present challenges, the long-term benefits—flexibility, reusability, and clarity—make it an excellent choice for organizations seeking to modernize their data orchestration processes.

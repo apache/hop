@@ -71,8 +71,8 @@ import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
 import org.apache.hop.pipeline.transforms.mergejoin.MergeJoinMeta;
 import org.apache.hop.pipeline.transforms.streamlookup.StreamLookupMeta;
 import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseMeta;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 
 public class PipelineTestBase {
 
@@ -87,8 +87,8 @@ public class PipelineTestBase {
   protected IVariables variables;
   protected IHopMetadataProvider metadataProvider;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     variables = Variables.getADefaultVariableSpace();
 
@@ -200,7 +200,7 @@ public class PipelineTestBase {
         new File("src/test/resources/customers/state-data.txt"), new File(INPUT_STATES_FILE));
   }
 
-  @Ignore("This test needs to be reviewed")
+  @Disabled("This test needs to be reviewed")
   public void createRunPipeline(IVariables variables, PipelineMeta pipelineMeta) throws Exception {
 
     IPipelineEngine<PipelineMeta> hopPipeline =

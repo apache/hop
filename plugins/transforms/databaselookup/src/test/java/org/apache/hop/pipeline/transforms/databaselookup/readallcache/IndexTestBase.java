@@ -17,18 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This is a base class for several similar cases. All of them are checking how indexes work with
@@ -73,8 +73,8 @@ public abstract class IndexTestBase<T extends Index> {
     this.clazz = clazz;
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     index = createIndexInstance(0, new ValueMetaInteger(), 5);
     index.performIndexingOf(rows);
 
@@ -88,8 +88,8 @@ public abstract class IndexTestBase<T extends Index> {
         .newInstance(column, meta, rowsAmount);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     index = null;
     context = null;
   }
@@ -97,14 +97,14 @@ public abstract class IndexTestBase<T extends Index> {
   void testFindsNothing(long value) {
     assertFalse(context.isEmpty());
     index.applyRestrictionsTo(context, new ValueMetaInteger(), value);
-    assertTrue("Expected not to find anything matching " + value, context.isEmpty());
+    assertTrue(context.isEmpty(), "Expected not to find anything matching " + value);
   }
 
   void testFindsCorrectly(long lookupValue, int expectedAmount) {
     assertFalse(context.isEmpty());
     index.applyRestrictionsTo(context, new ValueMetaInteger(), lookupValue);
 
-    assertFalse("Expected to find something", context.isEmpty());
+    assertFalse(context.isEmpty(), "Expected to find something");
 
     BitSet actual = context.getCandidates();
     int cnt = expectedAmount;
@@ -125,20 +125,20 @@ public abstract class IndexTestBase<T extends Index> {
   abstract void doAssertMatches(BitSet candidates, long lookupValue, long actualValue);
 
   @Test
-  public abstract void lookupFor_MinusOne();
+  abstract void lookupFor_MinusOne();
 
   @Test
-  public abstract void lookupFor_Zero();
+  abstract void lookupFor_Zero();
 
   @Test
-  public abstract void lookupFor_One();
+  abstract void lookupFor_One();
 
   @Test
-  public abstract void lookupFor_Two();
+  abstract void lookupFor_Two();
 
   @Test
-  public abstract void lookupFor_Three();
+  abstract void lookupFor_Three();
 
   @Test
-  public abstract void lookupFor_Hundred();
+  abstract void lookupFor_Hundred();
 }

@@ -17,12 +17,12 @@
 
 package org.apache.hop.databases.redshift;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.database.IDatabase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ReleaseSavePointTest {
+class ReleaseSavePointTest {
 
   IDatabase[] support =
       new IDatabase[] {
@@ -30,7 +30,7 @@ public class ReleaseSavePointTest {
       };
 
   @Test
-  public void testReleaseSavePointBooleans() {
+  void testReleaseSavePointBooleans() {
     try {
       for (IDatabase db : support) {
         assertTrue(db.isReleaseSavepoint());

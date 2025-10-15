@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class GraphNode {
@@ -110,7 +111,7 @@ public class GraphNode {
     if (StringUtils.isEmpty(name)) {
       throw new HopException("A node in a graph model needs to have a name");
     }
-    if (labels == null || labels.isEmpty()) {
+    if (Utils.isEmpty(labels)) {
       throw new HopException("A graph node needs to have at least one label");
     }
     boolean hasPk = false;

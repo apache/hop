@@ -19,12 +19,12 @@ package org.apache.hop.beam.transform;
 
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class SwitchCasePipelineTest extends PipelineTestBase {
+class SwitchCasePipelineTest extends PipelineTestBase {
 
   @Test
-  public void testSwitchCasePipeline() throws Exception {
+  void testSwitchCasePipeline() throws Exception {
 
     PipelineMeta pipelineMeta =
         BeamPipelineMetaUtil.generateSwitchCasePipelineMeta(

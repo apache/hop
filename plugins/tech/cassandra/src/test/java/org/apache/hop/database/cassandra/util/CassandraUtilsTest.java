@@ -17,9 +17,9 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,12 +39,12 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.databases.cassandra.datastax.TableMetaData;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CassandraUtilsTest {
+class CassandraUtilsTest {
 
   @Test
-  public void testRemoveQuotesCQL3() {
+  void testRemoveQuotesCQL3() {
     String toTest = "\"AQuotedMixedCaseItentifier\"";
 
     String result = CassandraUtils.removeQuotes(toTest);
@@ -53,7 +53,7 @@ public class CassandraUtilsTest {
   }
 
   @Test
-  public void testRemoveQuotesNoQuotesCQL3CaseInsensitive() {
+  void testRemoveQuotesNoQuotesCQL3CaseInsensitive() {
 
     String toTest = "MixedCaseNoQuotes";
     String result = CassandraUtils.removeQuotes(toTest);
@@ -63,7 +63,7 @@ public class CassandraUtilsTest {
   }
 
   @Test
-  public void testAddQuotesCQL3MixedCase() {
+  void testAddQuotesCQL3MixedCase() {
     String toTest = "MixedCaseNoQuotes";
 
     String result = CassandraUtils.cql3MixedCaseQuote(toTest);
@@ -72,7 +72,7 @@ public class CassandraUtilsTest {
   }
 
   @Test
-  public void testAddQuotesCQL3LowerCase() {
+  void testAddQuotesCQL3LowerCase() {
     String toTest = "alreadylowercase_noquotesneeded";
 
     String result = CassandraUtils.cql3MixedCaseQuote(toTest);
@@ -82,7 +82,7 @@ public class CassandraUtilsTest {
   }
 
   @Test
-  public void testAddQuotesAlreadyQuoted() {
+  void testAddQuotesAlreadyQuoted() {
     String toTest = "\"AQuotedMixedCaseItentifier\"";
 
     String result = CassandraUtils.cql3MixedCaseQuote(toTest);
@@ -92,7 +92,7 @@ public class CassandraUtilsTest {
   }
 
   @Test
-  public void testGetPartitionerClassInstance() {
+  void testGetPartitionerClassInstance() {
     assertSame(
         CassandraUtils.getPartitionerClassInstance("org.apache.cassandra.dht.Murmur3Partitioner")
             .getClass(),
@@ -110,7 +110,7 @@ public class CassandraUtilsTest {
   }
 
   @Test
-  public void testGetPartitionKey() {
+  void testGetPartitionKey() {
     String primaryKey = "test1";
     assertNull(CassandraUtils.getPartitionKey(null));
     assertNull(CassandraUtils.getPartitionKey(""));
@@ -130,7 +130,7 @@ public class CassandraUtilsTest {
   }
 
   @Test
-  public void testHopToCQLDateAndTimestamp() throws Exception {
+  void testHopToCQLDateAndTimestamp() throws Exception {
     // We will always convert a kettle Date type to a CQL timestamp type
     IValueMeta vmDate = mock(ValueMetaDate.class);
     IValueMeta vmTimestamp = mock(ValueMetaTimestamp.class);
@@ -149,7 +149,7 @@ public class CassandraUtilsTest {
   }
 
   @Test
-  public void testMismatchedCQLDate() {
+  void testMismatchedCQLDate() {
     Date testDate1 = new Date(1523542916441L); // UTC Thu Apr 12 2018 14:21:56
     Date testTimestamp1 = new Date(1023528397418L); // UTC Sat Jun 08 2002 09:26:37
     ITableMetaData mockTableMeta = mock(TableMetaData.class);

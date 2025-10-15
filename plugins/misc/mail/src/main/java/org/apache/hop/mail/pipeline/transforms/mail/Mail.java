@@ -129,13 +129,14 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
 
       // Check Attached zipfilename when dynamic
-      if (meta.isZipFilenameDynamic() && Utils.isEmpty(meta.getDynamicZipFilename())) {
-        throw new HopException(
-            BaseMessages.getString(PKG, "Mail.Log.DynamicZipFilenameFieldEmpty"));
-      }
-
-      if (meta.isZipFiles() && Utils.isEmpty(meta.getZipFilename())) {
-        throw new HopException(BaseMessages.getString(PKG, "Mail.Log.ZipFilenameEmpty"));
+      if (meta.isZipFiles()) {
+        if (meta.isZipFilenameDynamic() && Utils.isEmpty(meta.getDynamicZipFilename())) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "Mail.Log.DynamicZipFilenameFieldEmpty"));
+        }
+        if (!meta.isZipFilenameDynamic() && Utils.isEmpty(meta.getZipFilename())) {
+          throw new HopException(BaseMessages.getString(PKG, "Mail.Log.ZipFilenameEmpty"));
+        }
       }
 
       // check authentication
@@ -427,7 +428,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
 
       // check embedded images
-      if (meta.getEmbeddedImages() != null && meta.getEmbeddedImages().size() > 0) {
+      if (!Utils.isEmpty(meta.getEmbeddedImages())) {
         FileObject image = null;
         data.embeddedMimePart = new HashSet<>();
         try {
@@ -1055,7 +1056,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
   private void addImagePart() throws Exception {
     data.nrEmbeddedImages = 0;
-    if (data.embeddedMimePart != null && !data.embeddedMimePart.isEmpty()) {
+    if (!Utils.isEmpty(data.embeddedMimePart)) {
       for (Iterator<MimeBodyPart> i = data.embeddedMimePart.iterator(); i.hasNext(); ) {
         MimeBodyPart part = i.next();
         data.parts.addBodyPart(part);

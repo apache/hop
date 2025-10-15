@@ -17,23 +17,24 @@
 
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class SetValueConstantMetaInjectionTest
-    extends BaseMetadataInjectionTest<SetValueConstantMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+class SetValueConstantMetaInjectionTest
+    extends BaseMetadataInjectionTestJunit5<SetValueConstantMeta> {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     setup(new SetValueConstantMeta());
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check("FIELD_NAME", () -> meta.getField(0).getFieldName());
     check("REPLACE_VALUE", () -> meta.getField(0).getReplaceValue());
     check("REPLACE_MASK", () -> meta.getField(0).getReplaceMask());

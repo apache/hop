@@ -17,8 +17,8 @@
 
 package org.apache.hop.databases.greenplum;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -42,23 +42,19 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Spy;
 
-public class GreenplumValueMetaBaseTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
-  private static final String TEST_NAME = "TEST_NAME";
-  private static final String LOG_FIELD = "LOG_FIELD";
-  public static final int MAX_TEXT_FIELD_LEN = 5;
+class GreenplumValueMetaBaseTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   // Get PKG from class under test
-  private Class<?> PKG = ValueMetaBase.PKG;
 
   private class StoreLoggingEventListener implements IHopLoggingEventListener {
 
@@ -83,8 +79,8 @@ public class GreenplumValueMetaBaseTest {
   private ValueMetaBase valueMetaBase;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
@@ -92,8 +88,8 @@ public class GreenplumValueMetaBaseTest {
     DatabasePluginType.getInstance().registerClassPathPlugin(GreenplumDatabaseMeta.class);
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener(listener);
     dbMeta = spy(DatabaseMeta.class);
@@ -103,14 +99,14 @@ public class GreenplumValueMetaBaseTest {
     variables = spy(new Variables());
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     HopLogStore.getAppender().removeLoggingEventListener(listener);
     listener = new StoreLoggingEventListener();
   }
 
   @Test
-  public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum()
+  void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum()
       throws SQLException, HopDatabaseException {
     doReturn(Types.NUMERIC).when(resultSet).getInt("DATA_TYPE");
     doReturn(0).when(resultSet).getInt("COLUMN_SIZE");
@@ -123,14 +119,14 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BINARY).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
   }
 
   @Test
-  public void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BLOB).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
@@ -138,8 +134,7 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlVarBinaryToHopBinary()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlVarBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
