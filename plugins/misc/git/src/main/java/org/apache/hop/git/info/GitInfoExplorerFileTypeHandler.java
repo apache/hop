@@ -210,15 +210,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     };
     wRevisions =
         new TableView(
-            hopGui.getVariables(),
-            composite,
-            SWT.BORDER | SWT.SINGLE,
-            revisionColumns,
-            1,
-            true,
-            null,
-            props,
-                false);
+            hopGui.getVariables(), composite, SWT.BORDER, revisionColumns, 1, null, props);
     wRevisions.setReadonly(true);
     PropsUi.setLook(wRevisions);
     FormData fdRevisions = new FormData();
