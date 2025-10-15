@@ -17,10 +17,10 @@
 
 package org.apache.hop.beam.core.transform;
 
+import jakarta.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nullable;
 import org.apache.beam.sdk.io.hcatalog.HCatalogIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;

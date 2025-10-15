@@ -19,6 +19,7 @@ package org.apache.hop.core.row;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -36,7 +37,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.annotation.Nullable;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;

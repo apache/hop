@@ -19,17 +19,17 @@ package org.apache.hop.vfs.googledrive.util;
 
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
 import com.google.api.client.util.Throwables;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 public class CustomLocalServerReceiver implements VerificationCodeReceiver {
 
@@ -59,16 +59,9 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
       this.port = getUnusedPort();
     }
 
-    this.server = new Server(this.port);
-    Connector[] connectors = this.server.getConnectors();
-    int length = connectors.length;
-
-    for (int i = 0; i < length; ++i) {
-      Connector c = connectors[i];
-      c.setHost(this.host);
-    }
-
-    this.server.addHandler(new CallbackHandler());
+    InetSocketAddress socketAddress = new InetSocketAddress(this.host, this.port);
+    this.server = new Server(socketAddress);
+    this.server.setHandler(new CallbackHandler());
 
     try {
       this.server.start();
@@ -129,8 +122,11 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
     }
 
     @Override
-    public void handle(
-        String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
+    public void doHandle(
+        String target,
+        Request baseRequest,
+        HttpServletRequest request,
+        HttpServletResponse response)
         throws IOException, ServletException {
       if (target.contains("/Callback")) {
 
@@ -143,7 +139,7 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
             && CustomLocalServerReceiver.this.error.equals("access_denied")) {
           response.sendRedirect(CustomLocalServerReceiver.this.url);
         } else {
-          super.handle(target, request, response, dispatch);
+          super.handle(target, null, request, response);
         }
         ((Request) request).setHandled(true);
       }

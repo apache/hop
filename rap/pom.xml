@@ -29,7 +29,7 @@
     <name>Hop GUI (RAP fragment)</name>
 
     <properties>
-        <rap.version>3.29.0</rap.version>
+        <rap.version>4.1.0</rap.version>
     </properties>
 
     <dependencies>

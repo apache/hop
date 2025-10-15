@@ -17,7 +17,7 @@
 
 package org.apache.hop.beam.core.transform;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubMessage;
 import org.apache.beam.sdk.metrics.Counter;

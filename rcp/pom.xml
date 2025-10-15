@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.platform</groupId>
-            <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+            <artifactId>${swt.artifactId}</artifactId>
             <version>${org.eclipse.platform.version}</version>
             <scope>provided</scope>
         </dependency>

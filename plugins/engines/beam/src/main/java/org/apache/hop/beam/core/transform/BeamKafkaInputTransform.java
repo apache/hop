@@ -17,11 +17,11 @@
 
 package org.apache.hop.beam.core.transform;
 
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.io.kafka.ConfluentSchemaRegistryDeserializerProvider;
 import org.apache.beam.sdk.io.kafka.KafkaIO;

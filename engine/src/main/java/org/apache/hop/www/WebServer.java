@@ -17,6 +17,7 @@
 
 package org.apache.hop.www;
 
+import jakarta.servlet.Servlet;
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,7 +27,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.Servlet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
@@ -365,7 +365,7 @@ public class WebServer {
           Encr.decryptPasswordOptionallyEncrypted(sslConfig.getKeyStorePassword());
       String keyPassword = Encr.decryptPasswordOptionallyEncrypted(sslConfig.getKeyPassword());
 
-      SslContextFactory.Client factory = new SslContextFactory.Client();
+      SslContextFactory.Server factory = new SslContextFactory.Server();
       factory.setKeyStoreResource(new PathResource(new File(sslConfig.getKeyStore())));
       factory.setKeyStorePassword(keyStorePassword);
       factory.setKeyManagerPassword(keyPassword);

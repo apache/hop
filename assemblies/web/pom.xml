@@ -29,7 +29,7 @@
     <name>Hop Assemblies Web</name>
 
     <properties>
-        <rap.version>3.21.0</rap.version>
+        <rap.version>4.1.0</rap.version>
     </properties>
 
     <dependencies>

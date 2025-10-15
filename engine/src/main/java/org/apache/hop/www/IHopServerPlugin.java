@@ -17,8 +17,8 @@
 
 package org.apache.hop.www;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface IHopServerPlugin extends IHopServerServlet {
 

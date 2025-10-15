@@ -31,6 +31,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-rest</artifactId>
             <version>${project.version}</version>
@@ -38,7 +43,7 @@
         <dependency>
             <groupId>org.glassfish.jersey.connectors</groupId>
             <artifactId>jersey-apache-connector</artifactId>
-            <version>2.43</version>
+            <version>3.1.11</version>
         </dependency>
     </dependencies>
 

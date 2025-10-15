@@ -18,7 +18,7 @@
 package org.apache.hop.beam.core.transform;
 
 import com.google.api.services.bigquery.model.TableReference;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
