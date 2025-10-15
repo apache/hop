@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.calculator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
 import java.util.UUID;
@@ -53,7 +54,7 @@ class CalculatorMetaTest {
     for (int i = 0; i < meta.getFunctions().size(); i++) {
       CalculatorMetaFunction function = meta.getFunctions().get(i);
       CalculatorMetaFunction function2 = meta2.getFunctions().get(i);
-      assertEquals(function, function2);
+      assertTrue(function.equals(function2));
     }
   }
 
