@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopFileException;
@@ -97,8 +98,10 @@ public class GitGuiPlugin
   private static GitGuiPlugin instance;
 
   private static UIGit git;
-  private Map<String, UIFile> changedFiles;
-  private Map<String, String> ignoredFiles;
+
+  @Getter private Map<String, UIFile> changedFiles;
+
+  @Getter private Map<String, String> ignoredFiles;
 
   private final Color colorIgnored;
   private final Color colorStagedUnchanged;
@@ -762,24 +765,6 @@ public class GitGuiPlugin
 
   public UIGit getGit() {
     return git;
-  }
-
-  /**
-   * Gets changed files
-   *
-   * @return map of changed files
-   */
-  public Map<String, UIFile> getChangedFiles() {
-    return changedFiles;
-  }
-
-  /**
-   * Gets ignored files
-   *
-   * @return map of ignored files
-   */
-  public Map<String, String> getIgnoredFiles() {
-    return ignoredFiles;
   }
 
   private void setBranchLabel(String branch) {
