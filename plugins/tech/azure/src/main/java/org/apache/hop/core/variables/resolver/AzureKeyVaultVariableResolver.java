@@ -42,7 +42,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @VariableResolverPlugin(
     id = "AzureKeyVault",
     name = "Azure Key Vault Variable Resolver",
-    description = "Resolves variables from Azure Key Vault secrets")
+    description = "Resolves variables from Azure Key Vault secrets",
+    documentationUrl = "/metadata-types/variable-resolver/azure-key-vault-variable-resolver.html")
 public class AzureKeyVaultVariableResolver implements IVariableResolver {
 
   private static final LogChannel log = new LogChannel("AzureKeyVaultVariableResolver");

@@ -58,5 +58,5 @@ Here are the available variable resolver plugins:
 
 * xref:metadata-types/variable-resolver/azure-key-vault-variable-resolver.adoc[Azure Key Vault variable resolver]
 * xref:metadata-types/variable-resolver/google-secret-manager-variable-resolver.adoc[Google Secret Manager Variable Resolver]
-* xref:metadata-types/variable-resolver/vault-variable-resolver.adoc[Hashicorp Vault variable resolver]
+* xref:metadata-types/variable-resolver/hashicorp-vault-variable-resolver.adoc[Hashicorp Vault variable resolver]
 * xref:metadata-types/variable-resolver/pipeline-variable-resolver.adoc[Pipeline variable resolver]
