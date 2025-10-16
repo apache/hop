@@ -445,6 +445,8 @@ public abstract class BaseDialog extends Dialog {
     // Is this reading from a VFS URL?
     //
     if (filterPath.contains("://") || filterPath.contains(":///")) {
+        //Strip filterPath from fileName (these are equal when selecting a folder)
+        fileName= fileName.replace(filterPath, "");
       if (filterPath.endsWith("/")) {
         return filterPath + fileName;
       } else {
