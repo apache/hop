@@ -97,9 +97,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     // get dynamic url ?
     if (meta.isUrlInField()) {
       if (!Utils.isEmpty(data.connectionName)) {
-        data.realUrl = baseUrl + data.inputRowMeta.getString(rowData, data.indexOfUrlField);
+        data.realUrl = java.net.URLEncoder.encode(baseUrl + data.inputRowMeta.getString(rowData, data.indexOfUrlField), "UTF-8");
       } else {
-        data.realUrl = data.inputRowMeta.getString(rowData, data.indexOfUrlField);
+        data.realUrl = java.net.URLEncoder.encode(data.inputRowMeta.getString(rowData, data.indexOfUrlField), "UTF-8");
       }
     }
 
@@ -444,9 +444,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       } else {
         // Static URL
         if (!Utils.isEmpty(data.connectionName)) {
-          data.realUrl = baseUrl + NVL(resolve(meta.getUrl()), "");
+          data.realUrl = java.net.URLEncoder.encode(baseUrl + NVL(resolve(meta.getUrl()), ""), "UTF-8");
         } else {
-          data.realUrl = resolve(meta.getUrl());
+          data.realUrl = java.net.URLEncoder.encode(resolve(meta.getUrl()), "UTF-8");
         }
       }
       // Check Method
