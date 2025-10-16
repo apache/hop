@@ -115,8 +115,7 @@ TIP: To figure out what Headers are required, you can use Postman and remove as 
 
 === Parameters Tab
 
-The Parameters tab enables you to define parameter values for POST, PUT, and DELETE requests.
-GET parameters should be part of the URL directly.
+The Parameters tab enables you to define parameter values for POST, GET, PUT, and DELETE requests.
 
 [options="header"]
 |===
