@@ -27,7 +27,9 @@ import com.sforce.ws.bind.XmlObject;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 import org.apache.hop.core.Const;
@@ -92,8 +94,15 @@ class SalesForceDateFieldTest {
     doReturn(UUID.randomUUID().toString()).when(meta).getPassword();
     doReturn(UUID.randomUUID().toString()).when(meta).getModule();
     doReturn(2).when(meta).getBatchSizeInt();
-    doReturn(new String[] {"Date"}).when(meta).getUpdateLookup();
-    doReturn(new Boolean[] {false}).when(meta).getUseExternalId();
+    SalesforceInsertField field = new SalesforceInsertField();
+    field.setUpdateLookup("Date");
+    field.setUseExternalId(false);
+    List<SalesforceInsertField> fields = new ArrayList<>();
+    fields.add(field);
+    //    meta.setFields(fields);
+    doReturn(fields).when(meta).getFields();
+    //    doReturn(new String[] {"Date"}).when(meta).getFields().get(0).getUpdateLookup();
+    //    doReturn(new Boolean[] {false}).when(meta).getFields().get(0).getUseExternalId();
 
     SalesforceInsertData data = smh.iTransformData;
     data.nrFields = 1;

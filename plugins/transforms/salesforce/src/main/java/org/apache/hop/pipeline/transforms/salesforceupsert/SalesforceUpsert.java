@@ -84,7 +84,7 @@ public class SalesforceUpsert
       data.outputBuffer = new Object[meta.getBatchSizeInt()][];
 
       // get total fields in the grid
-      data.nrFields = meta.getUpdateLookup().length;
+      data.nrFields = meta.getFields().size();
 
       // Check if field list is filled
       if (data.nrFields == 0) {
@@ -98,13 +98,16 @@ public class SalesforceUpsert
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Build the mapping of input position to field name
-      data.fieldnrs = new int[meta.getUpdateStream().length];
-      for (int i = 0; i < meta.getUpdateStream().length; i++) {
-        data.fieldnrs[i] = getInputRowMeta().indexOfValue(meta.getUpdateStream()[i]);
+      data.fieldnrs = new int[meta.getFields().size()];
+      for (int i = 0; i < meta.getFields().size(); i++) {
+        data.fieldnrs[i] =
+            getInputRowMeta().indexOfValue(meta.getFields().get(i).getUpdateStream());
         if (data.fieldnrs[i] < 0) {
           throw new HopException(
               BaseMessages.getString(
-                  PKG, "SalesforceUpsert.FieldNotFound", meta.getUpdateStream()[i]));
+                  PKG,
+                  "SalesforceUpsert.FieldNotFound",
+                  meta.getFields().get(i).getUpdateStream()));
         }
       }
     }
@@ -142,7 +145,7 @@ public class SalesforceUpsert
           // (Issue #2820)
           if (meta.getUpsertField() != null
               && valueMeta.isNull(object)
-              && meta.getUpsertField().equals(meta.getUpdateLookup()[i])) {
+              && meta.getUpsertField().equals(meta.getFields().get(i).getUpdateLookup())) {
             continue;
           }
 
@@ -151,16 +154,21 @@ public class SalesforceUpsert
             // We need to keep track of this field
             fieldsToNull.add(
                 SalesforceUtils.getFieldToNullName(
-                    getLogChannel(), meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
+                    getLogChannel(),
+                    meta.getFields().get(i).getUpdateLookup(),
+                    meta.getFields().get(i).isUseExternalId()));
           } else {
             Object normalObject = normalizeValue(valueMeta, rowData[data.fieldnrs[i]]);
             if (data.mapData && data.dataTypeMap != null) {
               normalObject =
-                  mapDataTypes(valueMeta.getType(), meta.getUpdateLookup()[i], normalObject);
+                  mapDataTypes(
+                      valueMeta.getType(), meta.getFields().get(i).getUpdateLookup(), normalObject);
             }
             upsertfields.add(
                 SalesforceConnection.createMessageElement(
-                    meta.getUpdateLookup()[i], normalObject, meta.getUseExternalId()[i]));
+                    meta.getFields().get(i).getUpdateLookup(),
+                    normalObject,
+                    meta.getFields().get(i).isUseExternalId()));
           }
         }
 

@@ -62,60 +62,65 @@ public abstract class SalesforceTransform<
 
     try {
       // Create connection based on authentication type
-      if (meta instanceof SalesforceTransformMeta
-          && ((SalesforceTransformMeta) meta).isOAuthAuthentication()) {
-        // OAuth connection
-        SalesforceTransformMeta salesforceMeta = (SalesforceTransformMeta) meta;
-        String realClientId = resolve(salesforceMeta.getOauthClientId());
-        String realClientSecret = resolve(salesforceMeta.getOauthClientSecret());
-        String realAccessToken = resolve(salesforceMeta.getOauthAccessToken());
-        String realInstanceUrl = resolve(salesforceMeta.getOauthInstanceUrl());
+      //      if (meta instanceof SalesforceTransformMeta
+      //          && ((SalesforceTransformMeta) meta).isOAuthAuthentication()) {
+      //        // OAuth connection
+      //        SalesforceTransformMeta salesforceMeta = (SalesforceTransformMeta) meta;
+      //        String realClientId = resolve(salesforceMeta.getOauthClientId());
+      //        String realClientSecret = resolve(salesforceMeta.getOauthClientSecret());
+      //        String realAccessToken = resolve(salesforceMeta.getOauthAccessToken());
+      //        String realInstanceUrl = resolve(salesforceMeta.getOauthInstanceUrl());
+      //
+      //        if (Utils.isEmpty(realClientId)) {
+      //          logError(BaseMessages.getString(PKG,
+      // "SalesforceConnection.OAuthClientIdMissing.Error"));
+      //          return false;
+      //        }
+      //        if (Utils.isEmpty(realClientSecret)) {
+      //          logError(
+      //              BaseMessages.getString(PKG,
+      // "SalesforceConnection.OAuthClientSecretMissing.Error"));
+      //          return false;
+      //        }
+      //        if (Utils.isEmpty(realAccessToken)) {
+      //          logError(
+      //              BaseMessages.getString(PKG,
+      // "SalesforceConnection.OAuthAccessTokenMissing.Error"));
+      //          return false;
+      //        }
+      //        if (Utils.isEmpty(realInstanceUrl)) {
+      //          logError(
+      //              BaseMessages.getString(PKG,
+      // "SalesforceConnection.OAuthInstanceUrlMissing.Error"));
+      //          return false;
+      //        }
+      //
+      //        data.connection =
+      //            new SalesforceConnection(
+      //                getLogChannel(), realClientId, realClientSecret, realAccessToken,
+      // realInstanceUrl);
+      //      } else {
+      //        // Username/Password connection
+      String realUrl = resolve(meta.getTargetUrl());
+      String realUsername = resolve(meta.getUsername());
+      String realPassword = resolve(meta.getPassword());
 
-        if (Utils.isEmpty(realClientId)) {
-          logError(BaseMessages.getString(PKG, "SalesforceConnection.OAuthClientIdMissing.Error"));
-          return false;
-        }
-        if (Utils.isEmpty(realClientSecret)) {
-          logError(
-              BaseMessages.getString(PKG, "SalesforceConnection.OAuthClientSecretMissing.Error"));
-          return false;
-        }
-        if (Utils.isEmpty(realAccessToken)) {
-          logError(
-              BaseMessages.getString(PKG, "SalesforceConnection.OAuthAccessTokenMissing.Error"));
-          return false;
-        }
-        if (Utils.isEmpty(realInstanceUrl)) {
-          logError(
-              BaseMessages.getString(PKG, "SalesforceConnection.OAuthInstanceUrlMissing.Error"));
-          return false;
-        }
-
-        data.connection =
-            new SalesforceConnection(
-                getLogChannel(), realClientId, realClientSecret, realAccessToken, realInstanceUrl);
-      } else {
-        // Username/Password connection
-        String realUrl = resolve(meta.getTargetUrl());
-        String realUsername = resolve(meta.getUsername());
-        String realPassword = resolve(meta.getPassword());
-
-        if (Utils.isEmpty(realUrl)) {
-          logError(BaseMessages.getString(PKG, "SalesforceConnection.TargetURLMissing.Error"));
-          return false;
-        }
-        if (Utils.isEmpty(realUsername)) {
-          logError(BaseMessages.getString(PKG, "SalesforceConnection.UsernameMissing.Error"));
-          return false;
-        }
-        if (Utils.isEmpty(realPassword)) {
-          logError(BaseMessages.getString(PKG, "SalesforceConnection.PasswordMissing.Error"));
-          return false;
-        }
-
-        data.connection =
-            new SalesforceConnection(getLogChannel(), realUrl, realUsername, realPassword);
+      if (Utils.isEmpty(realUrl)) {
+        logError(BaseMessages.getString(PKG, "SalesforceConnection.TargetURLMissing.Error"));
+        return false;
       }
+      if (Utils.isEmpty(realUsername)) {
+        logError(BaseMessages.getString(PKG, "SalesforceConnection.UsernameMissing.Error"));
+        return false;
+      }
+      if (Utils.isEmpty(realPassword)) {
+        logError(BaseMessages.getString(PKG, "SalesforceConnection.PasswordMissing.Error"));
+        return false;
+      }
+
+      data.connection =
+          new SalesforceConnection(getLogChannel(), realUrl, realUsername, realPassword);
+      //      }
 
       data.connection.setModule(realModule);
       data.connection.setTimeOut(Const.toInt(resolve(meta.getTimeout()), 0));

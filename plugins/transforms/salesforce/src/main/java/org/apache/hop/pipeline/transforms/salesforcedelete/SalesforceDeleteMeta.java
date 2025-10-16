@@ -18,21 +18,21 @@
 package org.apache.hop.pipeline.transforms.salesforcedelete;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "SalesforceDelete",
@@ -42,16 +42,21 @@ import org.w3c.dom.Node;
     image = "SFD.svg",
     keywords = "i18n::SalesforceDeleteMeta.keyword",
     documentationUrl = "/pipeline/transforms/salesforcedelete.html")
+@Getter
+@Setter
 public class SalesforceDeleteMeta
     extends SalesforceTransformMeta<SalesforceDelete, SalesforceDeleteData> {
   private static final Class<?> PKG = SalesforceDeleteMeta.class;
 
   /** Deletefield */
+  @HopMetadataProperty(key = "DeleteField")
   private String deleteField;
 
   /** Batch size */
+  @HopMetadataProperty(key = "batchSize")
   private String batchSize;
 
+  @HopMetadataProperty(key = "rollbackAllChangesOnError")
   private boolean rollbackAllChangesOnError;
 
   public SalesforceDeleteMeta() {
@@ -104,12 +109,12 @@ public class SalesforceDeleteMeta
     return Const.toInt(this.batchSize, 10);
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
-    readData(transformNode);
-  }
+  //  @Override
+  //  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+  //      throws HopXmlException {
+  //    super.loadXml(transformNode, metadataProvider);
+  //    readData(transformNode);
+  //  }
 
   @Override
   public Object clone() {
@@ -118,29 +123,31 @@ public class SalesforceDeleteMeta
     return retval;
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(super.getXml());
-    retval.append("    " + XmlHandler.addTagValue("DeleteField", getDeleteField()));
-    retval.append("    " + XmlHandler.addTagValue("batchSize", getBatchSize()));
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue("rollbackAllChangesOnError", isRollbackAllChangesOnError()));
+  //  @Override
+  //  public String getXml() {
+  //    StringBuilder retval = new StringBuilder(super.getXml());
+  //    retval.append("    " + XmlHandler.addTagValue("DeleteField", getDeleteField()));
+  //    retval.append("    " + XmlHandler.addTagValue("batchSize", getBatchSize()));
+  //    retval.append(
+  //        "    "
+  //            + XmlHandler.addTagValue("rollbackAllChangesOnError",
+  // isRollbackAllChangesOnError()));
+  //
+  //    return retval.toString();
+  //  }
 
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      setDeleteField(XmlHandler.getTagValue(transformNode, "DeleteField"));
-
-      setBatchSize(XmlHandler.getTagValue(transformNode, "batchSize"));
-      setRollbackAllChangesOnError(
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rollbackAllChangesOnError")));
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
-  }
+  //  private void readData(Node transformNode) throws HopXmlException {
+  //    try {
+  //      setDeleteField(XmlHandler.getTagValue(transformNode, "DeleteField"));
+  //
+  //      setBatchSize(XmlHandler.getTagValue(transformNode, "batchSize"));
+  //      setRollbackAllChangesOnError(
+  //          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode,
+  // "rollbackAllChangesOnError")));
+  //    } catch (Exception e) {
+  //      throw new HopXmlException("Unable to load transform info from XML", e);
+  //    }
+  //  }
 
   @Override
   public void setDefault() {

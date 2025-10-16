@@ -30,6 +30,8 @@ import static org.mockito.Mockito.when;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.bind.XmlObject;
 import com.sforce.ws.wsdl.Constants;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -213,8 +215,16 @@ class SalesforceInsertTest {
       String[] updateLookup, Boolean[] useExternalId) {
     SalesforceInsertMeta meta = smh.iTransformMeta;
     doReturn(2).when(meta).getBatchSizeInt();
-    doReturn(updateLookup).when(meta).getUpdateLookup();
-    doReturn(useExternalId).when(meta).getUseExternalId();
+    List<SalesforceInsertField> fields = new ArrayList<>();
+    for (int i = 0; i < updateLookup.length; i++) {
+      SalesforceInsertField field = new SalesforceInsertField();
+      field.setUpdateLookup(updateLookup[i]);
+      field.setUseExternalId(useExternalId[i]);
+      fields.add(field);
+    }
+    doReturn(fields).when(meta).getFields();
+    //    doReturn(updateLookup).when(meta).getFields().get(0).getUpdateLookup();
+    //    doReturn(useExternalId).when(meta).getFields().get(0).getUseExternalId();
     doReturn(UUID.randomUUID().toString()).when(meta).getTargetUrl();
     doReturn(UUID.randomUUID().toString()).when(meta).getUsername();
     doReturn(UUID.randomUUID().toString()).when(meta).getPassword();

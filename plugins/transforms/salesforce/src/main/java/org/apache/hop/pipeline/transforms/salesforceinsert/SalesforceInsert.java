@@ -75,7 +75,7 @@ public class SalesforceInsert
       data.outputBuffer = new Object[meta.getBatchSizeInt()][];
 
       // get total fields in the grid
-      data.nrFields = meta.getUpdateLookup().length;
+      data.nrFields = meta.getFields().size();
 
       // Check if field list is filled
       if (data.nrFields == 0) {
@@ -89,13 +89,16 @@ public class SalesforceInsert
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Build the mapping of input position to field name
-      data.fieldnrs = new int[meta.getUpdateStream().length];
-      for (int i = 0; i < meta.getUpdateStream().length; i++) {
-        data.fieldnrs[i] = getInputRowMeta().indexOfValue(meta.getUpdateStream()[i]);
+      //      data.fieldnrs = new int[meta.getUpdateStream().length];
+      for (int i = 0; i < meta.getFields().size(); i++) {
+        data.fieldnrs[i] =
+            getInputRowMeta().indexOfValue(meta.getFields().get(i).getUpdateStream());
         if (data.fieldnrs[i] < 0) {
           throw new HopException(
               BaseMessages.getString(
-                  PKG, "SalesforceInsert.CanNotFindField", meta.getUpdateStream()[i]));
+                  PKG,
+                  "SalesforceInsert.CanNotFindField",
+                  meta.getFields().get(i).getUpdateStream()));
         }
       }
     }
@@ -139,12 +142,16 @@ public class SalesforceInsert
             // We need to keep track of this field
             fieldsToNull.add(
                 SalesforceUtils.getFieldToNullName(
-                    getLogChannel(), meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
+                    getLogChannel(),
+                    meta.getFields().get(i).getUpdateLookup(),
+                    meta.getFields().get(i).isUseExternalId()));
           } else {
             Object normalObject = normalizeValue(valueMeta, value);
             insertfields.add(
                 SalesforceConnection.createMessageElement(
-                    meta.getUpdateLookup()[i], normalObject, meta.getUseExternalId()[i]));
+                    meta.getFields().get(i).getUpdateLookup(),
+                    normalObject,
+                    meta.getFields().get(i).isUseExternalId()));
           }
         }
 

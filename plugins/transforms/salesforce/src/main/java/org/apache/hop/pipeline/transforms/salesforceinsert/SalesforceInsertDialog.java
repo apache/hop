@@ -477,7 +477,8 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     wlReturn.setLayoutData(fdlReturn);
 
     int upInsCols = 3;
-    int upInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
+    //    int upInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
+    int upInsRows = input.getFields().size();
 
     ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
@@ -651,16 +652,16 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
       logDebug(BaseMessages.getString(PKG, "SalesforceInsertDialog.Log.GettingFieldsInfo"));
     }
 
-    if (input.getUpdateLookup() != null) {
-      for (int i = 0; i < input.getUpdateLookup().length; i++) {
+    if (input.getFields().size() > 0) {
+      for (int i = 0; i < input.getFields().size(); i++) {
         TableItem item = wReturn.table.getItem(i);
-        if (input.getUpdateLookup()[i] != null) {
-          item.setText(1, input.getUpdateLookup()[i]);
+        if (input.getFields().get(i).getUpdateLookup() != null) {
+          item.setText(1, input.getFields().get(i).getUpdateLookup());
         }
-        if (input.getUpdateStream()[i] != null) {
-          item.setText(2, input.getUpdateStream()[i]);
+        if (input.getFields().get(i).getUpdateStream() != null) {
+          item.setText(2, input.getFields().get(i).getUpdateStream());
         }
-        if (input.getUseExternalId()[i] == null || input.getUseExternalId()[i].booleanValue()) {
+        if (input.getFields().get(i).isUseExternalId()) {
           item.setText(3, "Y");
         } else {
           item.setText(3, "N");
@@ -715,14 +716,21 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
     int nrFields = wReturn.nrNonEmpty();
 
-    meta.allocate(nrFields);
+    //    meta.allocate(nrFields);
 
+    List<SalesforceInsertField> fields = new ArrayList<>();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
-      meta.getUpdateLookup()[i] = item.getText(1);
-      meta.getUpdateStream()[i] = item.getText(2);
-      meta.getUseExternalId()[i] = Boolean.valueOf("Y".equals(item.getText(3)));
+      SalesforceInsertField field = new SalesforceInsertField();
+      field.setUpdateLookup(item.getText(1));
+      field.setUpdateStream(item.getText(2));
+      field.setUseExternalId(Boolean.valueOf("Y".equals(item.getText(3))));
+      fields.add(field);
+      //      meta.getUpdateLookup()[i] = item.getText(1);
+      //      meta.getUpdateStream()[i] = item.getText(2);
+      //      meta.getUseExternalId()[i] = Boolean.valueOf("Y".equals(item.getText(3)));
     }
+    meta.setFields(fields);
     meta.setCompression(wUseCompression.getSelection());
     meta.setTimeout(Const.NVL(wTimeOut.getText(), "0"));
     meta.setRollbackAllChangesOnError(wRollbackAllChangesOnError.getSelection());

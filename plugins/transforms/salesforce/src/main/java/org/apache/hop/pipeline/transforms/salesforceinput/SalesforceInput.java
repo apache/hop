@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.salesforceinput;
 import com.sforce.ws.util.Base64;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -193,10 +194,10 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
       for (int i = 0; i < data.nrFields; i++) {
         String value =
             data.connection.getRecordValue(
-                srvalue.getRecordValue(), meta.getInputFields()[i].getField());
+                srvalue.getRecordValue(), meta.getFields().get(i).getField());
 
         // DO Trimming!
-        switch (meta.getInputFields()[i].getTrimType()) {
+        switch (meta.getFields().get(i).getTrimType()) {
           case SalesforceInputField.TYPE_TRIM_LEFT:
             value = Const.ltrim(value);
             break;
@@ -213,7 +214,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         doConversions(outputRowData, i, value);
 
         // Do we need to repeat this field if it is null?
-        if (meta.getInputFields()[i].isRepeated()) {
+        if (meta.getFields().get(i).isRepeated()) {
           if (data.previousRow != null && Utils.isEmpty(value)) {
             outputRowData[i] = data.previousRow[i];
           }
@@ -233,7 +234,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
       }
 
       // See if we need to add the generated SQL to the row...
-      if (meta.includeSQL() && !Utils.isEmpty(meta.getSQLField())) {
+      if (meta.isIncludeSQL() && !Utils.isEmpty(meta.getSqlField())) {
         outputRowData[rowIndex++] = data.connection.getSQL();
       }
 
@@ -285,12 +286,12 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
    */
   private String buildSOQl() {
     StringBuilder sql = new StringBuilder();
-    SalesforceInputField[] fields = meta.getInputFields();
+    List<SalesforceInputField> fields = meta.getFields();
 
     switch (meta.getRecordsFilter()) {
       case SalesforceConnectionUtils.RECORDS_FILTER_UPDATED:
         for (int i = 0; i < data.nrFields; i++) {
-          SalesforceInputField field = fields[i];
+          SalesforceInputField field = fields.get(i);
           sql.append(resolve(field.getField()));
           if (i < data.nrFields - 1) {
             sql.append(",");
@@ -300,7 +301,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
       case SalesforceConnectionUtils.RECORDS_FILTER_DELETED:
         sql.append("SELECT ");
         for (int i = 0; i < data.nrFields; i++) {
-          SalesforceInputField field = fields[i];
+          SalesforceInputField field = fields.get(i);
           sql.append(resolve(field.getField()));
           if (i < data.nrFields - 1) {
             sql.append(",");
@@ -311,7 +312,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
       default:
         sql.append("SELECT ");
         for (int i = 0; i < data.nrFields; i++) {
-          SalesforceInputField field = fields[i];
+          SalesforceInputField field = fields.get(i);
           sql.append(resolve(field.getField()));
           if (i < data.nrFields - 1) {
             sql.append(",");
@@ -341,8 +342,9 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
   public boolean init() {
 
     if (super.init()) {
+
       // get total fields in the grid
-      data.nrFields = meta.getInputFields().length;
+      data.nrFields = meta.getFields().size();
 
       // Check if field list is filled
       if (data.nrFields == 0) {

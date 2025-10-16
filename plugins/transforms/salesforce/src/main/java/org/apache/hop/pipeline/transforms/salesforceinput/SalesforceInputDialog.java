@@ -31,8 +31,10 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -1442,7 +1444,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdGet.bottom = new FormAttachment(100, 0);
     wGet.setLayoutData(fdGet);
 
-    final int FieldsRows = input.getInputFields().length;
+    final int FieldsRows = input.getFields().size();
 
     columns =
         new ColumnInfo[] {
@@ -1646,23 +1648,25 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       int realTimeOut = Const.toInt(variables.resolve(meta.getTimeout()), 0);
 
       // Create connection based on authentication type
-      if (isOAuthSelected()) {
-        // OAuth connection
-        String realClientId = variables.resolve(meta.getOauthClientId());
-        String realClientSecret = Utils.resolvePassword(variables, meta.getOauthClientSecret());
-        String realAccessToken = Utils.resolvePassword(variables, meta.getOauthAccessToken());
-        String realInstanceUrl = variables.resolve(meta.getOauthInstanceUrl());
+      //      if (isOAuthSelected()) {
+      //        // OAuth connection
+      //        String realClientId = variables.resolve(meta.getOauthClientId());
+      //        String realClientSecret = Utils.resolvePassword(variables,
+      // meta.getOauthClientSecret());
+      //        String realAccessToken = Utils.resolvePassword(variables,
+      // meta.getOauthAccessToken());
+      //        String realInstanceUrl = variables.resolve(meta.getOauthInstanceUrl());
+      //
+      //        connection =
+      //            new SalesforceConnection(
+      //                log, realClientId, realClientSecret, realAccessToken, realInstanceUrl);
+      //      } else {
+      // Username/Password connection
+      String realUsername = variables.resolve(meta.getUsername());
+      String realPassword = Utils.resolvePassword(variables, meta.getPassword());
 
-        connection =
-            new SalesforceConnection(
-                log, realClientId, realClientSecret, realAccessToken, realInstanceUrl);
-      } else {
-        // Username/Password connection
-        String realUsername = variables.resolve(meta.getUsername());
-        String realPassword = Utils.resolvePassword(variables, meta.getPassword());
-
-        connection = new SalesforceConnection(log, realURL, realUsername, realPassword);
-      }
+      connection = new SalesforceConnection(log, realURL, realUsername, realPassword);
+      //      }
       connection.setTimeOut(realTimeOut);
       String[] fieldsName = null;
       if (meta.isSpecifyQuery()) {
@@ -1903,8 +1907,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wInclURLField.setText(Const.NVL(in.getTargetURLField(), ""));
     wInclURL.setSelection(in.includeTargetURL());
 
-    wInclSQLField.setText(Const.NVL(in.getSQLField(), ""));
-    wInclSQL.setSelection(in.includeSQL());
+    wInclSQLField.setText(Const.NVL(in.getSqlField(), ""));
+    wInclSQL.setSelection(in.isIncludeSQL());
 
     wInclTimestampField.setText(Const.NVL(in.getTimestampField(), ""));
     wInclTimestamp.setSelection(in.includeTimestamp());
@@ -1926,20 +1930,20 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wReadTo.setText(Const.NVL(in.getReadTo(), ""));
 
     // OAuth fields
-    wAuthType.select(in.isOAuthAuthentication() ? 1 : 0);
-    wOAuthClientId.setText(Const.NVL(in.getOauthClientId(), ""));
-    wOAuthClientSecret.setText(Const.NVL(in.getOauthClientSecret(), ""));
-    wOAuthRedirectUri.setText(
-        Const.NVL(in.getOauthRedirectUri(), "http://localhost:8080/callback"));
-    wOAuthInstanceUrl.setText(Const.NVL(in.getOauthInstanceUrl(), ""));
-    wOAuthAccessToken.setText(Const.NVL(in.getOauthAccessToken(), ""));
-    wOAuthRefreshToken.setText(Const.NVL(in.getOauthRefreshToken(), ""));
+    //    wAuthType.select(in.isOAuthAuthentication() ? 1 : 0);
+    //    wOAuthClientId.setText(Const.NVL(in.getOauthClientId(), ""));
+    //    wOAuthClientSecret.setText(Const.NVL(in.getOauthClientSecret(), ""));
+    //    wOAuthRedirectUri.setText(
+    //        Const.NVL(in.getOauthRedirectUri(), "http://localhost:8080/callback"));
+    //    wOAuthInstanceUrl.setText(Const.NVL(in.getOauthInstanceUrl(), ""));
+    //    wOAuthAccessToken.setText(Const.NVL(in.getOauthAccessToken(), ""));
+    //    wOAuthRefreshToken.setText(Const.NVL(in.getOauthRefreshToken(), ""));
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "SalesforceInputDialog.Log.GettingFieldsInfo"));
     }
-    for (int i = 0; i < in.getInputFields().length; i++) {
-      SalesforceInputField field = in.getInputFields()[i];
+    for (int i = 0; i < in.getFields().size(); i++) {
+      SalesforceInputField field = in.getFields().get(i);
 
       if (field != null) {
         TableItem item = wFields.table.getItem(i);
@@ -2035,68 +2039,68 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
   @Override
   protected void test() {
-    if (isOAuthSelected()) {
-      testOAuthConnection();
-    } else {
-      super.test(); // Call parent test method for username/password
-    }
+    //    if (isOAuthSelected()) {
+    //      testOAuthConnection();
+    //    } else {
+    super.test(); // Call parent test method for username/password
+    //    }
   }
 
-  private void testOAuthConnection() {
-    boolean successConnection = true;
-    String msgError = null;
-    try {
-      SalesforceInputMeta meta = new SalesforceInputMeta();
-      getInfo(meta);
+  //  private void testOAuthConnection() {
+  //    boolean successConnection = true;
+  //    String msgError = null;
+  //    try {
+  //      SalesforceInputMeta meta = new SalesforceInputMeta();
+  //      getInfo(meta);
 
-      // get real values
-      String realClientId = variables.resolve(meta.getOauthClientId());
-      String realClientSecret = Utils.resolvePassword(variables, meta.getOauthClientSecret());
-      String realAccessToken = Utils.resolvePassword(variables, meta.getOauthAccessToken());
-      String realInstanceUrl = variables.resolve(meta.getOauthInstanceUrl());
+  // get real values
+  //      String realClientId = variables.resolve(meta.getOauthClientId());
+  //      String realClientSecret = Utils.resolvePassword(variables, meta.getOauthClientSecret());
+  //      String realAccessToken = Utils.resolvePassword(variables, meta.getOauthAccessToken());
+  //      String realInstanceUrl = variables.resolve(meta.getOauthInstanceUrl());
 
-      // Validate OAuth configuration
-      if (Utils.isEmpty(realClientId)) {
-        throw new Exception("OAuth Client ID is required");
-      }
-      if (Utils.isEmpty(realClientSecret)) {
-        throw new Exception("OAuth Client Secret is required");
-      }
-      if (Utils.isEmpty(realAccessToken)) {
-        throw new Exception(
-            "OAuth Access Token is required. Please use the 'Authorize' button to obtain one.");
-      }
-      if (Utils.isEmpty(realInstanceUrl)) {
-        throw new Exception("OAuth Instance URL is required");
-      }
+  // Validate OAuth configuration
+  //      if (Utils.isEmpty(realClientId)) {
+  //        throw new Exception("OAuth Client ID is required");
+  //      }
+  //      if (Utils.isEmpty(realClientSecret)) {
+  //        throw new Exception("OAuth Client Secret is required");
+  //      }
+  //      if (Utils.isEmpty(realAccessToken)) {
+  //        throw new Exception(
+  //            "OAuth Access Token is required. Please use the 'Authorize' button to obtain one.");
+  //      }
+  //      if (Utils.isEmpty(realInstanceUrl)) {
+  //        throw new Exception("OAuth Instance URL is required");
+  //      }
 
-      // Try to create a connection to test it
-      SalesforceConnection connection =
-          new SalesforceConnection(
-              log, realClientId, realClientSecret, realAccessToken, realInstanceUrl);
-      connection.setTimeOut(Const.toInt(variables.resolve(meta.getTimeout()), 0));
+  // Try to create a connection to test it
+  //      SalesforceConnection connection =
+  //          new SalesforceConnection(
+  //              log, realClientId, realClientSecret, realAccessToken, realInstanceUrl);
+  //      connection.setTimeOut(Const.toInt(variables.resolve(meta.getTimeout()), 0));
+  //
+  //      // Test the connection
+  //      connection.connect();
+  //
+  //    } catch (Exception e) {
+  //      successConnection = false;
+  //      msgError = e.getMessage();
+  //    }
 
-      // Test the connection
-      connection.connect();
-
-    } catch (Exception e) {
-      successConnection = false;
-      msgError = e.getMessage();
-    }
-
-    if (successConnection) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      mb.setMessage(BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.OK"));
-      mb.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.Title.Ok"));
-      mb.open();
-    } else {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.Title.Error"),
-          BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.NOK"),
-          new Exception(msgError));
-    }
-  }
+  //    if (successConnection) {
+  //      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+  //      mb.setMessage(BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.OK"));
+  //      mb.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.Title.Ok"));
+  //      mb.open();
+  //    } else {
+  //      new ErrorDialog(
+  //          shell,
+  //          BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.Title.Error"),
+  //          BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.NOK"),
+  //          new Exception(msgError));
+  //    }
+  //  }
 
   @Override
   protected void getInfo(SalesforceTransformMeta in) throws HopException {
@@ -2118,7 +2122,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     meta.setTimeout(Const.NVL(wTimeOut.getText(), "0"));
     meta.setRowLimit(Const.NVL(wLimit.getText(), "0"));
     meta.setTargetURLField(Const.NVL(wInclURLField.getText(), ""));
-    meta.setSQLField(Const.NVL(wInclSQLField.getText(), ""));
+    meta.setSqlField(Const.NVL(wInclSQLField.getText(), ""));
     meta.setTimestampField(Const.NVL(wInclTimestampField.getText(), ""));
     meta.setModuleField(Const.NVL(wInclModuleField.getText(), ""));
     meta.setRowNumberField(Const.NVL(wInclRownumField.getText(), ""));
@@ -2135,17 +2139,18 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     meta.setIncludeDeletionDate(wInclDeletionDate.getSelection());
 
     // OAuth fields
-    meta.setAuthenticationType(isOAuthSelected() ? "OAUTH" : "USERNAME_PASSWORD");
-    meta.setOauthClientId(Const.NVL(wOAuthClientId.getText(), ""));
-    meta.setOauthClientSecret(Const.NVL(wOAuthClientSecret.getText(), ""));
-    meta.setOauthRedirectUri(Const.NVL(wOAuthRedirectUri.getText(), ""));
-    meta.setOauthInstanceUrl(Const.NVL(wOAuthInstanceUrl.getText(), ""));
-    meta.setOauthAccessToken(Const.NVL(wOAuthAccessToken.getText(), ""));
-    meta.setOauthRefreshToken(Const.NVL(wOAuthRefreshToken.getText(), ""));
+    //    meta.setAuthenticationType(isOAuthSelected() ? "OAUTH" : "USERNAME_PASSWORD");
+    //    meta.setOauthClientId(Const.NVL(wOAuthClientId.getText(), ""));
+    //    meta.setOauthClientSecret(Const.NVL(wOAuthClientSecret.getText(), ""));
+    //    meta.setOauthRedirectUri(Const.NVL(wOAuthRedirectUri.getText(), ""));
+    //    meta.setOauthInstanceUrl(Const.NVL(wOAuthInstanceUrl.getText(), ""));
+    //    meta.setOauthAccessToken(Const.NVL(wOAuthAccessToken.getText(), ""));
+    //    meta.setOauthRefreshToken(Const.NVL(wOAuthRefreshToken.getText(), ""));
     int nrFields = wFields.nrNonEmpty();
 
-    meta.allocate(nrFields);
+    //    meta.allocate(nrFields);
 
+    List<SalesforceInputField> inputFields = new ArrayList<>();
     for (int i = 0; i < nrFields; i++) {
       SalesforceInputField field = new SalesforceInputField();
 
@@ -2166,8 +2171,10 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       field.setRepeated(
           BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(12)));
 
-      meta.getInputFields()[i] = field;
+      inputFields.add(field);
+      //      meta.getInputFields()[i] = field;
     }
+    meta.setFields(inputFields);
   }
 
   // Preview the data

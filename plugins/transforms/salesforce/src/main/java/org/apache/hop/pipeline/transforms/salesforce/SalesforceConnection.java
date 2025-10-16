@@ -576,8 +576,8 @@ public class SalesforceConnection {
 
       // For OAuth, we need to create a proper SOAP binding with OAuth authentication
       ConnectorConfig config = new ConnectorConfig();
-      config.setAuthEndpoint(getOauthInstanceUrl() + "/services/Soap/u/58.0");
-      config.setServiceEndpoint(getOauthInstanceUrl() + "/services/Soap/u/58.0");
+      config.setAuthEndpoint(getOauthInstanceUrl() + "/services/Soap/u/64.0");
+      config.setServiceEndpoint(getOauthInstanceUrl() + "/services/Soap/u/64.0");
       config.setManualLogin(true);
 
       // Set OAuth session ID (access token) for authentication

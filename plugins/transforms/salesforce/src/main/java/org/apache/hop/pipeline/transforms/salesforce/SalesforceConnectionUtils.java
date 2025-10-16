@@ -27,7 +27,7 @@ public class SalesforceConnectionUtils {
   private static final Class<?> PKG = SalesforceInputMeta.class;
 
   public static final String TARGET_DEFAULT_URL =
-      "https://login.salesforce.com/services/Soap/u/50.0";
+      "https://login.salesforce.com/services/Soap/u/64.0";
 
   public static final String DEFAULT_TIMEOUT = "60000";
 

@@ -42,10 +42,11 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.TransformLoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnectionUtils;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceMetaTest;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
@@ -74,12 +75,13 @@ class SalesforceInputMetaTest {
   }
 
   @Test
-  void testSalesforceInputMeta() throws HopException {
+  void testSalesforceInputMeta() throws Exception {
     List<String> attributes = new ArrayList<>();
     attributes.addAll(SalesforceMetaTest.getDefaultAttributes());
     attributes.addAll(
         Arrays.asList(
-            "inputFields",
+            //            "inputFields",
+            "fields",
             "condition",
             "query",
             "specifyQuery",
@@ -107,27 +109,37 @@ class SalesforceInputMetaTest {
     getterMap.put("includeModule", "includeModule");
     getterMap.put("includeRowNumber", "includeRowNumber");
     getterMap.put("includeDeletionDate", "includeDeletionDate");
-    getterMap.put("includeSQL", "includeSQL");
-    getterMap.put("sqlField", "getSQLField");
-    setterMap.put("sqlField", "setSQLField");
+    getterMap.put("includeSQL", "isIncludeSQL");
+    getterMap.put("sqlField", "getSqlField");
+    setterMap.put("sqlField", "setSqlField");
     getterMap.put("includeTimestamp", "includeTimestamp");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidators = new HashMap<>();
-    fieldLoadSaveValidators.put(
-        "inputFields",
-        new ArrayLoadSaveValidator<>(new SalesforceInputFieldLoadSaveValidator(), 50));
-    fieldLoadSaveValidators.put("recordsFilter", new RecordsFilterLoadSaveValidator());
+    Class<SalesforceInputMeta> testMetaClass = SalesforceInputMeta.class;
+    LoadSaveTester<SalesforceInputMeta> tester = new LoadSaveTester<>(testMetaClass);
+    IFieldLoadSaveValidatorFactory factory = tester.getFieldLoadSaveValidatorFactory();
+    factory.registerValidator(
+        SalesforceInputMeta.class.getDeclaredField("fields").getGenericType().toString(),
+        new ListLoadSaveValidator<>(
+            new SalesforceInputMetaTest.SalesforceInputFieldLoadSaveValidator()));
 
-    TransformLoadSaveTester<SalesforceInputMeta> transformLoadSaveTester =
-        new TransformLoadSaveTester(
-            SalesforceInputMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
-            fieldLoadSaveValidators,
-            new HashMap<>());
-
-    transformLoadSaveTester.testXmlRoundTrip();
+    tester.testSerialization();
+    //    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidators = new HashMap<>();
+    //    fieldLoadSaveValidators.put(
+    //        "fields", new ListLoadSaveValidator<>(new SalesforceInputFieldLoadSaveValidator(),
+    // 50));
+    //    fieldLoadSaveValidators.put("recordsFilter", new RecordsFilterLoadSaveValidator());
+    //
+    //    TransformLoadSaveTester<SalesforceInputMeta> transformLoadSaveTester =
+    //        new TransformLoadSaveTester(
+    //            SalesforceInputMeta.class,
+    //            attributes,
+    //            getterMap,
+    //            setterMap,
+    //            fieldLoadSaveValidators,
+    //            new HashMap<>());
+    //
+    //    transformLoadSaveTester.testSerialization();
+    //        transformLoadSaveTester.testXmlRoundTrip();
   }
 
   @Test
@@ -138,7 +150,10 @@ class SalesforceInputMetaTest {
     meta.getFields(r, "thisTransform", null, null, new Variables(), null);
     assertEquals(0, r.size());
 
-    meta.setInputFields(new SalesforceInputField[] {new SalesforceInputField("field1")});
+    List<SalesforceInputField> fields = new ArrayList<>();
+    fields.add(new SalesforceInputField("field1"));
+    meta.setFields(fields);
+    //    meta.setInputFields(new SalesforceInputField[] {new SalesforceInputField("field1")});
     r.clear();
     meta.getFields(r, "thisTransform", null, null, new Variables(), null);
     assertEquals(1, r.size());
@@ -150,7 +165,7 @@ class SalesforceInputMetaTest {
     meta.setIncludeRowNumber(true);
     meta.setRowNumberField("RN");
     meta.setIncludeSQL(true);
-    meta.setSQLField("sqlField");
+    meta.setSqlField("sqlField");
     meta.setIncludeTargetURL(true);
     meta.setTargetURLField("Target");
     meta.setIncludeTimestamp(true);
@@ -185,7 +200,10 @@ class SalesforceInputMetaTest {
     remarks.clear();
     meta.setDefault();
     meta.setUsername("user");
-    meta.setInputFields(new SalesforceInputField[] {new SalesforceInputField("test")});
+    List<SalesforceInputField> fields = new ArrayList<>();
+    fields.add(new SalesforceInputField("test"));
+    meta.setFields(fields);
+    //    meta.setInputFields(new SalesforceInputField[] {new SalesforceInputField("test")});
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
@@ -205,7 +223,10 @@ class SalesforceInputMetaTest {
     meta.setIncludeSQL(true);
     meta.setIncludeTargetURL(true);
     meta.setIncludeTimestamp(true);
-    meta.setInputFields(new SalesforceInputField[] {new SalesforceInputField("test")});
+    List<SalesforceInputField> fields1 = new ArrayList<>();
+    fields1.add(new SalesforceInputField("test"));
+    meta.setFields(fields1);
+    //    meta.setInputFields(new SalesforceInputField[] {new SalesforceInputField("test")});
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
     int errorCount = 0;
@@ -229,12 +250,15 @@ class SalesforceInputMetaTest {
     meta.setIncludeRowNumber(true);
     meta.setRowNumberField("rownum");
     meta.setIncludeSQL(true);
-    meta.setSQLField("theSQL");
+    meta.setSqlField("theSQL");
     meta.setIncludeTargetURL(true);
     meta.setTargetURLField("theURL");
     meta.setIncludeTimestamp(true);
     meta.setTimestampField("ts_Field");
-    meta.setInputFields(new SalesforceInputField[] {new SalesforceInputField("test")});
+    List<SalesforceInputField> fields2 = new ArrayList<>();
+    fields2.add(new SalesforceInputField("test"));
+    meta.setFields(fields2);
+    //    meta.setInputFields(new SalesforceInputField[] {new SalesforceInputField("test")});
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
