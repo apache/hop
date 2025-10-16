@@ -304,14 +304,14 @@ public class Utils {
 
   public static String getDurationHMS(double seconds) {
     int day = (int) TimeUnit.SECONDS.toDays((long) seconds);
-    long hours = TimeUnit.SECONDS.toHours((long) seconds) - (day * 24);
+    long hours = TimeUnit.SECONDS.toHours((long) seconds) - (day * 24L);
     long minute =
         TimeUnit.SECONDS.toMinutes((long) seconds)
-            - (TimeUnit.SECONDS.toHours((long) seconds) * 60);
+            - (TimeUnit.SECONDS.toHours((long) seconds) * 60L);
     long second =
         TimeUnit.SECONDS.toSeconds((long) seconds)
-            - (TimeUnit.SECONDS.toMinutes((long) seconds) * 60);
-    long ms = (long) ((seconds - ((long) seconds)) * 1000);
+            - (TimeUnit.SECONDS.toMinutes((long) seconds) * 60L);
+    long ms = Math.round(((seconds - ((long) seconds)) * 1000L));
 
     StringBuilder hms = new StringBuilder();
     if (day > 0) {
