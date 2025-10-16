@@ -92,8 +92,8 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       variables = false,
-      label = "Scan folders to find last modified data",
-      toolTip = "Scan folders to find last modified data")
+      label = "i18n::GoogleCloudPlugin.ScanFolderForLastModificationDate.Label",
+      toolTip = "i18n::GoogleCloudPlugin.ScanFolderForLastModificationDate.Description")
   private Boolean scanFoldersForModificationDate;
 
   @GuiWidgetElement(
