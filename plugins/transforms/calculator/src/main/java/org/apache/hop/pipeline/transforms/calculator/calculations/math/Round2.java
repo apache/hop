@@ -31,7 +31,7 @@ public class Round2 implements ICalculation {
 
   @Override
   public String getCode() {
-    return "ROUND_1";
+    return "ROUND_2";
   }
 
   @Override

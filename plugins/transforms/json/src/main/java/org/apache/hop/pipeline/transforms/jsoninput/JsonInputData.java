@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.InputStream;
 import java.util.BitSet;
 import java.util.Iterator;
@@ -48,6 +49,7 @@ public class JsonInputData extends BaseFileInputTransformData implements ITransf
   public int indexSourceField;
 
   public Iterator<InputStream> inputs;
+  public Iterator<JsonNode> jsonInputs; // if incoming field is JsonNode
   public IJsonReader reader;
   public IRowSet readerRowSet;
   public BitSet repeatedFields;
