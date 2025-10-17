@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42'>
+  <defs>
+    <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+      <stop offset='0' stop-color='#6fc1ff'/>
+      <stop offset='1' stop-color='#2b9cff'/>
+    </linearGradient>
+    <filter id='f' x='-50%' y='-50%' width='200%' height='200%'>
+      <feGaussianBlur in='SourceAlpha' stdDeviation='1' result='blur'/>
+      <feOffset in='blur' dx='0' dy='1' result='off'/>
+      <feMerge>
+        <feMergeNode in='off'/>
+        <feMergeNode in='SourceGraphic'/>
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx='21' cy='21' r='20' fill='white' stroke='rgba(43,156,255,0.12)' stroke-width='0.8'/>
+  <circle cx='21' cy='21' r='19' fill='url(#g)' opacity='0.06'/>
+  <g transform='translate(21,21)' stroke='#2b9cff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' filter='url(#f)' fill='none'>
+    <g>
+      <line x1='0' y1='-11' x2='0' y2='11'/>
+      <line x1='-9.5' y1='-5.5' x2='9.5' y2='5.5'/>
+      <line x1='-9.5' y1='5.5' x2='9.5' y2='-5.5'/>
+    </g>
+    <g stroke-width='1.2'>
+      <path d='M0 -7 L-3 -9 M0 -7 L3 -9'/>
+      <path d='M0 7 L-3 9 M0 7 L3 9'/>
+      <path d='M6 3 L8 0 M6 3 L8 6'/>
+      <path d='M-6 -3 L-8 -6 M-6 -3 L-8 0'/>
+      <path d='M6 -3 L8 -6 M6 -3 L8 0'/>
+      <path d='M-6 3 L-8 6 M-6 3 L-8 0'/>
+    </g>
+    <polygon points='0,-4 3,-2 3,2 0,4 -3,2 -3,-2' fill='#eaffff' stroke='#2b9cff' stroke-width='1'/>
+  </g>
+  <g>
+    <rect x='7' y='6' width='3.6' height='3.6' rx='0.6' fill='#2b9cff' opacity='0.95'/>
+    <rect x='29' y='10' width='3' height='3' rx='0.5' fill='#6fc1ff' opacity='0.95'/>
+    <rect x='9' y='28' width='2.6' height='2.6' rx='0.4' fill='#2b9cff' opacity='0.95'/>
+  </g>
+  <text x='27' y='33.2' font-family='Inter, Arial, Helvetica, sans-serif' font-size='7.5' font-weight='600' fill='#0b6fb6'>ID</text>
+</svg>

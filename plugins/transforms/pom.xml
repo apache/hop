@@ -31,6 +31,7 @@
     <modules>
         <module>abort</module>
         <module>addsequence</module>
+        <module>addsnowflakeid</module>
         <module>analyticquery</module>
         <module>append</module>
         <module>blockingtransform</module>
