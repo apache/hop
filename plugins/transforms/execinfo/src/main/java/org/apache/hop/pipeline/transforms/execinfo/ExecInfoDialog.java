@@ -123,14 +123,14 @@ public class ExecInfoDialog extends BaseTransformDialog {
     FormData fdlOperationType = new FormData();
     fdlOperationType.left = new FormAttachment(0, 0);
     fdlOperationType.top = new FormAttachment(lastControl, margin);
-    fdlOperationType.right = new FormAttachment(middle, 0);
+    fdlOperationType.right = new FormAttachment(middle, -margin);
     wlOperationType.setLayoutData(fdlOperationType);
     wOperationType = new CCombo(shell, SWT.LEFT | SWT.BORDER);
     wOperationType.setToolTipText(
         BaseMessages.getString(PKG, "ExecInfoDialog.OperationType.Tooltip"));
     PropsUi.setLook(wOperationType);
     FormData fdOperationType = new FormData();
-    fdOperationType.left = new FormAttachment(middle, margin);
+    fdOperationType.left = new FormAttachment(middle, 0);
     fdOperationType.top = new FormAttachment(lastControl, margin);
     fdOperationType.right = new FormAttachment(100, 0);
     wOperationType.setLayoutData(fdOperationType);

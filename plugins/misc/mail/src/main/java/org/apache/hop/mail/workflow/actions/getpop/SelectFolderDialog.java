@@ -128,7 +128,7 @@ public class SelectFolderDialog extends Dialog {
       Folder[] f = folder.list();
       for (Folder value : f) {
         tiTree = topfolder ? new TreeItem(wTree, SWT.NONE) : new TreeItem(parentTreeItem, SWT.NONE);
-        tiTree.setImage(guiresource.getImageBol());
+        tiTree.setImage(guiresource.getImageFolder());
         tiTree.setText(value.getName());
         // Search for sub folders
         if ((value.getType() & Folder.HOLDS_FOLDERS) != 0) {

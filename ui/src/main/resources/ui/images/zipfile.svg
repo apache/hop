@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 14.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 43363)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="42px" height="42px" viewBox="0 0 42 42" enable-background="new 0 0 42 42" xml:space="preserve">
+<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42">
 <g>
 	<path fill="#FFECCE" d="M27.858,2.565H12.894v2.252h-1.813V2.565h-3.43v36.867h26.632V8.997h-6.426V2.565z M11.08,8.479h1.813
 		v3.548H11.08V8.479z M11.08,15.689h1.813v3.548H11.08V15.689z M11.08,22.879h1.813v3.546H11.08V22.879z M14.871,35.685h-3.933
 		v-8.365h3.933V35.685z M14.98,22.842h-1.812v-3.547h1.812V22.842z M14.98,15.632h-1.812v-3.548h1.812V15.632z M14.98,8.422h-1.812
 		V4.875h1.812V8.422z"/>
-	<path fill="#FFECCE" d="M12.058,34.907h1.694c0.275,0,0.495-0.22,0.495-0.494v-0.764c0-0.274-0.22-0.495-0.495-0.495h-1.694
+    <path fill="#FFECCE" d="M12.058,34.907h1.694c0.275,0,0.495-0.22,0.495-0.494v-0.764c0-0.274-0.22-0.495-0.495-0.495h-1.694
 		c-0.273,0-0.495,0.221-0.495,0.495v0.764C11.563,34.685,11.786,34.907,12.058,34.907z"/>
-	<path fill="#FF9C04" d="M34.271,6.429h-3.847V2.583L27.843,0H5.085v42h31.767V9.008L34.271,6.429z M34.284,39.433H7.652V2.565h3.43
+    <path fill="#FF9C04" d="M34.271,6.429h-3.847V2.583L27.843,0H5.085v42h31.767V9.008L34.271,6.429z M34.284,39.433H7.652V2.565h3.43
 		v2.252h1.813V2.565h14.964v6.431h6.426V39.433z"/>
-	<rect x="11.08" y="8.479" fill="#FF9C04" width="1.813" height="3.548"/>
-	<rect x="11.08" y="15.689" fill="#FF9C04" width="1.813" height="3.548"/>
-	<rect x="13.168" y="4.875" fill="#FF9C04" width="1.812" height="3.547"/>
-	<rect x="13.168" y="12.085" fill="#FF9C04" width="1.812" height="3.549"/>
-	<rect x="13.168" y="19.294" fill="#FF9C04" width="1.812" height="3.547"/>
-	<rect x="11.08" y="22.879" fill="#FF9C04" width="1.813" height="3.546"/>
-	<path fill="#FF9C04" d="M10.938,35.685h3.933v-8.365h-3.933V35.685z M11.563,33.649c0-0.274,0.222-0.495,0.495-0.495h1.694
+    <rect x="11.08" y="8.479" fill="#FF9C04" width="1.813" height="3.548"/>
+    <rect x="11.08" y="15.689" fill="#FF9C04" width="1.813" height="3.548"/>
+    <rect x="13.168" y="4.875" fill="#FF9C04" width="1.812" height="3.547"/>
+    <rect x="13.168" y="12.085" fill="#FF9C04" width="1.812" height="3.549"/>
+    <rect x="13.168" y="19.294" fill="#FF9C04" width="1.812" height="3.547"/>
+    <rect x="11.08" y="22.879" fill="#FF9C04" width="1.813" height="3.546"/>
+    <path fill="#FF9C04" d="M10.938,35.685h3.933v-8.365h-3.933V35.685z M11.563,33.649c0-0.274,0.222-0.495,0.495-0.495h1.694
 		c0.275,0,0.495,0.221,0.495,0.495v0.764c0,0.274-0.22,0.494-0.495,0.494h-1.694c-0.273,0-0.495-0.22-0.495-0.494V33.649z"/>
 </g>
 </svg>

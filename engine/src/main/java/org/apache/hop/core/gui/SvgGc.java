@@ -601,7 +601,6 @@ public class SvgGc implements IGc {
       case LOCK -> imageLocked;
       case FAILURE -> imageFailure;
       case EDIT -> imageEdit;
-      case CONTEXT_MENU -> imageContextMenu;
       case TRUE -> imageTrue;
       case TRUE_DISABLED -> imageTrueDisabled;
       case FALSE -> imageFalse;
@@ -614,7 +613,6 @@ public class SvgGc implements IGc {
       case TARGET_DISABLED -> imageTargetDisabled;
       case INPUT -> imageInput;
       case OUTPUT -> imageOutput;
-      case ARROW -> imageArrow;
       case COPY_ROWS -> imageCopyRows;
       case COPY_ROWS_DISABLED -> imageCopyRowsDisabled;
       case LOAD_BALANCE -> imageLoadBalance;

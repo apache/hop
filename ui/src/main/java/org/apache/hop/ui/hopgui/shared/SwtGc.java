@@ -181,7 +181,6 @@ public class SwtGc implements IGc {
       case LOCK -> GuiResource.getInstance().getSwtImageLocked();
       case FAILURE -> GuiResource.getInstance().getSwtImageFailure();
       case EDIT -> GuiResource.getInstance().getSwtImageEdit();
-      case CONTEXT_MENU -> GuiResource.getInstance().getSwtImageContextMenu();
       case TRUE -> GuiResource.getInstance().getSwtImageTrue();
       case TRUE_DISABLED -> GuiResource.getInstance().getSwtImageTrueDisabled();
       case FALSE -> GuiResource.getInstance().getSwtImageFalse();
@@ -195,7 +194,6 @@ public class SwtGc implements IGc {
       case TARGET_DISABLED -> GuiResource.getInstance().getSwtImageTargetDisabled();
       case INPUT -> GuiResource.getInstance().getSwtImageInput();
       case OUTPUT -> GuiResource.getInstance().getSwtImageOutput();
-      case ARROW -> GuiResource.getInstance().getSwtImageArrow();
       case COPY_ROWS -> GuiResource.getInstance().getSwtImageCopyRows();
       case COPY_ROWS_DISABLED -> GuiResource.getInstance().getSwtImageCopyRowsDisabled();
       case LOAD_BALANCE -> GuiResource.getInstance().getSwtImageBalance();
