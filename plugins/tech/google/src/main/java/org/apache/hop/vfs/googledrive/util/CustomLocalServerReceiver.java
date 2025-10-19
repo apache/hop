@@ -20,16 +20,16 @@ package org.apache.hop.vfs.googledrive.util;
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
 import com.google.api.client.util.Throwables;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.URL;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.Fields;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 public class CustomLocalServerReceiver implements VerificationCodeReceiver {
 
@@ -60,15 +60,10 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
     }
 
     this.server = new Server(this.port);
-    Connector[] connectors = this.server.getConnectors();
-    int length = connectors.length;
 
-    for (int i = 0; i < length; ++i) {
-      Connector c = connectors[i];
-      c.setHost(this.host);
-    }
-
-    this.server.addHandler(new CallbackHandler());
+    InetSocketAddress socketAddress = new InetSocketAddress(this.host, this.port);
+    this.server = new Server(socketAddress);
+    this.server.setHandler(new CallbackHandler());
 
     try {
       this.server.start();
@@ -108,7 +103,7 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
 
   private static int getUnusedPort() throws IOException {
     Socket s = new Socket();
-    s.bind((SocketAddress) null);
+    s.bind((InetSocketAddress) null);
 
     int var1;
     try {
@@ -124,29 +119,33 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
     CallbackHandler() {
       URL warUrl = this.getClass().getClassLoader().getResource("success_page");
       String warUrlString = warUrl.toExternalForm();
-      setResourceBase(warUrlString);
+      setBaseResource(ResourceFactory.of(this).newResource(warUrlString));
       setContextPath("/Callback");
     }
 
     @Override
-    public void handle(
-        String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
-        throws IOException, ServletException {
-      if (target.contains("/Callback")) {
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
+      String pathInContext = request.getHttpURI().getPath();
 
-        CustomLocalServerReceiver.this.error = request.getParameter("error");
+      if (pathInContext.contains("/Callback")) {
+
+        Fields params = Request.extractQueryParameters(request);
+
+        CustomLocalServerReceiver.this.error = params.getValue("error");
         if (CustomLocalServerReceiver.this.code == null) {
-          CustomLocalServerReceiver.this.code = request.getParameter("code");
+          CustomLocalServerReceiver.this.code = params.getValue("code");
         }
         if (CustomLocalServerReceiver.this.url != null
             && CustomLocalServerReceiver.this.error != null
             && CustomLocalServerReceiver.this.error.equals("access_denied")) {
-          response.sendRedirect(CustomLocalServerReceiver.this.url);
+          Response.sendRedirect(request, response, callback, CustomLocalServerReceiver.this.url);
         } else {
-          super.handle(target, request, response, dispatch);
+          return super.handle(request, response, callback);
         }
-        ((Request) request).setHandled(true);
       }
+
+      callback.succeeded();
+      return true;
     }
   }
 

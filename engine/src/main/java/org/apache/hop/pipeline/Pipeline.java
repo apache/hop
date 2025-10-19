@@ -26,6 +26,8 @@ import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.PREPARING;
 import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.RUNNING;
 import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.STOPPED;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -40,8 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;

@@ -17,8 +17,8 @@
 
 package org.apache.hop.ui.hopgui;
 
+import jakarta.servlet.ServletContextEvent;
 import java.util.logging.Logger;
-import javax.servlet.ServletContextEvent;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.eclipse.rap.rwt.engine.RWTServletContextListener;

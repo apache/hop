@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import jakarta.ws.rs.core.MediaType;
 import javax.net.ssl.SSLContext;
-import javax.ws.rs.core.MediaType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;

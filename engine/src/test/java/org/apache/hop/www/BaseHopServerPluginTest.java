@@ -24,6 +24,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -31,8 +33,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.core.logging.ILogChannel;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +48,8 @@ public class BaseHopServerPluginTest {
   IHopServerRequestHandler.IOutputStreamResponse outputStreamResponse =
       mock(IHopServerRequestHandler.IOutputStreamResponse.class);
   PrintWriter printWriter = mock(PrintWriter.class);
-  javax.servlet.ServletOutputStream outputStream = mock(javax.servlet.ServletOutputStream.class);
+  jakarta.servlet.ServletOutputStream outputStream =
+      mock(jakarta.servlet.ServletOutputStream.class);
 
   ArgumentCaptor<IHopServerRequestHandler.IHopServerRequest> carteReqCaptor =
       ArgumentCaptor.forClass(IHopServerRequestHandler.IHopServerRequest.class);

@@ -90,8 +90,8 @@
         <jakarta-mail.version>2.0.1</jakarta-mail.version>
         <jakarta.version>3.1.0</jakarta.version>
         <javassist.version>3.28.0-GA</javassist.version>
-        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <jetty.version>9.4.41.v20210516</jetty.version>
+        <jetty-jaas.version>11.0.26</jetty-jaas.version>
+        <jetty.version>12.1.2</jetty.version>
         <jna.version>5.13.0</jna.version>
         <joda-time.version>2.12.1</joda-time.version>
         <jsch.version>0.2.18</jsch.version>
@@ -605,7 +605,7 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-jaas</artifactId>
-                <version>${jetty.version}</version>
+                <version>${jetty-jaas.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
@@ -618,13 +618,13 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlet</artifactId>
+                <groupId>org.eclipse.jetty.ee11</groupId>
+                <artifactId>jetty-ee11-servlet</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlets</artifactId>
+                <groupId>org.eclipse.jetty.ee11</groupId>
+                <artifactId>jetty-ee11-servlets</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
@@ -633,8 +633,8 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-webapp</artifactId>
+                <groupId>org.eclipse.jetty.ee11</groupId>
+                <artifactId>jetty-ee11-webapp</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>

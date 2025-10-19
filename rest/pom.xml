@@ -30,8 +30,8 @@
     <name>Hop REST</name>
 
     <properties>
-        <jakarta.version>3.1.0</jakarta.version>
-        <jersey.version>3.1.0</jersey.version>
+        <jakarta.version>4.0.0</jakarta.version>
+        <jersey.version>3.1.11</jersey.version>
     </properties>
 
     <dependencyManagement>
@@ -117,17 +117,17 @@
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
-            <version>${jakarta.version}</version>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
-            <version>${jakarta.version}</version>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
-            <version>${jakarta.version}</version>
+            <version>${jersey.version}</version>
         </dependency>
     </dependencies>
 
