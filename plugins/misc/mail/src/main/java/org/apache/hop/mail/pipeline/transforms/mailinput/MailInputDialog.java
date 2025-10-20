@@ -724,7 +724,7 @@ public class MailInputDialog extends BaseTransformDialog {
 
     // SelectFolder button
     wSelectFolder = new Button(wIMAPSettings, SWT.PUSH);
-    wSelectFolder.setImage(GuiResource.getInstance().getImageBol());
+    wSelectFolder.setImage(GuiResource.getInstance().getImageFolder());
     wSelectFolder.setToolTipText(
         BaseMessages.getString(PKG, "MailInput.SelectFolderConnection.Label"));
     PropsUi.setLook(wSelectFolder);

@@ -1,11 +1,8 @@
-<?xml version="1.0" ?>
-<!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>
+<?xml version="1.0" encoding="utf-8"?>
 <svg
-        height="512px"
+        height="512"
         version="1.1"
-        viewBox="0 0 512 512"
-        width="512px"
-        xml:space="preserve"
+        width="512"
         xmlns="http://www.w3.org/2000/svg">
   <path style="fill:#0e3a5a"
         d="M424.5,216.5h-15.2c-12.4,0-22.8-10.7-22.8-23.4c0-6.4,2.7-12.2,7.5-16.5l9.8-9.6c9.7-9.6,9.7-25.3,0-34.9l-22.3-22.1

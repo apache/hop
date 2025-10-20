@@ -143,7 +143,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       case OUTPUT:
         return EImage.OUTPUT;
       default:
-        return EImage.ARROW;
+        return EImage.ARROW_DEFAULT;
     }
   }
 
