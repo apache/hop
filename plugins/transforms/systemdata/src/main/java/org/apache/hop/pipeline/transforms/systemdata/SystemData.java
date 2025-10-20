@@ -536,7 +536,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
           Result previousResult = getPipeline().getPreviousResult();
           boolean result = false;
           if (previousResult != null) {
-            result = previousResult.getResult();
+            result = previousResult.isResult();
           }
           row[index] = result;
           break;

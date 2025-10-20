@@ -82,7 +82,7 @@ class WorkflowActionFilesExistTest {
 
     Result res = action.execute(new Result(), 0);
 
-    assertFalse(res.getResult(), "Entry should fail");
+    assertFalse(res.isResult(), "Entry should fail");
     assertEquals(
         0,
         res.getNrErrors(),
@@ -95,7 +95,7 @@ class WorkflowActionFilesExistTest {
 
     Result res = action.execute(new Result(), 0);
 
-    assertFalse(res.getResult(), "Action should fail");
+    assertFalse(res.isResult(), "Action should fail");
     assertEquals(
         1, res.getNrErrors(), "File with wrong name was specified. One error should be reported");
   }
@@ -105,7 +105,7 @@ class WorkflowActionFilesExistTest {
     action.setFileItems(List.of(new FileItem(existingFile1), new FileItem(existingFile2)));
 
     Result res = action.execute(new Result(), 0);
-    assertTrue(res.getResult());
+    assertTrue(res.isResult());
   }
 
   @Test
@@ -118,6 +118,6 @@ class WorkflowActionFilesExistTest {
             new FileItem("nonExistingFile2.ext")));
 
     Result res = action.execute(new Result(), 0);
-    assertFalse(res.getResult());
+    assertFalse(res.isResult());
   }
 }

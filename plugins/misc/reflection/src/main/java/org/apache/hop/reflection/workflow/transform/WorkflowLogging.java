@@ -136,7 +136,7 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
         transformRow[index++] = result.getEntryNr();
 
         // Result (true/false)
-        transformRow[index++] = result.getResult();
+        transformRow[index++] = result.isResult();
 
         // Log channel ID
         transformRow[index++] = actionResult.getLogChannelId();

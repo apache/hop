@@ -83,7 +83,7 @@ class WorkflowActionCopyFilesTest {
         .processFileFolder(
             anyString(), anyString(), anyString(), any(Workflow.class), any(Result.class));
     verify(entry, atLeast(1)).preprocessfilefilder(any(String[].class));
-    Assertions.assertFalse(result.getResult());
+    Assertions.assertFalse(result.isResult());
     Assertions.assertEquals(1, result.getNrErrors());
   }
 
@@ -101,7 +101,7 @@ class WorkflowActionCopyFilesTest {
     verify(entry, times(srcPath.length))
         .processFileFolder(
             anyString(), anyString(), anyString(), any(Workflow.class), any(Result.class));
-    Assertions.assertFalse(result.getResult());
+    Assertions.assertFalse(result.isResult());
     Assertions.assertEquals(3, result.getNrErrors());
   }
 

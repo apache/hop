@@ -427,7 +427,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         outputRow[idx++] = Long.valueOf(System.currentTimeMillis() - getData().groupTimeStart);
       }
       if (!Utils.isEmpty(meta.getExecutionResultField())) {
-        outputRow[idx++] = Boolean.valueOf(result.getResult());
+        outputRow[idx++] = Boolean.valueOf(result.isResult());
       }
       if (!Utils.isEmpty(meta.getExecutionNrErrorsField())) {
         outputRow[idx++] = Long.valueOf(result.getNrErrors());

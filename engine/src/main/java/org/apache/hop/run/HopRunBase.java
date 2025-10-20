@@ -396,7 +396,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       log.logMinimal("Starting workflow: " + workflowMeta.getFilename());
 
       workflow.startExecution();
-      setFinishedWithoutError(workflow.getResult().getResult());
+      setFinishedWithoutError(workflow.getResult().isResult());
     } catch (Exception e) {
       throw new ExecutionException(cmd, "Error running workflow locally", e);
     }

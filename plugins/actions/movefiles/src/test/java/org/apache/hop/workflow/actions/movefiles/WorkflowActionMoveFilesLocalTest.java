@@ -67,7 +67,7 @@ class WorkflowActionMoveFilesLocalTest {
     action.setDestinationIsAFile(true);
 
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Move operation should succeed");
+    assertTrue(result.isResult(), "Move operation should succeed");
     assertFalse(Files.exists(sourceFile), "Source file should not exist");
     assertTrue(Files.exists(destFile), "Destination file should exist");
     assertEquals(
@@ -88,7 +88,7 @@ class WorkflowActionMoveFilesLocalTest {
     action.setDestinationIsAFile(false);
 
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Move operation should succeed");
+    assertTrue(result.isResult(), "Move operation should succeed");
     assertTrue(
         Files.exists(destinationFolder.toPath().resolve("test1.txt")), "test1.txt should be moved");
     assertTrue(
@@ -108,7 +108,7 @@ class WorkflowActionMoveFilesLocalTest {
     action.setDestinationIsAFile(true);
 
     Result result = action.execute(new Result(), 0);
-    assertFalse(result.getResult(), "Move should not succeed when destination exists");
+    assertFalse(result.isResult(), "Move should not succeed when destination exists");
     assertTrue(Files.exists(sourceFile), "Source file should still exist");
     assertEquals(
         originalContent,
@@ -127,7 +127,7 @@ class WorkflowActionMoveFilesLocalTest {
     action.setIfFileExists("overwrite_file");
 
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Move with overwrite should succeed");
+    assertTrue(result.isResult(), "Move with overwrite should succeed");
     assertFalse(Files.exists(sourceFile), "Source file should not exist");
     assertTrue(Files.exists(destFile), "Destination file should exist");
     assertEquals(
@@ -149,7 +149,7 @@ class WorkflowActionMoveFilesLocalTest {
     action.setCreateDestinationFolder(true);
 
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Move should succeed");
+    assertTrue(result.isResult(), "Move should succeed");
     assertTrue(Files.exists(destinationFolder.toPath()), "Destination folder should be created");
     assertTrue(Files.exists(destFile), "File should be moved");
   }

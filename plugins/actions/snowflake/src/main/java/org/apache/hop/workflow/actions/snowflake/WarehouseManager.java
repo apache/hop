@@ -411,7 +411,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
 
     Result result = previousResult;
     result.setResult(validate());
-    if (!result.getResult()) {
+    if (!result.isResult()) {
       return result;
     }
 

@@ -77,7 +77,7 @@ class WorkflowActionFolderIsEmptyTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult(), "For empty folder result should be true");
+    assertTrue(result.isResult(), "For empty folder result should be true");
     assertEquals(0, result.getNrErrors(), "There should be no errors");
   }
 
@@ -87,7 +87,7 @@ class WorkflowActionFolderIsEmptyTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult(), "For non-empty folder result should be false");
+    assertFalse(result.isResult(), "For non-empty folder result should be false");
     assertEquals(0, result.getNrErrors(), "There should be still no errors");
   }
 }
