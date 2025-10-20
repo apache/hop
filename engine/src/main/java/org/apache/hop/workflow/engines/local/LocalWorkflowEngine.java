@@ -137,7 +137,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
               // All fine?  Commit!
               //
               try {
-                if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
+                if (result.isResult() && !result.isStopped() && result.getNrErrors() == 0) {
                   try {
                     database.commit(true);
                     workflow

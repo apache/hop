@@ -232,7 +232,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
         outputRow[idx++] = Long.valueOf(System.currentTimeMillis() - data.groupTimeStart);
       }
       if (!Utils.isEmpty(meta.getExecutionResultField())) {
-        outputRow[idx++] = Boolean.valueOf(result.getResult());
+        outputRow[idx++] = Boolean.valueOf(result.isResult());
       }
       if (!Utils.isEmpty(meta.getExecutionNrErrorsField())) {
         outputRow[idx++] = Long.valueOf(result.getNrErrors());

@@ -252,7 +252,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     boolean actionError = false;
     ActionResult actionResult = findActionResult(actionMeta);
     if (actionResult != null && !actionResult.isCheckpoint()) {
-      actionError = !actionResult.getResult().getResult();
+      actionError = !actionResult.getResult().isResult();
     }
 
     if (actionError || actionMeta.isMissing()) {
@@ -372,7 +372,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
                 actionMeta,
                 actionResult));
       } else {
-        if (result.getResult()) {
+        if (result.isResult()) {
           gc.drawImage(EImage.SUCCESS, iconX, iconY, magnification);
           areaOwners.add(
               new AreaOwner(

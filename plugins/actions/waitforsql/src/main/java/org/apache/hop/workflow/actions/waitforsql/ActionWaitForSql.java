@@ -359,7 +359,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       logBasic("Exception while waiting for SQL data: " + e.getMessage());
     }
 
-    if (result.getResult()) {
+    if (result.isResult()) {
       // Remove error count set at the beginning of the method
       //
       result.setNrErrors(0);

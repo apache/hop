@@ -167,7 +167,7 @@ public final class ExecutionStateBuilder {
         .withName(workflow.getWorkflowMeta().getName())
         .withLoggingText(getLoggingText(workflow.getLogChannelId(), lastLogLineNr))
         .withLastLogLineNr(lastNrInLogStore)
-        .withFailed(result != null && !result.getResult())
+        .withFailed(result != null && !result.isResult())
         .withStatusDescription(workflow.getStatusDescription())
         .withChildIds(
             LoggingRegistry.getInstance().getChildrenMap().get(workflow.getLogChannelId()))

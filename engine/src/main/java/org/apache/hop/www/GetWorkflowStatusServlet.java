@@ -149,7 +149,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           for (ActionResult actionResult : workflow.getActionResults()) {
             ActionStatus actionState = new ActionStatus();
             actionState.setName(actionResult.getActionName());
-            if (actionResult.getResult().getResult()) {
+            if (actionResult.getResult().isResult()) {
               actionState.setStatus(Status.FINISHED);
             } else {
               actionState.setStatus(Status.STOPPED);

@@ -192,7 +192,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       repetitionNr++;
       executionResult = executePipelineOrWorkflow(realFilename, nr, executionResult, repetitionNr);
       Result result = executionResult.result;
-      if (!result.getResult() || result.getNrErrors() > 0 || result.isStopped()) {
+      if (!result.isResult() || result.getNrErrors() > 0 || result.isStopped()) {
         logError("The repeating work encountered and error or was stopped. This ends the loop.");
 
         // On an false result, stop the loop
