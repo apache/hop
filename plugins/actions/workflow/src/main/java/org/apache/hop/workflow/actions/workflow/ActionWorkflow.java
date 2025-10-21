@@ -537,7 +537,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
           // if one of them fails (in the loop), increase the number of errors
           //
-          if (oneResult.getResult() == false) {
+          if (oneResult.isResult() == false) {
             result.setNrErrors(result.getNrErrors() + 1);
           }
         }

@@ -307,7 +307,7 @@ public class WorkflowLoggingExtensionPoint
                   workflowPars.put("linesWritten", workflowResult.getNrLinesWritten());
                   workflowPars.put("linesRejected", workflowResult.getNrLinesRejected());
                   workflowPars.put("loggingText", workflowLoggingText);
-                  workflowPars.put("result", workflowResult.getResult());
+                  workflowPars.put("result", workflowResult.isResult());
                   workflowPars.put("nrResultRows", workflowResult.getRows().size());
                   workflowPars.put("nrResultFiles", workflowResult.getResultFilesList().size());
                   workflowPars.put("containerId", workflowResult.getContainerId());

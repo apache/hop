@@ -29,6 +29,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +39,9 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
+import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 
 public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFileSystem> {
 
@@ -195,9 +201,16 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected long doGetLastModifiedTime() throws Exception {
     if (hasObject()) {
+      GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
       if (isFolder()) {
-        // getting the update time of a folder gives an NPE
-        return 0;
+        // Only return the last modified time for a folder if the user wants to scan for it.
+
+        if (Boolean.TRUE.equals(config.getScanFoldersForLastModifDate())
+            || Const.toBoolean(System.getenv(Const.HOP_GCP_GET_FOLDER_LASTMODIFICATION_DATE))) {
+          return getLatestModifiedFileTime().toInstant().toEpochMilli();
+        } else {
+          return 0;
+        }
       }
       return blob.getUpdateTime();
     }
@@ -300,6 +313,13 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
     return name;
   }
 
+  String stripLeadingSlash(String name) {
+    if (name.startsWith("/")) {
+      return name.substring(1);
+    }
+    return name;
+  }
+
   String lastPathElement(String name) {
     int idx = name.lastIndexOf('/');
     if (idx > -1) {
@@ -321,5 +341,22 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   public int hashCode() {
     return Objects.hash(getName().getPath());
+  }
+
+  private OffsetDateTime getLatestModifiedFileTime() {
+    Storage storage = getAbstractFileSystem().setupStorage();
+    OffsetDateTime latest = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC);
+    Page<Blob> page =
+        storage.list(
+            bucketName, BlobListOption.prefix(stripLeadingSlash(appendTrailingSlash(bucketPath))));
+    for (Blob blob : page.iterateAll()) {
+      if (!blob.isDirectory()) {
+        OffsetDateTime updated = blob.getUpdateTimeOffsetDateTime();
+        if (updated != null && updated.isAfter(latest)) {
+          latest = updated;
+        }
+      }
+    }
+    return latest;
   }
 }

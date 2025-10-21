@@ -41,8 +41,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     name = "Google Secret Manager Variable Resolver",
     description = "Automatically look up values of secrets in Google Secret Manager",
     documentationUrl =
-        "/variables/resolvers/google-secret-manager.html" // TODO: write this documentation
-    )
+        "/metadata-types/variable-resolver/google-secret-manager-variable-resolver.html")
 public class GooleSecretManagerVariableResolver implements IVariableResolver {
 
   /** The name of the variable that will contain the expression in the pipeline. */

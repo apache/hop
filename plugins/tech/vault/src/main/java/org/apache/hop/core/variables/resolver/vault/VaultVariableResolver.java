@@ -49,8 +49,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     id = "Vault-Variable-Resolver",
     name = "Hashicorp Vault Variable Resolver",
     description = "Look up values of secrets in Hashicorp Vault",
-    documentationUrl = "/variables/resolvers/hashicorp-vault.html" // TODO: write this documentation
-    )
+    documentationUrl = "/metadata-types/variable-resolver/hashicorp-vault-variable-resolver.html")
 public class VaultVariableResolver implements IVariableResolver {
 
   @GuiWidgetElement(

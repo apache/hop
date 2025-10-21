@@ -114,7 +114,7 @@ class ActionSetVariablesTest {
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/ASCIIText.properties");
     action.setReplaceVars(true);
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertEquals("日本語", action.getVariable("Japanese"));
     assertEquals("English", action.getVariable("English"));
     assertEquals("中文", action.getVariable("Chinese"));
@@ -127,7 +127,7 @@ class ActionSetVariablesTest {
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/UTF8Text.properties");
     action.setReplaceVars(true);
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertEquals("日本語", action.getVariable("Japanese"));
     assertEquals("English", action.getVariable("English"));
     assertEquals("中文", action.getVariable("Chinese"));
@@ -141,7 +141,7 @@ class ActionSetVariablesTest {
     action.setFilename(propertiesFilename);
     action.setReplaceVars(true);
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     RandomAccessFile fos = null;
     try {
       File file = new File(propertiesFilename);
@@ -172,7 +172,7 @@ class ActionSetVariablesTest {
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/configurationA.properties");
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertEquals("a", parentWorkflow.getVariable("propertyFile"));
     assertEquals("a", parentWorkflow.getVariable("dynamicProperty"));
     assertEquals("parentValue", parentWorkflow.getVariable("parentParam"));
@@ -180,7 +180,7 @@ class ActionSetVariablesTest {
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/configurationB.properties");
     result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertEquals("b", parentWorkflow.getVariable("propertyFile"));
     assertEquals("new", parentWorkflow.getVariable("newProperty"));
     assertEquals("haha", parentWorkflow.getVariable("parentParam"));
@@ -190,7 +190,7 @@ class ActionSetVariablesTest {
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/configurationA.properties");
     result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertEquals("a", parentWorkflow.getVariable("propertyFile"));
     assertEquals("", parentWorkflow.getVariable("newProperty"));
     assertEquals("parentValue", parentWorkflow.getVariable("parentParam"));
@@ -200,7 +200,7 @@ class ActionSetVariablesTest {
     action.setFilename(
         "src/test/resources/org/apache/hop/workflow/actions/setvariables/configurationB.properties");
     result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertEquals("b", parentWorkflow.getVariable("propertyFile"));
     assertEquals("new", parentWorkflow.getVariable("newProperty"));
     assertEquals("haha", parentWorkflow.getVariable("parentParam"));
@@ -213,7 +213,7 @@ class ActionSetVariablesTest {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(getEntryNode("nullVariable", null, "JVM"), metadataProvider, new Variables());
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertNull(System.getProperty("nullVariable"));
   }
 
@@ -223,7 +223,7 @@ class ActionSetVariablesTest {
     action.loadXml(
         getEntryNode("nullVariable", null, "CURRENT_WORKFLOW"), metadataProvider, new Variables());
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertNull(action.getVariable("nullVariable"));
   }
 
@@ -234,7 +234,7 @@ class ActionSetVariablesTest {
         getEntryNode("variableNotNull", "someValue", "JVM"), metadataProvider, new Variables());
     assertNull(System.getProperty("variableNotNull"));
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertEquals("someValue", System.getProperty("variableNotNull"));
   }
 
@@ -247,7 +247,7 @@ class ActionSetVariablesTest {
         new Variables());
     assertNull(System.getProperty("variableNotNull"));
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Result should be true");
+    assertTrue(result.isResult(), "Result should be true");
     assertEquals("someValue", action.getVariable("variableNotNull"));
   }
 

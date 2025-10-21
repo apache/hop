@@ -532,7 +532,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
     wAdvancedTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdvancedTab.setText(
-        "   " + BaseMessages.getString(PKG, "DatabaseDialog.AdvancedTab.title") + "   ");
+        "  " + BaseMessages.getString(PKG, "DatabaseDialog.AdvancedTab.title") + "  ");
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wAdvancedComp);

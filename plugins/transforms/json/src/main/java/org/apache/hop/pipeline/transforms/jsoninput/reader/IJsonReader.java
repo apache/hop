@@ -37,5 +37,8 @@ public interface IJsonReader {
   void setIgnoreMissingPath(boolean value);
 
   /** parse compiled fields into a rowset */
-  public IRowSet parse(InputStream in) throws HopException;
+  public IRowSet parseStringValue(InputStream in) throws HopException;
+
+  /** parse incoming JsonNode fields into a rowset */
+  public IRowSet parseJsonNodeValue(com.fasterxml.jackson.databind.JsonNode in) throws HopException;
 }

@@ -46,6 +46,9 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 
 /** Converts input rows to text and then writes this text to one or more files. */
 public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFileOutputData>
@@ -826,6 +829,36 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   public boolean init() {
 
     if (super.init()) {
+      if (meta.ignoreFields) {
+        try {
+          SchemaDefinition loadedSchemaDefinition =
+              (new SchemaDefinitionUtil())
+                  .loadSchemaDefinition(metadataProvider, meta.getSchemaDefinition());
+          if (loadedSchemaDefinition != null) {
+            meta.setOutputFields(
+                new TextFileField[loadedSchemaDefinition.getFieldDefinitions().size()]);
+            for (int i = 0; i < loadedSchemaDefinition.getFieldDefinitions().size(); i++) {
+              SchemaFieldDefinition fieldDefinition =
+                  loadedSchemaDefinition.getFieldDefinitions().get(i);
+              TextFileField field = new TextFileField();
+              field.setName(fieldDefinition.getName());
+              field.setType(fieldDefinition.getHopType());
+              field.setLength(fieldDefinition.getLength());
+              field.setPrecision(fieldDefinition.getPrecision());
+              field.setCurrencySymbol(fieldDefinition.getCurrencySymbol());
+              field.setDecimalSymbol(fieldDefinition.getDecimalSymbol());
+              field.setGroupingSymbol(fieldDefinition.getGroupingSymbol());
+              field.setTrimType(fieldDefinition.getTrimType());
+              field.setFormat(fieldDefinition.getFormatMask());
+              field.setTrimType(fieldDefinition.getTrimType());
+              field.setRoundingType(fieldDefinition.getRoundingType());
+              meta.getOutputFields()[i] = field;
+            }
+          }
+        } catch (HopTransformException e) {
+          // ignore any errors here.
+        }
+      }
       data.splitnr = 0;
       // In case user want to create file at first row
       // In that case, DO NOT create file at Init

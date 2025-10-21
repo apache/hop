@@ -442,7 +442,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
         messageText
             .append(
                 BaseMessages.getString(PKG, "ActionMail.Log.Comment.Result") + "               : ")
-            .append(result.getResult())
+            .append(result.isResult())
             .append(endRow);
         messageText.append(endRow);
       }

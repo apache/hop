@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.excelinput;
 
 import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EIFile;
 import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EISheet;
-import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.RequiredFilesCode;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -92,9 +92,6 @@ import org.eclipse.swt.widgets.Text;
 public class ExcelInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExcelInputMeta.class;
 
-  /** Marker put on tab to indicate attention required */
-  private static final String TAB_FLAG = "!";
-
   private static final String CONST_COMBO_NO = "System.Combo.No";
   private static final String CONST_COMBO_YES = "System.Combo.Yes";
   private static final String CONST_ERROR_TITLE = "System.Dialog.Error.Title";
@@ -117,21 +114,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
   private Label wlStatusMessage;
 
-  private Label wlFilename;
-  private Button wbbFilename; // Browse: add file or directory
-  private Button wbdFilename; // Delete
-  private Button wbeFilename; // Edit
-  private Button wbaFilename; // Add or change
-  private TextVar wFilename;
-
   private Label wlFilenameList;
   private TableView wFilenameList;
-
-  private Label wlFileMask;
-  private Text wFileMask;
-
-  private Label wlExcludeFileMask;
-  private TextVar wExcludeFileMask;
 
   private Button wAccFilenames;
 
@@ -176,6 +160,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
   private Label wlSkipErrorLines;
 
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+
+  private Button wIgnoreFields;
 
   private Button wSkipErrorLines;
 
@@ -302,8 +288,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
-    fileLayout.marginWidth = 3;
-    fileLayout.marginHeight = 3;
+    fileLayout.marginWidth = PropsUi.getFormMargin();
+    fileLayout.marginHeight = PropsUi.getFormMargin();
     wFileComp.setLayout(fileLayout);
 
     // spreadsheet engine type
@@ -329,107 +315,15 @@ public class ExcelInputDialog extends BaseTransformDialog {
       wSpreadSheetType.add(type.getDescription());
     }
 
-    // Filename line
-    wlFilename = new Label(wFileComp, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Filename.Label"));
-    PropsUi.setLook(wlFilename);
-    FormData fdlFilename = new FormData();
-    fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wSpreadSheetType, margin);
-    fdlFilename.right = new FormAttachment(middle, -margin);
-    wlFilename.setLayoutData(fdlFilename);
-
-    wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbbFilename);
-    wbbFilename.setText(BaseMessages.getString(PKG, CONST_BUTTON_BROWSE));
-    wbbFilename.setToolTipText(
-        BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
-    FormData fdbFilename = new FormData();
-    fdbFilename.right = new FormAttachment(100, 0);
-    fdbFilename.top = new FormAttachment(wSpreadSheetType, margin);
-    wbbFilename.setLayoutData(fdbFilename);
-
-    wbaFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbaFilename);
-    wbaFilename.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameAdd.Button"));
-    wbaFilename.setToolTipText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameAdd.Tooltip"));
-    FormData fdbaFilename = new FormData();
-    fdbaFilename.right = new FormAttachment(wbbFilename, -margin);
-    fdbaFilename.top = new FormAttachment(wSpreadSheetType, margin);
-    wbaFilename.setLayoutData(fdbaFilename);
-
-    wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wFilename);
-    FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.right = new FormAttachment(wbaFilename, -margin);
-    fdFilename.top = new FormAttachment(wSpreadSheetType, margin);
-    wFilename.setLayoutData(fdFilename);
-
-    wlFileMask = new Label(wFileComp, SWT.RIGHT);
-    wlFileMask.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Filemask.Label"));
-    PropsUi.setLook(wlFileMask);
-    FormData fdlFilemask = new FormData();
-    fdlFilemask.left = new FormAttachment(0, 0);
-    fdlFilemask.top = new FormAttachment(wFilename, margin);
-    fdlFilemask.right = new FormAttachment(middle, -margin);
-    wlFileMask.setLayoutData(fdlFilemask);
-    wFileMask = new Text(wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wFileMask);
-    FormData fdFilemask = new FormData();
-    fdFilemask.left = new FormAttachment(middle, 0);
-    fdFilemask.top = new FormAttachment(wFilename, margin);
-    fdFilemask.right = new FormAttachment(wbaFilename, -margin);
-    wFileMask.setLayoutData(fdFilemask);
-
-    wlExcludeFileMask = new Label(wFileComp, SWT.RIGHT);
-    wlExcludeFileMask.setText(
-        BaseMessages.getString(PKG, "ExcelInputDialog.ExcludeFilemask.Label"));
-    PropsUi.setLook(wlExcludeFileMask);
-    FormData fdlExcludeFilemask = new FormData();
-    fdlExcludeFilemask.left = new FormAttachment(0, 0);
-    fdlExcludeFilemask.top = new FormAttachment(wFileMask, margin);
-    fdlExcludeFilemask.right = new FormAttachment(middle, -margin);
-    wlExcludeFileMask.setLayoutData(fdlExcludeFilemask);
-    wExcludeFileMask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wExcludeFileMask);
-    FormData fdExcludeFilemask = new FormData();
-    fdExcludeFilemask.left = new FormAttachment(middle, 0);
-    fdExcludeFilemask.top = new FormAttachment(wFileMask, margin);
-    fdExcludeFilemask.right = new FormAttachment(wFilename, 0, SWT.RIGHT);
-    wExcludeFileMask.setLayoutData(fdExcludeFilemask);
-
     // Filename list line
-    wlFilenameList = new Label(wFileComp, SWT.RIGHT);
+    wlFilenameList = new Label(wFileComp, SWT.LEFT);
     wlFilenameList.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameList.Label"));
     PropsUi.setLook(wlFilenameList);
     FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
-    fdlFilenameList.top = new FormAttachment(wExcludeFileMask, margin);
-    fdlFilenameList.right = new FormAttachment(middle, -margin);
+    fdlFilenameList.top = new FormAttachment(wSpreadSheetType, margin);
+    fdlFilenameList.right = new FormAttachment(100, 0);
     wlFilenameList.setLayoutData(fdlFilenameList);
-
-    // Buttons to the right of the screen...
-    wbdFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbdFilename);
-    wbdFilename.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameDelete.Button"));
-    wbdFilename.setToolTipText(
-        BaseMessages.getString(PKG, "ExcelInputDialog.FilenameDelete.Tooltip"));
-    FormData fdbdFilename = new FormData();
-    fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wExcludeFileMask, 40);
-    wbdFilename.setLayoutData(fdbdFilename);
-
-    wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbeFilename);
-    wbeFilename.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameEdit.Button"));
-    wbeFilename.setToolTipText(
-        BaseMessages.getString(PKG, "ExcelInputDialog.FilenameEdit.Tooltip"));
-    FormData fdbeFilename = new FormData();
-    fdbeFilename.right = new FormAttachment(100, 0);
-    fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
-    fdbeFilename.top = new FormAttachment(wbdFilename, margin);
-    wbeFilename.setLayoutData(fdbeFilename);
 
     wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbShowFiles);
@@ -531,7 +425,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     }
 
     FormData fdAccepting = new FormData();
-    fdAccepting.left = new FormAttachment(0, margin);
+    fdAccepting.left = new FormAttachment(0, 0);
     fdAccepting.right = new FormAttachment(100, 0);
     fdAccepting.bottom = new FormAttachment(wbShowFiles, -margin * 2);
     gAccepting.setLayoutData(fdAccepting);
@@ -540,9 +434,10 @@ public class ExcelInputDialog extends BaseTransformDialog {
     colinfo[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ExcelInputDialog.FileDir.Column"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
+            ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
             false);
     colinfo[0].setUsingVariables(true);
+    colinfo[0].setTextVarButtonSelectionListener(getFileSelectionAdapter());
     colinfo[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ExcelInputDialog.Wildcard.Column"),
@@ -572,18 +467,19 @@ public class ExcelInputDialog extends BaseTransformDialog {
         new TableView(
             variables,
             wFileComp,
-            SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER,
+            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             colinfo,
             input.getFiles().size(),
             null,
             props);
     PropsUi.setLook(wFilenameList);
     FormData fdFilenameList = new FormData();
-    fdFilenameList.left = new FormAttachment(middle, 0);
-    fdFilenameList.right = new FormAttachment(wbdFilename, -margin);
-    fdFilenameList.top = new FormAttachment(wExcludeFileMask, margin);
+    fdFilenameList.left = new FormAttachment(0, 0);
+    fdFilenameList.right = new FormAttachment(100, 0);
+    fdFilenameList.top = new FormAttachment(wlFilenameList, margin);
     fdFilenameList.bottom = new FormAttachment(gAccepting, -margin);
     wFilenameList.setLayoutData(fdFilenameList);
+    wFilenameList.addModifyListener(event -> checkAlerts());
 
     FormData fdFileComp = new FormData();
     fdFileComp.left = new FormAttachment(0, 0);
@@ -609,8 +505,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wSheetComp);
 
     FormLayout sheetLayout = new FormLayout();
-    sheetLayout.marginWidth = 3;
-    sheetLayout.marginHeight = 3;
+    sheetLayout.marginWidth = PropsUi.getFormMargin();
+    sheetLayout.marginHeight = PropsUi.getFormMargin();
     wSheetComp.setLayout(sheetLayout);
 
     Button wbGetSheets = new Button(wSheetComp, SWT.PUSH | SWT.CENTER);
@@ -626,7 +522,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlSheetnameList);
     FormData fdlSheetnameList = new FormData();
     fdlSheetnameList.left = new FormAttachment(0, 0);
-    fdlSheetnameList.top = new FormAttachment(wFilename, margin);
+    fdlSheetnameList.top = new FormAttachment(wSpreadSheetType, margin);
     fdlSheetnameList.right = new FormAttachment(middle, -margin);
     wlSheetnameList.setLayoutData(fdlSheetnameList);
 
@@ -663,8 +559,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     fdFilenameList.top = new FormAttachment(0, 0);
     fdFilenameList.bottom = new FormAttachment(wbGetSheets, -margin);
     wSheetNameList.setLayoutData(fdFilenameList);
-
-    wSheetNameList.addModifyListener(arg0 -> checkAlerts());
+    wSheetNameList.addModifyListener(event -> checkAlerts());
 
     FormData fdSheetComp = new FormData();
     fdSheetComp.left = new FormAttachment(0, 0);
@@ -687,8 +582,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wContentTab.setText(BaseMessages.getString(PKG, "ExcelInputDialog.ContentTab.TabTitle"));
 
     FormLayout contentLayout = new FormLayout();
-    contentLayout.marginWidth = 3;
-    contentLayout.marginHeight = 3;
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wContentComp);
@@ -895,6 +790,26 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wSchemaDefinition.addSelectionListener(lsSelection);
 
+    // Ignore manual schema
+    //
+    Label wlIgnoreFields = new Label(wFieldsComp, SWT.RIGHT);
+    PropsUi.setLook(wlIgnoreFields);
+    wlIgnoreFields.setText(
+        BaseMessages.getString(PKG, "ExcelInputDialog.IgnoreTransformFields.Label"));
+    FormData fdlIgnoreFields = new FormData();
+    fdlIgnoreFields.left = new FormAttachment(0, 0);
+    fdlIgnoreFields.right = new FormAttachment(middle, -margin);
+    fdlIgnoreFields.top = new FormAttachment(wSchemaDefinition, margin);
+    wlIgnoreFields.setLayoutData(fdlIgnoreFields);
+    wIgnoreFields = new Button(wFieldsComp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wIgnoreFields);
+    FormData fdIgnoreFields = new FormData();
+    fdIgnoreFields.left = new FormAttachment(middle, 0);
+    fdIgnoreFields.right = new FormAttachment(100, 0);
+    fdIgnoreFields.top = new FormAttachment(wlIgnoreFields, 0, SWT.CENTER);
+    wIgnoreFields.setLayoutData(fdIgnoreFields);
+    wIgnoreFields.addListener(SWT.Selection, e -> setFlags());
+
     Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wManualSchemaDefinition);
     wManualSchemaDefinition.setText(
@@ -963,13 +878,13 @@ public class ExcelInputDialog extends BaseTransformDialog {
         new TableView(
             variables,
             wManualSchemaDefinition,
-            SWT.FULL_SELECTION | SWT.MULTI,
+            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             colinf,
             FieldsRows,
             null,
             props);
     wFields.setSize(fieldsWidth, fieldsHeight);
-    wFields.addModifyListener(arg0 -> checkAlerts());
+    wFields.addModifyListener(event -> checkAlerts());
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
@@ -989,7 +904,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     FormData fdManualSchemaDefinitionComp = new FormData();
     fdManualSchemaDefinitionComp.left = new FormAttachment(0, 0);
-    fdManualSchemaDefinitionComp.top = new FormAttachment(wSchemaDefinition, 0);
+    fdManualSchemaDefinitionComp.top = new FormAttachment(wIgnoreFields, 0);
     fdManualSchemaDefinitionComp.right = new FormAttachment(100, 0);
     fdManualSchemaDefinitionComp.bottom = new FormAttachment(100, 0);
     wManualSchemaDefinition.setLayoutData(fdManualSchemaDefinitionComp);
@@ -1006,102 +921,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // Add the file to the list of files...
-    SelectionAdapter selA =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            wFilenameList.add(
-                wFilename.getText(),
-                wFileMask.getText(),
-                wExcludeFileMask.getText(),
-                RequiredFilesCode[0],
-                RequiredFilesCode[0]);
-            wFilename.setText("");
-            wFileMask.setText("");
-            wExcludeFileMask.setText("");
-            wFilenameList.removeEmptyRows();
-            wFilenameList.setRowNums();
-            wFilenameList.optWidth(true);
-            checkAlerts();
-          }
-        };
-    wbaFilename.addSelectionListener(selA);
-    wFilename.addSelectionListener(selA);
-
-    // Delete files from the list of files...
-    wbdFilename.addListener(
-        SWT.Selection,
-        e -> {
-          int[] idx = wFilenameList.getSelectionIndices();
-          wFilenameList.remove(idx);
-          wFilenameList.removeEmptyRows();
-          wFilenameList.setRowNums();
-          checkAlerts();
-        });
-
-    // Edit the selected file & remove from the list...
-    wbeFilename.addListener(
-        SWT.Selection,
-        e -> {
-          int idx = wFilenameList.getSelectionIndex();
-          if (idx >= 0) {
-            String[] string = wFilenameList.getItem(idx);
-            wFilename.setText(string[0]);
-            wFileMask.setText(string[1]);
-            wExcludeFileMask.setText(string[2]);
-            wFilenameList.remove(idx);
-          }
-          wFilenameList.removeEmptyRows();
-          wFilenameList.setRowNums();
-        });
-
     // Show the files that are selected at this time...
     wbShowFiles.addListener(SWT.Selection, e -> showFiles());
-
-    // Whenever something changes, set the tooltip to the expanded version of the filename:
-    wFilename.addModifyListener(
-        e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
-
-    // Listen to the Browse... button
-    wbbFilename.addListener(
-        SWT.Selection,
-        e -> {
-          if (!Utils.isEmpty(wFileMask.getText())
-              || !Utils.isEmpty(wExcludeFileMask.getText())) { // A mask: a directory!
-            BaseDialog.presentDirectoryDialog(shell, wFilename, variables);
-          } else {
-            String[] extensions;
-            SpreadSheetType type =
-                SpreadSheetType.getSpreadSheetTypeByDescription(wSpreadSheetType.getText());
-            if (type == null) {
-              return;
-            }
-            switch (type) {
-              case SAX_POI:
-                extensions = new String[] {"*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*"};
-                break;
-              case ODS:
-                extensions = new String[] {"*.ods;*.ODS;", "*"};
-                break;
-              case POI:
-              default:
-                extensions = new String[] {"*.xls;*.XLS;*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*"};
-                break;
-            }
-
-            BaseDialog.presentFileDialog(
-                shell,
-                wFilename,
-                variables,
-                extensions,
-                new String[] {
-                  BaseMessages.getString(PKG, "ExcelInputDialog.FilterNames.ExcelFiles"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                },
-                true);
-          }
-        });
 
     // Get a list of the sheet names.
     wbGetSheets.addListener(SWT.Selection, e -> getSheets());
@@ -1185,19 +1006,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wAccField.setEnabled(accept);
     wlAccTransform.setEnabled(accept);
     wAccTransform.setEnabled(accept);
-
-    wlFilename.setEnabled(!accept);
-    wbbFilename.setEnabled(!accept); // Browse: add file or directory
-    wbdFilename.setEnabled(!accept); // Delete
-    wbeFilename.setEnabled(!accept); // Edit
-    wbaFilename.setEnabled(!accept); // Add or change
-    wFilename.setEnabled(!accept);
     wlFilenameList.setEnabled(!accept);
     wFilenameList.setEnabled(!accept);
-    wlFileMask.setEnabled(!accept);
-    wlExcludeFileMask.setEnabled(!accept);
-    wExcludeFileMask.setEnabled(!accept);
-    wFileMask.setEnabled(!accept);
     wbShowFiles.setEnabled(!accept);
 
     // wPreview.setEnabled(!accept); // Keep this one: you can do preview on defined files in the
@@ -1227,6 +1037,55 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wLineNrExt.setEnabled(wErrorIgnored.getSelection());
     wbbLineNrDestDir.setEnabled(wErrorIgnored.getSelection());
     wbvLineNrDestDir.setEnabled(wErrorIgnored.getSelection());
+
+    wFields.setEnabled(!wIgnoreFields.getSelection());
+    wbGetFields.setEnabled(!wIgnoreFields.getSelection());
+  }
+
+  // Listen to the browse "..." button
+  protected SelectionAdapter getFileSelectionAdapter() {
+    return new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent event) {
+        try {
+          String path =
+              wFilenameList.getActiveTableItem().getText(wFilenameList.getActiveTableColumn());
+          FileObject fileObject = HopVfs.getFileObject(path);
+
+          SpreadSheetType type =
+              SpreadSheetType.getSpreadSheetTypeByDescription(wSpreadSheetType.getText());
+          if (type == null) {
+            return;
+          }
+
+          String[] extensions =
+              switch (type) {
+                case SAX_POI -> new String[] {"*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*"};
+                case ODS -> new String[] {"*.ods;*.ODS;", "*"};
+                case POI -> new String[] {"*.xls;*.XLS;*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*"};
+              };
+
+          path =
+              BaseDialog.presentFileDialog(
+                  shell,
+                  null,
+                  variables,
+                  fileObject,
+                  extensions,
+                  new String[] {
+                    BaseMessages.getString(PKG, "ExcelInputDialog.FilterNames.ExcelFiles"),
+                    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                  },
+                  true);
+
+          if (path != null) {
+            wFilenameList.getActiveTableItem().setText(wFilenameList.getActiveTableColumn(), path);
+          }
+        } catch (HopFileException e) {
+          log.logError("Error selecting file or directory", e);
+        }
+      }
+    };
   }
 
   /**
@@ -1248,10 +1107,11 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wAccFilenames.setSelection(meta.isAcceptingFilenames());
     wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
-    if (meta.getAcceptingField() != null && !meta.getAcceptingField().equals("")) {
+    wIgnoreFields.setSelection(meta.isIgnoreFields());
+    if (meta.getAcceptingField() != null && !meta.getAcceptingField().isEmpty()) {
       wAccField.select(wAccField.indexOf(meta.getAcceptingField()));
     }
-    if (meta.getAcceptingTransformName() != null && !meta.getAcceptingTransformName().equals("")) {
+    if (meta.getAcceptingTransformName() != null && !meta.getAcceptingTransformName().isEmpty()) {
       wAccTransform.select(wAccTransform.indexOf(meta.getAcceptingTransformName()));
     }
 
@@ -1368,6 +1228,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     meta.setRowLimit(Const.toLong(wLimit.getText(), 0));
     meta.setEncoding(wEncoding.getText());
     meta.setSchemaDefinition(wSchemaDefinition.getText());
+    meta.setIgnoreFields(wIgnoreFields.getSelection());
     meta.setSpreadSheetType(SpreadSheetType.values()[wSpreadSheetType.getSelectionIndex()]);
     meta.setFileField(wInclFilenameField.getText());
     meta.setSheetField(wInclSheetNameField.getText());
@@ -1524,7 +1385,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     previous = wSkipErrorLines;
 
-    // Bad lines files directory + extention
+    // Bad lines files directory + extension
 
     // WarningDestDir line
     wlWarningDestDir = new Label(wErrorComp, SWT.RIGHT);
@@ -2070,6 +1931,11 @@ public class ExcelInputDialog extends BaseTransformDialog {
     final boolean filesOk =
         wFilenameList.nrNonEmpty() != 0
             || (wAccFilenames.getSelection() && !Utils.isEmpty(wAccField.getText()));
+
+    tagTab(!fieldsOk, wFieldsTab, BaseMessages.getString(PKG, "ExcelInputDialog.AddFields"));
+    tagTab(!sheetsOk, wSheetTab, BaseMessages.getString(PKG, "ExcelInputDialog.AddSheets"));
+    tagTab(!filesOk, wFileTab, BaseMessages.getString(PKG, "ExcelInputDialog.AddFilenames"));
+
     String msgText = ""; // Will clear status if no actions.
 
     // Assign the highest-priority action message.
@@ -2080,29 +1946,26 @@ public class ExcelInputDialog extends BaseTransformDialog {
     } else if (!filesOk) {
       msgText = (BaseMessages.getString(PKG, "ExcelInputDialog.AddFilenames"));
     }
-    tagTab(
-        !fieldsOk, wFieldsTab, BaseMessages.getString(PKG, "ExcelInputDialog.FieldsTab.TabTitle"));
-    tagTab(
-        !sheetsOk, wSheetTab, BaseMessages.getString(PKG, "ExcelInputDialog.SheetsTab.TabTitle"));
-    tagTab(!filesOk, wFileTab, BaseMessages.getString(PKG, "ExcelInputDialog.FileTab.TabTitle"));
+    wlStatusMessage.setText(msgText);
 
     wPreview.setEnabled(fieldsOk && sheetsOk && filesOk);
-
-    wlStatusMessage.setText(msgText);
   }
 
   /**
-   * Hilight (or not) tab to indicate if action is required.
+   * Highlight (or not) tab to indicate if action is required.
    *
-   * @param hilightMe <code>true</code> to highlight, <code>false</code> if not.
+   * @param highlight <code>true</code> to highlight, <code>false</code> if not.
    * @param tabItem Tab to highlight
-   * @param tabCaption Tab text (normally fetched from resource).
+   * @param toolTip Tab text to explain the warning
    */
-  private void tagTab(boolean hilightMe, CTabItem tabItem, String tabCaption) {
-    if (hilightMe) {
-      tabItem.setText(TAB_FLAG + tabCaption);
+  private void tagTab(boolean highlight, CTabItem tabItem, String toolTip) {
+    if (highlight) {
+      tabItem.setImage(GuiResource.getInstance().getImageWarning());
+      tabItem.setToolTipText(toolTip);
     } else {
-      tabItem.setText(tabCaption);
+      // Will clear the status if no warnings.
+      tabItem.setImage(null);
+      tabItem.setToolTipText(null);
     }
   }
 

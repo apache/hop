@@ -182,7 +182,7 @@ class WorkflowActionEvalTableContentTest {
 
     Result res = action.execute(new Result(), 0);
 
-    assertFalse(res.getResult(), "Eval number of rows should fail");
+    assertFalse(res.isResult(), "Eval number of rows should fail");
     assertEquals(
         0,
         res.getNrErrors(),
@@ -199,7 +199,7 @@ class WorkflowActionEvalTableContentTest {
 
     Result res = action.execute(new Result(), 0);
 
-    assertTrue(res.getResult(), "Eval number of rows should be suceeded");
+    assertTrue(res.isResult(), "Eval number of rows should be suceeded");
     assertEquals(0, res.getNrErrors(), "Apparently there should no error");
   }
 
@@ -214,7 +214,7 @@ class WorkflowActionEvalTableContentTest {
 
     Result res = action.execute(new Result(), 0);
 
-    assertFalse(res.getResult(), "Eval number of rows should fail");
+    assertFalse(res.isResult(), "Eval number of rows should fail");
     assertEquals(1, res.getNrErrors(), "Apparently there should be an error");
   }
 }

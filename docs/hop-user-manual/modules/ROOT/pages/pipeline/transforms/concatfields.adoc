@@ -87,7 +87,7 @@ See Number Formats for a complete description of format symbols.
 |Group|A grouping can be a "," (10,000.00) or "." (5.000,00)
 |Trim type|The trimming method to apply on the string.
 Trimming only works when there is no field length given.
-|Null|If the value of the field is null, insert this string into the textfile
+|Null|A string to replace null values of this field with, by default null is replaced with an empty string.
 |Get|Click to retrieve the list of fields from the input fields stream(s)
 |Minimal width|Alter the options in the fields tab in such a way that the resulting width of lines in the text file is minimal.
 So instead of save 0000001, we write 1, etc.

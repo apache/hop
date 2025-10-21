@@ -48,6 +48,7 @@ class MetaInjectMetaLoadSaveTest {
             "sourceTransformName",
             "targetFile",
             "noExecution",
+            "allowEmptyStreamOnExecution",
             "streamSourceTransformName",
             "streamTargetTransformName",
             "sourceOutputFields");

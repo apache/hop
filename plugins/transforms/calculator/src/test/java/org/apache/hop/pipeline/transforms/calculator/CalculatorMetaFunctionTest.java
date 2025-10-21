@@ -36,7 +36,7 @@ class CalculatorMetaFunctionTest {
     assertNotEquals(new Object(), meta1);
     assertEquals(meta1, meta2);
 
-    meta2.setCalcType(CalculatorMetaFunction.CalculationType.ADD_DAYS);
+    meta2.setCalcType(CalculationType.ADD_DAYS);
     assertNotEquals(meta1, meta2);
   }
 
@@ -45,7 +45,7 @@ class CalculatorMetaFunctionTest {
     CalculatorMetaFunction function =
         new CalculatorMetaFunction(
             "copyA",
-            CalculatorMetaFunction.CalculationType.COPY_OF_FIELD,
+            CalculationType.COPY_OF_FIELD,
             "A",
             null,
             null,

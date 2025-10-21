@@ -200,7 +200,7 @@ public final class ExecutionDataBuilder {
     {
       IRowMeta resultRowMeta = new RowMetaBuilder().addString("key").addString(CONST_VALUE).build();
       RowBuffer resultBuffer = new RowBuffer(resultRowMeta);
-      resultBuffer.addRow(RESULT_KEY_RESULT, result.getResult() ? "true" : "false");
+      resultBuffer.addRow(RESULT_KEY_RESULT, result.isResult() ? "true" : "false");
       resultBuffer.addRow(RESULT_KEY_ERRORS, Long.toString(result.getNrErrors()));
       resultBuffer.addRow(RESULT_KEY_STOPPED, result.isStopped() ? "true" : "false");
 

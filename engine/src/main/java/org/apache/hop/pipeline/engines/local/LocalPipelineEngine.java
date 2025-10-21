@@ -162,7 +162,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
               // All fine?  Commit!
               //
               try {
-                if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
+                if (result.isResult() && !result.isStopped() && result.getNrErrors() == 0) {
                   try {
                     database.commit(true);
                     pipeline

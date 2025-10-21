@@ -22,11 +22,13 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -38,6 +40,9 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -103,6 +108,28 @@ public class ExcelWriterTransform
       } else {
         data.outputRowMeta = getInputRowMeta().clone();
         data.inputRowMeta = getInputRowMeta().clone();
+      }
+
+      // If we are usign a schema and ingoring fields create the outputfields
+      if (meta.isIgnoreFields()) {
+        meta.setOutputFields(new ArrayList<>());
+        try {
+          SchemaDefinition loadedSchemaDefinition =
+              (new SchemaDefinitionUtil())
+                  .loadSchemaDefinition(metadataProvider, meta.getSchemaDefinition());
+          if (loadedSchemaDefinition != null) {
+            for (SchemaFieldDefinition schemaFieldDefinition :
+                loadedSchemaDefinition.getFieldDefinitions()) {
+              ExcelWriterOutputField excelOutputField = new ExcelWriterOutputField();
+              excelOutputField.setName(schemaFieldDefinition.getName());
+              excelOutputField.setFormat(schemaFieldDefinition.getFormatMask());
+              excelOutputField.setType(schemaFieldDefinition.getHopType());
+              meta.getOutputFields().add(excelOutputField);
+            }
+          }
+        } catch (HopTransformException e) {
+          // ignore any errors here.
+        }
       }
 
       // If we are supposed to create the file up front regardless of whether we receive input rows

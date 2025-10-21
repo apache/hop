@@ -55,7 +55,7 @@ import org.json.simple.JSONObject;
     id = "Variable-Resolver-Pipeline",
     name = "Pipeline Variable Resolver",
     description = "Use a pipeline to resolve the value of a variable expression",
-    documentationUrl = "/metadata-types/variable-resolvers/pipeline-variable-resolver.html")
+    documentationUrl = "/metadata-types/variable-resolver/pipeline-variable-resolver.html")
 public class VariableResolverPipeline implements IVariableResolver {
 
   /** The name of the pipeline filename to use to resolve variable expressions */

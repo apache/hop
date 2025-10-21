@@ -498,8 +498,7 @@ public class PropsUi extends Props {
 
     setLook(widget, style);
 
-    if (widget instanceof Composite compositeWidget) {
-      Composite composite = compositeWidget;
+    if (widget instanceof Composite composite) {
       for (Control child : composite.getChildren()) {
         setLook(child);
       }
@@ -522,10 +521,9 @@ public class PropsUi extends Props {
     Color background = null;
     Color foreground = null;
 
-    if (widget instanceof Shell shellWidget) {
+    if (widget instanceof Shell shell) {
       background = gui.getColorWhite();
       foreground = gui.getColorBlack();
-      Shell shell = shellWidget;
       shell.setBackgroundMode(SWT.INHERIT_FORCE);
       shell.setForeground(gui.getColorBlack());
       shell.setBackground(gui.getColorWhite());
@@ -977,8 +975,7 @@ public class PropsUi extends Props {
     // Add all the inverse color mappings as well
     //
     Map<RGB, RGB> inverse = new HashMap<>();
-    contrastingColors.keySet().stream()
-        .forEach(key -> inverse.put(contrastingColors.get(key), key));
+    contrastingColors.keySet().forEach(key -> inverse.put(contrastingColors.get(key), key));
     contrastingColors.putAll(inverse);
   }
 
@@ -1075,7 +1072,7 @@ public class PropsUi extends Props {
         "200%", "175%", "150%", "140%", "130%", "120%", "110%", "100%", "90%", "80%", "70%"
       };
 
-  public static final String[] getGlobalZoomFactorLevels() {
+  public static String[] getGlobalZoomFactorLevels() {
     return globalZoomFactorLevels;
   }
 

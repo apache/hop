@@ -1846,7 +1846,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.EditActionDescription.Text",
       tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EditActionDescription.Tooltip",
-      image = "ui/images/edit_description.svg",
+      image = "ui/images/edit.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void editActionDescription(HopGuiWorkflowActionContext context) {
@@ -2654,7 +2654,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           actionCopy = (ActionMeta) areaOwner.getParent();
           Result result = actionResult.getResult();
           tip.append("'").append(actionCopy.getName()).append("' ");
-          if (result.getResult()) {
+          if (result.isResult()) {
             tipImage = GuiResource.getInstance().getImageSuccess();
             tip.append("finished successfully.");
           } else {
@@ -2662,7 +2662,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             tip.append("failed.");
           }
           tip.append(Const.CR).append("------------------------").append(Const.CR).append(Const.CR);
-          tip.append("Result         : ").append(result.getResult()).append(Const.CR);
+          tip.append("Result         : ").append(result.isResult()).append(Const.CR);
           tip.append("Errors         : ").append(result.getNrErrors()).append(Const.CR);
 
           if (result.getNrLinesRead() > 0) {
@@ -3432,7 +3432,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     rotateItem.addListener(SWT.Selection, e -> rotateExtraView());
 
     ToolItem closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
-    closeItem.setImage(GuiResource.getInstance().getImageClosePanel());
+    closeItem.setImage(GuiResource.getInstance().getImageClose());
     closeItem.setToolTipText(
         BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.CloseButton.Tooltip"));
     closeItem.addListener(SWT.Selection, e -> disposeExtraView());

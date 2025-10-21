@@ -106,7 +106,7 @@ public class ConfigGuiOptionsTab {
     CTabItem wLookTab = new CTabItem(wTabFolder, SWT.NONE);
     wLookTab.setFont(GuiResource.getInstance().getFontDefault());
     wLookTab.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.LookAndFeel.Label"));
-    wLookTab.setImage(GuiResource.getInstance().getImagePalette());
+    wLookTab.setImage(GuiResource.getInstance().getImageColor());
 
     ScrolledComposite sLookComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     sLookComp.setLayout(new FillLayout());

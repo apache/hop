@@ -172,6 +172,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
   private boolean gotPreviousFields = false;
 
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+  private Button wIgnoreFields;
+  private Button wMinWidth;
 
   private static final String LABEL_FORMATXLSX = "ExcelWriterDialog.FormatXLSX.Label";
   private static final String LABEL_FORMATXLS = "ExcelWriterDialog.FormatXLS.Label";
@@ -1364,7 +1366,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
     wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
 
-    Button wMinWidth = new Button(fieldGroup, SWT.PUSH);
+    wMinWidth = new Button(fieldGroup, SWT.PUSH);
     wMinWidth.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.MinWidth.Button"));
     wMinWidth.setToolTipText(BaseMessages.getString(PKG, "ExcelWriterDialog.MinWidth.Tooltip"));
 
@@ -1407,6 +1409,26 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     }
 
     wSchemaDefinition.addSelectionListener(lsSelection);
+
+    // Ignore manual schema
+    //
+    Label wlIgnoreFields = new Label(wFieldsComp, SWT.RIGHT);
+    PropsUi.setLook(wlIgnoreFields);
+    wlIgnoreFields.setText(
+        BaseMessages.getString(PKG, "ExcelWriterDialog.IgnoreTransformFields.Label"));
+    FormData fdlIgnoreFields = new FormData();
+    fdlIgnoreFields.left = new FormAttachment(0, 0);
+    fdlIgnoreFields.right = new FormAttachment(middle, -margin);
+    fdlIgnoreFields.top = new FormAttachment(wSchemaDefinition, margin);
+    wlIgnoreFields.setLayoutData(fdlIgnoreFields);
+    wIgnoreFields = new Button(wFieldsComp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wIgnoreFields);
+    FormData fdIgnoreFields = new FormData();
+    fdIgnoreFields.left = new FormAttachment(middle, 0);
+    fdIgnoreFields.right = new FormAttachment(100, 0);
+    fdIgnoreFields.top = new FormAttachment(wlIgnoreFields, 0, SWT.CENTER);
+    wIgnoreFields.setLayoutData(fdIgnoreFields);
+    wIgnoreFields.addListener(SWT.Selection, e -> enableIgnorefiedls());
 
     Collections.sort(nonReservedFormats);
     String[] formats = nonReservedFormats.toArray(new String[0]);
@@ -1498,7 +1520,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
     FormData fdFieldGroup = new FormData();
     fdFieldGroup.left = new FormAttachment(0, margin);
-    fdFieldGroup.top = new FormAttachment(wSchemaDefinition, margin);
+    fdFieldGroup.top = new FormAttachment(wIgnoreFields, margin);
     fdFieldGroup.bottom = new FormAttachment(100, 0);
     fdFieldGroup.right = new FormAttachment(100, -margin);
     fieldGroup.setLayoutData(fdFieldGroup);
@@ -1770,6 +1792,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     }
 
     wSchemaDefinition.setText(Const.NVL(input.getSchemaDefinition(), ""));
+    wIgnoreFields.setSelection(input.isIgnoreFields());
     wStreamData.setSelection(file.isStreamingData());
     wSplitEvery.setText("" + file.getSplitEvery());
     wEmptyRows.setText("" + input.getAppendEmpty());
@@ -1916,6 +1939,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     ExcelWriterTemplateField template = tfoi.getTemplate();
 
     tfoi.setSchemaDefinition(wSchemaDefinition.getText());
+    tfoi.setIgnoreFields(wIgnoreFields.getSelection());
     file.setFileName(wFilename.getText());
     file.setCreateParentFolder(wCreateParentFolder.getSelection());
     file.setStreamingData(wStreamData.getSelection());
@@ -2009,6 +2033,12 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
   private void enableTemplateSheet() {
     wTemplateSheetname.setEnabled(wTemplateSheet.getSelection());
     wTemplateSheetHide.setEnabled(wTemplateSheet.getSelection());
+  }
+
+  private void enableIgnorefiedls() {
+    wGet.setEnabled(!wIgnoreFields.getSelection());
+    wMinWidth.setEnabled(!wIgnoreFields.getSelection());
+    wFields.setEnabled(!wIgnoreFields.getSelection());
   }
 
   private void enableExtension() {

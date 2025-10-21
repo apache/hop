@@ -84,7 +84,7 @@ public class TreeToolbar extends Composite {
     PropsUi.setLook(selectionFilterTb, Props.WIDGET_STYLE_TOOLBAR);
 
     ToolItem clearSelectionFilter = new ToolItem(selectionFilterTb, SWT.PUSH);
-    clearSelectionFilter.setImage(GuiResource.getInstance().getImageClearText());
+    clearSelectionFilter.setImage(GuiResource.getInstance().getImageClose());
 
     FormData fdSelectionFilterToolbar = new FormData();
     if (Const.isLinux()) {
@@ -97,9 +97,9 @@ public class TreeToolbar extends Composite {
 
     selectionFilter = new Text(this, SWT.SINGLE | SWT.BORDER | SWT.LEFT | SWT.SEARCH);
     FormData fdSelectionFilter = new FormData();
-    int offset = -(GuiResource.getInstance().getImageClearText().getBounds().height + 6);
+    int offset = -(GuiResource.getInstance().getImageClose().getBounds().height + 6);
     if (Const.isLinux()) {
-      offset = -(GuiResource.getInstance().getImageClearText().getBounds().height + 13);
+      offset = -(GuiResource.getInstance().getImageClose().getBounds().height + 13);
     }
 
     fdSelectionFilter.top = new FormAttachment(selectionFilterTb, offset);

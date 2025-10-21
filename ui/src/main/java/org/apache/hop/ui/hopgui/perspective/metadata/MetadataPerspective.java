@@ -347,20 +347,24 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     // Show/Hide tree
     //
     ToolBar tabToolBar = new ToolBar(tabFolder, SWT.FLAT);
+    tabFolder.setTopRight(tabToolBar, SWT.RIGHT);
+    PropsUi.setLook(tabToolBar);
+
     final ToolItem item = new ToolItem(tabToolBar, SWT.PUSH);
-    item.setImage(GuiResource.getInstance().getImageMinimizePanel());
+    item.setImage(GuiResource.getInstance().getImageMaximizePanel());
     item.addListener(
         SWT.Selection,
         e -> {
           if (sash.getMaximizedControl() == null) {
             sash.setMaximizedControl(tabFolder);
-            item.setImage(GuiResource.getInstance().getImageMaximizePanel());
+            item.setImage(GuiResource.getInstance().getImageMinimizePanel());
           } else {
             sash.setMaximizedControl(null);
-            item.setImage(GuiResource.getInstance().getImageMinimizePanel());
+            item.setImage(GuiResource.getInstance().getImageMaximizePanel());
           }
         });
-    tabFolder.setTopRight(tabToolBar, SWT.RIGHT);
+    int height = tabToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+    tabFolder.setTabHeight(Math.max(height, tabFolder.getTabHeight()));
 
     new TabCloseHandler(this);
 

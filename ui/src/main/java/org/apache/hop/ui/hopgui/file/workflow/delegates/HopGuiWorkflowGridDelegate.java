@@ -189,8 +189,8 @@ public class HopGuiWorkflowGridDelegate {
         String workflowName = workflowTracker.getWorkflowName();
 
         if (Utils.isEmpty(workflowName)) {
-          if (!Utils.isEmpty(workflowTracker.getWorfkflowFilename())) {
-            workflowName = workflowTracker.getWorfkflowFilename();
+          if (!Utils.isEmpty(workflowTracker.getWorkflowFilename())) {
+            workflowName = workflowTracker.getWorkflowFilename();
           } else {
             workflowName =
                 BaseMessages.getString(
@@ -198,7 +198,7 @@ public class HopGuiWorkflowGridDelegate {
           }
         }
         treeItem.setText(0, workflowName);
-        treeItem.setText(4, Const.NVL(workflowTracker.getWorfkflowFilename(), ""));
+        treeItem.setText(4, Const.NVL(workflowTracker.getWorkflowFilename(), ""));
 
         TreeMemory.getInstance()
             .storeExpanded(STRING_CHEF_LOG_TREE_NAME, new String[] {workflowName}, true);
@@ -268,11 +268,11 @@ public class HopGuiWorkflowGridDelegate {
             if (res != null) {
               treeItem.setText(
                   2,
-                  res.getResult()
+                  res.isResult()
                       ? BaseMessages.getString(PKG, "WorkflowLog.Tree.Success")
                       : BaseMessages.getString(PKG, "WorkflowLog.Tree.Failure"));
               treeItem.setText(5, Long.toString(res.getEntryNr()));
-              if (res.getResult()) {
+              if (res.isResult()) {
                 treeItem.setImage(2, GuiResource.getInstance().getImageSuccess());
                 treeItem.setForeground(2, GuiResource.getInstance().getColorSuccessGreen());
               } else {

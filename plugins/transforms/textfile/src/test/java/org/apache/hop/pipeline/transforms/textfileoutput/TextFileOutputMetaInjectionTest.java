@@ -67,6 +67,8 @@ class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Te
     check("DO_NOT_CREATE_FILE_AT_STARTUP", () -> meta.isDoNotOpenNewFileInit());
     check("SPECIFY_DATE_FORMAT", () -> meta.isSpecifyingFormat());
     check("DATE_FORMAT", () -> meta.getDateTimeFormat());
+    check("SCHEMA_DEFINITION", () -> meta.getSchemaDefinition());
+    check("IGNORE_FIELDS", () -> meta.isIgnoreFields());
 
     /////////////////////////////
     check("OUTPUT_FIELDNAME", () -> meta.getOutputFields()[0].getName());

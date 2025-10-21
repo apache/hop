@@ -687,7 +687,7 @@ public abstract class Workflow extends Variables
                 PKG,
                 "Workflow.Log.FinishedAction",
                 previous.getName(),
-                previousResult.getResult() + ""));
+                previousResult.isResult() + ""));
       }
     }
 
@@ -843,7 +843,7 @@ public abstract class Workflow extends Variables
       if (hopMeta.isUnconditional()) {
         nextComment = BaseMessages.getString(PKG, "Workflow.Comment.FollowedUnconditional");
       } else {
-        if (newResult.getResult()) {
+        if (newResult.isResult()) {
           nextComment = BaseMessages.getString(PKG, "Workflow.Comment.FollowedSuccess");
         } else {
           nextComment = BaseMessages.getString(PKG, "Workflow.Comment.FollowedFailure");
@@ -856,7 +856,7 @@ public abstract class Workflow extends Variables
       // green or red, execute the next action...
       //
       if (hopMeta.isUnconditional()
-          || (actionMeta.isEvaluation() && (hopMeta.isEvaluation() == newResult.getResult()))) {
+          || (actionMeta.isEvaluation() && (hopMeta.isEvaluation() == newResult.isResult()))) {
 
         // If the next action is a join, only execute once
         if (nextAction.isJoin()) {
@@ -882,8 +882,15 @@ public abstract class Workflow extends Variables
           Runnable runnable =
               () -> {
                 try {
+                  // Pass a previous result without rows to the parallel branch so that
+                  // branch-local result rows start from a clean slate but still inherit
+                  // metrics/files/etc.
+                  Result prevWithoutRows = newResult.lightClone();
+                  prevWithoutRows.setRows(null); // ensure rows are empty
+
                   Result threadResult =
-                      executeFromStart(nr + 1, newResult, nextAction, actionMeta, nextComment);
+                      executeFromStart(
+                          nr + 1, prevWithoutRows, nextAction, actionMeta, nextComment);
                   threadResults.add(threadResult);
                 } catch (Throwable e) {
                   log.logError(Const.getStackTracker(e));
@@ -967,9 +974,9 @@ public abstract class Workflow extends Variables
       throw threadExceptions.poll();
     }
 
-    // In parallel execution, we aggregate all the results, simply add them to
-    // the previous result...
-    //
+    // In parallel execution, aggregate full results from branches. Since we started each
+    // branch with no previous rows, any rows present here were produced by the branch and
+    // should be included in the final result.
     for (Result threadResult : threadResults) {
       res.add(threadResult);
     }
@@ -985,7 +992,7 @@ public abstract class Workflow extends Variables
       if (log.isBasic()) {
         log.logBasic(
             BaseMessages.getString(
-                PKG, "Workflow.Log.FinishedAction", actionMeta.getName(), res.getResult() + ""));
+                PKG, "Workflow.Log.FinishedAction", actionMeta.getName(), res.isResult() + ""));
       }
     }
 

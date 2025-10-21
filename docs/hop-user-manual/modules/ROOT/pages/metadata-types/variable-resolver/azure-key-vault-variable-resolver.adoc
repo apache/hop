@@ -1,0 +1,332 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[AzureKeyVaultVariableResolver]]
+:imagesdir: ../assets/images
+:openvar: #{
+:closevar: }
+:description: The Azure Key Vault Variable Resolver allows you to retrieve secrets from Microsoft Azure Key Vault and use them in your pipelines and workflows.
+
+= Azure Key Vault Variable Resolver
+
+== Description
+
+The Azure Key Vault Variable Resolver allows you to retrieve secrets from Microsoft Azure Key Vault and use them as variables in your Apache Hop pipelines and workflows. This integration enables secure management of sensitive information such as database credentials, API keys, and other secrets by fetching them directly from Azure Key Vault.
+
+== Configuration Options
+
+=== Azure Key Vault URI
+
+The full URI of your Azure Key Vault. This should be in the format `https://your-vault-name.vault.azure.net/`.
+
+Example: `https://my-company-vault.vault.azure.net/`
+
+=== Azure Tenant ID
+
+The Directory (tenant) ID of your Azure Active Directory. This is a GUID that identifies your Azure AD tenant.
+
+You can find this in the Azure Portal under **Azure Active Directory → Overview → Tenant ID**.
+
+=== Azure Client ID
+
+The Application (client) ID of your service principal or registered application. This is the identity that will authenticate with Azure Key Vault.
+
+You can find this in the Azure Portal under **Azure Active Directory → App registrations → Your Application → Application (client) ID**.
+
+=== Azure Client Secret
+
+The client secret (password) for your service principal or registered application. This is used to authenticate your application with Azure AD.
+
+You can create a client secret in the Azure Portal under **Azure Active Directory → App registrations → Your Application → Certificates & secrets**.
+
+[IMPORTANT]
+====
+Keep your client secret secure! Never commit it to source control or share it publicly. The Azure Key Vault Variable Resolver is designed to help you avoid hardcoding such secrets.
+====
+
+== Setting Up Azure Key Vault
+
+=== Prerequisites
+
+* An active Azure subscription
+* Appropriate permissions to create Azure resources
+* Azure CLI installed (optional, but recommended)
+
+=== Step 1: Create an Azure Key Vault
+
+Using the Azure Portal:
+
+1. Navigate to the https://portal.azure.com[Azure Portal]
+2. Click **Create a resource** → Search for **Key Vault**
+3. Click **Create**
+4. Fill in the required information:
+* **Subscription**: Select your Azure subscription
+* **Resource Group**: Create a new one or select an existing resource group
+* **Key Vault Name**: Enter a unique name (e.g., `my-company-hop-vault`)
+* **Region**: Select the region closest to your Hop installation
+* **Pricing Tier**: Standard (or Premium if you need HSM-backed keys)
+5. Review the networking and access policy settings (default is fine for most use cases)
+6. Click **Review + Create** → **Create**
+
+Using Azure CLI:
+
+[source,bash]
+----
+# Create a resource group (if you don't have one)
+az group create --name hop-resources --location eastus
+
+# Create the Key Vault
+az keyvault create \
+  --name my-company-hop-vault \
+  --resource-group hop-resources \
+  --location eastus
+----
+
+=== Step 2: Create a Service Principal
+
+A service principal is an identity that your Hop application will use to authenticate with Azure.
+
+Using Azure Portal:
+
+1. Go to **Azure Active Directory** → **App registrations**
+2. Click **New registration**
+3. Enter a name (e.g., `hop-key-vault-app`)
+4. Select **Accounts in this organizational directory only**
+5. Click **Register**
+6. Note down the **Application (client) ID** and **Directory (tenant) ID**
+7. Go to **Certificates & secrets** → **New client secret**
+8. Add a description and expiration period
+9. Click **Add** and immediately copy the **Value** (you won't be able to see it again!)
+
+Using Azure CLI:
+
+[source,bash]
+----
+# Create a service principal
+az ad sp create-for-rbac \
+  --name hop-key-vault-app \
+  --skip-assignment
+
+# Note down the output:
+# - appId (this is your Client ID)
+# - password (this is your Client Secret)
+# - tenant (this is your Tenant ID)
+----
+
+=== Step 3: Grant Access to Key Vault
+
+Your service principal needs permission to read secrets from the Key Vault.
+
+Using Azure Portal:
+
+1. Navigate to your Key Vault
+2. Go to **Access policies** → **Create**
+3. Under **Secret permissions**, select:
+* **Get** (required)
+* **List** (optional, but useful for debugging)
+4. Click **Next**
+5. Search for and select your service principal (e.g., `hop-key-vault-app`)
+6. Click **Next** → **Next** → **Create**
+
+Using Azure CLI:
+
+[source,bash]
+----
+# Get the object ID of your service principal
+SP_OBJECT_ID=$(az ad sp list --display-name hop-key-vault-app --query [0].id -o tsv)
+
+# Grant Get and List permissions
+az keyvault set-policy \
+  --name my-company-hop-vault \
+  --object-id $SP_OBJECT_ID \
+  --secret-permissions get list
+----
+
+=== Step 4: Add Secrets to Key Vault
+
+Using Azure Portal:
+
+1. Navigate to your Key Vault
+2. Go to **Secrets** → **Generate/Import**
+3. Enter a **Name** (e.g., `database-password`)
+4. Enter the **Value** (the actual secret)
+5. Click **Create**
+
+Using Azure CLI:
+
+[source,bash]
+----
+# Add a secret
+az keyvault secret set \
+  --vault-name my-company-hop-vault \
+  --name database-password \
+  --value "MySecureP@ssw0rd!"
+
+# Add multiple secrets
+az keyvault secret set \
+  --vault-name my-company-hop-vault \
+  --name api-key \
+  --value "abc123xyz789"
+----
+
+[TIP]
+====
+Secret names in Azure Key Vault can only contain alphanumeric characters and hyphens. They must be between 1-127 characters long.
+====
+
+== Usage in Apache Hop
+
+=== Creating the Variable Resolver
+
+1. In Hop GUI, open the **Metadata perspective** (top-right icon)
+2. Right-click in the metadata explorer → **New** → **Variable Resolver**
+3. Select **Azure Key Vault Variable Resolver**
+4. Enter a **Name** for your resolver (e.g., `azure-kv`)
+5. Fill in the configuration:
+* **Azure Key Vault URI**: `https://my-company-hop-vault.vault.azure.net/`
+* **Azure Tenant ID**: Your tenant GUID
+* **Azure Client ID**: Your application (client) ID
+* **Azure Client Secret**: Your client secret value
+6. Click the *Save* icon
+
+=== Variable Expression Format
+
+To retrieve a secret from Azure Key Vault, use the following expression format:
+
+[source]
+----
+#{resolver-name:secret-name}
+----
+
+Where:
+
+* **resolver-name**: The name you gave to your variable resolver metadata element (e.g., `azure-kv`)
+* **secret-name**: The name of the secret in Azure Key Vault
+
+=== Examples
+
+Assume you've created a variable resolver named `azure-kv` and have the following secrets in your Key Vault:
+
+|===
+|Secret Name |Secret Value
+
+|database-password
+|MySecureP@ssw0rd!
+
+|api-key
+|abc123xyz789
+
+|connection-string
+|Server=myserver;Database=mydb;User=admin;Password=secret;
+|===
+
+You can use these expressions in your pipelines and workflows:
+
+* `#{azure-kv:database-password}` returns `MySecureP@ssw0rd!`
+* `#{azure-kv:api-key}` returns `abc123xyz789`
+* `#{azure-kv:connection-string}` returns the full connection string
+
+=== Using in Database Connections
+
+You can use the Azure Key Vault Variable Resolver in database connection configurations:
+
+1. Create or edit a database connection
+2. In the **Password** field, enter: `#{azure-kv:database-password}`
+3. When the connection is used, Hop will automatically resolve the password from Azure Key Vault
+
+=== Using in Transform Fields
+
+You can use resolver expressions in transform fields, such as the **Get Variables** transform:
+
+1. Add a **Get Variables** transform to your pipeline
+2. Add a field and set the **Variable** to `#{azure-kv:api-key}`
+3. When the pipeline runs, the field will contain the actual secret value
+
+== Best Practices
+
+=== Security
+
+* **Never hardcode credentials**: Use the variable resolver instead of hardcoding secrets in your pipelines
+* **Rotate secrets regularly**: Update secrets in Azure Key Vault and restart Hop to pick up new values
+* **Use different Key Vaults for different environments**: Create separate Key Vaults for development, staging, and production
+* **Limit permissions**: Grant your service principal only the minimum required permissions (Get secrets)
+* **Enable audit logging**: Use Azure Monitor to track secret access
+
+=== Performance
+
+* **Caching**: The resolver initializes once per Hop session and caches the connection
+* **Avoid excessive calls**: Secrets are fetched on-demand, so minimize resolver expressions in tight loops
+* **Use environment-specific resolvers**: Create separate variable resolver metadata for different environments
+
+=== Multiple Resolvers
+
+You can create multiple Azure Key Vault variable resolver metadata elements with different names:
+
+* `azure-kv-abc` → Points to Key Vault abc
+* `azure-kv-def` → Points to Key Vault def
+
+Then use them with different prefixes:
+
+* `#{azure-kv-abc:database-password}`
+* `#{azure-kv-def:database-password}`
+
+== Troubleshooting
+
+=== Authentication Failures
+
+If you see authentication errors in the Hop logs:
+
+1. **Verify credentials**: Double-check that your Tenant ID, Client ID, and Client Secret are correct
+2. **Check secret expiration**: Client secrets expire! Create a new one if yours has expired
+3. **Verify vault URI**: Ensure the URI is correct and uses HTTPS
+4. **Check network connectivity**: Ensure Hop can reach `vault.azure.net`
+
+=== Secret Not Found
+
+If a secret cannot be found:
+
+1. **Check secret name**: Secret names are case-sensitive
+2. **Verify permissions**: Ensure your service principal has **Get** permission on secrets
+3. **Check secret exists**: Verify the secret exists in the Key Vault using the Azure Portal
+4. **Check deleted secrets**: Azure Key Vault has soft-delete; the secret might be in a deleted state
+
+=== Enable Debug Logging
+
+To see detailed logging from the variable resolver, increase the logging level in your xref:metadata-types/pipeline-run-config.adoc[pipeline run configuration] or xref:metadata-types/workflow-run-config.adoc[workflow run configuration].
+
+== Limitations
+
+* **Secret names**: Azure Key Vault secret names can only contain alphanumeric characters and hyphens
+* **Secret versions**: This resolver always retrieves the latest version of a secret
+* **Complex secret formats**: Azure Key Vault stores secrets as plain strings, unlike HashiCorp Vault which supports structured JSON natively
+* **Initialization**: The resolver initializes on first use; the first resolution may take slightly longer
+
+== Additional Resources
+
+* https://learn.microsoft.com/en-us/azure/key-vault/[Azure Key Vault Documentation]
+* https://learn.microsoft.com/en-us/azure/key-vault/secrets/quick-create-portal[Quickstart: Create a Key Vault using the Azure Portal]
+* https://learn.microsoft.com/en-us/azure/key-vault/general/authentication[Azure Key Vault Authentication]
+* https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal[Create an Azure AD Service Principal]
+* xref:metadata-types/variable-resolver/index.adoc[Variable Resolver Overview]
+
+== Related Metadata Types
+
+* xref:metadata-types/variable-resolver/vault-variable-resolver.adoc[HashiCorp Vault Variable Resolver]
+* xref:metadata-types/variable-resolver/google-secret-manager-variable-resolver.adoc[Google Secret Manager Variable Resolver]
+* xref:metadata-types/variable-resolver/pipeline-variable-resolver.adoc[Pipeline Variable Resolver]
+
+
+

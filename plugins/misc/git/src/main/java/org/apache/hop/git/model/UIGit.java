@@ -645,15 +645,33 @@ public class UIGit extends VCS {
               .filter(update -> update.getStatus() != RemoteRefUpdate.Status.OK)
               .filter(update -> update.getStatus() != RemoteRefUpdate.Status.UP_TO_DATE)
               .forEach(
-                  update -> // for each failed refspec
-                  sb.append(
-                          result.getURI().toString()
-                              + "\n"
-                              + update.getSrcRef()
-                              + "\n"
-                              + update.getStatus().toString()
-                              + (update.getMessage() == null ? "" : "\n" + update.getMessage())
-                              + "\n\n"));
+                  // for each failed refspec
+                  update -> {
+                    sb.append("Errors while pushing: ")
+                        .append("\n")
+                        .append("Destination: ")
+                        .append(result.getURI().toString())
+                        .append("\n")
+                        .append("Branch name: ")
+                        .append(update.getSrcRef())
+                        .append("\n");
+                    switch (update.getStatus()) {
+                      case REJECTED_NONFASTFORWARD:
+                        sb.append(" * ")
+                            .append(update.getStatus().toString())
+                            .append(
+                                " - Remote repository contains changes. Merge the remote changes (e.g. 'git pull') before pushing again.")
+                            .append("\n");
+                        break;
+                      default:
+                        sb.append(" * ")
+                            .append(update.getStatus().toString())
+                            .append(" - ")
+                            .append(update.getMessage() == null ? "" : "\n" + update.getMessage())
+                            .append("\n");
+                        break;
+                    }
+                  });
           if (sb.isEmpty()) {
             showMessageBox(
                 BaseMessages.getString(PKG, "Dialog.Success"),
