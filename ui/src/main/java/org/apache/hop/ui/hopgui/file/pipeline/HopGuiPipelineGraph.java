@@ -2224,7 +2224,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiPipelineGraph.TransformAction.EditDescription.Name",
       tooltip = "i18n::HopGuiPipelineGraph.TransformAction.EditDescription.Tooltip",
-      image = "ui/images/edit_description.svg",
+      image = "ui/images/edit-description.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editDescription(HopGuiPipelineTransformContext context) {
