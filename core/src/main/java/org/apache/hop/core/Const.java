@@ -886,6 +886,13 @@ public class Const {
   public static final String HOP_ZIP_MAX_TEXT_SIZE = "HOP_ZIP_MAX_TEXT_SIZE";
 
   /**
+   * A variable to configure if we should calculate the last modification date of a folder object
+   * for Google Cloud Storage.
+   */
+  public static final String HOP_GCP_GET_FOLDER_LASTMODIFICATION_DATE =
+      "HOP_GCP_GET_FOLDER_LASTMODIFICATION_DATE";
+
+  /**
    * The default value for the {@link #HOP_ZIP_MAX_TEXT_SIZE} as a Long.
    *
    * @see #HOP_ZIP_MAX_TEXT_SIZE

@@ -27,6 +27,7 @@ public class GoogleCloudConfig {
   public static final String HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY = "googleCloud";
 
   private String serviceAccountKeyFile;
+  private Boolean scanFoldersForLastModifDate;
   private String maxAttempts;
   private String initialRetryDelay;
   private String retryDelayMultiplier;
@@ -39,6 +40,7 @@ public class GoogleCloudConfig {
   private String readTimeout;
 
   public GoogleCloudConfig() {
+    scanFoldersForLastModifDate = false;
     maxAttempts = "6";
     initialRetryDelay = "1";
     retryDelayMultiplier = "2.0";
@@ -54,6 +56,7 @@ public class GoogleCloudConfig {
   public GoogleCloudConfig(GoogleCloudConfig config) {
     this();
     serviceAccountKeyFile = config.serviceAccountKeyFile;
+    scanFoldersForLastModifDate = config.scanFoldersForLastModifDate;
     maxAttempts = config.maxAttempts;
     initialRetryDelay = config.initialRetryDelay;
     retryDelayMultiplier = config.retryDelayMultiplier;
