@@ -20,12 +20,7 @@ package org.apache.hop.pipeline.transforms.addsnowflakeid;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-/**
- * SnowflakeIdUtils test
- *
- * @author lance
- * @since 2025/10/16 21:05
- */
+/** SnowflakeIdUtils test */
 class SnowflakeSafeIdGeneratorTests {
 
   @Test

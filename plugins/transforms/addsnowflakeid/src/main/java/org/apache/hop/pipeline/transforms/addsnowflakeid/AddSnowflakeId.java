@@ -26,12 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Adds snowflake ID is a 64-bit globally unique identifier to a stream of rows
- *
- * @author lance
- * @since 2025/10/16 21:19
- */
+/** Adds snowflake ID is a 64-bit globally unique identifier to a stream of rows */
 public class AddSnowflakeId extends BaseTransform<AddSnowflakeIdMeta, AddSnowflakeIdData> {
   private static final Class<?> PKG = AddSnowflakeId.class;
   private SnowflakeSafeIdGenerator generator;

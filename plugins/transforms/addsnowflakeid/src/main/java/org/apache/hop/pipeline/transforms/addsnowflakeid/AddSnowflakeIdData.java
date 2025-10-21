@@ -21,12 +21,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * AddSnowflakeId data
- *
- * @author lance
- * @since 2025/10/16 21:31
- */
+/** AddSnowflakeId data */
 public class AddSnowflakeIdData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 }

@@ -19,12 +19,7 @@ package org.apache.hop.pipeline.transforms.addsnowflakeid;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * snowflake id utils
- *
- * @author lance
- * @since 2025/10/16 20:57
- */
+/** snowflake id utils */
 public class SnowflakeSafeIdGenerator {
   /** 2020-01-01 */
   private static final long START_EPOCH = 1577836800000L;

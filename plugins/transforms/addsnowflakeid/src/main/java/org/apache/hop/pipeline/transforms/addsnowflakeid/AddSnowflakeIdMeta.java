@@ -30,19 +30,14 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Meta data for the Add Snowflake Id transform
- *
- * @author lance
- * @since 2025/10/16 21:22
- */
+/** Meta data for the Add Snowflake Id transform */
 @Transform(
     id = "SnowflakeId",
     image = "addsnowflakeid.svg",
     name = "i18n::BaseTransform.TypeLongDesc.AddSnowflakeId",
     description = "i18n::BaseTransform.TypeTooltipDesc.AddSnowflakeId",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "/pipeline/transforms/addsnowflakeid.html",
+    documentationUrl = "/pipeline/transforms/snowflakeid.html",
     keywords = "i18n::AddSnowflakeIdMeta.keyword")
 @Getter
 @Setter

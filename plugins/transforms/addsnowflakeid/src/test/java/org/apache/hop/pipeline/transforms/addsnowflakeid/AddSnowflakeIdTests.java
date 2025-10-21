@@ -44,12 +44,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * AddSnowflakeId test
- *
- * @author lance
- * @since 2025/10/17 13:45
- */
+/** AddSnowflakeId test */
 class AddSnowflakeIdTests {
   private TransformMockHelper<AddSnowflakeIdMeta, AddSnowflakeIdData> transformMockHelper;
 

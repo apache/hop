@@ -36,12 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
-/**
- * add snowflakeId dialog
- *
- * @author lance
- * @since 2025/10/16 22:40
- */
+/** add snowflakeId dialog */
 public class AddSnowflakeIdDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AddSnowflakeIdDialog.class;
 

@@ -19,12 +19,7 @@ package org.apache.hop.pipeline.transforms.addsnowflakeid;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-/**
- * AddSnowflakeIdMeta test
- *
- * @author lance
- * @since 2025/10/17 10:21
- */
+/** AddSnowflakeIdMeta test */
 class AddSnowflakeIdMetaTests {
 
   @Test
