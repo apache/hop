@@ -39,6 +39,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 
@@ -203,7 +204,9 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
       if (isFolder()) {
         // Only return the last modified time for a folder if the user wants to scan for it.
-        if (config.getScanFoldersForLastModifDate()) {
+
+        if (Boolean.TRUE.equals(config.getScanFoldersForLastModifDate())
+            || Const.toBoolean(System.getenv(Const.HOP_GCP_GET_FOLDER_LASTMODIFICATION_DATE))) {
           return getLatestModifiedFileTime().toInstant().toEpochMilli();
         } else {
           return 0;
