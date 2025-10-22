@@ -18,15 +18,23 @@ under the License.
 :language: en_US
 :description: The Snowflake id transform generates a unique id for snowflake rows
 
-= image:transforms/icons/addsnowflakeid.svg[Snowflake Bulk Loader transform Icon, role="image-doc-icon"] Snowflake Bulk Loader
+= image:transforms/icons/addsnowflakeid.svg[Snowflake ID Generator transform Icon, role="image-doc-icon"] Snowflake ID Generator
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-Generate a unique identifier for a row to insert into snowflake
+The Snowflake ID Generator transform generates globally unique identifiers (IDs) based on the https://en.wikipedia.org/wiki/Snowflake_ID[Snowflake algorithm]. Each generated ID is a 64-bit long integer that encodes a timestamp, data center ID, machine ID, and sequence number, ensuring uniqueness across distributed systems.
 
+Use this transform to generate unique IDs for your data rows in distributed ETL pipelines.
+The generated IDs are time-ordered and can be used as primary keys, message identifiers, or other globally unique keys in data processing systems.
+
+Typical use cases:
+
+- Generating unique keys for records before inserting into a database.
+- Ensuring globally unique event IDs in streaming data pipelines.
+- Replacing database auto-increment IDs in distributed environments.
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -40,3 +48,13 @@ Generate a unique identifier for a row to insert into snowflake
 
 == Options
 
+[options="header"]
+|===
+|Option|Description
+|Transform name|The name of this transform as it appears in the pipeline workspace.
+This name must be unique within a single pipeline.
+|Name of value|Name of the new snowflake value that is added to the stream.
+
+|Data Center No|Identifier for the data center or logical group. Valid range: 0–31 (default: 1).
+|Machine No|Identifier for the machine generating the ID. Valid range: 0–31 (default: 1).
+|===
