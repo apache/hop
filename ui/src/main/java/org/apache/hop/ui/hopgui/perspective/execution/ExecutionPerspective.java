@@ -267,19 +267,21 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     //
     ToolBar toolBar = new ToolBar(tabFolder, SWT.FLAT);
     final ToolItem item = new ToolItem(toolBar, SWT.PUSH);
-    item.setImage(GuiResource.getInstance().getImageMinimizePanel());
+    item.setImage(GuiResource.getInstance().getImageMaximizePanel());
     item.addListener(
         SWT.Selection,
         e -> {
           if (sash.getMaximizedControl() == null) {
             sash.setMaximizedControl(tabFolder);
-            item.setImage(GuiResource.getInstance().getImageMaximizePanel());
+            item.setImage(GuiResource.getInstance().getImageMinimizePanel());
           } else {
             sash.setMaximizedControl(null);
-            item.setImage(GuiResource.getInstance().getImageMinimizePanel());
+            item.setImage(GuiResource.getInstance().getImageMaximizePanel());
           }
         });
     tabFolder.setTopRight(toolBar, SWT.RIGHT);
+    int height = toolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+    tabFolder.setTabHeight(Math.max(height, tabFolder.getTabHeight()));
 
     new TabCloseHandler(this);
 
