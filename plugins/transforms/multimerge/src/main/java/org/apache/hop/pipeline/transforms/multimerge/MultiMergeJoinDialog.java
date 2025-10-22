@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.multimerge;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
