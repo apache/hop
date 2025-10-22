@@ -34,6 +34,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.IExecutor;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
@@ -1223,6 +1224,9 @@ public abstract class Workflow extends Variables
     } else {
       this.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_PARENT_ID, null);
     }
+
+    HopVersionProvider versionProvider = new HopVersionProvider();
+    setVariable(Const.HOP_VERSION, versionProvider.getVersion()[0]);
   }
 
   /**

@@ -37,6 +37,7 @@ import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
@@ -3315,6 +3316,9 @@ public class PipelineMeta extends AbstractMeta
     setInternalFilenameHopVariables(variables);
     setInternalNameHopVariable(variables);
     setInternalEntryCurrentDirectory(variables);
+
+    HopVersionProvider versionProvider = new HopVersionProvider();
+    variables.setVariable(Const.HOP_VERSION, versionProvider.getVersion()[0]);
   }
 
   /**
