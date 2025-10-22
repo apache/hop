@@ -3708,7 +3708,7 @@ public class TableView extends Composite {
     void delete(int[] items);
   }
 
-  @Setter
+  @Setter @Getter
   private ITableViewModifyListener tableViewModifyListener =
       new ITableViewModifyListener() {
         @Override
