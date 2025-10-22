@@ -199,11 +199,11 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     fdPassword.right = new FormAttachment(100, 0);
     wPassword.setLayoutData(fdPassword);
 
-    // Security Token
+    // Security Token (Optional)
     Label wlSecurityToken = new Label(wUsernamePasswordGroup, SWT.RIGHT);
     PropsUi.setLook(wlSecurityToken);
     wlSecurityToken.setText(
-        BaseMessages.getString(PKG, "SalesforceConnectionEditor.SecurityToken"));
+        BaseMessages.getString(PKG, "SalesforceConnectionEditor.SecurityToken") + " (Optional)");
     FormData fdlSecurityToken = new FormData();
     fdlSecurityToken.left = new FormAttachment(0, 0);
     fdlSecurityToken.top = new FormAttachment(wPassword, margin);
@@ -403,8 +403,35 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     wTest.setLayoutData(fdTest);
     wTest.addListener(SWT.Selection, e -> testConnection());
 
-    // Initialize UI state
+    // Load the metadata into the widgets
+    setWidgetsContent();
+
+    // Initialize UI state based on authentication type
     updateAuthenticationUI();
+
+    // Clear the changed flag after initial load
+    resetChanged();
+
+    // Add modify listeners to all controls to detect changes
+    // This will inform the Metadata perspective that this object was modified and needs to be saved
+    Control[] controls = {
+      wName,
+      wAuthType,
+      wUsername.getTextWidget(),
+      wPassword.getTextWidget(),
+      wSecurityToken.getTextWidget(),
+      wTargetUrl.getTextWidget(),
+      wOAuthClientId.getTextWidget(),
+      wOAuthClientSecret.getTextWidget(),
+      wOAuthRedirectUri.getTextWidget(),
+      wOAuthInstanceUrl.getTextWidget(),
+      wOAuthAccessToken.getTextWidget(),
+      wOAuthRefreshToken.getTextWidget()
+    };
+    for (Control control : controls) {
+      control.addListener(SWT.Modify, e -> setChanged());
+      control.addListener(SWT.Selection, e -> setChanged());
+    }
   }
 
   private void updateAuthenticationUI() {
@@ -420,6 +447,13 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
         wOAuthGroup.pack();
         wOAuthGroup.layout();
       }
+    }
+
+    // For username/password authentication, make security token optional
+    if (!isOAuth && wSecurityToken != null) {
+      // Security token is optional - only show if it has a value or if explicitly needed
+      // For now, we'll keep it visible but make it clear it's optional
+      // The field will be empty by default, matching the transform behavior
     }
 
     // Update test button positioning

@@ -17,6 +17,8 @@
 
 package org.apache.hop.metadata.salesforce;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -32,6 +34,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     image = "salesforce.svg",
     documentationUrl = "/metadata-types/salesforce-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
+@Getter
+@Setter
 public class SalesforceConnection extends HopMetadataBase implements IHopMetadata {
 
   // Authentication Type
@@ -61,10 +65,16 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
   @HopMetadataProperty(key = "oauth_redirect_uri", injectionKey = "OAUTH_REDIRECT_URI")
   private String oauthRedirectUri = "http://localhost:8080/callback";
 
-  @HopMetadataProperty(key = "oauth_access_token", injectionKey = "OAUTH_ACCESS_TOKEN")
+  @HopMetadataProperty(
+      key = "oauth_access_token",
+      injectionKey = "OAUTH_ACCESS_TOKEN",
+      password = true)
   private String oauthAccessToken;
 
-  @HopMetadataProperty(key = "oauth_refresh_token", injectionKey = "OAUTH_REFRESH_TOKEN")
+  @HopMetadataProperty(
+      key = "oauth_refresh_token",
+      injectionKey = "OAUTH_REFRESH_TOKEN",
+      password = true)
   private String oauthRefreshToken;
 
   @HopMetadataProperty(key = "oauth_instance_url", injectionKey = "OAUTH_INSTANCE_URL")
@@ -113,10 +123,20 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
           org.apache.hop.core.util.Utils.resolvePassword(variables, this.oauthClientSecret);
       String accessToken =
           org.apache.hop.core.util.Utils.resolvePassword(variables, this.oauthAccessToken);
+      String refreshToken =
+          org.apache.hop.core.util.Utils.resolvePassword(variables, this.oauthRefreshToken);
       String instanceUrl = variables.resolve(this.oauthInstanceUrl);
 
-      return new org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection(
-          log, clientId, clientSecret, accessToken, instanceUrl);
+      org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection connection =
+          new org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection(
+              log, clientId, clientSecret, accessToken, instanceUrl);
+
+      // Set the refresh token for token refresh functionality
+      if (!org.apache.hop.core.util.Utils.isEmpty(refreshToken)) {
+        connection.setOauthRefreshToken(refreshToken);
+      }
+
+      return connection;
     } else {
       // Resolve username/password variables
       String url = variables.resolve(this.targetUrl);
