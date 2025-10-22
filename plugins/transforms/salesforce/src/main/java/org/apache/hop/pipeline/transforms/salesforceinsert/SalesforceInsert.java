@@ -21,6 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.bind.XmlObject;
 import java.util.ArrayList;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
@@ -89,8 +90,12 @@ public class SalesforceInsert
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Build the mapping of input position to field name
-      //      data.fieldnrs = new int[meta.getUpdateStream().length];
+      data.fieldnrs = new int[data.nrFields];
       for (int i = 0; i < meta.getFields().size(); i++) {
+        String streamFieldName = meta.getFields().get(i).getUpdateStream();
+        if (StringUtils.isEmpty(streamFieldName)) {
+          streamFieldName = meta.getFields().get(i).getUpdateLookup();
+        }
         data.fieldnrs[i] =
             getInputRowMeta().indexOfValue(meta.getFields().get(i).getUpdateStream());
         if (data.fieldnrs[i] < 0) {

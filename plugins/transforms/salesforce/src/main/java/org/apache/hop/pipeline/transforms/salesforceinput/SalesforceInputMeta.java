@@ -160,9 +160,11 @@ public class SalesforceInputMeta
   //  @Injection(name = "START_DATE")
   private String readFrom;
 
+  private int recordsFilterCode;
+
   /** records filter */
   @HopMetadataProperty(key = "records_filter")
-  private int recordsFilter;
+  private String recordsFilter;
 
   /** Query all records including deleted ones */
   @HopMetadataProperty(key = "queryAll", injectionKey = "QUERY_ALL")
@@ -423,7 +425,7 @@ public class SalesforceInputMeta
 
   @Injection(name = "RETRIEVE")
   public void setRecordsFilterDesc(String recordsFilterDesc) {
-    this.recordsFilter = SalesforceConnectionUtils.getRecordsFilterByDesc(recordsFilterDesc);
+    this.recordsFilterCode = SalesforceConnectionUtils.getRecordsFilterByDesc(recordsFilterDesc);
   }
 
   /**
@@ -832,7 +834,7 @@ public class SalesforceInputMeta
     for (i = 0; i < fields.size(); i++) {
       SalesforceInputField field = fields.get(i);
 
-      int type = field.getType();
+      int type = field.getTypeCode();
       if (type == IValueMeta.TYPE_NONE) {
         type = IValueMeta.TYPE_STRING;
       }

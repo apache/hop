@@ -37,7 +37,6 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.Variables;
@@ -288,7 +287,8 @@ class SalesforceInputMetaTest {
       retval.setName(UUID.randomUUID().toString());
       retval.setField(UUID.randomUUID().toString());
       retval.setIdLookup(rnd.nextBoolean());
-      retval.setType(rnd.nextInt(ValueMetaFactory.getAllValueMetaNames().length));
+      retval.setType(UUID.randomUUID().toString());
+      //      retval.setTypeCode(rnd.nextInt(ValueMetaFactory.getAllValueMetaNames().length));
       retval.setFormat(UUID.randomUUID().toString());
       retval.setCurrencySymbol(UUID.randomUUID().toString());
       retval.setDecimalSymbol(UUID.randomUUID().toString());
@@ -309,7 +309,7 @@ class SalesforceInputMetaTest {
       if (!sfActual.getName().equals(testObject.getName())
           || !sfActual.getField().equals(testObject.getField())
           || sfActual.isIdLookup() != testObject.isIdLookup()
-          || sfActual.getType() != testObject.getType()
+          || sfActual.getTypeCode() != testObject.getTypeCode()
           || !sfActual.getFormat().equals(testObject.getFormat())
           || !sfActual.getCurrencySymbol().equals(testObject.getCurrencySymbol())
           || !sfActual.getDecimalSymbol().equals(testObject.getDecimalSymbol())

@@ -12,7 +12,7 @@ public class SalesforceInsertField implements Cloneable {
   @HopMetadataProperty(key = "name")
   private String updateLookup;
 
-  @HopMetadataProperty(key = "updateStream")
+  @HopMetadataProperty(key = "field")
   private String updateStream;
 
   @HopMetadataProperty(key = "useExternalId")

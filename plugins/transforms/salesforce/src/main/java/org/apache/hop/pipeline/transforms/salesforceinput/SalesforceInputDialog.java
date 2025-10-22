@@ -1903,7 +1903,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wSpecifyQuery.setSelection(in.isSpecifyQuery());
     wQuery.setText(Const.NVL(in.getQuery(), ""));
     wRecordsFilter.setText(
-        SalesforceConnectionUtils.getRecordsFilterDesc(input.getRecordsFilter()));
+        SalesforceConnectionUtils.getRecordsFilterDesc(input.getRecordsFilterCode()));
     wInclURLField.setText(Const.NVL(in.getTargetURLField(), ""));
     wInclURL.setSelection(in.includeTargetURL());
 
@@ -2126,7 +2126,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     meta.setTimestampField(Const.NVL(wInclTimestampField.getText(), ""));
     meta.setModuleField(Const.NVL(wInclModuleField.getText(), ""));
     meta.setRowNumberField(Const.NVL(wInclRownumField.getText(), ""));
-    meta.setRecordsFilter(
+    meta.setRecordsFilterCode(
         SalesforceConnectionUtils.getRecordsFilterByDesc(wRecordsFilter.getText()));
     meta.setIncludeTargetURL(wInclURL.getSelection());
     meta.setIncludeSQL(wInclSQL.getSelection());
@@ -2160,7 +2160,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       field.setField(item.getText(2));
       field.setIdLookup(
           BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(3)));
-      field.setType(ValueMetaFactory.getIdForValueMeta(item.getText(4)));
+      field.setTypeCode(ValueMetaFactory.getIdForValueMeta(item.getText(4)));
       field.setFormat(item.getText(5));
       field.setLength(Const.toInt(item.getText(6), -1));
       field.setPrecision(Const.toInt(item.getText(7), -1));

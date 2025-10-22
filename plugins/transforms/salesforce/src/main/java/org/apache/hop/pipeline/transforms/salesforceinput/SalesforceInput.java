@@ -147,7 +147,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         return null;
       } else {
         if (data.rownr >= data.nrRecords || data.finishedRecord) {
-          if (meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
+          if (meta.getRecordsFilterCode() != SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
             // We retrieved all records available here
             // maybe we need to query more again ...
             if (isDetailed()) {
@@ -181,7 +181,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
       SalesforceRecordValue srvalue = data.connection.getRecord(data.recordIndex);
       data.finishedRecord = srvalue.isAllRecordsProcessed();
 
-      if (meta.getRecordsFilter() == SalesforceConnectionUtils.RECORDS_FILTER_DELETED) {
+      if (meta.getRecordsFilterCode() == SalesforceConnectionUtils.RECORDS_FILTER_DELETED) {
         if (srvalue.isRecordIndexChanges()) {
           // We have moved forward...
           data.recordIndex = srvalue.getRecordIndex();
@@ -288,7 +288,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
     StringBuilder sql = new StringBuilder();
     List<SalesforceInputField> fields = meta.getFields();
 
-    switch (meta.getRecordsFilter()) {
+    switch (meta.getRecordsFilterCode()) {
       case SalesforceConnectionUtils.RECORDS_FILTER_UPDATED:
         for (int i = 0; i < data.nrFields; i++) {
           SalesforceInputField field = fields.get(i);
@@ -364,7 +364,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
           }
         } else {
           // check records filter
-          if (meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_ALL) {
+          if (meta.getRecordsFilterCode() != SalesforceConnectionUtils.RECORDS_FILTER_ALL) {
             String realFromDateString = resolve(meta.getReadFrom());
             if (Utils.isEmpty(realFromDateString)) {
               logError(
@@ -404,11 +404,11 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
           data.connection.setSQL(soSQL.replace("\n\r", " ").replace("\n", " "));
         } else {
           // Set calendars for update or deleted records
-          if (meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_ALL) {
-            data.connection.setCalendar(meta.getRecordsFilter(), data.startCal, data.endCal);
+          if (meta.getRecordsFilterCode() != SalesforceConnectionUtils.RECORDS_FILTER_ALL) {
+            data.connection.setCalendar(meta.getRecordsFilterCode(), data.startCal, data.endCal);
           }
 
-          if (meta.getRecordsFilter() == SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
+          if (meta.getRecordsFilterCode() == SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
             // Return fields list
             data.connection.setFieldsList(buildSOQl());
           } else {

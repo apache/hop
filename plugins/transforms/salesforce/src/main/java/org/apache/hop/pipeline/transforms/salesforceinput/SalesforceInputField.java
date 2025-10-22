@@ -54,7 +54,9 @@ public class SalesforceInputField implements Cloneable {
   private String field;
 
   @HopMetadataProperty(key = "type")
-  private int type;
+  private String type;
+
+  private int typeCode;
 
   @HopMetadataProperty(key = "length", injectionKey = "LENGTH")
   private int length;
@@ -90,7 +92,7 @@ public class SalesforceInputField implements Cloneable {
     this.name = fieldname;
     this.field = "";
     this.length = -1;
-    this.type = IValueMeta.TYPE_STRING;
+    this.typeCode = IValueMeta.TYPE_STRING;
     this.format = "";
     this.trimType = TYPE_TRIM_NONE;
     this.groupSymbol = "";
@@ -222,16 +224,16 @@ public class SalesforceInputField implements Cloneable {
   //  }
 
   public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName(type);
+    return ValueMetaFactory.getValueMetaName(typeCode);
   }
 
-  public void setType(int type) {
-    this.type = type;
+  public void setTypeCode(int typeCode) {
+    this.typeCode = typeCode;
   }
 
   @Injection(name = "TYPE", group = "FIELDS")
-  public void setType(String typeDesc) {
-    this.type = ValueMetaFactory.getIdForValueMeta(typeDesc);
+  public void setTypeCode(String typeDesc) {
+    this.typeCode = ValueMetaFactory.getIdForValueMeta(typeDesc);
   }
 
   //  public String getFormat() {
