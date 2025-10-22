@@ -19,6 +19,8 @@ package org.apache.hop.workflow;
 
 import java.util.Comparator;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Result;
 
 /**
@@ -31,6 +33,8 @@ import org.apache.hop.core.Result;
  *
  * <p>
  */
+@Getter
+@Setter
 public class ActionResult implements Cloneable, Comparator<ActionResult>, Comparable<ActionResult> {
   private Result result;
   private String actionName;
@@ -87,90 +91,6 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
     }
   }
 
-  /**
-   * @param result The result to set.
-   */
-  public void setResult(Result result) {
-    this.result = result;
-  }
-
-  /**
-   * @return Returns the result.
-   */
-  public Result getResult() {
-    return result;
-  }
-
-  /**
-   * @return Returns the comment.
-   */
-  public String getComment() {
-    return comment;
-  }
-
-  /**
-   * @param comment The comment to set.
-   */
-  public void setComment(String comment) {
-    this.comment = comment;
-  }
-
-  /**
-   * @return Returns the reason.
-   */
-  public String getReason() {
-    return reason;
-  }
-
-  /**
-   * @param reason The reason to set.
-   */
-  public void setReason(String reason) {
-    this.reason = reason;
-  }
-
-  /**
-   * @return Returns the logDate.
-   */
-  public Date getLogDate() {
-    return logDate;
-  }
-
-  /**
-   * @param logDate The logDate to set.
-   */
-  public void setLogDate(Date logDate) {
-    this.logDate = logDate;
-  }
-
-  /**
-   * @return the actionName
-   */
-  public String getActionName() {
-    return actionName;
-  }
-
-  /**
-   * @param actionName the actionName to set
-   */
-  public void setActionName(String actionName) {
-    this.actionName = actionName;
-  }
-
-  /**
-   * @return the actionFilename
-   */
-  public String getActionFilename() {
-    return actionFilename;
-  }
-
-  /**
-   * @param actionFilename the actionFilename to set
-   */
-  public void setActionFilename(String actionFilename) {
-    this.actionFilename = actionFilename;
-  }
-
   @Override
   public int compare(ActionResult one, ActionResult two) {
     if (one == null && two != null) {
@@ -200,21 +120,28 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
     return compare(this, two);
   }
 
-  public String getLogChannelId() {
-    return logChannelId;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ActionResult that = (ActionResult) o;
+    return checkpoint == that.checkpoint
+        && java.util.Objects.equals(result, that.result)
+        && java.util.Objects.equals(actionName, that.actionName)
+        && java.util.Objects.equals(comment, that.comment)
+        && java.util.Objects.equals(reason, that.reason)
+        && java.util.Objects.equals(logDate, that.logDate)
+        && java.util.Objects.equals(actionFilename, that.actionFilename)
+        && java.util.Objects.equals(logChannelId, that.logChannelId);
   }
 
-  /**
-   * @return the checkpoint
-   */
-  public boolean isCheckpoint() {
-    return checkpoint;
-  }
-
-  /**
-   * @param checkpoint the checkpoint to set
-   */
-  public void setCheckpoint(boolean checkpoint) {
-    this.checkpoint = checkpoint;
+  @Override
+  public int hashCode() {
+    return java.util.Objects.hash(
+        result, actionName, comment, reason, logDate, actionFilename, logChannelId, checkpoint);
   }
 }

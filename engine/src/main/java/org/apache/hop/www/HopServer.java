@@ -468,7 +468,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
     System.out.println("      Status:   " + workflowStatus.getStatusDescription());
     System.out.println("      Log date: " + formatDate(workflowStatus.getLogDate()));
     if (result != null) {
-      System.out.println("      Result:   " + result.getResult());
+      System.out.println("      Result:   " + result.isResult());
       System.out.println("      Errors:   " + result.getNrErrors());
     }
     if (printDetails) {

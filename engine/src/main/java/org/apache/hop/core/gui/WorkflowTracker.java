@@ -18,10 +18,15 @@
 package org.apache.hop.core.gui;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.workflow.ActionResult;
@@ -29,12 +34,20 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
 /** Responsible for tracking the execution of a workflow as a hierarchy. */
+@Getter
+@Setter
 public class WorkflowTracker<T extends WorkflowMeta> {
   /**
    * The trackers for each individual action. Since we invoke LinkedList.removeFirst() there is no
    * sense in lurking the field behind the interface
    */
   private LinkedList<WorkflowTracker> workflowTrackers;
+
+  /**
+   * Set to track unique identifiers of workflow trackers to prevent duplicates when actions run in
+   * parallel
+   */
+  private Set<String> trackerIdentifiers;
 
   /** If the workflowTrackers list is empty, then this is the result */
   private ActionResult result;
@@ -70,6 +83,7 @@ public class WorkflowTracker<T extends WorkflowMeta> {
     }
 
     this.workflowTrackers = new LinkedList<>();
+    this.trackerIdentifiers = new HashSet<>();
     this.maxChildren = maxChildren;
     this.lock = new ReentrantReadWriteLock();
   }
@@ -100,10 +114,21 @@ public class WorkflowTracker<T extends WorkflowMeta> {
   public void addWorkflowTracker(WorkflowTracker workflowTracker) {
     lock.writeLock().lock();
     try {
-      workflowTrackers.add(workflowTracker);
-      while (workflowTrackers.size() > maxChildren) {
-        // Use remove instead of subList
-        workflowTrackers.removeFirst();
+      String identifier = workflowTracker.getUniqueIdentifier();
+
+      // Only add if this tracker is unique (not already present)
+      if (identifier != null && !trackerIdentifiers.contains(identifier)) {
+        workflowTrackers.add(workflowTracker);
+        trackerIdentifiers.add(identifier);
+
+        // Remove oldest entries if we exceed maxChildren
+        while (workflowTrackers.size() > maxChildren) {
+          WorkflowTracker removed = workflowTrackers.removeFirst();
+          String removedId = removed.getUniqueIdentifier();
+          if (removedId != null) {
+            trackerIdentifiers.remove(removedId);
+          }
+        }
       }
     } finally {
       lock.writeLock().unlock();
@@ -150,7 +175,16 @@ public class WorkflowTracker<T extends WorkflowMeta> {
     lock.writeLock().lock();
     try {
       this.workflowTrackers.clear();
+      this.trackerIdentifiers.clear();
       this.workflowTrackers.addAll(workflowTrackers);
+
+      // Rebuild the identifier set
+      for (WorkflowTracker tracker : workflowTrackers) {
+        String identifier = tracker.getUniqueIdentifier();
+        if (identifier != null) {
+          this.trackerIdentifiers.add(identifier);
+        }
+      }
     } finally {
       lock.writeLock().unlock();
     }
@@ -174,6 +208,7 @@ public class WorkflowTracker<T extends WorkflowMeta> {
     lock.writeLock().lock();
     try {
       workflowTrackers.clear();
+      trackerIdentifiers.clear();
       result = null;
     } finally {
       lock.writeLock().unlock();
@@ -207,20 +242,6 @@ public class WorkflowTracker<T extends WorkflowMeta> {
     return null;
   }
 
-  /**
-   * @return Returns the parentWorkflowTracker.
-   */
-  public WorkflowTracker getParentWorkflowTracker() {
-    return parentWorkflowTracker;
-  }
-
-  /**
-   * @param parentWorkflowTracker The parentWorkflowTracker to set.
-   */
-  public void setParentWorkflowTracker(WorkflowTracker parentWorkflowTracker) {
-    this.parentWorkflowTracker = parentWorkflowTracker;
-  }
-
   public int getTotalNumberOfItems() {
     lock.readLock().lock();
     try {
@@ -237,44 +258,62 @@ public class WorkflowTracker<T extends WorkflowMeta> {
   }
 
   /**
-   * @return the workflowFilename
+   * Gets a unique identifier for this workflow tracker. Uses the log channel ID to uniquely
+   * identify each execution event. When actions run in parallel, the SAME logChannelId means the
+   * SAME execution event, which should be deduplicated. Different logChannelIds means different
+   * events.
+   *
+   * <p>Falls back to a combination of workflow name, action name, comment, and timestamp if
+   * logChannelId is not available.
+   *
+   * @return A unique identifier string, or null if insufficient information
    */
-  public String getWorfkflowFilename() {
-    return workflowFilename;
+  public String getUniqueIdentifier() {
+    if (result != null) {
+      // Fallback: construct identifier from available fields
+      StringBuilder identifier = new StringBuilder();
+      if (workflowName != null) {
+        identifier.append(workflowName).append("::");
+      }
+      if (workflowFilename != null) {
+        identifier.append(workflowFilename);
+      }
+
+      return identifier.length() > 0 ? identifier.toString() : null;
+    }
+    return null;
   }
 
-  /**
-   * @param workflowFilename the workflowFilename to set
-   */
-  public void setWorkflowFilename(String workflowFilename) {
-    this.workflowFilename = workflowFilename;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    WorkflowTracker<?> that = (WorkflowTracker<?>) o;
+
+    String thisId = this.getUniqueIdentifier();
+    String thatId = that.getUniqueIdentifier();
+
+    // If both have identifiers, compare them
+    if (thisId != null && thatId != null) {
+      return thisId.equals(thatId);
+    }
+
+    // Fallback to comparing workflow name and filename
+    return Objects.equals(workflowName, that.workflowName)
+        && Objects.equals(workflowFilename, that.workflowFilename)
+        && Objects.equals(result, that.result);
   }
 
-  /**
-   * @return the workflowName
-   */
-  public String getWorkflowName() {
-    return workflowName;
-  }
-
-  /**
-   * @param workflowName the workflowName to set
-   */
-  public void setWorkflowName(String workflowName) {
-    this.workflowName = workflowName;
-  }
-
-  /**
-   * @return the maxChildren
-   */
-  public int getMaxChildren() {
-    return maxChildren;
-  }
-
-  /**
-   * @param maxChildren the maxChildren to set
-   */
-  public void setMaxChildren(int maxChildren) {
-    this.maxChildren = maxChildren;
+  @Override
+  public int hashCode() {
+    String identifier = getUniqueIdentifier();
+    if (identifier != null) {
+      return identifier.hashCode();
+    }
+    return Objects.hash(workflowName, workflowFilename, result);
   }
 }

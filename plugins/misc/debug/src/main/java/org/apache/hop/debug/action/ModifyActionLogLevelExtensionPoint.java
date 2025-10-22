@@ -181,7 +181,7 @@ public class ModifyActionLogLevelExtensionPoint
 
                     if (debugLevel.isLoggingResult()) {
                       log.logMinimal("Action results: ");
-                      log.logMinimal("  - result=" + result.getResult());
+                      log.logMinimal("  - result=" + result.isResult());
                       log.logMinimal("  - stopped=" + result.isStopped());
                       log.logMinimal("  - linesRead=" + result.getNrLinesRead());
                       log.logMinimal("  - linesWritten=" + result.getNrLinesWritten());
