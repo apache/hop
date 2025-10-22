@@ -17,16 +17,14 @@
 
 package org.apache.hop.www;
 
+import jakarta.servlet.Servlet;
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.Servlet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
@@ -42,31 +40,32 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.server.HopServerMeta;
+import org.eclipse.jetty.ee11.servlet.DefaultServlet;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.servlet.security.ConstraintMapping;
+import org.eclipse.jetty.ee11.servlet.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.jaas.JAASLoginService;
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.Authenticator;
+import org.eclipse.jetty.security.Constraint;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.PropertyUserStore;
 import org.eclipse.jetty.security.UserStore;
-import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.LowResourceMonitor;
+import org.eclipse.jetty.server.NetworkConnectionLimit;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.PathResource;
-import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -189,20 +188,25 @@ public class WebServer {
   public void startServer() throws Exception {
     server = new Server();
 
-    List<String> roles = new ArrayList<>();
-    roles.add(Constraint.ANY_ROLE);
+    Constraint.Builder constraintBuilder =
+        new Constraint.Builder()
+            .name(Authenticator.BASIC_AUTH)
+            .authorization(Constraint.Authorization.SPECIFIC_ROLE)
+            .transport(Constraint.Transport.ANY);
 
     // Set up the security handler, optionally with JAAS
     //
     ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
+    securityHandler.setAuthenticationType(Authenticator.BASIC_AUTH);
 
     if (System.getProperty("loginmodulename") != null
         && System.getProperty("java.security.auth.login.config") != null) {
+      constraintBuilder.roles("*");
       JAASLoginService jaasLoginService = new JAASLoginService("Hop");
       jaasLoginService.setLoginModuleName(System.getProperty("loginmodulename"));
       securityHandler.setLoginService(jaasLoginService);
     } else {
-      roles.add("default");
+      constraintBuilder.roles("default");
       HashLoginService hashLoginService;
       HopServerMeta hopServer = pipelineMap.getHopServerConfig().getHopServer();
       if (!Utils.isEmpty(hopServer.getPassword())) {
@@ -220,20 +224,15 @@ public class WebServer {
         }
         hashLoginService = new HashLoginService("Hop");
         PropertyUserStore userStore = new PropertyUserStore();
-        userStore.setConfig(passwordFile);
+        userStore.setConfig(ResourceFactory.of(server).newResource(passwordFile));
         hashLoginService.setUserStore(userStore);
       }
       securityHandler.setLoginService(hashLoginService);
     }
 
-    Constraint constraint = new Constraint();
-    constraint.setName(Constraint.__BASIC_AUTH);
-    constraint.setRoles(roles.toArray(new String[roles.size()]));
-    constraint.setAuthenticate(true);
-
     ConstraintMapping constraintMapping = new ConstraintMapping();
-    constraintMapping.setConstraint(constraint);
     constraintMapping.setPathSpec("/*");
+    constraintMapping.setConstraint(constraintBuilder.build());
 
     securityHandler.setConstraintMappings(new ConstraintMapping[] {constraintMapping});
 
@@ -244,11 +243,10 @@ public class WebServer {
     // Root
     //
     ServletContextHandler root =
-        new ServletContextHandler(
-            contexts, GetRootServlet.CONTEXT_PATH, ServletContextHandler.SESSIONS);
+        new ServletContextHandler(GetRootServlet.CONTEXT_PATH, ServletContextHandler.SESSIONS);
+    contexts.addHandler(root);
     GetRootServlet rootServlet = new GetRootServlet();
     rootServlet.setJettyMode(true);
-    root.addServlet(new ServletHolder(rootServlet), "/*");
 
     boolean graphicsEnvironment = supportGraphicEnvironment();
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
@@ -260,8 +258,8 @@ public class WebServer {
       servlet.setJettyMode(true);
 
       ServletContextHandler servletContext =
-          new ServletContextHandler(
-              contexts, getContextPath(servlet), ServletContextHandler.SESSIONS);
+          new ServletContextHandler(getContextPath(servlet), ServletContextHandler.SESSIONS);
+      contexts.addHandler(servletContext);
       ServletHolder servletHolder = new ServletHolder((Servlet) servlet);
       servletContext.addServlet(servletHolder, "/*");
       servletContext.setAttribute("GraphicsEnvironment", graphicsEnvironment);
@@ -279,21 +277,21 @@ public class WebServer {
     // Allow png files to be shown for pipelines and workflows...
     //
     ResourceHandler resourceHandler = new ResourceHandler();
-    resourceHandler.setResourceBase("temp");
+    resourceHandler.setBaseResourceAsString("temp");
     // add all handlers/contexts to server
 
     // set up static servlet
     ServletHolder staticHolder = new ServletHolder("static", DefaultServlet.class);
-    // resourceBase maps to the path relative to where carte is started
-    staticHolder.setInitParameter("resourceBase", "./static/");
-    staticHolder.setInitParameter("dirAllowed", "true");
-    staticHolder.setInitParameter("pathInfoOnly", "true");
+    // baseResource maps to the path relative to where hop-server is started
+    Resource staticResource = ResourceFactory.of(server).newResource("static/");
+    root.setInitParameter(DefaultServlet.CONTEXT_INIT + "baseResource", staticResource.toString());
+    root.setInitParameter(DefaultServlet.CONTEXT_INIT + "dirAllowed", "true");
+    root.setInitParameter(DefaultServlet.CONTEXT_INIT + "pathInfoOnly", "true");
     root.addServlet(staticHolder, "/static/*");
 
-    HandlerList handlers = new HandlerList();
-    handlers.setHandlers(new Handler[] {resourceHandler, contexts});
-    securityHandler.setHandler(handlers);
+    root.addServlet(new ServletHolder(rootServlet), "/*");
 
+    securityHandler.setHandler(new Handler.Sequence(resourceHandler, contexts));
     server.setHandler(securityHandler);
 
     // Start execution
@@ -365,12 +363,12 @@ public class WebServer {
           Encr.decryptPasswordOptionallyEncrypted(sslConfig.getKeyStorePassword());
       String keyPassword = Encr.decryptPasswordOptionallyEncrypted(sslConfig.getKeyPassword());
 
-      SslContextFactory.Client factory = new SslContextFactory.Client();
-      factory.setKeyStoreResource(new PathResource(new File(sslConfig.getKeyStore())));
+      SslContextFactory.Server factory = new SslContextFactory.Server();
+      factory.setKeyStorePath(sslConfig.getKeyStore());
       factory.setKeyStorePassword(keyStorePassword);
       factory.setKeyManagerPassword(keyPassword);
       factory.setKeyStoreType(sslConfig.getKeyStoreType());
-      factory.setTrustStoreResource(new PathResource(new File(sslConfig.getKeyStore())));
+      factory.setTrustStorePath(sslConfig.getKeyStore());
       factory.setTrustStorePassword(keyStorePassword);
 
       HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
@@ -398,7 +396,7 @@ public class WebServer {
     LowResourceMonitor lowResourceMonitor = new LowResourceMonitor(server);
     if (validProperty(Const.HOP_SERVER_JETTY_ACCEPTORS)) {
       server.addBean(
-          new ConnectionLimit(
+          new NetworkConnectionLimit(
               Integer.parseInt(System.getProperty(Const.HOP_SERVER_JETTY_ACCEPTORS))));
       log.logBasic(
           BaseMessages.getString(

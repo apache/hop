@@ -37,7 +37,7 @@
         <google-api-drive.version>v3-rev20250216-2.0.0</google-api-drive.version>
         <google-api-sheets.version>v4-rev20250211-2.0.0</google-api-sheets.version>
         <google-api-sqladmin.version>v1-rev20230721-2.0.0</google-api-sqladmin.version>
-        <jetty-client.version>6.1.26</jetty-client.version>
+        <jetty-client.version>12.1.2</jetty-client.version>
     </properties>
 
     <dependencyManagement>
@@ -176,13 +176,13 @@
             <artifactId>protobuf-java-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.mortbay.jetty</groupId>
+            <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
             <version>${jetty-client.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>servlet-api</artifactId>
+                    <groupId>org.eclipse.jetty.ee11</groupId>
+                    <artifactId>servlet-ee11-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
