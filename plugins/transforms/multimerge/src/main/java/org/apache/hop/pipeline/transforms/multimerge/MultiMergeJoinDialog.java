@@ -88,11 +88,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
   }
 
   private String[] getInputTransformNames() {
-    String[] inputTransformNames = joinMeta.getInputTransforms();
     ArrayList<String> nameList = new ArrayList<>();
-    if (inputTransformNames != null) {
-      Collections.addAll(nameList, inputTransformNames);
-    }
 
     String[] prevTransformNames = pipelineMeta.getPrevTransformNames(transformName);
     if (prevTransformNames != null) {
@@ -106,7 +102,8 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
       }
     }
 
-    return nameList.toArray(new String[nameList.size()]);
+    joinMeta.setInputTransforms(nameList.toArray(new String[0]));
+    return nameList.toArray(new String[0]);
   }
 
   /*
