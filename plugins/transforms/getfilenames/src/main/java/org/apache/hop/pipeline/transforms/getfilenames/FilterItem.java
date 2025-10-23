@@ -18,8 +18,12 @@
 package org.apache.hop.pipeline.transforms.getfilenames;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class FilterItem {
 
   /** The file filter type selection */
@@ -31,14 +35,6 @@ public class FilterItem {
   public FilterItem() {}
 
   public FilterItem(String fileTypeFilterSelection) {
-    this.fileTypeFilterSelection = fileTypeFilterSelection;
-  }
-
-  public String getFileTypeFilterSelection() {
-    return fileTypeFilterSelection;
-  }
-
-  public void setFileTypeFilterSelection(String fileTypeFilterSelection) {
     this.fileTypeFilterSelection = fileTypeFilterSelection;
   }
 

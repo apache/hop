@@ -76,64 +76,25 @@ public class GetFileNamesDialog extends BaseTransformDialog {
   private Label wlRaiseAnExceptionIfNoFile;
   private Button wRaiseAnExceptionIfNoFile;
 
-  private Label wlFilename;
-
-  private Button wbbFilename; // Browse: add file or directory
-
-  private Button wbdFilename; // Delete
-
-  private Button wbeFilename; // Edit
-
-  private Button wbaFilename; // Add or change
-
   private TextVar wFilename;
-
-  private Label wlFilenameList;
-
   private TableView wFilenameList;
-
-  private Label wlExcludeFilemask;
-
   private TextVar wExcludeFilemask;
-
-  private Label wlFilemask;
-
   private TextVar wFilemask;
-
-  private Button wbShowFiles;
-
   private CCombo wFilterFileType;
-
   private final GetFileNamesMeta input;
-
   private Button wFileField;
-  private Label wFileFieldWarning;
-
-  private Label wlFilenameField;
   private CCombo wFilenameField;
-
-  private Label wlWildcardField;
   private CCombo wWildcardField;
-
-  private Label wlExcludeWildcardField;
   private CCombo wExcludeWildcardField;
-
-  private Label wlIncludeSubFolder;
   private Button wIncludeSubFolder;
-
   private Button wAddResult;
-
   private Text wLimit;
-
   private Button wInclRownum;
-
   private TextVar wInclRownumField;
-
   private boolean getPreviousFields = false;
-
   private Group groupAsDefined;
-
   private Group groupFromField;
+  private Label wFileFieldWarning;
 
   public GetFileNamesDialog(
       Shell parent,
@@ -228,7 +189,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     WidgetUtils.setFormLayout(group, 10);
 
     // Filename field
-    wlFilenameField = new Label(group, SWT.RIGHT);
+    Label wlFilenameField = new Label(group, SWT.RIGHT);
     wlFilenameField.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameField.Label"));
     PropsUi.setLook(wlFilenameField);
     wlFilenameField.setLayoutData(
@@ -250,7 +211,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
             .result());
 
     // Wildcard field
-    wlWildcardField = new Label(group, SWT.RIGHT);
+    Label wlWildcardField = new Label(group, SWT.RIGHT);
     wlWildcardField.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.WildcardField.Label"));
     PropsUi.setLook(wlWildcardField);
     wlWildcardField.setLayoutData(
@@ -272,7 +233,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
             .result());
 
     // ExcludeWildcard field
-    wlExcludeWildcardField = new Label(group, SWT.RIGHT);
+    Label wlExcludeWildcardField = new Label(group, SWT.RIGHT);
     wlExcludeWildcardField.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.ExcludeWildcardField.Label"));
     PropsUi.setLook(wlExcludeWildcardField);
@@ -295,7 +256,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
             .result());
 
     // Is includeSubFoldername defined in a Field
-    wlIncludeSubFolder = new Label(group, SWT.RIGHT);
+    Label wlIncludeSubFolder = new Label(group, SWT.RIGHT);
     wlIncludeSubFolder.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.IncludeSubFolder.Label"));
     PropsUi.setLook(wlIncludeSubFolder);
@@ -329,6 +290,15 @@ public class GetFileNamesDialog extends BaseTransformDialog {
 
   private Group createGroupAsDefined(
       Composite parent, int margin, int middle, ModifyListener lsMod) {
+    Button wbShowFiles;
+    Label wlFilemask;
+    Label wlExcludeFilemask;
+    Label wlFilenameList;
+    Button wbaFilename;
+    Button wbeFilename;
+    Button wbdFilename;
+    Button wbbFilename;
+    Label wlFilename;
     Group group = new Group(parent, SWT.SHADOW_NONE);
     PropsUi.setLook(group);
     group.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.Group.ByDefinition.Label"));
@@ -655,7 +625,8 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder().left(0, margin).top(0, 3 * margin).right(middle, -margin).result());
 
     wFilterFileType = new CCombo(wFilterComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    BaseMessages.getString(PKG, "GetFileNamesDialog.FilterTab.FileType.All.Label");
+    wFilterFileType.add(
+        BaseMessages.getString(PKG, "GetFileNamesDialog.FilterTab.FileType.All.Label"));
     wFilterFileType.add(
         BaseMessages.getString(PKG, "GetFileNamesDialog.FilterTab.FileType.OnlyFile.Label"));
     wFilterFileType.add(

@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.getfilenames;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -56,6 +58,8 @@ import org.apache.hop.resource.ResourceReference;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::GetFileNamesMeta.keyword",
     documentationUrl = "/pipeline/transforms/getfilenames.html")
+@Getter
+@Setter
 public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNamesData> {
   private static final Class<?> PKG = GetFileNamesMeta.class;
 
@@ -154,153 +158,6 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
     filterItemList = new ArrayList<>();
   }
 
-  public List<FileItem> getFilesList() {
-    return filesList;
-  }
-
-  public void setFilesList(List<FileItem> filesList) {
-    this.filesList = filesList;
-  }
-
-  public List<FilterItem> getFilterItemList() {
-    return filterItemList;
-  }
-
-  public void setFilterItemList(List<FilterItem> filterItemList) {
-    this.filterItemList = filterItemList;
-  }
-
-  /**
-   * @return the doNotFailIfNoFile flag
-   */
-  public boolean isDoNotFailIfNoFile() {
-    return doNotFailIfNoFile;
-  }
-
-  /**
-   * @param doNotFailIfNoFile the doNotFailIfNoFile to set
-   */
-  public void setDoNotFailIfNoFile(boolean doNotFailIfNoFile) {
-    this.doNotFailIfNoFile = doNotFailIfNoFile;
-  }
-
-  /**
-   * @return the raiseAnExceptionIfNoFile flag
-   */
-  public boolean isRaiseAnExceptionIfNoFile() {
-    return raiseAnExceptionIfNoFile;
-  }
-
-  /**
-   * @param raiseAnExceptionIfNoFile the raiseAnExceptionIfNoFile to set
-   */
-  public void setRaiseAnExceptionIfNoFile(boolean raiseAnExceptionIfNoFile) {
-    this.raiseAnExceptionIfNoFile = raiseAnExceptionIfNoFile;
-  }
-
-  /**
-   * @return Returns the rowNumberField.
-   */
-  public String getRowNumberField() {
-    return rowNumberField;
-  }
-
-  /**
-   * @param dynamicFilenameField The dynamic filename field to set.
-   */
-  public void setDynamicFilenameField(String dynamicFilenameField) {
-    this.dynamicFilenameField = dynamicFilenameField;
-  }
-
-  /**
-   * @param dynamicWildcardField The dynamic wildcard field to set.
-   */
-  public void setDynamicWildcardField(String dynamicWildcardField) {
-    this.dynamicWildcardField = dynamicWildcardField;
-  }
-
-  /**
-   * @param rowNumberField The rowNumberField to set.
-   */
-  public void setRowNumberField(String rowNumberField) {
-    this.rowNumberField = rowNumberField;
-  }
-
-  /**
-   * @return Returns the dynamic filename field (from previous transforms)
-   */
-  public String getDynamicFilenameField() {
-    return dynamicFilenameField;
-  }
-
-  /**
-   * @return Returns the dynamic wildcard field (from previous transforms)
-   */
-  public String getDynamicWildcardField() {
-    return dynamicWildcardField;
-  }
-
-  public String getDynamicExcludeWildcardField() {
-    return this.dynamicExcludeWildcardField;
-  }
-
-  /**
-   * @param dynamicExcludeWildcardField The dynamic excludeWildcard field to set.
-   */
-  public void setDynamicExcludeWildcardField(String dynamicExcludeWildcardField) {
-    this.dynamicExcludeWildcardField = dynamicExcludeWildcardField;
-  }
-
-  /**
-   * @return Returns the includeRowNumber.
-   */
-  public boolean isIncludeRowNumber() {
-    return includeRowNumber;
-  }
-
-  /**
-   * @return Returns the File field.
-   */
-  public boolean isFileField() {
-    return fileField;
-  }
-
-  /**
-   * @param fileField The filefield to set.
-   */
-  public void setFileField(boolean fileField) {
-    this.fileField = fileField;
-  }
-
-  public boolean isDynamicIncludeSubFolders() {
-    return dynamicIncludeSubFolders;
-  }
-
-  public void setDynamicIncludeSubFolders(boolean dynamicIncludeSubFolders) {
-    this.dynamicIncludeSubFolders = dynamicIncludeSubFolders;
-  }
-
-  /**
-   * @param includeRowNumber The includeRowNumber to set.
-   */
-  public void setIncludeRowNumber(boolean includeRowNumber) {
-    this.includeRowNumber = includeRowNumber;
-  }
-
-  /**
-   * @param addResultFile The isaddresult to set.
-   */
-  public void setAddResultFile(boolean addResultFile) {
-    this.addResultFile = addResultFile;
-  }
-
-  /**
-   * @return Returns isaddresult.
-   */
-  public boolean isAddResultFile() {
-    return addResultFile;
-  }
-
   public String getRequiredFilesDesc(String tt) {
     if (tt == null) {
       return RequiredFilesDesc[0];
@@ -310,20 +167,6 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
     } else {
       return RequiredFilesDesc[0];
     }
-  }
-
-  /**
-   * @return Returns the rowLimit.
-   */
-  public long getRowLimit() {
-    return rowLimit;
-  }
-
-  /**
-   * @param rowLimit The rowLimit to set.
-   */
-  public void setRowLimit(long rowLimit) {
-    this.rowLimit = rowLimit;
   }
 
   @Override
