@@ -456,6 +456,16 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       // The field will be empty by default, matching the transform behavior
     }
 
+    // Pre-fill URL field with default value when username/password authentication is selected
+    if (!isOAuth && wTargetUrl != null) {
+      String currentUrl = wTargetUrl.getText();
+      // Only set default URL if the field is empty (new connection or user hasn't entered anything)
+      if (currentUrl == null || currentUrl.trim().isEmpty()) {
+        wTargetUrl.setText("https://login.salesforce.com/services/Soap/u/64.0");
+        setChanged(); // Mark as changed so user can see the field was updated
+      }
+    }
+
     // Update test button positioning
     if (wTest != null) {
       FormData fdTest = (FormData) wTest.getLayoutData();
@@ -873,6 +883,9 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
 
   private void testConnection() {
     try {
+      // Save current UI values to metadata object before testing
+      getWidgetsContent(getMetadata());
+
       getMetadata().testConnection(hopGui.getVariables(), hopGui.getLog());
 
       MessageBox mb = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
