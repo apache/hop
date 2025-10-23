@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="24px" height="24px" viewBox="0 0 800 800" enable-background="new 0 0 800 800" xml:space="preserve">
-<title>ionicons-v5-d</title>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 800 800" enable-background="new 0 0 800 800" xml:space="preserve">
 <path fill="#0E3A5A" d="M700,350H593.75c-27.566-106.962-136.622-171.326-243.584-143.76
 	C279.648,224.414,224.58,279.481,206.406,350H100c-27.614,0-50,22.386-50,50s22.386,50,50,50h106.328
 	c27.481,106.983,136.487,171.433,243.471,143.951C520.441,575.805,575.604,520.642,593.75,450H700c27.613,0,50-22.386,50-50

@@ -18,7 +18,6 @@
 package org.apache.hop.projects.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -157,10 +156,8 @@ public class ProjectsUtil {
     }
 
     FileObject parent = file.getParent();
-    if (parent != null && isInSubDirectory(parent, directory)) {
-      return true;
-    }
-    return false;
+
+    return parent != null && isInSubDirectory(parent, directory);
   }
 
   public static void validateFileInProject(
@@ -228,7 +225,7 @@ public class ProjectsUtil {
     ProjectConfig currentProjectConfig = config.findProjectConfig(projectName);
 
     if (currentProjectConfig == null) {
-      parentProjectReferences = Collections.EMPTY_LIST;
+      parentProjectReferences = List.of();
     } else {
       for (String prj : prjs) {
         if (!prj.equals(projectName)) {
@@ -259,7 +256,7 @@ public class ProjectsUtil {
     ProjectConfig currentProjectConfig = config.findProjectConfig(currentName);
 
     if (currentProjectConfig == null) {
-      parentProjectReferences = Collections.EMPTY_LIST;
+      parentProjectReferences = List.of();
     } else {
       for (String prj : prjs) {
         if (!prj.equals(currentName)) {
