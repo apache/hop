@@ -19,6 +19,8 @@ package org.apache.hop.www.async;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
@@ -35,6 +37,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     image = "ui/images/server.svg",
     documentationUrl = "/metadata-types/async-web-service.html",
     hopMetadataPropertyType = HopMetadataPropertyType.SERVER_WEB_SERVICE_ASYNC)
+@Getter
+@Setter
 public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
@@ -42,6 +46,7 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty private String statusVariables;
   @HopMetadataProperty private String bodyContentVariable;
   @HopMetadataProperty private String runConfigurationName;
+  @HopMetadataProperty private String headerContentVariable;
 
   public AsyncWebService() {
     this.enabled = true;
@@ -54,13 +59,15 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
       String filename,
       String statusVariables,
       String bodyContentVariable,
-      String runConfigurationName) {
+      String runConfigurationName,
+      String headerContentVariable) {
     super(name);
     this.enabled = enabled;
     this.filename = filename;
     this.statusVariables = statusVariables;
     this.bodyContentVariable = bodyContentVariable;
     this.runConfigurationName = runConfigurationName;
+    this.headerContentVariable = headerContentVariable;
   }
 
   /**
@@ -79,87 +86,5 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
       }
     }
     return list;
-  }
-
-  /**
-   * Gets enabled
-   *
-   * @return value of enabled
-   */
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  /**
-   * @param enabled The enabled to set
-   */
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  /**
-   * Gets filename
-   *
-   * @return value of filename
-   */
-  public String getFilename() {
-    return filename;
-  }
-
-  /**
-   * @param filename The filename to set
-   */
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  /**
-   * Gets statusVariables
-   *
-   * @return value of statusVariables
-   */
-  public String getStatusVariables() {
-    return statusVariables;
-  }
-
-  /**
-   * @param statusVariables The statusVariables to set
-   */
-  public void setStatusVariables(String statusVariables) {
-    this.statusVariables = statusVariables;
-  }
-
-  /**
-   * Gets bodyContentVariable
-   *
-   * @return value of bodyContentVariable
-   */
-  public String getBodyContentVariable() {
-    return bodyContentVariable;
-  }
-
-  /**
-   * @param bodyContentVariable The bodyContentVariable to set
-   */
-  public void setBodyContentVariable(String bodyContentVariable) {
-    this.bodyContentVariable = bodyContentVariable;
-  }
-
-  /**
-   * Gets runConfigurationName
-   *
-   * @return value of runConfigurationName
-   */
-  public String getRunConfigurationName() {
-    return runConfigurationName;
-  }
-
-  /**
-   * Sets runConfigurationName
-   *
-   * @param runConfigurationName value of runConfigurationName
-   */
-  public void setRunConfigurationName(String runConfigurationName) {
-    this.runConfigurationName = runConfigurationName;
   }
 }

@@ -32,7 +32,6 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
-import org.apache.hop.ui.www.service.WebServiceEditor;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
@@ -51,7 +50,7 @@ import org.eclipse.swt.widgets.Text;
  * @see AsyncWebService
  */
 public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
-  private static final Class<?> PKG = WebServiceEditor.class;
+  private static final Class<?> PKG = AsyncWebServiceEditor.class;
 
   private Text wName;
   private Button wEnabled;
@@ -59,6 +58,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
   private MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
   private TextVar wStatusVars;
   private TextVar wContentVar;
+  private TextVar wHeaderContentVariable;
 
   public AsyncWebServiceEditor(
       HopGui hopGui, MetadataManager<AsyncWebService> manager, AsyncWebService metadata) {
@@ -177,9 +177,8 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
             WorkflowRunConfiguration.class,
             parent,
             SWT.NONE,
-            "Workflow run configuration",
-            "This is the workflow run configuration to use on the server. "
-                + "If left blank a standard local workflow engine is used.");
+            BaseMessages.getString(PKG, "AsyncWebService.Runconfiguration.Label"),
+            BaseMessages.getString(PKG, "AsyncWebService.Runconfiguration.Tooltip"));
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment(0, 0);
     fdRunConfiguration.top = new FormAttachment(lastControl, margin);
@@ -191,7 +190,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     //
     Label wlStatusVars = new Label(parent, SWT.RIGHT);
     PropsUi.setLook(wlStatusVars);
-    wlStatusVars.setText("Status variables (, separated)");
+    wlStatusVars.setText(BaseMessages.getString(PKG, "AsyncWebService.StatusVariables.Label"));
     FormData fdlStatusVars = new FormData();
     fdlStatusVars.left = new FormAttachment(0, 0);
     fdlStatusVars.right = new FormAttachment(middle, -margin);
@@ -206,11 +205,10 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wStatusVars.setLayoutData(fdStatusVars);
     lastControl = wlStatusVars;
 
-    // Status variables
-    //
+    // body content variables
     Label wlContentVar = new Label(parent, SWT.RIGHT);
     PropsUi.setLook(wlContentVar);
-    wlContentVar.setText("Content variable");
+    wlContentVar.setText(BaseMessages.getString(PKG, "AsyncWebService.BodyContentVariable.Label"));
     FormData fdlContentVar = new FormData();
     fdlContentVar.left = new FormAttachment(0, 0);
     fdlContentVar.right = new FormAttachment(middle, -margin);
@@ -223,6 +221,32 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdContentVar.right = new FormAttachment(100, 0);
     fdContentVar.top = new FormAttachment(wlContentVar, 0, SWT.CENTER);
     wContentVar.setLayoutData(fdContentVar);
+    lastControl = wContentVar;
+
+    // HeaderContentVariable to read from
+    //
+    Label wlHeaderContentVariable = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlHeaderContentVariable);
+    wlHeaderContentVariable.setText(
+        BaseMessages.getString(PKG, "AsyncWebService.HeaderContentVariable.Label"));
+    wlHeaderContentVariable.setToolTipText(
+        BaseMessages.getString(PKG, "AsyncWebService.HeaderContentVariable.Tooltip"));
+    FormData fdlHeaderContentVariable = new FormData();
+    fdlHeaderContentVariable.left = new FormAttachment(0, 0);
+    fdlHeaderContentVariable.right = new FormAttachment(middle, -margin);
+    fdlHeaderContentVariable.top = new FormAttachment(lastControl, 2 * margin);
+    wlHeaderContentVariable.setLayoutData(fdlHeaderContentVariable);
+    wHeaderContentVariable =
+        new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHeaderContentVariable.setToolTipText(
+        BaseMessages.getString(PKG, "AsyncWebService.HeaderContentVariable.Tooltip"));
+    PropsUi.setLook(wHeaderContentVariable);
+    FormData fdHeaderContentVariable = new FormData();
+    fdHeaderContentVariable.left = new FormAttachment(middle, 0);
+    fdHeaderContentVariable.right = new FormAttachment(100, 0);
+    fdHeaderContentVariable.top = new FormAttachment(wlHeaderContentVariable, 0, SWT.CENTER);
+    wHeaderContentVariable.setLayoutData(fdHeaderContentVariable);
+    lastControl = wlHeaderContentVariable;
 
     setWidgetsContent();
 
@@ -234,6 +258,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wRunConfiguration.addListener(SWT.Modify, lsMod);
     wStatusVars.addListener(SWT.Modify, lsMod);
     wContentVar.addListener(SWT.Modify, lsMod);
+    wHeaderContentVariable.addListener(SWT.Modify, lsMod);
   }
 
   /**
@@ -333,6 +358,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wFilename.setText(Const.NVL(ws.getFilename(), ""));
     wStatusVars.setText(Const.NVL(ws.getStatusVariables(), ""));
     wContentVar.setText(Const.NVL(ws.getBodyContentVariable(), ""));
+    wHeaderContentVariable.setText(Const.NVL(ws.getHeaderContentVariable(), ""));
     try {
       wRunConfiguration.fillItems();
       wRunConfiguration.setText(Const.NVL(ws.getRunConfigurationName(), ""));
@@ -349,6 +375,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     ws.setStatusVariables(wStatusVars.getText());
     ws.setBodyContentVariable(wContentVar.getText());
     ws.setRunConfigurationName(wRunConfiguration.getText());
+    ws.setHeaderContentVariable(wHeaderContentVariable.getText());
   }
 
   @Override
