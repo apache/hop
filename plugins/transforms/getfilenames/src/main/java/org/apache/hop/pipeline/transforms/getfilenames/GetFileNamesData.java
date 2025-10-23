@@ -41,7 +41,7 @@ public class GetFileNamesData extends BaseTransformData implements ITransformDat
 
   public Object[] previousRow;
 
-  public int nr_repeats;
+  public int nrRepeats;
 
   public int nrLinesOnPage;
 
@@ -114,7 +114,7 @@ public class GetFileNamesData extends BaseTransformData implements ITransformDat
     daf = new SimpleDateFormat();
     dafs = new DateFormatSymbols();
 
-    nr_repeats = 0;
+    nrRepeats = 0;
     previousRow = null;
     filenr = 0;
     filessize = 0;

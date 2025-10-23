@@ -18,9 +18,13 @@
 package org.apache.hop.pipeline.transforms.getfilenames;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class FileItem {
 
   private static final String NO = "N";
@@ -75,46 +79,6 @@ public class FileItem {
   protected void setDefault() {
     this.fileRequired = NO;
     this.includeSubFolders = NO;
-  }
-
-  public String getFileName() {
-    return fileName;
-  }
-
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
-  public String getFileMask() {
-    return fileMask;
-  }
-
-  public void setFileMask(String fileMask) {
-    this.fileMask = fileMask;
-  }
-
-  public String getExcludeFileMask() {
-    return excludeFileMask;
-  }
-
-  public void setExcludeFileMask(String excludeFileMask) {
-    this.excludeFileMask = excludeFileMask;
-  }
-
-  public String getFileRequired() {
-    return fileRequired;
-  }
-
-  public void setFileRequired(String fileRequired) {
-    this.fileRequired = fileRequired;
-  }
-
-  public String getIncludeSubFolders() {
-    return includeSubFolders;
-  }
-
-  public void setIncludeSubFolders(String includeSubFolders) {
-    this.includeSubFolders = includeSubFolders;
   }
 
   @Override
