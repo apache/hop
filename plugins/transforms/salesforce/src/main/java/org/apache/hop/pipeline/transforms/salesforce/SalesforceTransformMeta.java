@@ -99,6 +99,24 @@ public abstract class SalesforceTransformMeta<
   //  @Injection(name = "MODULE")
   private String module;
 
+  /** Salesforce Connection metadata name */
+  @HopMetadataProperty(key = "salesforce_connection", injectionKey = "SALESFORCE_CONNECTION")
+  private String salesforceConnection;
+
+  /**
+   * @return Returns the Salesforce Connection metadata name.
+   */
+  public String getSalesforceConnection() {
+    return salesforceConnection;
+  }
+
+  /**
+   * @param salesforceConnection The Salesforce Connection metadata name to set.
+   */
+  public void setSalesforceConnection(String salesforceConnection) {
+    this.salesforceConnection = salesforceConnection;
+  }
+
   //  @Override
   //  public String getXml() {
   //    StringBuilder retval = new StringBuilder();

@@ -684,6 +684,50 @@ public class SalesforceConnection {
     return null;
   }
 
+  @FunctionalInterface
+  private interface QueryExecutor {
+    com.sforce.soap.partner.QueryResult execute() throws Exception;
+  }
+
+  private com.sforce.soap.partner.QueryResult executeQueryWithTokenRefresh(
+      QueryExecutor queryExecutor) throws Exception {
+    try {
+      return queryExecutor.execute();
+    } catch (Exception e) {
+      // Check the exception chain for INVALID_SESSION_ID
+      boolean isTokenExpired = false;
+      Throwable current = e;
+      while (current != null) {
+        String message = current.getMessage();
+        if (message != null
+            && (message.contains("INVALID_SESSION_ID") || message.contains("Invalid Session ID"))) {
+          isTokenExpired = true;
+          break;
+        }
+        current = current.getCause();
+      }
+
+      // Check if this is an INVALID_SESSION_ID error and we have a refresh token
+      if (isTokenExpired && isOAuthAuthentication() && !Utils.isEmpty(getOauthRefreshToken())) {
+        log.logDetailed("Access token expired during query, attempting to refresh...");
+        try {
+          String newAccessToken = refreshAccessToken();
+          // Update the access token in the binding
+          getBinding().setSessionHeader(newAccessToken);
+          log.logDetailed("Successfully refreshed access token, retrying query...");
+          // Retry the query with the new token
+          return queryExecutor.execute();
+        } catch (Exception refreshException) {
+          log.logError(
+              "Failed to refresh access token during query: " + refreshException.getMessage());
+          throw e; // Re-throw the original exception
+        }
+      } else {
+        throw e; // Re-throw if not a token expiry issue or no refresh token available
+      }
+    }
+  }
+
   public void query(boolean specifyQuery) throws HopException {
 
     if (getBinding() == null) {
@@ -694,7 +738,105 @@ public class SalesforceConnection {
     try {
       if (!specifyQuery) {
         // check if we can query this Object
-        DescribeSObjectResult describeSObjectResult = getBinding().describeSObject(getModule());
+        DescribeSObjectResult describeSObjectResult = null;
+        try {
+          describeSObjectResult = getBinding().describeSObject(getModule());
+        } catch (Exception e) {
+          log.logDetailed("Exception caught in describeSObject: " + e.getMessage());
+          log.logDetailed("isOAuthAuthentication: " + isOAuthAuthentication());
+          log.logDetailed("hasRefreshToken: " + !Utils.isEmpty(getOauthRefreshToken()));
+
+          // Check the exception chain for INVALID_SESSION_ID
+          boolean isTokenExpired = false;
+          Throwable current = e;
+          int depth = 0;
+          while (current != null && depth < 10) {
+            String message = current.getMessage();
+            log.logDetailed(
+                "Exception chain depth "
+                    + depth
+                    + ": "
+                    + current.getClass().getSimpleName()
+                    + " - "
+                    + message);
+            if (message != null
+                && (message.contains("INVALID_SESSION_ID")
+                    || message.contains("Invalid Session ID"))) {
+              log.logDetailed("Found INVALID_SESSION_ID in exception chain at depth " + depth);
+              isTokenExpired = true;
+              break;
+            }
+
+            // Check for UnexpectedErrorFault with INVALID_SESSION_ID
+            if (current.getClass().getSimpleName().equals("UnexpectedErrorFault")) {
+              try {
+                // Try multiple approaches to get the exception code
+                String exceptionCode = null;
+
+                // Method 1: Try to get exceptionCode field directly
+                try {
+                  java.lang.reflect.Field exceptionCodeField =
+                      current.getClass().getDeclaredField("exceptionCode");
+                  exceptionCodeField.setAccessible(true);
+                  exceptionCode = (String) exceptionCodeField.get(current);
+                } catch (Exception e1) {
+                  // Method 2: Try to get it from parent class or through getters
+                  try {
+                    java.lang.reflect.Method getExceptionCodeMethod =
+                        current.getClass().getMethod("getExceptionCode");
+                    exceptionCode = (String) getExceptionCodeMethod.invoke(current);
+                  } catch (Exception e2) {
+                    // Method 3: Check toString() output for INVALID_SESSION_ID
+                    String toString = current.toString();
+                    log.logDetailed("UnexpectedErrorFault toString: " + toString);
+                    if (toString.contains("INVALID_SESSION_ID")) {
+                      log.logDetailed("Found INVALID_SESSION_ID in UnexpectedErrorFault toString");
+                      isTokenExpired = true;
+                      break;
+                    }
+                  }
+                }
+
+                if (exceptionCode != null) {
+                  log.logDetailed("UnexpectedErrorFault exceptionCode: " + exceptionCode);
+                  if ("INVALID_SESSION_ID".equals(exceptionCode)) {
+                    log.logDetailed(
+                        "Found INVALID_SESSION_ID in UnexpectedErrorFault exceptionCode");
+                    isTokenExpired = true;
+                    break;
+                  }
+                }
+              } catch (Exception reflectionException) {
+                log.logDetailed(
+                    "Could not access UnexpectedErrorFault fields: "
+                        + reflectionException.getMessage());
+              }
+            }
+
+            current = current.getCause();
+            depth++;
+          }
+          log.logDetailed("Exception chain analysis complete. isTokenExpired: " + isTokenExpired);
+
+          // Check if this is an INVALID_SESSION_ID error and we have a refresh token
+          if (isTokenExpired && isOAuthAuthentication() && !Utils.isEmpty(getOauthRefreshToken())) {
+            log.logDetailed("Access token expired, attempting to refresh...");
+            try {
+              String newAccessToken = refreshAccessToken();
+              // Update the access token in the binding
+              getBinding().setSessionHeader(newAccessToken);
+              log.logDetailed("Successfully refreshed access token, retrying query...");
+              // Retry the query with the new token
+              describeSObjectResult = getBinding().describeSObject(getModule());
+            } catch (Exception refreshException) {
+              log.logError("Failed to refresh access token: " + refreshException.getMessage());
+              throw e; // Re-throw the original exception
+            }
+          } else {
+            throw e; // Re-throw if not a token expiry issue or no refresh token available
+          }
+        }
+
         if (describeSObjectResult == null) {
           throw new HopException(
               BaseMessages.getString(PKG, "SalesforceConnection.ErrorGettingObject"));
@@ -781,7 +923,7 @@ public class SalesforceConnection {
             for (DeletedRecord dr : deletedRecords) {
               getDeletedList.put(dr.getId(), dr.getDeletedDate().getTime());
             }
-            this.qr = getBinding().queryAll(getSQL());
+            this.qr = executeQueryWithTokenRefresh(() -> getBinding().queryAll(getSQL()));
             this.sObjects = getQueryResult().getRecords();
             if (this.sObjects != null) {
               this.queryResultSize = this.sObjects.length;
@@ -790,7 +932,10 @@ public class SalesforceConnection {
           break;
         default:
           // return query result
-          this.qr = isQueryAll() ? getBinding().queryAll(getSQL()) : getBinding().query(getSQL());
+          this.qr =
+              isQueryAll()
+                  ? executeQueryWithTokenRefresh(() -> getBinding().queryAll(getSQL()))
+                  : executeQueryWithTokenRefresh(() -> getBinding().query(getSQL()));
           this.sObjects = getQueryResult().getRecords();
           this.queryResultSize = getQueryResult().getSize();
           break;

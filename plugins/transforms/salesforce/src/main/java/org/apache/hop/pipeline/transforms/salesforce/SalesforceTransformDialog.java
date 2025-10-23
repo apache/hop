@@ -58,13 +58,33 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog {
       SalesforceTransformMeta meta = META_CLASS.newInstance();
       getInfo(meta);
 
-      // get real values
-      String realURL = variables.resolve(meta.getTargetUrl());
-      realUsername = variables.resolve(meta.getUsername());
-      String realPassword = Utils.resolvePassword(variables, meta.getPassword());
-      int realTimeOut = Const.toInt(variables.resolve(meta.getTimeout()), 0);
+      // Check if a Salesforce Connection metadata is selected
+      String connectionName = variables.resolve(meta.getSalesforceConnection());
+      if (!Utils.isEmpty(connectionName)) {
+        // Use Salesforce Connection metadata
+        org.apache.hop.metadata.salesforce.SalesforceConnection connectionMeta =
+            metadataProvider
+                .getSerializer(org.apache.hop.metadata.salesforce.SalesforceConnection.class)
+                .load(connectionName);
 
-      connection = new SalesforceConnection(log, realURL, realUsername, realPassword);
+        if (connectionMeta == null) {
+          throw new HopException(
+              "Salesforce Connection '" + connectionName + "' not found in metadata");
+        }
+
+        // Create connection using metadata
+        connection = connectionMeta.createConnection(variables, log);
+        realUsername = connectionName; // Use connection name for display
+      } else {
+        // Use inline username/password configuration (backward compatibility)
+        String realURL = variables.resolve(meta.getTargetUrl());
+        realUsername = variables.resolve(meta.getUsername());
+        String realPassword = Utils.resolvePassword(variables, meta.getPassword());
+
+        connection = new SalesforceConnection(log, realURL, realUsername, realPassword);
+      }
+
+      int realTimeOut = Const.toInt(variables.resolve(meta.getTimeout()), 0);
       connection.setTimeOut(realTimeOut);
       connection.connect();
 

@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -100,26 +101,53 @@ public abstract class SalesforceTransform<
       //                getLogChannel(), realClientId, realClientSecret, realAccessToken,
       // realInstanceUrl);
       //      } else {
-      //        // Username/Password connection
-      String realUrl = resolve(meta.getTargetUrl());
-      String realUsername = resolve(meta.getUsername());
-      String realPassword = resolve(meta.getPassword());
+      // Check if a Salesforce Connection metadata is selected
+      String connectionName = resolve(meta.getSalesforceConnection());
+      if (!Utils.isEmpty(connectionName)) {
+        // Use Salesforce Connection metadata
+        try {
+          IHopMetadataSerializer<org.apache.hop.metadata.salesforce.SalesforceConnection>
+              serializer =
+                  metadataProvider.getSerializer(
+                      org.apache.hop.metadata.salesforce.SalesforceConnection.class);
+          org.apache.hop.metadata.salesforce.SalesforceConnection sfConnection =
+              serializer.load(connectionName);
 
-      if (Utils.isEmpty(realUrl)) {
-        logError(BaseMessages.getString(PKG, "SalesforceConnection.TargetURLMissing.Error"));
-        return false;
-      }
-      if (Utils.isEmpty(realUsername)) {
-        logError(BaseMessages.getString(PKG, "SalesforceConnection.UsernameMissing.Error"));
-        return false;
-      }
-      if (Utils.isEmpty(realPassword)) {
-        logError(BaseMessages.getString(PKG, "SalesforceConnection.PasswordMissing.Error"));
-        return false;
-      }
+          if (sfConnection == null) {
+            logError("Salesforce Connection '" + connectionName + "' not found in metadata");
+            return false;
+          }
 
-      data.connection =
-          new SalesforceConnection(getLogChannel(), realUrl, realUsername, realPassword);
+          // Create connection using metadata
+          data.connection = sfConnection.createConnection(this, getLogChannel());
+
+        } catch (HopException e) {
+          logError(
+              "Error loading Salesforce Connection '" + connectionName + "': " + e.getMessage());
+          return false;
+        }
+      } else {
+        // Username/Password connection (backward compatibility)
+        String realUrl = resolve(meta.getTargetUrl());
+        String realUsername = resolve(meta.getUsername());
+        String realPassword = resolve(meta.getPassword());
+
+        if (Utils.isEmpty(realUrl)) {
+          logError(BaseMessages.getString(PKG, "SalesforceConnection.TargetURLMissing.Error"));
+          return false;
+        }
+        if (Utils.isEmpty(realUsername)) {
+          logError(BaseMessages.getString(PKG, "SalesforceConnection.UsernameMissing.Error"));
+          return false;
+        }
+        if (Utils.isEmpty(realPassword)) {
+          logError(BaseMessages.getString(PKG, "SalesforceConnection.PasswordMissing.Error"));
+          return false;
+        }
+
+        data.connection =
+            new SalesforceConnection(getLogChannel(), realUrl, realUsername, realPassword);
+      }
       //      }
 
       data.connection.setModule(realModule);
