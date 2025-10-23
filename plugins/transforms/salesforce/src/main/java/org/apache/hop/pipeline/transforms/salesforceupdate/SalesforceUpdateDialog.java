@@ -1033,15 +1033,18 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
   private void updateConnectionUI() {
     boolean hasConnection = !Utils.isEmpty(wSalesforceConnection.getText());
 
-    // Show/hide connection-specific fields based on whether a connection is selected
+    // Disable/enable connection-specific fields based on whether a connection is selected
     if (wURL != null) {
-      wURL.setVisible(!hasConnection);
+      wURL.setEnabled(!hasConnection);
+      wURL.getTextWidget().setEditable(!hasConnection);
     }
     if (wUserName != null) {
-      wUserName.setVisible(!hasConnection);
+      wUserName.setEnabled(!hasConnection);
+      wUserName.getTextWidget().setEditable(!hasConnection);
     }
     if (wPassword != null) {
-      wPassword.setVisible(!hasConnection);
+      wPassword.setEnabled(!hasConnection);
+      wPassword.getTextWidget().setEditable(!hasConnection);
     }
 
     // Layout the parent composite

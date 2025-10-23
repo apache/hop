@@ -54,6 +54,7 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog {
     String msgError = null;
     SalesforceConnection connection = null;
     String realUsername = null;
+    boolean usingMetadataConnection = false;
     try {
       SalesforceTransformMeta meta = META_CLASS.newInstance();
       getInfo(meta);
@@ -62,6 +63,7 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog {
       String connectionName = variables.resolve(meta.getSalesforceConnection());
       if (!Utils.isEmpty(connectionName)) {
         // Use Salesforce Connection metadata
+        usingMetadataConnection = true;
         org.apache.hop.metadata.salesforce.SalesforceConnection connectionMeta =
             metadataProvider
                 .getSerializer(org.apache.hop.metadata.salesforce.SalesforceConnection.class)
@@ -103,16 +105,37 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog {
     if (successConnection) {
 
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      mb.setMessage(
-          BaseMessages.getString(PKG, "SalesforceTransformDialog.Connected.OK", realUsername)
-              + Const.CR);
+      String successMessage;
+      if (usingMetadataConnection) {
+        // Custom message for metadata connections
+        successMessage = "Connected to Salesforce with connection [" + realUsername + "]";
+      } else {
+        // Use existing message template for username/password connections
+        successMessage =
+            BaseMessages.getString(PKG, "SalesforceTransformDialog.Connected.OK", realUsername);
+      }
+      mb.setMessage(successMessage + Const.CR);
       mb.setText(BaseMessages.getString(PKG, "SalesforceTransformDialog.Connected.Title.Ok"));
       mb.open();
     } else {
+      String errorMessage;
+      if (usingMetadataConnection) {
+        // Custom error message for metadata connections
+        errorMessage =
+            "Can not connect to Salesforce with connection ["
+                + realUsername
+                + "]!\nPlease check connection settings.\nException: "
+                + msgError;
+      } else {
+        // Use existing error message template for username/password connections
+        errorMessage =
+            BaseMessages.getString(PKG, "SalesforceTransformDialog.Connected.NOK", realUsername)
+                + msgError;
+      }
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "SalesforceTransformDialog.Connected.Title.Error"),
-          BaseMessages.getString(PKG, "SalesforceTransformDialog.Connected.NOK", realUsername),
+          errorMessage,
           new Exception(msgError));
     }
   }

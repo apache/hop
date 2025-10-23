@@ -603,7 +603,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     FormData fdTest = new FormData();
     wTest.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.TestConnection.Tooltip"));
-    fdTest.top = new FormAttachment(wUsernamePasswordGroup, margin);
+    fdTest.top = new FormAttachment(wPassword, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
 
@@ -2427,12 +2427,18 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
   private void updateConnectionUI() {
     boolean hasConnection = !Utils.isEmpty(wSalesforceConnection.getText());
 
-    // Show/hide connection-specific fields based on whether a connection is selected
+    // Disable/enable connection-specific fields based on whether a connection is selected
     if (wURL != null) {
-      wURL.setVisible(!hasConnection);
+      wURL.setEnabled(!hasConnection);
+      wURL.getTextWidget().setEditable(!hasConnection);
     }
-    if (wUsernamePasswordGroup != null) {
-      wUsernamePasswordGroup.setVisible(!hasConnection);
+    if (wUserName != null) {
+      wUserName.setEnabled(!hasConnection);
+      wUserName.getTextWidget().setEditable(!hasConnection);
+    }
+    if (wPassword != null) {
+      wPassword.setEnabled(!hasConnection);
+      wPassword.getTextWidget().setEditable(!hasConnection);
     }
 
     // Update test button positioning
@@ -2442,8 +2448,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         // Position test button below connection selection
         fdTest.top = new FormAttachment(wSalesforceConnection, margin);
       } else {
-        // Position test button below username/password group
-        fdTest.top = new FormAttachment(wUsernamePasswordGroup, margin);
+        // Position test button below password field (consistent with other dialogs)
+        fdTest.top = new FormAttachment(wPassword, margin);
       }
       wTest.setLayoutData(fdTest);
     }
