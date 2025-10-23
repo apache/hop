@@ -189,10 +189,8 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
             PipelineRunConfiguration.class,
             parent,
             SWT.NONE,
-            "Pipeline run configuration",
-            "This is the pipeline run configuration to use on the server. "
-                + "If left blank a standard local pipeline engine is used. "
-                + "To return values please use a local pipeline engine.");
+            BaseMessages.getString(PKG, "WebServiceEditor.Runconfiguration.Label"),
+            BaseMessages.getString(PKG, "WebServiceEditor.Runconfiguration.Tooltip"));
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment(0, 0);
     fdRunConfiguration.top = new FormAttachment(lastControl, margin);

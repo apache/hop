@@ -23,8 +23,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.www.HopServerPipelineStatus;
 
+@Getter
+@Setter
 public class AsyncStatus {
   private String service;
   private String id;
@@ -46,133 +50,5 @@ public class AsyncStatus {
     logDate = new Date();
     statusVariables = new HashMap<>();
     pipelineStatuses = new ArrayList<>();
-  }
-
-  /**
-   * Gets service
-   *
-   * @return value of service
-   */
-  public String getService() {
-    return service;
-  }
-
-  /**
-   * @param service The service to set
-   */
-  public void setService(String service) {
-    this.service = service;
-  }
-
-  /**
-   * Gets id
-   *
-   * @return value of id
-   */
-  public String getId() {
-    return id;
-  }
-
-  /**
-   * @param id The id to set
-   */
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  /**
-   * Gets logDate
-   *
-   * @return value of logDate
-   */
-  public Date getLogDate() {
-    return logDate;
-  }
-
-  /**
-   * @param logDate The logDate to set
-   */
-  public void setLogDate(Date logDate) {
-    this.logDate = logDate;
-  }
-
-  /**
-   * Gets startDate
-   *
-   * @return value of startDate
-   */
-  public Date getStartDate() {
-    return startDate;
-  }
-
-  /**
-   * @param startDate The startDate to set
-   */
-  public void setStartDate(Date startDate) {
-    this.startDate = startDate;
-  }
-
-  /**
-   * Gets endDate
-   *
-   * @return value of endDate
-   */
-  public Date getEndDate() {
-    return endDate;
-  }
-
-  /**
-   * @param endDate The endDate to set
-   */
-  public void setEndDate(Date endDate) {
-    this.endDate = endDate;
-  }
-
-  /**
-   * Gets statusDescription
-   *
-   * @return value of statusDescription
-   */
-  public String getStatusDescription() {
-    return statusDescription;
-  }
-
-  /**
-   * @param statusDescription The statusDescription to set
-   */
-  public void setStatusDescription(String statusDescription) {
-    this.statusDescription = statusDescription;
-  }
-
-  /**
-   * Gets statusVariables
-   *
-   * @return value of statusVariables
-   */
-  public Map<String, String> getStatusVariables() {
-    return statusVariables;
-  }
-
-  /**
-   * @param statusVariables The statusVariables to set
-   */
-  public void setStatusVariables(Map<String, String> statusVariables) {
-    this.statusVariables = statusVariables;
-  }
-
-  /**
-   * Gets pipelineStatuses
-   *
-   * @return value of pipelineStatuses
-   */
-  public List<HopServerPipelineStatus> getPipelineStatuses() {
-    return pipelineStatuses;
-  }
-
-  /**
-   * @param pipelineStatuses The pipelineStatuses to set
-   */
-  public void setPipelineStatuses(List<HopServerPipelineStatus> pipelineStatuses) {
-    this.pipelineStatuses = pipelineStatuses;
   }
 }
