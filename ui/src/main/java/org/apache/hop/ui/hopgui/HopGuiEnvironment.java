@@ -22,6 +22,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.action.GuiContextAction;
@@ -44,6 +46,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
@@ -85,16 +88,34 @@ public class HopGuiEnvironment extends HopClientEnvironment {
 
     // Try loading code exclusions
     try {
-      String path = Const.HOP_CONFIG_FOLDER + File.separator + "disabledGuiElements.xml";
+      FileObject applicationFolderFile = HopVfs.getFileObject("./disabledGuiElements.xml");
+      FileObject configFolderFile =
+          HopVfs.getFileObject(
+              Const.HOP_CONFIG_FOLDER + File.separator + "disabledGuiElements.xml");
+      String path;
 
-      Document document = XmlHandler.loadXmlFile(path);
-      Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
-      List<Node> exclusionNodes = XmlHandler.getNodes(exclusionsNode, "exclusion");
+      if (applicationFolderFile.exists()) {
+        path = applicationFolderFile.getPath().toAbsolutePath().toString();
+        Document document = XmlHandler.loadXmlFile(path);
+        Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
+        List<Node> exclusionNodes = XmlHandler.getNodes(exclusionsNode, "exclusion");
 
-      for (Node exclusionNode : exclusionNodes) {
-        excludedGuiElements.add(exclusionNode.getTextContent());
+        for (Node exclusionNode : exclusionNodes) {
+          excludedGuiElements.add(exclusionNode.getTextContent());
+        }
       }
-    } catch (HopXmlException e) {
+
+      if (configFolderFile.exists()) {
+        path = configFolderFile.getPath().toAbsolutePath().toString();
+        Document document = XmlHandler.loadXmlFile(path);
+        Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
+        List<Node> exclusionNodes = XmlHandler.getNodes(exclusionsNode, "exclusion");
+
+        for (Node exclusionNode : exclusionNodes) {
+          excludedGuiElements.add(exclusionNode.getTextContent());
+        }
+      }
+    } catch (HopXmlException | FileSystemException e) {
       // ignore
     }
 

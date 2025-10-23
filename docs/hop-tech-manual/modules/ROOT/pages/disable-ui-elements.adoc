@@ -22,7 +22,7 @@ under the License.
 Apache Hop has a system to disable UI elements and perspective.
 This could be useful for managed instances where the user should not have full control of Hop.
 
-You can add the following file to the Hop Config location by default `/hop/config` or when used the  `HOP_CONFIG_FOLDER` environment variable.
+You can add the following file to the Hop installation folder or your Hop Config location (default: `/hop/config`). The final list of disabled UI elements is the aggregation of both files. This allows you to remove GUI elements on a global level (Hop Installation) and extend it with specific excludes for specific users (on config level).
 
 Add the following file: +
 disabledGuiElements.xml
