@@ -106,6 +106,7 @@ class WorkflowActionMoveFilesLocalTest {
     action.sourceFileFolder = new String[] {sourceFile.toString()};
     action.destinationFileFolder = new String[] {destFile.toString()};
     action.setDestinationIsAFile(true);
+    action.setIfFileExists("fail");
 
     Result result = action.execute(new Result(), 0);
     assertFalse(result.isResult(), "Move should not succeed when destination exists");
