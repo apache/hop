@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -612,7 +613,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               FileObject destinationfile =
                   HopVfs.getFileObject(destinationfilenamefull, getVariables());
 
-              destinationfile.createFolder();
+              createFolderIfNotExists(destinationfilefolder);
 
               entrystatus =
                   moveFile(
@@ -1019,6 +1020,8 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         } else if (ifFileExists.equals("fail")) {
           // Update Errors
           updateErrors();
+        } else if (ifFileExists.equals(CONST_DO_NOTHING)) {
+          retval = true;
         }
       }
     } catch (Exception e) {
@@ -1560,5 +1563,26 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   @Override
   public boolean isEvaluation() {
     return true;
+  }
+
+  /**
+   * Ensures that the given FileObject represents an existing folder.
+   *
+   * @param folder the FileObject representing the target folder
+   * @throws FileSystemException if the path exists as a file or the folder creation fails
+   */
+  private void createFolderIfNotExists(FileObject folder) throws FileSystemException {
+    // If the path already exists, it's a folder (directory)
+    if (folder.exists() && folder.getType().hasChildren()) {
+      return;
+    }
+
+    // Ensure parent folder exists before creating this one
+    FileObject parent = folder.getParent();
+    if (parent != null && !parent.exists()) {
+      parent.createFolder();
+    }
+
+    folder.createFolder();
   }
 }

@@ -106,6 +106,7 @@ class WorkflowActionMoveFilesLocalTest {
     action.sourceFileFolder = new String[] {sourceFile.toString()};
     action.destinationFileFolder = new String[] {destFile.toString()};
     action.setDestinationIsAFile(true);
+    action.setIfFileExists("fail");
 
     Result result = action.execute(new Result(), 0);
     assertFalse(result.isResult(), "Move should not succeed when destination exists");
@@ -152,6 +153,26 @@ class WorkflowActionMoveFilesLocalTest {
     assertTrue(result.isResult(), "Move should succeed");
     assertTrue(Files.exists(destinationFolder.toPath()), "Destination folder should be created");
     assertTrue(Files.exists(destFile), "File should be moved");
+  }
+
+  @Test
+  void testMoveWithOverwriteFileExist() throws IOException, HopException {
+    Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
+    Path destFile = createTestFilePath(destinationFolder, "test.txt");
+
+    action.sourceFileFolder = new String[] {sourceFile.toString()};
+    action.destinationFileFolder = new String[] {destinationFolder.toString()};
+    action.setDestinationIsAFile(true);
+    action.setIfFileExists("overwrite_file");
+
+    Result result = action.execute(new Result(), 0);
+    assertTrue(result.getResult(), "Move with overwrite should succeed");
+    assertFalse(Files.exists(sourceFile), "Source file should not exist");
+    assertTrue(Files.exists(destFile), "Destination file should exist");
+    assertEquals(
+        TEST_FILE_CONTENT,
+        Files.readString(destFile, StandardCharsets.UTF_8),
+        "File content should match source");
   }
 
   private Path createTestFilePath(File folder, String filename) throws IOException {
