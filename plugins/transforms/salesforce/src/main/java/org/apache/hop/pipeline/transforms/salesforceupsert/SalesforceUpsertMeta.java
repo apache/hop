@@ -188,6 +188,9 @@ public class SalesforceUpsertMeta
   public Object clone() {
     SalesforceUpsertMeta retval = (SalesforceUpsertMeta) super.clone();
 
+    // Initialize the fields list
+    retval.fields = new ArrayList<>();
+
     //    int nrvalues = updateLookup.length;
     //
     //    retval.allocate(nrvalues);

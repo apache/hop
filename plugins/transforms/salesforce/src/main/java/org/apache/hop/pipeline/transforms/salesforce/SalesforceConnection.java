@@ -595,6 +595,59 @@ public class SalesforceConnection {
     }
   }
 
+  private boolean checkForInvalidSessionId(Exception e) {
+    Throwable current = e;
+    int depth = 0;
+    while (current != null && depth < 10) {
+      String message = current.getMessage();
+
+      // Check for INVALID_SESSION_ID in message
+      if (message != null
+          && (message.contains("INVALID_SESSION_ID") || message.contains("Invalid Session ID"))) {
+        return true;
+      }
+
+      // Check for UnexpectedErrorFault with INVALID_SESSION_ID
+      if (current.getClass().getSimpleName().equals("UnexpectedErrorFault")) {
+        try {
+          // Try multiple approaches to get the exception code
+          String exceptionCode = null;
+
+          // Method 1: Try to get exceptionCode field directly
+          try {
+            java.lang.reflect.Field exceptionCodeField =
+                current.getClass().getDeclaredField("exceptionCode");
+            exceptionCodeField.setAccessible(true);
+            exceptionCode = (String) exceptionCodeField.get(current);
+          } catch (Exception e1) {
+            // Method 2: Try to get it from parent class or through getters
+            try {
+              java.lang.reflect.Method getExceptionCodeMethod =
+                  current.getClass().getMethod("getExceptionCode");
+              exceptionCode = (String) getExceptionCodeMethod.invoke(current);
+            } catch (Exception e2) {
+              // Method 3: Check toString() output for INVALID_SESSION_ID
+              String toString = current.toString();
+              if (toString.contains("INVALID_SESSION_ID")) {
+                return true;
+              }
+            }
+          }
+
+          if (exceptionCode != null && "INVALID_SESSION_ID".equals(exceptionCode)) {
+            return true;
+          }
+        } catch (Exception reflectionException) {
+          // Continue to next exception in chain
+        }
+      }
+
+      current = current.getCause();
+      depth++;
+    }
+    return false;
+  }
+
   private String refreshAccessToken() throws HopException {
     try {
       if (Utils.isEmpty(getOauthRefreshToken())) {
@@ -1340,22 +1393,64 @@ public class SalesforceConnection {
     try {
       return getBinding().upsert(upsertField, sfBuffer);
     } catch (Exception e) {
-      throw new HopException(BaseMessages.getString(PKG, "SalesforceConnection.ErrorUpsert", e));
+      // Check if this is an INVALID_SESSION_ID error and we have a refresh token
+      boolean isTokenExpired = checkForInvalidSessionId(e);
+
+      if (isTokenExpired && isOAuthAuthentication() && !Utils.isEmpty(getOauthRefreshToken())) {
+        log.logDetailed("Access token expired during upsert, attempting to refresh...");
+        try {
+          String newAccessToken = refreshAccessToken();
+          // Update the access token in the binding
+          getBinding().setSessionHeader(newAccessToken);
+          log.logDetailed("Successfully refreshed access token, retrying upsert...");
+          // Retry the upsert with the new token
+          return getBinding().upsert(upsertField, sfBuffer);
+        } catch (Exception refreshException) {
+          log.logError(
+              "Failed to refresh access token during upsert: " + refreshException.getMessage());
+          throw new HopException(
+              BaseMessages.getString(PKG, "SalesforceConnection.ErrorUpsert", e));
+        }
+      } else {
+        throw new HopException(BaseMessages.getString(PKG, "SalesforceConnection.ErrorUpsert", e));
+      }
     }
   }
 
   public SaveResult[] insert(SObject[] sfBuffer) throws HopException {
-    try {
-      List<SObject> normalizedSfBuffer = new ArrayList<>();
-      for (SObject part : sfBuffer) {
-        if (part != null) {
-          normalizedSfBuffer.add(part);
-        }
+    // Normalize the buffer outside try block so it's available in catch for retry
+    List<SObject> normalizedSfBuffer = new ArrayList<>();
+    for (SObject part : sfBuffer) {
+      if (part != null) {
+        normalizedSfBuffer.add(part);
       }
-      return getBinding()
-          .create(normalizedSfBuffer.toArray(new SObject[normalizedSfBuffer.size()]));
+    }
+    SObject[] normalizedArray = normalizedSfBuffer.toArray(new SObject[normalizedSfBuffer.size()]);
+
+    try {
+      return getBinding().create(normalizedArray);
     } catch (Exception e) {
-      throw new HopException(BaseMessages.getString(PKG, "SalesforceConnection.ErrorInsert", e));
+      // Check if this is an INVALID_SESSION_ID error and we have a refresh token
+      boolean isTokenExpired = checkForInvalidSessionId(e);
+
+      if (isTokenExpired && isOAuthAuthentication() && !Utils.isEmpty(getOauthRefreshToken())) {
+        log.logDetailed("Access token expired during insert, attempting to refresh...");
+        try {
+          String newAccessToken = refreshAccessToken();
+          // Update the access token in the binding
+          getBinding().setSessionHeader(newAccessToken);
+          log.logDetailed("Successfully refreshed access token, retrying insert...");
+          // Retry the insert with the new token
+          return getBinding().create(normalizedArray);
+        } catch (Exception refreshException) {
+          log.logError(
+              "Failed to refresh access token during insert: " + refreshException.getMessage());
+          throw new HopException(
+              BaseMessages.getString(PKG, "SalesforceConnection.ErrorInsert", e));
+        }
+      } else {
+        throw new HopException(BaseMessages.getString(PKG, "SalesforceConnection.ErrorInsert", e));
+      }
     }
   }
 
@@ -1363,7 +1458,27 @@ public class SalesforceConnection {
     try {
       return getBinding().update(sfBuffer);
     } catch (Exception e) {
-      throw new HopException(BaseMessages.getString(PKG, "SalesforceConnection.ErrorUpdate", e));
+      // Check if this is an INVALID_SESSION_ID error and we have a refresh token
+      boolean isTokenExpired = checkForInvalidSessionId(e);
+
+      if (isTokenExpired && isOAuthAuthentication() && !Utils.isEmpty(getOauthRefreshToken())) {
+        log.logDetailed("Access token expired during update, attempting to refresh...");
+        try {
+          String newAccessToken = refreshAccessToken();
+          // Update the access token in the binding
+          getBinding().setSessionHeader(newAccessToken);
+          log.logDetailed("Successfully refreshed access token, retrying update...");
+          // Retry the update with the new token
+          return getBinding().update(sfBuffer);
+        } catch (Exception refreshException) {
+          log.logError(
+              "Failed to refresh access token during update: " + refreshException.getMessage());
+          throw new HopException(
+              BaseMessages.getString(PKG, "SalesforceConnection.ErrorUpdate", e));
+        }
+      } else {
+        throw new HopException(BaseMessages.getString(PKG, "SalesforceConnection.ErrorUpdate", e));
+      }
     }
   }
 
@@ -1371,7 +1486,27 @@ public class SalesforceConnection {
     try {
       return getBinding().delete(id);
     } catch (Exception e) {
-      throw new HopException(BaseMessages.getString(PKG, "SalesforceConnection.ErrorDelete", e));
+      // Check if this is an INVALID_SESSION_ID error and we have a refresh token
+      boolean isTokenExpired = checkForInvalidSessionId(e);
+
+      if (isTokenExpired && isOAuthAuthentication() && !Utils.isEmpty(getOauthRefreshToken())) {
+        log.logDetailed("Access token expired during delete, attempting to refresh...");
+        try {
+          String newAccessToken = refreshAccessToken();
+          // Update the access token in the binding
+          getBinding().setSessionHeader(newAccessToken);
+          log.logDetailed("Successfully refreshed access token, retrying delete...");
+          // Retry the delete with the new token
+          return getBinding().delete(id);
+        } catch (Exception refreshException) {
+          log.logError(
+              "Failed to refresh access token during delete: " + refreshException.getMessage());
+          throw new HopException(
+              BaseMessages.getString(PKG, "SalesforceConnection.ErrorDelete", e));
+        }
+      } else {
+        throw new HopException(BaseMessages.getString(PKG, "SalesforceConnection.ErrorDelete", e));
+      }
     }
   }
 

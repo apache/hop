@@ -51,6 +51,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -89,6 +90,9 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
   private SalesforceInsertMeta input;
 
+  private Group wConnectionGroup;
+  private MetaSelectionLine<org.apache.hop.metadata.salesforce.SalesforceConnection>
+      wSalesforceConnection;
   private LabelTextVar wUserName;
   private LabelTextVar wURL;
   private LabelTextVar wPassword;
@@ -199,7 +203,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     // START OF Connection GROUP //
     // ///////////////////////////////
 
-    Group wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wConnectionGroup);
     wConnectionGroup.setText(
         BaseMessages.getString(PKG, "SalesforceInsertDialog.ConnectionGroup.Label"));
@@ -208,6 +212,37 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     connectionGroupLayout.marginWidth = 10;
     connectionGroupLayout.marginHeight = 10;
     wConnectionGroup.setLayout(connectionGroupLayout);
+
+    // Salesforce Connection selection
+    wSalesforceConnection =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            org.apache.hop.metadata.salesforce.SalesforceConnection.class,
+            wConnectionGroup,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "SalesforceInsertDialog.SalesforceConnection.Label"),
+            BaseMessages.getString(PKG, "SalesforceInsertDialog.SalesforceConnection.Tooltip"));
+    PropsUi.setLook(wSalesforceConnection);
+    wSalesforceConnection.addModifyListener(lsMod);
+    FormData fdSalesforceConnection = new FormData();
+    fdSalesforceConnection.left = new FormAttachment(0, 0);
+    fdSalesforceConnection.top = new FormAttachment(0, margin);
+    fdSalesforceConnection.right = new FormAttachment(100, 0);
+    wSalesforceConnection.setLayoutData(fdSalesforceConnection);
+    wSalesforceConnection.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            updateConnectionUI();
+            input.setChanged();
+          }
+        });
+    try {
+      wSalesforceConnection.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error getting list of Salesforce connections", e);
+    }
 
     // Webservice URL
     wURL =
@@ -220,7 +255,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(0, 0);
-    fdURL.top = new FormAttachment(wTransformName, margin);
+    fdURL.top = new FormAttachment(wSalesforceConnection, margin);
     fdURL.right = new FormAttachment(100, 0);
     wURL.setLayoutData(fdURL);
 
@@ -641,6 +676,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
    * @param in The SalesforceInsertMeta object to obtain the data from.
    */
   public void getData(SalesforceInsertMeta in) {
+    wSalesforceConnection.setText(Const.NVL(in.getSalesforceConnection(), ""));
     wURL.setText(Const.NVL(in.getTargetUrl(), ""));
     wUserName.setText(Const.NVL(in.getUsername(), ""));
     wPassword.setText(Const.NVL(in.getPassword(), ""));
@@ -677,8 +713,33 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     wUseCompression.setSelection(in.isCompression());
     wRollbackAllChangesOnError.setSelection(in.isRollbackAllChangesOnError());
 
+    updateConnectionUI();
+
     wTransformName.selectAll();
     wTransformName.setFocus();
+  }
+
+  private void updateConnectionUI() {
+    boolean hasConnection = !Utils.isEmpty(wSalesforceConnection.getText());
+
+    // Show/hide connection-specific fields based on whether a connection is selected
+    if (wURL != null) {
+      wURL.setVisible(!hasConnection);
+    }
+    if (wUserName != null) {
+      wUserName.setVisible(!hasConnection);
+    }
+    if (wPassword != null) {
+      wPassword.setVisible(!hasConnection);
+    }
+
+    // Layout the parent composite
+    if (wConnectionGroup != null) {
+      wConnectionGroup.layout(true, true);
+    }
+    if (shell != null) {
+      shell.layout(true, true);
+    }
   }
 
   private void cancel() {
@@ -707,6 +768,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     // copy info to SalesforceInsertMeta class (input)
+    meta.setSalesforceConnection(Const.NVL(wSalesforceConnection.getText(), ""));
     meta.setTargetUrl(Const.NVL(wURL.getText(), SalesforceConnectionUtils.TARGET_DEFAULT_URL));
     meta.setUsername(wUserName.getText());
     meta.setPassword(wPassword.getText());

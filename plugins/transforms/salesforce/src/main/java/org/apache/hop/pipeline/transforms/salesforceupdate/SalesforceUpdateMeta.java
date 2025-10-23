@@ -171,6 +171,9 @@ public class SalesforceUpdateMeta
     //      retval.useExternalId[i] = useExternalId[i];
     //    }
 
+    // Initialize the fields list
+    retval.fields = new ArrayList<>();
+
     for (int i = 0; i < fields.size(); i++) {
       if (fields.get(i) != null) {
         //        retval.inputFields.get(i) = (SalesforceInputField) inputFields.get(i).clone();

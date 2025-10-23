@@ -49,6 +49,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -88,9 +89,12 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
   private SalesforceUpsertMeta input;
 
+  private Group wConnectionGroup;
   private LabelTextVar wUserName;
   private LabelTextVar wURL;
   private LabelTextVar wPassword;
+  private MetaSelectionLine<org.apache.hop.metadata.salesforce.SalesforceConnection>
+      wSalesforceConnection;
 
   private TextVar wBatchSize;
 
@@ -104,6 +108,8 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
   private boolean getModulesListError = false; /* True if error getting modules list */
 
+  private boolean dialogInitialized = false;
+
   private Button wUseCompression;
 
   private TextVar wTimeOut;
@@ -111,7 +117,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
   private Button wRollbackAllChangesOnError;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
-  private static List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   private String[] moduleFields;
 
@@ -201,7 +207,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // START OF Connection GROUP //
     // ///////////////////////////////
 
-    Group wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wConnectionGroup);
     wConnectionGroup.setText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.ConnectionGroup.Label"));
@@ -210,6 +216,37 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     connectionGroupLayout.marginWidth = 10;
     connectionGroupLayout.marginHeight = 10;
     wConnectionGroup.setLayout(connectionGroupLayout);
+
+    // Salesforce Connection selection
+    wSalesforceConnection =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            org.apache.hop.metadata.salesforce.SalesforceConnection.class,
+            wConnectionGroup,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "SalesforceUpsertDialog.SalesforceConnection.Label"),
+            BaseMessages.getString(PKG, "SalesforceUpsertDialog.SalesforceConnection.Tooltip"));
+    PropsUi.setLook(wSalesforceConnection);
+    wSalesforceConnection.addModifyListener(lsMod);
+    FormData fdSalesforceConnection = new FormData();
+    fdSalesforceConnection.left = new FormAttachment(0, 0);
+    fdSalesforceConnection.top = new FormAttachment(0, margin);
+    fdSalesforceConnection.right = new FormAttachment(100, 0);
+    wSalesforceConnection.setLayoutData(fdSalesforceConnection);
+    wSalesforceConnection.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            updateConnectionUI();
+            input.setChanged();
+          }
+        });
+    try {
+      wSalesforceConnection.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error getting list of Salesforce connections", e);
+    }
 
     // Webservice URL
     wURL =
@@ -222,7 +259,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(0, 0);
-    fdURL.top = new FormAttachment(wTransformName, margin);
+    fdURL.top = new FormAttachment(wSalesforceConnection, margin);
     fdURL.right = new FormAttachment(100, 0);
     wURL.setLayoutData(fdURL);
 
@@ -397,6 +434,11 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
           @Override
           public void focusGained(FocusEvent e) {
+            // Don't fetch modules until dialog is fully initialized
+            if (!dialogInitialized) {
+              return;
+            }
+
             // check if the URL and login credentials passed and not just had error
             if (skipFetchModules()) {
               getModulesListError = false;
@@ -438,6 +480,10 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
           @Override
           public void focusGained(FocusEvent e) {
+            // Don't fetch fields until dialog is fully initialized
+            if (!dialogInitialized) {
+              return;
+            }
             getFieldsList();
           }
         });
@@ -550,6 +596,10 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
               @Override
               public void focusGained(FocusEvent e) {
+                // Don't fetch fields until dialog is fully initialized
+                if (!dialogInitialized) {
+                  return;
+                }
                 setModuleFieldCombo();
               }
 
@@ -656,6 +706,9 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     getData(input);
     input.setChanged(changed);
 
+    // Mark dialog as initialized to allow field combo population
+    dialogInitialized = true;
+
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -683,6 +736,11 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
   }
 
   private void getFieldsList() {
+    // Don't fetch fields until dialog is fully initialized
+    if (!dialogInitialized) {
+      return;
+    }
+
     try {
       String selectedField = wUpsertField.getText();
       wUpsertField.removeAll();
@@ -707,6 +765,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
    * @param in The SalesforceUpsertMeta object to obtain the data from.
    */
   public void getData(SalesforceUpsertMeta in) {
+    wSalesforceConnection.setText(Const.NVL(in.getSalesforceConnection(), ""));
     wURL.setText(Const.NVL(in.getTargetUrl(), ""));
     wUserName.setText(Const.NVL(in.getUsername(), ""));
     wPassword.setText(Const.NVL(in.getPassword(), ""));
@@ -745,6 +804,9 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
     wTransformName.selectAll();
     wTransformName.setFocus();
+
+    // Initialize connection UI state
+    updateConnectionUI();
   }
 
   private void cancel() {
@@ -772,6 +834,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     // copy info to SalesforceUpsertMeta class (input)
+    meta.setSalesforceConnection(Const.NVL(wSalesforceConnection.getText(), ""));
     meta.setTargetUrl(Const.NVL(wURL.getText(), SalesforceConnectionUtils.TARGET_DEFAULT_URL));
     meta.setUsername(wUserName.getText());
     meta.setPassword(wPassword.getText());
@@ -1094,6 +1157,11 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
   }
 
   public void setModuleFieldCombo() {
+    // Don't fetch fields until dialog is fully initialized
+    if (!dialogInitialized) {
+      return;
+    }
+
     // clear
     for (int i = 0; i < tableFieldColumns.size(); i++) {
       ColumnInfo colInfo = tableFieldColumns.get(i);
@@ -1119,6 +1187,29 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
         // ignore any errors here. drop downs will not be
         // filled, but no problem for the user
       }
+    }
+  }
+
+  private void updateConnectionUI() {
+    boolean hasConnection = !Utils.isEmpty(wSalesforceConnection.getText());
+
+    // Show/hide connection-specific fields based on whether a connection is selected
+    if (wURL != null) {
+      wURL.setVisible(!hasConnection);
+    }
+    if (wUserName != null) {
+      wUserName.setVisible(!hasConnection);
+    }
+    if (wPassword != null) {
+      wPassword.setVisible(!hasConnection);
+    }
+
+    // Layout the parent composite
+    if (wConnectionGroup != null) {
+      wConnectionGroup.layout(true, true);
+    }
+    if (shell != null) {
+      shell.layout(true, true);
     }
   }
 }

@@ -47,6 +47,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -85,9 +86,12 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
   private SalesforceUpdateMeta input;
 
+  private Group wConnectionGroup;
   private LabelTextVar wUserName;
   private LabelTextVar wURL;
   private LabelTextVar wPassword;
+  private MetaSelectionLine<org.apache.hop.metadata.salesforce.SalesforceConnection>
+      wSalesforceConnection;
 
   private TextVar wBatchSize;
 
@@ -193,7 +197,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     // START OF Connection GROUP //
     // ///////////////////////////////
 
-    Group wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wConnectionGroup);
     wConnectionGroup.setText(
         BaseMessages.getString(PKG, "SalesforceUpdateDialog.ConnectionGroup.Label"));
@@ -202,6 +206,37 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     connectionGroupLayout.marginWidth = 10;
     connectionGroupLayout.marginHeight = 10;
     wConnectionGroup.setLayout(connectionGroupLayout);
+
+    // Salesforce Connection selection
+    wSalesforceConnection =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            org.apache.hop.metadata.salesforce.SalesforceConnection.class,
+            wConnectionGroup,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "SalesforceUpdateDialog.SalesforceConnection.Label"),
+            BaseMessages.getString(PKG, "SalesforceUpdateDialog.SalesforceConnection.Tooltip"));
+    PropsUi.setLook(wSalesforceConnection);
+    wSalesforceConnection.addModifyListener(lsMod);
+    FormData fdSalesforceConnection = new FormData();
+    fdSalesforceConnection.left = new FormAttachment(0, 0);
+    fdSalesforceConnection.top = new FormAttachment(0, margin);
+    fdSalesforceConnection.right = new FormAttachment(100, 0);
+    wSalesforceConnection.setLayoutData(fdSalesforceConnection);
+    wSalesforceConnection.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            updateConnectionUI();
+            input.setChanged();
+          }
+        });
+    try {
+      wSalesforceConnection.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error getting list of Salesforce connections", e);
+    }
 
     // Webservice URL
     wURL =
@@ -214,7 +249,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(0, 0);
-    fdURL.top = new FormAttachment(wTransformName, margin);
+    fdURL.top = new FormAttachment(wSalesforceConnection, margin);
     fdURL.right = new FormAttachment(100, 0);
     wURL.setLayoutData(fdURL);
 
@@ -590,6 +625,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
    * @param in The SalesforceUpdateMeta object to obtain the data from.
    */
   public void getData(SalesforceUpdateMeta in) {
+    wSalesforceConnection.setText(Const.NVL(in.getSalesforceConnection(), ""));
     wURL.setText(Const.NVL(in.getTargetUrl(), ""));
     wUserName.setText(Const.NVL(in.getUsername(), ""));
     wPassword.setText(Const.NVL(in.getPassword(), ""));
@@ -627,6 +663,9 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
     wTransformName.selectAll();
     wTransformName.setFocus();
+
+    // Initialize connection UI state
+    updateConnectionUI();
   }
 
   private void cancel() {
@@ -654,6 +693,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     // copy info to SalesforceUpdateMeta class (input)
+    meta.setSalesforceConnection(Const.NVL(wSalesforceConnection.getText(), ""));
     meta.setTargetUrl(Const.NVL(wURL.getText(), SalesforceConnectionUtils.TARGET_DEFAULT_URL));
     meta.setUsername(wUserName.getText());
     meta.setPassword(wPassword.getText());
@@ -987,6 +1027,29 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
               }
             }
           });
+    }
+  }
+
+  private void updateConnectionUI() {
+    boolean hasConnection = !Utils.isEmpty(wSalesforceConnection.getText());
+
+    // Show/hide connection-specific fields based on whether a connection is selected
+    if (wURL != null) {
+      wURL.setVisible(!hasConnection);
+    }
+    if (wUserName != null) {
+      wUserName.setVisible(!hasConnection);
+    }
+    if (wPassword != null) {
+      wPassword.setVisible(!hasConnection);
+    }
+
+    // Layout the parent composite
+    if (wConnectionGroup != null) {
+      wConnectionGroup.layout(true, true);
+    }
+    if (shell != null) {
+      shell.layout(true, true);
     }
   }
 }
