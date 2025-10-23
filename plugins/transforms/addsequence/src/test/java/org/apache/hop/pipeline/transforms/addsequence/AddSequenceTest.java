@@ -29,6 +29,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.hop.core.Counters;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.Database;
@@ -46,6 +47,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class AddSequenceTest {
 
@@ -112,15 +116,24 @@ class AddSequenceTest {
     addSequence.dispose();
   }
 
+  static Stream<Arguments> invalidConfigs() {
+    return Stream.of(
+        Arguments.of("invalid", "2", "1000", "invalid startAt"),
+        Arguments.of("1", "invalid", "1000", "invalid incrementBy"),
+        Arguments.of("1", "1", "invalid", "invalid maxValue"));
+  }
+
   /** Test init() method with invalid start value */
-  @Test
-  void testInitWithInvalidStartValue() {
+  @MethodSource("invalidConfigs")
+  @ParameterizedTest(name = "should fail init() when {3}")
+  void testInitWithInvalidStartValue(
+      String startAt, String incrementBy, String maxValue, String desc) {
     when(transformMockHelper.iTransformMeta.isCounterUsed()).thenReturn(true);
     when(transformMockHelper.iTransformMeta.isDatabaseUsed()).thenReturn(false);
     when(transformMockHelper.iTransformMeta.getValueName()).thenReturn("test_seq");
-    when(transformMockHelper.iTransformMeta.getStartAt()).thenReturn("invalid");
-    when(transformMockHelper.iTransformMeta.getIncrementBy()).thenReturn("2");
-    when(transformMockHelper.iTransformMeta.getMaxValue()).thenReturn("1000");
+    when(transformMockHelper.iTransformMeta.getStartAt()).thenReturn(startAt);
+    when(transformMockHelper.iTransformMeta.getIncrementBy()).thenReturn(incrementBy);
+    when(transformMockHelper.iTransformMeta.getMaxValue()).thenReturn(maxValue);
 
     AddSequence addSequence =
         new AddSequence(
@@ -133,55 +146,7 @@ class AddSequenceTest {
 
     boolean result = addSequence.init();
 
-    assertFalse(result);
-  }
-
-  /** Test init() method with invalid increment value */
-  @Test
-  void testInitWithInvalidIncrementValue() {
-    when(transformMockHelper.iTransformMeta.isCounterUsed()).thenReturn(true);
-    when(transformMockHelper.iTransformMeta.isDatabaseUsed()).thenReturn(false);
-    when(transformMockHelper.iTransformMeta.getValueName()).thenReturn("test_seq");
-    when(transformMockHelper.iTransformMeta.getStartAt()).thenReturn("1");
-    when(transformMockHelper.iTransformMeta.getIncrementBy()).thenReturn("invalid");
-    when(transformMockHelper.iTransformMeta.getMaxValue()).thenReturn("1000");
-
-    AddSequence addSequence =
-        new AddSequence(
-            transformMockHelper.transformMeta,
-            transformMockHelper.iTransformMeta,
-            transformMockHelper.iTransformData,
-            0,
-            transformMockHelper.pipelineMeta,
-            transformMockHelper.pipeline);
-
-    boolean result = addSequence.init();
-
-    assertFalse(result);
-  }
-
-  /** Test init() method with invalid max value */
-  @Test
-  void testInitWithInvalidMaxValue() {
-    when(transformMockHelper.iTransformMeta.isCounterUsed()).thenReturn(true);
-    when(transformMockHelper.iTransformMeta.isDatabaseUsed()).thenReturn(false);
-    when(transformMockHelper.iTransformMeta.getValueName()).thenReturn("test_seq");
-    when(transformMockHelper.iTransformMeta.getStartAt()).thenReturn("1");
-    when(transformMockHelper.iTransformMeta.getIncrementBy()).thenReturn("1");
-    when(transformMockHelper.iTransformMeta.getMaxValue()).thenReturn("invalid");
-
-    AddSequence addSequence =
-        new AddSequence(
-            transformMockHelper.transformMeta,
-            transformMockHelper.iTransformMeta,
-            transformMockHelper.iTransformData,
-            0,
-            transformMockHelper.pipelineMeta,
-            transformMockHelper.pipeline);
-
-    boolean result = addSequence.init();
-
-    assertFalse(result);
+    assertFalse(result, "init() should return false for " + desc);
   }
 
   /** Test dispose() method cleans up counter resources */
