@@ -182,6 +182,9 @@ public class Const {
       description = "The operating system the hop platform runs on.")
   public static final String HOP_PLATFORM_OS = "HOP_PLATFORM_OS";
 
+  /** Variable containing the current hop version in pipelines and workflows */
+  public static final String HOP_VERSION = "HOP_VERSION";
+
   /** The runtime that is being used */
   @Variable(scope = VariableScope.SYSTEM, description = "The runtime that is being used.")
   public static final String HOP_PLATFORM_RUNTIME = "HOP_PLATFORM_RUNTIME";

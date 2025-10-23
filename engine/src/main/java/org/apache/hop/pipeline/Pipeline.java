@@ -48,6 +48,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.BlockingBatchingRowSet;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.IExecutor;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
@@ -2248,6 +2249,9 @@ public abstract class Pipeline
     // but the other around is not possible.
 
     setInternalEntryCurrentDirectory(hasFilename);
+
+    HopVersionProvider versionProvider = new HopVersionProvider();
+    setVariable(Const.HOP_VERSION, versionProvider.getVersion()[0]);
   }
 
   private void setInternalLoggingVariables() {
