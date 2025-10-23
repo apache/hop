@@ -166,6 +166,10 @@ public class SalesforceInputMeta
   @HopMetadataProperty(key = "records_filter")
   private String recordsFilter;
 
+  /** Use Salesforce Field API Names instead of Labels for output fields */
+  @HopMetadataProperty(key = "use_field_api_names", injectionKey = "USE_FIELD_API_NAMES")
+  private boolean useFieldApiNames;
+
   /** Query all records including deleted ones */
   @HopMetadataProperty(key = "queryAll", injectionKey = "QUERY_ALL")
   //  @Injection(name = "QUERY_ALL")
@@ -1008,5 +1012,21 @@ public class SalesforceInputMeta
       String transformName) {
     return new SalesforceInputDialog(
         shell, variables, (SalesforceInputMeta) transformMeta, pipelineMeta);
+  }
+
+  /**
+   * @return true if Salesforce Field API Names should be used instead of Labels for output field
+   *     names
+   */
+  public boolean isUseFieldApiNames() {
+    return useFieldApiNames;
+  }
+
+  /**
+   * @param useFieldApiNames true to use Salesforce Field API Names instead of Labels for output
+   *     field names
+   */
+  public void setUseFieldApiNames(boolean useFieldApiNames) {
+    this.useFieldApiNames = useFieldApiNames;
   }
 }

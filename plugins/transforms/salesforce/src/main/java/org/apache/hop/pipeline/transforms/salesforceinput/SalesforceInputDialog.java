@@ -104,6 +104,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
   private Button wInclRownum;
   private Button wUseCompression;
   private Button wQueryAll;
+  private Button wUseFieldApiNames;
 
   private Label wlInclURLField;
   private Label wlInclModule;
@@ -1464,6 +1465,20 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wFieldsComp.setLayout(fieldsLayout);
     PropsUi.setLook(wFieldsComp);
 
+    // Use Field API Names checkbox (at the top)
+    wUseFieldApiNames = new Button(wFieldsComp, SWT.CHECK);
+    PropsUi.setLook(wUseFieldApiNames);
+    wUseFieldApiNames.setText(
+        BaseMessages.getString(PKG, "SalesforceInputDialog.UseFieldApiNames.Label"));
+    wUseFieldApiNames.setToolTipText(
+        BaseMessages.getString(PKG, "SalesforceInputDialog.UseFieldApiNames.Tooltip"));
+    FormData fdUseFieldApiNames = new FormData();
+    fdUseFieldApiNames.left = new FormAttachment(0, 0);
+    fdUseFieldApiNames.top = new FormAttachment(0, margin);
+    fdUseFieldApiNames.right = new FormAttachment(100, 0);
+    wUseFieldApiNames.setLayoutData(fdUseFieldApiNames);
+    wUseFieldApiNames.addListener(SWT.Selection, e -> input.setChanged());
+
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.Button"));
     fdGet = new FormData();
@@ -1555,7 +1570,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wUseFieldApiNames, margin);
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(wGet, -margin);
     wFields.setLayoutData(fdFields);
@@ -1803,8 +1818,12 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       fieldPrecision = Integer.toString(field.getPrecision());
     }
 
+    // Use API name or label based on checkbox setting
+    String fieldNameForOutput =
+        wUseFieldApiNames.getSelection() ? field.getName() : field.getLabel();
+
     addFieldToTable(
-        field.getLabel(),
+        fieldNameForOutput,
         field.getName(),
         field.isIdLookup(),
         field.getType().toString(),
@@ -1953,6 +1972,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wUseCompression.setSelection(in.isCompression());
     wQueryAll.setSelection(in.isQueryAll());
     wLimit.setText("" + in.getRowLimit());
+
+    // Set default for new transforms: use API names if no fields are defined yet
+    boolean useApiNames = in.isUseFieldApiNames();
+    if (in.getFields() == null || in.getFields().isEmpty()) {
+      // New transform - default to true (use API names)
+      useApiNames = true;
+    }
+    wUseFieldApiNames.setSelection(useApiNames);
 
     wReadFrom.setText(Const.NVL(in.getReadFrom(), ""));
     wReadTo.setText(Const.NVL(in.getReadTo(), ""));
@@ -2151,6 +2178,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     meta.setQuery(Const.NVL(wQuery.getText(), ""));
     meta.setCompression(wUseCompression.getSelection());
     meta.setQueryAll(wQueryAll.getSelection());
+    meta.setUseFieldApiNames(wUseFieldApiNames.getSelection());
     meta.setTimeout(Const.NVL(wTimeOut.getText(), "0"));
     meta.setRowLimit(Const.NVL(wLimit.getText(), "0"));
     meta.setTargetURLField(Const.NVL(wInclURLField.getText(), ""));
