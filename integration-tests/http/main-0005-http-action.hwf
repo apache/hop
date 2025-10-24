@@ -41,14 +41,15 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>50</xloc>
       <yloc>48</yloc>
@@ -59,28 +60,37 @@ limitations under the License.
       <description/>
       <type>HTTP</type>
       <attributes/>
-      <url>http://${HOSTNAME}/get</url>
-      <targetfilename>${java.io.tmpdir}/result</targetfilename>
-      <file_appended>N</file_appended>
-      <date_time_added>N</date_time_added>
-      <targetfilename_extension/>
-      <uploadfilename/>
-      <run_every_row>N</run_every_row>
-      <url_fieldname/>
-      <upload_fieldname/>
-      <dest_fieldname/>
-      <username/>
-      <password>Encrypted </password>
-      <proxy_host/>
-      <proxy_port/>
-      <non_proxy_hosts/>
       <addfilenameresult>Y</addfilenameresult>
+      <date_time_added>N</date_time_added>
+      <dest_fieldname/>
+      <file_appended>N</file_appended>
       <headers>
         <header>
           <header_name>test</header_name>
           <header_value>test</header_value>
         </header>
+        <header>
+          <header_name>test2</header_name>
+          <header_value>test2</header_value>
+        </header>
+        <header>
+          <header_name>test3</header_name>
+          <header_value>test3</header_value>
+        </header>
       </headers>
+      <ignore_ssl>N</ignore_ssl>
+      <non_proxy_hosts/>
+      <password>Encrypted </password>
+      <proxy_host/>
+      <proxy_port/>
+      <run_every_row>N</run_every_row>
+      <targetfilename>${java.io.tmpdir}/result</targetfilename>
+      <targetfilename_extension/>
+      <upload_fieldname/>
+      <uploadfilename/>
+      <url>http://${HOSTNAME}/get</url>
+      <url_fieldname/>
+      <username/>
       <parallel>N</parallel>
       <xloc>224</xloc>
       <yloc>48</yloc>
@@ -91,25 +101,22 @@ limitations under the License.
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0005-http-action-check-header.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
       <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-http-action-check-header.hpl</filename>
+      <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
       <xloc>400</xloc>
       <yloc>48</yloc>
@@ -120,6 +127,7 @@ limitations under the License.
       <description/>
       <type>ABORT</type>
       <attributes/>
+      <always_log_rows>N</always_log_rows>
       <parallel>N</parallel>
       <xloc>320</xloc>
       <yloc>192</yloc>
