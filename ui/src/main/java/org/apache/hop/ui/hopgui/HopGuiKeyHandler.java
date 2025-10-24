@@ -28,6 +28,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.widgets.Combo;
@@ -68,7 +69,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
     //
 
     // Ignore shortcuts inside Text or Combo widgets
-    if (event.widget instanceof Text || event.widget instanceof Combo) {
+    if (event.widget instanceof Text
+        || event.widget instanceof Combo
+        || event.widget instanceof CCombo) {
       // Ignore Copy/Cut/Paste/Select all
       String keys = new String(new char[] {'a', 'c', 'v', 'x'});
       if ((event.stateMask & (SWT.CONTROL + SWT.COMMAND)) != 0
