@@ -62,10 +62,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DragSource;
-import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.FocusAdapter;
@@ -619,9 +615,6 @@ public class TableView extends Composite {
           }
         });
 
-    // Drag & drop source!
-    addDragAndDropSupport();
-
     table.layout();
     table.pack();
 
@@ -665,31 +658,6 @@ public class TableView extends Composite {
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_SELECT_ALL_ROWS, hasRows);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CLEAR_SELECTION, hasRows);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FILTERED_SELECTION, hasRows);
-  }
-
-  private void addDragAndDropSupport() {
-    // Drag & Drop for table-viewer
-    Transfer[] ttypes = new Transfer[] {TextTransfer.getInstance()};
-
-    DragSource ddSource = new DragSource(table, DND.DROP_MOVE | DND.DROP_COPY);
-    ddSource.setTransfer(ttypes);
-    ddSource.addDragListener(
-        new DragSourceListener() {
-          @Override
-          public void dragStart(DragSourceEvent event) {
-            // Disable listener
-          }
-
-          @Override
-          public void dragSetData(DragSourceEvent event) {
-            event.data = "TableView" + Const.CR + getSelectedText();
-          }
-
-          @Override
-          public void dragFinished(DragSourceEvent event) {
-            // Disable listener
-          }
-        });
   }
 
   private MouseListener createTableMouseListener() {
