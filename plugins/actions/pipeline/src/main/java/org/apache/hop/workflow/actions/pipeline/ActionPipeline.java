@@ -524,7 +524,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         TransformWithMappingMeta.activateParams(
             pipeline,
             pipeline,
-            this,
+            this.parentWorkflow,
             parameterNames,
             parameterDefinition.getNames(),
             parameterDefinition.getValues(),
