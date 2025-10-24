@@ -317,17 +317,17 @@ public class ActionHttp extends ActionBase {
             logDebug(BaseMessages.getString(PKG, "ActionHTTP.Log.HeadersProvided"));
           }
           for (int j = 0; j < headers.size(); j++) {
-            if (!Utils.isEmpty(headers.get(i).getHeaderValue())) {
+            if (!Utils.isEmpty(headers.get(j).getHeaderValue())) {
               connection.setRequestProperty(
-                  resolve(headers.get(i).getHeaderName()),
-                  resolve(headers.get(i).getHeaderValue()));
+                  resolve(headers.get(j).getHeaderName()),
+                  resolve(headers.get(j).getHeaderValue()));
               if (isDebug()) {
                 logDebug(
                     BaseMessages.getString(
                         PKG,
                         "ActionHTTP.Log.HeaderSet",
-                        resolve(headers.get(i).getHeaderName()),
-                        resolve(headers.get(i).getHeaderValue())));
+                        resolve(headers.get(j).getHeaderName()),
+                        resolve(headers.get(j).getHeaderValue())));
               }
             }
           }
