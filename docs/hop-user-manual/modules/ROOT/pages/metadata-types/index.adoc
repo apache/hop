@@ -56,6 +56,7 @@ By default, Hop contains the following metadata types:
 * xref:metadata-types/pipeline-unit-test.adoc[Pipeline Unit Test]: Describes a test for a pipeline with alternative data sets as input from a certain transform and testing output against golden data
 * xref:metadata-types/rdbms-connection.adoc[Relational Database Connection]: Describes all the metadata needed to connect to a relational database
 * xref:metadata-types/rest-connection.adoc[REST Connection]: Describes all the metadata needed to connect to a REST api.
+* xref:metadata-types/salesforce-connection.adoc[Salesforce Connection]: Describes a reusable Salesforce connection that can be used across multiple Salesforce transforms
 * xref:metadata-types/splunk-connection.adoc[Splunk Connection]: Describes a Splunk connection
 * xref:metadata-types/static-schema-definition.adoc[Static Schema Definition]: Defines a reusable data stream layout to ensure consistency across multiple pipelines and simplify schema management.
 * xref:metadata-types/variable-resolver/index.adoc[Variable Resolver]: Use plugins to resolve variable values with a pipeline, a key store, a vaults, or secret managers.
