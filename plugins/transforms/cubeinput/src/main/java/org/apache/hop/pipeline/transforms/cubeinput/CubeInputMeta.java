@@ -99,7 +99,9 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
     GZIPInputStream fis = null;
     DataInputStream dis = null;
     try {
-      InputStream is = HopVfs.getInputStream(variables.resolve(file.getName()));
+      InputStream is =
+          HopVfs.getInputStream(
+              variables.resolve(file.getName().replace("${Internal.Transform.CopyNr}", "0")));
       fis = new GZIPInputStream(is);
       dis = new DataInputStream(fis);
 
