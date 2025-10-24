@@ -18,10 +18,11 @@
 package org.apache.hop.pipeline.transforms.abort;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -35,6 +36,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 /** Meta data for the abort transform. */
+@Setter
+@Getter
 @Transform(
     id = "Abort",
     name = "i18n::Abort.Name",
@@ -69,6 +72,7 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
       injectionKeyDescription = "AbortDialog.Logging.AlwaysLogRows.Label")
   private boolean alwaysLogRows;
 
+  /** value of abortOption */
   @HopMetadataProperty(
       key = "abort_option",
       injectionKeyDescription = "AbortMeta.Injection.AbortOption")
@@ -79,22 +83,10 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
   }
 
   @Override
-  public void getFields(
-      IRowMeta inputRowMeta,
-      String name,
-      IRowMeta[] info,
-      TransformMeta nextTransform,
-      IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
-    // Default: no values are added to the row in the transform
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
-      TransformMeta transforminfo,
+      TransformMeta transform,
       IRowMeta prev,
       String[] input,
       String[] output,
@@ -107,7 +99,7 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
           new CheckResult(
               ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "AbortMeta.CheckResult.NoInputReceivedError"),
-              transforminfo);
+              transform);
       remarks.add(cr);
     }
   }
@@ -126,11 +118,11 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
     super.loadXml(transformNode, metadataProvider);
 
     // Backward compatible code
-    //
     if (abortOption == null) {
       String awe = XmlHandler.getTagValue(transformNode, "abort_with_error");
       if (awe == null) {
-        awe = "Y"; // existing pipelines will have to maintain backward compatibility with yes
+        // existing pipelines will have to maintain backward compatibility with yes
+        awe = "Y";
       }
       abortOption = "Y".equalsIgnoreCase(awe) ? AbortOption.ABORT_WITH_ERROR : AbortOption.ABORT;
     }
@@ -146,70 +138,6 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
 
   public boolean isSafeStop() {
     return abortOption == AbortOption.SAFE_STOP;
-  }
-
-  /**
-   * Gets rowThreshold
-   *
-   * @return value of rowThreshold
-   */
-  public String getRowThreshold() {
-    return rowThreshold;
-  }
-
-  /**
-   * @param rowThreshold The rowThreshold to set
-   */
-  public void setRowThreshold(String rowThreshold) {
-    this.rowThreshold = rowThreshold;
-  }
-
-  /**
-   * Gets message
-   *
-   * @return value of message
-   */
-  public String getMessage() {
-    return message;
-  }
-
-  /**
-   * @param message The message to set
-   */
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  /**
-   * Gets alwaysLogRows
-   *
-   * @return value of alwaysLogRows
-   */
-  public boolean isAlwaysLogRows() {
-    return alwaysLogRows;
-  }
-
-  /**
-   * @param alwaysLogRows The alwaysLogRows to set
-   */
-  public void setAlwaysLogRows(boolean alwaysLogRows) {
-    this.alwaysLogRows = alwaysLogRows;
-  }
-
-  /**
-   * Gets abortOption
-   *
-   * @return value of abortOption
-   */
-  public AbortOption getAbortOption() {
-    return abortOption;
-  }
-
-  /**
-   * @param abortOption The abortOption to set
-   */
-  public void setAbortOption(AbortOption abortOption) {
-    this.abortOption = abortOption;
   }
 
   @Override

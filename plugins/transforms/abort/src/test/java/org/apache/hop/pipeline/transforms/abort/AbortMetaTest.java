@@ -17,25 +17,43 @@
 
 package org.apache.hop.pipeline.transforms.abort;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+/** AbortMeta test */
 class AbortMetaTest {
+  private AbortMeta meta;
+
+  @BeforeEach
+  void setUp() {
+    meta = new AbortMeta();
+  }
 
   @Test
   void testRoundTrip() throws HopException {
@@ -70,18 +88,111 @@ class AbortMetaTest {
   @Test
   void testBackwardsCompatibilityAbortWithError() throws HopXmlException {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
-    AbortMeta meta = new AbortMeta();
 
     // No abort option specified: leave the default: Abort
     String inputXml =
         """
-                      <transform>
-                        <name>Abort</name>
-                        <type>Abort</type>
-                      </transform>\
-                    """;
+        <transform>
+            <name>Abort</name>
+            <type>Abort</type>
+          </transform>\
+        """;
     Node node = XmlHandler.loadXmlString(inputXml).getFirstChild();
     meta.loadXml(node, metadataProvider);
     assertTrue(meta.isAbort());
+  }
+
+  @Test
+  void testDefaultValuesAfterConstruction() {
+    assertEquals(AbortMeta.AbortOption.ABORT, meta.getAbortOption());
+  }
+
+  @Test
+  void testSetDefaultValues() {
+    meta.setDefault();
+
+    assertEquals("0", meta.getRowThreshold());
+    assertEquals("", meta.getMessage());
+    assertTrue(meta.isAlwaysLogRows());
+    assertEquals(AbortMeta.AbortOption.ABORT_WITH_ERROR, meta.getAbortOption());
+  }
+
+  @Test
+  void testCheckWithNoInputAddsWarning() {
+    List<ICheckResult> remarks = new ArrayList<>();
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    TransformMeta transformMeta = mock(TransformMeta.class);
+
+    meta.check(remarks, pipelineMeta, transformMeta, null, new String[0], null, null, null, null);
+
+    assertFalse(remarks.isEmpty());
+    CheckResult result = (CheckResult) remarks.get(0);
+    assertEquals(ICheckResult.TYPE_RESULT_WARNING, result.getType());
+  }
+
+  @Test
+  void testCheckWithInputDoesNotAddWarning() {
+    List<ICheckResult> remarks = new ArrayList<>();
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    TransformMeta transformMeta = mock(TransformMeta.class);
+
+    meta.check(
+        remarks, pipelineMeta, transformMeta, null, new String[] {"input"}, null, null, null, null);
+
+    assertTrue(remarks.isEmpty());
+  }
+
+  @Test
+  void testAbortOptionHelperMethods() {
+    meta.setAbortOption(AbortMeta.AbortOption.ABORT);
+    assertTrue(meta.isAbort());
+    assertFalse(meta.isAbortWithError());
+    assertFalse(meta.isSafeStop());
+
+    meta.setAbortOption(AbortMeta.AbortOption.ABORT_WITH_ERROR);
+    assertTrue(meta.isAbortWithError());
+    assertFalse(meta.isAbort());
+    assertFalse(meta.isSafeStop());
+
+    meta.setAbortOption(AbortMeta.AbortOption.SAFE_STOP);
+    assertTrue(meta.isSafeStop());
+  }
+
+  @Test
+  void testLoadXmlBackwardCompatibility() throws Exception {
+    meta.setAbortOption(null);
+    Document doc = XmlTestUtil.createDocument();
+    Element transformNode = doc.createElement("transform");
+    // Simulate legacy XML tag
+    transformNode.appendChild(XmlTestUtil.createElement(doc, "abort_with_error", "Y"));
+
+    meta.loadXml(transformNode, mock(IHopMetadataProvider.class));
+    assertEquals(AbortMeta.AbortOption.ABORT_WITH_ERROR, meta.getAbortOption());
+
+    // Test with value N
+    meta.setAbortOption(null);
+    transformNode = doc.createElement("transform");
+    transformNode.appendChild(XmlTestUtil.createElement(doc, "abort_with_error", "N"));
+    transformNode.appendChild(XmlTestUtil.createElement(doc, "abort_with_success", "Y"));
+    meta.loadXml(transformNode, mock(IHopMetadataProvider.class));
+    assertEquals(AbortMeta.AbortOption.ABORT, meta.getAbortOption());
+  }
+
+  @Test
+  void testSupportsMultiCopyExecution() {
+    assertFalse(meta.supportsMultiCopyExecution());
+  }
+
+  static class XmlTestUtil {
+
+    static Document createDocument() throws Exception {
+      return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    }
+
+    static Element createElement(Document doc, String name, String value) {
+      Element element = doc.createElement(name);
+      element.setTextContent(value);
+      return element;
+    }
   }
 }
