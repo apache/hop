@@ -22,6 +22,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -232,12 +233,13 @@ public class AbortDialog extends BaseTransformDialog {
     flLoggingGroup.marginWidth = 15;
     wLoggingGroup.setLayout(flLoggingGroup);
 
-    FormData fdLoggingGroup = new FormData();
-    fdLoggingGroup.left = new FormAttachment(0, 0);
-    fdLoggingGroup.top = new FormAttachment(widgetAbove, 15);
-    fdLoggingGroup.right = new FormAttachment(100, 0);
-    fdLoggingGroup.bottom = new FormAttachment(hSpacer, -15);
-    wLoggingGroup.setLayoutData(fdLoggingGroup);
+    wLoggingGroup.setLayoutData(
+        FormDataBuilder.builder()
+            .left()
+            .top(widgetAbove, 15)
+            .right(100, 0)
+            .bottom(hSpacer, -15)
+            .build());
 
     Label wlMessage = new Label(wLoggingGroup, SWT.RIGHT);
     wlMessage.setText(BaseMessages.getString(PKG, "AbortDialog.Logging.AbortMessage.Label"));
@@ -299,7 +301,7 @@ public class AbortDialog extends BaseTransformDialog {
     wTransformName.setFocus();
   }
 
-  private void getInfo(AbortMeta in) {
+  private void getInfo() {
     input.setRowThreshold(wRowThreshold.getText());
     input.setMessage(wMessage.getText());
     input.setAlwaysLogRows(wAlwaysLogRows.getSelection());
@@ -325,8 +327,9 @@ public class AbortDialog extends BaseTransformDialog {
       return;
     }
 
-    getInfo(input);
-    transformName = wTransformName.getText(); // return value
+    getInfo();
+    // return value
+    transformName = wTransformName.getText();
     dispose();
   }
 }

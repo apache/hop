@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.abort;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -62,68 +63,71 @@ public class Abort extends BaseTransform<AbortMeta, AbortData> {
 
   @Override
   public boolean processRow() throws HopException {
-
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
+    // Get row from input rowset & set row busy!
+    Object[] r = getRow();
     // no more input to be expected...
     if (r == null) {
       setOutputDone();
       return false;
-    } else {
-      putRow(getInputRowMeta(), r);
-      nrInputRows++;
-      if (nrInputRows > nrThresholdRows) {
-        //
-        // Here we abort!!
-        //
-        String abortOptionMessage = BaseMessages.getString(PKG, "AbortDialog.Options.Abort.Label");
-        if (meta.isAbortWithError()) {
-          abortOptionMessage =
-              BaseMessages.getString(PKG, "AbortDialog.Options.AbortWithError.Label");
-        } else if (meta.isSafeStop()) {
-          abortOptionMessage = BaseMessages.getString(PKG, "AbortDialog.Options.SafeStop.Label");
-        }
-        logError(
-            BaseMessages.getString(
-                PKG,
-                "Abort.Log.Wrote.AbortRow",
-                Long.toString(nrInputRows),
-                abortOptionMessage,
-                getInputRowMeta().getString(r)));
-
-        String message = resolve(meta.getMessage());
-        if (Utils.isEmpty(message)) {
-          logError(BaseMessages.getString(PKG, "Abort.Log.DefaultAbortMessage", "" + nrInputRows));
-        } else {
-          logError(message);
-        }
-
-        if (meta.isAbortWithError()) {
-          setErrors(1);
-        }
-        stopAll();
-
-      } else {
-        // seen a row but not yet reached the threshold
-        if (meta.isAlwaysLogRows()) {
-          logMinimal(
-              BaseMessages.getString(
-                  PKG,
-                  "Abort.Log.Wrote.Row",
-                  Long.toString(nrInputRows),
-                  getInputRowMeta().getString(r)));
-        } else {
-          if (isRowLevel()) {
-            logRowlevel(
-                BaseMessages.getString(
-                    PKG,
-                    "Abort.Log.Wrote.Row",
-                    Long.toString(nrInputRows),
-                    getInputRowMeta().getString(r)));
-          }
-        }
+    }
+    putRow(getInputRowMeta(), r);
+    nrInputRows++;
+    if (nrInputRows > nrThresholdRows) {
+      //
+      // Here we abort!!
+      //
+      String abortOptionMessage = BaseMessages.getString(PKG, "AbortDialog.Options.Abort.Label");
+      if (meta.isAbortWithError()) {
+        abortOptionMessage =
+            BaseMessages.getString(PKG, "AbortDialog.Options.AbortWithError.Label");
+      } else if (meta.isSafeStop()) {
+        abortOptionMessage = BaseMessages.getString(PKG, "AbortDialog.Options.SafeStop.Label");
       }
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "Abort.Log.Wrote.AbortRow",
+              Long.toString(nrInputRows),
+              abortOptionMessage,
+              getInputRowMeta().getString(r)));
+
+      String message = resolve(meta.getMessage());
+      if (Utils.isEmpty(message)) {
+        logError(BaseMessages.getString(PKG, "Abort.Log.DefaultAbortMessage", "" + nrInputRows));
+      } else {
+        logError(message);
+      }
+
+      if (meta.isAbortWithError()) {
+        setErrors(1);
+      }
+      stopAll();
+    } else {
+      logRowIfNecessary(r);
     }
 
     return true;
+  }
+
+  /** Logs a single row depending on the logging configuration. */
+  private void logRowIfNecessary(Object[] row) throws HopValueException {
+    // seen a row but not yet reached the threshold
+    if (meta.isAlwaysLogRows()) {
+      logMinimal(
+          BaseMessages.getString(
+              PKG,
+              "Abort.Log.Wrote.Row",
+              Long.toString(nrInputRows),
+              getInputRowMeta().getString(row)));
+    } else {
+      if (isRowLevel()) {
+        logRowlevel(
+            BaseMessages.getString(
+                PKG,
+                "Abort.Log.Wrote.Row",
+                Long.toString(nrInputRows),
+                getInputRowMeta().getString(row)));
+      }
+    }
   }
 }
