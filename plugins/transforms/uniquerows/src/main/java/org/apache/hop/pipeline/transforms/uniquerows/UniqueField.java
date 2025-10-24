@@ -61,7 +61,7 @@ public class UniqueField {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     UniqueField that = (UniqueField) o;
-    return name.equals(that.name) && caseInsensitive == that.caseInsensitive;
+    return Objects.equals(name, that.name) && caseInsensitive == that.caseInsensitive;
   }
 
   @Override
