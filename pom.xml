@@ -145,7 +145,7 @@
         <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
         <mockito-core.version>5.12.0</mockito-core.version>
         <objenesis.version>3.4</objenesis.version>
-        <org.eclipse.platform.version>3.129.0</org.eclipse.platform.version>
+        <org.eclipse.platform.version>3.131.0</org.eclipse.platform.version>
         <project.build.outputTimestamp>1695310533</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
