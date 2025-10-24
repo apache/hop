@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The `Run oipeline unit tests` action runs a series of selected xref:pipeline/pipeline-unit-testing.adoc[pipeline unit tests].
+The `Run pipeline unit tests` action runs a series of selected xref:pipeline/pipeline-unit-testing.adoc[pipeline unit tests].
 
 The action is successful if all tests run without error.
 
