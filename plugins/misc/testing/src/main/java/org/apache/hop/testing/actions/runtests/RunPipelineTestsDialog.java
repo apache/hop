@@ -196,21 +196,20 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
       IHopMetadataSerializer<PipelineUnitTest> testSerializer =
           metadataProvider.getSerializer(PipelineUnitTest.class);
       List<String> testNames = testSerializer.listObjectNames();
-
       if (!Utils.isEmpty(testNames)) {
-        String[] sortedTestNames =
-            Const.sortStrings(testNames.toArray(new String[testNames.size()]));
+        String[] sortedTestNames = Const.sortStrings(testNames.toArray(new String[0]));
         EnterSelectionDialog dialog =
             new EnterSelectionDialog(
                 shell,
                 sortedTestNames,
                 BaseMessages.getString(PKG, "RunTestsDialog.AvailableTests.Title"),
                 BaseMessages.getString(PKG, "RunTestsDialog.AvailableTests.Message"));
-
-        String d = dialog.open();
-        if (d != null) {
+        dialog.setMulti(true);
+        if (dialog.open() != null) {
           wTestNames.removeEmptyRows();
-          wTestNames.add(d);
+          for (int i : dialog.getSelectionIndeces()) {
+            wTestNames.add(sortedTestNames[i]);
+          }
         }
       }
     } catch (Exception e) {
