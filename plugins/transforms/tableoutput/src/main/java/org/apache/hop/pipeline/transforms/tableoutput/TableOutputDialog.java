@@ -104,6 +104,15 @@ public class TableOutputDialog extends BaseTransformDialog {
   private Label wlAlwaysDropAndRecreate;
   private Button wAlwaysDropAndRecreate;
 
+  private Label wlAddColumns;
+  private Button wAddColumns;
+
+  private Label wlDropColumns;
+  private Button wDropColumns;
+
+  private Label wlChangeColumnTypes;
+  private Button wChangeColumnTypes;
+
   private Label wlBatch;
   private Button wBatch;
 
@@ -434,6 +443,61 @@ public class TableOutputDialog extends BaseTransformDialog {
     fdAlwaysDropAndRecreate.right = new FormAttachment(100, 0);
     wAlwaysDropAndRecreate.setLayoutData(fdAlwaysDropAndRecreate);
     wAlwaysDropAndRecreate.addSelectionListener(lsSelMod);
+
+    // Add columns
+    wlAddColumns = new Label(shell, SWT.RIGHT);
+    wlAddColumns.setText(BaseMessages.getString(PKG, "TableOutputDialog.AddColumns.Label"));
+    PropsUi.setLook(wlAddColumns);
+    FormData fdlAddColumns = new FormData();
+    fdlAddColumns.left = new FormAttachment(0, 0);
+    fdlAddColumns.top = new FormAttachment(wlAlwaysDropAndRecreate, margin);
+    fdlAddColumns.right = new FormAttachment(middle, -margin);
+    wlAddColumns.setLayoutData(fdlAddColumns);
+    wAddColumns = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wAddColumns);
+    FormData fdAddColumns = new FormData();
+    fdAddColumns.left = new FormAttachment(middle, 0);
+    fdAddColumns.top = new FormAttachment(wlAddColumns, 0, SWT.CENTER);
+    fdAddColumns.right = new FormAttachment(100, 0);
+    wAddColumns.setLayoutData(fdAddColumns);
+    wAddColumns.addSelectionListener(lsSelMod);
+
+    // Drop non-existing columns
+    wlDropColumns = new Label(shell, SWT.RIGHT);
+    wlDropColumns.setText(BaseMessages.getString(PKG, "TableOutputDialog.DropColumns.Label"));
+    PropsUi.setLook(wlDropColumns);
+    FormData fdlDropColumns = new FormData();
+    fdlDropColumns.left = new FormAttachment(0, 0);
+    fdlDropColumns.top = new FormAttachment(wlAddColumns, margin);
+    fdlDropColumns.right = new FormAttachment(middle, -margin);
+    wlDropColumns.setLayoutData(fdlDropColumns);
+    wDropColumns = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wDropColumns);
+    FormData fdDropColumns = new FormData();
+    fdDropColumns.left = new FormAttachment(middle, 0);
+    fdDropColumns.top = new FormAttachment(wlDropColumns, 0, SWT.CENTER);
+    fdDropColumns.right = new FormAttachment(100, 0);
+    wDropColumns.setLayoutData(fdDropColumns);
+    wDropColumns.addSelectionListener(lsSelMod);
+
+    // Change column data types
+    wlChangeColumnTypes = new Label(shell, SWT.RIGHT);
+    wlChangeColumnTypes.setText(
+        BaseMessages.getString(PKG, "TableOutputDialog.ChangeColumnTypes.Label"));
+    PropsUi.setLook(wlChangeColumnTypes);
+    FormData fdlChangeColumnTypes = new FormData();
+    fdlChangeColumnTypes.left = new FormAttachment(0, 0);
+    fdlChangeColumnTypes.top = new FormAttachment(wlDropColumns, margin);
+    fdlChangeColumnTypes.right = new FormAttachment(middle, -margin);
+    wlChangeColumnTypes.setLayoutData(fdlChangeColumnTypes);
+    wChangeColumnTypes = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wChangeColumnTypes);
+    FormData fdChangeColumnTypes = new FormData();
+    fdChangeColumnTypes.left = new FormAttachment(middle, 0);
+    fdChangeColumnTypes.top = new FormAttachment(wlChangeColumnTypes, 0, SWT.CENTER);
+    fdChangeColumnTypes.right = new FormAttachment(100, 0);
+    wChangeColumnTypes.setLayoutData(fdChangeColumnTypes);
+    wChangeColumnTypes.addSelectionListener(lsSelMod);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -863,7 +927,7 @@ public class TableOutputDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wlAlwaysDropAndRecreate, 3 * margin);
+    fdTabFolder.top = new FormAttachment(wlChangeColumnTypes, 3 * margin);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -1305,6 +1369,12 @@ public class TableOutputDialog extends BaseTransformDialog {
       wAutoUpdateTableStructure.setEnabled(enableAutoUpdate);
       wlAlwaysDropAndRecreate.setEnabled(enableAlwaysDropAndRecreate);
       wAlwaysDropAndRecreate.setEnabled(enableAlwaysDropAndRecreate);
+      wlAddColumns.setEnabled(enableAlwaysDropAndRecreate);
+      wAddColumns.setEnabled(enableAlwaysDropAndRecreate);
+      wlDropColumns.setEnabled(enableAlwaysDropAndRecreate);
+      wDropColumns.setEnabled(enableAlwaysDropAndRecreate);
+      wlChangeColumnTypes.setEnabled(enableAlwaysDropAndRecreate);
+      wChangeColumnTypes.setEnabled(enableAlwaysDropAndRecreate);
     }
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
@@ -1370,6 +1440,15 @@ public class TableOutputDialog extends BaseTransformDialog {
     if (wAlwaysDropAndRecreate != null) {
       wAlwaysDropAndRecreate.setSelection(input.isAlwaysDropAndRecreate());
     }
+    if (wAddColumns != null) {
+      wAddColumns.setSelection(input.isAddColumns());
+    }
+    if (wDropColumns != null) {
+      wDropColumns.setSelection(input.isDropColumns());
+    }
+    if (wChangeColumnTypes != null) {
+      wChangeColumnTypes.setSelection(input.isChangeColumnTypes());
+    }
 
     for (int i = 0; i < input.getFields().size(); i++) {
       TableOutputField tf = input.getFields().get(i);
@@ -1432,6 +1511,15 @@ public class TableOutputDialog extends BaseTransformDialog {
     }
     if (wAlwaysDropAndRecreate != null) {
       info.setAlwaysDropAndRecreate(wAlwaysDropAndRecreate.getSelection());
+    }
+    if (wAddColumns != null) {
+      info.setAddColumns(wAddColumns.getSelection());
+    }
+    if (wDropColumns != null) {
+      info.setDropColumns(wDropColumns.getSelection());
+    }
+    if (wChangeColumnTypes != null) {
+      info.setChangeColumnTypes(wChangeColumnTypes.getSelection());
     }
 
     int nrRows = wFields.nrNonEmpty();

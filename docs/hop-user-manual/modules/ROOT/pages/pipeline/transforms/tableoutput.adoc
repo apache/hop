@@ -64,6 +64,19 @@ A maximum of 20 warnings will be logged however.
 This option is not available for batch inserts.
 |Specify database fields|Enable this option to specify the fields in the Database fields tab.
 Otherwise all fields are taken into account by default.
+|Automatically update table structure|Automatically manages table structure based on the incoming data stream.
+When enabled, the table is created if it doesn't exist, and additional options become available for column management.
+This option is incompatible with "Specify database fields".
+|Always drop and recreate table|Drops and recreates the table on every execution.
+Only available when "Automatically update table structure" is enabled.
+|Add columns|Adds columns to the table that exist in the incoming stream but not in the table.
+Only available when "Automatically update table structure" is enabled.
+|Drop non-existing columns|Drops columns from the table that don't exist in the incoming stream.
+Warning: This will result in data loss for the dropped columns.
+Only available when "Automatically update table structure" is enabled.
+|Change column data types|Changes column data types to match the incoming stream.
+Warning: Columns are dropped and recreated, resulting in data loss.
+Only available when "Automatically update table structure" is enabled.
 |Partition data over tables a|Use to split the data over multiple tables.
 For example instead of inserting all data into table SALES, put the data into tables SALES_200510, SALES_200511, SALES_200512, ... Use this on systems that don't have partitioned tables and/or don't allow inserts into UNION ALL views or the master of inherited tables.
 The view SALES allows you to report on the complete sales:

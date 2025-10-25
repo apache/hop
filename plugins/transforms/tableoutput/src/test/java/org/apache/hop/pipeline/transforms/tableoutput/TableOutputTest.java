@@ -38,6 +38,10 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -211,5 +215,121 @@ class TableOutputTest {
     HopException ke = new HopException(unsupportedTableOutputMessage);
     verify(tableOutputSpy, times(1))
         .logError("An error occurred initializing this transform: " + ke.getMessage());
+  }
+
+  // ==================== DDL Feature Tests ====================
+
+  @Test
+  void testUpdateTableStructure_disabled() throws Exception {
+    when(tableOutputMeta.isAutoUpdateTableStructure()).thenReturn(false);
+
+    tableOutputSpy.updateTableStructure();
+
+    // updateTableStructure should return early when disabled
+    // No need to verify anything - just checking it doesn't throw exception
+  }
+
+  @Test
+  void testUpdateTableStructure_partitioningEnabled() throws Exception {
+    when(tableOutputMeta.isAutoUpdateTableStructure()).thenReturn(true);
+    when(tableOutputMeta.isPartitioningEnabled()).thenReturn(true);
+
+    tableOutputSpy.updateTableStructure();
+
+    // updateTableStructure should return early when partitioning is enabled
+  }
+
+  @Test
+  void testUpdateTableStructure_tableNameInField() throws Exception {
+    when(tableOutputMeta.isAutoUpdateTableStructure()).thenReturn(true);
+    when(tableOutputMeta.isPartitioningEnabled()).thenReturn(false);
+    when(tableOutputMeta.isTableNameInField()).thenReturn(true);
+
+    tableOutputSpy.updateTableStructure();
+
+    // updateTableStructure should return early when table name is in field
+  }
+
+  @Test
+  void testUpdateTableStructure_notFirstCopy() throws Exception {
+    when(tableOutputMeta.isAutoUpdateTableStructure()).thenReturn(true);
+    when(tableOutputMeta.isPartitioningEnabled()).thenReturn(false);
+    when(tableOutputMeta.isTableNameInField()).thenReturn(false);
+    when(tableOutputSpy.getCopy()).thenReturn(1);
+    when(tableOutputSpy.getPartitionId()).thenReturn("");
+
+    tableOutputSpy.updateTableStructure();
+
+    // updateTableStructure should return early when not first copy and no partition ID
+  }
+
+  @Test
+  void testTypesAreCompatible_sameTypeInteger() {
+    IValueMeta tableField = new ValueMetaInteger("age");
+    IValueMeta streamField = new ValueMetaInteger("age");
+
+    assertTrue(tableOutputSpy.typesAreCompatible(tableField, streamField));
+  }
+
+  @Test
+  void testTypesAreCompatible_differentTypes() {
+    IValueMeta tableField = new ValueMetaString("age");
+    IValueMeta streamField = new ValueMetaInteger("age");
+
+    assertFalse(tableOutputSpy.typesAreCompatible(tableField, streamField));
+  }
+
+  @Test
+  void testTypesAreCompatible_stringLengthCompatible() {
+    IValueMeta tableField = new ValueMetaString("name");
+    tableField.setLength(100);
+    IValueMeta streamField = new ValueMetaString("name");
+    streamField.setLength(50);
+
+    assertTrue(tableOutputSpy.typesAreCompatible(tableField, streamField));
+  }
+
+  @Test
+  void testTypesAreCompatible_stringLengthIncompatible() {
+    IValueMeta tableField = new ValueMetaString("name");
+    tableField.setLength(50);
+    IValueMeta streamField = new ValueMetaString("name");
+    streamField.setLength(100);
+
+    assertFalse(tableOutputSpy.typesAreCompatible(tableField, streamField));
+  }
+
+  @Test
+  void testTypesAreCompatible_stringUndefinedLengthIncompatible() {
+    IValueMeta tableField = new ValueMetaString("name");
+    tableField.setLength(50);
+    IValueMeta streamField = new ValueMetaString("name");
+    streamField.setLength(-1); // Undefined length
+
+    assertFalse(tableOutputSpy.typesAreCompatible(tableField, streamField));
+  }
+
+  @Test
+  void testTypesAreCompatible_numberPrecisionIncompatible() {
+    IValueMeta tableField = new ValueMetaNumber("amount");
+    tableField.setLength(10);
+    tableField.setPrecision(2);
+    IValueMeta streamField = new ValueMetaNumber("amount");
+    streamField.setLength(15);
+    streamField.setPrecision(5);
+
+    assertFalse(tableOutputSpy.typesAreCompatible(tableField, streamField));
+  }
+
+  @Test
+  void testTypesAreCompatible_numberPrecisionCompatible() {
+    IValueMeta tableField = new ValueMetaNumber("amount");
+    tableField.setLength(10);
+    tableField.setPrecision(2);
+    IValueMeta streamField = new ValueMetaNumber("amount");
+    streamField.setLength(10);
+    streamField.setPrecision(2);
+
+    assertTrue(tableOutputSpy.typesAreCompatible(tableField, streamField));
   }
 }

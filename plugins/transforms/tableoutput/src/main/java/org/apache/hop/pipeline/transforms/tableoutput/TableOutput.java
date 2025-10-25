@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -582,6 +583,21 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
         // Ensure table exists (same logic for both options)
         ensureTableExists(fullTableName, schemaName, tableName);
+
+        // Add missing columns if option is enabled
+        if (meta.isAddColumns()) {
+          addMissingColumns(fullTableName, schemaName, tableName);
+        }
+
+        // Drop surplus columns if option is enabled
+        if (meta.isDropColumns()) {
+          dropSurplusColumns(fullTableName, schemaName, tableName);
+        }
+
+        // Change column types if option is enabled
+        if (meta.isChangeColumnTypes()) {
+          changeColumnTypes(fullTableName, schemaName, tableName);
+        }
       }
     }
   }
@@ -608,7 +624,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     }
   }
 
-  private void ensureTableExists(String fullTableName, String schemaName, String tableName)
+  void ensureTableExists(String fullTableName, String schemaName, String tableName)
       throws HopException {
     // Try to create the table - if it already exists, the creation will fail
     // This avoids the transaction-aborting table existence check
@@ -684,6 +700,343 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       } catch (Exception cacheException) {
         logError("Could not clear database cache: " + cacheException.getMessage());
       }
+    }
+  }
+
+  private void addMissingColumns(String fullTableName, String schemaName, String tableName)
+      throws HopException {
+    logDetailed("Checking for missing columns in table: " + fullTableName);
+
+    try {
+      // Get the current table structure from the database
+      IRowMeta tableFields = data.db.getTableFieldsMeta(schemaName, tableName);
+      if (tableFields == null) {
+        logDetailed("Could not retrieve table structure for: " + fullTableName);
+        return;
+      }
+
+      // Get the incoming stream structure
+      IRowMeta streamFields = getInputRowMeta();
+      if (streamFields == null) {
+        logDetailed("No incoming stream fields available");
+        return;
+      }
+
+      // Find columns that exist in the stream but not in the table
+      List<IValueMeta> missingColumns = new ArrayList<>();
+      for (IValueMeta streamField : streamFields.getValueMetaList()) {
+        String fieldName = streamField.getName();
+        if (tableFields.searchValueMeta(fieldName) == null) {
+          missingColumns.add(streamField);
+          logBasic("Found missing column: " + fieldName + " (" + streamField.getTypeDesc() + ")");
+        }
+      }
+
+      // Add each missing column
+      if (!missingColumns.isEmpty()) {
+        for (IValueMeta missingColumn : missingColumns) {
+          addColumn(fullTableName, missingColumn);
+        }
+        logBasic(
+            "Added " + missingColumns.size() + " missing column(s) to table: " + fullTableName);
+
+        // Clear cache after modifications
+        try {
+          org.apache.hop.core.DbCache.getInstance().clear(data.databaseMeta.getName());
+          logDetailed("Cleared database cache after adding columns");
+        } catch (Exception cacheException) {
+          logError("Could not clear database cache: " + cacheException.getMessage());
+        }
+      } else {
+        logDetailed("No missing columns found in table: " + fullTableName);
+      }
+
+    } catch (Exception e) {
+      logError("Error checking/adding missing columns: " + e.getMessage(), e);
+      // Rollback to clear any aborted transaction state
+      try {
+        data.db.rollback();
+        logDetailed("Rolled back transaction after add columns failure");
+      } catch (Exception rollbackException) {
+        logDetailed("Could not rollback transaction: " + rollbackException.getMessage());
+      }
+      throw new HopException("Failed to add missing columns to table " + fullTableName, e);
+    }
+  }
+
+  private void addColumn(String fullTableName, IValueMeta column) throws HopException {
+    logDetailed("Adding column: " + column.getName() + " to table: " + fullTableName);
+
+    try {
+      String addColumnStatement =
+          data.databaseMeta.getAddColumnStatement(fullTableName, column, null, false, null, false);
+
+      if (!Utils.isEmpty(addColumnStatement)) {
+        logDetailed("ALTER TABLE SQL: " + addColumnStatement);
+        data.db.execStatement(addColumnStatement);
+        // Commit the DDL to finalize column addition
+        data.db.commit();
+        logBasic("Successfully added column: " + column.getName());
+      }
+    } catch (Exception e) {
+      logError("Error adding column " + column.getName() + ": " + e.getMessage(), e);
+      // Rollback to clear any aborted transaction state
+      try {
+        data.db.rollback();
+        logDetailed("Rolled back transaction after add column failure");
+      } catch (Exception rollbackException) {
+        logDetailed("Could not rollback transaction: " + rollbackException.getMessage());
+      }
+      throw new HopException("Failed to add column " + column.getName(), e);
+    }
+  }
+
+  private void dropSurplusColumns(String fullTableName, String schemaName, String tableName)
+      throws HopException {
+    logDetailed("Checking for surplus columns in table: " + fullTableName);
+
+    try {
+      // Get the current table structure from the database
+      IRowMeta tableFields = data.db.getTableFieldsMeta(schemaName, tableName);
+      if (tableFields == null) {
+        logDetailed("Could not retrieve table structure for: " + fullTableName);
+        return;
+      }
+
+      // Get the incoming stream structure
+      IRowMeta streamFields = getInputRowMeta();
+      if (streamFields == null) {
+        logDetailed("No incoming stream fields available");
+        return;
+      }
+
+      // Find columns that exist in the table but not in the stream
+      List<IValueMeta> surplusColumns = new ArrayList<>();
+      for (IValueMeta tableField : tableFields.getValueMetaList()) {
+        String fieldName = tableField.getName();
+        if (streamFields.searchValueMeta(fieldName) == null) {
+          surplusColumns.add(tableField);
+          logBasic("Found surplus column: " + fieldName + " (" + tableField.getTypeDesc() + ")");
+        }
+      }
+
+      // Drop each surplus column
+      if (!surplusColumns.isEmpty()) {
+        logBasic(
+            "WARNING: Dropping "
+                + surplusColumns.size()
+                + " column(s) from table: "
+                + fullTableName
+                + " - THIS WILL RESULT IN DATA LOSS");
+        for (IValueMeta surplusColumn : surplusColumns) {
+          dropColumn(fullTableName, surplusColumn);
+        }
+        logBasic(
+            "Dropped " + surplusColumns.size() + " surplus column(s) from table: " + fullTableName);
+
+        // Clear cache after modifications
+        try {
+          org.apache.hop.core.DbCache.getInstance().clear(data.databaseMeta.getName());
+          logDetailed("Cleared database cache after dropping columns");
+        } catch (Exception cacheException) {
+          logError("Could not clear database cache: " + cacheException.getMessage());
+        }
+      } else {
+        logDetailed("No surplus columns found in table: " + fullTableName);
+      }
+
+    } catch (Exception e) {
+      logError("Error checking/dropping surplus columns: " + e.getMessage(), e);
+      // Rollback to clear any aborted transaction state
+      try {
+        data.db.rollback();
+        logDetailed("Rolled back transaction after drop columns failure");
+      } catch (Exception rollbackException) {
+        logDetailed("Could not rollback transaction: " + rollbackException.getMessage());
+      }
+      throw new HopException("Failed to drop surplus columns from table " + fullTableName, e);
+    }
+  }
+
+  private void dropColumn(String fullTableName, IValueMeta column) throws HopException {
+    logDetailed("Dropping column: " + column.getName() + " from table: " + fullTableName);
+
+    try {
+      String dropColumnStatement =
+          data.databaseMeta.getDropColumnStatement(fullTableName, column, null, false, null, false);
+
+      if (!Utils.isEmpty(dropColumnStatement)) {
+        logDetailed("ALTER TABLE SQL: " + dropColumnStatement);
+        data.db.execStatement(dropColumnStatement);
+        // Commit the DDL to finalize column drop
+        data.db.commit();
+        logBasic("Successfully dropped column: " + column.getName());
+      }
+    } catch (Exception e) {
+      logError("Error dropping column " + column.getName() + ": " + e.getMessage(), e);
+      // Rollback to clear any aborted transaction state
+      try {
+        data.db.rollback();
+        logDetailed("Rolled back transaction after drop column failure");
+      } catch (Exception rollbackException) {
+        logDetailed("Could not rollback transaction: " + rollbackException.getMessage());
+      }
+      throw new HopException("Failed to drop column " + column.getName(), e);
+    }
+  }
+
+  private void changeColumnTypes(String fullTableName, String schemaName, String tableName)
+      throws HopException {
+    logDetailed("Checking for column type mismatches in table: " + fullTableName);
+
+    try {
+      // Get the current table structure from the database
+      IRowMeta tableFields = data.db.getTableFieldsMeta(schemaName, tableName);
+      if (tableFields == null) {
+        logDetailed("Could not retrieve table structure for: " + fullTableName);
+        return;
+      }
+
+      // Get the incoming stream structure
+      IRowMeta streamFields = getInputRowMeta();
+      if (streamFields == null) {
+        logDetailed("No incoming stream fields available");
+        return;
+      }
+
+      // Find columns where types don't match
+      List<IValueMeta> columnsToModify = new ArrayList<>();
+      for (IValueMeta streamField : streamFields.getValueMetaList()) {
+        String fieldName = streamField.getName();
+        IValueMeta tableField = tableFields.searchValueMeta(fieldName);
+
+        if (tableField != null) {
+          // Column exists in both, check if types are compatible
+          if (!typesAreCompatible(tableField, streamField)) {
+            columnsToModify.add(streamField);
+            logBasic(
+                "Found type mismatch for column: "
+                    + fieldName
+                    + " (table: "
+                    + tableField.getTypeDesc()
+                    + ", stream: "
+                    + streamField.getTypeDesc()
+                    + ")");
+          }
+        }
+      }
+
+      // Modify each column that needs type change
+      if (!columnsToModify.isEmpty()) {
+        logBasic(
+            "WARNING: Changing data types for "
+                + columnsToModify.size()
+                + " column(s) in table: "
+                + fullTableName
+                + " - THIS MAY RESULT IN DATA LOSS");
+        for (IValueMeta columnToModify : columnsToModify) {
+          modifyColumn(fullTableName, columnToModify);
+        }
+        logBasic(
+            "Modified " + columnsToModify.size() + " column type(s) in table: " + fullTableName);
+
+        // Clear cache after modifications
+        try {
+          org.apache.hop.core.DbCache.getInstance().clear(data.databaseMeta.getName());
+          logDetailed("Cleared database cache after modifying column types");
+        } catch (Exception cacheException) {
+          logError("Could not clear database cache: " + cacheException.getMessage());
+        }
+      } else {
+        logDetailed("No column type mismatches found in table: " + fullTableName);
+      }
+
+    } catch (Exception e) {
+      logError("Error checking/changing column types: " + e.getMessage(), e);
+      // Rollback to clear any aborted transaction state
+      try {
+        data.db.rollback();
+        logDetailed("Rolled back transaction after change column types failure");
+      } catch (Exception rollbackException) {
+        logDetailed("Could not rollback transaction: " + rollbackException.getMessage());
+      }
+      throw new HopException("Failed to change column types in table " + fullTableName, e);
+    }
+  }
+
+  boolean typesAreCompatible(IValueMeta tableField, IValueMeta streamField) {
+    // Same type - compatible
+    if (tableField.getType() == streamField.getType()) {
+      // For strings, check if stream length is greater than table length
+      if (tableField.getType() == IValueMeta.TYPE_STRING) {
+        int tableLength = tableField.getLength();
+        int streamLength = streamField.getLength();
+        // If stream has larger or undefined length, types are not compatible
+        if (streamLength > tableLength || (streamLength < 0 && tableLength > 0)) {
+          return false;
+        }
+      }
+      // For numbers with precision, check if precision/scale differs
+      if (tableField.getType() == IValueMeta.TYPE_NUMBER
+          || tableField.getType() == IValueMeta.TYPE_BIGNUMBER) {
+        if (tableField.getPrecision() != streamField.getPrecision()
+            || tableField.getLength() != streamField.getLength()) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // Different types - generally not compatible, but some conversions are safe
+    // e.g., INTEGER -> BIGINT, but we'll require explicit type match for safety
+    return false;
+  }
+
+  private void modifyColumn(String fullTableName, IValueMeta column) throws HopException {
+    logDetailed(
+        "Modifying column: "
+            + column.getName()
+            + " to type: "
+            + column.getTypeDesc()
+            + " in table: "
+            + fullTableName);
+
+    try {
+      // For type changes, use drop/recreate approach as it's simpler and more reliable
+      // The complex modify statement from DatabaseMeta often fails with type conversions
+      logDetailed("Using drop/recreate approach for column type change: " + column.getName());
+
+      // Drop the existing column
+      String dropColumnStatement =
+          data.databaseMeta.getDropColumnStatement(fullTableName, column, null, false, null, false);
+      if (!Utils.isEmpty(dropColumnStatement)) {
+        logDetailed("DROP COLUMN SQL: " + dropColumnStatement);
+        data.db.execStatement(dropColumnStatement);
+        data.db.commit();
+        logDetailed("Dropped column: " + column.getName());
+      }
+
+      // Add the column with new type
+      String addColumnStatement =
+          data.databaseMeta.getAddColumnStatement(fullTableName, column, null, false, null, false);
+      if (!Utils.isEmpty(addColumnStatement)) {
+        logDetailed("ADD COLUMN SQL: " + addColumnStatement);
+        data.db.execStatement(addColumnStatement);
+        data.db.commit();
+        logDetailed("Added column with new type: " + column.getName());
+      }
+
+      logBasic("Successfully modified column type (via drop/recreate): " + column.getName());
+    } catch (Exception e) {
+      logError("Error modifying column " + column.getName() + ": " + e.getMessage(), e);
+      // Rollback to clear any aborted transaction state
+      try {
+        data.db.rollback();
+        logDetailed("Rolled back transaction after modify column failure");
+      } catch (Exception rollbackException) {
+        logDetailed("Could not rollback transaction: " + rollbackException.getMessage());
+      }
+      throw new HopException("Failed to modify column " + column.getName(), e);
     }
   }
 

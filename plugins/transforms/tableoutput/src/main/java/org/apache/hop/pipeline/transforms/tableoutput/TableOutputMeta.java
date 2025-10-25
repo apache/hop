@@ -189,6 +189,27 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
       injectionKeyDescription = "TableOutputMeta.Injection.AlwaysDropAndRecreate.Field")
   private boolean alwaysDropAndRecreate;
 
+  /** Add columns from incoming stream that don't exist in target table */
+  @HopMetadataProperty(
+      key = "add_columns",
+      injectionKey = "ADD_COLUMNS",
+      injectionKeyDescription = "TableOutputMeta.Injection.AddColumns.Field")
+  private boolean addColumns;
+
+  /** Drop columns from table that don't exist in incoming stream */
+  @HopMetadataProperty(
+      key = "drop_columns",
+      injectionKey = "DROP_COLUMNS",
+      injectionKeyDescription = "TableOutputMeta.Injection.DropColumns.Field")
+  private boolean dropColumns;
+
+  /** Change column data types to match incoming stream types */
+  @HopMetadataProperty(
+      key = "change_column_types",
+      injectionKey = "CHANGE_COLUMN_TYPES",
+      injectionKeyDescription = "TableOutputMeta.Injection.ChangeColumnTypes.Field")
+  private boolean changeColumnTypes;
+
   @HopMetadataProperty(
       groupKey = "fields",
       key = "field",
