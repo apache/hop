@@ -56,6 +56,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- WireMock for HTTP mocking in OAuth/JWT tests -->
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8-standalone</artifactId>
+            <version>2.35.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

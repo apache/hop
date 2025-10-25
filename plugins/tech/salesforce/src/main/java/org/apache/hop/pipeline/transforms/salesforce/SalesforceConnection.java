@@ -1032,6 +1032,9 @@ public class SalesforceConnection {
   }
 
   private String extractJsonValue(String json, String key) {
+    if (json == null || json.isEmpty()) {
+      return null;
+    }
     String pattern = "\"" + key + "\"\\s*:\\s*\"([^\"]+)\"";
     java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
     java.util.regex.Matcher m = p.matcher(json);
