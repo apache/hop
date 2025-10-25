@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -591,19 +590,51 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     logBasic("Dropping table: " + fullTableName);
     String dropSql = data.databaseMeta.getDropTableIfExistsStatement(fullTableName);
     if (!Utils.isEmpty(dropSql)) {
-      data.db.execStatement(dropSql);
-      logBasic("Dropped table: " + fullTableName);
+      try {
+        data.db.execStatement(dropSql);
+        // Commit the DDL to finalize table drop
+        data.db.commit();
+        logBasic("Dropped table: " + fullTableName);
+      } catch (Exception e) {
+        logDetailed("Drop table failed (may not exist): " + e.getMessage());
+        // Rollback transaction to clear any aborted state
+        try {
+          data.db.rollback();
+          logDetailed("Rolled back transaction after drop table failure");
+        } catch (Exception rollbackException) {
+          logDetailed("Could not rollback transaction: " + rollbackException.getMessage());
+        }
+      }
     }
   }
 
   private void ensureTableExists(String fullTableName, String schemaName, String tableName)
       throws HopException {
-    boolean tableExists = checkTableExists(schemaName, tableName, true); // true = bypass cache
-
-    if (!tableExists) {
+    // Try to create the table - if it already exists, the creation will fail
+    // This avoids the transaction-aborting table existence check
+    try {
       createTable(fullTableName);
-    } else {
-      logDetailed("Table already exists: " + fullTableName);
+    } catch (HopException e) {
+      // If creation failed, rollback and verify the table actually exists
+      // This handles the case where table creation failed for a reason other than "already exists"
+      logDetailed("Table creation failed or table already exists, verifying...");
+
+      // Rollback to clear any aborted transaction state before checking existence
+      try {
+        data.db.rollback();
+        logDetailed("Rolled back transaction after create table failure in ensureTableExists");
+      } catch (Exception rollbackException) {
+        logDetailed("Could not rollback transaction: " + rollbackException.getMessage());
+      }
+
+      boolean tableExists = checkTableExists(schemaName, tableName, true);
+      if (!tableExists) {
+        // Table still doesn't exist after failed creation attempt - this is a real error
+        throw new HopException(
+            "Failed to create table " + fullTableName + " and table does not exist", e);
+      } else {
+        logDetailed("Table already exists: " + fullTableName);
+      }
     }
   }
 
@@ -623,6 +654,13 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       return data.db.checkTableExists(schemaName, tableName);
     } catch (Exception e) {
       logDetailed("Table existence check failed, assuming table doesn't exist: " + e.getMessage());
+      // Rollback transaction to clear any aborted state
+      try {
+        data.db.rollback();
+        logDetailed("Rolled back transaction after table existence check failure");
+      } catch (Exception rollbackException) {
+        logDetailed("Could not rollback transaction: " + rollbackException.getMessage());
+      }
       return false; // Assume table doesn't exist if check fails
     }
   }
@@ -633,15 +671,19 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     String createSql =
         data.db.getCreateTableStatement(fullTableName, inputRowMeta, null, false, null, true);
     if (!Utils.isEmpty(createSql)) {
-      Connection tmpConn = data.db.getConnection();
-      try {
-        tmpConn.createStatement().execute(createSql);
-      } catch (Exception ex) {
-        logError("Error creating table: " + ex.getMessage());
-      }
+      logDetailed("CREATE TABLE SQL: " + createSql);
+      data.db.execStatement(createSql);
+      // Commit the DDL to finalize table creation
+      data.db.commit();
+      logBasic("Successfully created and committed table: " + fullTableName);
 
-      //      data.db.execStatement(createSql);
-      logBasic("Created table: " + fullTableName);
+      // Clear cache after successful creation to ensure fresh state
+      try {
+        org.apache.hop.core.DbCache.getInstance().clear(data.databaseMeta.getName());
+        logDetailed("Cleared database cache after table creation");
+      } catch (Exception cacheException) {
+        logError("Could not clear database cache: " + cacheException.getMessage());
+      }
     }
   }
 
